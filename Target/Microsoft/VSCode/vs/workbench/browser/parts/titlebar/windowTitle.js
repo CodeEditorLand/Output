@@ -105,7 +105,7 @@ let WindowTitle = class WindowTitle2 extends Disposable {
     this.variables = /* @__PURE__ */ new Map();
     this.activeEditorListeners = this._register(new DisposableStore());
     this.titleUpdater = this._register(new RunOnceScheduler(() => this.doUpdateTitle(), 0));
-    this.onDidChangeEmitter = new Emitter();
+    this.onDidChangeEmitter = this._register(new Emitter());
     this.onDidChange = this.onDidChangeEmitter.event;
     this.titleIncludesFocusedView = false;
     this.titleIncludesEditorState = false;

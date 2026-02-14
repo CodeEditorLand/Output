@@ -10,7 +10,7 @@ export declare class LoggerChannelClient extends AbstractLoggerService implement
     constructor(windowId: number | undefined, logLevel: LogLevel, logsHome: URI, loggers: ILoggerResource[], channel: IChannel);
     createConsoleMainLogger(): ILogger;
     registerLogger(logger: ILoggerResource): void;
-    deregisterLogger(resource: URI): void;
+    deregisterLogger(idOrResource: URI | string): void;
     setLogLevel(logLevel: LogLevel): void;
     setLogLevel(resource: URI, logLevel: LogLevel): void;
     setVisibility(resourceOrId: URI | string, visibility: boolean): void;

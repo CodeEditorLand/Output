@@ -1,3 +1,4 @@
+export declare const agentStatusIndicatorBackground: string;
 export declare const chatRequestBorder: string;
 export declare const chatRequestBackground: string;
 export declare const chatSlashCommandBackground: string;

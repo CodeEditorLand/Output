@@ -77,7 +77,7 @@ export declare abstract class CompositePart<T extends Composite, MementoType ext
     protected getActiveComposite(): IComposite | undefined;
     protected getLastActiveCompositeId(): string;
     protected hideActiveComposite(): Composite | undefined;
-    protected createTitleArea(parent: HTMLElement): HTMLElement;
+    protected createTitleArea(parent: HTMLElement): HTMLElement | undefined;
     protected createTitleLabel(parent: HTMLElement): ICompositeTitleLabel;
     protected createHeaderArea(): HTMLElement;
     protected createFooterArea(): HTMLElement;

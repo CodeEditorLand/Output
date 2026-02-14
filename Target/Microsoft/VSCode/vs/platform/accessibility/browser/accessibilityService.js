@@ -30,9 +30,10 @@ let AccessibilityService = class AccessibilityService2 extends Disposable {
     this._layoutService = _layoutService;
     this._configurationService = _configurationService;
     this._accessibilitySupport = 0;
-    this._onDidChangeScreenReaderOptimized = new Emitter();
-    this._onDidChangeReducedMotion = new Emitter();
-    this._onDidChangeLinkUnderline = new Emitter();
+    this._onDidChangeScreenReaderOptimized = this._register(new Emitter());
+    this._onDidChangeReducedMotion = this._register(new Emitter());
+    this._onDidChangeReducedTransparency = this._register(new Emitter());
+    this._onDidChangeLinkUnderline = this._register(new Emitter());
     this._accessibilityModeEnabledContext = CONTEXT_ACCESSIBILITY_MODE_ENABLED.bindTo(this._contextKeyService);
     const updateContextKey = /* @__PURE__ */ __name(() => this._accessibilityModeEnabledContext.set(this.isScreenReaderOptimized()), "updateContextKey");
     this._register(this._configurationService.onDidChangeConfiguration((e) => {
@@ -44,14 +45,22 @@ let AccessibilityService = class AccessibilityService2 extends Disposable {
         this._configMotionReduced = this._configurationService.getValue("workbench.reduceMotion");
         this._onDidChangeReducedMotion.fire();
       }
+      if (e.affectsConfiguration("workbench.reduceTransparency")) {
+        this._configTransparencyReduced = this._configurationService.getValue("workbench.reduceTransparency");
+        this._onDidChangeReducedTransparency.fire();
+      }
     }));
     updateContextKey();
     this._register(this.onDidChangeScreenReaderOptimized(() => updateContextKey()));
     const reduceMotionMatcher = mainWindow.matchMedia(`(prefers-reduced-motion: reduce)`);
     this._systemMotionReduced = reduceMotionMatcher.matches;
     this._configMotionReduced = this._configurationService.getValue("workbench.reduceMotion");
+    const reduceTransparencyMatcher = mainWindow.matchMedia(`(prefers-reduced-transparency: reduce)`);
+    this._systemTransparencyReduced = reduceTransparencyMatcher.matches;
+    this._configTransparencyReduced = this._configurationService.getValue("workbench.reduceTransparency");
     this._linkUnderlinesEnabled = this._configurationService.getValue("accessibility.underlineLinks");
     this.initReducedMotionListeners(reduceMotionMatcher);
+    this.initReducedTransparencyListeners(reduceTransparencyMatcher);
     this.initLinkUnderlineListeners();
   }
   initReducedMotionListeners(reduceMotionMatcher) {
@@ -68,6 +77,20 @@ let AccessibilityService = class AccessibilityService2 extends Disposable {
     }, "updateRootClasses");
     updateRootClasses();
     this._register(this.onDidChangeReducedMotion(() => updateRootClasses()));
+  }
+  initReducedTransparencyListeners(reduceTransparencyMatcher) {
+    this._register(addDisposableListener(reduceTransparencyMatcher, "change", () => {
+      this._systemTransparencyReduced = reduceTransparencyMatcher.matches;
+      if (this._configTransparencyReduced === "auto") {
+        this._onDidChangeReducedTransparency.fire();
+      }
+    }));
+    const updateRootClasses = /* @__PURE__ */ __name(() => {
+      const reduce = this.isTransparencyReduced();
+      this._layoutService.mainContainer.classList.toggle("monaco-reduce-transparency", reduce);
+    }, "updateRootClasses");
+    updateRootClasses();
+    this._register(this.onDidChangeReducedTransparency(() => updateRootClasses()));
   }
   initLinkUnderlineListeners() {
     this._register(this._configurationService.onDidChangeConfiguration((e) => {
@@ -100,6 +123,13 @@ let AccessibilityService = class AccessibilityService2 extends Disposable {
   isMotionReduced() {
     const config = this._configMotionReduced;
     return config === "on" || config === "auto" && this._systemMotionReduced;
+  }
+  get onDidChangeReducedTransparency() {
+    return this._onDidChangeReducedTransparency.event;
+  }
+  isTransparencyReduced() {
+    const config = this._configTransparencyReduced;
+    return config === "on" || config === "auto" && this._systemTransparencyReduced;
   }
   alwaysUnderlineAccessKeys() {
     return Promise.resolve(false);

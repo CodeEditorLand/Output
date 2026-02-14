@@ -3,7 +3,9 @@ import { Event } from '../../../common/event.js';
 import { Disposable } from '../../../common/lifecycle.js';
 import './gridview.css';
 import { Box, GridView, IGridViewOptions, IGridViewStyles, IView as IGridViewView, IViewSize, Sizing as GridViewSizing, GridLocation } from './gridview.js';
+import type { IViewVisibilityAnimationOptions } from '../splitview/splitview.js';
 export type { IViewSize };
+export type { IViewVisibilityAnimationOptions } from '../splitview/splitview.js';
 export { LayoutPriority, Orientation, orthogonal } from './gridview.js';
 export declare const enum Direction {
     Up = 0,
@@ -276,8 +278,9 @@ export declare class Grid<T extends IView = IView> extends Disposable {
     /**
      * Maximizes the specified view and hides all other views.
      * @param view The view to maximize.
+     * @param excludeViews Optional array of views to exclude from being hidden.
      */
-    maximizeView(view: T): void;
+    maximizeView(view: T, excludeViews?: readonly T[]): void;
     exitMaximizedView(): void;
     /**
      * Expand the size of a {@link IView view} by collapsing all other views
@@ -301,8 +304,10 @@ export declare class Grid<T extends IView = IView> extends Disposable {
      * Set the visibility state of a {@link IView view}.
      *
      * @param view The {@link IView view}.
+     * @param visible Whether the view should be visible.
+     * @param animation Optional animation options.
      */
-    setViewVisible(view: T, visible: boolean): void;
+    setViewVisible(view: T, visible: boolean, animation?: IViewVisibilityAnimationOptions): void;
     /**
      * Returns a descriptor for the entire grid.
      */

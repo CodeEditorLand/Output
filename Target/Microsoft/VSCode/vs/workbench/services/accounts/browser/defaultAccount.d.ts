@@ -23,5 +23,6 @@ export declare class DefaultAccountService extends Disposable implements IDefaul
         additionalScopes?: readonly string[];
         [key: string]: unknown;
     }): Promise<IDefaultAccount | null>;
+    signOut(): Promise<void>;
     private setDefaultAccount;
 }

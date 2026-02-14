@@ -5,7 +5,7 @@ import { AccessibleViewProviderId, AccessibleViewType, IAccessibleViewContentPro
 import { IAccessibleViewImplementation } from '../../../../../platform/accessibility/browser/accessibleViewRegistry.js';
 import { ServicesAccessor } from '../../../../../platform/instantiation/common/instantiation.js';
 import { AccessibilityVerbositySettingId } from '../../../accessibility/browser/accessibilityConfiguration.js';
-import { IChatExtensionsContent, IChatPullRequestContent, IChatSubagentToolInvocationData, IChatTerminalToolInvocationData, IChatTodoListContent, IChatToolInputInvocationData, ILegacyChatTerminalToolInvocationData, IToolResultOutputDetailsSerialized } from '../../common/chatService/chatService.js';
+import { IChatExtensionsContent, IChatPullRequestContent, IChatSimpleToolInvocationData, IChatSubagentToolInvocationData, IChatTerminalToolInvocationData, IChatTodoListContent, IChatToolInputInvocationData, IChatToolResourcesInvocationData, ILegacyChatTerminalToolInvocationData, IToolResultOutputDetailsSerialized } from '../../common/chatService/chatService.js';
 import { IToolResultInputOutputDetails, IToolResultOutputDetails } from '../../common/tools/languageModelToolsService.js';
 import { ChatTreeItem, IChatWidget } from '../chat.js';
 import { Location } from '../../../../../editor/common/languages.js';
@@ -16,7 +16,7 @@ export declare class ChatResponseAccessibleView implements IAccessibleViewImplem
     readonly when: import("../../../../../platform/contextkey/common/contextkey.ts").RawContextKey<boolean>;
     getProvider(accessor: ServicesAccessor): ChatResponseAccessibleProvider | undefined;
 }
-type ToolSpecificData = IChatTerminalToolInvocationData | ILegacyChatTerminalToolInvocationData | IChatToolInputInvocationData | IChatExtensionsContent | IChatPullRequestContent | IChatTodoListContent | IChatSubagentToolInvocationData;
+type ToolSpecificData = IChatTerminalToolInvocationData | ILegacyChatTerminalToolInvocationData | IChatToolInputInvocationData | IChatExtensionsContent | IChatPullRequestContent | IChatTodoListContent | IChatSubagentToolInvocationData | IChatSimpleToolInvocationData | IChatToolResourcesInvocationData;
 type ResultDetails = Array<URI | Location> | IToolResultInputOutputDetails | IToolResultOutputDetails | IToolResultOutputDetailsSerialized;
 export declare function getToolSpecificDataDescription(toolSpecificData: ToolSpecificData | undefined): string;
 export declare function getResultDetailsDescription(resultDetails: ResultDetails | undefined): {

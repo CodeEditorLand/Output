@@ -38,7 +38,7 @@ import { CommandsRegistry, ICommandService } from "../../../../platform/commands
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { registerThemingParticipant } from "../../../../platform/theme/common/themeService.js";
 import { ThemeIcon } from "../../../../base/common/themables.js";
-import { buttonBackground, buttonForeground, buttonHoverBackground, buttonSecondaryBackground, buttonSecondaryForeground, buttonSecondaryHoverBackground, buttonSecondaryBorder, registerColor, editorWarningForeground, editorInfoForeground, editorErrorForeground, buttonSeparator } from "../../../../platform/theme/common/colorRegistry.js";
+import { buttonBackground, buttonForeground, buttonHoverBackground, buttonSecondaryBackground, buttonSecondaryForeground, buttonSecondaryHoverBackground, registerColor, editorWarningForeground, editorInfoForeground, editorErrorForeground, buttonSeparator, buttonBorder, contrastBorder } from "../../../../platform/theme/common/colorRegistry.js";
 import { IJSONEditingService } from "../../../services/configuration/common/jsonEditing.js";
 import { ITextModelService } from "../../../../editor/common/services/resolverService.js";
 import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
@@ -450,7 +450,7 @@ let InstallAction = class InstallAction2 extends ExtensionAction {
     this.allowedExtensionsService = allowedExtensionsService;
     this.extensionGalleryManifestService = extensionGalleryManifestService;
     this._manifest = null;
-    this.updateThrottler = new Throttler();
+    this.updateThrottler = this._register(new Throttler());
     this.hideOnDisabled = false;
     this.options = { isMachineScoped: false, ...options };
     this.update();
@@ -934,7 +934,7 @@ let UpdateAction = class UpdateAction2 extends ExtensionAction {
     this.dialogService = dialogService;
     this.openerService = openerService;
     this.instantiationService = instantiationService;
-    this.updateThrottler = new Throttler();
+    this.updateThrottler = this._register(new Throttler());
     this.update();
   }
   update() {
@@ -1849,7 +1849,7 @@ let ExtensionRuntimeStateAction = class ExtensionRuntimeStateAction2 extends Ext
     ExtensionRuntimeStateAction_1 = this;
   }
   static {
-    this.EnabledClass = `${ExtensionAction.LABEL_ACTION_CLASS} reload`;
+    this.EnabledClass = `${ExtensionAction.LABEL_ACTION_CLASS} prominent reload`;
   }
   static {
     this.DisabledClass = `${this.EnabledClass} disabled`;
@@ -1902,7 +1902,7 @@ let ExtensionRuntimeStateAction = class ExtensionRuntimeStateAction2 extends Ext
     } else if (runtimeState?.action === "restartExtensions") {
       return this.extensionsWorkbenchService.updateRunningExtensions();
     } else if (runtimeState?.action === "downloadUpdate") {
-      return this.updateService.downloadUpdate();
+      return this.updateService.downloadUpdate(true);
     } else if (runtimeState?.action === "applyUpdate") {
       return this.updateService.applyUpdate();
     } else if (runtimeState?.action === "quitAndInstall") {
@@ -2663,7 +2663,7 @@ let ExtensionStatusAction = class ExtensionStatusAction2 extends ExtensionAction
     this._status = [];
     this._onDidChangeStatus = this._register(new Emitter());
     this.onDidChangeStatus = this._onDidChangeStatus.event;
-    this.updateThrottler = new Throttler();
+    this.updateThrottler = this._register(new Throttler());
     this._register(this.labelService.onDidChangeFormatters(() => this.update(), this));
     this._register(this.extensionService.onDidChangeExtensions(() => this.update()));
     this._register(this.extensionFeaturesManagementService.onDidChangeAccessData(() => this.update()));
@@ -3240,10 +3240,10 @@ registerColor("extensionButton.hoverBackground", {
   hcLight: null
 }, localize("extensionButtonHoverBackground", "Button background hover color for extension actions."));
 registerColor("extensionButton.border", {
-  dark: buttonSecondaryBorder,
-  light: buttonSecondaryBorder,
-  hcDark: null,
-  hcLight: null
+  dark: buttonBorder,
+  light: buttonBorder,
+  hcDark: contrastBorder,
+  hcLight: contrastBorder
 }, localize("extensionButtonBorder", "Button border color for extension actions."));
 registerColor("extensionButton.separator", buttonSeparator, localize("extensionButtonSeparator", "Button separator color for extension actions"));
 const extensionButtonProminentBackground = registerColor("extensionButton.prominentBackground", {

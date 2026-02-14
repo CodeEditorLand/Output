@@ -257,6 +257,7 @@ let ExtensionEditor = class ExtensionEditor2 extends EditorPane {
       this.instantiationService.createInstance(SetLanguageAction),
       this.instantiationService.createInstance(ClearLanguageAction),
       this.instantiationService.createInstance(EnableDropDownAction),
+      this.instantiationService.createInstance(TogglePreReleaseExtensionAction),
       this.instantiationService.createInstance(DisableDropDownAction),
       this.instantiationService.createInstance(RemoteInstallAction, false),
       this.instantiationService.createInstance(LocalInstallAction),
@@ -270,7 +271,6 @@ let ExtensionEditor = class ExtensionEditor2 extends EditorPane {
           this.instantiationService.createInstance(InstallAnotherVersionAction, null, true)
         ]
       ]),
-      this.instantiationService.createInstance(TogglePreReleaseExtensionAction),
       this.instantiationService.createInstance(ToggleAutoUpdateForExtensionAction),
       new ExtensionEditorManageExtensionAction(this.scopedContextKeyService || this.contextKeyService, this.instantiationService)
     ];
@@ -328,7 +328,7 @@ let ExtensionEditor = class ExtensionEditor2 extends EditorPane {
     const onError = Event.chain(extensionActionBar.onDidRun, ($2) => $2.map(({ error }) => error).filter((error) => !!error));
     this._register(onError(this.onError, this));
     const body = append(root, $(".body"));
-    const navbar = new NavBar(body);
+    const navbar = this._register(new NavBar(body));
     const content = append(body, $(".content"));
     content.id = generateUuid();
     this.template = {

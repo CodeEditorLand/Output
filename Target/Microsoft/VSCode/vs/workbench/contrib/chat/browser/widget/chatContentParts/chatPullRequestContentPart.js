@@ -17,15 +17,15 @@ import { Disposable } from "../../../../../../base/common/lifecycle.js";
 import { Codicon } from "../../../../../../base/common/codicons.js";
 import { ThemeIcon } from "../../../../../../base/common/themables.js";
 import { addDisposableListener } from "../../../../../../base/browser/dom.js";
-import { IOpenerService } from "../../../../../../platform/opener/common/opener.js";
+import { ICommandService } from "../../../../../../platform/commands/common/commands.js";
 let ChatPullRequestContentPart = class ChatPullRequestContentPart2 extends Disposable {
   static {
     __name(this, "ChatPullRequestContentPart");
   }
-  constructor(pullRequestContent, openerService) {
+  constructor(pullRequestContent, commandService) {
     super();
     this.pullRequestContent = pullRequestContent;
-    this.openerService = openerService;
+    this.commandService = commandService;
     this.domNode = dom.$(".chat-pull-request-content-part");
     const container = dom.append(this.domNode, dom.$(".container"));
     const contentContainer = dom.append(container, dom.$(".content-container"));
@@ -34,11 +34,13 @@ let ChatPullRequestContentPart = class ChatPullRequestContentPart2 extends Dispo
     icon.classList.add(...ThemeIcon.asClassNameArray(Codicon.gitPullRequest));
     const titleLink = dom.append(titleContainer, dom.$("a.title"));
     titleLink.textContent = `${this.pullRequestContent.title} - ${this.pullRequestContent.author}`;
-    titleLink.href = this.pullRequestContent.uri.toString();
+    if (this.pullRequestContent.uri) {
+      titleLink.href = this.pullRequestContent.uri?.toString();
+    }
     this._register(addDisposableListener(titleLink, "click", (e) => {
       e.preventDefault();
       e.stopPropagation();
-      this.openerService.open(this.pullRequestContent.uri, { allowCommands: true });
+      this.commandService.executeCommand(this.pullRequestContent.command.id, ...this.pullRequestContent.command.arguments ?? []);
     }));
   }
   hasSameContent(other, followingContent, element) {
@@ -49,7 +51,7 @@ let ChatPullRequestContentPart = class ChatPullRequestContentPart2 extends Dispo
   }
 };
 ChatPullRequestContentPart = __decorate([
-  __param(1, IOpenerService)
+  __param(1, ICommandService)
 ], ChatPullRequestContentPart);
 export {
   ChatPullRequestContentPart

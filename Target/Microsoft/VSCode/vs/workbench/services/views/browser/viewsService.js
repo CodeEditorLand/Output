@@ -28,7 +28,7 @@ import { IThemeService } from "../../../../platform/theme/common/themeService.js
 import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
 import { IExtensionService } from "../../extensions/common/extensions.js";
 import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
-import { PaneCompositeDescriptor, Extensions as PaneCompositeExtensions, PaneComposite } from "../../../browser/panecomposite.js";
+import { PaneCompositeDescriptor, PaneComposite } from "../../../browser/panecomposite.js";
 import { IWorkbenchLayoutService } from "../../layout/browser/layoutService.js";
 import { URI } from "../../../../base/common/uri.js";
 import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
@@ -122,7 +122,7 @@ let ViewsService = class ViewsService2 extends Disposable {
   onDidChangeContainerLocation(viewContainer, from, to) {
     this.deregisterPaneComposite(viewContainer, from);
     this.registerPaneComposite(viewContainer, to);
-    if (this.layoutService.isVisible(getPartByLocation(to)) && this.viewDescriptorService.getViewContainersByLocation(to).filter((vc) => this.isViewContainerActive(vc.id)).length === 1) {
+    if (this.layoutService.isVisible(this.paneCompositeService.getPartId(to)) && this.viewDescriptorService.getViewContainersByLocation(to).filter((vc) => this.isViewContainerActive(vc.id)).length === 1) {
       this.openViewContainer(viewContainer.id);
     }
   }
@@ -210,7 +210,7 @@ let ViewsService = class ViewsService2 extends Disposable {
       const viewContainerLocation = this.viewDescriptorService.getViewContainerLocation(viewContainer);
       const isActive = viewContainerLocation !== null && this.paneCompositeService.getActivePaneComposite(viewContainerLocation);
       if (viewContainerLocation !== null) {
-        return isActive ? this.layoutService.setPartHidden(true, getPartByLocation(viewContainerLocation)) : void 0;
+        return isActive ? this.layoutService.setPartHidden(true, this.paneCompositeService.getPartId(viewContainerLocation)) : void 0;
       }
     }
   }
@@ -470,7 +470,7 @@ let ViewsService = class ViewsService2 extends Disposable {
           if (viewDescriptorService.getViewLocationById(viewDescriptor.id) === 0) {
             editorGroupService.activeGroup.focus();
           } else if (viewLocation !== null) {
-            layoutService.setPartHidden(true, getPartByLocation(viewLocation));
+            layoutService.setPartHidden(true, that.paneCompositeService.getPartId(viewLocation));
           }
         } else {
           await viewsService.openView(viewDescriptor.id, !options?.preserveFocus);
@@ -602,10 +602,10 @@ let ViewsService = class ViewsService2 extends Disposable {
       __param(5, IContextMenuService),
       __param(6, IExtensionService)
     ], PaneContainer);
-    Registry.as(getPaneCompositeExtension(viewContainerLocation)).registerPaneComposite(PaneCompositeDescriptor.create(PaneContainer, viewContainer.id, typeof viewContainer.title === "string" ? viewContainer.title : viewContainer.title.value, isString(viewContainer.icon) ? viewContainer.icon : void 0, viewContainer.order, viewContainer.requestedIndex, viewContainer.icon instanceof URI ? viewContainer.icon : void 0));
+    Registry.as(this.paneCompositeService.getRegistryId(viewContainerLocation)).registerPaneComposite(PaneCompositeDescriptor.create(PaneContainer, viewContainer.id, typeof viewContainer.title === "string" ? viewContainer.title : viewContainer.title.value, isString(viewContainer.icon) ? viewContainer.icon : void 0, viewContainer.order, viewContainer.requestedIndex, viewContainer.icon instanceof URI ? viewContainer.icon : void 0));
   }
   deregisterPaneComposite(viewContainer, viewContainerLocation) {
-    Registry.as(getPaneCompositeExtension(viewContainerLocation)).deregisterPaneComposite(viewContainer.id);
+    Registry.as(this.paneCompositeService.getRegistryId(viewContainerLocation)).deregisterPaneComposite(viewContainer.id);
   }
   createViewPaneContainer(element, viewContainer, viewContainerLocation, disposables, instantiationService) {
     const viewPaneContainer = instantiationService.createInstance(viewContainer.ctorDescriptor.ctor, ...viewContainer.ctorDescriptor.staticArguments || []);
@@ -640,30 +640,6 @@ function getEnabledViewContainerContextKey(viewContainerId) {
   return `viewContainer.${viewContainerId}.enabled`;
 }
 __name(getEnabledViewContainerContextKey, "getEnabledViewContainerContextKey");
-function getPaneCompositeExtension(viewContainerLocation) {
-  switch (viewContainerLocation) {
-    case 2:
-      return PaneCompositeExtensions.Auxiliary;
-    case 1:
-      return PaneCompositeExtensions.Panels;
-    case 0:
-    default:
-      return PaneCompositeExtensions.Viewlets;
-  }
-}
-__name(getPaneCompositeExtension, "getPaneCompositeExtension");
-function getPartByLocation(viewContainerLocation) {
-  switch (viewContainerLocation) {
-    case 2:
-      return "workbench.parts.auxiliarybar";
-    case 1:
-      return "workbench.parts.panel";
-    case 0:
-    default:
-      return "workbench.parts.sidebar";
-  }
-}
-__name(getPartByLocation, "getPartByLocation");
 registerSingleton(
   IViewsService,
   ViewsService,
@@ -671,7 +647,6 @@ registerSingleton(
   /* InstantiationType.Eager */
 );
 export {
-  ViewsService,
-  getPartByLocation
+  ViewsService
 };
 //# sourceMappingURL=viewsService.js.map

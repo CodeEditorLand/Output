@@ -33,6 +33,7 @@ var LayoutSettings;
 (function(LayoutSettings2) {
   LayoutSettings2["ACTIVITY_BAR_LOCATION"] = "workbench.activityBar.location";
   LayoutSettings2["ACTIVITY_BAR_AUTO_HIDE"] = "workbench.activityBar.autoHide";
+  LayoutSettings2["ACTIVITY_BAR_COMPACT"] = "workbench.activityBar.compact";
   LayoutSettings2["EDITOR_TABS_MODE"] = "workbench.editor.showTabs";
   LayoutSettings2["EDITOR_ACTIONS_LOCATION"] = "workbench.editor.editorActionsLocation";
   LayoutSettings2["COMMAND_CENTER"] = "window.commandCenter";

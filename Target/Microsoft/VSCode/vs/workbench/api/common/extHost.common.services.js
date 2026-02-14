@@ -13,6 +13,7 @@ import { IExtHostStorage, ExtHostStorage } from "./extHostStorage.js";
 import { IExtHostTunnelService, ExtHostTunnelService } from "./extHostTunnelService.js";
 import { IExtHostApiDeprecationService, ExtHostApiDeprecationService } from "./extHostApiDeprecationService.js";
 import { IExtHostWindow, ExtHostWindow } from "./extHostWindow.js";
+import { IExtHostPower, ExtHostPower } from "./extHostPower.js";
 import { IExtHostConsumerFileSystem, ExtHostConsumerFileSystem } from "./extHostFileSystemConsumer.js";
 import { IExtHostFileSystemInfo, ExtHostFileSystemInfo } from "./extHostFileSystemInfo.js";
 import { IExtHostSecretState, ExtHostSecretState } from "./extHostSecretState.js";
@@ -29,6 +30,7 @@ import { ExtHostMcpService, IExtHostMpcService } from "./extHostMcp.js";
 import { ExtHostUrls, IExtHostUrlsService } from "./extHostUrls.js";
 import { ExtHostProgress, IExtHostProgress } from "./extHostProgress.js";
 import { ExtHostDataChannels, IExtHostDataChannels } from "./extHostDataChannels.js";
+import { ExtHostMeteredConnection, IExtHostMeteredConnection } from "./extHostMeteredConnection.js";
 registerSingleton(
   IExtHostLocalizationService,
   ExtHostLocalizationService,
@@ -162,6 +164,12 @@ registerSingleton(
   /* InstantiationType.Eager */
 );
 registerSingleton(
+  IExtHostPower,
+  ExtHostPower,
+  0
+  /* InstantiationType.Eager */
+);
+registerSingleton(
   IExtHostUrlsService,
   ExtHostUrls,
   0
@@ -200,6 +208,12 @@ registerSingleton(
 registerSingleton(
   IExtHostDataChannels,
   ExtHostDataChannels,
+  0
+  /* InstantiationType.Eager */
+);
+registerSingleton(
+  IExtHostMeteredConnection,
+  ExtHostMeteredConnection,
   0
   /* InstantiationType.Eager */
 );

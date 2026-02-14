@@ -73,6 +73,7 @@ import "./mainThreadDownloadService.js";
 import "./mainThreadUrls.js";
 import "./mainThreadUriOpeners.js";
 import "./mainThreadWindow.js";
+import "./mainThreadPower.js";
 import "./mainThreadWebviewManager.js";
 import "./mainThreadWorkspace.js";
 import "./mainThreadComments.js";
@@ -100,7 +101,7 @@ import "./mainThreadChatStatus.js";
 import "./mainThreadChatOutputRenderer.js";
 import "./mainThreadChatSessions.js";
 import "./mainThreadDataChannels.js";
-import "./mainThreadHooks.js";
+import "./mainThreadMeteredConnection.js";
 let ExtensionPoints = class ExtensionPoints2 {
   static {
     __name(this, "ExtensionPoints");

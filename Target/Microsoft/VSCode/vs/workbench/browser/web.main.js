@@ -92,8 +92,6 @@ import { INotificationService, Severity } from "../../platform/notification/comm
 import { IDefaultAccountService } from "../../platform/defaultAccount/common/defaultAccount.js";
 import { DefaultAccountService } from "../services/accounts/browser/defaultAccount.js";
 import { AccountPolicyService } from "../services/policies/common/accountPolicyService.js";
-import { WorkbenchModeService } from "../services/layout/browser/workbenchModeService.js";
-import { IWorkbenchModeService } from "../services/layout/common/workbenchModeService.js";
 class BrowserMain extends Disposable {
   static {
     __name(this, "BrowserMain");
@@ -276,13 +274,6 @@ class BrowserMain extends Disposable {
         return service;
       })
     ]);
-    const workbenchModeService = this._register(new WorkbenchModeService(configurationService, fileService, environmentService, uriIdentityService, logService, storageService));
-    serviceCollection.set(IWorkbenchModeService, workbenchModeService);
-    try {
-      await workbenchModeService.initialize();
-    } catch (error) {
-      logService.error("Error while initializing workbench mode service", error);
-    }
     const workspaceTrustEnablementService = new WorkspaceTrustEnablementService(configurationService, environmentService);
     serviceCollection.set(IWorkspaceTrustEnablementService, workspaceTrustEnablementService);
     const workspaceTrustManagementService = new WorkspaceTrustManagementService(configurationService, remoteAuthorityResolverService, storageService, uriIdentityService, environmentService, configurationService, workspaceTrustEnablementService, fileService);

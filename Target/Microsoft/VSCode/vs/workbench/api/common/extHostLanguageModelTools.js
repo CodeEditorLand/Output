@@ -100,7 +100,8 @@ class ExtHostLanguageModelTools {
         chatRequestId: isProposedApiEnabled(extension, "chatParticipantPrivate") ? options.chatRequestId : void 0,
         chatInteractionId: isProposedApiEnabled(extension, "chatParticipantPrivate") ? options.chatInteractionId : void 0,
         subAgentInvocationId: isProposedApiEnabled(extension, "chatParticipantPrivate") ? options.subAgentInvocationId : void 0,
-        chatStreamToolCallId: isProposedApiEnabled(extension, "chatParticipantAdditions") ? options.chatStreamToolCallId : void 0
+        chatStreamToolCallId: isProposedApiEnabled(extension, "chatParticipantAdditions") ? options.chatStreamToolCallId : void 0,
+        preToolUseResult: isProposedApiEnabled(extension, "chatParticipantPrivate") ? options.preToolUseResult : void 0
       }, token);
       const dto = result instanceof SerializableObjectWithBuffers ? result.value : result;
       return typeConvert.LanguageModelToolResult.to(revive(dto));
@@ -233,8 +234,12 @@ class ExtHostLanguageModelTools {
       chatRequestId: context.chatRequestId,
       chatSessionId: context.chatSessionId,
       chatSessionResource: context.chatSessionResource,
-      chatInteractionId: context.chatInteractionId
+      chatInteractionId: context.chatInteractionId,
+      forceConfirmationReason: context.forceConfirmationReason
     };
+    if (context.forceConfirmationReason) {
+      checkProposedApiEnabled(item.extension, "chatParticipantPrivate");
+    }
     if (item.tool.prepareInvocation) {
       const result = await item.tool.prepareInvocation(options, token);
       if (!result) {

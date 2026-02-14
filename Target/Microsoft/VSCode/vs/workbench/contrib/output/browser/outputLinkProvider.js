@@ -39,7 +39,7 @@ let OutputLinkProvider = class OutputLinkProvider2 extends Disposable {
     this.modelService = modelService;
     this.languageFeaturesService = languageFeaturesService;
     this.webWorkerService = webWorkerService;
-    this.disposeWorkerScheduler = new RunOnceScheduler(() => this.disposeWorker(), OutputLinkProvider_1.DISPOSE_WORKER_TIME);
+    this.disposeWorkerScheduler = this._register(new RunOnceScheduler(() => this.disposeWorker(), OutputLinkProvider_1.DISPOSE_WORKER_TIME));
     this.registerListeners();
     this.updateLinkProviderWorker();
   }

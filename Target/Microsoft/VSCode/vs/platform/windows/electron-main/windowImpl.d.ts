@@ -64,7 +64,7 @@ export declare abstract class BaseWindow extends Disposable implements IBaseWind
     get lastFocusTime(): number;
     private maximizedWindowState;
     protected _win: electron.BrowserWindow | null;
-    get win(): any;
+    get win(): electron.BrowserWindow | null;
     protected setWin(win: electron.BrowserWindow, options?: BrowserWindowConstructorOptions): void;
     private onDisplayAdded;
     constructor(configurationService: IConfigurationService, stateService: IStateService, environmentMainService: IEnvironmentMainService, logService: ILogService);
@@ -83,11 +83,15 @@ export declare abstract class BaseWindow extends Disposable implements IBaseWind
     private clearNotifyFocus;
     private doFocusWindow;
     private static readonly windowControlHeightStateStorageKey;
+    private windowControlsDimmed;
+    private lastWindowControlColors;
     updateWindowControls(options: {
         height?: number;
         backgroundColor?: string;
         foregroundColor?: string;
+        dimmed?: boolean;
     }): void;
+    private dimColor;
     private transientIsNativeFullScreen;
     private joinNativeFullScreenTransition;
     toggleFullScreen(): void;

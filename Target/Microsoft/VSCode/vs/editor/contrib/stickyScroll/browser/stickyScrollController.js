@@ -413,7 +413,11 @@ let StickyScrollController = class StickyScrollController2 extends Disposable {
     );
     if (lineNumberOption.renderType === 2) {
       if (!this._cursorPositionListener) {
-        this._cursorPositionListener = this._editor.onDidChangeCursorPosition(() => {
+        this._cursorPositionListener = this._editor.onDidChangeCursorPosition((e) => {
+          if (this._positionLineNumber === e.position.lineNumber) {
+            return;
+          }
+          this._positionLineNumber = e.position.lineNumber;
           this._showEndForLine = void 0;
           this._renderStickyScroll(0);
         });

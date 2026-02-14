@@ -16,6 +16,22 @@ export declare function resolveClaudeHookType(name: string): HookType | undefine
  */
 export declare function getClaudeHookTypeName(hookType: HookType): string | undefined;
 /**
+ * Result of parsing Claude hooks file.
+ */
+export interface IParseClaudeHooksResult {
+    /**
+     * The parsed hooks by type.
+     */
+    readonly hooks: Map<HookType, {
+        hooks: IHookCommand[];
+        originalId: string;
+    }>;
+    /**
+     * Whether all hooks from this file were disabled via `disableAllHooks: true`.
+     */
+    readonly disabledAllHooks: boolean;
+}
+/**
  * Parses hooks from a Claude settings.json file.
  * Claude format:
  * {
@@ -32,8 +48,16 @@ export declare function getClaudeHookTypeName(hookType: HookType): string | unde
  *     "PreToolUse": [{ "type": "command", "command": "..." }]
  *   }
  * }
+ *
+ * If the file has `disableAllHooks: true` at the top level, all hooks are filtered out.
  */
-export declare function parseClaudeHooks(json: unknown, workspaceRootUri: URI | undefined, userHome: string): Map<HookType, {
-    hooks: IHookCommand[];
-    originalId: string;
-}>;
+export declare function parseClaudeHooks(json: unknown, workspaceRootUri: URI | undefined, userHome: string): IParseClaudeHooksResult;
+/**
+ * Helper to extract hook commands from an item that could be:
+ * 1. A direct command object: { type: 'command', command: '...' }
+ * 2. A nested structure with matcher (Claude style): { matcher: '...', hooks: [{ type: 'command', command: '...' }] }
+ *
+ * This allows Copilot format to handle Claude-style entries if pasted.
+ * Also handles Claude's leniency where 'type' field can be omitted.
+ */
+export declare function extractHookCommandsFromItem(item: unknown, workspaceRootUri: URI | undefined, userHome: string): IHookCommand[];

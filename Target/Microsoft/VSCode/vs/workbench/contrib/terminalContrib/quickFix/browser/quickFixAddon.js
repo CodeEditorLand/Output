@@ -67,9 +67,9 @@ let TerminalQuickFixAddon = class TerminalQuickFixAddon2 extends Disposable {
     this._decorationDisposables = this._register(new MutableDisposable());
     this._registeredSelectors = /* @__PURE__ */ new Set();
     this._didRun = false;
-    this._onDidRequestRerunCommand = new Emitter();
+    this._onDidRequestRerunCommand = this._register(new Emitter());
     this.onDidRequestRerunCommand = this._onDidRequestRerunCommand.event;
-    this._onDidUpdateQuickFixes = new Emitter();
+    this._onDidUpdateQuickFixes = this._register(new Emitter());
     this.onDidUpdateQuickFixes = this._onDidUpdateQuickFixes.event;
     const commandDetectionCapability = this._capabilities.get(
       2

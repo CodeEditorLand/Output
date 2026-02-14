@@ -53,6 +53,7 @@ let ChatViewTitleControl = class ChatViewTitleControl2 extends Disposable {
     this.registerActions();
   }
   registerActions() {
+    const that = this;
     this._register(registerAction2(class extends Action2 {
       constructor() {
         super({
@@ -68,15 +69,17 @@ let ChatViewTitleControl = class ChatViewTitleControl2 extends Disposable {
       }
       async run(accessor) {
         const instantiationService = accessor.get(IInstantiationService);
-        const agentSessionsPicker = instantiationService.createInstance(AgentSessionsPicker);
+        const agentSessionsPicker = instantiationService.createInstance(AgentSessionsPicker, that.titleLabel.value?.element);
         await agentSessionsPicker.pickAgentSession();
       }
     }));
   }
   render(parent) {
     const elements = h("div.chat-view-title-container", [
-      h("div.chat-view-title-navigation-toolbar@navigationToolbar"),
-      h("div.chat-view-title-actions-toolbar@actionsToolbar")
+      h("div.chat-view-title-inner", [
+        h("div.chat-view-title-navigation-toolbar@navigationToolbar"),
+        h("div.chat-view-title-actions-toolbar@actionsToolbar")
+      ])
     ]);
     this.navigationToolbar = this._register(this.instantiationService.createInstance(MenuWorkbenchToolBar, elements.navigationToolbar, MenuId.ChatViewSessionTitleNavigationToolbar, {
       actionViewItemProvider: /* @__PURE__ */ __name((action) => {

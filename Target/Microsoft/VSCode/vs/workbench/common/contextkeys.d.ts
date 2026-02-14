@@ -15,7 +15,6 @@ export declare const RemoteNameContext: RawContextKey<string>;
 export declare const VirtualWorkspaceContext: RawContextKey<string>;
 export declare const TemporaryWorkspaceContext: RawContextKey<boolean>;
 export declare const IsAgentSessionsWorkspaceContext: RawContextKey<boolean>;
-export declare const WorkbenchModeContext: RawContextKey<string>;
 export declare const HasWebFileSystemAccess: RawContextKey<boolean>;
 export declare const EmbedderIdentifierContext: RawContextKey<string | undefined>;
 export declare const InAutomationContext: RawContextKey<boolean>;
@@ -51,6 +50,8 @@ export declare const SelectedEditorsInGroupFileOrUntitledResourceContextKey: Raw
 export declare const EditorPartMultipleEditorGroupsContext: RawContextKey<boolean>;
 export declare const EditorPartSingleEditorGroupsContext: import("../../platform/contextkey/common/contextkey.js").ContextKeyExpression;
 export declare const EditorPartMaximizedEditorGroupContext: RawContextKey<boolean>;
+export declare const EditorPartModalContext: RawContextKey<boolean>;
+export declare const EditorPartModalMaximizedContext: RawContextKey<boolean>;
 export declare const EditorsVisibleContext: RawContextKey<boolean>;
 export declare const InEditorZenModeContext: RawContextKey<boolean>;
 export declare const IsMainEditorCenteredLayoutContext: RawContextKey<boolean>;

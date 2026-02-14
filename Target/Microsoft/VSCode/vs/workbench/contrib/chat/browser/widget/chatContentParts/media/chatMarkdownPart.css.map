@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["../../../../../../../../../../../../../Dependency/Microsoft/Dependency/Editor/out/vs/workbench/contrib/chat/browser/widget/chatContentParts/media/chatMarkdownPart.css"],
-  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\n\n\n.chat-markdown-part {\n\n\th1,\n\th2,\n\th3,\n\th4,\n\th5,\n\th6 {\n\t\tline-height: normal;\n\t}\n\n\t.katex-display .katex {\n\t\tmargin: auto;\n\t\twidth: fit-content;\n\t\toverflow: hidden;\n\t}\n}\n"],
+  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\r\n *  Copyright (c) Microsoft Corporation. All rights reserved.\r\n *  Licensed under the MIT License. See License.txt in the project root for license information.\r\n *--------------------------------------------------------------------------------------------*/\r\n\r\n\r\n.chat-markdown-part {\r\n\r\n\th1,\r\n\th2,\r\n\th3,\r\n\th4,\r\n\th5,\r\n\th6 {\r\n\t\tline-height: normal;\r\n\t}\r\n\r\n\t.katex-display .katex {\r\n\t\tmargin: auto;\r\n\t\twidth: fit-content;\r\n\t\toverflow: hidden;\r\n\t}\r\n}\r\n"],
   "mappings": "AAMA,CAAC;AAEA;AAAA,EACA;AAAA,EACA;AAAA,EACA;AAAA,EACA;AAAA,EACA;AACC,iBAAa;AACd;AAEA,GAAC,cAAc,CAAC;AACf,YAAQ;AACR,WAAO;AACP,cAAU;AACX;AACD;",
   "names": []
 }

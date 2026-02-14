@@ -30,11 +30,11 @@ class AbstractProblemCollector extends Disposable {
     this.markerService = markerService;
     this.modelService = modelService;
     this.modelListeners = new DisposableStore();
-    this._onDidFindFirstMatch = new Emitter();
+    this._onDidFindFirstMatch = this._register(new Emitter());
     this.onDidFindFirstMatch = this._onDidFindFirstMatch.event;
-    this._onDidFindErrors = new Emitter();
+    this._onDidFindErrors = this._register(new Emitter());
     this.onDidFindErrors = this._onDidFindErrors.event;
-    this._onDidRequestInvalidateLastMarker = new Emitter();
+    this._onDidRequestInvalidateLastMarker = this._register(new Emitter());
     this.onDidRequestInvalidateLastMarker = this._onDidRequestInvalidateLastMarker.event;
     this.matchers = /* @__PURE__ */ Object.create(null);
     this.bufferLength = 1;
@@ -74,7 +74,7 @@ class AbstractProblemCollector extends Disposable {
       delete this.openModels[model.uri.toString()];
     }, this, this.modelListeners));
     this.modelService.getModels().forEach((model) => this.openModels[model.uri.toString()] = true);
-    this._onDidStateChange = new Emitter();
+    this._onDidStateChange = this._register(new Emitter());
   }
   get onDidStateChange() {
     return this._onDidStateChange.event;
@@ -367,7 +367,6 @@ class WatchingProblemCollector extends AbstractProblemCollector {
           await this.processLineInternal(line);
         }
       });
-      this._register(markerChanged);
       setTimeout(() => {
         if (markerChanged) {
           const _markerChanged = markerChanged;

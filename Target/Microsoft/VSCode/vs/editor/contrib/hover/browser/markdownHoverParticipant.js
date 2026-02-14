@@ -35,8 +35,8 @@ import { AsyncIterableProducer } from "../../../../base/common/async.js";
 import { getHoverProviderResultsAsAsyncIterable } from "./getHover.js";
 import { ICommandService } from "../../../../platform/commands/common/commands.js";
 const $ = dom.$;
-const increaseHoverVerbosityIcon = registerIcon("hover-increase-verbosity", Codicon.add, nls.localize("increaseHoverVerbosity", "Icon for increaseing hover verbosity."));
-const decreaseHoverVerbosityIcon = registerIcon("hover-decrease-verbosity", Codicon.remove, nls.localize("decreaseHoverVerbosity", "Icon for decreasing hover verbosity."));
+const increaseHoverVerbosityIcon = registerIcon("hover-increase-verbosity", Codicon.addSmall, nls.localize("increaseHoverVerbosity", "Icon for increaseing hover verbosity."));
+const decreaseHoverVerbosityIcon = registerIcon("hover-decrease-verbosity", Codicon.removeSmall, nls.localize("decreaseHoverVerbosity", "Icon for decreasing hover verbosity."));
 class MarkdownHover {
   static {
     __name(this, "MarkdownHover");

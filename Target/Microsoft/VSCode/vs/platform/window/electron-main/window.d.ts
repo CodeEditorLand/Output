@@ -34,6 +34,7 @@ export interface IBaseWindow extends IDisposable {
         height?: number;
         backgroundColor?: string;
         foregroundColor?: string;
+        dimmed?: boolean;
     }): void;
     matches(webContents: electron.WebContents): boolean;
 }

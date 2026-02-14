@@ -1,11 +1,18 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Emitter } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
+import { Disposable, DisposableMap } from "../../../../base/common/lifecycle.js";
 import { removeAnsiEscapeCodes } from "../../../../base/common/strings.js";
+import { RunOnceWorker } from "../../../../base/common/async.js";
 class UrlFinder extends Disposable {
   static {
     __name(this, "UrlFinder");
+  }
+  static {
+    this.dataDebounceTimeout = 500;
+  }
+  static {
+    this.maxDataLength = 1e4;
   }
   static {
     this.localUrlRegex = /\b\w{0,20}(?::\/\/)?(?:localhost|127\.0\.0\.1|0\.0\.0\.0|:\d{2,5})[\w\-\.\~:\/\?\#[\]\@!\$&\(\)\*\+\,\;\=]*/gim;
@@ -21,9 +28,10 @@ class UrlFinder extends Disposable {
   }
   constructor(terminalService, debugService) {
     super();
-    this._onDidMatchLocalUrl = new Emitter();
+    this._onDidMatchLocalUrl = this._register(new Emitter());
     this.onDidMatchLocalUrl = this._onDidMatchLocalUrl.event;
     this.listeners = /* @__PURE__ */ new Map();
+    this.terminalDataWorkers = this._register(new DisposableMap());
     this.replPositions = /* @__PURE__ */ new Map();
     terminalService.instances.forEach((instance) => {
       this.registerTerminalInstance(instance);
@@ -34,6 +42,7 @@ class UrlFinder extends Disposable {
     this._register(terminalService.onDidDisposeInstance((instance) => {
       this.listeners.get(instance)?.dispose();
       this.listeners.delete(instance);
+      this.terminalDataWorkers.deleteAndDispose(instance);
     }));
     this._register(debugService.onDidNewSession((session) => {
       if (!session.parentSession || session.parentSession && session.hasSeparateRepl()) {
@@ -52,9 +61,24 @@ class UrlFinder extends Disposable {
   registerTerminalInstance(instance) {
     if (!UrlFinder.excludeTerminals.includes(instance.title)) {
       this.listeners.set(instance, instance.onData((data) => {
-        this.processData(data);
+        this.getOrCreateWorker(instance).work(data);
       }));
     }
+  }
+  getOrCreateWorker(instance) {
+    let worker = this.terminalDataWorkers.get(instance);
+    if (!worker) {
+      worker = new RunOnceWorker((chunks) => this.processTerminalData(chunks), UrlFinder.dataDebounceTimeout);
+      this.terminalDataWorkers.set(instance, worker);
+    }
+    return worker;
+  }
+  processTerminalData(chunks) {
+    const totalLength = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
+    if (totalLength > UrlFinder.maxDataLength) {
+      return;
+    }
+    this.processData(chunks.join(""));
   }
   processNewReplElements(session) {
     const oldReplPosition = this.replPositions.get(session.getId());
@@ -75,8 +99,7 @@ class UrlFinder extends Disposable {
   }
   dispose() {
     super.dispose();
-    const listeners = this.listeners.values();
-    for (const listener of listeners) {
+    for (const listener of this.listeners.values()) {
       listener.dispose();
     }
   }

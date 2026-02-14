@@ -2,8 +2,8 @@
   display: flex;
   flex-direction: column;
   padding: 4px 0;
-  min-width: 300px;
-  max-width: 400px;
+  min-width: 310px;
+  max-width: 410px;
 }
 .update-status-tooltip .header {
   display: flex;
@@ -106,13 +106,5 @@
 .update-status-tooltip .time-remaining {
   color: var(--vscode-descriptionForeground);
   font-size: var(--vscode-bodyFontSize-small);
-}
-.update-status-tooltip .action-button-container {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 8px;
-}
-.update-status-tooltip .action-button-container .monaco-button {
-  padding: 4px 14px;
 }
 /*# sourceMappingURL=updateStatusBarEntry.css.map */

@@ -24,6 +24,7 @@ import { getIconRegistry } from "../../../../platform/theme/common/iconRegistry.
 import { basename } from "../../../../base/common/path.js";
 import { INotificationService, Severity } from "../../../../platform/notification/common/notification.js";
 import { hasKey, isString } from "../../../../base/common/types.js";
+import { Event } from "../../../../base/common/event.js";
 let TerminalProfileQuickpick = class TerminalProfileQuickpick2 {
   static {
     __name(this, "TerminalProfileQuickpick");
@@ -247,7 +248,9 @@ let TerminalProfileQuickpick = class TerminalProfileQuickpick2 {
         label: nls.localize("cancel", "Cancel"),
         run: /* @__PURE__ */ __name(() => r(false), "run")
       }]);
-      handle.onDidClose(() => r(false));
+      Event.once(handle.onDidClose)(() => {
+        r(false);
+      });
     });
   }
   _createProfileQuickPickItem(profile) {

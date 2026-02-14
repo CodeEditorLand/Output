@@ -48,6 +48,7 @@ export declare class ChatManagementEditor extends EditorPane {
     private sections;
     private readonly commandService;
     private readonly chatEntitlementService;
+    private readonly actionButtonClickListener;
     constructor(group: IEditorGroup, telemetryService: ITelemetryService, themeService: IThemeService, storageService: IStorageService, instantiationService: IInstantiationService, commandService: ICommandService, chatEntitlementService: IChatEntitlementService);
     protected createEditor(parent: HTMLElement): void;
     updateStyles(): void;

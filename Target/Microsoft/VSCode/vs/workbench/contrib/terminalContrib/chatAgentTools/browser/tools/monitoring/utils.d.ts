@@ -1,2 +1,1 @@
-import { ILanguageModelChatResponse } from '../../../../../chat/common/languageModels.js';
-export declare function getTextResponseFromStream(response: ILanguageModelChatResponse): Promise<string>;
+export { getTextResponseFromStream } from '../../../../../chat/common/languageModels.js';

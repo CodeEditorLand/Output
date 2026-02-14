@@ -37,7 +37,7 @@ let TestingContinuousRunService = class TestingContinuousRunService2 extends Dis
     super();
     this.testService = testService;
     this.testProfileService = testProfileService;
-    this.changeEmitter = new Emitter();
+    this.changeEmitter = this._register(new Emitter());
     this.running = new WellDefinedPrefixTree();
     this.onDidChange = this.changeEmitter.event;
     const isGloballyOn = TestingContextKeys.isContinuousModeOn.bindTo(contextKeyService);

@@ -12,7 +12,7 @@ var __param = function(paramIndex, decorator) {
   };
 };
 var TerminalHistoryContribution_1;
-import { Disposable, DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { Disposable, DisposableMap, DisposableStore } from "../../../../../base/common/lifecycle.js";
 import { Schemas } from "../../../../../base/common/network.js";
 import { localize2 } from "../../../../../nls.js";
 import { CONTEXT_ACCESSIBILITY_MODE_ENABLED } from "../../../../../platform/accessibility/common/accessibility.js";
@@ -46,23 +46,32 @@ let TerminalHistoryContribution = class TerminalHistoryContribution2 extends Dis
     this._ctx = _ctx;
     this._instantiationService = _instantiationService;
     this._terminalInRunCommandPicker = TerminalContextKeys.inTerminalRunCommandPicker.bindTo(contextKeyService);
+    const capabilityListeners = this._register(new DisposableMap());
     this._register(_ctx.instance.capabilities.onDidAddCapability((e) => {
+      capabilityListeners.deleteAndDispose(e.id);
       switch (e.id) {
         case 0: {
-          this._register(e.capability.onDidChangeCwd((e2) => {
+          const store = new DisposableStore();
+          store.add(e.capability.onDidChangeCwd((e2) => {
             this._instantiationService.invokeFunction(getDirectoryHistory)?.add(e2, { remoteAuthority: _ctx.instance.remoteAuthority });
           }));
+          capabilityListeners.set(e.id, store);
           break;
         }
         case 2: {
-          this._register(e.capability.onCommandFinished((e2) => {
+          const store = new DisposableStore();
+          store.add(e.capability.onCommandFinished((e2) => {
             if (e2.command.trim().length > 0) {
               this._instantiationService.invokeFunction(getCommandHistory)?.add(e2.command, { shellType: _ctx.instance.shellType });
             }
           }));
+          capabilityListeners.set(e.id, store);
           break;
         }
       }
+    }));
+    this._register(_ctx.instance.capabilities.onDidRemoveCapability((e) => {
+      capabilityListeners.deleteAndDispose(e.id);
     }));
   }
   /**

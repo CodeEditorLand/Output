@@ -14,6 +14,7 @@ var __param = function(paramIndex, decorator) {
 var AgentSessionsModel_1, AgentSessionsCache_1;
 import { coalesce } from "../../../../../base/common/arrays.js";
 import { ThrottledDelayer } from "../../../../../base/common/async.js";
+import { CancellationToken } from "../../../../../base/common/cancellation.js";
 import { Codicon } from "../../../../../base/common/codicons.js";
 import { Emitter } from "../../../../../base/common/event.js";
 import { Disposable } from "../../../../../base/common/lifecycle.js";
@@ -289,7 +290,7 @@ let AgentSessionsModel = class AgentSessionsModel2 extends Disposable {
   registerListeners() {
     this._register(this.chatSessionsService.onDidChangeItemsProviders(({ chatSessionType }) => this.resolve(chatSessionType)));
     this._register(this.chatSessionsService.onDidChangeAvailability(() => this.resolve(void 0)));
-    this._register(this.chatSessionsService.onDidChangeSessionItems(({ chatSessionType }) => this.resolve(chatSessionType)));
+    this._register(this.chatSessionsService.onDidChangeSessionItems(({ chatSessionType }) => this.updateItems([chatSessionType], CancellationToken.None)));
     this._register(this.storageService.onWillSaveState(() => {
       this.cache.saveCachedSessions(Array.from(this._sessions.values()));
       this.cache.saveSessionStates(this.sessionStates);
@@ -321,11 +322,18 @@ let AgentSessionsModel = class AgentSessionsModel2 extends Disposable {
   async doResolve(token) {
     const providersToResolve = Array.from(this.providersToResolve);
     this.providersToResolve.clear();
+    const providerFilter = providersToResolve.includes(void 0) ? void 0 : coalesce(providersToResolve);
+    await this.chatSessionsService.refreshChatSessionItems(providerFilter, token);
+    await this.updateItems(providerFilter, token);
+  }
+  /**
+   * Update the sessions by fetching from the service. This does not trigger an explicit refresh
+   */
+  async updateItems(providerFilter, token) {
     const mapSessionContributionToType = /* @__PURE__ */ new Map();
     for (const contribution of this.chatSessionsService.getAllChatSessionContributions()) {
       mapSessionContributionToType.set(contribution.type, contribution);
     }
-    const providerFilter = providersToResolve.includes(void 0) ? void 0 : coalesce(providersToResolve);
     const providerResults = await this.chatSessionsService.getChatSessionItems(providerFilter, token);
     const resolvedProviders = /* @__PURE__ */ new Set();
     const sessions = new ResourceMap();

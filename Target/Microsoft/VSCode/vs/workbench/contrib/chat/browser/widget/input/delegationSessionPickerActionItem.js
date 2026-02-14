@@ -40,18 +40,14 @@ class DelegationSessionPickerActionItem extends SessionTypePickerActionItem {
     if (this.delegate.getActiveSessionProvider() === type) {
       return true;
     }
-    return getAgentCanContinueIn(type);
+    const contribution = this.chatSessionsService.getChatSessionContribution(type);
+    return getAgentCanContinueIn(type, contribution);
   }
   _getSessionCategory(sessionTypeItem) {
     if (isFirstPartyAgentSessionProvider(sessionTypeItem.type)) {
       return { label: localize("continueIn", "Continue In"), order: 1, showHeader: true };
     }
     return { label: localize("continueInThirdParty", "Continue In (Third Party)"), order: 2, showHeader: false };
-  }
-  _getSessionDescription(sessionTypeItem) {
-    const allContributions = this.chatSessionsService.getAllChatSessionContributions();
-    const contribution = allContributions.find((contribution2) => getAgentSessionProvider(contribution2.type) === sessionTypeItem.type);
-    return contribution?.name ? `@${contribution.name}` : void 0;
   }
   _getLearnMore() {
     const learnMoreUrl = "https://aka.ms/vscode-continue-chat-in";

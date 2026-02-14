@@ -9,7 +9,7 @@ import { URI } from '../../../../base/common/uri.js';
 import { ITelemetryService } from '../../../../platform/telemetry/common/telemetry.js';
 import { IWorkspaceContextService } from '../../../../platform/workspace/common/workspace.js';
 import { IWorkspaceTagsService } from '../../tags/common/workspaceTags.js';
-import { IEditorGroupsService } from '../../../services/editor/common/editorGroupsService.js';
+import { IEditorService } from '../../../services/editor/common/editorService.js';
 import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
 import { IURLService } from '../../../../platform/url/common/url.js';
 import { IBrowserWorkbenchEnvironmentService } from '../../../services/environment/browser/environmentService.js';
@@ -21,7 +21,7 @@ export declare class UserDataProfilesWorkbenchContribution extends Disposable im
     private readonly telemetryService;
     private readonly workspaceContextService;
     private readonly workspaceTagsService;
-    private readonly editorGroupsService;
+    private readonly editorService;
     private readonly instantiationService;
     private readonly lifecycleService;
     private readonly urlService;
@@ -29,7 +29,7 @@ export declare class UserDataProfilesWorkbenchContribution extends Disposable im
     private readonly currentProfileContext;
     private readonly isCurrentProfileTransientContext;
     private readonly hasProfilesContext;
-    constructor(userDataProfileService: IUserDataProfileService, userDataProfilesService: IUserDataProfilesService, userDataProfileManagementService: IUserDataProfileManagementService, telemetryService: ITelemetryService, workspaceContextService: IWorkspaceContextService, workspaceTagsService: IWorkspaceTagsService, contextKeyService: IContextKeyService, editorGroupsService: IEditorGroupsService, instantiationService: IInstantiationService, lifecycleService: ILifecycleService, urlService: IURLService, environmentService: IBrowserWorkbenchEnvironmentService);
+    constructor(userDataProfileService: IUserDataProfileService, userDataProfilesService: IUserDataProfilesService, userDataProfileManagementService: IUserDataProfileManagementService, telemetryService: ITelemetryService, workspaceContextService: IWorkspaceContextService, workspaceTagsService: IWorkspaceTagsService, contextKeyService: IContextKeyService, editorService: IEditorService, instantiationService: IInstantiationService, lifecycleService: ILifecycleService, urlService: IURLService, environmentService: IBrowserWorkbenchEnvironmentService);
     handleURL(uri: URI): Promise<boolean>;
     private openProfilesEditor;
     private registerEditor;

@@ -233,6 +233,12 @@ let ChatEntitlementService = class ChatEntitlementService2 extends Disposable {
   get sku() {
     return this.contextKeyService.getContextKeyValue(ChatEntitlementContextKeys.Entitlement.sku.key);
   }
+  get copilotTrackingId() {
+    return this.context?.value.state.copilotTrackingId;
+  }
+  get previewFeaturesDisabled() {
+    return this.contextKeyService.getContextKeyValue("github.copilot.previewFeaturesDisabled") === true;
+  }
   get quotas() {
     return this._quotas;
   }
@@ -411,7 +417,8 @@ let ChatEntitlementRequests = class ChatEntitlementRequests2 extends Disposable 
       entitlement,
       organisations: entitlementsData.organization_login_list,
       quotas: this.toQuotas(entitlementsData),
-      sku: entitlementsData.access_type_sku
+      sku: entitlementsData.access_type_sku,
+      copilotTrackingId: entitlementsData.analytics_tracking_id
     };
     this.logService.trace(`[chat entitlement]: resolved to ${entitlements.entitlement}, quotas: ${JSON.stringify(entitlements.quotas)}`);
     this.telemetryService.publicLog2("chatInstallEntitlement", {
@@ -511,7 +518,7 @@ let ChatEntitlementRequests = class ChatEntitlementRequests2 extends Disposable 
   }
   update(state) {
     this.state = state;
-    this.context.update({ entitlement: this.state.entitlement, organisations: this.state.organisations, sku: this.state.sku });
+    this.context.update({ entitlement: this.state.entitlement, organisations: this.state.organisations, sku: this.state.sku, copilotTrackingId: this.state.copilotTrackingId });
     if (state.quotas) {
       this.chatQuotasAccessor.acceptQuotas(state.quotas);
     }
@@ -695,7 +702,7 @@ let ChatEntitlementContext = class ChatEntitlementContext2 extends Disposable {
       ChatEntitlementContext_1.CHAT_ENTITLEMENT_CONTEXT_STORAGE_KEY,
       0
       /* StorageScope.PROFILE */
-    ) ?? { entitlement: ChatEntitlement.Unknown, organisations: void 0, sku: void 0 };
+    ) ?? { entitlement: ChatEntitlement.Unknown, organisations: void 0, sku: void 0, copilotTrackingId: void 0 };
     this.updateContextSync();
     this.registerListeners();
   }
@@ -737,6 +744,7 @@ let ChatEntitlementContext = class ChatEntitlementContext2 extends Disposable {
       this._state.entitlement = context.entitlement;
       this._state.organisations = context.organisations;
       this._state.sku = context.sku;
+      this._state.copilotTrackingId = context.copilotTrackingId;
       if (this._state.entitlement === ChatEntitlement.Free || isProUser(this._state.entitlement)) {
         this._state.registered = true;
       } else if (this._state.entitlement === ChatEntitlement.Available) {

@@ -149,7 +149,7 @@ class DownloadUpdateAction extends Action2 {
     });
   }
   async run(accessor) {
-    await accessor.get(IUpdateService).downloadUpdate();
+    await accessor.get(IUpdateService).downloadUpdate(true);
   }
 }
 class InstallUpdateAction extends Action2 {

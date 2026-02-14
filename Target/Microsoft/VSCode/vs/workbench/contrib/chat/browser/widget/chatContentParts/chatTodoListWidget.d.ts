@@ -18,6 +18,7 @@ export declare class ChatTodoListWidget extends Disposable {
     private clearButton;
     private _currentSessionResource;
     private _todoList;
+    private readonly _inChatTodoListContextKey;
     constructor(chatTodoListService: IChatTodoListService, instantiationService: IInstantiationService, contextKeyService: IContextKeyService);
     get height(): number;
     private hideWidget;
@@ -25,6 +26,9 @@ export declare class ChatTodoListWidget extends Disposable {
     private createClearButton;
     render(sessionResource: URI | undefined): void;
     clear(sessionResource: URI | undefined, force?: boolean): void;
+    hasTodos(): boolean;
+    hasFocus(): boolean;
+    focus(): boolean;
     private updateTodoDisplay;
     private renderTodoList;
     private toggleExpanded;

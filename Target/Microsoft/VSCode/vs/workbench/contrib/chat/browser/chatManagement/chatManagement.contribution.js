@@ -19,8 +19,7 @@ import { SyncDescriptor } from "../../../../../platform/instantiation/common/des
 import { Registry } from "../../../../../platform/registry/common/platform.js";
 import { EditorPaneDescriptor } from "../../../../browser/editor.js";
 import { EditorExtensions } from "../../../../common/editor.js";
-import { IEditorGroupsService } from "../../../../services/editor/common/editorGroupsService.js";
-import { IEditorService } from "../../../../services/editor/common/editorService.js";
+import { IEditorService, MODAL_GROUP } from "../../../../services/editor/common/editorService.js";
 import { ResourceContextKey } from "../../../../common/contextkeys.js";
 import { ChatContextKeys } from "../../common/actions/chatContextKeys.js";
 import { CONTEXT_MODELS_EDITOR, CONTEXT_MODELS_SEARCH_FOCUS, MANAGE_CHAT_COMMAND_ID } from "../../common/constants.js";
@@ -110,9 +109,9 @@ let ChatManagementActionsContribution = class ChatManagementActionsContribution2
         });
       }
       async run(accessor, args) {
-        const editorGroupsService = accessor.get(IEditorGroupsService);
+        const editorService = accessor.get(IEditorService);
         args = sanitizeOpenManageCopilotEditorArgs(args);
-        return editorGroupsService.activeGroup.openEditor(new ModelsManagementEditorInput(), { pinned: true });
+        return editorService.openEditor(new ModelsManagementEditorInput(), { pinned: true }, MODAL_GROUP);
       }
     }));
     this._register(registerAction2(class extends Action2 {

@@ -26,6 +26,7 @@ export declare class RawDebugSession implements IDisposable {
     private firedAdapterExitEvent;
     private startTime;
     private didReceiveStoppedEvent;
+    private readonly toDispose;
     private readonly _onDidInitialize;
     private readonly _onDidStop;
     private readonly _onDidContinued;
@@ -45,7 +46,6 @@ export declare class RawDebugSession implements IDisposable {
     private readonly _onDidExitAdapter;
     private debugAdapter;
     private stoppedSinceLastStep;
-    private toDispose;
     constructor(debugAdapter: IDebugAdapter, dbgr: IDebugger, sessionId: string, name: string, extensionHostDebugService: IExtensionHostDebugService, openerService: IOpenerService, notificationService: INotificationService, dialogSerivce: IDialogService);
     get isInShutdown(): boolean;
     get onDidExitAdapter(): Event<AdapterEndEvent>;

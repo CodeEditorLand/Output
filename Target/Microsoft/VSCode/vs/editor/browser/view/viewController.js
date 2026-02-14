@@ -4,6 +4,7 @@ import { CoreNavigationCommands } from "../coreCommands.js";
 import { Position } from "../../common/core/position.js";
 import { Selection } from "../../common/core/selection.js";
 import * as platform from "../../../base/common/platform.js";
+import { containsRTL } from "../../../base/common/strings.js";
 class ViewController {
   static {
     __name(this, "ViewController");
@@ -115,12 +116,24 @@ class ViewController {
     if (lineTokens.getStandardTokenType(index) !== 2) {
       return void 0;
     }
-    const start = lineTokens.getStartOffset(index) + 2;
-    const end = lineTokens.getEndOffset(index);
-    if (column !== start && column !== end) {
+    const tokenStart = lineTokens.getStartOffset(index);
+    const tokenEnd = lineTokens.getEndOffset(index);
+    if (column !== tokenStart + 2 && column !== tokenEnd) {
       return void 0;
     }
-    return new Selection(lineNumber, start, lineNumber, end);
+    const lineContent = model.getLineContent(lineNumber);
+    const firstChar = lineContent.charAt(tokenStart);
+    if (firstChar !== '"' && firstChar !== "'" && firstChar !== "`") {
+      return void 0;
+    }
+    if (lineContent.charAt(tokenEnd - 1) !== firstChar) {
+      return void 0;
+    }
+    const content = lineContent.substring(tokenStart + 1, tokenEnd - 1);
+    if (containsRTL(content)) {
+      return void 0;
+    }
+    return new Selection(lineNumber, tokenStart + 2, lineNumber, tokenEnd);
   }
   dispatchMouse(data) {
     const options = this.configuration.options;

@@ -14,9 +14,10 @@ var __param = function(paramIndex, decorator) {
 import { CancellationToken } from "../../../../../../base/common/cancellation.js";
 import { CancellationError } from "../../../../../../base/common/errors.js";
 import { Emitter, Event } from "../../../../../../base/common/event.js";
+import { parse as parseJSONC } from "../../../../../../base/common/json.js";
 import { Disposable, DisposableStore } from "../../../../../../base/common/lifecycle.js";
 import { ResourceMap, ResourceSet } from "../../../../../../base/common/map.js";
-import { basename, dirname, isEqual } from "../../../../../../base/common/resources.js";
+import { basename, dirname, isEqual, joinPath } from "../../../../../../base/common/resources.js";
 import { URI } from "../../../../../../base/common/uri.js";
 import { OffsetRange } from "../../../../../../editor/common/core/ranges/offsetRange.js";
 import { IModelService } from "../../../../../../editor/common/services/model.js";
@@ -32,17 +33,18 @@ import { IStorageService } from "../../../../../../platform/storage/common/stora
 import { ITelemetryService } from "../../../../../../platform/telemetry/common/telemetry.js";
 import { IUserDataProfileService } from "../../../../../services/userDataProfile/common/userDataProfile.js";
 import { PromptsConfig } from "../config/config.js";
-import { getCleanPromptName, PromptFileSource } from "../config/promptFileLocations.js";
+import { AGENT_MD_FILENAME, CLAUDE_CONFIG_FOLDER, CLAUDE_LOCAL_MD_FILENAME, CLAUDE_MD_FILENAME, getCleanPromptName, PromptFileSource } from "../config/promptFileLocations.js";
 import { PROMPT_LANGUAGE_ID, PromptsType, getPromptsTypeForLanguageId } from "../promptTypes.js";
 import { PromptFilesLocator } from "../utils/promptFilesLocator.js";
 import { PromptFileParser, PromptHeaderAttributes } from "../promptFileParser.js";
-import { PromptsStorage, ExtensionAgentSourceType, CUSTOM_AGENT_PROVIDER_ACTIVATION_EVENT, INSTRUCTIONS_PROVIDER_ACTIVATION_EVENT, PROMPT_FILE_PROVIDER_ACTIVATION_EVENT, SKILL_PROVIDER_ACTIVATION_EVENT } from "./promptsService.js";
+import { PromptsStorage, ExtensionAgentSourceType, CUSTOM_AGENT_PROVIDER_ACTIVATION_EVENT, INSTRUCTIONS_PROVIDER_ACTIVATION_EVENT, PROMPT_FILE_PROVIDER_ACTIVATION_EVENT, SKILL_PROVIDER_ACTIVATION_EVENT, AgentFileType, Target } from "./promptsService.js";
 import { Delayer } from "../../../../../../base/common/async.js";
 import { Schemas } from "../../../../../../base/common/network.js";
 import { HookType } from "../hookSchema.js";
-import { parseHooksFromFile } from "../hookCompatibility.js";
+import { HookSourceFormat, getHookSourceFormat, parseHooksFromFile } from "../hookCompatibility.js";
 import { IWorkspaceContextService } from "../../../../../../platform/workspace/common/workspace.js";
 import { IPathService } from "../../../../../services/path/common/pathService.js";
+import { getTarget, mapClaudeModels, mapClaudeTools } from "../languageProviders/promptValidator.js";
 class SkillMissingNameError extends Error {
   static {
     __name(this, "SkillMissingNameError");
@@ -103,16 +105,22 @@ let PromptsService = class PromptsService2 extends Disposable {
     };
     this.promptFileProviders = [];
     this.disabledPromptsStorageKeyPrefix = "chat.disabledPromptFiles.";
-    this.fileLocator = this.instantiationService.createInstance(PromptFilesLocator);
+    this.fileLocator = this.createPromptFilesLocator();
     this._register(this.modelService.onModelRemoved((model) => {
       this.cachedParsedPromptFromModels.delete(model.uri);
     }));
     const modelChangeEvent = this._register(new ModelChangeTracker(this.modelService)).onDidPromptChange;
     this.cachedCustomAgents = this._register(new CachedPromise((token) => this.computeCustomAgents(token), () => Event.any(this.getFileLocatorEvent(PromptsType.agent), Event.filter(modelChangeEvent, (e) => e.promptType === PromptsType.agent))));
-    this.cachedSlashCommands = this._register(new CachedPromise((token) => this.computePromptSlashCommands(token), () => Event.any(this.getFileLocatorEvent(PromptsType.prompt), Event.filter(modelChangeEvent, (e) => e.promptType === PromptsType.prompt))));
-    this.cachedHooks = this._register(new CachedPromise((token) => this.computeHooks(token), () => this.getFileLocatorEvent(PromptsType.hook)));
+    this.cachedSlashCommands = this._register(new CachedPromise((token) => this.computePromptSlashCommands(token), () => Event.any(this.getFileLocatorEvent(PromptsType.prompt), this.getFileLocatorEvent(PromptsType.skill), Event.filter(modelChangeEvent, (e) => e.promptType === PromptsType.prompt), Event.filter(modelChangeEvent, (e) => e.promptType === PromptsType.skill))));
+    this.cachedSkills = this._register(new CachedPromise((token) => this.computeAgentSkills(token), () => Event.any(this.getFileLocatorEvent(PromptsType.skill), Event.filter(modelChangeEvent, (e) => e.promptType === PromptsType.skill))));
+    this.cachedHooks = this._register(new CachedPromise((token) => this.computeHooks(token), () => Event.any(this.getFileLocatorEvent(PromptsType.hook), Event.filter(this.configurationService.onDidChangeConfiguration, (e) => e.affectsConfiguration(PromptsConfig.USE_CHAT_HOOKS) || e.affectsConfiguration(PromptsConfig.USE_CLAUDE_HOOKS)))));
+    this._register(this.cachedSkills.onDidChange(() => {
+    }));
     this._register(this.cachedHooks.onDidChange(() => {
     }));
+  }
+  createPromptFilesLocator() {
+    return this.instantiationService.createInstance(PromptFilesLocator);
   }
   getFileLocatorEvent(type) {
     let event = this.fileLocatorEvents[type];
@@ -177,6 +185,8 @@ let PromptsService = class PromptsService2 extends Disposable {
           this.cachedSlashCommands.refresh();
         } else if (type === PromptsType.skill) {
           this.cachedFileLocations[PromptsType.skill] = void 0;
+          this.cachedSkills.refresh();
+          this.cachedSlashCommands.refresh();
         }
       }));
     }
@@ -190,6 +200,8 @@ let PromptsService = class PromptsService2 extends Disposable {
       this.cachedSlashCommands.refresh();
     } else if (type === PromptsType.skill) {
       this.cachedFileLocations[PromptsType.skill] = void 0;
+      this.cachedSkills.refresh();
+      this.cachedSlashCommands.refresh();
     }
     disposables.add({
       dispose: /* @__PURE__ */ __name(() => {
@@ -206,6 +218,8 @@ let PromptsService = class PromptsService2 extends Disposable {
             this.cachedSlashCommands.refresh();
           } else if (type === PromptsType.skill) {
             this.cachedFileLocations[PromptsType.skill] = void 0;
+            this.cachedSkills.refresh();
+            this.cachedSlashCommands.refresh();
           }
         }
       }, "dispose")
@@ -303,7 +317,7 @@ let PromptsService = class PromptsService2 extends Disposable {
         result.push({ uri, storage: PromptsStorage.local, type });
       }
     }
-    if (type !== PromptsType.skill) {
+    if (type !== PromptsType.skill && type !== PromptsType.hook) {
       const userHome = this.userDataService.currentProfile.promptsHome;
       result.push({ uri: userHome, storage: PromptsStorage.user, type });
     }
@@ -324,7 +338,10 @@ let PromptsService = class PromptsService2 extends Disposable {
   }
   async computePromptSlashCommands(token) {
     const promptFiles = await this.listPromptFiles(PromptsType.prompt, token);
-    const details = await Promise.all(promptFiles.map(async (promptPath) => {
+    const useAgentSkills = this.configurationService.getValue(PromptsConfig.USE_AGENT_SKILLS);
+    const skills = useAgentSkills ? await this.listPromptFiles(PromptsType.skill, token) : [];
+    const slashCommandFiles = [...promptFiles, ...skills];
+    const details = await Promise.all(slashCommandFiles.map(async (promptPath) => {
       try {
         const parsedPromptFile = await this.parseNew(promptPath.uri, token);
         return this.asChatPromptSlashCommand(parsedPromptFile, promptPath);
@@ -420,15 +437,23 @@ let PromptsService = class PromptsService2 extends Disposable {
         metadata
       };
       const name = ast.header?.name ?? promptPath.name ?? getCleanPromptName(uri);
+      const target = getTarget(PromptsType.agent, ast.header ?? uri);
       const source = IAgentSource.fromPromptPath(promptPath);
       if (!ast.header) {
-        return { uri, name, agentInstructions, source, visibility: { userInvokable: true, agentInvokable: true } };
+        return { uri, name, agentInstructions, source, target, visibility: { userInvocable: true, agentInvocable: true } };
       }
       const visibility = {
-        userInvokable: ast.header.userInvokable !== false,
-        agentInvokable: ast.header.infer === true || ast.header.disableModelInvocation !== true
+        userInvocable: ast.header.userInvocable !== false,
+        agentInvocable: ast.header.infer === true || ast.header.disableModelInvocation !== true
       };
-      const { description, model, tools, handOffs, argumentHint, target, agents } = ast.header;
+      let model = ast.header.model;
+      if (target === Target.Claude && model) {
+        model = mapClaudeModels(model);
+      }
+      let { description, tools, handOffs, argumentHint, agents } = ast.header;
+      if (target === Target.Claude && tools) {
+        tools = mapClaudeTools(tools);
+      }
       return { uri, name, description, model, tools, handOffs, argumentHint, target, visibility, agents, agentInstructions, source };
     }));
     const customAgents = [];
@@ -494,6 +519,10 @@ let PromptsService = class PromptsService2 extends Disposable {
         case PromptsType.prompt:
           this.cachedSlashCommands.refresh();
           break;
+        case PromptsType.skill:
+          this.cachedSkills.refresh();
+          this.cachedSlashCommands.refresh();
+          break;
       }
     }, "flushCachesIfRequired");
     flushCachesIfRequired();
@@ -517,26 +546,87 @@ let PromptsService = class PromptsService2 extends Disposable {
         throw new Error("Unknown prompt storage type");
     }
   }
-  findAgentMDsInWorkspace(token) {
-    return this.fileLocator.findAgentMDsInWorkspace(token);
-  }
-  async listAgentMDs(token, includeNested) {
+  async listNestedAgentMDs(token) {
     const useAgentMD = this.configurationService.getValue(PromptsConfig.USE_AGENT_MD);
     if (!useAgentMD) {
       return [];
     }
-    if (includeNested) {
+    const useNestedAgentMD = this.configurationService.getValue(PromptsConfig.USE_NESTED_AGENT_MD);
+    if (useNestedAgentMD) {
       return await this.fileLocator.findAgentMDsInWorkspace(token);
-    } else {
-      return await this.fileLocator.findAgentMDsInWorkspaceRoots(token);
     }
+    return [];
   }
-  async listCopilotInstructionsMDs(token) {
+  async listAgentMDs(token, logger) {
+    const useAgentMD = this.configurationService.getValue(PromptsConfig.USE_AGENT_MD);
+    if (!useAgentMD) {
+      logger?.logInfo("Agent MD files are disabled via configuration.");
+      return [];
+    }
+    return await this.fileLocator.findFilesInWorkspaceRoots(AGENT_MD_FILENAME, void 0, AgentFileType.agentsMd, token);
+  }
+  async listClaudeMDs(token, logger) {
+    const useClaudeMD = this.configurationService.getValue(PromptsConfig.USE_CLAUDE_MD);
+    if (!useClaudeMD) {
+      logger?.logInfo("Claude MD files are disabled via configuration.");
+      return [];
+    }
+    const results = [];
+    const userHome = await this.pathService.userHome();
+    const userClaudeFolder = joinPath(userHome, CLAUDE_CONFIG_FOLDER);
+    await Promise.all([
+      this.fileLocator.findFilesInWorkspaceRoots(CLAUDE_MD_FILENAME, void 0, AgentFileType.claudeMd, token, results),
+      // in workspace roots
+      this.fileLocator.findFilesInWorkspaceRoots(CLAUDE_LOCAL_MD_FILENAME, void 0, AgentFileType.claudeMd, token, results),
+      // CLAUDE.local in workspace roots
+      this.fileLocator.findFilesInWorkspaceRoots(CLAUDE_MD_FILENAME, CLAUDE_CONFIG_FOLDER, AgentFileType.claudeMd, token, results),
+      // in workspace/.claude folders
+      this.fileLocator.findFilesInRoots([userClaudeFolder], CLAUDE_MD_FILENAME, AgentFileType.claudeMd, token, results)
+      // in ~/.claude folder
+    ]);
+    return results.sort((a, b) => a.uri.toString().localeCompare(b.uri.toString()));
+  }
+  async listCopilotInstructionsMDs(token, logger) {
     const useCopilotInstructionsFiles = this.configurationService.getValue(PromptsConfig.USE_COPILOT_INSTRUCTION_FILES);
     if (!useCopilotInstructionsFiles) {
+      logger?.logInfo("Copilot instructions files are disabled via configuration.");
       return [];
     }
     return await this.fileLocator.findCopilotInstructionsMDsInWorkspace(token);
+  }
+  async listAgentInstructions(token, logger) {
+    const [agentMDs, claudeMDs, copilotInstructionsMDs] = await Promise.all([
+      this.listAgentMDs(token, logger),
+      this.listClaudeMDs(token, logger),
+      this.listCopilotInstructionsMDs(token, logger)
+    ]);
+    if (token.isCancellationRequested) {
+      return [];
+    }
+    const seenFileURI = new ResourceSet();
+    const symlinks = [];
+    const result = [];
+    const add = /* @__PURE__ */ __name((file) => {
+      if (file.realPath) {
+        symlinks.push(file);
+      } else {
+        result.push(file);
+        seenFileURI.add(file.uri);
+      }
+      return true;
+    }, "add");
+    agentMDs.forEach(add);
+    claudeMDs.forEach(add);
+    copilotInstructionsMDs.forEach(add);
+    for (const symlink of symlinks) {
+      if (seenFileURI.has(symlink.realPath)) {
+        logger?.logInfo(`Skipping symlinked agent instructions file ${symlink.uri} as target already included: ${symlink.realPath}`);
+      } else {
+        result.push(symlink);
+        seenFileURI.add(symlink.realPath);
+      }
+    }
+    return result;
   }
   getAgentFileURIFromModeFile(oldURI) {
     return this.fileLocator.getAgentFileURIFromModeFile(oldURI);
@@ -629,17 +719,30 @@ let PromptsService = class PromptsService2 extends Disposable {
     }
     return sanitized;
   }
+  get onDidChangeSkills() {
+    return this.cachedSkills.onDidChange;
+  }
   async findAgentSkills(token) {
     const useAgentSkills = this.configurationService.getValue(PromptsConfig.USE_AGENT_SKILLS);
     if (!useAgentSkills) {
       return void 0;
     }
+    return this.cachedSkills.get(token);
+  }
+  async computeAgentSkills(token) {
     const { files, skillsBySource } = await this.computeSkillDiscoveryInfo(token);
     const result = [];
     for (const file of files) {
       if (file.status === "loaded" && file.name) {
         const sanitizedDescription = this.truncateAgentSkillDescription(file.description, file.uri);
-        result.push({ uri: file.uri, storage: file.storage, name: file.name, description: sanitizedDescription });
+        result.push({
+          uri: file.uri,
+          storage: file.storage,
+          name: file.name,
+          description: sanitizedDescription,
+          disableModelInvocation: file.disableModelInvocation ?? false,
+          userInvocable: file.userInvocable ?? true
+        });
       }
     }
     let skippedMissingName = 0;
@@ -688,10 +791,15 @@ let PromptsService = class PromptsService2 extends Disposable {
     });
     return result;
   }
-  getHooks(token) {
+  async getHooks(token) {
     return this.cachedHooks.get(token);
   }
   async computeHooks(token) {
+    const useChatHooks = this.configurationService.getValue(PromptsConfig.USE_CHAT_HOOKS);
+    if (!useChatHooks) {
+      return void 0;
+    }
+    const useClaudeHooks = this.configurationService.getValue(PromptsConfig.USE_CLAUDE_HOOKS);
     const hookFiles = await this.listPromptFiles(PromptsType.hook, token);
     if (hookFiles.length === 0) {
       this.logger.trace("[PromptsService] No hook files found.");
@@ -702,12 +810,13 @@ let PromptsService = class PromptsService2 extends Disposable {
     const userHome = userHomeUri.scheme === Schemas.file ? userHomeUri.fsPath : userHomeUri.path;
     const workspaceFolder = this.workspaceService.getWorkspace().folders[0];
     const workspaceRootUri = workspaceFolder?.uri;
+    let hasDisabledClaudeHooks = false;
     const collectedHooks = {
       [HookType.SessionStart]: [],
-      [HookType.UserPromptSubmitted]: [],
+      [HookType.UserPromptSubmit]: [],
       [HookType.PreToolUse]: [],
       [HookType.PostToolUse]: [],
-      [HookType.PostToolUseFailure]: [],
+      [HookType.PreCompact]: [],
       [HookType.SubagentStart]: [],
       [HookType.SubagentStop]: [],
       [HookType.Stop]: []
@@ -715,8 +824,20 @@ let PromptsService = class PromptsService2 extends Disposable {
     for (const hookFile of hookFiles) {
       try {
         const content = await this.fileService.readFile(hookFile.uri);
-        const json = JSON.parse(content.value.toString());
-        const { format, hooks } = parseHooksFromFile(hookFile.uri, json, workspaceRootUri, userHome);
+        const json = parseJSONC(content.value.toString());
+        const { format, hooks, disabledAllHooks } = parseHooksFromFile(hookFile.uri, json, workspaceRootUri, userHome);
+        if (disabledAllHooks) {
+          this.logger.trace(`[PromptsService] Skipping hook file with disableAllHooks: ${hookFile.uri}`);
+          continue;
+        }
+        if (format === HookSourceFormat.Claude && useClaudeHooks === false) {
+          const hasAnyCommands = [...hooks.values()].some(({ hooks: cmds }) => cmds.length > 0);
+          if (hasAnyCommands) {
+            hasDisabledClaudeHooks = true;
+          }
+          this.logger.trace(`[PromptsService] Skipping Claude hook file (disabled via setting): ${hookFile.uri}`);
+          continue;
+        }
         for (const [hookType, { hooks: commands }] of hooks) {
           for (const command of commands) {
             collectedHooks[hookType].push(command);
@@ -732,18 +853,9 @@ let PromptsService = class PromptsService2 extends Disposable {
       this.logger.trace("[PromptsService] No valid hooks collected.");
       return void 0;
     }
-    const result = {
-      ...collectedHooks[HookType.SessionStart].length > 0 && { sessionStart: collectedHooks[HookType.SessionStart] },
-      ...collectedHooks[HookType.UserPromptSubmitted].length > 0 && { userPromptSubmitted: collectedHooks[HookType.UserPromptSubmitted] },
-      ...collectedHooks[HookType.PreToolUse].length > 0 && { preToolUse: collectedHooks[HookType.PreToolUse] },
-      ...collectedHooks[HookType.PostToolUse].length > 0 && { postToolUse: collectedHooks[HookType.PostToolUse] },
-      ...collectedHooks[HookType.PostToolUseFailure].length > 0 && { postToolUseFailure: collectedHooks[HookType.PostToolUseFailure] },
-      ...collectedHooks[HookType.SubagentStart].length > 0 && { subagentStart: collectedHooks[HookType.SubagentStart] },
-      ...collectedHooks[HookType.SubagentStop].length > 0 && { subagentStop: collectedHooks[HookType.SubagentStop] },
-      ...collectedHooks[HookType.Stop].length > 0 && { stop: collectedHooks[HookType.Stop] }
-    };
+    const result = Object.fromEntries(Object.entries(collectedHooks).filter(([_, commands]) => commands.length > 0));
     this.logger.trace(`[PromptsService] Collected hooks: ${JSON.stringify(Object.keys(result))}`);
-    return result;
+    return { hooks: result, hasDisabledClaudeHooks };
   }
   async getPromptDiscoveryInfo(type, token) {
     const files = [];
@@ -755,6 +867,8 @@ let PromptsService = class PromptsService2 extends Disposable {
       return this.getPromptSlashCommandDiscoveryInfo(token);
     } else if (type === PromptsType.instructions) {
       return this.getInstructionsDiscoveryInfo(token);
+    } else if (type === PromptsType.hook) {
+      return this.getHookDiscoveryInfo(token);
     }
     return { type, files };
   }
@@ -845,7 +959,9 @@ let PromptsService = class PromptsService2 extends Disposable {
         }
         seenNames.add(sanitizedName);
         nameToUri.set(sanitizedName, uri);
-        files.push({ uri, storage, status: "loaded", name: sanitizedName, description, extensionId, source });
+        const disableModelInvocation = parsedFile.header?.disableModelInvocation === true;
+        const userInvocable = parsedFile.header?.userInvocable !== false;
+        files.push({ uri, storage, status: "loaded", name: sanitizedName, description, extensionId, source, disableModelInvocation, userInvocable });
         skillsBySource.set(source, (skillsBySource.get(source) || 0) + 1);
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e);
@@ -939,6 +1055,72 @@ let PromptsService = class PromptsService2 extends Disposable {
       }
     }
     return { type: PromptsType.instructions, files };
+  }
+  async getHookDiscoveryInfo(token) {
+    const files = [];
+    const userHomeUri = await this.pathService.userHome();
+    const userHome = userHomeUri.scheme === Schemas.file ? userHomeUri.fsPath : userHomeUri.path;
+    const workspaceFolder = this.workspaceService.getWorkspace().folders[0];
+    const workspaceRootUri = workspaceFolder?.uri;
+    const useClaudeHooks = this.configurationService.getValue(PromptsConfig.USE_CLAUDE_HOOKS);
+    const hookFiles = await this.listPromptFiles(PromptsType.hook, token);
+    for (const promptPath of hookFiles) {
+      const uri = promptPath.uri;
+      const storage = promptPath.storage;
+      const extensionId = promptPath.extension?.identifier?.value;
+      const name = basename(uri);
+      if (getHookSourceFormat(uri) === HookSourceFormat.Claude && useClaudeHooks === false) {
+        files.push({
+          uri,
+          storage,
+          status: "skipped",
+          skipReason: "claude-hooks-disabled",
+          name,
+          extensionId
+        });
+        continue;
+      }
+      try {
+        const content = await this.fileService.readFile(uri);
+        const json = parseJSONC(content.value.toString());
+        if (!json || typeof json !== "object") {
+          files.push({
+            uri,
+            storage,
+            status: "skipped",
+            skipReason: "parse-error",
+            errorMessage: "Invalid hooks file: must be a JSON object",
+            name,
+            extensionId
+          });
+          continue;
+        }
+        const { disabledAllHooks } = parseHooksFromFile(uri, json, workspaceRootUri, userHome);
+        if (disabledAllHooks) {
+          files.push({
+            uri,
+            storage,
+            status: "skipped",
+            skipReason: "all-hooks-disabled",
+            name,
+            extensionId
+          });
+          continue;
+        }
+        files.push({ uri, storage, status: "loaded", name, extensionId });
+      } catch (e) {
+        files.push({
+          uri,
+          storage,
+          status: "skipped",
+          skipReason: "parse-error",
+          errorMessage: e instanceof Error ? e.message : String(e),
+          name,
+          extensionId
+        });
+      }
+    }
+    return { type: PromptsType.hook, files };
   }
 };
 PromptsService = __decorate([

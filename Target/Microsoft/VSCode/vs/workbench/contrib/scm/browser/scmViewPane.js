@@ -1536,6 +1536,7 @@ class SCMInputWidgetEditorOptions {
   }
   dispose() {
     this._disposables.dispose();
+    this._onDidChange.dispose();
   }
 }
 let SCMInputWidget = class SCMInputWidget2 {
@@ -2608,6 +2609,8 @@ let SCMViewPane = class SCMViewPane2 extends ViewPane {
     });
   }
   dispose() {
+    this._onDidChangeViewMode.dispose();
+    this._onDidChangeViewSortKey.dispose();
     this.visibilityDisposables.dispose();
     this.disposables.dispose();
     this.items.dispose();

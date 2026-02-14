@@ -417,7 +417,7 @@ let TestingOutputPeekController = TestingOutputPeekController_1 = class TestingO
     if (!this.peek.get()) {
       const peek = this.instantiationService.createInstance(TestResultsPeek, this.editor);
       this.peek.set(peek, void 0);
-      peek.onDidClose(() => {
+      Event.once(peek.onDidClose)(() => {
         this.visible.set(false);
         this.peek.set(void 0, void 0);
       });

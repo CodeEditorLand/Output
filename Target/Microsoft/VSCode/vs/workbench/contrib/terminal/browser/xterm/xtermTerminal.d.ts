@@ -65,8 +65,8 @@ export declare class XtermTerminal extends Disposable implements IXtermTerminal,
     get lastInputEvent(): string | undefined;
     private _progressState;
     get progressState(): IProgressState;
-    get buffer(): any;
-    get cols(): any;
+    get buffer(): import("@xterm/xterm").IBufferNamespace;
+    get cols(): number;
     private _markNavigationAddon;
     private _shellIntegrationAddon;
     private _decorationAddon;
@@ -171,6 +171,7 @@ export declare class XtermTerminal extends Disposable implements IXtermTerminal,
     focus(): void;
     copySelection(asHtml?: boolean, command?: ITerminalCommand): Promise<void>;
     private _setCursorBlink;
+    private _setTextBlinking;
     private _setCursorStyle;
     private _setCursorStyleInactive;
     private _setCursorWidth;

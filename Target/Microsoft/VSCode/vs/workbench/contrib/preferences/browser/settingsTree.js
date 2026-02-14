@@ -401,6 +401,7 @@ async function createTocTreeForExtensionSettings(extensionService, groups, filte
   const processGroupEntry = /* @__PURE__ */ __name(async (group) => {
     const flatSettings = group.sections.map((section) => section.settings).flat();
     const settings = filter ? getMatchingSettings(new Set(flatSettings), filter) : flatSettings;
+    sortSettings(settings);
     const extensionId = group.extensionInfo.id;
     const extension = await extensionService.getExtension(extensionId);
     const extensionName = extension?.displayName ?? extension?.name ?? extensionId;
@@ -417,11 +418,6 @@ async function createTocTreeForExtensionSettings(extensionService, groups, filte
   return Promise.all(processPromises).then(() => {
     const extGroups = [];
     for (const extensionRootEntry of extGroupTree.values()) {
-      for (const child of extensionRootEntry.children) {
-        child.settings?.sort((a, b) => {
-          return compareTwoNullableNumbers(a.order, b.order);
-        });
-      }
       if (extensionRootEntry.children.length === 1) {
         extGroups.push({
           id: extensionRootEntry.id,
@@ -469,6 +465,7 @@ function _resolveSettingsTree(tocData, allSettings, filter, logService) {
       },
       exclude: filter?.exclude ?? {}
     });
+    sortSettings(settings);
   }
   if (!children && !settings) {
     throw new Error(`TOC node has no child groups or settings: ${tocData.id}`);
@@ -481,6 +478,29 @@ function _resolveSettingsTree(tocData, allSettings, filter, logService) {
   };
 }
 __name(_resolveSettingsTree, "_resolveSettingsTree");
+function sortSettings(settings) {
+  const SETTING_STATUS_NORMAL = 0;
+  const SETTING_STATUS_PREVIEW = 1;
+  const SETTING_STATUS_EXPERIMENTAL = 2;
+  const getExperimentalStatus = /* @__PURE__ */ __name((setting) => {
+    if (setting.tags?.includes("experimental")) {
+      return SETTING_STATUS_EXPERIMENTAL;
+    } else if (setting.tags?.includes("preview")) {
+      return SETTING_STATUS_PREVIEW;
+    }
+    return SETTING_STATUS_NORMAL;
+  }, "getExperimentalStatus");
+  settings.sort((a, b) => {
+    const experimentalStatusA = getExperimentalStatus(a);
+    const experimentalStatusB = getExperimentalStatus(b);
+    if (experimentalStatusA !== experimentalStatusB) {
+      return experimentalStatusA - experimentalStatusB;
+    }
+    const orderComparison = compareTwoNullableNumbers(a.order, b.order);
+    return orderComparison !== 0 ? orderComparison : a.key.localeCompare(b.key);
+  });
+}
+__name(sortSettings, "sortSettings");
 function getMatchingSettings(allSettings, filter) {
   const result = [];
   allSettings.forEach((setting) => {
@@ -519,7 +539,7 @@ function getMatchingSettings(allSettings, filter) {
       allSettings.delete(setting);
     }
   });
-  return result.sort((a, b) => a.key.localeCompare(b.key));
+  return result;
 }
 __name(getMatchingSettings, "getMatchingSettings");
 const settingPatternCache = /* @__PURE__ */ new Map();
@@ -1942,13 +1962,14 @@ let SettingsTreeFilter = class SettingsTreeFilter2 {
   static {
     __name(this, "SettingsTreeFilter");
   }
-  constructor(viewState, environmentService) {
+  constructor(viewState, isFilteringGroups, environmentService) {
     this.viewState = viewState;
+    this.isFilteringGroups = isFilteringGroups;
     this.environmentService = environmentService;
   }
   filter(element, parentVisibility) {
-    if (this.viewState.filterToCategory && element instanceof SettingsTreeSettingElement) {
-      if (!this.settingContainedInGroup(element.setting, this.viewState.filterToCategory)) {
+    if (this.viewState.categoryFilter && element instanceof SettingsTreeSettingElement) {
+      if (!this.settingContainedInGroup(element.setting, this.viewState.categoryFilter)) {
         return false;
       }
     }
@@ -1959,13 +1980,19 @@ let SettingsTreeFilter = class SettingsTreeFilter2 {
       }
     }
     if (element instanceof SettingsTreeGroupElement) {
+      if (this.isFilteringGroups && this.viewState.categoryFilter) {
+        if (!this.groupIsRelatedToCategory(element, this.viewState.categoryFilter)) {
+          return false;
+        }
+        return 2;
+      }
       if (typeof element.count === "number") {
         return element.count > 0;
       }
       return 2;
     }
     if (element instanceof SettingsTreeNewExtensionsElement) {
-      if (this.viewState.tagFilters?.size || this.viewState.filterToCategory) {
+      if (this.viewState.tagFilters?.size || this.viewState.categoryFilter) {
         return false;
       }
     }
@@ -1982,9 +2009,33 @@ let SettingsTreeFilter = class SettingsTreeFilter2 {
       }
     });
   }
+  /**
+   * Checks if a group is related to the filtered category.
+   * A group is related if it's the category itself, a descendant of it, or an ancestor of it.
+   */
+  groupIsRelatedToCategory(group, category) {
+    if (group.id === category.id) {
+      return true;
+    }
+    let parent = group.parent;
+    while (parent) {
+      if (parent.id === category.id) {
+        return true;
+      }
+      parent = parent.parent;
+    }
+    let categoryParent = category.parent;
+    while (categoryParent) {
+      if (categoryParent.id === group.id) {
+        return true;
+      }
+      categoryParent = categoryParent.parent;
+    }
+    return false;
+  }
 };
 SettingsTreeFilter = __decorate([
-  __param(1, IWorkbenchEnvironmentService)
+  __param(2, IWorkbenchEnvironmentService)
 ], SettingsTreeFilter);
 class SettingsTreeDelegate extends CachedListVirtualDelegate {
   static {
@@ -2118,7 +2169,7 @@ let SettingsTree = class SettingsTree2 extends WorkbenchObjectTree {
       },
       accessibilityProvider: new SettingsTreeAccessibilityProvider(configurationService, languageService, userDataProfilesService),
       styleController: /* @__PURE__ */ __name((id) => new DefaultStyleController(domStylesheetsJs.createStyleSheet(container), id), "styleController"),
-      filter: instantiationService.createInstance(SettingsTreeFilter, viewState),
+      filter: instantiationService.createInstance(SettingsTreeFilter, viewState, true),
       smoothScrolling: configurationService.getValue("workbench.list.smoothScrolling"),
       multipleSelectionSupport: false,
       findWidgetEnabled: false,

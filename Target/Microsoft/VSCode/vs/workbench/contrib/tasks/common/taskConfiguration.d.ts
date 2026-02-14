@@ -113,10 +113,10 @@ export interface IRunOptionsConfig {
 }
 export interface ITaskIdentifier {
     type?: string;
-    [name: string]: any;
+    [name: string]: unknown;
 }
 export declare namespace ITaskIdentifier {
-    function is(value: any): value is ITaskIdentifier;
+    function is(value: unknown): value is ITaskIdentifier;
 }
 export interface ILegacyTaskProperties {
     /**
@@ -456,7 +456,7 @@ export interface IParseContext {
 export declare namespace ProblemMatcherConverter {
     function namedFrom(this: void, declares: ProblemMatcherConfig.INamedProblemMatcher[] | undefined, context: IParseContext): IStringDictionary<INamedProblemMatcher>;
     function fromWithOsConfig(this: void, external: IConfigurationProperties & {
-        [key: string]: any;
+        [key: string]: unknown;
     }, context: IParseContext): TaskConfigurationValueWithErrors<ProblemMatcher[]>;
     function from(this: void, config: ProblemMatcherConfig.ProblemMatcherType | undefined, context: IParseContext): TaskConfigurationValueWithErrors<ProblemMatcher[]>;
 }

@@ -44,7 +44,6 @@ export declare abstract class AbstractNativeEnvironmentService implements INativ
     get argvResource(): URI;
     get isExtensionDevelopment(): boolean;
     get untitledWorkspacesHome(): URI;
-    get builtinWorkbenchModesHome(): URI;
     get builtinExtensionsPath(): string;
     get extensionsDownloadLocation(): URI;
     get extensionsPath(): string;

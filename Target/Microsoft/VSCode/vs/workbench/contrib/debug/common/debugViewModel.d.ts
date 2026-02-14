@@ -1,7 +1,8 @@
 import { Event } from '../../../../base/common/event.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
 import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
 import { IDebugSession, IExpression, IExpressionContainer, IStackFrame, IThread, IViewModel } from './debug.js';
-export declare class ViewModel implements IViewModel {
+export declare class ViewModel extends Disposable implements IViewModel {
     private contextKeyService;
     firstSessionStart: boolean;
     private _focusedStackFrame;

@@ -24,7 +24,8 @@ import { IClipboardService } from "../../../../platform/clipboard/common/clipboa
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { IMarkdownRendererService, openLinkFromMarkdown } from "../../../../platform/markdown/browser/markdownRenderer.js";
 import { IOpenerService } from "../../../../platform/opener/common/opener.js";
-import { createWorkbenchDialogOptions } from "../../../../platform/dialogs/browser/dialog.js";
+import { createWorkbenchDialogOptions } from "./dialog.js";
+import { IHostService } from "../../../services/host/browser/host.js";
 let BrowserDialogHandler = class BrowserDialogHandler2 extends AbstractDialogHandler {
   static {
     __name(this, "BrowserDialogHandler");
@@ -33,16 +34,16 @@ let BrowserDialogHandler = class BrowserDialogHandler2 extends AbstractDialogHan
     BrowserDialogHandler_1 = this;
   }
   static {
-    this.ALLOWABLE_COMMANDS = [
+    this.ALLOWABLE_COMMANDS = /* @__PURE__ */ new Set([
       "copy",
       "cut",
       "editor.action.selectAll",
       "editor.action.clipboardCopyAction",
       "editor.action.clipboardCutAction",
       "editor.action.clipboardPasteAction"
-    ];
+    ]);
   }
-  constructor(logService, layoutService, keybindingService, instantiationService, clipboardService, openerService, markdownRendererService) {
+  constructor(logService, layoutService, keybindingService, instantiationService, clipboardService, openerService, markdownRendererService, hostService) {
     super();
     this.logService = logService;
     this.layoutService = layoutService;
@@ -50,6 +51,7 @@ let BrowserDialogHandler = class BrowserDialogHandler2 extends AbstractDialogHan
     this.clipboardService = clipboardService;
     this.openerService = openerService;
     this.markdownRendererService = markdownRendererService;
+    this.hostService = hostService;
   }
   async prompt(prompt) {
     this.logService.trace("DialogService#prompt", prompt.message);
@@ -109,7 +111,7 @@ let BrowserDialogHandler = class BrowserDialogHandler2 extends AbstractDialogHan
       checkboxLabel: checkbox?.label,
       checkboxChecked: checkbox?.checked,
       inputs
-    }, this.keybindingService, this.layoutService, BrowserDialogHandler_1.ALLOWABLE_COMMANDS));
+    }, this.keybindingService, this.layoutService, this.hostService, BrowserDialogHandler_1.ALLOWABLE_COMMANDS));
     dialogDisposables.add(dialog);
     const result = await dialog.show();
     dialogDisposables.dispose();
@@ -123,7 +125,8 @@ BrowserDialogHandler = BrowserDialogHandler_1 = __decorate([
   __param(3, IInstantiationService),
   __param(4, IClipboardService),
   __param(5, IOpenerService),
-  __param(6, IMarkdownRendererService)
+  __param(6, IMarkdownRendererService),
+  __param(7, IHostService)
 ], BrowserDialogHandler);
 export {
   BrowserDialogHandler

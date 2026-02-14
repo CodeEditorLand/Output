@@ -16,11 +16,11 @@ import { localize } from "../../../../../../nls.js";
 import { ILanguageModelToolsService } from "../../tools/languageModelToolsService.js";
 import { getPromptsTypeForLanguageId, PromptsType } from "../promptTypes.js";
 import { IPromptsService } from "../service/promptsService.js";
-import { PromptHeaderAttributes } from "../promptFileParser.js";
+import { parseCommaSeparatedList, PromptHeaderAttributes } from "../promptFileParser.js";
 import { Lazy } from "../../../../../../base/common/lazy.js";
 import { LEGACY_MODE_FILE_EXTENSION } from "../config/promptFileLocations.js";
 import { IFileService } from "../../../../../../platform/files/common/files.js";
-import { isGithubTarget, MARKERS_OWNER_ID } from "./promptValidator.js";
+import { getTarget, isVSCodeOrDefaultTarget, MARKERS_OWNER_ID } from "./promptValidator.js";
 import { IMarkerService } from "../../../../../../platform/markers/common/markers.js";
 import { CodeActionKind } from "../../../../../../editor/contrib/codeAction/common/types.js";
 let PromptCodeActionProvider = class PromptCodeActionProvider2 {
@@ -91,14 +91,25 @@ let PromptCodeActionProvider = class PromptCodeActionProvider2 {
     }
   }
   getUpdateToolsCodeActions(promptFile, promptType, model, range, result) {
-    const toolsAttr = promptFile.header?.getAttribute(PromptHeaderAttributes.tools);
-    if (toolsAttr?.value.type !== "array" || !toolsAttr.value.range.containsRange(range)) {
+    if (!promptFile.header) {
       return;
     }
-    if (isGithubTarget(promptType, promptFile.header?.target)) {
+    const toolsAttr = promptFile.header.getAttribute(PromptHeaderAttributes.tools);
+    if (!toolsAttr || !toolsAttr.value.range.containsRange(range)) {
       return;
     }
-    const values = toolsAttr.value.items;
+    const target = getTarget(promptType, promptFile.header);
+    if (!isVSCodeOrDefaultTarget(target)) {
+      return;
+    }
+    let value = toolsAttr.value;
+    if (value.type === "string") {
+      value = parseCommaSeparatedList(value);
+    }
+    if (value.type !== "array") {
+      return;
+    }
+    const values = value.items;
     const deprecatedNames = new Lazy(() => this.languageModelToolsService.getDeprecatedFullReferenceNames());
     const edits = [];
     for (const item of values) {
@@ -131,7 +142,7 @@ let PromptCodeActionProvider = class PromptCodeActionProvider2 {
       }
     }
     if (edits.length && result.length === 0 || edits.length > 1) {
-      result.push(this.createCodeAction(model, toolsAttr.value.range, localize("updateAllToolNames", "Update all tool names"), edits.map((edit) => asWorkspaceTextEdit(model, edit))));
+      result.push(this.createCodeAction(model, value.range, localize("updateAllToolNames", "Update all tool names"), edits.map((edit) => asWorkspaceTextEdit(model, edit))));
     }
   }
 };

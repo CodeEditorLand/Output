@@ -33,6 +33,7 @@ class TextMateWorkerTokenizer extends MirrorTextModel {
   }
   dispose() {
     this._isDisposed = true;
+    this._tokenizeDebouncer.dispose();
     super.dispose();
   }
   onLanguageId(languageId, encodedLanguageId) {

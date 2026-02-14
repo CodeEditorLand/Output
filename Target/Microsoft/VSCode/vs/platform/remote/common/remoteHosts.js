@@ -16,6 +16,17 @@ function getRemoteName(authority) {
   return authority.substr(0, pos);
 }
 __name(getRemoteName, "getRemoteName");
+function getRemoteServerRootPath(authority) {
+  if (!authority) {
+    return void 0;
+  }
+  const pos = authority.indexOf("+");
+  if (pos < 0) {
+    return void 0;
+  }
+  return authority.substring(pos + 1);
+}
+__name(getRemoteServerRootPath, "getRemoteServerRootPath");
 function parseAuthorityWithPort(authority) {
   const { host, port } = parseAuthority(authority);
   if (typeof port === "undefined") {
@@ -51,6 +62,7 @@ __name(parseAuthority, "parseAuthority");
 export {
   getRemoteAuthority,
   getRemoteName,
+  getRemoteServerRootPath,
   parseAuthorityWithOptionalPort,
   parseAuthorityWithPort
 };

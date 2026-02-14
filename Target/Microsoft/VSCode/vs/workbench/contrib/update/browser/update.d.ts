@@ -10,6 +10,7 @@ import { IDialogService } from '../../../../platform/dialogs/common/dialogs.js';
 import { IBrowserWorkbenchEnvironmentService } from '../../../services/environment/browser/environmentService.js';
 import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
 import { RawContextKey, IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { MenuId } from '../../../../platform/actions/common/actions.js';
 import { IHostService } from '../../../services/host/browser/host.js';
 import { IProductService } from '../../../../platform/product/common/productService.js';
 import { IDefaultAccountService } from '../../../../platform/defaultAccount/common/defaultAccount.js';
@@ -18,6 +19,13 @@ export declare const MAJOR_MINOR_UPDATE_AVAILABLE: RawContextKey<boolean>;
 export declare const RELEASE_NOTES_URL: RawContextKey<string>;
 export declare const DOWNLOAD_URL: RawContextKey<string>;
 export declare function showReleaseNotesInEditor(instantiationService: IInstantiationService, version: string, useCurrentFile: boolean): Promise<boolean>;
+/**
+ * Appends update-related menu items to the given menu. This registers menu items
+ * for all update states (idle, checking, downloading, etc.) that show the current
+ * update status. The underlying commands (`update.check`, `update.restart`, etc.)
+ * must be registered separately.
+ */
+export declare function appendUpdateMenuItems(menuId: MenuId, group: string): void;
 export declare class ProductContribution implements IWorkbenchContribution {
     private static readonly KEY;
     constructor(storageService: IStorageService, instantiationService: IInstantiationService, notificationService: INotificationService, environmentService: IBrowserWorkbenchEnvironmentService, openerService: IOpenerService, configurationService: IConfigurationService, hostService: IHostService, productService: IProductService, contextKeyService: IContextKeyService);

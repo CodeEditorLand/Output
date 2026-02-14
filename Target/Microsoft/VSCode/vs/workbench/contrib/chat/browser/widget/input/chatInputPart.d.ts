@@ -23,9 +23,10 @@ import { IViewDescriptorService } from '../../../../../common/views.js';
 import { IWorkbenchAssignmentService } from '../../../../../services/assignment/common/assignmentService.js';
 import { IChatEntitlementService } from '../../../../../services/chat/common/chatEntitlementService.js';
 import { IEditorService } from '../../../../../services/editor/common/editorService.js';
+import { ChatContextKeys } from '../../../common/actions/chatContextKeys.js';
 import { ChatRequestVariableSet, IChatRequestVariableEntry } from '../../../common/attachments/chatVariableEntries.js';
 import { IChatMode, IChatModeService } from '../../../common/chatModes.js';
-import { IChatFollowup, IChatService } from '../../../common/chatService/chatService.js';
+import { IChatFollowup, IChatQuestionCarousel, IChatService } from '../../../common/chatService/chatService.js';
 import { IChatSessionsService } from '../../../common/chatSessionsService.js';
 import { ChatAgentLocation, ChatModeKind } from '../../../common/constants.js';
 import { IChatEditingSession } from '../../../common/editing/chatEditingService.js';
@@ -40,6 +41,8 @@ import { ChatAttachmentModel } from '../../attachments/chatAttachmentModel.js';
 import { ChatImplicitContexts } from '../../attachments/chatImplicitContext.js';
 import { IChatWidget, ISessionTypePickerDelegate, IWorkspacePickerDelegate } from '../../chat.js';
 import { IChatContextService } from '../../contextContrib/chatContextService.js';
+import { ChatQuestionCarouselPart, IChatQuestionCarouselOptions } from '../chatContentParts/chatQuestionCarouselPart.js';
+import { IChatContentPartRenderContext } from '../chatContentParts/chatContentParts.js';
 import { ChatDragAndDrop } from '../chatDragAndDrop.js';
 import { ChatSelectedTools } from './chatSelectedTools.js';
 export interface IChatInputStyles {
@@ -121,6 +124,9 @@ export declare class ChatInputPart extends Disposable implements IHistoryNavigat
     private static _counter;
     private _workingSetCollapsed;
     private readonly _chatInputTodoListWidget;
+    private readonly _chatQuestionCarouselWidget;
+    private readonly _chatQuestionCarouselDisposables;
+    private _currentQuestionCarouselResponseId;
     private readonly _chatEditingTodosDisposables;
     private _lastEditingSessionResource;
     private _onDidLoadInputState;
@@ -168,11 +174,16 @@ export declare class ChatInputPart extends Disposable implements IHistoryNavigat
     private readonly attachedContextDisposables;
     private chatEditingSessionWidgetContainer;
     private chatInputTodoListWidgetContainer;
+    private chatGettingStartedTipContainer;
+    private chatQuestionCarouselContainer;
     private chatInputWidgetsContainer;
+    private inputContainer;
     private readonly _widgetController;
     private contextUsageWidget?;
     private contextUsageWidgetContainer;
     private readonly _contextUsageDisposables;
+    get inputContainerElement(): HTMLElement | undefined;
+    get gettingStartedTipContainerElement(): HTMLElement;
     readonly height: ISettableObservable<number, void>;
     private _inputEditor;
     private _inputEditorElement;
@@ -194,6 +205,7 @@ export declare class ChatInputPart extends Disposable implements IHistoryNavigat
     private chatCursorAtTop;
     private inputEditorHasFocus;
     private currentlyEditingInputKey;
+    private editingSentRequestKey;
     private chatModeKindKey;
     private chatModeNameKey;
     private withinEditSessionKey;
@@ -237,10 +249,8 @@ export declare class ChatInputPart extends Disposable implements IHistoryNavigat
     private _workingSetLinesAddedSpan;
     private _workingSetLinesRemovedSpan;
     private readonly _chatEditsActionsDisposables;
-    private readonly _chatEditsDisposables;
     private readonly _renderingChatEdits;
-    private _chatEditsListPool;
-    private _chatEditList;
+    private readonly _chatEditsListWidget;
     get selectedElements(): URI[];
     private _attemptedWorkingSetEntriesCount;
     /**
@@ -267,7 +277,7 @@ export declare class ChatInputPart extends Disposable implements IHistoryNavigat
     private getSelectedModelStorageKey;
     private getSelectedModelIsDefaultStorageKey;
     private initSelectedModel;
-    setEditing(enabled: boolean): void;
+    setEditing(enabled: boolean, editingSentRequest: ChatContextKeys.EditingRequestType | undefined): void;
     switchModel(modelMetadata: Pick<ILanguageModelChatMetadata, 'vendor' | 'id' | 'family'>): void;
     switchModelByQualifiedName(qualifiedModelNames: readonly string[]): boolean;
     switchToNextModel(): void;
@@ -324,6 +334,9 @@ export declare class ChatInputPart extends Disposable implements IHistoryNavigat
     setValue(value: string, transient: boolean): void;
     focus(): void;
     hasFocus(): boolean;
+    focusTodoList(): boolean;
+    isTodoListFocused(): boolean;
+    hasVisibleTodos(): boolean;
     /**
      * Reset the input and update history.
      * @param userQuery If provided, this will be added to the history. Followups and programmatic queries should not be passed.
@@ -391,6 +404,11 @@ export declare class ChatInputPart extends Disposable implements IHistoryNavigat
      */
     private tryUpdateWidgetController;
     /**
+     * Shows the context usage details popup and focuses it.
+     * @returns Whether the details were successfully shown.
+     */
+    showContextUsageDetails(): boolean;
+    /**
      * Updates the context usage widget based on the current model.
      */
     private updateContextUsageWidget;
@@ -403,6 +421,12 @@ export declare class ChatInputPart extends Disposable implements IHistoryNavigat
     private handleAttachmentNavigation;
     renderChatTodoListWidget(chatSessionResource: URI): Promise<void>;
     clearTodoListWidget(sessionResource: URI | undefined, force: boolean): void;
+    renderQuestionCarousel(carousel: IChatQuestionCarousel, context: IChatContentPartRenderContext, options: IChatQuestionCarouselOptions): ChatQuestionCarouselPart;
+    clearQuestionCarousel(responseId?: string): void;
+    get questionCarouselResponseId(): string | undefined;
+    get questionCarousel(): ChatQuestionCarouselPart | undefined;
+    focusQuestionCarousel(): boolean;
+    isQuestionCarouselFocused(): boolean;
     setWorkingSetCollapsed(collapsed: boolean): void;
     renderChatEditingSessionState(chatEditingSession: IChatEditingSession | null): void;
     private renderChatEditingSessionWithEntries;

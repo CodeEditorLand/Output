@@ -718,4 +718,5 @@ export declare const Codicon: {
     readonly ask: ThemeIcon;
     readonly openai: ThemeIcon;
     readonly claude: ThemeIcon;
+    readonly openInWindow: ThemeIcon;
 };

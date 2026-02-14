@@ -180,8 +180,14 @@ div.chat-terminal-content-part.progress-step > div.chat-terminal-output-containe
 .chat-terminal-output-terminal.chat-terminal-output-terminal-no-output ~ .chat-terminal-output-empty {
   display: block;
 }
-.chat-terminal-output-container .xterm-scrollable-element .scrollbar {
+.chat-terminal-output-container .xterm-scrollable-element .xterm-scrollbar {
   display: none;
+}
+.chat-terminal-output-container > .monaco-scrollable-element > .scrollbar.horizontal {
+  pointer-events: none;
+}
+.chat-terminal-output-container > .monaco-scrollable-element > .scrollbar.horizontal .slider {
+  pointer-events: auto;
 }
 .chat-terminal-output div,
 .chat-terminal-output span {

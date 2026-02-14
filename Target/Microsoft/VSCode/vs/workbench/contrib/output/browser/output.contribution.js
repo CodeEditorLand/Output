@@ -48,6 +48,8 @@ import { IFileDialogService } from "../../../../platform/dialogs/common/dialogs.
 import { basename } from "../../../../base/common/resources.js";
 import { hasKey } from "../../../../base/common/types.js";
 import { IDefaultLogLevelsService } from "../../../services/log/common/defaultLogLevels.js";
+import { AccessibleViewRegistry } from "../../../../platform/accessibility/browser/accessibleViewRegistry.js";
+import { OutputAccessibilityHelp } from "./outputAccessibilityHelp.js";
 const IMPORTED_LOG_ID_PREFIX = "importedLog.";
 registerSingleton(
   IOutputService,
@@ -55,6 +57,7 @@ registerSingleton(
   1
   /* InstantiationType.Delayed */
 );
+AccessibleViewRegistry.register(new OutputAccessibilityHelp());
 ModesRegistry.registerLanguage({
   id: OUTPUT_MODE_ID,
   extensions: [],

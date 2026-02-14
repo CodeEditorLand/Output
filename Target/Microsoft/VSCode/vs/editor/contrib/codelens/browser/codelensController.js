@@ -77,6 +77,7 @@ let CodeLensContribution = class CodeLensContribution2 {
     this._localDispose();
     this._localToDispose.dispose();
     this._disposables.dispose();
+    this._resolveCodeLensesScheduler.dispose();
     this._oldCodeLensModels.dispose();
     this._currentCodeLensModel?.dispose();
   }

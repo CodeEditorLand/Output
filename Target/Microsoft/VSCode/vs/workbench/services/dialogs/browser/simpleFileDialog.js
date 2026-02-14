@@ -33,7 +33,7 @@ import { equalsIgnoreCase, format, startsWithIgnoreCase } from "../../../../base
 import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
 import { isValidBasename } from "../../../../base/common/extpath.js";
 import { Emitter } from "../../../../base/common/event.js";
-import { Disposable, DisposableStore } from "../../../../base/common/lifecycle.js";
+import { Disposable, DisposableStore, MutableDisposable } from "../../../../base/common/lifecycle.js";
 import { createCancelablePromise } from "../../../../base/common/async.js";
 import { IEditorService } from "../../editor/common/editorService.js";
 import { normalizeDriveLetter } from "../../../../base/common/labels.js";
@@ -350,9 +350,10 @@ let SimpleFileDialog = class SimpleFileDialog2 extends Disposable {
           });
         }
       }));
+      const busyDisposable = this._register(new MutableDisposable());
       const handleAccept = /* @__PURE__ */ __name(() => {
         if (this.busy) {
-          this.onBusyChangeEmitter.event((busy) => {
+          busyDisposable.value = this.onBusyChangeEmitter.event((busy) => {
             if (!busy) {
               handleAccept();
             }

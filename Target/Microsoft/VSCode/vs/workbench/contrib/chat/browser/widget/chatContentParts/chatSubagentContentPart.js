@@ -15,39 +15,47 @@ var ChatSubagentContentPart_1;
 import * as dom from "../../../../../../base/browser/dom.js";
 import { $, AnimationFrameScheduler, DisposableResizeObserver } from "../../../../../../base/browser/dom.js";
 import { Codicon } from "../../../../../../base/common/codicons.js";
-import { ThemeIcon } from "../../../../../../base/common/themables.js";
+import { MarkdownString } from "../../../../../../base/common/htmlContent.js";
+import { Lazy } from "../../../../../../base/common/lazy.js";
+import { MutableDisposable } from "../../../../../../base/common/lifecycle.js";
+import { autorun } from "../../../../../../base/common/observable.js";
 import { rcut } from "../../../../../../base/common/strings.js";
+import { ThemeIcon } from "../../../../../../base/common/themables.js";
 import { localize } from "../../../../../../nls.js";
 import { IHoverService } from "../../../../../../platform/hover/browser/hover.js";
 import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
 import { ChatCollapsibleContentPart } from "./chatCollapsibleContentPart.js";
 import { ChatCollapsibleMarkdownContentPart } from "./chatCollapsibleMarkdownContentPart.js";
-import { RunSubagentTool } from "../../../common/tools/builtinTools/runSubagentTool.js";
-import { autorun } from "../../../../../../base/common/observable.js";
-import { Lazy } from "../../../../../../base/common/lazy.js";
-import { createThinkingIcon, getToolInvocationIcon } from "./chatThinkingContentPart.js";
-import { ChatToolInvocationPart } from "./toolInvocationParts/chatToolInvocationPart.js";
 import { IChatMarkdownAnchorService } from "./chatMarkdownAnchorService.js";
-import { MarkdownString } from "../../../../../../base/common/htmlContent.js";
+import { createThinkingIcon, getToolInvocationIcon } from "./chatThinkingContentPart.js";
 import "./media/chatSubagentContent.css";
+import { ChatToolInvocationPart } from "./toolInvocationParts/chatToolInvocationPart.js";
 const MAX_TITLE_LENGTH = 100;
 let ChatSubagentContentPart = ChatSubagentContentPart_1 = class ChatSubagentContentPart2 extends ChatCollapsibleContentPart {
   static {
     __name(this, "ChatSubagentContentPart");
   }
   /**
+   * Check if a tool invocation is the parent subagent tool (the tool that spawns a subagent).
+   * A parent subagent tool has subagent toolSpecificData but no subAgentInvocationId.
+   */
+  static isParentSubagentTool(toolInvocation) {
+    return toolInvocation.toolSpecificData?.kind === "subagent" && !toolInvocation.subAgentInvocationId;
+  }
+  /**
    * Extracts subagent info (description, agentName, prompt) from a tool invocation.
    */
   static extractSubagentInfo(toolInvocation) {
     const defaultDescription = localize("chat.subagent.defaultDescription", "Running subagent...");
-    if (toolInvocation.toolId !== RunSubagentTool.Id) {
-      return { description: defaultDescription, agentName: void 0, prompt: void 0 };
+    if (!ChatSubagentContentPart_1.isParentSubagentTool(toolInvocation)) {
+      return { description: defaultDescription, agentName: void 0, prompt: void 0, modelName: void 0 };
     }
     if (toolInvocation.toolSpecificData?.kind === "subagent") {
       return {
         description: toolInvocation.toolSpecificData.description ?? defaultDescription,
         agentName: toolInvocation.toolSpecificData.agentName,
-        prompt: toolInvocation.toolSpecificData.prompt
+        prompt: toolInvocation.toolSpecificData.prompt,
+        modelName: toolInvocation.toolSpecificData.modelName
       };
     }
     if (toolInvocation.kind === "toolInvocation") {
@@ -56,13 +64,14 @@ let ChatSubagentContentPart = ChatSubagentContentPart_1 = class ChatSubagentCont
       return {
         description: params?.description ?? defaultDescription,
         agentName: params?.agentName,
-        prompt: params?.prompt
+        prompt: params?.prompt,
+        modelName: void 0
       };
     }
-    return { description: defaultDescription, agentName: void 0, prompt: void 0 };
+    return { description: defaultDescription, agentName: void 0, prompt: void 0, modelName: void 0 };
   }
   constructor(subAgentInvocationId, toolInvocation, context, chatContentMarkdownRenderer, listPool, editorPool, currentWidthDelegate, codeBlockModelCollection, announcedToolProgressKeys, instantiationService, chatMarkdownAnchorService, hoverService) {
-    const { description, agentName, prompt } = ChatSubagentContentPart_1.extractSubagentInfo(toolInvocation);
+    const { description, agentName, prompt, modelName } = ChatSubagentContentPart_1.extractSubagentInfo(toolInvocation);
     const prefix = agentName || localize("chat.subagent.prefix", "Subagent");
     const initialTitle = `${prefix}: ${description}`;
     super(initialTitle, context, void 0, hoverService);
@@ -81,12 +90,14 @@ let ChatSubagentContentPart = ChatSubagentContentPart_1 = class ChatSubagentCont
     this.lazyItems = [];
     this.hasExpandedOnce = false;
     this.pendingPromptRender = false;
+    this._hoverDisposable = this._register(new MutableDisposable());
     this.toolsWaitingForConfirmation = 0;
     this.userManuallyExpanded = false;
     this.autoExpandedForConfirmation = false;
     this.description = description;
     this.agentName = agentName;
     this.prompt = prompt;
+    this.modelName = modelName;
     this.isInitiallyComplete = this.element.isComplete;
     const node = this.domNode;
     node.classList.add("chat-thinking-box", "chat-thinking-fixed-mode", "chat-subagent-part");
@@ -126,6 +137,7 @@ let ChatSubagentContentPart = ChatSubagentContentPart_1 = class ChatSubagentCont
       }
     }));
     this.layoutScheduler = this._register(new AnimationFrameScheduler(this.domNode, () => this.performLayout()));
+    this.updateHover();
     this.renderPromptSection();
     this.watchToolCompletion(toolInvocation);
   }
@@ -208,6 +220,14 @@ let ChatSubagentContentPart = ChatSubagentContentPart_1 = class ChatSubagentCont
     }
     this.setTitleWithWidgets(new MarkdownString(finalLabel), this.instantiationService, this.chatMarkdownAnchorService, this.chatContentMarkdownRenderer);
   }
+  updateHover() {
+    if (!this.modelName || !this._collapseButton) {
+      return;
+    }
+    this._hoverDisposable.value = this.hoverService.setupDelayedHover(this._collapseButton.element, {
+      content: localize("chat.subagent.modelTooltip", "Model: {0}", this.modelName)
+    });
+  }
   /**
    * Tracks a tool invocation's state for:
    * 1. Updating the title with the current tool message (persists even after completion)
@@ -248,7 +268,7 @@ let ChatSubagentContentPart = ChatSubagentContentPart_1 = class ChatSubagentCont
    * Handles both live and serialized invocations.
    */
   watchToolCompletion(toolInvocation) {
-    if (toolInvocation.toolId !== RunSubagentTool.Id) {
+    if (!ChatSubagentContentPart_1.isParentSubagentTool(toolInvocation)) {
       return;
     }
     if (toolInvocation.kind === "toolInvocation") {
@@ -261,13 +281,21 @@ let ChatSubagentContentPart = ChatSubagentContentPart_1 = class ChatSubagentCont
           if (textParts.length > 0) {
             this.renderResultText(textParts.join("\n"));
           }
+          if (toolInvocation.toolSpecificData?.kind === "subagent" && toolInvocation.toolSpecificData.modelName) {
+            this.modelName = toolInvocation.toolSpecificData.modelName;
+            this.updateHover();
+          }
           this.markAsInactive();
         } else if (wasStreaming && state.type !== 0) {
           wasStreaming = false;
-          const { description, agentName, prompt } = ChatSubagentContentPart_1.extractSubagentInfo(toolInvocation);
+          const { description, agentName, prompt, modelName } = ChatSubagentContentPart_1.extractSubagentInfo(toolInvocation);
           this.description = description;
           this.agentName = agentName;
           this.prompt = prompt;
+          if (modelName) {
+            this.modelName = modelName;
+            this.updateHover();
+          }
           this.renderPromptSection();
           this.updateTitle();
         }
@@ -363,6 +391,50 @@ let ChatSubagentContentPart = ChatSubagentContentPart_1 = class ChatSubagentCont
     }
   }
   /**
+   * Appends a hook item (blocked/warning) to the subagent content part.
+   */
+  appendHookItem(factory, hookPart) {
+    if (this.isExpanded() || this.hasExpandedOnce) {
+      const result = factory();
+      this.appendHookItemToDOM(result.domNode, hookPart);
+      if (result.disposable) {
+        this._register(result.disposable);
+      }
+    } else {
+      const item = {
+        kind: "hook",
+        lazy: new Lazy(factory),
+        hookPart
+      };
+      this.lazyItems.push(item);
+    }
+  }
+  /**
+   * Appends a hook item's DOM node to the wrapper.
+   */
+  appendHookItemToDOM(domNode, hookPart) {
+    const itemWrapper = $(".chat-thinking-tool-wrapper");
+    const icon = hookPart.stopReason ? Codicon.error : Codicon.warning;
+    const iconElement = createThinkingIcon(icon);
+    itemWrapper.appendChild(iconElement);
+    itemWrapper.appendChild(domNode);
+    if (!this.hasToolItems) {
+      this.hasToolItems = true;
+      if (this.wrapper) {
+        this.wrapper.style.display = "";
+      }
+    }
+    if (this.wrapper) {
+      if (this.resultContainer) {
+        this.wrapper.insertBefore(itemWrapper, this.resultContainer);
+      } else {
+        this.wrapper.appendChild(itemWrapper);
+      }
+    }
+    this.lastItemWrapper = itemWrapper;
+    this.layoutScheduler.schedule();
+  }
+  /**
    * Appends a markdown item's DOM node to the wrapper.
    */
   appendMarkdownItemToDOM(domNode) {
@@ -445,6 +517,12 @@ let ChatSubagentContentPart = ChatSubagentContentPart_1 = class ChatSubagentCont
       if (result.disposable) {
         this._register(result.disposable);
       }
+    } else if (item.kind === "hook") {
+      const result = item.lazy.value;
+      this.appendHookItemToDOM(result.domNode, item.hookPart);
+      if (result.disposable) {
+        this._register(result.disposable);
+      }
     }
   }
   /**
@@ -484,8 +562,11 @@ let ChatSubagentContentPart = ChatSubagentContentPart_1 = class ChatSubagentCont
     if (other.kind === "markdownContent") {
       return true;
     }
-    if ((other.kind === "toolInvocation" || other.kind === "toolInvocationSerialized") && (other.subAgentInvocationId || other.toolId === RunSubagentTool.Id)) {
-      const otherEffectiveId = other.toolId === RunSubagentTool.Id ? other.toolCallId : other.subAgentInvocationId;
+    if (other.kind === "hook" && other.subAgentInvocationId) {
+      return this.subAgentInvocationId === other.subAgentInvocationId;
+    }
+    if ((other.kind === "toolInvocation" || other.kind === "toolInvocationSerialized") && (other.subAgentInvocationId || ChatSubagentContentPart_1.isParentSubagentTool(other))) {
+      const otherEffectiveId = other.subAgentInvocationId ?? other.toolCallId;
       if (this.subAgentInvocationId && otherEffectiveId) {
         return this.subAgentInvocationId === otherEffectiveId;
       }

@@ -92,7 +92,7 @@ let SearchEditor = class SearchEditor2 extends AbstractTextCodeEditor {
     this.configurationService = configurationService;
     this.logService = logService;
     this.hoverService = hoverService;
-    this.runSearchDelayer = new Delayer(0);
+    this.runSearchDelayer = this._register(new Delayer(0));
     this.pauseSearching = false;
     this.showingIncludesExcludes = false;
     this.ongoingOperations = 0;
@@ -100,7 +100,7 @@ let SearchEditor = class SearchEditor2 extends AbstractTextCodeEditor {
     this.container = DOM.$(".search-editor");
     this.searchOperation = this._register(new LongRunningOperation(progressService));
     this._register(this.messageDisposables = new DisposableStore());
-    this.searchHistoryDelayer = new Delayer(2e3);
+    this.searchHistoryDelayer = this._register(new Delayer(2e3));
     this.searchModel = this._register(this.instantiationService.createInstance(SearchModelImpl));
   }
   createEditor(parent) {

@@ -22,8 +22,9 @@ import { IKeybindingService } from "../../../../../../platform/keybinding/common
 import { IOpenerService } from "../../../../../../platform/opener/common/opener.js";
 import { ITelemetryService } from "../../../../../../platform/telemetry/common/telemetry.js";
 import { IChatSessionsService } from "../../../common/chatSessionsService.js";
-import { AgentSessionProviders, getAgentSessionProvider, getAgentSessionProviderDescription, getAgentSessionProviderIcon, getAgentSessionProviderName, isFirstPartyAgentSessionProvider } from "../../agentSessions/agentSessions.js";
+import { AgentSessionProviders, backgroundAgentDisplayName, getAgentSessionProvider, getAgentSessionProviderDescription, getAgentSessionProviderIcon, getAgentSessionProviderName, isFirstPartyAgentSessionProvider } from "../../agentSessions/agentSessions.js";
 import { ChatInputPickerActionViewItem } from "./chatInputPickerActionItem.js";
+import { autorun } from "../../../../../../base/common/observable.js";
 const firstPartyCategory = { label: localize("chat.sessionTarget.category.agent", "Agent Types"), order: 1 };
 const otherCategory = { label: localize("chat.sessionTarget.category.other", "Other"), order: 2 };
 let SessionTypePickerActionItem = class SessionTypePickerActionItem2 extends ChatInputPickerActionViewItem {
@@ -77,9 +78,15 @@ let SessionTypePickerActionItem = class SessionTypePickerActionItem2 extends Cha
     this.commandService = commandService;
     this.openerService = openerService;
     this._sessionTypeItems = [];
-    this._updateAgentSessionItems();
     this._register(this.chatSessionsService.onDidChangeAvailability(() => {
       this._updateAgentSessionItems();
+    }));
+    this._register(autorun((reader) => {
+      backgroundAgentDisplayName.read(reader);
+      this._updateAgentSessionItems();
+      if (this.element) {
+        this.renderLabel(this.element);
+      }
     }));
   }
   _run(sessionTypeItem) {
@@ -121,6 +128,9 @@ let SessionTypePickerActionItem = class SessionTypePickerActionItem2 extends Cha
     const agentSessionItems = [localSessionItem];
     const contributions = this.chatSessionsService.getAllChatSessionContributions();
     for (const contribution of contributions) {
+      if (contribution.isReadOnly) {
+        continue;
+      }
       const agentSessionType = getAgentSessionProvider(contribution.type);
       if (!agentSessionType) {
         continue;

@@ -1,5 +1,6 @@
 import { Event } from '../../../base/common/event.js';
 import { Disposable } from '../../../base/common/lifecycle.js';
+import { IMeteredConnectionService } from '../../meteredConnection/common/meteredConnection.js';
 import { IProductService } from '../../product/common/productService.js';
 import { IStorageService } from '../../storage/common/storage.js';
 import { ITelemetryService } from '../../telemetry/common/telemetry.js';
@@ -16,6 +17,7 @@ export declare class UserDataAutoSyncService extends Disposable implements IUser
     private readonly telemetryService;
     private readonly userDataSyncMachinesService;
     private readonly storageService;
+    private readonly meteredConnectionService;
     _serviceBrand: undefined;
     private readonly autoSync;
     private successiveFailures;
@@ -30,7 +32,7 @@ export declare class UserDataAutoSyncService extends Disposable implements IUser
     private previousProductQuality;
     private get productQuality();
     private set productQuality(value);
-    constructor(productService: IProductService, userDataSyncStoreManagementService: IUserDataSyncStoreManagementService, userDataSyncStoreService: IUserDataSyncStoreService, userDataSyncEnablementService: IUserDataSyncEnablementService, userDataSyncService: IUserDataSyncService, logService: IUserDataSyncLogService, userDataSyncAccountService: IUserDataSyncAccountService, telemetryService: ITelemetryService, userDataSyncMachinesService: IUserDataSyncMachinesService, storageService: IStorageService);
+    constructor(productService: IProductService, userDataSyncStoreManagementService: IUserDataSyncStoreManagementService, userDataSyncStoreService: IUserDataSyncStoreService, userDataSyncEnablementService: IUserDataSyncEnablementService, userDataSyncService: IUserDataSyncService, logService: IUserDataSyncLogService, userDataSyncAccountService: IUserDataSyncAccountService, telemetryService: ITelemetryService, userDataSyncMachinesService: IUserDataSyncMachinesService, storageService: IStorageService, meteredConnectionService: IMeteredConnectionService);
     private updateAutoSync;
     protected startAutoSync(): boolean;
     private isAutoSyncEnabled;

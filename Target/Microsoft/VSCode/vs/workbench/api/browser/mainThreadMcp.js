@@ -19,12 +19,14 @@ import { Disposable, DisposableMap, DisposableStore, MutableDisposable } from ".
 import { autorun, observableValue } from "../../../base/common/observable.js";
 import Severity from "../../../base/common/severity.js";
 import { URI } from "../../../base/common/uri.js";
+import { generateUuid } from "../../../base/common/uuid.js";
 import * as nls from "../../../nls.js";
 import { ContextKeyExpr, IContextKeyService } from "../../../platform/contextkey/common/contextkey.js";
 import { IDialogService } from "../../../platform/dialogs/common/dialogs.js";
 import { ExtensionIdentifier } from "../../../platform/extensions/common/extensions.js";
 import { LogLevel } from "../../../platform/log/common/log.js";
 import { ITelemetryService } from "../../../platform/telemetry/common/telemetry.js";
+import { IWorkbenchMcpGatewayService } from "../../contrib/mcp/common/mcpGatewayService.js";
 import { IMcpRegistry } from "../../contrib/mcp/common/mcpRegistryTypes.js";
 import { extensionPrefixedIdentifier, McpConnectionState, McpServerDefinition, McpServerLaunch, UserInteractionRequiredError } from "../../contrib/mcp/common/mcpTypes.js";
 import { IAuthenticationMcpAccessService } from "../../services/authentication/browser/authenticationMcpAccessService.js";
@@ -40,7 +42,7 @@ let MainThreadMcp = class MainThreadMcp2 extends Disposable {
   static {
     __name(this, "MainThreadMcp");
   }
-  constructor(_extHostContext, _mcpRegistry, dialogService, _authenticationService, authenticationMcpServersService, authenticationMCPServerAccessService, authenticationMCPServerUsageService, _dynamicAuthenticationProviderStorageService, _extensionService, _contextKeyService, _telemetryService) {
+  constructor(_extHostContext, _mcpRegistry, dialogService, _authenticationService, authenticationMcpServersService, authenticationMCPServerAccessService, authenticationMCPServerUsageService, _dynamicAuthenticationProviderStorageService, _extensionService, _contextKeyService, _telemetryService, _mcpGatewayService) {
     super();
     this._extHostContext = _extHostContext;
     this._mcpRegistry = _mcpRegistry;
@@ -53,11 +55,13 @@ let MainThreadMcp = class MainThreadMcp2 extends Disposable {
     this._extensionService = _extensionService;
     this._contextKeyService = _contextKeyService;
     this._telemetryService = _telemetryService;
+    this._mcpGatewayService = _mcpGatewayService;
     this._serverIdCounter = 0;
     this._servers = /* @__PURE__ */ new Map();
     this._serverDefinitions = /* @__PURE__ */ new Map();
     this._serverAuthTracking = new McpServerAuthTracker();
     this._collectionDefinitions = this._register(new DisposableMap());
+    this._gateways = this._register(new DisposableMap());
     this._register(_authenticationService.onDidChangeSessions((e) => this._onDidChangeAuthSessions(e.providerId, e.label)));
     const proxy = this._proxy = _extHostContext.getProxy(ExtHostContext.ExtHostMcp);
     this._register(this._mcpRegistry.registerDelegate({
@@ -320,6 +324,28 @@ let MainThreadMcp = class MainThreadMcp2 extends Disposable {
   $logMcpAuthSetup(data) {
     this._telemetryService.publicLog2("mcp/authSetup", data);
   }
+  async $startMcpGateway() {
+    const result = await this._mcpGatewayService.createGateway(
+      this._extHostContext.extensionHostKind === 3
+      /* ExtensionHostKind.Remote */
+    );
+    if (!result) {
+      return void 0;
+    }
+    if (this._store.isDisposed) {
+      result.dispose();
+      return void 0;
+    }
+    const gatewayId = generateUuid();
+    this._gateways.set(gatewayId, result);
+    return {
+      address: result.address,
+      gatewayId
+    };
+  }
+  $disposeMcpGateway(gatewayId) {
+    this._gateways.deleteAndDispose(gatewayId);
+  }
   async loginPrompt(mcpLabel, providerLabel, recreatingSession) {
     const message = recreatingSession ? nls.localize("confirmRelogin", "The MCP Server Definition '{0}' wants you to authenticate to {1}.", mcpLabel, providerLabel) : nls.localize("confirmLogin", "The MCP Server Definition '{0}' wants to authenticate to {1}.", mcpLabel, providerLabel);
     const buttons = [
@@ -359,7 +385,8 @@ MainThreadMcp = __decorate([
   __param(7, IDynamicAuthenticationProviderStorageService),
   __param(8, IExtensionService),
   __param(9, IContextKeyService),
-  __param(10, ITelemetryService)
+  __param(10, ITelemetryService),
+  __param(11, IWorkbenchMcpGatewayService)
 ], MainThreadMcp);
 class ExtHostMcpServerLaunch extends Disposable {
   static {

@@ -24,6 +24,7 @@ import { ITerminalService } from '../../../terminal/browser/terminal.js';
 import { IChatContentReference } from '../../common/chatService/chatService.js';
 import { IChatRequestPasteVariableEntry, IChatRequestVariableEntry, IElementVariableEntry, INotebookOutputVariableEntry, IPromptFileVariableEntry, IPromptTextVariableEntry, ISCMHistoryItemVariableEntry, ChatRequestToolReferenceEntry, ISCMHistoryItemChangeVariableEntry, ISCMHistoryItemChangeRangeVariableEntry, ITerminalVariableEntry } from '../../common/attachments/chatVariableEntries.js';
 import { ILanguageModelChatMetadataAndIdentifier, ILanguageModelsService } from '../../common/languageModels.js';
+import { IChatEntitlementService } from '../../../../services/chat/common/chatEntitlementService.js';
 import { ILanguageModelToolsService } from '../../common/tools/languageModelToolsService.js';
 declare abstract class AbstractChatAttachmentWidget extends Disposable {
     protected readonly attachment: IChatRequestVariableEntry;
@@ -72,10 +73,11 @@ export declare class ImageAttachmentWidget extends AbstractChatAttachmentWidget 
     private readonly hoverService;
     private readonly languageModelsService;
     private readonly labelService;
+    private readonly chatEntitlementService;
     constructor(resource: URI | undefined, attachment: IChatRequestVariableEntry, currentLanguageModel: ILanguageModelChatMetadataAndIdentifier | undefined, options: {
         shouldFocusClearButton: boolean;
         supportsDeletion: boolean;
-    }, container: HTMLElement, contextResourceLabels: ResourceLabels, commandService: ICommandService, openerService: IOpenerService, configurationService: IConfigurationService, hoverService: IHoverService, languageModelsService: ILanguageModelsService, instantiationService: IInstantiationService, labelService: ILabelService);
+    }, container: HTMLElement, contextResourceLabels: ResourceLabels, commandService: ICommandService, openerService: IOpenerService, configurationService: IConfigurationService, hoverService: IHoverService, languageModelsService: ILanguageModelsService, instantiationService: IInstantiationService, labelService: ILabelService, chatEntitlementService: IChatEntitlementService);
 }
 export declare class PasteAttachmentWidget extends AbstractChatAttachmentWidget {
     private readonly hoverService;
@@ -125,10 +127,11 @@ export declare class NotebookCellOutputChatAttachmentWidget extends AbstractChat
     private readonly languageModelsService;
     private readonly notebookService;
     private readonly instantiationService;
+    private readonly chatEntitlementService;
     constructor(resource: URI, attachment: INotebookOutputVariableEntry, currentLanguageModel: ILanguageModelChatMetadataAndIdentifier | undefined, options: {
         shouldFocusClearButton: boolean;
         supportsDeletion: boolean;
-    }, container: HTMLElement, contextResourceLabels: ResourceLabels, commandService: ICommandService, openerService: IOpenerService, configurationService: IConfigurationService, hoverService: IHoverService, languageModelsService: ILanguageModelsService, notebookService: INotebookService, instantiationService: IInstantiationService);
+    }, container: HTMLElement, contextResourceLabels: ResourceLabels, commandService: ICommandService, openerService: IOpenerService, configurationService: IConfigurationService, hoverService: IHoverService, languageModelsService: ILanguageModelsService, notebookService: INotebookService, instantiationService: IInstantiationService, chatEntitlementService: IChatEntitlementService);
     getAriaLabel(attachment: INotebookOutputVariableEntry): string;
     private renderErrorOutput;
     private renderGenericOutput;

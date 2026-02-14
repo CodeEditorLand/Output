@@ -6,7 +6,7 @@ import { IColorTheme } from '../../../platform/theme/common/themeService.js';
 import { IStorageService } from '../../../platform/storage/common/storage.js';
 import { IExtensionService } from '../../services/extensions/common/extensions.js';
 import { ICompositeBarColors, IActivityHoverOptions } from './compositeBarActions.js';
-import { IViewDescriptorService } from '../../common/views.js';
+import { IViewDescriptorService, ViewContainerLocation } from '../../common/views.js';
 import { IContextKeyService } from '../../../platform/contextkey/common/contextkey.js';
 import { IWorkbenchEnvironmentService } from '../../services/environment/common/environmentService.js';
 import { ICompositeDragAndDrop } from '../dnd.js';
@@ -32,6 +32,7 @@ export interface IPaneCompositeBarOptions {
     readonly colors: (theme: IColorTheme) => ICompositeBarColors;
 }
 export declare class PaneCompositeBar extends Disposable {
+    private readonly location;
     protected readonly options: IPaneCompositeBarOptions;
     protected readonly part: Parts;
     private readonly paneCompositePart;
@@ -44,12 +45,11 @@ export declare class PaneCompositeBar extends Disposable {
     private readonly environmentService;
     protected readonly layoutService: IWorkbenchLayoutService;
     private readonly viewContainerDisposables;
-    private readonly location;
     private readonly compositeBar;
     readonly dndHandler: ICompositeDragAndDrop;
     private readonly compositeActions;
     private hasExtensionsRegistered;
-    constructor(options: IPaneCompositeBarOptions, part: Parts, paneCompositePart: IPaneCompositePart, instantiationService: IInstantiationService, storageService: IStorageService, extensionService: IExtensionService, viewDescriptorService: IViewDescriptorService, viewService: IViewsService, contextKeyService: IContextKeyService, environmentService: IWorkbenchEnvironmentService, layoutService: IWorkbenchLayoutService);
+    constructor(location: ViewContainerLocation, options: IPaneCompositeBarOptions, part: Parts, paneCompositePart: IPaneCompositePart, instantiationService: IInstantiationService, storageService: IStorageService, extensionService: IExtensionService, viewDescriptorService: IViewDescriptorService, viewService: IViewsService, contextKeyService: IContextKeyService, environmentService: IWorkbenchEnvironmentService, layoutService: IWorkbenchLayoutService);
     private createCompositeBar;
     private getContextMenuActionsForComposite;
     private createMoveAction;

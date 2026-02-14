@@ -13,7 +13,7 @@ var __param = function(paramIndex, decorator) {
 };
 import { raceCancellationError } from "../../../base/common/async.js";
 import { CancellationToken } from "../../../base/common/cancellation.js";
-import { Emitter, Event } from "../../../base/common/event.js";
+import { Emitter } from "../../../base/common/event.js";
 import { MarkdownString } from "../../../base/common/htmlContent.js";
 import { Disposable, DisposableMap, DisposableStore } from "../../../base/common/lifecycle.js";
 import { ResourceMap } from "../../../base/common/map.js";
@@ -235,6 +235,41 @@ class ObservableChatSession extends Disposable {
     super.dispose();
   }
 }
+class MainThreadChatSessionItemController extends Disposable {
+  static {
+    __name(this, "MainThreadChatSessionItemController");
+  }
+  constructor(proxy, handle) {
+    super();
+    this._onDidChangeChatSessionItems = this._register(new Emitter());
+    this.onDidChangeChatSessionItems = this._onDidChangeChatSessionItems.event;
+    this._items = new ResourceMap();
+    this._proxy = proxy;
+    this._handle = handle;
+  }
+  get items() {
+    return Array.from(this._items.values());
+  }
+  refresh(token) {
+    return this._proxy.$refreshChatSessionItems(this._handle, token);
+  }
+  acceptChange(change) {
+    for (const item of change.addedOrUpdated) {
+      this._items.set(item.resource, item);
+    }
+    for (const uri of change.removed) {
+      this._items.delete(uri);
+    }
+    this._onDidChangeChatSessionItems.fire();
+  }
+  addOrUpdateItem(item) {
+    this._items.set(item.resource, item);
+    this._onDidChangeChatSessionItems.fire();
+  }
+  fireOnDidChangeChatSessionItems() {
+    this._onDidChangeChatSessionItems.fire();
+  }
+}
 let MainThreadChatSessions = class MainThreadChatSessions2 extends Disposable {
   static {
     __name(this, "MainThreadChatSessions");
@@ -251,7 +286,7 @@ let MainThreadChatSessions = class MainThreadChatSessions2 extends Disposable {
     this._editorService = _editorService;
     this.editorGroupService = editorGroupService;
     this._logService = _logService;
-    this._itemProvidersRegistrations = this._register(new DisposableMap());
+    this._itemControllerRegistrations = this._register(new DisposableMap());
     this._contentProvidersRegistrations = this._register(new DisposableMap());
     this._sessionTypeToHandle = /* @__PURE__ */ new Map();
     this._activeSessions = new ResourceMap();
@@ -267,8 +302,8 @@ let MainThreadChatSessions = class MainThreadChatSessions2 extends Disposable {
       }
     }));
     this._register(this._agentSessionsService.model.onDidChangeSessionArchivedState((session) => {
-      for (const [handle, { provider }] of this._itemProvidersRegistrations) {
-        if (provider.chatSessionType === session.providerType) {
+      for (const [handle, { chatSessionType }] of this._itemControllerRegistrations) {
+        if (chatSessionType === session.providerType) {
           this._proxy.$onDidChangeChatSessionItemState(handle, session.resource, session.isArchived());
         }
       }
@@ -277,24 +312,66 @@ let MainThreadChatSessions = class MainThreadChatSessions2 extends Disposable {
   _getHandleForSessionType(chatSessionType) {
     return this._sessionTypeToHandle.get(chatSessionType);
   }
-  $registerChatSessionItemProvider(handle, chatSessionType) {
+  $registerChatSessionItemController(handle, chatSessionType) {
     const disposables = new DisposableStore();
-    const changeEmitter = disposables.add(new Emitter());
-    const provider = {
+    const controller = disposables.add(new MainThreadChatSessionItemController(this._proxy, handle));
+    disposables.add(this._chatSessionsService.registerChatSessionItemController(chatSessionType, controller));
+    this._itemControllerRegistrations.set(handle, {
       chatSessionType,
-      onDidChangeChatSessionItems: Event.debounce(changeEmitter.event, (_, e) => e, 200),
-      provideChatSessionItems: /* @__PURE__ */ __name((token) => this._provideChatSessionItems(handle, token), "provideChatSessionItems")
-    };
-    disposables.add(this._chatSessionsService.registerChatSessionItemProvider(provider));
-    this._itemProvidersRegistrations.set(handle, {
-      dispose: /* @__PURE__ */ __name(() => disposables.dispose(), "dispose"),
-      provider,
-      onDidChangeItems: changeEmitter
+      controller,
+      dispose: /* @__PURE__ */ __name(() => disposables.dispose(), "dispose")
     });
-    disposables.add(this._chatSessionsService.registerChatModelChangeListeners(this._chatService, chatSessionType, () => changeEmitter.fire()));
+    disposables.add(this._chatSessionsService.registerChatModelChangeListeners(this._chatService, chatSessionType, () => controller.fireOnDidChangeChatSessionItems()));
+  }
+  getController(handle) {
+    const registration = this._itemControllerRegistrations.get(handle);
+    if (!registration) {
+      throw new Error(`No chat session controller registered for handle ${handle}`);
+    }
+    return registration.controller;
   }
   $onDidChangeChatSessionItems(handle) {
-    this._itemProvidersRegistrations.get(handle)?.onDidChangeItems.fire();
+    const controller = this.getController(handle);
+    controller.fireOnDidChangeChatSessionItems();
+  }
+  async _resolveSessionItem(item) {
+    const uri = URI.revive(item.resource);
+    const model = this._chatService.getSession(uri);
+    if (model) {
+      item = await this.handleSessionModelOverrides(model, item);
+    }
+    if (!item.changes || !model) {
+      const stats = (await this._chatService.getMetadataForSession(uri))?.stats;
+      const diffs = {
+        files: stats?.fileCount || 0,
+        insertions: stats?.added || 0,
+        deletions: stats?.removed || 0
+      };
+      if (hasValidDiff(diffs)) {
+        item.changes = diffs;
+      }
+    }
+    return {
+      ...item,
+      changes: revive(item.changes),
+      resource: uri,
+      iconPath: item.iconPath,
+      tooltip: item.tooltip ? this._reviveTooltip(item.tooltip) : void 0,
+      archived: item.archived
+    };
+  }
+  async $updateChatSessionItems(controllerHandle, change) {
+    const controller = this.getController(controllerHandle);
+    const resolvedItems = await Promise.all(change.addedOrUpdated.map((item) => this._resolveSessionItem(item)));
+    controller.acceptChange({
+      addedOrUpdated: resolvedItems,
+      removed: change.removed.map((uri) => URI.revive(uri))
+    });
+  }
+  async $addOrUpdateChatSessionItem(controllerHandle, item) {
+    const controller = this.getController(controllerHandle);
+    const resolvedItem = await this._resolveSessionItem(item);
+    controller.addOrUpdateItem(resolvedItem);
   }
   $onDidChangeChatSessionOptions(handle, sessionResourceComponents, updates) {
     const sessionResource = URI.revive(sessionResourceComponents);
@@ -304,7 +381,7 @@ let MainThreadChatSessions = class MainThreadChatSessions2 extends Disposable {
     const originalResource = URI.revive(originalComponents);
     const modifiedResource = URI.revive(modifiedCompoennts);
     this._logService.trace(`$onDidCommitChatSessionItem: handle(${handle}), original(${originalResource}), modified(${modifiedResource})`);
-    const chatSessionType = this._itemProvidersRegistrations.get(handle)?.provider.chatSessionType;
+    const chatSessionType = this._itemControllerRegistrations.get(handle)?.chatSessionType;
     if (!chatSessionType) {
       this._logService.error(`No chat session type found for provider handle ${handle}`);
       return;
@@ -349,40 +426,6 @@ let MainThreadChatSessions = class MainThreadChatSessions2 extends Disposable {
     } finally {
       originalModel?.dispose();
     }
-  }
-  async _provideChatSessionItems(handle, token) {
-    try {
-      const sessions = await this._proxy.$provideChatSessionItems(handle, token);
-      return Promise.all(sessions.map(async (session) => {
-        const uri = URI.revive(session.resource);
-        const model = this._chatService.getSession(uri);
-        if (model) {
-          session = await this.handleSessionModelOverrides(model, session);
-        }
-        if (!session.changes || !model) {
-          const stats = (await this._chatService.getMetadataForSession(uri))?.stats;
-          const diffs = {
-            files: stats?.fileCount || 0,
-            insertions: stats?.added || 0,
-            deletions: stats?.removed || 0
-          };
-          if (hasValidDiff(diffs)) {
-            session.changes = diffs;
-          }
-        }
-        return {
-          ...session,
-          changes: revive(session.changes),
-          resource: uri,
-          iconPath: session.iconPath,
-          tooltip: session.tooltip ? this._reviveTooltip(session.tooltip) : void 0,
-          archived: session.archived
-        };
-      }));
-    } catch (error) {
-      this._logService.error("Error providing chat sessions:", error);
-    }
-    return [];
   }
   async handleSessionModelOverrides(model, session) {
     const inProgress = model.getRequests().filter((r) => r.response && !r.response.isComplete);
@@ -435,8 +478,8 @@ let MainThreadChatSessions = class MainThreadChatSessions2 extends Disposable {
       throw error;
     }
   }
-  $unregisterChatSessionItemProvider(handle) {
-    this._itemProvidersRegistrations.deleteAndDispose(handle);
+  $unregisterChatSessionItemController(handle) {
+    this._itemControllerRegistrations.deleteAndDispose(handle);
   }
   $registerChatSessionContentProvider(handle, chatSessionScheme) {
     const provider = {

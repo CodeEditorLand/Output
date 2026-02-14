@@ -13,7 +13,7 @@ import { ThemeIcon } from '../../../../../../base/common/themables.js';
 export declare abstract class ChatCollapsibleContentPart extends Disposable implements IChatContentPart {
     private title;
     private readonly hoverMessage;
-    private readonly hoverService;
+    protected readonly hoverService: IHoverService;
     private _domNode?;
     private readonly _renderedTitleWithWidgets;
     protected readonly hasFollowingContent: boolean;

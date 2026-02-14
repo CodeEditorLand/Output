@@ -1617,6 +1617,7 @@ let TreeMenus = class TreeMenus2 {
   }
   dispose() {
     this.contextKeyService = void 0;
+    this._onDidChange.dispose();
   }
 };
 TreeMenus = __decorate([

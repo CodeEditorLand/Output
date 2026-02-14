@@ -354,13 +354,25 @@ class SettingsTreeSettingElement extends SettingsTreeElement {
     if (!featureFilters || !featureFilters.size) {
       return true;
     }
+    if (this.setting.extensionInfo) {
+      return false;
+    }
+    if (featureFilters.has("chat")) {
+      const chatFeatures = tocData.children.find((child) => child.id === "chat");
+      if (chatFeatures?.children) {
+        const patterns = chatFeatures.children.flatMap((feature) => feature.settings ?? []).map((setting) => createSettingMatchRegExp(setting));
+        if (patterns.some((pattern) => pattern.test(this.setting.key))) {
+          return true;
+        }
+      }
+    }
     const features = tocData.children.find((child) => child.id === "features");
     return Array.from(featureFilters).some((filter) => {
-      if (features && features.children) {
+      if (features?.children) {
         const feature = features.children.find((feature2) => "features/" + filter === feature2.id);
-        if (feature) {
-          const patterns = feature.settings?.map((setting) => createSettingMatchRegExp(setting));
-          return patterns && !this.setting.extensionInfo && patterns.some((pattern) => pattern.test(this.setting.key.toLowerCase()));
+        if (feature?.settings) {
+          const patterns = feature.settings.map((setting) => createSettingMatchRegExp(setting));
+          return patterns.some((pattern) => pattern.test(this.setting.key));
         } else {
           return false;
         }

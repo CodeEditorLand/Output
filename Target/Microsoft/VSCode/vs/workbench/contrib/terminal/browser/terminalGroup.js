@@ -21,9 +21,9 @@ import { ITerminalInstanceService, ITerminalConfigurationService } from "./termi
 import { IViewDescriptorService } from "../../../common/views.js";
 import { TerminalLocation } from "../../../../platform/terminal/common/terminal.js";
 import { getWindow } from "../../../../base/browser/dom.js";
-import { getPartByLocation } from "../../../services/views/browser/viewsService.js";
 import { asArray } from "../../../../base/common/arrays.js";
 import { hasKey, isNumber } from "../../../../base/common/types.js";
+import { IPaneCompositePartService } from "../../../services/panecomposite/browser/panecomposite.js";
 var Constants;
 (function(Constants2) {
   Constants2[Constants2["SplitPaneMinSize"] = 80] = "SplitPaneMinSize";
@@ -210,11 +210,12 @@ let TerminalGroup = class TerminalGroup2 extends Disposable {
   get hadFocusOnExit() {
     return this._hadFocusOnExit;
   }
-  constructor(_container, shellLaunchConfigOrInstance, _terminalConfigurationService, _terminalInstanceService, _layoutService, _viewDescriptorService, _instantiationService) {
+  constructor(_container, shellLaunchConfigOrInstance, _terminalConfigurationService, _terminalInstanceService, _paneCompositePartService, _layoutService, _viewDescriptorService, _instantiationService) {
     super();
     this._container = _container;
     this._terminalConfigurationService = _terminalConfigurationService;
     this._terminalInstanceService = _terminalInstanceService;
+    this._paneCompositePartService = _paneCompositePartService;
     this._layoutService = _layoutService;
     this._viewDescriptorService = _viewDescriptorService;
     this._instantiationService = _instantiationService;
@@ -512,7 +513,7 @@ let TerminalGroup = class TerminalGroup2 extends Disposable {
         if (shouldShrink) {
           resizeAmount *= -1;
         }
-        this._layoutService.resizePart(getPartByLocation(this._terminalLocation), resizeAmount, resizeAmount);
+        this._layoutService.resizePart(this._paneCompositePartService.getPartId(this._terminalLocation), resizeAmount, resizeAmount);
       } else {
         this._splitPaneContainer.resizePane(this._activeInstanceIndex, direction, resizeAmount);
       }
@@ -529,9 +530,10 @@ let TerminalGroup = class TerminalGroup2 extends Disposable {
 TerminalGroup = __decorate([
   __param(2, ITerminalConfigurationService),
   __param(3, ITerminalInstanceService),
-  __param(4, IWorkbenchLayoutService),
-  __param(5, IViewDescriptorService),
-  __param(6, IInstantiationService)
+  __param(4, IPaneCompositePartService),
+  __param(5, IWorkbenchLayoutService),
+  __param(6, IViewDescriptorService),
+  __param(7, IInstantiationService)
 ], TerminalGroup);
 export {
   TerminalGroup

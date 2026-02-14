@@ -4,6 +4,8 @@ import { IContextKeyService } from '../../../../platform/contextkey/common/conte
 import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
 import { MenuId } from '../../../../platform/actions/common/actions.js';
 import { Widget } from '../../../../base/browser/ui/widget.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IAccessibilityService } from '../../../../platform/accessibility/common/accessibility.js';
 export declare const viewFilterSubmenu: MenuId;
 export interface IFilterWidgetOptions {
     readonly text?: string;
@@ -17,6 +19,8 @@ export declare class FilterWidget extends Widget {
     private readonly instantiationService;
     private readonly contextViewService;
     private readonly keybindingService;
+    private readonly configurationService;
+    private readonly accessibilityService;
     readonly element: HTMLElement;
     private readonly delayedFilterUpdate;
     private readonly filterInputBox;
@@ -30,12 +34,26 @@ export declare class FilterWidget extends Widget {
     private moreFiltersActionViewItem;
     private isMoreFiltersChecked;
     private lastWidth?;
+    /**
+     * Tracks whether the accessibility help hint has been announced in the ARIA label.
+     * Reset when the widget loses focus, allowing the hint to be announced again
+     * on the next focus.
+     */
+    private _accessibilityHelpHintAnnounced;
+    private _labelResetTimeout;
     private readonly focusTracker;
     get onDidFocus(): import("../../../../base/common/event.js").Event<void>;
     get onDidBlur(): import("../../../../base/common/event.js").Event<void>;
-    constructor(options: IFilterWidgetOptions, instantiationService: IInstantiationService, contextViewService: IContextViewService, contextKeyService: IContextKeyService, keybindingService: IKeybindingService);
+    constructor(options: IFilterWidgetOptions, instantiationService: IInstantiationService, contextViewService: IContextViewService, contextKeyService: IContextKeyService, keybindingService: IKeybindingService, configurationService: IConfigurationService, accessibilityService: IAccessibilityService);
     hasFocus(): boolean;
     focus(): void;
+    /**
+     * Updates the ARIA label of the filter input box.
+     * When a screen reader is active and the accessibility verbosity setting is enabled,
+     * includes a hint about pressing Alt+F1 for accessibility help on first focus.
+     * The hint is only announced once per focus cycle to prevent double-speak.
+     */
+    private _updateFilterInputAriaLabel;
     blur(): void;
     updateBadge(message: string | undefined): void;
     setFilterText(filterText: string): void;

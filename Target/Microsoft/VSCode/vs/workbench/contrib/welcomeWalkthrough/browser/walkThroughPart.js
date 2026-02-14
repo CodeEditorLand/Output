@@ -129,7 +129,7 @@ let WalkThroughPart = class WalkThroughPart2 extends EditorPane {
     }));
   }
   registerClickHandler() {
-    this.content.addEventListener("click", (event) => {
+    this.disposables.add(this.addEventListener(this.content, "click", (event) => {
       for (let node = event.target; node; node = node.parentNode) {
         if (isHTMLAnchorElement(node) && node.href) {
           const baseElement = node.ownerDocument.getElementsByTagName("base")[0] || this.window.location;
@@ -156,7 +156,7 @@ let WalkThroughPart = class WalkThroughPart2 extends EditorPane {
           break;
         }
       }
-    });
+    }));
   }
   open(uri) {
     if (uri.scheme === "command" && uri.path === "git.clone" && !CommandsRegistry.getCommand("git.clone")) {

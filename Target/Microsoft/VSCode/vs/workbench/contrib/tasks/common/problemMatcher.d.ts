@@ -179,7 +179,7 @@ export declare namespace Config {
         regexp: string;
     }
     namespace CheckedProblemPattern {
-        function is(value: any): value is ICheckedProblemPattern;
+        function is(value: unknown): value is ICheckedProblemPattern;
     }
     interface INamedProblemPattern extends IProblemPattern {
         /**
@@ -192,7 +192,7 @@ export declare namespace Config {
         label?: string;
     }
     namespace NamedProblemPattern {
-        function is(value: any): value is INamedProblemPattern;
+        function is(value: unknown): value is INamedProblemPattern;
     }
     interface INamedCheckedProblemPattern extends INamedProblemPattern {
         /**
@@ -202,15 +202,15 @@ export declare namespace Config {
         regexp: string;
     }
     namespace NamedCheckedProblemPattern {
-        function is(value: any): value is INamedCheckedProblemPattern;
+        function is(value: unknown): value is INamedCheckedProblemPattern;
     }
     type MultiLineProblemPattern = IProblemPattern[];
     namespace MultiLineProblemPattern {
-        function is(value: any): value is MultiLineProblemPattern;
+        function is(value: unknown): value is MultiLineProblemPattern;
     }
     type MultiLineCheckedProblemPattern = ICheckedProblemPattern[];
     namespace MultiLineCheckedProblemPattern {
-        function is(value: any): value is MultiLineCheckedProblemPattern;
+        function is(value: unknown): value is MultiLineCheckedProblemPattern;
     }
     interface INamedMultiLineCheckedProblemPattern {
         /**
@@ -227,7 +227,7 @@ export declare namespace Config {
         patterns: MultiLineCheckedProblemPattern;
     }
     namespace NamedMultiLineCheckedProblemPattern {
-        function is(value: any): value is INamedMultiLineCheckedProblemPattern;
+        function is(value: unknown): value is INamedMultiLineCheckedProblemPattern;
     }
     type NamedProblemPatterns = (Config.INamedProblemPattern | Config.INamedMultiLineCheckedProblemPattern)[];
     /**

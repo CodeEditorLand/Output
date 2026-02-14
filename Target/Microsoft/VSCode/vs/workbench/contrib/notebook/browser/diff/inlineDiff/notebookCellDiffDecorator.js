@@ -36,7 +36,7 @@ let NotebookCellDiffDecorator = class NotebookCellDiffDecorator2 extends Disposa
     this._editorWorkerService = _editorWorkerService;
     this.originalCellModelFactory = originalCellModelFactory;
     this._viewZones = [];
-    this.throttledDecorator = new ThrottledDelayer(50);
+    this.throttledDecorator = this.add(new ThrottledDelayer(50));
     this.perEditorDisposables = this.add(new DisposableStore());
     const onDidChangeVisibleRanges = observableFromEvent(notebookEditor.onDidChangeVisibleRanges, () => notebookEditor.visibleRanges);
     const editorObs = derived((r) => {

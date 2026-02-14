@@ -6,6 +6,7 @@ import { splitLinesIncludeSeparators } from "../../../../../base/common/strings.
 import { URI } from "../../../../../base/common/uri.js";
 import { parse } from "../../../../../base/common/yaml.js";
 import { Range } from "../../../../../editor/common/core/range.js";
+import { Target } from "./service/promptsService.js";
 class PromptFileParser {
   static {
     __name(this, "PromptFileParser");
@@ -29,7 +30,7 @@ class PromptFileParser {
         bodyStartLine = headerEndLine + 1;
       }
       const range = new Range(2, 1, headerEndLine + 1, 1);
-      header = new PromptHeader(range, linesWithEOL);
+      header = new PromptHeader(range, uri, linesWithEOL);
     }
     if (bodyStartLine < linesWithEOL.length) {
       const range = new Range(bodyStartLine + 1, 1, linesWithEOL.length + 1, 1);
@@ -56,6 +57,7 @@ var PromptHeaderAttributes;
   PromptHeaderAttributes2.mode = "mode";
   PromptHeaderAttributes2.model = "model";
   PromptHeaderAttributes2.applyTo = "applyTo";
+  PromptHeaderAttributes2.paths = "paths";
   PromptHeaderAttributes2.tools = "tools";
   PromptHeaderAttributes2.handOffs = "handoffs";
   PromptHeaderAttributes2.advancedOptions = "advancedOptions";
@@ -68,23 +70,28 @@ var PromptHeaderAttributes;
   PromptHeaderAttributes2.metadata = "metadata";
   PromptHeaderAttributes2.agents = "agents";
   PromptHeaderAttributes2.userInvokable = "user-invokable";
+  PromptHeaderAttributes2.userInvocable = "user-invocable";
   PromptHeaderAttributes2.disableModelInvocation = "disable-model-invocation";
 })(PromptHeaderAttributes || (PromptHeaderAttributes = {}));
 var GithubPromptHeaderAttributes;
 (function(GithubPromptHeaderAttributes2) {
   GithubPromptHeaderAttributes2.mcpServers = "mcp-servers";
 })(GithubPromptHeaderAttributes || (GithubPromptHeaderAttributes = {}));
-var Target;
-(function(Target2) {
-  Target2["VSCode"] = "vscode";
-  Target2["GitHubCopilot"] = "github-copilot";
-})(Target || (Target = {}));
+var ClaudeHeaderAttributes;
+(function(ClaudeHeaderAttributes2) {
+  ClaudeHeaderAttributes2.disallowedTools = "disallowedTools";
+})(ClaudeHeaderAttributes || (ClaudeHeaderAttributes = {}));
+function isTarget(value) {
+  return value === Target.VSCode || value === Target.GitHubCopilot || value === Target.Claude || value === Target.Undefined;
+}
+__name(isTarget, "isTarget");
 class PromptHeader {
   static {
     __name(this, "PromptHeader");
   }
-  constructor(range, linesWithEOL) {
+  constructor(range, uri, linesWithEOL) {
     this.range = range;
+    this.uri = uri;
     this.linesWithEOL = linesWithEOL;
   }
   get _parsedHeader() {
@@ -163,6 +170,14 @@ class PromptHeader {
   get applyTo() {
     return this.getStringAttribute(PromptHeaderAttributes.applyTo);
   }
+  /**
+   * Gets the 'paths' attribute from the header.
+   * The `paths` field supports a list of glob patterns that scope the instruction
+   * to specific files (used by Claude rules). Returns a string array or undefined.
+   */
+  get paths() {
+    return this.getStringOrStringArrayAttribute(PromptHeaderAttributes.paths);
+  }
   get argumentHint() {
     return this.getStringAttribute(PromptHeaderAttributes.argumentHint);
   }
@@ -181,24 +196,17 @@ class PromptHeader {
     if (!toolsAttribute) {
       return void 0;
     }
-    if (toolsAttribute.value.type === "array") {
+    let value = toolsAttribute.value;
+    if (value.type === "string") {
+      value = parseCommaSeparatedList(value);
+    }
+    if (value.type === "array") {
       const tools = [];
-      for (const item of toolsAttribute.value.items) {
+      for (const item of value.items) {
         if (item.type === "string" && item.value) {
           tools.push(item.value);
         }
       }
-      return tools;
-    } else if (toolsAttribute.value.type === "object") {
-      const tools = [];
-      const collectLeafs = /* @__PURE__ */ __name(({ key, value }) => {
-        if (value.type === "boolean") {
-          tools.push(key.value);
-        } else if (value.type === "object") {
-          value.properties.forEach(collectLeafs);
-        }
-      }, "collectLeafs");
-      toolsAttribute.value.properties.forEach(collectLeafs);
       return tools;
     }
     return void 0;
@@ -288,8 +296,8 @@ class PromptHeader {
   get agents() {
     return this.getStringArrayAttribute(PromptHeaderAttributes.agents);
   }
-  get userInvokable() {
-    return this.getBooleanAttribute(PromptHeaderAttributes.userInvokable);
+  get userInvocable() {
+    return this.getBooleanAttribute(PromptHeaderAttributes.userInvocable) ?? this.getBooleanAttribute(PromptHeaderAttributes.userInvokable);
   }
   get disableModelInvocation() {
     return this.getBooleanAttribute(PromptHeaderAttributes.disableModelInvocation);
@@ -384,13 +392,63 @@ class PromptBody {
     }
   }
 }
+function parseCommaSeparatedList(stringValue) {
+  const result = [];
+  const input = stringValue.value;
+  const positionOffset = stringValue.range.getStartPosition();
+  let pos = 0;
+  const isWhitespace = /* @__PURE__ */ __name((char) => char === " " || char === "	", "isWhitespace");
+  while (pos < input.length) {
+    while (pos < input.length && isWhitespace(input[pos])) {
+      pos++;
+    }
+    if (pos >= input.length) {
+      break;
+    }
+    const startPos = pos;
+    let value = "";
+    let endPos;
+    const char = input[pos];
+    if (char === '"' || char === `'`) {
+      const quote = char;
+      pos++;
+      while (pos < input.length && input[pos] !== quote) {
+        value += input[pos];
+        pos++;
+      }
+      endPos = pos + 1;
+      if (pos < input.length) {
+        pos++;
+      }
+    } else {
+      const startPos2 = pos;
+      while (pos < input.length && input[pos] !== ",") {
+        value += input[pos];
+        pos++;
+      }
+      value = value.trimEnd();
+      endPos = startPos2 + value.length;
+    }
+    result.push({ type: "string", value, range: new Range(positionOffset.lineNumber, positionOffset.column + startPos, positionOffset.lineNumber, positionOffset.column + endPos) });
+    while (pos < input.length && isWhitespace(input[pos])) {
+      pos++;
+    }
+    if (pos < input.length && input[pos] === ",") {
+      pos++;
+    }
+  }
+  return { type: "array", items: result, range: stringValue.range };
+}
+__name(parseCommaSeparatedList, "parseCommaSeparatedList");
 export {
+  ClaudeHeaderAttributes,
   GithubPromptHeaderAttributes,
   ParsedPromptFile,
   PromptBody,
   PromptFileParser,
   PromptHeader,
   PromptHeaderAttributes,
-  Target
+  isTarget,
+  parseCommaSeparatedList
 };
 //# sourceMappingURL=promptFileParser.js.map

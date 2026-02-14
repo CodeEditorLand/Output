@@ -6,6 +6,7 @@ import { IPaneComposite } from '../../common/panecomposite.js';
 import { ViewContainerLocation } from '../../common/views.js';
 import { IPaneCompositePartService } from '../../services/panecomposite/browser/panecomposite.js';
 import { Disposable } from '../../../base/common/lifecycle.js';
+import { SINGLE_WINDOW_PARTS } from '../../services/layout/browser/layoutService.js';
 export declare class PaneCompositePartService extends Disposable implements IPaneCompositePartService {
     readonly _serviceBrand: undefined;
     readonly onDidPaneCompositeOpen: Event<{
@@ -18,6 +19,8 @@ export declare class PaneCompositePartService extends Disposable implements IPan
     }>;
     private readonly paneCompositeParts;
     constructor(instantiationService: IInstantiationService);
+    getRegistryId(viewContainerLocation: ViewContainerLocation): string;
+    getPartId(viewContainerLocation: ViewContainerLocation): SINGLE_WINDOW_PARTS;
     openPaneComposite(id: string | undefined, viewContainerLocation: ViewContainerLocation, focus?: boolean): Promise<IPaneComposite | undefined>;
     getActivePaneComposite(viewContainerLocation: ViewContainerLocation): IPaneComposite | undefined;
     getPaneComposite(id: string, viewContainerLocation: ViewContainerLocation): PaneCompositeDescriptor | undefined;

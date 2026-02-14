@@ -833,7 +833,7 @@ KeybindingsRegistry.registerCommandAndKeybindingRule({
   }, "handler")
 });
 KeybindingsRegistry.registerCommandAndKeybindingRule({
-  id: "togglePeekWidgetFocus",
+  id: "toggleQuickDiffWidgetFocus",
   weight: 100,
   primary: KeyChord(
     2048 | 41,

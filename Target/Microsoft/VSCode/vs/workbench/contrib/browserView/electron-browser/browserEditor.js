@@ -52,6 +52,7 @@ const CONTEXT_BROWSER_CAN_GO_BACK = new RawContextKey("browserCanGoBack", false,
 const CONTEXT_BROWSER_CAN_GO_FORWARD = new RawContextKey("browserCanGoForward", false, localize("browser.canGoForward", "Whether the browser can go forward"));
 const CONTEXT_BROWSER_FOCUSED = new RawContextKey("browserFocused", true, localize("browser.editorFocused", "Whether the browser editor is focused"));
 const CONTEXT_BROWSER_STORAGE_SCOPE = new RawContextKey("browserStorageScope", "", localize("browser.storageScope", "The storage scope of the current browser view"));
+const CONTEXT_BROWSER_HAS_URL = new RawContextKey("browserHasUrl", false, localize("browser.hasUrl", "Whether the browser has a URL loaded"));
 const CONTEXT_BROWSER_DEVTOOLS_OPEN = new RawContextKey("browserDevToolsOpen", false, localize("browser.devToolsOpen", "Whether developer tools are open for the current browser view"));
 const CONTEXT_BROWSER_ELEMENT_SELECTION_ACTIVE = new RawContextKey("browserElementSelectionActive", false, localize("browser.elementSelectionActive", "Whether element selection is currently active"));
 const originalHtmlElementFocus = HTMLElement.prototype.focus;
@@ -76,7 +77,7 @@ class BrowserNavigationBar extends Disposable {
     }));
     this._urlInput = $("input.browser-url-input");
     this._urlInput.type = "text";
-    this._urlInput.placeholder = localize("browser.urlPlaceholder", "Enter URL...");
+    this._urlInput.placeholder = localize("browser.urlPlaceholder", "Enter a URL");
     const actionsContainer = $(".browser-actions-toolbar");
     const actionsToolbar = this._register(scopedInstantiationService.createInstance(MenuWorkbenchToolBar, actionsContainer, MenuId.BrowserActionsToolbar, {
       hoverDelegate,
@@ -148,6 +149,7 @@ let BrowserEditor = class BrowserEditor2 extends EditorPane {
     this._canGoBackContext = CONTEXT_BROWSER_CAN_GO_BACK.bindTo(contextKeyService);
     this._canGoForwardContext = CONTEXT_BROWSER_CAN_GO_FORWARD.bindTo(contextKeyService);
     this._storageScopeContext = CONTEXT_BROWSER_STORAGE_SCOPE.bindTo(contextKeyService);
+    this._hasUrlContext = CONTEXT_BROWSER_HAS_URL.bindTo(contextKeyService);
     this._devToolsOpenContext = CONTEXT_BROWSER_DEVTOOLS_OPEN.bindTo(contextKeyService);
     this._elementSelectionActiveContext = CONTEXT_BROWSER_ELEMENT_SELECTION_ACTIVE.bindTo(contextKeyService);
     CONTEXT_BROWSER_FOCUSED.bindTo(contextKeyService);
@@ -520,6 +522,7 @@ let BrowserEditor = class BrowserEditor2 extends EditorPane {
     this._navigationBar.updateFromNavigationEvent(event);
     this._canGoBackContext.set(event.canGoBack);
     this._canGoForwardContext.set(event.canGoForward);
+    this._hasUrlContext.set(!!event.url);
     this.updateVisibility();
   }
   /**
@@ -535,14 +538,9 @@ let BrowserEditor = class BrowserEditor2 extends EditorPane {
     title.textContent = localize("browser.welcomeTitle", "Browser");
     content.appendChild(title);
     const subtitle = $(".browser-welcome-subtitle");
-    subtitle.textContent = localize("browser.welcomeSubtitle", "Enter a URL above to get started.");
-    content.appendChild(subtitle);
     const chatEnabled = this.contextKeyService.getContextKeyValue(ChatContextKeys.enabled.key);
-    if (chatEnabled) {
-      const tip = $(".browser-welcome-tip");
-      tip.textContent = localize("browser.welcomeTip", "Tip: Use Add Element to Chat to reference UI elements in chat prompts.");
-      content.appendChild(tip);
-    }
+    subtitle.textContent = chatEnabled ? localize("browser.welcomeSubtitleChat", "Use Add Element to Chat to reference UI elements in chat prompts.") : localize("browser.welcomeSubtitle", "Enter a URL above to get started.");
+    content.appendChild(subtitle);
     container.appendChild(content);
     return container;
   }
@@ -637,6 +635,7 @@ let BrowserEditor = class BrowserEditor2 extends EditorPane {
     this._model = void 0;
     this._canGoBackContext.reset();
     this._canGoForwardContext.reset();
+    this._hasUrlContext.reset();
     this._storageScopeContext.reset();
     this._devToolsOpenContext.reset();
     this._elementSelectionActiveContext.reset();
@@ -667,6 +666,7 @@ export {
   CONTEXT_BROWSER_FIND_WIDGET_FOCUSED,
   CONTEXT_BROWSER_FIND_WIDGET_VISIBLE,
   CONTEXT_BROWSER_FOCUSED,
+  CONTEXT_BROWSER_HAS_URL,
   CONTEXT_BROWSER_STORAGE_SCOPE
 };
 //# sourceMappingURL=browserEditor.js.map

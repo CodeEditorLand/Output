@@ -54,3 +54,6 @@ export declare class ViewPreviousEditsAction extends EditingSessionAction {
     constructor();
     runEditingSessionAction(accessor: ServicesAccessor, editingSession: IChatEditingSession, chatWidget: IChatWidget, ...args: unknown[]): Promise<void>;
 }
+export declare const CHAT_EDITS_VIEW_MODE_STORAGE_KEY = "chat.editsViewMode";
+export declare const ChatEditsViewAsTreeActionId = "chatEditing.viewAsTree";
+export declare const ChatEditsViewAsListActionId = "chatEditing.viewAsList";

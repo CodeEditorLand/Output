@@ -3,6 +3,8 @@ import { IContextKey, IContextKeyService } from '../../../../platform/contextkey
 import { IContextViewService } from '../../../../platform/contextview/browser/contextView.js';
 import { IHoverService } from '../../../../platform/hover/browser/hover.js';
 import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IAccessibilityService } from '../../../../platform/accessibility/common/accessibility.js';
 import { SimpleFindWidget } from '../../codeEditor/browser/find/simpleFindWidget.js';
 export interface WebviewFindDelegate {
     readonly hasFindResult: Event<boolean>;
@@ -20,7 +22,7 @@ export declare class WebviewFindWidget extends SimpleFindWidget {
         resultCount: number;
     } | undefined>;
     protected readonly _findWidgetFocused: IContextKey<boolean>;
-    constructor(_delegate: WebviewFindDelegate, contextViewService: IContextViewService, contextKeyService: IContextKeyService, hoverService: IHoverService, keybindingService: IKeybindingService);
+    constructor(_delegate: WebviewFindDelegate, contextViewService: IContextViewService, contextKeyService: IContextKeyService, hoverService: IHoverService, keybindingService: IKeybindingService, configurationService: IConfigurationService, accessibilityService: IAccessibilityService);
     find(previous: boolean): void;
     hide(animated?: boolean): void;
     protected _onInputChanged(): boolean;

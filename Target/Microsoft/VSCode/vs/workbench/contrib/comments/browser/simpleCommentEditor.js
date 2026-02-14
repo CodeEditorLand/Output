@@ -41,6 +41,7 @@ import { MenuId } from "../../../../platform/actions/common/actions.js";
 import { ContentHoverController } from "../../../../editor/contrib/hover/browser/contentHoverController.js";
 import { GlyphHoverController } from "../../../../editor/contrib/hover/browser/glyphHoverController.js";
 import { PlaceholderTextContribution } from "../../../../editor/contrib/placeholderText/browser/placeholderTextContribution.js";
+import { IUserInteractionService } from "../../../../platform/userInteraction/browser/userInteractionService.js";
 const ctxCommentEditorFocused = new RawContextKey("commentEditorFocused", false);
 const MIN_EDITOR_HEIGHT = 5 * 18;
 const MAX_EDITOR_HEIGHT = 25 * 18;
@@ -48,7 +49,7 @@ let SimpleCommentEditor = class SimpleCommentEditor2 extends CodeEditorWidget {
   static {
     __name(this, "SimpleCommentEditor");
   }
-  constructor(domElement, options, scopedContextKeyService, parentThread, instantiationService, codeEditorService, commandService, themeService, notificationService, accessibilityService, languageConfigurationService, languageFeaturesService) {
+  constructor(domElement, options, scopedContextKeyService, parentThread, instantiationService, codeEditorService, commandService, themeService, notificationService, accessibilityService, languageConfigurationService, languageFeaturesService, userInteractionService) {
     const codeEditorWidgetOptions = {
       contributions: [
         {
@@ -103,7 +104,7 @@ let SimpleCommentEditor = class SimpleCommentEditor2 extends CodeEditorWidget {
       ],
       contextMenuId: MenuId.SimpleEditorContext
     };
-    super(domElement, options, codeEditorWidgetOptions, instantiationService, codeEditorService, commandService, scopedContextKeyService, themeService, notificationService, accessibilityService, languageConfigurationService, languageFeaturesService);
+    super(domElement, options, codeEditorWidgetOptions, instantiationService, codeEditorService, commandService, scopedContextKeyService, themeService, notificationService, accessibilityService, languageConfigurationService, languageFeaturesService, userInteractionService);
     this._commentEditorFocused = ctxCommentEditorFocused.bindTo(scopedContextKeyService);
     this._commentEditorEmpty = CommentContextKeys.commentIsEmpty.bindTo(scopedContextKeyService);
     this._commentEditorEmpty.set(!this.getModel()?.getValueLength());
@@ -165,7 +166,8 @@ SimpleCommentEditor = __decorate([
   __param(8, INotificationService),
   __param(9, IAccessibilityService),
   __param(10, ILanguageConfigurationService),
-  __param(11, ILanguageFeaturesService)
+  __param(11, ILanguageFeaturesService),
+  __param(12, IUserInteractionService)
 ], SimpleCommentEditor);
 function calculateEditorHeight(parentEditor, editor, currentHeight) {
   const layoutInfo = editor.getLayoutInfo();

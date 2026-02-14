@@ -105,9 +105,11 @@ export interface IChatEntitlementService {
     readonly onDidChangeEntitlement: Event<void>;
     readonly entitlement: ChatEntitlement;
     readonly entitlementObs: IObservable<ChatEntitlement>;
+    readonly previewFeaturesDisabled: boolean;
     readonly organisations: string[] | undefined;
     readonly isInternal: boolean;
     readonly sku: string | undefined;
+    readonly copilotTrackingId: string | undefined;
     readonly onDidChangeQuotaExceeded: Event<void>;
     readonly onDidChangeQuotaRemaining: Event<void>;
     readonly quotas: IQuotas;
@@ -149,6 +151,8 @@ export declare class ChatEntitlementService extends Disposable implements IChatE
     get isInternal(): boolean;
     get organisations(): string[] | undefined;
     get sku(): string | undefined;
+    get copilotTrackingId(): string | undefined;
+    get previewFeaturesDisabled(): boolean;
     private readonly _onDidChangeQuotaExceeded;
     readonly onDidChangeQuotaExceeded: Event<void>;
     private readonly _onDidChangeQuotaRemaining;
@@ -177,6 +181,7 @@ interface IEntitlements {
     readonly entitlement: ChatEntitlement;
     readonly organisations?: string[];
     readonly sku?: string;
+    readonly copilotTrackingId?: string;
     readonly quotas?: IQuotas;
 }
 export interface IQuotaSnapshot {
@@ -246,6 +251,10 @@ export interface IChatEntitlementContextState extends IChatSentiment {
      */
     organisations: string[] | undefined;
     /**
+     * User's Copilot tracking ID from the entitlement API.
+     */
+    copilotTrackingId: string | undefined;
+    /**
      * User is or was a registered Chat user.
      */
     registered?: boolean;
@@ -297,6 +306,7 @@ export declare class ChatEntitlementContext extends Disposable {
         entitlement: ChatEntitlement;
         organisations: string[] | undefined;
         sku: string | undefined;
+        copilotTrackingId: string | undefined;
     }): Promise<void>;
     private updateContext;
     private updateContextSync;

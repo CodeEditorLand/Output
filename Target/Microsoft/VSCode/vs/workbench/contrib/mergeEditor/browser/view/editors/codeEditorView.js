@@ -53,7 +53,7 @@ class CodeEditorView extends Disposable {
         h("div@editor")
       ])
     ]);
-    this._onDidViewChange = new Emitter();
+    this._onDidViewChange = this._register(new Emitter());
     this.view = {
       element: this.htmlElements.root,
       minimumWidth: DEFAULT_EDITOR_MIN_DIMENSIONS.width,

@@ -26,6 +26,8 @@ import { IInstantiationService } from "../../../../../../platform/instantiation/
 import { LanguageModelPartAudience } from "../../../common/languageModels.js";
 import { ChatQueryTitlePart } from "./chatConfirmationWidget.js";
 import { ChatToolOutputContentSubPart } from "./chatToolOutputContentSubPart.js";
+import { renderFileWidgets } from "./chatInlineAnchorWidget.js";
+import { IChatMarkdownAnchorService } from "./chatMarkdownAnchorService.js";
 let ChatCollapsibleInputOutputContentPart = class ChatCollapsibleInputOutputContentPart2 extends Disposable {
   static {
     __name(this, "ChatCollapsibleInputOutputContentPart");
@@ -43,7 +45,7 @@ let ChatCollapsibleInputOutputContentPart = class ChatCollapsibleInputOutputCont
   get expanded() {
     return this._expanded.get();
   }
-  constructor(title, subtitle, progressTooltip, context, input, output, isError, initiallyExpanded, contextKeyService, _instantiationService, hoverService, modelService, languageService) {
+  constructor(title, subtitle, progressTooltip, context, input, output, isError, initiallyExpanded, contextKeyService, _instantiationService, hoverService, modelService, languageService, chatMarkdownAnchorService) {
     super();
     this.context = context;
     this.input = input;
@@ -52,6 +54,7 @@ let ChatCollapsibleInputOutputContentPart = class ChatCollapsibleInputOutputCont
     this._instantiationService = _instantiationService;
     this.modelService = modelService;
     this.languageService = languageService;
+    this.chatMarkdownAnchorService = chatMarkdownAnchorService;
     this._editorReferences = [];
     this._contentInitialized = false;
     const container = dom.h(".chat-confirmation-widget-container");
@@ -60,6 +63,7 @@ let ChatCollapsibleInputOutputContentPart = class ChatCollapsibleInputOutputCont
     this.domNode = container.root;
     container.root.appendChild(elements.root);
     this._titlePart = this._register(_instantiationService.createInstance(ChatQueryTitlePart, titleEl.root, title, subtitle));
+    renderFileWidgets(titleEl.root, this._instantiationService, this.chatMarkdownAnchorService, this._store);
     const spacer = document.createElement("span");
     spacer.style.flexGrow = "1";
     const btn = this._register(new ButtonWithIcon(elements.root, {}));
@@ -154,7 +158,8 @@ ChatCollapsibleInputOutputContentPart = __decorate([
   __param(9, IInstantiationService),
   __param(10, IHoverService),
   __param(11, IModelService),
-  __param(12, ILanguageService)
+  __param(12, ILanguageService),
+  __param(13, IChatMarkdownAnchorService)
 ], ChatCollapsibleInputOutputContentPart);
 export {
   ChatCollapsibleInputOutputContentPart

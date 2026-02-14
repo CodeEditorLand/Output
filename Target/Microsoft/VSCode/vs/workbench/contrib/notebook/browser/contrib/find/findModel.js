@@ -70,7 +70,7 @@ let FindModel = class FindModel2 extends Disposable {
     this._currentMatch = -1;
     this._computePromise = null;
     this._modelDisposable = this._register(new DisposableStore());
-    this._throttledDelayer = new Delayer(20);
+    this._throttledDelayer = this._register(new Delayer(20));
     this._computePromise = null;
     this._register(_state.onFindReplaceStateChange((e) => {
       this._updateCellStates(e);

@@ -2,27 +2,32 @@ import { WebContentsView } from 'electron';
 import { Disposable } from '../../../base/common/lifecycle.js';
 import { Event } from '../../../base/common/event.js';
 import { VSBuffer } from '../../../base/common/buffer.js';
-import { IBrowserViewBounds, IBrowserViewDevToolsStateEvent, IBrowserViewFocusEvent, IBrowserViewKeyDownEvent, IBrowserViewState, IBrowserViewNavigationEvent, IBrowserViewLoadingEvent, IBrowserViewTitleChangeEvent, IBrowserViewFaviconChangeEvent, IBrowserViewNewPageRequest, BrowserViewStorageScope, IBrowserViewCaptureScreenshotOptions, IBrowserViewFindInPageOptions, IBrowserViewFindInPageResult, IBrowserViewVisibilityEvent } from '../common/browserView.js';
+import { IBrowserViewBounds, IBrowserViewDevToolsStateEvent, IBrowserViewFocusEvent, IBrowserViewKeyDownEvent, IBrowserViewState, IBrowserViewNavigationEvent, IBrowserViewLoadingEvent, IBrowserViewTitleChangeEvent, IBrowserViewFaviconChangeEvent, IBrowserViewNewPageRequest, IBrowserViewCaptureScreenshotOptions, IBrowserViewFindInPageOptions, IBrowserViewFindInPageResult, IBrowserViewVisibilityEvent } from '../common/browserView.js';
 import { IWindowsMainService } from '../../windows/electron-main/windows.js';
 import { IAuxiliaryWindowsMainService } from '../../auxiliaryWindow/electron-main/auxiliaryWindows.js';
+import { ILogService } from '../../log/common/log.js';
+import { ICDPTarget, ICDPConnection, CDPTargetInfo } from '../common/cdp/types.js';
+import { BrowserSession } from './browserSession.js';
 /**
  * Represents a single browser view instance with its WebContentsView and all associated logic.
  * This class encapsulates all operations and events for a single browser view.
  */
-export declare class BrowserView extends Disposable {
+export declare class BrowserView extends Disposable implements ICDPTarget {
     readonly id: string;
-    private readonly viewSession;
-    private readonly storageScope;
+    readonly session: BrowserSession;
     private readonly windowsMainService;
     private readonly auxiliaryWindowsMainService;
+    private readonly logService;
     private readonly _view;
     private readonly _faviconRequestCache;
     private _lastScreenshot;
     private _lastFavicon;
     private _lastError;
     private _lastUserGestureTimestamp;
+    private _debugger;
     private _window;
     private _isSendingKeyEvent;
+    private _isDisposed;
     private readonly _onDidNavigate;
     readonly onDidNavigate: Event<IBrowserViewNavigationEvent>;
     private readonly _onDidChangeLoadingState;
@@ -45,7 +50,7 @@ export declare class BrowserView extends Disposable {
     readonly onDidFindInPage: Event<IBrowserViewFindInPageResult>;
     private readonly _onDidClose;
     readonly onDidClose: Event<void>;
-    constructor(id: string, viewSession: Electron.Session, storageScope: BrowserViewStorageScope, createChildView: (options?: Electron.WebContentsViewConstructorOptions) => BrowserView, options: Electron.WebContentsViewConstructorOptions | undefined, windowsMainService: IWindowsMainService, auxiliaryWindowsMainService: IAuxiliaryWindowsMainService);
+    constructor(id: string, session: BrowserSession, createChildView: (options?: Electron.WebContentsViewConstructorOptions) => BrowserView, options: Electron.WebContentsViewConstructorOptions | undefined, windowsMainService: IWindowsMainService, auxiliaryWindowsMainService: IAuxiliaryWindowsMainService, logService: ILogService);
     private setupEventListeners;
     private consumePopupPermission;
     get webContents(): Electron.WebContents;
@@ -130,6 +135,15 @@ export declare class BrowserView extends Disposable {
      * Get the underlying WebContentsView
      */
     getWebContentsView(): WebContentsView;
+    /**
+     * Get CDP target info using Electron's real targetId.
+     */
+    getTargetInfo(): Promise<CDPTargetInfo>;
+    /**
+     * Attach to receive debugger events.
+     * @returns A connection that can be disposed to detach
+     */
+    attach(): Promise<ICDPConnection>;
     dispose(): void;
     /**
      * Potentially handle an input event as a VS Code command.

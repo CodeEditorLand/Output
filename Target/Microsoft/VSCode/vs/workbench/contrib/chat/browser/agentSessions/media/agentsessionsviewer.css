@@ -2,6 +2,12 @@
   flex: 1 1 auto;
   height: 100%;
   min-height: 0;
+  .pane-body & .monaco-scrollable-element {
+    padding: 0 6px;
+  }
+  .monaco-list-row {
+    border-radius: 6px;
+  }
   .monaco-list-row .force-no-twistie {
     display: none !important;
   }
@@ -12,43 +18,47 @@
         color: unset;
       }
     }
+  }
+  .monaco-list:focus .monaco-list-row.selected .agent-session-details-row {
     .agent-session-diff-container {
-      background-color: unset;
-      outline: 1px solid var(--vscode-agentSessionSelectedBadge-border);
       .agent-session-diff-added,
       .agent-session-diff-removed {
         color: unset;
       }
     }
-    .agent-session-badge {
-      background-color: unset;
-      outline: 1px solid var(--vscode-agentSessionSelectedBadge-border);
-    }
   }
-  .monaco-list:not(:focus) .monaco-list-row.selected .agent-session-details-row .agent-session-diff-container,
-  .monaco-list:not(:focus) .monaco-list-row.selected .agent-session-details-row .agent-session-badge {
-    outline: 1px solid var(--vscode-agentSessionSelectedUnfocusedBadge-border);
+  .monaco-list-row.selected .agent-session-title {
+    color: unset;
+  }
+  .monaco-list-row.selected .agent-session-status {
+    color: unset;
+  }
+  .monaco-list:not(:focus) .monaco-list-row.selected .agent-session-details-row {
+    color: var(--vscode-descriptionForeground);
   }
   .monaco-list-row .agent-session-title-toolbar {
     position: relative;
     height: 16px;
+    display: none;
     .monaco-toolbar {
       position: relative;
       right: 0;
       top: 0;
-      display: none;
     }
   }
-  .monaco-list-row:hover .agent-session-title-toolbar,
-  .monaco-list-row.focused .agent-session-title-toolbar {
-    .monaco-toolbar {
+  .monaco-list-row:hover,
+  .monaco-list-row.focused {
+    .agent-session-title-toolbar {
       display: block;
+    }
+    .agent-session-status {
+      display: none;
     }
   }
   .agent-session-item {
     display: flex;
     flex-direction: row;
-    padding: 8px 12px 8px 8px;
+    padding: 4px 6px;
     &.archived {
       color: var(--vscode-descriptionForeground);
     }
@@ -61,9 +71,15 @@
     .agent-session-icon-col {
       display: flex;
       align-items: flex-start;
+      line-height: 17px;
       .agent-session-icon {
         flex-shrink: 0;
-        font-size: 16px;
+        font-size: 12px;
+        width: 14px;
+        height: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         &.codicon.codicon-session-in-progress {
           color: var(--vscode-textLink-foreground);
         }
@@ -82,20 +98,22 @@
       }
     }
     .agent-session-main-col {
-      padding-left: 8px;
+      padding-left: 6px;
     }
     .agent-session-title-row,
     .agent-session-details-row {
       display: flex;
       align-items: center;
-      line-height: 16px;
     }
     .agent-session-title-row {
+      line-height: 17px;
       padding-bottom: 4px;
     }
     .agent-session-details-row {
       gap: 4px;
       font-size: 12px;
+      line-height: 15px;
+      max-height: 15px;
       color: var(--vscode-descriptionForeground);
       .rendered-markdown {
         p {
@@ -112,11 +130,8 @@
       }
       .agent-session-diff-container,
       .agent-session-badge {
-        background-color: var(--vscode-toolbar-hoverBackground);
         font-weight: 500;
-        padding: 0 4px;
         font-variant-numeric: tabular-nums;
-        border-radius: 5px;
         overflow: hidden;
       }
       .agent-session-diff-container {
@@ -132,6 +147,15 @@
           color: var(--vscode-chat-linesRemovedForeground);
         }
       }
+      .agent-session-separator {
+        display: none;
+        &.has-separator {
+          display: inline;
+          &::before {
+            content: "\b7";
+          }
+        }
+      }
       .agent-session-badge {
         p {
           overflow: hidden;
@@ -140,22 +164,39 @@
           display: none;
         }
         .codicon {
-          font-size: 12px;
+          font-size: 11px;
         }
       }
     }
     .agent-session-title,
     .agent-session-description {
       flex: 1;
-      text-overflow: ellipsis;
       overflow: hidden;
+      white-space: nowrap;
+      margin-right: 16px;
+      mask-image:
+        linear-gradient(
+          to right,
+          black calc(100% - 32px),
+          transparent);
+      -webkit-mask-image:
+        linear-gradient(
+          to right,
+          black calc(100% - 32px),
+          transparent);
+    }
+    .agent-session-title {
+      font-size: 13px;
     }
     .agent-session-status {
       display: flex;
       align-items: center;
       font-variant-numeric: tabular-nums;
+      font-size: 12px;
+      color: var(--vscode-descriptionForeground);
+      white-space: nowrap;
       .agent-session-status-provider-icon {
-        font-size: 12px;
+        font-size: 11px;
         margin-right: 4px;
         &.hidden {
           display: none;
@@ -167,10 +208,9 @@
     display: flex;
     align-items: center;
     font-size: 11px;
+    font-weight: 500;
     color: var(--vscode-descriptionForeground);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    padding: 0 12px 0 8px;
+    padding: 0 6px;
     .agent-session-section-label {
       flex: 1;
     }

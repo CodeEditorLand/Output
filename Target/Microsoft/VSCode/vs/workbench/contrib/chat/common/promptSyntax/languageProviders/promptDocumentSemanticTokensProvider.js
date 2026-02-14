@@ -13,7 +13,7 @@ var __param = function(paramIndex, decorator) {
 };
 import { getPromptsTypeForLanguageId } from "../promptTypes.js";
 import { IPromptsService } from "../service/promptsService.js";
-import { isGithubTarget } from "./promptValidator.js";
+import { getTarget, isVSCodeOrDefaultTarget } from "./promptValidator.js";
 let PromptDocumentSemanticTokensProvider = class PromptDocumentSemanticTokensProvider2 {
   static {
     __name(this, "PromptDocumentSemanticTokensProvider");
@@ -31,7 +31,8 @@ let PromptDocumentSemanticTokensProvider = class PromptDocumentSemanticTokensPro
     if (!promptAST.body) {
       return void 0;
     }
-    if (isGithubTarget(promptType, promptAST.header?.target)) {
+    const target = getTarget(promptType, promptAST.header ?? model.uri);
+    if (!isVSCodeOrDefaultTarget(target)) {
       return void 0;
     }
     const variableReferences = promptAST.body.variableReferences;

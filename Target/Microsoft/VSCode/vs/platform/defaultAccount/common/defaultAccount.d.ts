@@ -11,6 +11,7 @@ export interface IDefaultAccountProvider {
         additionalScopes?: readonly string[];
         [key: string]: unknown;
     }): Promise<IDefaultAccount | null>;
+    signOut(): Promise<void>;
 }
 export declare const IDefaultAccountService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IDefaultAccountService>;
 export interface IDefaultAccountService {
@@ -26,4 +27,5 @@ export interface IDefaultAccountService {
         additionalScopes?: readonly string[];
         [key: string]: unknown;
     }): Promise<IDefaultAccount | null>;
+    signOut(): Promise<void>;
 }

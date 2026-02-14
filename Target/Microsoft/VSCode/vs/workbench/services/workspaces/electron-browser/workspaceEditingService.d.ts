@@ -21,6 +21,7 @@ import { IWorkspaceTrustManagementService } from '../../../../platform/workspace
 import { IWorkbenchConfigurationService } from '../../configuration/common/configuration.js';
 import { IUserDataProfilesService } from '../../../../platform/userDataProfile/common/userDataProfile.js';
 import { IUserDataProfileService } from '../../userDataProfile/common/userDataProfile.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
 export declare class NativeWorkspaceEditingService extends AbstractWorkspaceEditingService {
     private nativeHostService;
     private storageService;
@@ -28,7 +29,7 @@ export declare class NativeWorkspaceEditingService extends AbstractWorkspaceEdit
     private workingCopyBackupService;
     private readonly lifecycleService;
     private readonly labelService;
-    constructor(jsonEditingService: IJSONEditingService, contextService: WorkspaceService, nativeHostService: INativeHostService, configurationService: IWorkbenchConfigurationService, storageService: IStorageService, extensionService: IExtensionService, workingCopyBackupService: IWorkingCopyBackupService, notificationService: INotificationService, commandService: ICommandService, fileService: IFileService, textFileService: ITextFileService, workspacesService: IWorkspacesService, environmentService: INativeWorkbenchEnvironmentService, fileDialogService: IFileDialogService, dialogService: IDialogService, lifecycleService: ILifecycleService, labelService: ILabelService, hostService: IHostService, uriIdentityService: IUriIdentityService, workspaceTrustManagementService: IWorkspaceTrustManagementService, userDataProfilesService: IUserDataProfilesService, userDataProfileService: IUserDataProfileService);
+    constructor(jsonEditingService: IJSONEditingService, contextService: WorkspaceService, nativeHostService: INativeHostService, configurationService: IWorkbenchConfigurationService, storageService: IStorageService, extensionService: IExtensionService, workingCopyBackupService: IWorkingCopyBackupService, notificationService: INotificationService, commandService: ICommandService, fileService: IFileService, textFileService: ITextFileService, workspacesService: IWorkspacesService, environmentService: INativeWorkbenchEnvironmentService, fileDialogService: IFileDialogService, dialogService: IDialogService, lifecycleService: ILifecycleService, labelService: ILabelService, hostService: IHostService, uriIdentityService: IUriIdentityService, workspaceTrustManagementService: IWorkspaceTrustManagementService, userDataProfilesService: IUserDataProfilesService, userDataProfileService: IUserDataProfileService, logService: ILogService);
     private registerListeners;
     private saveUntitledBeforeShutdown;
     isValidTargetWorkspacePath(workspaceUri: URI): Promise<boolean>;

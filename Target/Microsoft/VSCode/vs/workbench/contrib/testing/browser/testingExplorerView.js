@@ -642,8 +642,8 @@ let TestingExplorerViewModel = class TestingExplorerViewModel2 extends Disposabl
     this.testProfileService = testProfileService;
     this.crService = crService;
     this.projection = this._register(new MutableDisposable());
-    this.revealTimeout = new MutableDisposable();
-    this.welcomeVisibilityEmitter = new Emitter();
+    this.revealTimeout = this._register(new MutableDisposable());
+    this.welcomeVisibilityEmitter = this._register(new Emitter());
     this.actionRunner = this._register(new TestExplorerActionRunner(() => this.tree.getSelection().filter(isDefined)));
     this.hasPendingReveal = false;
     this.onChangeWelcomeVisibility = this.welcomeVisibilityEmitter.event;

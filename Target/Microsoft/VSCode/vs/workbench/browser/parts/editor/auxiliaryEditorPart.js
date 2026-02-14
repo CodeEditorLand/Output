@@ -14,6 +14,7 @@ var __param = function(paramIndex, decorator) {
 var AuxiliaryEditorPart_1, AuxiliaryEditorPartImpl_1;
 import { onDidChangeFullscreen } from "../../../../base/browser/browser.js";
 import { $, getActiveWindow, hide, show } from "../../../../base/browser/dom.js";
+import { mainWindow } from "../../../../base/browser/window.js";
 import { Emitter, Event } from "../../../../base/common/event.js";
 import { DisposableStore, markAsSingleton, MutableDisposable } from "../../../../base/common/lifecycle.js";
 import { isNative } from "../../../../base/common/platform.js";
@@ -298,6 +299,11 @@ let AuxiliaryEditorPartImpl = class AuxiliaryEditorPartImpl2 extends EditorPart 
     this.optionsDisposable = this._register(new MutableDisposable());
     this.isCompact = false;
   }
+  handleContextKeys() {
+    const isAuxiliaryWindowContext = IsAuxiliaryWindowContext.bindTo(this.scopedContextKeyService);
+    isAuxiliaryWindowContext.set(true);
+    super.handleContextKeys();
+  }
   updateOptions(options) {
     this.isCompact = options.compact;
     if (options.compact) {
@@ -333,8 +339,16 @@ let AuxiliaryEditorPartImpl = class AuxiliaryEditorPartImpl2 extends EditorPart 
     );
     const nextActiveGroup = mostRecentlyActiveGroups[1];
     if (nextActiveGroup) {
-      nextActiveGroup.groupsView.activateGroup(nextActiveGroup);
-      if (restoreFocus) {
+      nextActiveGroup.groupsView.activateGroup(
+        nextActiveGroup,
+        void 0,
+        1
+        /* GroupActivationReason.PART_CLOSE */
+      );
+    }
+    if (nextActiveGroup && restoreFocus) {
+      const nextGroupInHiddenMainPart = nextActiveGroup.groupsView === this.editorPartsView.mainPart && !this.layoutService.isVisible("workbench.parts.editor", mainWindow);
+      if (!nextGroupInHiddenMainPart) {
         nextActiveGroup.focus();
       }
     }
@@ -362,6 +376,9 @@ let AuxiliaryEditorPartImpl = class AuxiliaryEditorPartImpl2 extends EditorPart 
         group.closeAllEditors({ excludeConfirming: true });
       }
       result = this.mergeGroupsToMainPart();
+      if (!result) {
+        return false;
+      }
     }
     this._onWillClose.fire();
     return result;

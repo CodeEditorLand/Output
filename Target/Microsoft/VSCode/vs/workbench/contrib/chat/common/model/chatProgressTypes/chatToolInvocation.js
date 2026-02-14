@@ -17,16 +17,28 @@ class ChatToolInvocation {
    * Use this when the tool call is beginning to stream partial input from the LM.
    */
   static createStreaming(options) {
-    return new ChatToolInvocation(void 0, options.toolData, options.toolCallId, options.subagentInvocationId, void 0, true, options.chatRequestId);
+    return new ChatToolInvocation(void 0, options.toolData, options.toolCallId, options.subagentInvocationId, void 0, { startInStreaming: true }, options.chatRequestId);
   }
-  constructor(preparedInvocation, toolData, toolCallId, subAgentInvocationId, parameters, isStreaming = false, chatRequestId) {
+  /**
+   * Create a tool invocation already in cancelled state.
+   * Use this when a hook denies tool execution before it even starts.
+   */
+  static createCancelled(options, parameters, reason, reasonMessage) {
+    return new ChatToolInvocation(void 0, options.toolData, options.toolCallId, options.subagentInvocationId, parameters, { startInCancelled: true, cancelReason: reason, cancelReasonMessage: reasonMessage }, options.chatRequestId);
+  }
+  constructor(preparedInvocation, toolData, toolCallId, subAgentInvocationId, parameters, startOptions = {}, chatRequestId) {
     this.toolCallId = toolCallId;
     this.kind = "toolInvocation";
     this._progress = observableValue(this, { progress: 0 });
     this._partialInput = observableValue(this, void 0);
     this._streamingMessage = observableValue(this, void 0);
-    const defaultStreamingMessage = isStreaming ? localize("toolInvocationMessage", 'Using "{0}"', toolData.displayName) : "";
-    this.invocationMessage = preparedInvocation?.invocationMessage ?? defaultStreamingMessage;
+    let defaultMessage = "";
+    if (startOptions.startInStreaming) {
+      defaultMessage = localize("toolInvocationMessage", 'Using "{0}"', toolData.displayName);
+    } else if (startOptions.startInCancelled) {
+      defaultMessage = startOptions.cancelReasonMessage ?? localize("toolDeniedMessage", 'Tool "{0}" was denied', toolData.displayName);
+    }
+    this.invocationMessage = preparedInvocation?.invocationMessage ?? defaultMessage;
     this.pastTenseMessage = preparedInvocation?.pastTenseMessage;
     this.originMessage = preparedInvocation?.originMessage;
     this.confirmationMessages = preparedInvocation?.confirmationMessages;
@@ -37,7 +49,15 @@ class ChatToolInvocation {
     this.subAgentInvocationId = subAgentInvocationId;
     this.parameters = parameters;
     this.chatRequestId = chatRequestId;
-    if (isStreaming) {
+    if (startOptions.startInCancelled) {
+      this._state = observableValue(this, {
+        type: 5,
+        reason: startOptions.cancelReason ?? 0,
+        reasonMessage: startOptions.cancelReasonMessage,
+        parameters: this.parameters,
+        confirmationMessages: this.confirmationMessages
+      });
+    } else if (startOptions.startInStreaming) {
       this._state = observableValue(this, {
         type: 0,
         partialInput: this._partialInput,
@@ -95,6 +115,25 @@ class ChatToolInvocation {
       return;
     }
     this._streamingMessage.set(message, void 0);
+  }
+  /**
+   * Cancel a streaming invocation directly (e.g., when preToolUse hook denies).
+   * Only works when in Streaming state.
+   * @returns true if the cancellation was applied, false if not in streaming state
+   */
+  cancelFromStreaming(reason, reasonMessage) {
+    const currentState = this._state.get();
+    if (currentState.type !== 0) {
+      return false;
+    }
+    this._state.set({
+      type: 5,
+      reason,
+      reasonMessage,
+      parameters: this.parameters,
+      confirmationMessages: this.confirmationMessages
+    }, void 0);
+    return true;
   }
   /**
    * Transition from streaming state to prepared/executing state.

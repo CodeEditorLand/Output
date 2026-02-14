@@ -2,7 +2,7 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { getWindowId, onDidUnregisterWindow } from "./dom.js";
 import { Emitter, Event } from "../common/event.js";
-import { Disposable, markAsSingleton } from "../common/lifecycle.js";
+import { Disposable, markAsSingleton, toDisposable } from "../common/lifecycle.js";
 class DevicePixelRatioMonitor extends Disposable {
   static {
     __name(this, "DevicePixelRatioMonitor");
@@ -14,6 +14,7 @@ class DevicePixelRatioMonitor extends Disposable {
     this._listener = () => this._handleChange(targetWindow, true);
     this._mediaQueryList = null;
     this._handleChange(targetWindow, false);
+    this._register(toDisposable(() => this._mediaQueryList?.removeEventListener("change", this._listener)));
   }
   _handleChange(targetWindow, fireEvent) {
     this._mediaQueryList?.removeEventListener("change", this._listener);

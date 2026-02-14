@@ -97,12 +97,12 @@ let ExtensionsViewletViewsContribution = class ExtensionsViewletViewsContributio
   static {
     __name(this, "ExtensionsViewletViewsContribution");
   }
-  constructor(extensionManagementServerService, labelService, viewDescriptorService, contextKeyService) {
+  constructor(extensionManagementServerService, labelService, contextKeyService) {
     super();
     this.extensionManagementServerService = extensionManagementServerService;
     this.labelService = labelService;
     this.contextKeyService = contextKeyService;
-    this.container = viewDescriptorService.getViewContainerById(VIEWLET_ID);
+    this.container = Registry.as(Extensions.ViewContainersRegistry).get(VIEWLET_ID);
     this.registerViews();
   }
   registerViews() {
@@ -415,8 +415,7 @@ let ExtensionsViewletViewsContribution = class ExtensionsViewletViewsContributio
 ExtensionsViewletViewsContribution = __decorate([
   __param(0, IExtensionManagementServerService),
   __param(1, ILabelService),
-  __param(2, IViewDescriptorService),
-  __param(3, IContextKeyService)
+  __param(2, IContextKeyService)
 ], ExtensionsViewletViewsContribution);
 let ExtensionsViewPaneContainer = class ExtensionsViewPaneContainer2 extends ViewPaneContainer {
   static {
@@ -436,7 +435,7 @@ let ExtensionsViewPaneContainer = class ExtensionsViewPaneContainer2 extends Vie
     this.hoverService = hoverService;
     this.extensionGalleryManifest = null;
     this.notificationDisposables = this._register(new MutableDisposable());
-    this.searchDelayer = new Delayer(500);
+    this.searchDelayer = this._register(new Delayer(500));
     this.extensionsSearchValueContextKey = ExtensionsSearchValueContext.bindTo(contextKeyService);
     this.defaultViewsContextKey = DefaultViewsContext.bindTo(contextKeyService);
     this.sortByContextKey = ExtensionsSortByContext.bindTo(contextKeyService);

@@ -21,7 +21,7 @@ import { Iterable } from "../../../../../base/common/iterator.js";
 import { Disposable, DisposableResourceMap, DisposableStore, MutableDisposable } from "../../../../../base/common/lifecycle.js";
 import { revive } from "../../../../../base/common/marshalling.js";
 import { Schemas } from "../../../../../base/common/network.js";
-import { autorun, derived } from "../../../../../base/common/observable.js";
+import { autorun, derived, observableValue } from "../../../../../base/common/observable.js";
 import { isEqual } from "../../../../../base/common/resources.js";
 import { StopWatch } from "../../../../../base/common/stopwatch.js";
 import { isDefined } from "../../../../../base/common/types.js";
@@ -54,7 +54,6 @@ import { ChatAgentLocation, ChatConfiguration, ChatModeKind } from "../constants
 import { ILanguageModelToolsService } from "../tools/languageModelToolsService.js";
 import { ChatSessionOperationLog } from "../model/chatSessionOperationLog.js";
 import { IPromptsService } from "../promptSyntax/service/promptsService.js";
-import { IHooksExecutionService } from "../hooksExecutionService.js";
 const serializedChatKey = "interactive.sessions";
 let CancellableRequest = class CancellableRequest2 {
   static {
@@ -67,7 +66,7 @@ let CancellableRequest = class CancellableRequest2 {
     this.cancellationTokenSource = cancellationTokenSource;
     this.requestId = requestId;
     this.toolsService = toolsService;
-    this._yieldRequested = false;
+    this._yieldRequested = observableValue(this, false);
   }
   dispose() {
     this.cancellationTokenSource.dispose();
@@ -79,7 +78,7 @@ let CancellableRequest = class CancellableRequest2 {
     this.cancellationTokenSource.cancel();
   }
   setYieldRequested() {
-    this._yieldRequested = true;
+    this._yieldRequested.set(true, void 0);
   }
 };
 CancellableRequest = __decorate([
@@ -114,7 +113,7 @@ let ChatService = class ChatService2 extends Disposable {
     const workspace = this.workspaceContextService.getWorkspace();
     return !workspace.configuration && workspace.folders.length === 0;
   }
-  constructor(storageService, logService, extensionService, instantiationService, workspaceContextService, chatSlashCommandService, chatAgentService, configurationService, chatTransferService, chatSessionService, mcpService, promptsService, hooksExecutionService) {
+  constructor(storageService, logService, extensionService, instantiationService, workspaceContextService, chatSlashCommandService, chatAgentService, configurationService, chatTransferService, chatSessionService, mcpService, promptsService) {
     super();
     this.storageService = storageService;
     this.logService = logService;
@@ -128,7 +127,6 @@ let ChatService = class ChatService2 extends Disposable {
     this.chatSessionService = chatSessionService;
     this.mcpService = mcpService;
     this.promptsService = promptsService;
-    this.hooksExecutionService = hooksExecutionService;
     this._pendingRequests = this._register(new DisposableResourceMap());
     this._queuedRequestDeferreds = /* @__PURE__ */ new Map();
     this._saveModelsEnabled = true;
@@ -370,14 +368,13 @@ let ChatService = class ChatService2 extends Disposable {
       initialData: void 0,
       location,
       sessionResource,
-      sessionId,
       canUseTools: options?.canUseTools ?? true,
       disableBackgroundKeepAlive: options?.disableBackgroundKeepAlive
     });
   }
   _startSession(props) {
-    const { initialData, location, sessionResource, sessionId, canUseTools, transferEditingSession, disableBackgroundKeepAlive, inputState } = props;
-    const model = this.instantiationService.createInstance(ChatModel, initialData, { initialLocation: location, canUseTools, resource: sessionResource, sessionId, disableBackgroundKeepAlive, inputState });
+    const { initialData, location, sessionResource, canUseTools, transferEditingSession, disableBackgroundKeepAlive, inputState } = props;
+    const model = this.instantiationService.createInstance(ChatModel, initialData, { initialLocation: location, canUseTools, resource: sessionResource, disableBackgroundKeepAlive, inputState });
     if (location === ChatAgentLocation.Chat) {
       model.startEditingSession(true, transferEditingSession);
     }
@@ -418,16 +415,17 @@ let ChatService = class ChatService2 extends Disposable {
     if (existingRef) {
       return existingRef;
     }
-    const sessionId = LocalChatSessionUri.parseLocalSessionId(sessionResource);
-    if (!sessionId) {
-      throw new Error(`Cannot restore non-local session ${sessionResource}`);
-    }
     let sessionData;
     if (isEqual(this.transferredSessionResource, sessionResource)) {
       this._transferredSessionResource = void 0;
       sessionData = await this._chatSessionStore.readTransferredSession(sessionResource);
     } else {
-      sessionData = await this._chatSessionStore.readSession(sessionId);
+      const localSessionId = LocalChatSessionUri.parseLocalSessionId(sessionResource);
+      if (localSessionId) {
+        sessionData = await this._chatSessionStore.readSession(localSessionId);
+      } else {
+        return this.loadSessionForResource(sessionResource, ChatAgentLocation.Chat, CancellationToken.None);
+      }
     }
     if (!sessionData) {
       return void 0;
@@ -436,7 +434,6 @@ let ChatService = class ChatService2 extends Disposable {
       initialData: sessionData,
       location: sessionData.value.initialLocation ?? ChatAgentLocation.Chat,
       sessionResource,
-      sessionId,
       canUseTools: true
     });
     return sessionRef;
@@ -457,7 +454,6 @@ let ChatService = class ChatService2 extends Disposable {
       initialData: { value: data, serializer: new ChatSessionOperationLog() },
       location: data.initialLocation ?? ChatAgentLocation.Chat,
       sessionResource,
-      sessionId,
       canUseTools: true
     });
   }
@@ -470,6 +466,11 @@ let ChatService = class ChatService2 extends Disposable {
       return existingRef;
     }
     const providedSession = await this.chatSessionService.getOrCreateChatSession(chatSessionResource, CancellationToken.None);
+    const existingRefAfterProvision = this._sessionModels.acquireExisting(chatSessionResource);
+    if (existingRefAfterProvision) {
+      providedSession.dispose();
+      return existingRefAfterProvision;
+    }
     const chatSessionType = chatSessionResource.scheme;
     const modelRef = this._sessionModels.acquireOrCreate({
       initialData: void 0,
@@ -615,7 +616,7 @@ let ChatService = class ChatService2 extends Disposable {
     const requestModel = new ChatRequestModel({
       session: model,
       message: parsedRequest,
-      variableData: { variables: [] },
+      variableData: { variables: options.attachedContext ?? [] },
       timestamp: Date.now(),
       modeInfo: options.modeInfo,
       locationData: options.locationData,
@@ -644,10 +645,9 @@ let ChatService = class ChatService2 extends Disposable {
     }
     const hasPendingRequest = this._pendingRequests.has(sessionResource);
     const hasPendingQueue = model.getPendingRequests().length > 0;
-    if (hasPendingRequest) {
-      if (options?.queue) {
-        return this.queuePendingRequest(model, sessionResource, request, options);
-      }
+    if (options?.queue) {
+      return this.queuePendingRequest(model, sessionResource, request, options);
+    } else if (hasPendingRequest) {
       this.trace("sendRequest", `Session ${sessionResource} already has a pending request`);
       return { kind: "rejected", reason: "Request already in progress" };
     }
@@ -754,13 +754,15 @@ let ChatService = class ChatService2 extends Disposable {
       let detectedAgent;
       let detectedCommand;
       let collectedHooks;
+      let hasDisabledClaudeHooks = false;
       try {
-        collectedHooks = await this.promptsService.getHooks(token);
+        const hooksInfo = await this.promptsService.getHooks(token);
+        if (hooksInfo) {
+          collectedHooks = hooksInfo.hooks;
+          hasDisabledClaudeHooks = hooksInfo.hasDisabledClaudeHooks;
+        }
       } catch (error) {
         this.logService.warn("[ChatService] Failed to collect hooks:", error);
-      }
-      if (collectedHooks) {
-        store.add(this.hooksExecutionService.registerHooks(model.sessionResource, collectedHooks));
       }
       const stopWatch = new StopWatch(false);
       store.add(token.onCancellationRequested(() => {
@@ -794,6 +796,9 @@ let ChatService = class ChatService2 extends Disposable {
             } else {
               variableData = { variables: this.prepareContext(request.attachedContext) };
               model.updateRequest(request, variableData);
+              if (options?.resolvedVariables?.length) {
+                variableData = { variables: [...variableData.variables, ...options.resolvedVariables] };
+              }
               const promptTextResult = getPromptText(request.message);
               variableData = updateRanges(variableData, promptTextResult.diff);
               message = promptTextResult.message;
@@ -816,7 +821,8 @@ let ChatService = class ChatService2 extends Disposable {
               userSelectedTools: options?.userSelectedTools?.get(),
               modeInstructions: options?.modeInfo?.modeInstructions,
               editedFileEvents: request.editedFileEvents,
-              hooks: collectedHooks
+              hooks: collectedHooks,
+              hasHooksEnabled: !!collectedHooks && Object.values(collectedHooks).some((arr) => arr.length > 0)
             };
             let isInitialTools = true;
             store.add(autorun((reader) => {
@@ -852,10 +858,32 @@ let ChatService = class ChatService2 extends Disposable {
           const requestProps = prepareChatAgentRequest(agent, command, enableCommandDetection, request, !!detectedAgent);
           this.generateInitialChatTitleIfNeeded(model, requestProps, defaultAgent, token);
           const pendingRequest = this._pendingRequests.get(sessionResource);
-          if (pendingRequest && !pendingRequest.requestId) {
-            pendingRequest.requestId = requestProps.requestId;
+          if (pendingRequest) {
+            store.add(autorun((reader) => {
+              if (pendingRequest.yieldRequested.read(reader)) {
+                this.chatAgentService.setYieldRequested(agent.id, request.id);
+              }
+            }));
+            pendingRequest.requestId ??= requestProps.requestId;
           }
           completeResponseCreated();
+          const disabledClaudeHooksDismissedKey = "chat.disabledClaudeHooks.notification";
+          if (!this.storageService.getBoolean(
+            disabledClaudeHooksDismissedKey,
+            1
+            /* StorageScope.WORKSPACE */
+          )) {
+            this.storageService.store(
+              disabledClaudeHooksDismissedKey,
+              true,
+              1,
+              0
+              /* StorageTarget.USER */
+            );
+            if (hasDisabledClaudeHooks) {
+              progressCallback([{ kind: "disabledClaudeHooks" }]);
+            }
+          }
           if (model.canUseTools) {
             const autostartResult = new ChatMcpServersStarting(this.mcpService.autostart(token));
             if (!autostartResult.isEmpty) {
@@ -970,7 +998,12 @@ let ChatService = class ChatService2 extends Disposable {
     this.trace("processNextPendingRequest", `Processing queued request for session ${model.sessionResource}`);
     const deferred = this._queuedRequestDeferreds.get(pendingRequest.request.id);
     this._queuedRequestDeferreds.delete(pendingRequest.request.id);
-    const sendOptions = pendingRequest.sendOptions;
+    const sendOptions = {
+      ...pendingRequest.sendOptions,
+      // Ensure attachedContext is preserved after deserialization, where sendOptions
+      // loses attachedContext but the request model retains it in variableData.
+      attachedContext: pendingRequest.request.variableData.variables.slice()
+    };
     const location = sendOptions.location ?? sendOptions.locationData?.type ?? model.initialLocation;
     const defaultAgent = this.chatAgentService.getDefaultAgent(location, sendOptions.modeInfo?.kind);
     if (!defaultAgent) {
@@ -1191,8 +1224,7 @@ ChatService = __decorate([
   __param(8, IChatTransferService),
   __param(9, IChatSessionsService),
   __param(10, IMcpService),
-  __param(11, IPromptsService),
-  __param(12, IHooksExecutionService)
+  __param(11, IPromptsService)
 ], ChatService);
 export {
   ChatService

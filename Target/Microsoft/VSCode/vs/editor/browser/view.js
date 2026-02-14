@@ -61,13 +61,15 @@ import { NativeEditContext } from "./controller/editContext/native/nativeEditCon
 import { RulersGpu } from "./viewParts/rulersGpu/rulersGpu.js";
 import { GpuMarkOverlay } from "./viewParts/gpuMark/gpuMark.js";
 import { Emitter } from "../../base/common/event.js";
+import { IUserInteractionService } from "../../platform/userInteraction/browser/userInteractionService.js";
 let View = class View2 extends ViewEventHandler {
   static {
     __name(this, "View");
   }
-  constructor(editorContainer, ownerID, commandDelegate, configuration, colorTheme, model, userInputEvents, overflowWidgetsDomNode, _instantiationService) {
+  constructor(editorContainer, ownerID, commandDelegate, configuration, colorTheme, model, userInputEvents, overflowWidgetsDomNode, _instantiationService, _userInteractionService) {
     super();
     this._instantiationService = _instantiationService;
+    this._userInteractionService = _userInteractionService;
     this._editContextClipboardListeners = new DisposableStore();
     this._onWillCopy = this._register(new Emitter());
     this.onWillCopy = this._onWillCopy.event;
@@ -77,7 +79,7 @@ let View = class View2 extends ViewEventHandler {
     this.onWillPaste = this._onWillPaste.event;
     this._shouldRecomputeGlyphMarginLanes = false;
     this._ownerID = ownerID;
-    this._widgetFocusTracker = this._register(new CodeEditorWidgetFocusTracker(editorContainer, overflowWidgetsDomNode));
+    this._widgetFocusTracker = this._register(new CodeEditorWidgetFocusTracker(editorContainer, overflowWidgetsDomNode, this._userInteractionService));
     this._register(this._widgetFocusTracker.onChange(() => {
       this._context.viewModel.setHasWidgetFocus(this._widgetFocusTracker.hasFocus());
     }));
@@ -642,7 +644,8 @@ let View = class View2 extends ViewEventHandler {
   }
 };
 View = __decorate([
-  __param(8, IInstantiationService)
+  __param(8, IInstantiationService),
+  __param(9, IUserInteractionService)
 ], View);
 function safeInvokeNoArg(func) {
   try {
@@ -734,13 +737,13 @@ class CodeEditorWidgetFocusTracker extends Disposable {
   static {
     __name(this, "CodeEditorWidgetFocusTracker");
   }
-  constructor(domElement, overflowWidgetsDomNode) {
+  constructor(domElement, overflowWidgetsDomNode, userInteractionService) {
     super();
     this._onChange = this._register(new Emitter());
     this.onChange = this._onChange.event;
     this._hadFocus = void 0;
     this._hasDomElementFocus = false;
-    this._domFocusTracker = this._register(dom.trackFocus(domElement));
+    this._domFocusTracker = this._register(userInteractionService.createDomFocusTracker(domElement));
     this._overflowWidgetsDomNodeHasFocus = false;
     this._register(this._domFocusTracker.onDidFocus(() => {
       this._hasDomElementFocus = true;
@@ -751,7 +754,7 @@ class CodeEditorWidgetFocusTracker extends Disposable {
       this._update();
     }));
     if (overflowWidgetsDomNode) {
-      this._overflowWidgetsDomNode = this._register(dom.trackFocus(overflowWidgetsDomNode));
+      this._overflowWidgetsDomNode = this._register(userInteractionService.createDomFocusTracker(overflowWidgetsDomNode));
       this._register(this._overflowWidgetsDomNode.onDidFocus(() => {
         this._overflowWidgetsDomNodeHasFocus = true;
         this._update();

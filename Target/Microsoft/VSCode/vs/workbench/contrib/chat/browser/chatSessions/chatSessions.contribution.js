@@ -13,7 +13,7 @@ var __param = function(paramIndex, decorator) {
 };
 import { sep } from "../../../../../base/common/path.js";
 import { raceCancellationError } from "../../../../../base/common/async.js";
-import { CancellationToken } from "../../../../../base/common/cancellation.js";
+import { CancellationToken, CancellationTokenSource } from "../../../../../base/common/cancellation.js";
 import { Codicon } from "../../../../../base/common/codicons.js";
 import { AsyncEmitter, Emitter, Event } from "../../../../../base/common/event.js";
 import { combinedDisposable, Disposable, DisposableMap, DisposableStore, toDisposable } from "../../../../../base/common/lifecycle.js";
@@ -45,12 +45,13 @@ import { autorun, autorunIterableDelta, observableFromEvent, observableSignalFro
 import { renderAsPlaintext } from "../../../../../base/browser/markdownRenderer.js";
 import { IViewsService } from "../../../../services/views/common/viewsService.js";
 import { ChatViewId } from "../chat.js";
-import { AgentSessionProviders, getAgentSessionProviderName } from "../agentSessions/agentSessions.js";
-import { BugIndicatingError } from "../../../../../base/common/errors.js";
+import { AgentSessionProviders, backgroundAgentDisplayName, getAgentSessionProviderName } from "../agentSessions/agentSessions.js";
+import { BugIndicatingError, isCancellationError } from "../../../../../base/common/errors.js";
 import { IEditorGroupsService } from "../../../../services/editor/common/editorGroupsService.js";
 import { LocalChatSessionUri } from "../../common/model/chatUri.js";
 import { assertNever } from "../../../../../base/common/assert.js";
 import { ICommandService } from "../../../../../platform/commands/common/commands.js";
+import { Target } from "../../common/promptSyntax/service/promptsService.js";
 const extensionPoint = ExtensionsRegistry.registerExtensionPoint({
   extensionPoint: "chatSessions",
   jsonSchema: {
@@ -169,6 +170,10 @@ const extensionPoint = ExtensionsRegistry.registerExtensionPoint({
             supportsSymbolAttachments: {
               description: localize("chatSessionsExtPoint.supportsSymbolAttachments", "Whether this chat session supports attaching symbols."),
               type: "boolean"
+            },
+            supportsPromptAttachments: {
+              description: localize("chatSessionsExtPoint.supportsPromptAttachments", "Whether this chat session supports attaching prompts."),
+              type: "boolean"
             }
           }
         },
@@ -198,6 +203,11 @@ const extensionPoint = ExtensionsRegistry.registerExtensionPoint({
         },
         canDelegate: {
           description: localize("chatSessionsExtPoint.canDelegate", "Whether delegation is supported. Default is false. Note that enabling this is experimental and may not be respected at all times."),
+          type: "boolean",
+          default: false
+        },
+        isReadOnly: {
+          description: localize("chatSessionsExtPoint.isReadOnly", "Whether this session type is for read-only agents that do not support interactive chat. This flag is incompatible with 'canDelegate'."),
           type: "boolean",
           default: false
         },
@@ -271,7 +281,7 @@ let ChatSessionsService = class ChatSessionsService2 extends Disposable {
     this._menuService = _menuService;
     this._themeService = _themeService;
     this._labelService = _labelService;
-    this._itemsProviders = /* @__PURE__ */ new Map();
+    this._itemControllers = /* @__PURE__ */ new Map();
     this._contributions = /* @__PURE__ */ new Map();
     this._contributionDisposables = this._register(new DisposableMap());
     this._contentProviders = /* @__PURE__ */ new Map();
@@ -314,8 +324,9 @@ let ChatSessionsService = class ChatSessionsService2 extends Disposable {
       this._evaluateAvailability();
     }));
     const builtinSessionProviders = [AgentSessionProviders.Local];
-    const contributedSessionProviders = observableFromEvent(this.onDidChangeAvailability, () => Array.from(this._contributions.keys()).filter(isAgentSessionProviderType)).recomputeInitiallyAndOnChange(this._store);
+    const contributedSessionProviders = observableFromEvent(this.onDidChangeAvailability, () => Array.from(this._contributions.keys()).filter((key) => this._contributionDisposables.has(key) && isAgentSessionProviderType(key))).recomputeInitiallyAndOnChange(this._store);
     this._register(autorun((reader) => {
+      backgroundAgentDisplayName.read(reader);
       const activatedProviders = [...builtinSessionProviders, ...contributedSessionProviders.read(reader)];
       for (const provider of Object.values(AgentSessionProviders)) {
         if (activatedProviders.includes(provider)) {
@@ -578,8 +589,8 @@ let ChatSessionsService = class ChatSessionsService2 extends Disposable {
     }
     if (hasChanges) {
       this._onDidChangeAvailability.fire();
-      for (const provider of this._itemsProviders.values()) {
-        this._onDidChangeItemsProviders.fire(provider);
+      for (const chatSessionType of this._itemControllers.keys()) {
+        this._onDidChangeItemsProviders.fire({ chatSessionType });
       }
       for (const { contribution } of this._contributions.values()) {
         this._onDidChangeSessionItems.fire({ chatSessionType: contribution.type });
@@ -590,7 +601,7 @@ let ChatSessionsService = class ChatSessionsService2 extends Disposable {
   _enableContribution(contribution, ext) {
     const disposableStore = new DisposableStore();
     this._contributionDisposables.set(contribution.type, disposableStore);
-    if (contribution.canDelegate) {
+    if (contribution.isReadOnly || contribution.canDelegate) {
       disposableStore.add(this._registerAgent(contribution, ext));
       disposableStore.add(this._registerCommands(contribution));
     }
@@ -658,9 +669,9 @@ let ChatSessionsService = class ChatSessionsService2 extends Disposable {
     return this._isContributionAvailable(contribution) ? contribution : void 0;
   }
   async activateChatSessionItemProvider(chatViewType) {
-    await this.doActivateChatSessionItemProvider(chatViewType);
+    await this.doActivateChatSessionItemController(chatViewType);
   }
-  async doActivateChatSessionItemProvider(chatViewType) {
+  async doActivateChatSessionItemController(chatViewType) {
     await this._extensionService.whenInstalledExtensionsRegistered();
     const resolvedType = this._resolveToPrimaryType(chatViewType);
     if (resolvedType) {
@@ -668,13 +679,14 @@ let ChatSessionsService = class ChatSessionsService2 extends Disposable {
     }
     const contribution = this._contributions.get(chatViewType)?.contribution;
     if (contribution && !this._isContributionAvailable(contribution)) {
-      return void 0;
+      return false;
     }
-    if (this._itemsProviders.has(chatViewType)) {
-      return this._itemsProviders.get(chatViewType);
+    if (this._itemControllers.has(chatViewType)) {
+      return true;
     }
     await this._extensionService.activateByEvent(`onChatSession:${chatViewType}`);
-    return this._itemsProviders.get(chatViewType);
+    const controller = this._itemControllers.get(chatViewType);
+    return !!controller;
   }
   async canResolveChatSession(chatSessionResource) {
     await this._extensionService.whenInstalledExtensionsRegistered();
@@ -689,54 +701,57 @@ let ChatSessionsService = class ChatSessionsService2 extends Disposable {
     await this._extensionService.activateByEvent(`onChatSession:${chatSessionResource.scheme}`);
     return this._contentProviders.has(chatSessionResource.scheme);
   }
-  async getChatSessionItems(providersToResolve, token) {
-    const results = [];
-    const resolvedProviderTypes = /* @__PURE__ */ new Set();
-    for (const contrib of this.getAllChatSessionContributions()) {
+  async tryActivateControllers(providersToResolve) {
+    await Promise.all(this.getAllChatSessionContributions().map(async (contrib) => {
       if (providersToResolve && !providersToResolve.includes(contrib.type)) {
-        continue;
+        return;
       }
-      const provider = await this.doActivateChatSessionItemProvider(contrib.type);
-      if (!provider) {
+      if (!await this.doActivateChatSessionItemController(contrib.type)) {
         if (providersToResolve?.includes(contrib.type)) {
           this._logService.trace(`[ChatSessionsService] No enabled provider found for chat session type ${contrib.type}`);
         }
-        continue;
+      }
+    }));
+  }
+  async getChatSessionItems(providersToResolve, token) {
+    await this.tryActivateControllers(providersToResolve);
+    const results = [];
+    await Promise.all(Array.from(this._itemControllers).map(async ([chatSessionType, controllerEntry]) => {
+      const resolvedType = this._resolveToPrimaryType(chatSessionType) ?? chatSessionType;
+      if (providersToResolve && !providersToResolve.includes(resolvedType)) {
+        return;
       }
       try {
-        const providerSessions = await raceCancellationError(provider.provideChatSessionItems(token), token);
-        this._logService.trace(`[ChatSessionsService] Resolved ${providerSessions.length} sessions for provider ${provider.chatSessionType}`);
-        results.push({ chatSessionType: provider.chatSessionType, items: providerSessions });
-        resolvedProviderTypes.add(provider.chatSessionType);
-      } catch (error) {
-        this._logService.error(`[ChatSessionsService] Failed to resolve sessions for provider ${provider.chatSessionType}`, error);
-        continue;
+        await controllerEntry.initialRefresh;
+        const providerSessions = controllerEntry.controller.items;
+        this._logService.trace(`[ChatSessionsService] Resolved ${providerSessions.length} sessions for provider ${resolvedType}`);
+        results.push({ chatSessionType: resolvedType, items: providerSessions });
+      } catch (err) {
+        if (!isCancellationError(err)) {
+          this._logService.error(`[ChatSessionsService] Failed to resolve sessions for provider ${resolvedType}`, err);
+        }
       }
-    }
-    for (const [chatSessionType, provider] of this._itemsProviders) {
-      if (resolvedProviderTypes.has(chatSessionType)) {
-        continue;
-      }
-      if (providersToResolve && !providersToResolve.includes(chatSessionType)) {
-        continue;
-      }
-      try {
-        const providerSessions = await raceCancellationError(provider.provideChatSessionItems(token), token);
-        this._logService.trace(`[ChatSessionsService] Resolved ${providerSessions.length} sessions for built-in provider ${chatSessionType}`);
-        results.push({ chatSessionType, items: providerSessions });
-      } catch (error) {
-        this._logService.error(`[ChatSessionsService] Failed to resolve sessions for built-in provider ${chatSessionType}`, error);
-        continue;
-      }
-    }
+    }));
     return results;
   }
-  registerChatSessionItemProvider(provider) {
-    const chatSessionType = provider.chatSessionType;
-    this._itemsProviders.set(chatSessionType, provider);
-    this._onDidChangeItemsProviders.fire(provider);
+  async refreshChatSessionItems(providersToResolve, token) {
+    await this.tryActivateControllers(providersToResolve);
+    await Promise.all(Array.from(this._itemControllers).map(async ([chatSessionType, controllerEntry]) => {
+      try {
+        await controllerEntry.controller.refresh(token);
+      } catch (err) {
+        if (!isCancellationError(err)) {
+          this._logService.error(`[ChatSessionsService] Failed to resolve sessions for provider ${chatSessionType}`, err);
+        }
+      }
+    }));
+  }
+  registerChatSessionItemController(chatSessionType, controller) {
     const disposables = new DisposableStore();
-    disposables.add(provider.onDidChangeChatSessionItems(() => {
+    const initialRefreshCts = disposables.add(new CancellationTokenSource());
+    this._itemControllers.set(chatSessionType, { controller, initialRefresh: controller.refresh(initialRefreshCts.token) });
+    this._onDidChangeItemsProviders.fire({ chatSessionType });
+    disposables.add(controller.onDidChangeChatSessionItems(() => {
       this._onDidChangeSessionItems.fire({ chatSessionType });
     }));
     this.updateInProgressStatus(chatSessionType).catch((error) => {
@@ -744,11 +759,12 @@ let ChatSessionsService = class ChatSessionsService2 extends Disposable {
     });
     return {
       dispose: /* @__PURE__ */ __name(() => {
+        initialRefreshCts.cancel();
         disposables.dispose();
-        const provider2 = this._itemsProviders.get(chatSessionType);
-        if (provider2) {
-          this._itemsProviders.delete(chatSessionType);
-          this._onDidChangeItemsProviders.fire(provider2);
+        const controller2 = this._itemControllers.get(chatSessionType);
+        if (controller2) {
+          this._itemControllers.delete(chatSessionType);
+          this._onDidChangeItemsProviders.fire({ chatSessionType });
         }
       }, "dispose")
     };
@@ -955,7 +971,7 @@ let ChatSessionsService = class ChatSessionsService2 extends Disposable {
    */
   getCustomAgentTargetForSessionType(chatSessionType) {
     const contribution = this._contributions.get(chatSessionType)?.contribution;
-    return contribution?.customAgentTarget;
+    return contribution?.customAgentTarget ?? Target.Undefined;
   }
   getContentProviderSchemes() {
     return Array.from(this._contentProviders.keys());

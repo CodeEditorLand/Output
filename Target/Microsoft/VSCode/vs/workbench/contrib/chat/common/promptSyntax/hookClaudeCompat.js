@@ -1,11 +1,12 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { HookType, normalizeHookTypeId, resolveHookCommand } from "./hookSchema.js";
+import { HookType, toHookType, resolveHookCommand } from "./hookSchema.js";
 const CLAUDE_HOOK_TYPE_MAP = {
   "SessionStart": HookType.SessionStart,
-  "UserPromptSubmit": HookType.UserPromptSubmitted,
+  "UserPromptSubmit": HookType.UserPromptSubmit,
   "PreToolUse": HookType.PreToolUse,
   "PostToolUse": HookType.PostToolUse,
+  "PreCompact": HookType.PreCompact,
   "SubagentStart": HookType.SubagentStart,
   "SubagentStop": HookType.SubagentStop,
   "Stop": HookType.Stop
@@ -32,16 +33,19 @@ __name(getClaudeHookTypeName, "getClaudeHookTypeName");
 function parseClaudeHooks(json, workspaceRootUri, userHome) {
   const result = /* @__PURE__ */ new Map();
   if (!json || typeof json !== "object") {
-    return result;
+    return { hooks: result, disabledAllHooks: false };
   }
   const root = json;
+  if (root.disableAllHooks === true) {
+    return { hooks: result, disabledAllHooks: true };
+  }
   const hooks = root.hooks;
   if (!hooks || typeof hooks !== "object") {
-    return result;
+    return { hooks: result, disabledAllHooks: false };
   }
   const hooksObj = hooks;
   for (const originalId of Object.keys(hooksObj)) {
-    const hookType = resolveClaudeHookType(originalId) ?? normalizeHookTypeId(originalId);
+    const hookType = resolveClaudeHookType(originalId) ?? toHookType(originalId);
     if (!hookType) {
       continue;
     }
@@ -51,24 +55,8 @@ function parseClaudeHooks(json, workspaceRootUri, userHome) {
     }
     const commands = [];
     for (const item of hookArray) {
-      if (!item || typeof item !== "object") {
-        continue;
-      }
-      const itemObj = item;
-      const nestedHooks = itemObj.hooks;
-      if (nestedHooks !== void 0 && Array.isArray(nestedHooks)) {
-        for (const nestedHook of nestedHooks) {
-          const resolved = resolveClaudeCommand(nestedHook, workspaceRootUri, userHome);
-          if (resolved) {
-            commands.push(resolved);
-          }
-        }
-      } else {
-        const resolved = resolveClaudeCommand(itemObj, workspaceRootUri, userHome);
-        if (resolved) {
-          commands.push(resolved);
-        }
-      }
+      const extracted = extractHookCommandsFromItem(item, workspaceRootUri, userHome);
+      commands.push(...extracted);
     }
     if (commands.length > 0) {
       const existing = result.get(hookType);
@@ -79,20 +67,47 @@ function parseClaudeHooks(json, workspaceRootUri, userHome) {
       }
     }
   }
-  return result;
+  return { hooks: result, disabledAllHooks: false };
 }
 __name(parseClaudeHooks, "parseClaudeHooks");
-function resolveClaudeCommand(raw, workspaceRootUri, userHome) {
-  const hasValidType = raw.type === void 0 || raw.type === "command";
-  if (!hasValidType) {
-    return void 0;
+function extractHookCommandsFromItem(item, workspaceRootUri, userHome) {
+  if (!item || typeof item !== "object") {
+    return [];
   }
-  const normalized = { ...raw, type: "command" };
-  return resolveHookCommand(normalized, workspaceRootUri, userHome);
+  const itemObj = item;
+  const commands = [];
+  const nestedHooks = itemObj.hooks;
+  if (nestedHooks !== void 0 && Array.isArray(nestedHooks)) {
+    for (const nestedHook of nestedHooks) {
+      if (!nestedHook || typeof nestedHook !== "object") {
+        continue;
+      }
+      const normalized = normalizeForResolve(nestedHook);
+      const resolved = resolveHookCommand(normalized, workspaceRootUri, userHome);
+      if (resolved) {
+        commands.push(resolved);
+      }
+    }
+  } else {
+    const normalized = normalizeForResolve(itemObj);
+    const resolved = resolveHookCommand(normalized, workspaceRootUri, userHome);
+    if (resolved) {
+      commands.push(resolved);
+    }
+  }
+  return commands;
 }
-__name(resolveClaudeCommand, "resolveClaudeCommand");
+__name(extractHookCommandsFromItem, "extractHookCommandsFromItem");
+function normalizeForResolve(raw) {
+  if (raw.type === void 0 || raw.type === "command") {
+    return { ...raw, type: "command" };
+  }
+  return raw;
+}
+__name(normalizeForResolve, "normalizeForResolve");
 export {
   CLAUDE_HOOK_TYPE_MAP,
+  extractHookCommandsFromItem,
   getClaudeHookTypeName,
   parseClaudeHooks,
   resolveClaudeHookType

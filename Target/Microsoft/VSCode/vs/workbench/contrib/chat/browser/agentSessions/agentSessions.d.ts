@@ -1,19 +1,26 @@
 import { URI } from '../../../../../base/common/uri.js';
 import { ThemeIcon } from '../../../../../base/common/themables.js';
 import { IChatSessionTiming } from '../../common/chatService/chatService.js';
+import { IChatSessionsExtensionPoint } from '../../common/chatSessionsService.js';
 export declare enum AgentSessionProviders {
     Local = "local",
     Background = "copilotcli",
     Cloud = "copilot-cloud-agent",
     Claude = "claude-code",
-    Codex = "openai-codex"
+    Codex = "openai-codex",
+    Growth = "copilot-growth"
 }
 export declare function isBuiltInAgentSessionProvider(provider: string): boolean;
 export declare function getAgentSessionProvider(sessionResource: URI | string): AgentSessionProviders | undefined;
+/**
+ * Observable holding the display name for the background agent session provider.
+ * Updated via experiment treatment to allow A/B testing of the display name.
+ */
+export declare const backgroundAgentDisplayName: import("../../../../../base/common/observable.js").ISettableObservable<string, void>;
 export declare function getAgentSessionProviderName(provider: AgentSessionProviders): string;
 export declare function getAgentSessionProviderIcon(provider: AgentSessionProviders): ThemeIcon;
 export declare function isFirstPartyAgentSessionProvider(provider: AgentSessionProviders): boolean;
-export declare function getAgentCanContinueIn(provider: AgentSessionProviders): boolean;
+export declare function getAgentCanContinueIn(provider: AgentSessionProviders, contribution?: IChatSessionsExtensionPoint): boolean;
 export declare function getAgentSessionProviderDescription(provider: AgentSessionProviders): string;
 export declare enum AgentSessionsViewerOrientation {
     Stacked = 1,

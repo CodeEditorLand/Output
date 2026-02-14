@@ -18,7 +18,7 @@ Output is the `ESM` build of all of `VSCode`. It includes two builds:
 
 ## Changelog
 
-See [`CHANGELOG.md`](CHANGELOG.md) for a history of changes to this component.
+See [`CHANGELOG.md`](https://github.com/CodeEditorLand/Output/tree/Current/) for a history of changes to this component.
 
 ---
 

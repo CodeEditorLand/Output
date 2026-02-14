@@ -18,9 +18,9 @@ import { ITelemetryService } from '../../../../../../platform/telemetry/common/t
 import { IUserDataProfileService } from '../../../../../services/userDataProfile/common/userDataProfile.js';
 import { IResolvedPromptSourceFolder } from '../config/promptFileLocations.js';
 import { PromptsType } from '../promptTypes.js';
+import { PromptFilesLocator } from '../utils/promptFilesLocator.js';
 import { ParsedPromptFile } from '../promptFileParser.js';
-import { IChatPromptSlashCommand, ICustomAgent, IPromptPath, IPromptsService, IAgentSkill, PromptsStorage, IPromptFileContext, IPromptFileResource, IPromptDiscoveryInfo } from './promptsService.js';
-import { IChatRequestHooks } from '../hookSchema.js';
+import { IChatPromptSlashCommand, IConfiguredHooksInfo, ICustomAgent, IPromptPath, IPromptsService, IAgentSkill, PromptsStorage, IPromptFileContext, IPromptFileResource, IPromptDiscoveryInfo, IResolvedAgentFile, Logger } from './promptsService.js';
 import { IWorkspaceContextService } from '../../../../../../platform/workspace/common/workspace.js';
 import { IPathService } from '../../../../../services/path/common/pathService.js';
 /**
@@ -53,7 +53,7 @@ export declare class PromptsService extends Disposable implements IPromptsServic
     readonly logger: ILogService;
     private readonly labelService;
     private readonly modelService;
-    private readonly instantiationService;
+    protected readonly instantiationService: IInstantiationService;
     private readonly userDataService;
     private readonly configurationService;
     private readonly fileService;
@@ -81,6 +81,10 @@ export declare class PromptsService extends Disposable implements IPromptsServic
      */
     private readonly cachedHooks;
     /**
+     * Cached skills. Caching only happens if the `onDidChangeSkills` event is used.
+     */
+    private readonly cachedSkills;
+    /**
      * Cache for parsed prompt files keyed by URI.
      * The number in the returned tuple is textModel.getVersionId(), which is an internal VS Code counter that increments every time the text model's content changes.
      */
@@ -100,6 +104,7 @@ export declare class PromptsService extends Disposable implements IPromptsServic
      */
     private readonly contributedFiles;
     constructor(logger: ILogService, labelService: ILabelService, modelService: IModelService, instantiationService: IInstantiationService, userDataService: IUserDataProfileService, configurationService: IConfigurationService, fileService: IFileService, filesConfigService: IFilesConfigurationService, storageService: IStorageService, extensionService: IExtensionService, telemetryService: ITelemetryService, workspaceService: IWorkspaceContextService, pathService: IPathService);
+    protected createPromptFilesLocator(): PromptFilesLocator;
     private getFileLocatorEvent;
     getParsedPromptFile(textModel: ITextModel): ParsedPromptFile;
     listPromptFiles(type: PromptsType, token: CancellationToken): Promise<readonly IPromptPath[]>;
@@ -147,9 +152,11 @@ export declare class PromptsService extends Disposable implements IPromptsServic
     parseNew(uri: URI, token: CancellationToken): Promise<ParsedPromptFile>;
     registerContributedFile(type: PromptsType, uri: URI, extension: IExtensionDescription, name?: string, description?: string): Readonly<IDisposable>;
     getPromptLocationLabel(promptPath: IPromptPath): string;
-    findAgentMDsInWorkspace(token: CancellationToken): Promise<URI[]>;
-    listAgentMDs(token: CancellationToken, includeNested: boolean): Promise<URI[]>;
-    listCopilotInstructionsMDs(token: CancellationToken): Promise<URI[]>;
+    listNestedAgentMDs(token: CancellationToken): Promise<IResolvedAgentFile[]>;
+    listAgentMDs(token: CancellationToken, logger: Logger | undefined): Promise<IResolvedAgentFile[]>;
+    listClaudeMDs(token: CancellationToken, logger: Logger | undefined): Promise<IResolvedAgentFile[]>;
+    listCopilotInstructionsMDs(token: CancellationToken, logger: Logger | undefined): Promise<IResolvedAgentFile[]>;
+    listAgentInstructions(token: CancellationToken, logger: Logger | undefined): Promise<IResolvedAgentFile[]>;
     getAgentFileURIFromModeFile(oldURI: URI): URI | undefined;
     private readonly disabledPromptsStorageKeyPrefix;
     getDisabledPromptFiles(type: PromptsType): ResourceSet;
@@ -162,8 +169,10 @@ export declare class PromptsService extends Disposable implements IPromptsServic
     private validateAndSanitizeSkillFile;
     private truncateAgentSkillName;
     private truncateAgentSkillDescription;
+    get onDidChangeSkills(): Event<void>;
     findAgentSkills(token: CancellationToken): Promise<IAgentSkill[] | undefined>;
-    getHooks(token: CancellationToken): Promise<IChatRequestHooks | undefined>;
+    private computeAgentSkills;
+    getHooks(token: CancellationToken): Promise<IConfiguredHooksInfo | undefined>;
     private computeHooks;
     getPromptDiscoveryInfo(type: PromptsType, token: CancellationToken): Promise<IPromptDiscoveryInfo>;
     private getSkillDiscoveryInfo;
@@ -175,4 +184,5 @@ export declare class PromptsService extends Disposable implements IPromptsServic
     private getAgentDiscoveryInfo;
     private getPromptSlashCommandDiscoveryInfo;
     private getInstructionsDiscoveryInfo;
+    private getHookDiscoveryInfo;
 }

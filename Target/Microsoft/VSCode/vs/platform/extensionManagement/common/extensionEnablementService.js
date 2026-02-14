@@ -23,7 +23,7 @@ let GlobalExtensionEnablementService = class GlobalExtensionEnablementService2 e
   }
   constructor(storageService, extensionManagementService) {
     super();
-    this._onDidChangeEnablement = new Emitter();
+    this._onDidChangeEnablement = this._register(new Emitter());
     this.onDidChangeEnablement = this._onDidChangeEnablement.event;
     this.storageManager = this._register(new StorageManager(storageService));
     this._register(this.storageManager.onDidChange((extensions) => this._onDidChangeEnablement.fire({ extensions, source: "storage" })));

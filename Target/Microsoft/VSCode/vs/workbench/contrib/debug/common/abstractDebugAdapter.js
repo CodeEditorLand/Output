@@ -169,6 +169,8 @@ class AbstractDebugAdapter {
     return Array.from(this.pendingRequests.keys());
   }
   dispose() {
+    this._onError.dispose();
+    this._onExit.dispose();
     this.queue = [];
   }
 }

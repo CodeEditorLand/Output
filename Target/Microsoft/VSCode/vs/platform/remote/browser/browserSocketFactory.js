@@ -17,7 +17,7 @@ class BrowserWebSocket extends Disposable {
   }
   constructor(url, debugLabel) {
     super();
-    this._onData = new Emitter();
+    this._onData = this._register(new Emitter());
     this.onData = this._onData.event;
     this._onOpen = this._register(new Emitter());
     this.onOpen = this._onOpen.event;

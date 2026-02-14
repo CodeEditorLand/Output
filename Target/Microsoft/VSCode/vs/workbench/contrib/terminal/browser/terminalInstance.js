@@ -23,7 +23,7 @@ import { Codicon } from "../../../../base/common/codicons.js";
 import { debounce } from "../../../../base/common/decorators.js";
 import { BugIndicatingError, onUnexpectedError } from "../../../../base/common/errors.js";
 import { Emitter, Event } from "../../../../base/common/event.js";
-import { template } from "../../../../base/common/labels.js";
+import { normalizeDriveLetter, template } from "../../../../base/common/labels.js";
 import { Disposable, DisposableMap, DisposableStore, ImmortalReference, MutableDisposable, dispose, toDisposable } from "../../../../base/common/lifecycle.js";
 import { Schemas } from "../../../../base/common/network.js";
 import * as path from "../../../../base/common/path.js";
@@ -468,14 +468,16 @@ let TerminalInstance = class TerminalInstance2 extends Disposable {
         }
         case 2: {
           e.capability.promptInputModel.setShellType(this.shellType);
-          capabilityListeners.set(e.id, Event.any(e.capability.promptInputModel.onDidStartInput, e.capability.promptInputModel.onDidChangeInput, e.capability.promptInputModel.onDidFinishInput)(refreshInfo));
-          this._register(e.capability.onCommandExecuted(async (command) => {
+          const store = new DisposableStore();
+          store.add(Event.any(e.capability.promptInputModel.onDidStartInput, e.capability.promptInputModel.onDidChangeInput, e.capability.promptInputModel.onDidFinishInput)(refreshInfo));
+          store.add(e.capability.onCommandExecuted(async (command) => {
             if (!command.id && command.command) {
               const commandId = generateUuid();
               this.xterm?.shellIntegration.setNextCommandId(command.command, commandId);
               await this._processManager.setNextCommandId(command.command, commandId);
             }
           }));
+          capabilityListeners.set(e.id, store);
           break;
         }
         case 6: {
@@ -1345,9 +1347,9 @@ let TerminalInstance = class TerminalInstance2 extends Disposable {
     const trusted = await this._trust();
     if (!trusted && !this.remoteAuthority && !this._workbenchEnvironmentService.remoteAuthority) {
       this._onProcessExit({ message: nls.localize("workspaceNotTrustedCreateTerminal", "Cannot launch a terminal process in an untrusted workspace") });
-    } else if (this._workspaceContextService.getWorkspace().folders.length === 0 && this._cwd && this._userHome && this._cwd !== this._userHome) {
+    } else if (this._workspaceContextService.getWorkspace().folders.length === 0 && this._cwd && this._userHome && normalizeDriveLetter(this._cwd) !== normalizeDriveLetter(this._userHome)) {
       this._onProcessExit({
-        message: nls.localize("workspaceNotTrustedCreateTerminalCwd", "Cannot launch a terminal process in an untrusted workspace with cwd {0} and userHome {1}", this._cwd, this._userHome)
+        message: nls.localize("workspaceEmptyCreateTerminalCwd", "Cannot launch a terminal process in an empty workspace with cwd {0} different from userHome {1}", this._cwd, this._userHome)
       });
     }
     if (this._container && this._cols === 0 && this._rows === 0) {

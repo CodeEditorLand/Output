@@ -7,6 +7,8 @@ import { AnnotatedDocument, IAnnotatedDocuments } from '../helpers/annotatedDocu
 import { DocumentEditSourceTracker, TrackedEdit } from './editTracker.js';
 import { ScmAdapter } from './scmAdapter.js';
 import { IRandomService } from '../randomService.js';
+type EditTelemetryMode = 'longterm' | '5minWindow' | '20minFocusWindow';
+type EditTelemetryTrigger = '10hours' | 'hashChange' | 'branchChange' | 'closed' | 'time';
 export declare class EditSourceTrackingImpl extends Disposable {
     private readonly _statsEnabled;
     private readonly _annotatedDocuments;
@@ -28,7 +30,7 @@ declare class TrackedDocumentInfo extends Disposable {
     readonly windowedFocusTracker: IObservable<DocumentEditSourceTracker<undefined> | undefined>;
     private readonly _repo;
     constructor(_doc: AnnotatedDocument, _scm: ScmAdapter, _statsEnabled: IObservable<boolean>, _instantiationService: IInstantiationService, _telemetryService: ITelemetryService, _randomService: IRandomService, _userAttentionService: IUserAttentionService);
-    sendTelemetry(mode: 'longterm' | '5minWindow' | '20minFocusWindow', trigger: string, t: DocumentEditSourceTracker, focusTime: number, actualTime: number): Promise<void>;
+    sendTelemetry(mode: EditTelemetryMode, trigger: EditTelemetryTrigger, t: DocumentEditSourceTracker, focusTime: number, actualTime: number): Promise<void>;
     getTelemetryData(ranges: readonly TrackedEdit[]): {
         nesModifiedCount: number;
         inlineCompletionsCopilotModifiedCount: number;

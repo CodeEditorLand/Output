@@ -72,6 +72,10 @@ let AgentSessionRenderer = class AgentSessionRenderer2 extends Disposable {
       h("div.agent-session-main-col", [
         h("div.agent-session-title-row", [
           h("div.agent-session-title@title"),
+          h("div.agent-session-status@statusContainer", [
+            h("span.agent-session-status-provider-icon@statusProviderIcon"),
+            h("span.agent-session-status-time@statusTime")
+          ]),
           h("div.agent-session-title-toolbar@titleToolbar")
         ]),
         h("div.agent-session-details-row", [
@@ -80,11 +84,8 @@ let AgentSessionRenderer = class AgentSessionRenderer2 extends Disposable {
             h("span.agent-session-diff-removed@removedSpan")
           ]),
           h("div.agent-session-badge@badge"),
-          h("div.agent-session-description@description"),
-          h("div.agent-session-status@statusContainer", [
-            h("span.agent-session-status-provider-icon@statusProviderIcon"),
-            h("span.agent-session-status-time@statusTime")
-          ])
+          h("span.agent-session-separator@separator"),
+          h("div.agent-session-description@description")
         ])
       ])
     ]);
@@ -103,6 +104,7 @@ let AgentSessionRenderer = class AgentSessionRenderer2 extends Disposable {
       diffAddedSpan: elements.addedSpan,
       diffRemovedSpan: elements.removedSpan,
       badge: elements.badge,
+      separator: elements.separator,
       description: elements.description,
       statusContainer: elements.statusContainer,
       statusProviderIcon: elements.statusProviderIcon,
@@ -146,6 +148,7 @@ let AgentSessionRenderer = class AgentSessionRenderer2 extends Disposable {
     if (!hasDiff) {
       this.renderDescription(session, template, hasBadge);
     }
+    template.separator.classList.toggle("has-separator", hasBadge && !hasDiff);
     this.renderStatus(session, template);
     this.renderHover(session, template);
   }
@@ -212,7 +215,7 @@ let AgentSessionRenderer = class AgentSessionRenderer2 extends Disposable {
         template.description.textContent = "";
       } else if (session.element.timing.lastRequestEnded && session.element.timing.lastRequestStarted && session.element.timing.lastRequestEnded > session.element.timing.lastRequestStarted) {
         const duration = this.toDuration(session.element.timing.lastRequestStarted, session.element.timing.lastRequestEnded, false, true);
-        template.description.textContent = session.element.status === 0 ? localize("chat.session.status.failedAfter", "Failed after {0}.", duration) : localize("chat.session.status.completedAfter", "Completed in {0}.", duration);
+        template.description.textContent = session.element.status === 0 ? localize("chat.session.status.failedAfter", "Failed after {0}", duration) : localize("chat.session.status.completedAfter", "Completed in {0}", duration);
       } else {
         template.description.textContent = session.element.status === 0 ? localize("chat.session.status.failed", "Failed") : localize("chat.session.status.completed", "Completed");
       }
@@ -371,7 +374,7 @@ class AgentSessionsListDelegate {
     __name(this, "AgentSessionsListDelegate");
   }
   static {
-    this.ITEM_HEIGHT = 52;
+    this.ITEM_HEIGHT = 44;
   }
   static {
     this.SECTION_HEIGHT = 26;
@@ -493,7 +496,7 @@ const AgentSessionSectionLabels = {
   [
     "inProgress"
     /* AgentSessionSection.InProgress */
-  ]: localize("agentSessions.inProgressSection", "In Progress"),
+  ]: localize("agentSessions.inProgressSection", "In progress"),
   [
     "today"
     /* AgentSessionSection.Today */
@@ -505,7 +508,7 @@ const AgentSessionSectionLabels = {
   [
     "week"
     /* AgentSessionSection.Week */
-  ]: localize("agentSessions.weekSection", "Last 7 Days"),
+  ]: localize("agentSessions.weekSection", "Last 7 days"),
   [
     "older"
     /* AgentSessionSection.Older */
@@ -581,12 +584,12 @@ function sessionDateFromNow(sessionTime) {
   const startOfYesterday = startOfToday - DAY_THRESHOLD;
   const startOfTwoDaysAgo = startOfYesterday - DAY_THRESHOLD;
   if (sessionTime < startOfToday && sessionTime >= startOfYesterday) {
-    return localize("date.fromNow.days.singular.ago", "1 day ago");
+    return localize("date.fromNow.days.singular", "1 day");
   }
   if (sessionTime < startOfYesterday && sessionTime >= startOfTwoDaysAgo) {
-    return localize("date.fromNow.days.multiple.ago", "2 days ago");
+    return localize("date.fromNow.days.multiple", "2 days");
   }
-  return fromNow(sessionTime, true);
+  return fromNow(sessionTime, false);
 }
 __name(sessionDateFromNow, "sessionDateFromNow");
 class AgentSessionsIdentityProvider {

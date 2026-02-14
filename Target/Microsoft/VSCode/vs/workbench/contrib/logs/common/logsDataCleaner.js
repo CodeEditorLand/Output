@@ -40,12 +40,12 @@ let LogsDataCleaner = class LogsDataCleaner2 extends Disposable {
         Promises.settled(toDelete.map((stat2) => this.fileService.del(stat2.resource, { recursive: true })));
       }
     }, 10 * 1e3);
-    this.lifecycleService.onWillShutdown(() => {
+    this._register(this.lifecycleService.onWillShutdown(() => {
       if (handle) {
         clearTimeout(handle);
         handle = void 0;
       }
-    });
+    }));
   }
 };
 LogsDataCleaner = __decorate([

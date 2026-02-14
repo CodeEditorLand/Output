@@ -65,7 +65,11 @@ Object.getOwnPropertyNames(definitions).forEach((key) => {
 });
 function fixReferences(literal) {
   if (Array.isArray(literal)) {
-    literal.forEach(fixReferences);
+    literal.forEach((element) => {
+      if (typeof element === "object" && element !== null) {
+        fixReferences(element);
+      }
+    });
   } else if (typeof literal === "object") {
     if (literal["$ref"]) {
       literal["$ref"] = literal["$ref"] + "1";

@@ -181,11 +181,15 @@ let SlashCommandCompletions = class SlashCommandCompletions2 extends Disposable 
         if (promptCommands.length === 0) {
           return null;
         }
-        if (widget.lockedAgentId) {
+        if (widget.lockedAgentId && !widget.attachmentCapabilities.supportsPromptAttachments) {
+          return null;
+        }
+        const userInvocableCommands = promptCommands.filter((c) => c.parsedPromptFile?.header?.userInvocable !== false);
+        if (userInvocableCommands.length === 0) {
           return null;
         }
         return {
-          suggestions: promptCommands.map((c, i) => {
+          suggestions: userInvocableCommands.map((c, i) => {
             const label = `/${c.name}`;
             const description = c.description;
             return {
@@ -321,7 +325,7 @@ let AgentCompletions = class AgentCompletions2 extends Disposable {
           const dummyPrefix = agent.id === "github.copilot.terminalPanel" ? `0000` : ``;
           return `${chatAgentLeader}${dummyPrefix}${agent.name}.${command}`;
         }, "getFilterText");
-        const justAgents = agents.filter((a) => !a.isDefault).map((agent) => {
+        const justAgents = agents.filter((a) => !a.isDefault).filter((a) => !chatSessionAgentIds.has(a.id)).map((agent) => {
           const { label: agentLabel, isDupe } = this.getAgentCompletionDetails(agent);
           const detail = agent.description;
           return {

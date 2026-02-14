@@ -29,7 +29,7 @@ let TestExplorerFilterState = class TestExplorerFilterState2 extends Disposable 
   }
   constructor(storageService) {
     super();
-    this.focusEmitter = new Emitter();
+    this.focusEmitter = this._register(new Emitter());
     this.termFilterState = {};
     this.globList = [];
     this.includeTags = /* @__PURE__ */ new Set();

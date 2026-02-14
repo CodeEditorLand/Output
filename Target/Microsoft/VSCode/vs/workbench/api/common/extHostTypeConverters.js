@@ -10,6 +10,7 @@ import * as marked from "../../../base/common/marked/marked.js";
 import { parse, revive } from "../../../base/common/marshalling.js";
 import { Mimes } from "../../../base/common/mime.js";
 import { cloneAndChange } from "../../../base/common/objects.js";
+import { OS } from "../../../base/common/platform.js";
 import { WellDefinedPrefixTree } from "../../../base/common/prefixTree.js";
 import { basename } from "../../../base/common/resources.js";
 import { ThemeIcon } from "../../../base/common/themables.js";
@@ -23,6 +24,7 @@ import { DEFAULT_EDITOR_ASSOCIATION } from "../../common/editor.js";
 import { LocalChatSessionUri } from "../../contrib/chat/common/model/chatUri.js";
 import { isImageVariableEntry, isPromptFileVariableEntry, isPromptTextVariableEntry } from "../../contrib/chat/common/attachments/chatVariableEntries.js";
 import { ChatAgentLocation } from "../../contrib/chat/common/constants.js";
+import { resolveEffectiveCommand } from "../../contrib/chat/common/promptSyntax/hookSchema.js";
 import { ToolDataSource, ToolInvocationPresentation } from "../../contrib/chat/common/tools/languageModelToolsService.js";
 import { McpServerLaunch } from "../../contrib/mcp/common/mcpTypes.js";
 import * as notebooks from "../../contrib/notebook/common/notebookCommon.js";
@@ -2911,6 +2913,25 @@ var ChatResponseThinkingProgressPart;
   __name(to, "to");
   ChatResponseThinkingProgressPart2.to = to;
 })(ChatResponseThinkingProgressPart || (ChatResponseThinkingProgressPart = {}));
+var ChatResponseHookPart;
+(function(ChatResponseHookPart2) {
+  function from(part) {
+    return {
+      kind: "hook",
+      hookType: part.hookType,
+      stopReason: part.stopReason,
+      systemMessage: part.systemMessage,
+      metadata: part.metadata
+    };
+  }
+  __name(from, "from");
+  ChatResponseHookPart2.from = from;
+  function to(part) {
+    return new types.ChatResponseHookPart(part.hookType, part.stopReason, part.systemMessage, part.metadata);
+  }
+  __name(to, "to");
+  ChatResponseHookPart2.to = to;
+})(ChatResponseHookPart || (ChatResponseHookPart = {}));
 var ChatResponseWarningPart;
 (function(ChatResponseWarningPart2) {
   function from(part) {
@@ -2940,14 +2961,28 @@ var ChatResponseExtensionsPart;
 })(ChatResponseExtensionsPart || (ChatResponseExtensionsPart = {}));
 var ChatResponsePullRequestPart;
 (function(ChatResponsePullRequestPart2) {
-  function from(part) {
+  function from(part, commandsConverter, commandDisposables) {
+    let command;
+    if (!part.command) {
+      if (!part.uri) {
+        throw new Error("Pull request part must have a command if URI is provided");
+      }
+      command = {
+        title: "Open Pull Request",
+        id: "vscode.open",
+        arguments: [part.uri]
+      };
+    } else {
+      command = commandsConverter.toInternal(part.command, commandDisposables);
+    }
     return {
       kind: "pullRequest",
       author: part.author,
       title: part.title,
       description: part.description,
       uri: part.uri,
-      linkTag: part.linkTag
+      linkTag: part.linkTag,
+      command
     };
   }
   __name(from, "from");
@@ -2981,6 +3016,19 @@ var ChatToolInvocationPart;
     } else {
       toolSpecificData = part.toolSpecificData ? convertToolSpecificData(part.toolSpecificData) : void 0;
     }
+    const presentation = part.presentation === "hidden" ? ToolInvocationPresentation.Hidden : part.presentation === "hiddenAfterComplete" ? ToolInvocationPresentation.HiddenAfterComplete : void 0;
+    if (part.enablePartialUpdate) {
+      return {
+        kind: "externalToolInvocationUpdate",
+        toolCallId: part.toolCallId,
+        toolName: part.toolName,
+        isComplete: !!part.isComplete,
+        invocationMessage: part.invocationMessage ? MarkdownString.from(part.invocationMessage) : void 0,
+        pastTenseMessage: part.pastTenseMessage ? MarkdownString.from(part.pastTenseMessage) : void 0,
+        toolSpecificData,
+        subagentInvocationId: part.subAgentInvocationId
+      };
+    }
     return {
       kind: "toolInvocationSerialized",
       toolCallId: part.toolCallId,
@@ -2989,12 +3037,12 @@ var ChatToolInvocationPart;
       originMessage: part.originMessage ? MarkdownString.from(part.originMessage) : void 0,
       pastTenseMessage: part.pastTenseMessage ? MarkdownString.from(part.pastTenseMessage) : void 0,
       isConfirmed: part.isConfirmed,
-      isComplete: part.isComplete ?? true,
+      isComplete: true,
       source: ToolDataSource.External,
       // isError: part.isError ?? false,
       toolSpecificData,
       resultDetails,
-      presentation: part.presentation === "hidden" ? ToolInvocationPresentation.Hidden : part.presentation === "hiddenAfterComplete" ? ToolInvocationPresentation.HiddenAfterComplete : void 0,
+      presentation,
       subAgentInvocationId: part.subAgentInvocationId
     };
   }
@@ -3050,6 +3098,31 @@ var ChatToolInvocationPart;
           status: todoStatusEnumToString(todo.status)
         }))
       };
+    } else if ("input" in data && "output" in data && !Array.isArray(data.output)) {
+      return {
+        kind: "simpleToolInvocation",
+        input: typeof data.input === "string" ? data.input : "",
+        output: typeof data.output === "string" ? data.output : ""
+      };
+    } else if (data && "values" in data && Array.isArray(data.values)) {
+      return {
+        kind: "resources",
+        values: data.values.map((v) => {
+          if (v instanceof types.Location) {
+            return Location.from(v);
+          } else {
+            return URI.revive(v);
+          }
+        })
+      };
+    } else if (data instanceof types.ChatSubagentToolInvocationData) {
+      return {
+        kind: "subagent",
+        description: data.description,
+        agentName: data.agentName,
+        prompt: data.prompt,
+        result: data.result
+      };
     }
     return data;
   }
@@ -3081,7 +3154,7 @@ var ChatToolInvocationPart;
   }
   __name(todoStatusStringToEnum, "todoStatusStringToEnum");
   function to(part) {
-    const toolInvocation = new types.ChatToolInvocationPart(part.toolId || part.toolName, part.toolCallId, part.isError);
+    const toolInvocation = new types.ChatToolInvocationPart(part.toolId || part.toolName, part.toolCallId, part.errorMessage);
     if (part.invocationMessage) {
       toolInvocation.invocationMessage = part.invocationMessage;
     }
@@ -3328,6 +3401,8 @@ var ChatResponsePart;
       return ChatResponseProgressPart.from(part);
     } else if (part instanceof types.ChatResponseThinkingProgressPart) {
       return ChatResponseThinkingProgressPart.from(part);
+    } else if (part instanceof types.ChatResponseHookPart) {
+      return ChatResponseHookPart.from(part);
     } else if (part instanceof types.ChatResponseFileTreePart) {
       return ChatResponseFilesPart.from(part);
     } else if (part instanceof types.ChatResponseMultiDiffPart) {
@@ -3355,7 +3430,7 @@ var ChatResponsePart;
     } else if (part instanceof types.ChatResponseExtensionsPart) {
       return ChatResponseExtensionsPart.from(part);
     } else if (part instanceof types.ChatResponsePullRequestPart) {
-      return ChatResponsePullRequestPart.from(part);
+      return ChatResponsePullRequestPart.from(part, commandsConverter, commandDisposables);
     } else if (part instanceof types.ChatToolInvocationPart) {
       return ChatToolInvocationPart.from(part);
     } else if (part instanceof types.ChatResponseWorkspaceEditPart) {
@@ -3439,7 +3514,9 @@ var ChatAgentRequest;
       modeInstructions2: ChatRequestModeInstructions.to(request.modeInstructions),
       subAgentInvocationId: request.subAgentInvocationId,
       subAgentName: request.subAgentName,
-      parentRequestId: request.parentRequestId
+      parentRequestId: request.parentRequestId,
+      hasHooksEnabled: request.hasHooksEnabled ?? false,
+      hooks: request.hooks ? ChatRequestHooksConverter.to(request.hooks) : void 0
     };
     if (!isProposedApiEnabled(extension, "chatParticipantPrivate")) {
       delete requestWithAllProps.id;
@@ -3453,6 +3530,8 @@ var ChatAgentRequest;
       delete requestWithAllProps.subAgentInvocationId;
       delete requestWithAllProps.subAgentName;
       delete requestWithAllProps.parentRequestId;
+      delete requestWithAllProps.hasHooksEnabled;
+      delete requestWithAllProps.hooks;
     }
     if (!isProposedApiEnabled(extension, "chatParticipantAdditions")) {
       delete requestWithAllProps.acceptedConfirmationData;
@@ -4081,17 +4160,92 @@ var SourceControlInputBoxValidationType;
   __name(from, "from");
   SourceControlInputBoxValidationType2.from = from;
 })(SourceControlInputBoxValidationType || (SourceControlInputBoxValidationType = {}));
-var ChatHookResult;
-(function(ChatHookResult2) {
-  function to(result) {
+var ChatRequestHooksConverter;
+(function(ChatRequestHooksConverter2) {
+  function to(hooks) {
+    const result = {};
+    for (const [hookType, commands] of Object.entries(hooks)) {
+      if (!commands || commands.length === 0) {
+        continue;
+      }
+      const converted = [];
+      for (const cmd of commands) {
+        const resolved = ChatHookCommand.to(cmd);
+        if (resolved) {
+          converted.push(resolved);
+        }
+      }
+      if (converted.length > 0) {
+        result[hookType] = converted;
+      }
+    }
+    return result;
+  }
+  __name(to, "to");
+  ChatRequestHooksConverter2.to = to;
+})(ChatRequestHooksConverter || (ChatRequestHooksConverter = {}));
+var ChatHookCommand;
+(function(ChatHookCommand2) {
+  function to(hook) {
+    const command = resolveEffectiveCommand(hook, OS);
+    if (!command) {
+      return void 0;
+    }
     return {
-      kind: result.kind === 1 ? types.ChatHookResultKind.Success : types.ChatHookResultKind.Error,
-      result: result.result
+      command,
+      cwd: hook.cwd,
+      env: hook.env,
+      timeout: hook.timeout
     };
   }
   __name(to, "to");
-  ChatHookResult2.to = to;
-})(ChatHookResult || (ChatHookResult = {}));
+  ChatHookCommand2.to = to;
+})(ChatHookCommand || (ChatHookCommand = {}));
+var ChatSessionItem;
+(function(ChatSessionItem2) {
+  function convertStatus(status) {
+    if (status === void 0) {
+      return void 0;
+    }
+    switch (status) {
+      case 0:
+        return 0;
+      case 1:
+        return 1;
+      case 2:
+        return 2;
+      case 3:
+        return 3;
+      default:
+        return void 0;
+    }
+  }
+  __name(convertStatus, "convertStatus");
+  function from(sessionContent) {
+    const timing = sessionContent.timing;
+    const created = timing?.created ?? timing?.startTime ?? 0;
+    const lastRequestStarted = timing?.lastRequestStarted ?? timing?.startTime;
+    const lastRequestEnded = timing?.lastRequestEnded ?? timing?.endTime;
+    return {
+      resource: sessionContent.resource,
+      label: sessionContent.label,
+      description: sessionContent.description ? MarkdownString.from(sessionContent.description) : void 0,
+      badge: sessionContent.badge ? MarkdownString.from(sessionContent.badge) : void 0,
+      status: convertStatus(sessionContent.status),
+      archived: sessionContent.archived,
+      tooltip: MarkdownString.fromStrict(sessionContent.tooltip),
+      timing: {
+        created,
+        lastRequestStarted,
+        lastRequestEnded
+      },
+      changes: sessionContent.changes instanceof Array ? sessionContent.changes : void 0,
+      metadata: sessionContent.metadata
+    };
+  }
+  __name(from, "from");
+  ChatSessionItem2.from = from;
+})(ChatSessionItem || (ChatSessionItem = {}));
 export {
   AiSettingsSearch,
   CallHierarchyIncomingCall,
@@ -4102,10 +4256,11 @@ export {
   ChatAgentResult,
   ChatAgentUserActionEvent,
   ChatFollowup,
-  ChatHookResult,
+  ChatHookCommand,
   ChatLanguageModelToolReference,
   ChatLocation,
   ChatPromptReference,
+  ChatRequestHooksConverter,
   ChatRequestModeInstructions,
   ChatResponseAnchorPart,
   ChatResponseCodeCitationPart,
@@ -4114,6 +4269,7 @@ export {
   ChatResponseConfirmationPart,
   ChatResponseExtensionsPart,
   ChatResponseFilesPart,
+  ChatResponseHookPart,
   ChatResponseMarkdownPart,
   ChatResponseMarkdownWithVulnerabilitiesPart,
   ChatResponseMovePart,
@@ -4128,6 +4284,7 @@ export {
   ChatResponseThinkingProgressPart,
   ChatResponseWarningPart,
   ChatResponseWorkspaceEditPart,
+  ChatSessionItem,
   ChatTask,
   ChatTaskResult,
   ChatToolInvocationPart,

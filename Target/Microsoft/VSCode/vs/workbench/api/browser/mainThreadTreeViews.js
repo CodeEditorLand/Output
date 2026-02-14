@@ -21,7 +21,9 @@ import { isUndefinedOrNull, isNumber } from "../../../base/common/types.js";
 import { Registry } from "../../../platform/registry/common/platform.js";
 import { IExtensionService } from "../../services/extensions/common/extensions.js";
 import { ILogService } from "../../../platform/log/common/log.js";
-import { createStringDataTransferItem, VSDataTransfer } from "../../../base/common/dataTransfer.js";
+import { createStringDataTransferItem, UriList, VSDataTransfer } from "../../../base/common/dataTransfer.js";
+import { Mimes } from "../../../base/common/mime.js";
+import { URI } from "../../../base/common/uri.js";
 import { DataTransferFileCache } from "../common/shared/dataTransferCache.js";
 import * as typeConvert from "../common/extHostTypeConverters.js";
 import { IViewsService } from "../../services/views/common/viewsService.js";
@@ -233,7 +235,8 @@ class TreeViewDragAndDropController {
     }
     const additionalDataTransfer = new VSDataTransfer();
     additionalDataTransferDTO.items.forEach(([type, item]) => {
-      additionalDataTransfer.replace(type, createStringDataTransferItem(item.asString));
+      const value = type === Mimes.uriList && item.uriListData ? UriList.create(item.uriListData.map((part) => typeof part === "string" ? part : URI.revive(part))) : item.asString;
+      additionalDataTransfer.replace(type, createStringDataTransferItem(value));
     });
     return additionalDataTransfer;
   }

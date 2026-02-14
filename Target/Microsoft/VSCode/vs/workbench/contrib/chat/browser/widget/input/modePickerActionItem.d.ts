@@ -11,6 +11,7 @@ import { IProductService } from '../../../../../../platform/product/common/produ
 import { ITelemetryService } from '../../../../../../platform/telemetry/common/telemetry.js';
 import { IChatAgentService } from '../../../common/participants/chatAgents.js';
 import { IChatMode, IChatModeService } from '../../../common/chatModes.js';
+import { Target } from '../../../common/promptSyntax/service/promptsService.js';
 import { ChatInputPickerActionViewItem, IChatInputPickerOptions } from './chatInputPickerActionItem.js';
 import { IOpenerService } from '../../../../../../platform/opener/common/opener.js';
 export interface IModePickerDelegate {
@@ -20,7 +21,7 @@ export interface IModePickerDelegate {
      * When set, the mode picker will show custom agents whose target matches this value.
      * Custom agents without a target are always shown in all session types. If no agents match the target, shows a default "Agent" option.
      */
-    readonly customAgentTarget?: () => string | undefined;
+    readonly customAgentTarget?: () => Target;
 }
 export declare class ModePickerActionItem extends ChatInputPickerActionViewItem {
     private readonly delegate;
@@ -31,8 +32,3 @@ export declare class ModePickerActionItem extends ChatInputPickerActionViewItem 
     private getModePickerActionBarActions;
     protected renderLabel(element: HTMLElement): IDisposable | null;
 }
-/**
- * Returns true if the mode is the built-in 'implement' mode from the chat extension.
- * This mode is hidden from the mode picker but available for handoffs.
- */
-export declare function isBuiltinImplementMode(mode: IChatMode, productService: IProductService): boolean;

@@ -170,6 +170,14 @@ class ChatAgentResponseStream {
           _report(dto);
           return this;
         },
+        hookProgress(hookType, stopReason, systemMessage) {
+          throwIfDone2(this.hookProgress);
+          checkProposedApiEnabled(that._extension, "chatParticipantAdditions");
+          const part = new extHostTypes.ChatResponseHookPart(hookType, stopReason, systemMessage);
+          const dto = typeConvert.ChatResponseHookPart.from(part);
+          _report(dto);
+          return this;
+        },
         warning(value) {
           throwIfDone2(this.progress);
           checkProposedApiEnabled(that._extension, "chatParticipantAdditions");
@@ -373,6 +381,9 @@ class ExtHostChatAgents2 extends Disposable {
   static {
     this._contributionsProviderIdPool = 0;
   }
+  get activeChatPanelSessionResource() {
+    return this._activeChatPanelSessionResource;
+  }
   constructor(mainContext, _logService, _commands, _documents, _editorsAndDocuments, _languageModels, _diagnostics, _tools) {
     super();
     this._logService = _logService;
@@ -393,6 +404,8 @@ class ExtHostChatAgents2 extends Disposable {
     this.onDidChangeChatRequestTools = this._onDidChangeChatRequestTools.event;
     this._onDidDisposeChatSession = this._register(new Emitter());
     this.onDidDisposeChatSession = this._onDidDisposeChatSession.event;
+    this._onDidChangeActiveChatPanelSessionResource = this._register(new Emitter());
+    this.onDidChangeActiveChatPanelSessionResource = this._onDidChangeActiveChatPanelSessionResource.event;
     this._proxy = mainContext.getProxy(MainContext.MainThreadChatAgents2);
     _commands.registerArgumentProcessor({
       processArgument: /* @__PURE__ */ __name((arg) => {
@@ -538,6 +551,12 @@ class ExtHostChatAgents2 extends Disposable {
     }
     this._onDidChangeChatRequestTools.fire(request.extRequest);
   }
+  $setYieldRequested(requestId) {
+    const request = [...this._inFlightRequests].find((r) => r.requestId === requestId);
+    if (request) {
+      request.yieldRequested = true;
+    }
+  }
   async $invokeAgent(handle, requestDto, context, token) {
     const agent = this._agents.get(handle);
     if (!agent) {
@@ -556,7 +575,7 @@ class ExtHostChatAgents2 extends Disposable {
       const model = await this.getModelForRequest(request, agent.extension);
       const tools = await this.getToolsForRequest(agent.extension, request.userSelectedTools, model.id, token);
       const extRequest = typeConvert.ChatAgentRequest.to(request, location, model, this.getDiagnosticsWhenEnabled(agent.extension), tools, agent.extension, this._logService);
-      inFlightRequest = { requestId: requestDto.requestId, extRequest, extension: agent.extension, hooks: request.hooks };
+      inFlightRequest = { requestId: requestDto.requestId, extRequest, extension: agent.extension, hooks: request.hooks, yieldRequested: false };
       this._inFlightRequests.add(inFlightRequest);
       let chatSessionContext;
       if (context.chatSessionContext) {
@@ -568,7 +587,13 @@ class ExtHostChatAgents2 extends Disposable {
           isUntitled: context.chatSessionContext.isUntitled
         };
       }
-      const chatContext = { history, chatSessionContext, yieldRequested: request.yieldRequested ?? false };
+      const chatContext = {
+        history,
+        chatSessionContext,
+        get yieldRequested() {
+          return inFlightRequest?.yieldRequested ?? false;
+        }
+      };
       const task = agent.invoke(extRequest, chatContext, stream.apiObject, token);
       return await raceCancellationWithTimeout(1e3, Promise.resolve(task).then((result) => {
         if (result?.metadata) {
@@ -666,6 +691,14 @@ class ExtHostChatAgents2 extends Disposable {
     if (sessionId) {
       this._onDidDisposeChatSession.fire(sessionId);
     }
+  }
+  $acceptActiveChatSession(sessionResourceDto) {
+    const sessionResource = sessionResourceDto ? URI.revive(sessionResourceDto) : void 0;
+    if (this._activeChatPanelSessionResource?.toString() === sessionResource?.toString()) {
+      return;
+    }
+    this._activeChatPanelSessionResource = sessionResource;
+    this._onDidChangeActiveChatPanelSessionResource.fire(sessionResource);
   }
   async $provideFollowups(requestDto, handle, result, context, token) {
     const agent = this._agents.get(handle);

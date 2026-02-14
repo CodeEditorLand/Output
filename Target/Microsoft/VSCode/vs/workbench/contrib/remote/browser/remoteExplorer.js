@@ -361,6 +361,7 @@ class OnAutoForwardedAction extends Disposable {
     this.hostService = hostService;
     this.logService = logService;
     this.contextKeyService = contextKeyService;
+    this.notificationDisposable = this._register(new MutableDisposable());
     this.alreadyOpenedOnce = /* @__PURE__ */ new Set();
     this.lastNotifyTime = /* @__PURE__ */ new Date();
     this.lastNotifyTime.setFullYear(this.lastNotifyTime.getFullYear() - 1);
@@ -470,7 +471,7 @@ class OnAutoForwardedAction extends Disposable {
     this.lastNotification = this.notificationService.prompt(Severity.Info, message, choices, { neverShowAgain: { id: "remote.tunnelsView.autoForwardNeverShow", isSecondary: true } });
     this.lastShownPort = tunnel.tunnelRemotePort;
     this.lastNotifyTime = /* @__PURE__ */ new Date();
-    this.lastNotification.onDidClose(() => {
+    this.notificationDisposable.value = this.lastNotification.onDidClose(() => {
       this.lastNotification = void 0;
       this.lastShownPort = void 0;
     });
@@ -524,7 +525,7 @@ class OnAutoForwardedAction extends Disposable {
         this.lastNotification?.close();
         this.lastShownPort = newTunnel.tunnelRemotePort;
         this.lastNotification = this.notificationService.prompt(Severity.Info, await this.basicMessage(newTunnel) + this.linkMessage(), [this.openBrowserChoice(newTunnel), this.openPreviewChoice(tunnel)], { neverShowAgain: { id: "remote.tunnelsView.autoForwardNeverShow", isSecondary: true } });
-        this.lastNotification.onDidClose(() => {
+        this.notificationDisposable.value = this.lastNotification.onDidClose(() => {
           this.lastNotification = void 0;
           this.lastShownPort = void 0;
         });

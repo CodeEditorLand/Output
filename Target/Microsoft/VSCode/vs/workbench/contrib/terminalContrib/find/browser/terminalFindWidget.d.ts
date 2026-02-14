@@ -8,6 +8,7 @@ import { IKeybindingService } from '../../../../../platform/keybinding/common/ke
 import { IClipboardService } from '../../../../../platform/clipboard/common/clipboardService.js';
 import { IHoverService } from '../../../../../platform/hover/browser/hover.js';
 import { ILogService } from '../../../../../platform/log/common/log.js';
+import { IAccessibilityService } from '../../../../../platform/accessibility/common/accessibility.js';
 export declare class TerminalFindWidget extends SimpleFindWidget {
     private _instance;
     private _findInputFocused;
@@ -15,7 +16,7 @@ export declare class TerminalFindWidget extends SimpleFindWidget {
     private _findWidgetVisible;
     private _overrideCopyOnSelectionDisposable;
     private _selectionDisposable;
-    constructor(_instance: ITerminalInstance | IDetachedTerminalInstance, clipboardService: IClipboardService, configurationService: IConfigurationService, contextKeyService: IContextKeyService, contextMenuService: IContextMenuService, contextViewService: IContextViewService, hoverService: IHoverService, keybindingService: IKeybindingService, themeService: IThemeService, logService: ILogService);
+    constructor(_instance: ITerminalInstance | IDetachedTerminalInstance, clipboardService: IClipboardService, configurationService: IConfigurationService, contextKeyService: IContextKeyService, contextMenuService: IContextMenuService, contextViewService: IContextViewService, hoverService: IHoverService, keybindingService: IKeybindingService, themeService: IThemeService, logService: ILogService, accessibilityService: IAccessibilityService);
     private _setupSearchEventListeners;
     find(previous: boolean, update?: boolean): void;
     reveal(): void;

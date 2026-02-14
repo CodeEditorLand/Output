@@ -70,15 +70,18 @@ import { ChatConfiguration, ChatModeKind } from "../../common/constants.js";
 import { ILanguageModelToolsService, isToolSet } from "../../common/tools/languageModelToolsService.js";
 import { ComputeAutomaticInstructions } from "../../common/promptSyntax/computeAutomaticInstructions.js";
 import { PromptsConfig } from "../../common/promptSyntax/config/config.js";
-import { Target } from "../../common/promptSyntax/promptFileParser.js";
 import { IPromptsService } from "../../common/promptSyntax/service/promptsService.js";
 import { handleModeSwitch } from "../actions/chatActions.js";
 import { IChatAccessibilityService, IChatWidgetService, isIChatResourceViewContext, isIChatViewViewContext } from "../chat.js";
+import { IChatAttachmentResolveService } from "../attachments/chatAttachmentResolveService.js";
 import { ChatSuggestNextWidget } from "./chatContentParts/chatSuggestNextWidget.js";
 import { ChatInputPart } from "./input/chatInputPart.js";
 import { ChatListWidget } from "./chatListWidget.js";
 import { ChatEditorOptions } from "./chatOptions.js";
 import { ChatViewWelcomePart } from "../viewsWelcome/chatViewWelcomeController.js";
+import { IChatTipService } from "../chatTipService.js";
+import { ChatTipContentPart } from "./chatContentParts/chatTipContentPart.js";
+import { ChatContentMarkdownRenderer } from "./chatContentMarkdownRenderer.js";
 import { IAgentSessionsService } from "../agentSessions/agentSessionsService.js";
 const $ = dom.$;
 function isQuickChat(widget) {
@@ -99,7 +102,8 @@ const supportsAllAttachments = {
   supportsSourceControlAttachments: true,
   supportsProblemAttachments: true,
   supportsSymbolAttachments: true,
-  supportsTerminalAttachments: true
+  supportsTerminalAttachments: true,
+  supportsPromptAttachments: true
 };
 const DISCLAIMER = localize("chatDisclaimer", "AI responses may be inaccurate.");
 let ChatWidget = class ChatWidget2 extends Disposable {
@@ -147,6 +151,7 @@ let ChatWidget = class ChatWidget2 extends Disposable {
       this.parsedChatRequest = this.instantiationService.createInstance(ChatRequestParser).parseChatRequest(this.viewModel.sessionResource, this.getInput(), this.location, {
         selectedAgent: this._lastSelectedAgent,
         mode: this.input.currentModeKind,
+        attachmentCapabilities: this.attachmentCapabilities,
         forcedAgent: this._lockedAgent?.id ? this.chatAgentService.getAgent(this._lockedAgent.id) : void 0
       });
       this._onDidChangeParsedInput.fire();
@@ -165,7 +170,7 @@ let ChatWidget = class ChatWidget2 extends Disposable {
   get locationData() {
     return this._location.resolveData?.();
   }
-  constructor(location, viewContext, viewOptions, styles, codeEditorService, editorService, configurationService, dialogService, contextKeyService, instantiationService, chatService, chatAgentService, chatWidgetService, chatAccessibilityService, logService, themeService, chatSlashCommandService, chatEditingService, telemetryService, promptsService, toolsService, chatModeService, chatLayoutService, chatEntitlementService, chatSessionsService, agentSessionsService, chatTodoListService, contextService, lifecycleService) {
+  constructor(location, viewContext, viewOptions, styles, codeEditorService, editorService, configurationService, dialogService, contextKeyService, instantiationService, chatService, chatAgentService, chatWidgetService, chatAccessibilityService, logService, themeService, chatSlashCommandService, chatEditingService, telemetryService, promptsService, toolsService, chatModeService, chatLayoutService, chatEntitlementService, chatSessionsService, agentSessionsService, chatTodoListService, contextService, lifecycleService, chatAttachmentResolveService, chatTipService) {
     super();
     this.viewOptions = viewOptions;
     this.styles = styles;
@@ -193,6 +198,8 @@ let ChatWidget = class ChatWidget2 extends Disposable {
     this.chatTodoListService = chatTodoListService;
     this.contextService = contextService;
     this.lifecycleService = lifecycleService;
+    this.chatAttachmentResolveService = chatAttachmentResolveService;
+    this.chatTipService = chatTipService;
     this._onDidSubmitAgent = this._register(new Emitter());
     this.onDidSubmitAgent = this._onDidSubmitAgent.event;
     this._onDidChangeAgent = this._register(new Emitter());
@@ -211,11 +218,11 @@ let ChatWidget = class ChatWidget2 extends Disposable {
     this.onDidShow = this._onDidShow.event;
     this._onDidChangeParsedInput = this._register(new Emitter());
     this.onDidChangeParsedInput = this._onDidChangeParsedInput.event;
-    this._onWillMaybeChangeHeight = new Emitter();
+    this._onWillMaybeChangeHeight = this._register(new Emitter());
     this.onWillMaybeChangeHeight = this._onWillMaybeChangeHeight.event;
     this._onDidChangeHeight = this._register(new Emitter());
     this.onDidChangeHeight = this._onDidChangeHeight.event;
-    this._onDidChangeContentHeight = new Emitter();
+    this._onDidChangeContentHeight = this._register(new Emitter());
     this.onDidChangeContentHeight = this._onDidChangeContentHeight.event;
     this._onDidChangeEmptyState = this._register(new Emitter());
     this.onDidChangeEmptyState = this._onDidChangeEmptyState.event;
@@ -226,6 +233,7 @@ let ChatWidget = class ChatWidget2 extends Disposable {
     this.inlineInputPartDisposable = this._register(new MutableDisposable());
     this.recentlyRestoredCheckpoint = false;
     this.welcomePart = this._register(new MutableDisposable());
+    this._gettingStartedTipPart = this._register(new MutableDisposable());
     this.visibleChangeCount = 0;
     this._visible = false;
     this._isRenderingWelcome = false;
@@ -499,6 +507,45 @@ let ChatWidget = class ChatWidget2 extends Disposable {
     this.input.focus();
     this._onDidFocus.fire();
   }
+  focusTodosView() {
+    if (!this.input.hasVisibleTodos()) {
+      return false;
+    }
+    return this.input.focusTodoList();
+  }
+  toggleTodosViewFocus() {
+    if (!this.input.hasVisibleTodos()) {
+      return false;
+    }
+    if (this.input.isTodoListFocused()) {
+      this.focusInput();
+      return true;
+    }
+    return this.input.focusTodoList();
+  }
+  focusQuestionCarousel() {
+    if (!this.input.questionCarousel) {
+      return false;
+    }
+    return this.input.focusQuestionCarousel();
+  }
+  toggleQuestionCarouselFocus() {
+    if (!this.input.questionCarousel) {
+      return false;
+    }
+    if (this.input.isQuestionCarouselFocused()) {
+      this.focusInput();
+      return true;
+    }
+    return this.input.focusQuestionCarousel();
+  }
+  toggleTipFocus() {
+    if (this.listWidget.hasTipFocus()) {
+      this.focusInput();
+      return true;
+    }
+    return this.listWidget.focusTip();
+  }
   hasInputFocus() {
     return this.input.hasFocus();
   }
@@ -507,7 +554,7 @@ let ChatWidget = class ChatWidget2 extends Disposable {
       return;
     }
     const previous = this.parsedChatRequest;
-    this.parsedChatRequest = this.instantiationService.createInstance(ChatRequestParser).parseChatRequest(this.viewModel.sessionResource, this.getInput(), this.location, { selectedAgent: this._lastSelectedAgent, mode: this.input.currentModeKind });
+    this.parsedChatRequest = this.instantiationService.createInstance(ChatRequestParser).parseChatRequest(this.viewModel.sessionResource, this.getInput(), this.location, { selectedAgent: this._lastSelectedAgent, mode: this.input.currentModeKind, attachmentCapabilities: this.attachmentCapabilities });
     if (!previous || !IParsedChatRequest.equals(previous, this.parsedChatRequest)) {
       this._onDidChangeParsedInput.fire();
     }
@@ -573,9 +620,20 @@ let ChatWidget = class ChatWidget2 extends Disposable {
    */
   updateChatViewVisibility() {
     if (this.viewModel) {
+      const isStandardLayout = this.viewOptions.renderStyle !== "compact" && this.viewOptions.renderStyle !== "minimal";
       const numItems = this.viewModel.getItems().length;
       dom.setVisibility(numItems === 0, this.welcomeMessageContainer);
       dom.setVisibility(numItems !== 0, this.listContainer);
+      if (isStandardLayout && this.inputPart) {
+        const tipContainer = this.inputPart.gettingStartedTipContainerElement;
+        if (numItems === 0) {
+          this.renderGettingStartedTipIfNeeded();
+        } else {
+          this._gettingStartedTipPart.clear();
+          dom.clearNode(tipContainer);
+          dom.setVisibility(false, tipContainer);
+        }
+      }
     }
     this.container.classList.toggle("chat-view-getting-started-disabled", this.chatEntitlementService.sentiment.installed);
     this._onDidChangeEmptyState.fire();
@@ -623,6 +681,32 @@ let ChatWidget = class ChatWidget2 extends Disposable {
       this._isRenderingWelcome = false;
     }
   }
+  renderGettingStartedTipIfNeeded() {
+    if (!this.inputPart) {
+      return;
+    }
+    const tipContainer = this.inputPart.gettingStartedTipContainerElement;
+    if (this._gettingStartedTipPart.value) {
+      dom.setVisibility(true, tipContainer);
+      return;
+    }
+    const tip = this.chatTipService.getWelcomeTip(this.contextKeyService);
+    if (!tip) {
+      dom.setVisibility(false, tipContainer);
+      return;
+    }
+    const store = new DisposableStore();
+    const renderer = this.instantiationService.createInstance(ChatContentMarkdownRenderer);
+    const tipPart = store.add(this.instantiationService.createInstance(ChatTipContentPart, tip, renderer, () => this.chatTipService.getWelcomeTip(this.contextKeyService)));
+    tipContainer.appendChild(tipPart.domNode);
+    store.add(tipPart.onDidHide(() => {
+      tipPart.domNode.remove();
+      this._gettingStartedTipPart.clear();
+      dom.setVisibility(false, tipContainer);
+    }));
+    this._gettingStartedTipPart.value = store;
+    dom.setVisibility(true, tipContainer);
+  }
   _getGenerateInstructionsMessage() {
     if (!this._instructionFilesCheckPromise) {
       this._instructionFilesCheckPromise = this._checkForAgentInstructionFiles();
@@ -650,13 +734,7 @@ let ChatWidget = class ChatWidget2 extends Disposable {
    */
   async _checkForAgentInstructionFiles() {
     try {
-      const useCopilotInstructionsFiles = this.configurationService.getValue(PromptsConfig.USE_COPILOT_INSTRUCTION_FILES);
-      const useAgentMd = this.configurationService.getValue(PromptsConfig.USE_AGENT_MD);
-      if (!useCopilotInstructionsFiles && !useAgentMd) {
-        return true;
-      }
-      return (await this.promptsService.listCopilotInstructionsMDs(CancellationToken.None)).length > 0 || // Note: only checking for AGENTS.md files at the root folder, not ones in subfolders.
-      (await this.promptsService.listAgentMDs(CancellationToken.None, false)).length > 0;
+      return (await this.promptsService.listAgentInstructions(CancellationToken.None)).length > 0;
     } catch (error) {
       this.logService.warn("[ChatWidget] Error checking for instruction files:", error);
       return false;
@@ -1117,21 +1195,23 @@ let ChatWidget = class ChatWidget2 extends Disposable {
         if (request.id === currentElement.id) {
           request.setShouldBeBlocked(false);
           request.attachedContext?.forEach(addToContext);
-          currentElement.variables.forEach(addToContext);
         }
       }
+      currentElement.variables.forEach(addToContext);
       this.viewModel?.setEditing(currentElement);
       if (item?.contextKeyService) {
         ChatContextKeys.currentlyEditing.bindTo(item.contextKeyService).set(true);
       }
+      const isEditingSentRequest = currentElement.pendingKind === void 0 ? "s" : "qs";
       const isInput = this.configurationService.getValue("chat.editRequests") === "input";
-      this.inputPart?.setEditing(!!this.viewModel?.editing && isInput);
+      this.inputPart?.setEditing(!!this.viewModel?.editing && isInput, isEditingSentRequest);
       if (!isInput) {
         const rowContainer = item.rowContainer;
         this.inputContainer = dom.$(".chat-edit-input-container");
         rowContainer.appendChild(this.inputContainer);
         this.createInput(this.inputContainer);
         this.input.setChatMode(this.inputPart.currentModeObs.get().id);
+        this.input.setEditing(true, isEditingSentRequest);
       } else {
         this.inputPart.element.classList.add("editing");
       }
@@ -1142,6 +1222,7 @@ let ChatWidget = class ChatWidget2 extends Disposable {
       this.inputPart.dnd.setDisabledOverlay(!isInput);
       this.input.renderAttachedContext();
       this.input.setValue(currentElement.messageText, false);
+      this.listWidget.suppressAutoScroll = true;
       this.onDidChangeItems();
       this.input.inputEditor.focus();
       this._register(this.inputPart.onDidClickOverlay(() => {
@@ -1163,6 +1244,7 @@ let ChatWidget = class ChatWidget2 extends Disposable {
     });
   }
   finishedEditing(completedEdit) {
+    this.listWidget.suppressAutoScroll = false;
     const editedRequest = this.listWidget.getTemplateDataForRequestId(this.viewModel?.editing?.id);
     if (this.recentlyRestoredCheckpoint) {
       this.recentlyRestoredCheckpoint = false;
@@ -1197,7 +1279,7 @@ let ChatWidget = class ChatWidget2 extends Disposable {
       this.inputPart.element.classList.remove("editing");
     }
     this.viewModel?.setEditing(void 0);
-    this.inputPart?.setEditing(!!this.viewModel?.editing && isInput);
+    this.inputPart?.setEditing(false, void 0);
     this.onDidChangeItems();
     this.telemetryService.publicLog2("chat.editRequestsFinished", {
       editRequestType: this.configurationService.getValue("chat.editRequests"),
@@ -1351,9 +1433,19 @@ let ChatWidget = class ChatWidget2 extends Disposable {
     }
     this.inputPart.clearTodoListWidget(model.sessionResource, false);
     this.chatSuggestNextWidget.hide();
+    this.chatTipService.resetSession();
     this._codeBlockModelCollection.clear();
     this.container.setAttribute("data-session-id", model.sessionId);
     this.viewModel = this.instantiationService.createInstance(ChatViewModel, model, this._codeBlockModelCollection, void 0);
+    for (const request of model.getRequests()) {
+      if (request.response) {
+        for (const part of request.response.entireResponse.value) {
+          if (part.kind === "questionCarousel" && !part.isUsed) {
+            part.isUsed = true;
+          }
+        }
+      }
+    }
     this.inputPart.setInputModel(model.inputModel, model.getRequests().length === 0);
     this.listWidget.setViewModel(this.viewModel);
     if (this._lockedAgent) {
@@ -1570,12 +1662,16 @@ ${input}`;
       attachedContext: options?.enableImplicitContext === false ? this.input.getAttachedContext(this.viewModel.sessionResource) : this.input.getAttachedAndImplicitContext(this.viewModel.sessionResource)
     };
     const isUserQuery = !query;
-    if (this.viewModel?.editing) {
+    const isEditing = this.viewModel?.editing;
+    if (isEditing) {
       const editingPendingRequest = this.viewModel.editing.pendingKind;
       if (editingPendingRequest !== void 0) {
         const editingRequestId = this.viewModel.editing.id;
         this.chatService.removePendingRequest(this.viewModel.sessionResource, editingRequestId);
         options.queue ??= editingPendingRequest;
+      } else {
+        this.chatService.cancelCurrentRequestForSession(this.viewModel.sessionResource);
+        options.queue = void 0;
       }
       this.finishedEditing(true);
       this.viewModel.model?.setCheckpoint(void 0);
@@ -1585,7 +1681,7 @@ ${input}`;
     if (requestInProgress) {
       options.queue ??= "queued";
     }
-    if (!requestInProgress && !await this.confirmPendingRequestsBeforeSend(model, options)) {
+    if (!requestInProgress && !isEditing && !await this.confirmPendingRequestsBeforeSend(model, options)) {
       return;
     }
     await this._applyPromptFileIfSet(requestInputs);
@@ -1618,6 +1714,7 @@ ${input}`;
         }
       }
     }
+    const resolvedImageVariables = await this._resolveDirectoryImageAttachments(requestInputs.attachedContext.asArray());
     if (this.viewModel.sessionResource && !options.queue) {
       this.chatAccessibilityService.acceptRequest(this._viewModel.sessionResource);
     }
@@ -1627,13 +1724,14 @@ ${input}`;
       locationData: this._location.resolveData?.(),
       parserContext: { selectedAgent: this._lastSelectedAgent, mode: this.input.currentModeKind },
       attachedContext: requestInputs.attachedContext.asArray(),
+      resolvedVariables: resolvedImageVariables,
       noCommandDetection: options?.noCommandDetection,
       ...this.getModeRequestOptions(),
       modeInfo: this.input.currentModeInfo,
       agentIdSilent: this._lockedAgent?.id,
       queue: options?.queue
     });
-    if (this.viewModel.sessionResource && !options.queue) {
+    if (this.viewModel.sessionResource && !options.queue && ChatSendResult.isRejected(result)) {
       this.chatAccessibilityService.disposeRequest(this.viewModel.sessionResource);
     }
     if (ChatSendResult.isRejected(result)) {
@@ -1644,6 +1742,9 @@ ${input}`;
     const sent = ChatSendResult.isQueued(result) ? await result.deferred : result;
     if (!ChatSendResult.isSent(sent)) {
       return;
+    }
+    if (options.queue && this.viewModel?.sessionResource) {
+      this.chatAccessibilityService.acceptRequest(this.viewModel.sessionResource);
     }
     this._onDidSubmitAgent.fire({ agent: sent.data.agent, slashCommand: sent.data.slashCommand });
     this.handleDelegationExitIfNeeded(this._lockedAgent, sent.data.agent);
@@ -1660,6 +1761,20 @@ ${input}`;
       }
     });
     return sent.data.responseCreatedPromise;
+  }
+  // Resolve images from directory attachments to send as additional variables.
+  async _resolveDirectoryImageAttachments(attachments) {
+    const imagePromises = [];
+    for (const attachment of attachments) {
+      if (attachment.kind === "directory" && URI.isUri(attachment.value)) {
+        imagePromises.push(this.chatAttachmentResolveService.resolveDirectoryImages(attachment.value));
+      }
+    }
+    if (imagePromises.length === 0) {
+      return [];
+    }
+    const resolved = await Promise.all(imagePromises);
+    return resolved.flat();
   }
   async confirmPendingRequestsBeforeSend(model, options) {
     if (options.queue) {
@@ -1851,7 +1966,7 @@ ${input}`;
       this._switchToAgentByName(agent);
     }
     if (tools !== void 0 && this.input.currentModeKind === ChatModeKind.Agent) {
-      const enablementMap = this.toolsService.toToolAndToolSetEnablementMap(tools, Target.VSCode, this.input.selectedLanguageModel.get()?.metadata);
+      const enablementMap = this.toolsService.toToolAndToolSetEnablementMap(tools, this.input.selectedLanguageModel.get()?.metadata);
       this.input.selectedToolsModel.set(enablementMap, true);
     }
     if (model !== void 0) {
@@ -1900,7 +2015,9 @@ ChatWidget = ChatWidget_1 = __decorate([
   __param(25, IAgentSessionsService),
   __param(26, IChatTodoListService),
   __param(27, IWorkspaceContextService),
-  __param(28, ILifecycleService)
+  __param(28, ILifecycleService),
+  __param(29, IChatAttachmentResolveService),
+  __param(30, IChatTipService)
 ], ChatWidget);
 export {
   ChatWidget,

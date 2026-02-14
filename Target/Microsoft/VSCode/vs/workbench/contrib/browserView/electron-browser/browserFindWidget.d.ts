@@ -3,6 +3,8 @@ import { IContextViewService } from '../../../../platform/contextview/browser/co
 import { IContextKeyService, RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
 import { IHoverService } from '../../../../platform/hover/browser/hover.js';
 import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IAccessibilityService } from '../../../../platform/accessibility/common/accessibility.js';
 import { IBrowserViewModel } from '../common/browserView.js';
 export declare const CONTEXT_BROWSER_FIND_WIDGET_VISIBLE: RawContextKey<boolean>;
 export declare const CONTEXT_BROWSER_FIND_WIDGET_FOCUSED: RawContextKey<boolean>;
@@ -19,7 +21,7 @@ export declare class BrowserFindWidget extends SimpleFindWidget {
     private readonly _findWidgetFocused;
     private _lastFindResult;
     private _hasFoundMatch;
-    constructor(container: HTMLElement, contextViewService: IContextViewService, contextKeyService: IContextKeyService, hoverService: IHoverService, keybindingService: IKeybindingService);
+    constructor(container: HTMLElement, contextViewService: IContextViewService, contextKeyService: IContextKeyService, hoverService: IHoverService, keybindingService: IKeybindingService, configurationService: IConfigurationService, accessibilityService: IAccessibilityService);
     /**
      * Set the browser view model to use for find operations.
      * This should be called whenever the editor input changes.

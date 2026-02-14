@@ -7,18 +7,17 @@ import { AccessibilityVerbositySettingId } from '../../accessibility/browser/acc
 export declare class ReplAccessibilityHelp implements IAccessibleViewImplementation {
     priority: number;
     name: string;
-    when: import("../../../../platform/contextkey/common/contextkey.js").ContextKeyExpression;
+    when: import("../../../../platform/contextkey/common/contextkey.js").ContextKeyExpression | undefined;
     type: AccessibleViewType;
     getProvider(accessor: ServicesAccessor): ReplAccessibilityHelpProvider | undefined;
 }
 declare class ReplAccessibilityHelpProvider extends Disposable implements IAccessibleViewContentProvider {
     private readonly _replView;
     readonly id = AccessibleViewProviderId.ReplHelp;
-    readonly verbositySettingKey = AccessibilityVerbositySettingId.Debug;
+    readonly verbositySettingKey = AccessibilityVerbositySettingId.Find;
     readonly options: {
         type: AccessibleViewType;
     };
-    private _treeHadFocus;
     constructor(_replView: Repl);
     onClose(): void;
     provideContent(): string;

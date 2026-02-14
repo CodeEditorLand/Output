@@ -10,7 +10,7 @@ import { IEnvironmentMainService } from '../../environment/electron-main/environ
 import { IInstantiationService } from '../../instantiation/common/instantiation.js';
 import { ILifecycleMainService, IRelaunchOptions } from '../../lifecycle/electron-main/lifecycleMainService.js';
 import { ILogService } from '../../log/common/log.js';
-import { FocusMode, ICommonNativeHostService, INativeHostOptions, IOSProperties, IOSStatistics, IToastOptions, IToastResult } from '../common/native.js';
+import { FocusMode, ICommonNativeHostService, INativeHostOptions, IOSProperties, IOSStatistics, IToastOptions, IToastResult, PowerSaveBlockerType, SystemIdleState, ThermalState } from '../common/native.js';
 import { IProductService } from '../../product/common/productService.js';
 import { IPartsSplash } from '../../theme/common/themeService.js';
 import { IThemeMainService } from '../../theme/electron-main/themeMainService.js';
@@ -63,7 +63,14 @@ export declare class NativeHostMainService extends Disposable implements INative
         readonly windowId: number;
         readonly alwaysOnTop: boolean;
     }>;
+    readonly onDidSuspendOS: Event<void>;
     readonly onDidResumeOS: Event<void>;
+    readonly onDidChangeOnBatteryPower: Event<boolean>;
+    readonly onDidChangeThermalState: Event<ThermalState>;
+    readonly onDidChangeSpeedLimit: Event<number>;
+    readonly onWillShutdownOS: Event<void>;
+    readonly onDidLockScreen: Event<void>;
+    readonly onDidUnlockScreen: Event<void>;
     readonly onDidChangeColorScheme: Event<IColorScheme>;
     private readonly _onDidChangePassword;
     readonly onDidChangePassword: Event<{
@@ -104,6 +111,7 @@ export declare class NativeHostMainService extends Disposable implements INative
         height?: number;
         backgroundColor?: string;
         foregroundColor?: string;
+        dimmed?: boolean;
     }): Promise<void>;
     updateWindowAccentColor(windowId: number | undefined, color: 'default' | 'off' | string, inactiveColor: string | undefined): Promise<void>;
     focusWindow(windowId: number | undefined, options?: INativeHostOptions & {
@@ -194,6 +202,13 @@ export declare class NativeHostMainService extends Disposable implements INative
         path: string;
         contents: string;
     }[]): Promise<void>;
+    getSystemIdleState(windowId: number | undefined, idleThreshold: number): Promise<SystemIdleState>;
+    getSystemIdleTime(windowId: number | undefined): Promise<number>;
+    getCurrentThermalState(windowId: number | undefined): Promise<ThermalState>;
+    isOnBatteryPower(windowId: number | undefined): Promise<boolean>;
+    startPowerSaveBlocker(windowId: number | undefined, type: PowerSaveBlockerType): Promise<number>;
+    stopPowerSaveBlocker(windowId: number | undefined, id: number): Promise<boolean>;
+    isPowerSaveBlockerStarted(windowId: number | undefined, id: number): Promise<boolean>;
     private windowById;
     private codeWindowById;
     private auxiliaryWindowById;

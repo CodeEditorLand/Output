@@ -783,12 +783,9 @@ let DebugEditorContribution = class DebugEditorContribution2 {
     }
   }
   dispose() {
-    if (this.hoverWidget) {
-      this.hoverWidget.dispose();
-    }
-    if (this.configurationWidget) {
-      this.configurationWidget.dispose();
-    }
+    this.hoverWidget?.dispose();
+    this.configurationWidget?.dispose();
+    this.exceptionWidget?.dispose();
     this.toDispose = dispose(this.toDispose);
   }
 };

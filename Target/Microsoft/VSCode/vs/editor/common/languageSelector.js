@@ -91,8 +91,24 @@ function targetsNotebooks(selector) {
   }
 }
 __name(targetsNotebooks, "targetsNotebooks");
+function selectLanguageIds(selector, into) {
+  if (typeof selector === "string") {
+    into.add(selector);
+  } else if (Array.isArray(selector)) {
+    for (const item of selector) {
+      selectLanguageIds(item, into);
+    }
+  } else {
+    const language = selector.language;
+    if (language) {
+      into.add(language);
+    }
+  }
+}
+__name(selectLanguageIds, "selectLanguageIds");
 export {
   score,
+  selectLanguageIds,
   targetsNotebooks
 };
 //# sourceMappingURL=languageSelector.js.map

@@ -13,7 +13,7 @@ import { illegalArgument } from "../../../base/common/errors.js";
 import { Mimes } from "../../../base/common/mime.js";
 import { nextCharLength } from "../../../base/common/strings.js";
 import { isNumber, isObject, isString, isStringArray } from "../../../base/common/types.js";
-import { URI } from "../../../base/common/uri.js";
+import { isUriComponents, URI } from "../../../base/common/uri.js";
 import { generateUuid } from "../../../base/common/uuid.js";
 import { ExtensionIdentifier } from "../../../platform/extensions/common/extensions.js";
 import { FileSystemProviderErrorCode, markAsFileSystemProviderError } from "../../../platform/files/common/files.js";
@@ -2807,6 +2807,17 @@ class McpToolInvocationContentData {
     this.mimeType = mimeType;
   }
 }
+class ChatSubagentToolInvocationData {
+  static {
+    __name(this, "ChatSubagentToolInvocationData");
+  }
+  constructor(description, agentName, prompt, result) {
+    this.description = description;
+    this.agentName = agentName;
+    this.prompt = prompt;
+    this.result = result;
+  }
+}
 class ChatResponseExternalEditPart {
   static {
     __name(this, "ChatResponseExternalEditPart");
@@ -2853,6 +2864,17 @@ class ChatResponseThinkingProgressPart {
   constructor(value, id, metadata) {
     this.value = value;
     this.id = id;
+    this.metadata = metadata;
+  }
+}
+class ChatResponseHookPart {
+  static {
+    __name(this, "ChatResponseHookPart");
+  }
+  constructor(hookType, stopReason, systemMessage, metadata) {
+    this.hookType = hookType;
+    this.stopReason = stopReason;
+    this.systemMessage = systemMessage;
     this.metadata = metadata;
   }
 }
@@ -2926,12 +2948,21 @@ class ChatResponsePullRequestPart {
   static {
     __name(this, "ChatResponsePullRequestPart");
   }
-  constructor(uri, title, description, author, linkTag) {
-    this.uri = uri;
+  constructor(uriOrCommand, title, description, author, linkTag) {
     this.title = title;
     this.description = description;
     this.author = author;
     this.linkTag = linkTag;
+    if (isUriComponents(uriOrCommand)) {
+      this.uri = uriOrCommand;
+      this.command = {
+        title: "Open Pull Request",
+        command: "vscode.open",
+        arguments: [uriOrCommand]
+      };
+    } else {
+      this.command = uriOrCommand;
+    }
   }
   toJSON() {
     return {
@@ -3018,10 +3049,10 @@ class ChatToolInvocationPart {
   static {
     __name(this, "ChatToolInvocationPart");
   }
-  constructor(toolName, toolCallId, isError) {
+  constructor(toolName, toolCallId, errorMessage) {
     this.toolName = toolName;
     this.toolCallId = toolCallId;
-    this.isError = isError;
+    this.errorMessage = errorMessage;
   }
 }
 class ChatRequestTurn {
@@ -3072,6 +3103,7 @@ var ChatSessionStatus;
   ChatSessionStatus2[ChatSessionStatus2["Failed"] = 0] = "Failed";
   ChatSessionStatus2[ChatSessionStatus2["Completed"] = 1] = "Completed";
   ChatSessionStatus2[ChatSessionStatus2["InProgress"] = 2] = "InProgress";
+  ChatSessionStatus2[ChatSessionStatus2["NeedsInput"] = 3] = "NeedsInput";
 })(ChatSessionStatus || (ChatSessionStatus = {}));
 class ChatSessionChangedFile {
   static {
@@ -3462,11 +3494,6 @@ var SettingsSearchResultKind;
   SettingsSearchResultKind2[SettingsSearchResultKind2["LLM_RANKED"] = 2] = "LLM_RANKED";
   SettingsSearchResultKind2[SettingsSearchResultKind2["CANCELED"] = 3] = "CANCELED";
 })(SettingsSearchResultKind || (SettingsSearchResultKind = {}));
-var ChatHookResultKind;
-(function(ChatHookResultKind2) {
-  ChatHookResultKind2[ChatHookResultKind2["Success"] = 1] = "Success";
-  ChatHookResultKind2[ChatHookResultKind2["Error"] = 2] = "Error";
-})(ChatHookResultKind || (ChatHookResultKind = {}));
 var SpeechToTextStatus;
 (function(SpeechToTextStatus2) {
   SpeechToTextStatus2[SpeechToTextStatus2["Started"] = 1] = "Started";
@@ -3529,7 +3556,6 @@ export {
   ChatEditingSessionActionOutcome,
   ChatEditorTabInput,
   ChatErrorLevel,
-  ChatHookResultKind,
   ChatImageMimeType,
   ChatLocation,
   ChatQuestion,
@@ -3549,6 +3575,7 @@ export {
   ChatResponseExtensionsPart,
   ChatResponseExternalEditPart,
   ChatResponseFileTreePart,
+  ChatResponseHookPart,
   ChatResponseMarkdownPart,
   ChatResponseMarkdownWithVulnerabilitiesPart,
   ChatResponseMovePart,
@@ -3570,6 +3597,7 @@ export {
   ChatSessionChangedFile,
   ChatSessionChangedFile2,
   ChatSessionStatus,
+  ChatSubagentToolInvocationData,
   ChatTodoStatus,
   ChatToolInvocationPart,
   ChatVariableLevel,

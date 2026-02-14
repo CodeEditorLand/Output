@@ -1,9 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { preferredSideBySideGroupDirection } from "./editorGroupsService.js";
-import { ACTIVE_GROUP, AUX_WINDOW_GROUP, SIDE_GROUP } from "./editorService.js";
+import { ACTIVE_GROUP, AUX_WINDOW_GROUP, MODAL_GROUP, SIDE_GROUP } from "./editorService.js";
 function columnToEditorGroup(editorGroupService, configurationService, column = ACTIVE_GROUP) {
-  if (column === ACTIVE_GROUP || column === SIDE_GROUP || column === AUX_WINDOW_GROUP) {
+  if (column === ACTIVE_GROUP || column === SIDE_GROUP || column === AUX_WINDOW_GROUP || column === MODAL_GROUP) {
     return column;
   }
   let groupInColumn = editorGroupService.getGroups(

@@ -95,7 +95,7 @@ let InlineCompletionsModel = class InlineCompletionsModel2 extends Disposable {
       }
       return isSuggestionInViewport(this._editor, state.inlineSuggestion);
     });
-    this._onDidAccept = new Emitter();
+    this._onDidAccept = this._register(new Emitter());
     this.onDidAccept = this._onDidAccept.event;
     this._lastShownInlineCompletionInfo = void 0;
     this._lastAcceptedInlineCompletionInfo = void 0;
@@ -226,15 +226,15 @@ let InlineCompletionsModel = class InlineCompletionsModel2 extends Disposable {
           };
         }
       }
-      const itemToPreserveCandidate = this.selectedInlineCompletion.read(void 0) ?? this._inlineCompletionItems.read(void 0)?.inlineEdit;
+      const itemToPreserveCandidate = this.selectedInlineCompletion.read(void 0) ?? this._inlineSuggestionItems.read(void 0)?.inlineEdit;
       const itemToPreserve = changeSummary.preserveCurrentCompletion || itemToPreserveCandidate?.forwardStable ? itemToPreserveCandidate : void 0;
-      const userJumpedToActiveCompletion = this._jumpedToId.map((jumpedTo) => !!jumpedTo && jumpedTo === this._inlineCompletionItems.read(void 0)?.inlineEdit?.semanticId);
+      const userJumpedToActiveCompletion = this._jumpedToId.map((jumpedTo) => !!jumpedTo && jumpedTo === this._inlineSuggestionItems.read(void 0)?.inlineEdit?.semanticId);
       const providers = changeSummary.provider ? { providers: [changeSummary.provider], label: "single:" + changeSummary.provider.providerId?.toString() } : { providers: this._languageFeaturesService.inlineCompletionsProvider.all(this.textModel), label: void 0 };
       const availableProviders = this.getAvailableProviders(providers.providers);
       requestInfo.availableProviders = availableProviders.map((p) => p.providerId).filter(isDefined);
       return this._source.fetch(availableProviders, providers.label, context, itemToPreserve?.identity, changeSummary.shouldDebounce, userJumpedToActiveCompletion, requestInfo);
     });
-    this._inlineCompletionItems = derivedOpts({ owner: this }, (reader) => {
+    this._inlineSuggestionItems = derivedOpts({ owner: this }, (reader) => {
       const c = this._source.inlineCompletions.read(reader);
       if (!c) {
         return void 0;
@@ -259,13 +259,13 @@ let InlineCompletionsModel = class InlineCompletionsModel2 extends Disposable {
         inlineEdit
       };
     });
-    this._filteredInlineCompletionItems = derivedOpts({ owner: this, equalsFn: arrayEqualsC() }, (reader) => {
-      const c = this._inlineCompletionItems.read(reader);
+    this._inlineCompletionItems = derivedOpts({ owner: this, equalsFn: arrayEqualsC() }, (reader) => {
+      const c = this._inlineSuggestionItems.read(reader);
       return c?.inlineCompletions ?? [];
     });
     this.selectedInlineCompletionIndex = derived(this, (reader) => {
       const selectedInlineCompletionId = this._selectedInlineCompletionId.read(reader);
-      const filteredCompletions = this._filteredInlineCompletionItems.read(reader);
+      const filteredCompletions = this._inlineCompletionItems.read(reader);
       const idx = this._selectedInlineCompletionId === void 0 ? -1 : filteredCompletions.findIndex((v) => v.semanticId === selectedInlineCompletionId);
       if (idx === -1) {
         this._selectedInlineCompletionId.set(void 0, void 0);
@@ -274,14 +274,14 @@ let InlineCompletionsModel = class InlineCompletionsModel2 extends Disposable {
       return idx;
     });
     this.selectedInlineCompletion = derived(this, (reader) => {
-      const filteredCompletions = this._filteredInlineCompletionItems.read(reader);
+      const filteredCompletions = this._inlineCompletionItems.read(reader);
       const idx = this.selectedInlineCompletionIndex.read(reader);
       return filteredCompletions[idx];
     });
     this.activeCommands = derivedOpts({ owner: this, equalsFn: arrayEqualsC() }, (r) => this.selectedInlineCompletion.read(r)?.source.inlineSuggestions.commands ?? []);
     this.inlineCompletionsCount = derived(this, (reader) => {
       if (this.lastTriggerKind.read(reader) === InlineCompletionTriggerKind.Explicit) {
-        return this._filteredInlineCompletionItems.read(reader).length;
+        return this._inlineCompletionItems.read(reader).length;
       } else {
         return void 0;
       }
@@ -322,7 +322,7 @@ let InlineCompletionsModel = class InlineCompletionsModel2 extends Disposable {
       if (this._suppressInSnippetMode.read(reader) && this._isInSnippetMode.read(reader)) {
         return void 0;
       }
-      const item = this._inlineCompletionItems.read(reader);
+      const item = this._inlineSuggestionItems.read(reader);
       const inlineEditResult = item?.inlineEdit;
       if (inlineEditResult) {
         if (this._hasVisiblePeekWidgets.read(reader)) {
@@ -714,7 +714,7 @@ let InlineCompletionsModel = class InlineCompletionsModel2 extends Disposable {
   }
   async _deltaSelectedInlineCompletionIndex(delta) {
     await this.triggerExplicitly();
-    const completions = this._filteredInlineCompletionItems.get() || [];
+    const completions = this._inlineCompletionItems.get() || [];
     if (completions.length > 0) {
       const newIdx = (this.selectedInlineCompletionIndex.get() + delta + completions.length) % completions.length;
       this._selectedInlineCompletionId.set(completions[newIdx].semanticId, void 0);

@@ -3,9 +3,10 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
 import { BrowserFeatures } from "../../canIUse.js";
 import * as DOM from "../../dom.js";
 import { Disposable, DisposableStore, toDisposable } from "../../../common/lifecycle.js";
+import { layout2d } from "../../../common/layout.js";
 import * as platform from "../../../common/platform.js";
-import { Range } from "../../../common/range.js";
 import "./contextview.css";
+import { AnchorAlignment, AnchorAxisAlignment, AnchorPosition } from "../../../common/layout.js";
 var ContextViewDOMPosition;
 (function(ContextViewDOMPosition2) {
   ContextViewDOMPosition2[ContextViewDOMPosition2["ABSOLUTE"] = 1] = "ABSOLUTE";
@@ -17,53 +18,37 @@ function isAnchor(obj) {
   return !!anchor && typeof anchor.x === "number" && typeof anchor.y === "number";
 }
 __name(isAnchor, "isAnchor");
-var AnchorAlignment;
-(function(AnchorAlignment2) {
-  AnchorAlignment2[AnchorAlignment2["LEFT"] = 0] = "LEFT";
-  AnchorAlignment2[AnchorAlignment2["RIGHT"] = 1] = "RIGHT";
-})(AnchorAlignment || (AnchorAlignment = {}));
-var AnchorPosition;
-(function(AnchorPosition2) {
-  AnchorPosition2[AnchorPosition2["BELOW"] = 0] = "BELOW";
-  AnchorPosition2[AnchorPosition2["ABOVE"] = 1] = "ABOVE";
-})(AnchorPosition || (AnchorPosition = {}));
-var AnchorAxisAlignment;
-(function(AnchorAxisAlignment2) {
-  AnchorAxisAlignment2[AnchorAxisAlignment2["VERTICAL"] = 0] = "VERTICAL";
-  AnchorAxisAlignment2[AnchorAxisAlignment2["HORIZONTAL"] = 1] = "HORIZONTAL";
-})(AnchorAxisAlignment || (AnchorAxisAlignment = {}));
-var LayoutAnchorPosition;
-(function(LayoutAnchorPosition2) {
-  LayoutAnchorPosition2[LayoutAnchorPosition2["Before"] = 0] = "Before";
-  LayoutAnchorPosition2[LayoutAnchorPosition2["After"] = 1] = "After";
-})(LayoutAnchorPosition || (LayoutAnchorPosition = {}));
-var LayoutAnchorMode;
-(function(LayoutAnchorMode2) {
-  LayoutAnchorMode2[LayoutAnchorMode2["AVOID"] = 0] = "AVOID";
-  LayoutAnchorMode2[LayoutAnchorMode2["ALIGN"] = 1] = "ALIGN";
-})(LayoutAnchorMode || (LayoutAnchorMode = {}));
-function layout(viewportSize, viewSize, anchor) {
-  const layoutAfterAnchorBoundary = anchor.mode === LayoutAnchorMode.ALIGN ? anchor.offset : anchor.offset + anchor.size;
-  const layoutBeforeAnchorBoundary = anchor.mode === LayoutAnchorMode.ALIGN ? anchor.offset + anchor.size : anchor.offset;
-  if (anchor.position === 0) {
-    if (viewSize <= viewportSize - layoutAfterAnchorBoundary) {
-      return layoutAfterAnchorBoundary;
-    }
-    if (viewSize <= layoutBeforeAnchorBoundary) {
-      return layoutBeforeAnchorBoundary - viewSize;
-    }
-    return Math.max(viewportSize - viewSize, 0);
+function getAnchorRect(anchor) {
+  if (DOM.isHTMLElement(anchor)) {
+    const elementPosition = DOM.getDomNodePagePosition(anchor);
+    const zoom = DOM.getDomNodeZoomLevel(anchor);
+    return {
+      top: elementPosition.top * zoom,
+      left: elementPosition.left * zoom,
+      width: elementPosition.width * zoom,
+      height: elementPosition.height * zoom
+    };
+  } else if (isAnchor(anchor)) {
+    return {
+      top: anchor.y,
+      left: anchor.x,
+      width: anchor.width || 1,
+      height: anchor.height || 2
+    };
   } else {
-    if (viewSize <= layoutBeforeAnchorBoundary) {
-      return layoutBeforeAnchorBoundary - viewSize;
-    }
-    if (viewSize <= viewportSize - layoutAfterAnchorBoundary && layoutBeforeAnchorBoundary < viewSize / 2) {
-      return layoutAfterAnchorBoundary;
-    }
-    return 0;
+    return {
+      top: anchor.posy,
+      left: anchor.posx,
+      // We are about to position the context view where the mouse
+      // cursor is. To prevent the view being exactly under the mouse
+      // when showing and thus potentially triggering an action within,
+      // we treat the mouse location like a small sized block element.
+      width: 2,
+      height: 2
+    };
   }
 }
-__name(layout, "layout");
+__name(getAnchorRect, "getAnchorRect");
 class ContextView extends Disposable {
   static {
     __name(this, "ContextView");
@@ -172,71 +157,14 @@ class ContextView extends Disposable {
     if (!this.isVisible()) {
       return;
     }
-    const anchor = this.delegate.getAnchor();
-    let around;
-    if (DOM.isHTMLElement(anchor)) {
-      const elementPosition = DOM.getDomNodePagePosition(anchor);
-      const zoom = DOM.getDomNodeZoomLevel(anchor);
-      around = {
-        top: elementPosition.top * zoom,
-        left: elementPosition.left * zoom,
-        width: elementPosition.width * zoom,
-        height: elementPosition.height * zoom
-      };
-    } else if (isAnchor(anchor)) {
-      around = {
-        top: anchor.y,
-        left: anchor.x,
-        width: anchor.width || 1,
-        height: anchor.height || 2
-      };
-    } else {
-      around = {
-        top: anchor.posy,
-        left: anchor.posx,
-        // We are about to position the context view where the mouse
-        // cursor is. To prevent the view being exactly under the mouse
-        // when showing and thus potentially triggering an action within,
-        // we treat the mouse location like a small sized block element.
-        width: 2,
-        height: 2
-      };
-    }
-    const viewSizeWidth = DOM.getTotalWidth(this.view);
-    const viewSizeHeight = DOM.getTotalHeight(this.view);
-    const anchorPosition = this.delegate.anchorPosition ?? 0;
-    const anchorAlignment = this.delegate.anchorAlignment ?? 0;
-    const anchorAxisAlignment = this.delegate.anchorAxisAlignment ?? 0;
-    let top;
-    let left;
+    const anchor = getAnchorRect(this.delegate.getAnchor());
     const activeWindow = DOM.getActiveWindow();
-    if (anchorAxisAlignment === 0) {
-      const verticalAnchor = {
-        offset: around.top - activeWindow.pageYOffset,
-        size: around.height,
-        position: anchorPosition === 0 ? 0 : 1
-        /* LayoutAnchorPosition.After */
-      };
-      const horizontalAnchor = { offset: around.left, size: around.width, position: anchorAlignment === 0 ? 0 : 1, mode: LayoutAnchorMode.ALIGN };
-      top = layout(activeWindow.innerHeight, viewSizeHeight, verticalAnchor) + activeWindow.pageYOffset;
-      if (Range.intersects({ start: top, end: top + viewSizeHeight }, { start: verticalAnchor.offset, end: verticalAnchor.offset + verticalAnchor.size })) {
-        horizontalAnchor.mode = LayoutAnchorMode.AVOID;
-      }
-      left = layout(activeWindow.innerWidth, viewSizeWidth, horizontalAnchor);
-    } else {
-      const horizontalAnchor = {
-        offset: around.left,
-        size: around.width,
-        position: anchorAlignment === 0 ? 0 : 1
-        /* LayoutAnchorPosition.After */
-      };
-      const verticalAnchor = { offset: around.top, size: around.height, position: anchorPosition === 0 ? 0 : 1, mode: LayoutAnchorMode.ALIGN };
-      left = layout(activeWindow.innerWidth, viewSizeWidth, horizontalAnchor);
-      if (Range.intersects({ start: left, end: left + viewSizeWidth }, { start: horizontalAnchor.offset, end: horizontalAnchor.offset + horizontalAnchor.size })) {
-        verticalAnchor.mode = LayoutAnchorMode.AVOID;
-      }
-      top = layout(activeWindow.innerHeight, viewSizeHeight, verticalAnchor) + activeWindow.pageYOffset;
-    }
+    const viewport = { top: activeWindow.pageYOffset, left: activeWindow.pageXOffset, width: activeWindow.innerWidth, height: activeWindow.innerHeight };
+    const view = { width: DOM.getTotalWidth(this.view), height: DOM.getTotalHeight(this.view) };
+    const anchorPosition = this.delegate.anchorPosition;
+    const anchorAlignment = this.delegate.anchorAlignment;
+    const anchorAxisAlignment = this.delegate.anchorAxisAlignment;
+    const { top, left } = layout2d(viewport, view, anchor, { anchorAlignment, anchorPosition, anchorAxisAlignment });
     this.view.classList.remove("top", "bottom", "left", "right");
     this.view.classList.add(anchorPosition === 0 ? "bottom" : "top");
     this.view.classList.add(anchorAlignment === 0 ? "left" : "right");
@@ -323,9 +251,7 @@ export {
   AnchorPosition,
   ContextView,
   ContextViewDOMPosition,
-  LayoutAnchorMode,
-  LayoutAnchorPosition,
-  isAnchor,
-  layout
+  getAnchorRect,
+  isAnchor
 };
 //# sourceMappingURL=contextview.js.map

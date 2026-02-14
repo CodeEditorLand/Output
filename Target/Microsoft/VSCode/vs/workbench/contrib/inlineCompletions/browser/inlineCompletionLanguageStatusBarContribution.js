@@ -18,6 +18,7 @@ import Severity from "../../../../base/common/severity.js";
 import { isCodeEditor } from "../../../../editor/browser/editorBrowser.js";
 import { InlineCompletionsController } from "../../../../editor/contrib/inlineCompletions/browser/controller/inlineCompletionsController.js";
 import { localize } from "../../../../nls.js";
+import { IChatEntitlementService } from "../../../services/chat/common/chatEntitlementService.js";
 import { IEditorService } from "../../../services/editor/common/editorService.js";
 import { ILanguageStatusService } from "../../../services/languageStatus/common/languageStatusService.js";
 let InlineCompletionLanguageStatusBarContribution = class InlineCompletionLanguageStatusBarContribution2 extends Disposable {
@@ -33,11 +34,13 @@ let InlineCompletionLanguageStatusBarContribution = class InlineCompletionLangua
   static {
     this.languageStatusBarDisposables = /* @__PURE__ */ new Set();
   }
-  constructor(_languageStatusService, _editorService) {
+  constructor(_languageStatusService, _editorService, _chatEntitlementService) {
     super();
     this._languageStatusService = _languageStatusService;
     this._editorService = _editorService;
+    this._chatEntitlementService = _chatEntitlementService;
     this._activeEditor = observableFromEvent(this, _editorService.onDidActiveEditorChange, () => this._editorService.activeTextEditorControl);
+    this._sentiment = this._chatEntitlementService.sentimentObs;
     this._state = derived(this, (reader) => {
       const editor = this._activeEditor.read(reader);
       if (!editor || !isCodeEditor(editor)) {
@@ -54,6 +57,10 @@ let InlineCompletionLanguageStatusBarContribution = class InlineCompletionLangua
       };
     });
     this._register(autorunWithStore((reader, store) => {
+      const sentiment = this._sentiment.read(reader);
+      if (sentiment.hidden) {
+        return;
+      }
       const state = this._state.read(reader);
       if (!state) {
         return;
@@ -82,7 +89,8 @@ let InlineCompletionLanguageStatusBarContribution = class InlineCompletionLangua
 };
 InlineCompletionLanguageStatusBarContribution = __decorate([
   __param(0, ILanguageStatusService),
-  __param(1, IEditorService)
+  __param(1, IEditorService),
+  __param(2, IChatEntitlementService)
 ], InlineCompletionLanguageStatusBarContribution);
 export {
   InlineCompletionLanguageStatusBarContribution

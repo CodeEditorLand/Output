@@ -137,7 +137,7 @@ class PortsAttributes extends Disposable {
     super();
     this.configurationService = configurationService;
     this.portsAttributes = [];
-    this._onDidChangeAttributes = new Emitter();
+    this._onDidChangeAttributes = this._register(new Emitter());
     this.onDidChangeAttributes = this._onDidChangeAttributes.event;
     this._register(configurationService.onDidChangeConfiguration((e) => {
       if (e.affectsConfiguration(PortsAttributes.SETTING) || e.affectsConfiguration(PortsAttributes.DEFAULTS)) {
@@ -335,20 +335,20 @@ let TunnelModel = class TunnelModel2 extends Disposable {
     this.extensionService = extensionService;
     this.contextKeyService = contextKeyService;
     this.inProgress = /* @__PURE__ */ new Map();
-    this._onForwardPort = new Emitter();
+    this._onForwardPort = this._register(new Emitter());
     this.onForwardPort = this._onForwardPort.event;
-    this._onClosePort = new Emitter();
+    this._onClosePort = this._register(new Emitter());
     this.onClosePort = this._onClosePort.event;
-    this._onPortName = new Emitter();
+    this._onPortName = this._register(new Emitter());
     this.onPortName = this._onPortName.event;
-    this._onCandidatesChanged = new Emitter();
+    this._onCandidatesChanged = this._register(new Emitter());
     this.onCandidatesChanged = this._onCandidatesChanged.event;
-    this._onEnvironmentTunnelsSet = new Emitter();
+    this._onEnvironmentTunnelsSet = this._register(new Emitter());
     this.onEnvironmentTunnelsSet = this._onEnvironmentTunnelsSet.event;
     this._environmentTunnelsSet = false;
     this.restoreListener = void 0;
     this.restoreComplete = false;
-    this.onRestoreComplete = new Emitter();
+    this.onRestoreComplete = this._register(new Emitter());
     this.unrestoredExtensionTunnels = /* @__PURE__ */ new Map();
     this.sessionCachedProperties = /* @__PURE__ */ new Map();
     this.portAttributesProviders = [];

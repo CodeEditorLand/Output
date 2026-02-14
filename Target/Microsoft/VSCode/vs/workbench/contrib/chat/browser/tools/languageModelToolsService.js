@@ -32,6 +32,7 @@ import { ThemeIcon } from "../../../../../base/common/themables.js";
 import { localize, localize2 } from "../../../../../nls.js";
 import { IAccessibilityService } from "../../../../../platform/accessibility/common/accessibility.js";
 import { AccessibilitySignal, IAccessibilitySignalService } from "../../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
+import { ICommandService } from "../../../../../platform/commands/common/commands.js";
 import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
 import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
 import { IDialogService } from "../../../../../platform/dialogs/common/dialogs.js";
@@ -48,16 +49,18 @@ import { toToolSetVariableEntry, toToolVariableEntry } from "../../common/attach
 import { IChatService, IChatToolInvocation } from "../../common/chatService/chatService.js";
 import { ChatConfiguration } from "../../common/constants.js";
 import { ChatToolInvocation } from "../../common/model/chatProgressTypes/chatToolInvocation.js";
-import { ILanguageModelToolsConfirmationService } from "../../common/tools/languageModelToolsConfirmationService.js";
-import { createToolSchemaUri, SpecedToolAliases, stringifyPromptTsxPart, isToolSet, ToolDataSource, toolMatchesModel, ToolSet, VSCodeToolReference, ToolSetForModel } from "../../common/tools/languageModelToolsService.js";
-import { getToolConfirmationAlert } from "../accessibility/chatAccessibilityProvider.js";
 import { chatSessionResourceToId } from "../../common/model/chatUri.js";
+import { HookType } from "../../common/promptSyntax/hookSchema.js";
+import { ILanguageModelToolsConfirmationService } from "../../common/tools/languageModelToolsConfirmationService.js";
+import { createToolSchemaUri, isToolSet, SpecedToolAliases, stringifyPromptTsxPart, ToolDataSource, ToolInvocationPresentation, toolMatchesModel, ToolSet, ToolSetForModel, VSCodeToolReference } from "../../common/tools/languageModelToolsService.js";
+import { getToolConfirmationAlert } from "../accessibility/chatAccessibilityProvider.js";
 const jsonSchemaRegistry = Registry.as(JSONContributionRegistry.Extensions.JSONContribution);
 var AutoApproveStorageKeys;
 (function(AutoApproveStorageKeys2) {
   AutoApproveStorageKeys2["GlobalAutoApproveOptIn"] = "chat.tools.global.autoApprove.optIn";
 })(AutoApproveStorageKeys || (AutoApproveStorageKeys = {}));
 const SkipAutoApproveConfirmationKey = "vscode.chat.tools.global.autoApprove.testMode";
+const toolIdThatCannotBeAutoApproved = "vscode_get_confirmation_with_options";
 const globalAutoApproveDescription = localize2({
   key: "autoApprove2.markdown",
   comment: [
@@ -74,7 +77,7 @@ let LanguageModelToolsService = class LanguageModelToolsService2 extends Disposa
   static {
     LanguageModelToolsService_1 = this;
   }
-  constructor(_instantiationService, _extensionService, _contextKeyService, _chatService, _dialogService, _telemetryService, _logService, _configurationService, _accessibilityService, _accessibilitySignalService, _storageService, _confirmationService) {
+  constructor(_instantiationService, _extensionService, _contextKeyService, _chatService, _dialogService, _telemetryService, _logService, _configurationService, _accessibilityService, _accessibilitySignalService, _storageService, _confirmationService, _commandService) {
     super();
     this._instantiationService = _instantiationService;
     this._extensionService = _extensionService;
@@ -88,13 +91,14 @@ let LanguageModelToolsService = class LanguageModelToolsService2 extends Disposa
     this._accessibilitySignalService = _accessibilitySignalService;
     this._storageService = _storageService;
     this._confirmationService = _confirmationService;
+    this._commandService = _commandService;
     this._onDidChangeTools = this._register(new Emitter());
     this.onDidChangeTools = this._onDidChangeTools.event;
     this._onDidPrepareToolCallBecomeUnresponsive = this._register(new Emitter());
     this.onDidPrepareToolCallBecomeUnresponsive = this._onDidPrepareToolCallBecomeUnresponsive.event;
     this._onDidInvokeTool = this._register(new Emitter());
     this.onDidInvokeTool = this._onDidInvokeTool.event;
-    this._onDidChangeToolsScheduler = new RunOnceScheduler(() => this._onDidChangeTools.fire(), 750);
+    this._onDidChangeToolsScheduler = this._register(new RunOnceScheduler(() => this._onDidChangeTools.fire(), 750));
     this._tools = /* @__PURE__ */ new Map();
     this._toolContextKeys = /* @__PURE__ */ new Set();
     this._callsByRequestId = /* @__PURE__ */ new Map();
@@ -175,6 +179,9 @@ let LanguageModelToolsService = class LanguageModelToolsService2 extends Disposa
   isPermitted(toolOrToolSet, reader) {
     const agentModeEnabled = this._isAgentModeEnabled.read(reader);
     if (agentModeEnabled !== false) {
+      return true;
+    }
+    if (!isToolSet(toolOrToolSet) && toolOrToolSet.canBeReferencedInPrompt === false && toolOrToolSet.source.type === "internal") {
       return true;
     }
     const permittedInternalToolSetIds = [SpecedToolAliases.read, SpecedToolAliases.search, SpecedToolAliases.web];
@@ -301,8 +308,110 @@ let LanguageModelToolsService = class LanguageModelToolsService2 extends Disposa
     }
     return void 0;
   }
+  _handlePreToolUseDenial(dto, hookResult, toolData, pendingInvocation, request) {
+    const hookReason = hookResult.permissionDecisionReason ?? localize("hookDeniedNoReason", "Hook denied tool execution");
+    const reason = localize("deniedByPreToolUseHook", "Denied by {0} hook: {1}", HookType.PreToolUse, hookReason);
+    this._logService.debug(`[LanguageModelToolsService#invokeTool] Tool ${dto.toolId} denied by preToolUse hook: ${hookReason}`);
+    if (toolData) {
+      if (pendingInvocation) {
+        pendingInvocation.presentation = ToolInvocationPresentation.Hidden;
+        pendingInvocation.cancelFromStreaming(0, reason);
+      } else if (request) {
+        const cancelledInvocation = ChatToolInvocation.createCancelled({ toolCallId: dto.callId, toolId: dto.toolId, toolData, subagentInvocationId: dto.subAgentInvocationId, chatRequestId: dto.chatRequestId }, dto.parameters, 0, reason);
+        cancelledInvocation.presentation = ToolInvocationPresentation.Hidden;
+        this._chatService.appendProgress(request, cancelledInvocation);
+      }
+    }
+    return {
+      content: [{ kind: "text", value: `Tool execution denied: ${hookReason}` }],
+      toolResultError: hookReason
+    };
+  }
+  /**
+   * Validate updatedInput from a preToolUse hook against the tool's input schema
+   * using the json.validate command from the JSON extension.
+   * @returns An error message string if validation fails, or undefined if valid.
+   */
+  async _validateUpdatedInput(toolId, toolData, updatedInput) {
+    if (!toolData?.inputSchema) {
+      return void 0;
+    }
+    try {
+      const schemaUri = createToolSchemaUri(toolId);
+      const inputJson = JSON.stringify(updatedInput);
+      const diagnostics = await this._commandService.executeCommand("json.validate", schemaUri, inputJson) || [];
+      if (diagnostics.length > 0) {
+        return diagnostics.map((d) => d.message).join("; ");
+      }
+    } catch (e) {
+      this._logService.debug(`[LanguageModelToolsService#_validateUpdatedInput] json.validate command failed, skipping validation: ${toErrorMessage(e)}`);
+    }
+    return void 0;
+  }
   async invokeTool(dto, countTokens, token) {
     this._logService.trace(`[LanguageModelToolsService#invokeTool] Invoking tool ${dto.toolId} with parameters ${JSON.stringify(dto.parameters)}`);
+    const toolData = this._tools.get(dto.toolId)?.data;
+    let model;
+    let request;
+    if (dto.context?.sessionResource) {
+      model = this._chatService.getSession(dto.context.sessionResource);
+      request = model?.getRequests().at(-1);
+    }
+    let pendingToolCallKey;
+    let toolInvocation;
+    if (this._pendingToolCalls.has(dto.callId)) {
+      pendingToolCallKey = dto.callId;
+      toolInvocation = this._pendingToolCalls.get(dto.callId);
+    } else if (dto.chatStreamToolCallId && this._pendingToolCalls.has(dto.chatStreamToolCallId)) {
+      pendingToolCallKey = dto.chatStreamToolCallId;
+      toolInvocation = this._pendingToolCalls.get(dto.chatStreamToolCallId);
+    }
+    let requestId;
+    let store;
+    if (dto.context && request) {
+      requestId = request.id;
+      store = new DisposableStore();
+      if (!this._callsByRequestId.has(requestId)) {
+        this._callsByRequestId.set(requestId, []);
+      }
+      const trackedCall = { store };
+      this._callsByRequestId.get(requestId).push(trackedCall);
+      const source = new CancellationTokenSource();
+      store.add(toDisposable(() => {
+        source.dispose(true);
+      }));
+      store.add(token.onCancellationRequested((() => {
+        IChatToolInvocation.confirmWith(toolInvocation, {
+          type: 0
+          /* ToolConfirmKind.Denied */
+        });
+        source.cancel();
+      })));
+      store.add(source.token.onCancellationRequested(() => {
+        IChatToolInvocation.confirmWith(toolInvocation, {
+          type: 0
+          /* ToolConfirmKind.Denied */
+        });
+      }));
+      token = source.token;
+    }
+    const preToolUseHookResult = dto.preToolUseResult;
+    if (preToolUseHookResult?.permissionDecision === "deny") {
+      const denialResult = this._handlePreToolUseDenial(dto, preToolUseHookResult, toolData, toolInvocation, request);
+      if (pendingToolCallKey) {
+        this._pendingToolCalls.delete(pendingToolCallKey);
+      }
+      return denialResult;
+    }
+    if (preToolUseHookResult?.updatedInput) {
+      const validationError = await this._validateUpdatedInput(dto.toolId, toolData, preToolUseHookResult.updatedInput);
+      if (validationError) {
+        this._logService.warn(`[LanguageModelToolsService#invokeTool] Tool ${dto.toolId} updatedInput from preToolUse hook failed schema validation: ${validationError}`);
+      } else {
+        this._logService.debug(`[LanguageModelToolsService#invokeTool] Tool ${dto.toolId} input modified by preToolUse hook`);
+        dto.parameters = preToolUseHookResult.updatedInput;
+      }
+    }
     this._onDidInvokeTool.fire({
       toolId: dto.toolId,
       sessionResource: dto.context?.sessionResource,
@@ -320,63 +429,29 @@ let LanguageModelToolsService = class LanguageModelToolsService2 extends Disposa
         throw new Error(`Tool ${dto.toolId} does not have an implementation registered.`);
       }
     }
-    let pendingToolCallKey;
-    let toolInvocation;
-    if (this._pendingToolCalls.has(dto.callId)) {
-      pendingToolCallKey = dto.callId;
-      toolInvocation = this._pendingToolCalls.get(dto.callId);
-    } else if (dto.chatStreamToolCallId && this._pendingToolCalls.has(dto.chatStreamToolCallId)) {
-      pendingToolCallKey = dto.chatStreamToolCallId;
-      toolInvocation = this._pendingToolCalls.get(dto.chatStreamToolCallId);
-    }
     const hadPendingInvocation = !!toolInvocation;
     if (hadPendingInvocation && pendingToolCallKey) {
       this._pendingToolCalls.delete(pendingToolCallKey);
     }
-    let requestId;
-    let store;
     let toolResult;
     let prepareTimeWatch;
     let invocationTimeWatch;
     let preparedInvocation;
     try {
       if (dto.context) {
-        store = new DisposableStore();
-        const model = this._chatService.getSession(dto.context.sessionResource);
         if (!model) {
           throw new Error(`Tool called for unknown chat session`);
         }
-        const request = model.getRequests().at(-1);
-        requestId = request.id;
+        if (!request) {
+          throw new Error(`Tool called for unknown chat request`);
+        }
         dto.modelId = request.modelId;
         dto.userSelectedTools = request.userSelectedTools && { ...request.userSelectedTools };
-        if (!this._callsByRequestId.has(requestId)) {
-          this._callsByRequestId.set(requestId, []);
-        }
-        const trackedCall = { store };
-        this._callsByRequestId.get(requestId).push(trackedCall);
-        const source = new CancellationTokenSource();
-        store.add(toDisposable(() => {
-          source.dispose(true);
-        }));
-        store.add(token.onCancellationRequested(() => {
-          IChatToolInvocation.confirmWith(toolInvocation, {
-            type: 0
-            /* ToolConfirmKind.Denied */
-          });
-          source.cancel();
-        }));
-        store.add(source.token.onCancellationRequested(() => {
-          IChatToolInvocation.confirmWith(toolInvocation, {
-            type: 0
-            /* ToolConfirmKind.Denied */
-          });
-        }));
-        token = source.token;
         prepareTimeWatch = StopWatch.create(true);
-        preparedInvocation = await this.prepareToolInvocation(tool, dto, token);
+        preparedInvocation = await this.prepareToolInvocationWithHookResult(tool, dto, preToolUseHookResult, token);
         prepareTimeWatch.stop();
-        const autoConfirmed = await this.shouldAutoConfirm(tool.data.id, tool.data.runsInWorkspace, tool.data.source, dto.parameters, dto.context?.sessionResource);
+        const { autoConfirmed, preparedInvocation: updatedPreparedInvocation } = await this.resolveAutoConfirmFromHook(preToolUseHookResult, tool, dto, preparedInvocation, dto.context?.sessionResource);
+        preparedInvocation = updatedPreparedInvocation;
         if (hadPendingInvocation && toolInvocation) {
           toolInvocation.transitionFromStreaming(preparedInvocation, dto.parameters, autoConfirmed);
         } else {
@@ -404,6 +479,9 @@ let LanguageModelToolsService = class LanguageModelToolsService2 extends Disposa
             };
             return toolResult;
           }
+          if (userConfirmed.type === 4 && userConfirmed.selectedButton) {
+            dto.selectedCustomButton = userConfirmed.selectedButton;
+          }
           if (dto.toolSpecificData?.kind === "input") {
             dto.parameters = dto.toolSpecificData.rawInput;
             dto.toolSpecificData = void 0;
@@ -411,9 +489,11 @@ let LanguageModelToolsService = class LanguageModelToolsService2 extends Disposa
         }
       } else {
         prepareTimeWatch = StopWatch.create(true);
-        preparedInvocation = await this.prepareToolInvocation(tool, dto, token);
+        preparedInvocation = await this.prepareToolInvocationWithHookResult(tool, dto, preToolUseHookResult, token);
         prepareTimeWatch.stop();
-        if (preparedInvocation?.confirmationMessages?.title && !await this.shouldAutoConfirm(tool.data.id, tool.data.runsInWorkspace, tool.data.source, dto.parameters, void 0)) {
+        const { autoConfirmed: fallbackAutoConfirmed, preparedInvocation: updatedPreparedInvocation } = await this.resolveAutoConfirmFromHook(preToolUseHookResult, tool, dto, preparedInvocation, void 0);
+        preparedInvocation = updatedPreparedInvocation;
+        if (preparedInvocation?.confirmationMessages?.title && !fallbackAutoConfirmed) {
           const result = await this._dialogService.confirm({ message: renderAsPlaintext(preparedInvocation.confirmationMessages.title), detail: renderAsPlaintext(preparedInvocation.confirmationMessages.message) });
           if (!result.confirmed) {
             throw new CancellationError();
@@ -485,15 +565,89 @@ ${toErrorMessage(err, true)}`);
       }
     }
   }
-  async prepareToolInvocation(tool, dto, token) {
+  async prepareToolInvocationWithHookResult(tool, dto, hookResult, token) {
+    let forceConfirmationReason;
+    if (hookResult?.permissionDecision === "ask") {
+      const hookMessage = localize("preToolUseHookRequiredConfirmation", "{0} required confirmation", HookType.PreToolUse);
+      forceConfirmationReason = hookResult.permissionDecisionReason ? `${hookMessage}: ${hookResult.permissionDecisionReason}` : hookMessage;
+    }
+    return this.prepareToolInvocation(tool, dto, forceConfirmationReason, token);
+  }
+  /**
+   * Determines the auto-confirm decision based on a preToolUse hook result.
+   * If the hook returned 'allow', auto-approves. If 'ask', forces confirmation
+   * and ensures confirmation messages exist on `preparedInvocation`. Otherwise
+   * falls back to normal auto-confirm logic.
+   *
+   * Returns the possibly-updated preparedInvocation along with the auto-confirm decision,
+   * since when the hook returns 'ask' and preparedInvocation was undefined, we create one.
+   */
+  async resolveAutoConfirmFromHook(hookResult, tool, dto, preparedInvocation, sessionResource) {
+    if (hookResult?.permissionDecision === "allow") {
+      this._logService.debug(`[LanguageModelToolsService#invokeTool] Tool ${dto.toolId} auto-approved by preToolUse hook`);
+      return { autoConfirmed: { type: 1, reason: localize("hookAllowed", "Allowed by hook") }, preparedInvocation };
+    }
+    if (hookResult?.permissionDecision === "ask") {
+      this._logService.debug(`[LanguageModelToolsService#invokeTool] Tool ${dto.toolId} requires confirmation (preToolUse hook returned 'ask')`);
+      if (!preparedInvocation?.confirmationMessages?.title) {
+        if (!preparedInvocation) {
+          preparedInvocation = {};
+        }
+        const fullReferenceName = getToolFullReferenceName(tool.data);
+        const hookReason = hookResult.permissionDecisionReason;
+        const hookNote = hookReason ? localize("hookRequiresConfirmation.messageWithReason", "{0} hook required confirmation: {1}", HookType.PreToolUse, hookReason) : localize("hookRequiresConfirmation.message", "{0} hook required confirmation", HookType.PreToolUse);
+        preparedInvocation.confirmationMessages = {
+          ...preparedInvocation.confirmationMessages,
+          title: localize("hookRequiresConfirmation.title", "Use the '{0}' tool?", fullReferenceName),
+          message: new MarkdownString(`_${hookNote}_`),
+          allowAutoConfirm: false
+        };
+        preparedInvocation.toolSpecificData = {
+          kind: "input",
+          rawInput: dto.parameters
+        };
+      } else {
+        const hookReason = hookResult.permissionDecisionReason;
+        const hookNote = hookReason ? localize("hookRequiresConfirmation.note", "{0} hook required confirmation: {1}", HookType.PreToolUse, hookReason) : localize("hookRequiresConfirmation.noteNoReason", "{0} hook required confirmation", HookType.PreToolUse);
+        const existing = preparedInvocation.confirmationMessages;
+        if (preparedInvocation.toolSpecificData?.kind === "terminal") {
+          const existingDisclaimerText = existing.disclaimer ? typeof existing.disclaimer === "string" ? existing.disclaimer : existing.disclaimer.value : void 0;
+          const combinedDisclaimer = existingDisclaimerText ? `${hookNote}
+
+${existingDisclaimerText}` : hookNote;
+          preparedInvocation.confirmationMessages = {
+            ...existing,
+            disclaimer: combinedDisclaimer,
+            allowAutoConfirm: false
+          };
+        } else {
+          const msgText = typeof existing.message === "string" ? existing.message : existing.message?.value ?? "";
+          preparedInvocation.confirmationMessages = {
+            ...existing,
+            message: new MarkdownString(`_${hookNote}_
+
+${msgText}`),
+            allowAutoConfirm: false
+          };
+        }
+      }
+      return { autoConfirmed: void 0, preparedInvocation };
+    }
+    const autoConfirmed = await this.shouldAutoConfirm(tool.data.id, tool.data.runsInWorkspace, tool.data.source, dto.parameters, sessionResource);
+    return { autoConfirmed, preparedInvocation };
+  }
+  async prepareToolInvocation(tool, dto, forceConfirmationReason, token) {
     let prepared;
     if (tool.impl.prepareToolInvocation) {
       const preparePromise = tool.impl.prepareToolInvocation({
         parameters: dto.parameters,
+        toolCallId: dto.callId,
         chatRequestId: dto.chatRequestId,
         chatSessionId: dto.context?.sessionId,
         chatSessionResource: dto.context?.sessionResource,
-        chatInteractionId: dto.chatInteractionId
+        chatInteractionId: dto.chatInteractionId,
+        modelId: dto.modelId,
+        forceConfirmationReason
       }, token);
       const raceResult = await Promise.race([
         timeout(3e3, token).then(() => "timeout"),
@@ -517,12 +671,12 @@ ${toErrorMessage(err, true)}`);
         ...prepared.confirmationMessages,
         title: localize("defaultToolConfirmation.title", "Confirm tool execution"),
         message: localize("defaultToolConfirmation.message", "Run the '{0}' tool?", fullReferenceName),
-        disclaimer: new MarkdownString(localize("defaultToolConfirmation.disclaimer", "Auto approval for '{0}' is restricted via {1}.", getToolFullReferenceName(tool.data), createMarkdownCommandLink({ title: "`" + ChatConfiguration.EligibleForAutoApproval + "`", id: "workbench.action.openSettings", arguments: [ChatConfiguration.EligibleForAutoApproval] }, false)), { isTrusted: true }),
+        disclaimer: tool.data.id === toolIdThatCannotBeAutoApproved ? void 0 : new MarkdownString(localize("defaultToolConfirmation.disclaimer", "Auto approval for '{0}' is restricted via {1}.", getToolFullReferenceName(tool.data), createMarkdownCommandLink({ title: "`" + ChatConfiguration.EligibleForAutoApproval + "`", id: "workbench.action.openSettings", arguments: [ChatConfiguration.EligibleForAutoApproval] }, false)), { isTrusted: true }),
         allowAutoConfirm: false
       };
     }
     if (!isEligibleForAutoApproval && prepared?.confirmationMessages?.title) {
-      prepared.confirmationMessages.disclaimer = new MarkdownString(localize("defaultToolConfirmation.disclaimer", "Auto approval for '{0}' is restricted via {1}.", getToolFullReferenceName(tool.data), createMarkdownCommandLink({ title: "`" + ChatConfiguration.EligibleForAutoApproval + "`", id: "workbench.action.openSettings", arguments: [ChatConfiguration.EligibleForAutoApproval] }, false)), { isTrusted: true });
+      prepared.confirmationMessages.disclaimer = tool.data.id === toolIdThatCannotBeAutoApproved ? void 0 : new MarkdownString(localize("defaultToolConfirmation.disclaimer", "Auto approval for '{0}' is restricted via {1}.", getToolFullReferenceName(tool.data), createMarkdownCommandLink({ title: "`" + ChatConfiguration.EligibleForAutoApproval + "`", id: "workbench.action.openSettings", arguments: [ChatConfiguration.EligibleForAutoApproval] }, false)), { isTrusted: true });
     }
     if (prepared?.confirmationMessages?.title) {
       if (prepared.toolSpecificData?.kind !== "terminal" && prepared.confirmationMessages.allowAutoConfirm !== false) {
@@ -646,6 +800,9 @@ ${toErrorMessage(err, true)}`);
     const fullReferenceName = this.getEligibleForAutoApprovalSpecialCase(toolData) ?? getToolFullReferenceName(toolData);
     if (toolData.id === "copilot_fetchWebPage") {
       return true;
+    }
+    if (toolData.id === toolIdThatCannotBeAutoApproved) {
+      return false;
     }
     const eligibilityConfig = this._configurationService.getValue(ChatConfiguration.EligibleForAutoApproval);
     if (eligibilityConfig && typeof eligibilityConfig === "object" && fullReferenceName) {
@@ -839,7 +996,7 @@ ${toErrorMessage(err, true)}`);
    * @param fullReferenceNames A list of tool or toolset by their full reference names that are enabled.
    * @returns A map of tool or toolset instances to their enablement state.
    */
-  toToolAndToolSetEnablementMap(fullReferenceNames, _target, model) {
+  toToolAndToolSetEnablementMap(fullReferenceNames, model) {
     const toolOrToolSetNames = new Set(fullReferenceNames);
     const result = /* @__PURE__ */ new Map();
     for (const [tool, fullReferenceName] of this.toolsWithFullReferenceName.get()) {
@@ -1035,7 +1192,8 @@ LanguageModelToolsService = LanguageModelToolsService_1 = __decorate([
   __param(8, IAccessibilityService),
   __param(9, IAccessibilitySignalService),
   __param(10, IStorageService),
-  __param(11, ILanguageModelToolsConfirmationService)
+  __param(11, ILanguageModelToolsConfirmationService),
+  __param(12, ICommandService)
 ], LanguageModelToolsService);
 function getToolFullReferenceName(tool, toolSet) {
   const toolName = tool.toolReferenceName ?? tool.displayName;

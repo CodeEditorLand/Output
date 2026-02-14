@@ -68,6 +68,7 @@ var AccessibilityVerbositySettingId;
   AccessibilityVerbositySettingId2["Debug"] = "accessibility.verbosity.debug";
   AccessibilityVerbositySettingId2["Walkthrough"] = "accessibility.verbosity.walkthrough";
   AccessibilityVerbositySettingId2["SourceControl"] = "accessibility.verbosity.sourceControl";
+  AccessibilityVerbositySettingId2["Find"] = "accessibility.verbosity.find";
 })(AccessibilityVerbositySettingId || (AccessibilityVerbositySettingId = {}));
 const baseVerbosityProperty = {
   type: "boolean",
@@ -246,6 +247,13 @@ const configuration = {
       /* AccessibilityVerbositySettingId.SourceControl */
     ]: {
       description: localize("verbosity.scm", "Provide information about how to access the source control accessibility help menu when the input is focused."),
+      ...baseVerbosityProperty
+    },
+    [
+      "accessibility.verbosity.find"
+      /* AccessibilityVerbositySettingId.Find */
+    ]: {
+      description: localize("verbosity.find", "Provide information about how to access the find accessibility help menu when the find input is focused."),
       ...baseVerbosityProperty
     },
     "accessibility.signalOptions.volume": {

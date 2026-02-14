@@ -27,7 +27,7 @@ import { IQuickInputService } from "../../../../platform/quickinput/common/quick
 import { ICommandService, CommandsRegistry } from "../../../../platform/commands/common/commands.js";
 import { Event } from "../../../../base/common/event.js";
 import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
-import { Disposable, toDisposable, dispose, DisposableStore } from "../../../../base/common/lifecycle.js";
+import { toDisposable, dispose, DisposableStore } from "../../../../base/common/lifecycle.js";
 import { ActionBar } from "../../../../base/browser/ui/actionbar/actionbar.js";
 import { IconLabel } from "../../../../base/browser/ui/iconLabel/iconLabel.js";
 import { ActionRunner } from "../../../../base/common/actions.js";
@@ -329,12 +329,11 @@ class PrivacyColumn {
     return { label, tunnel: row, icon: { id: row.privacy.themeIcon }, editId: TunnelEditId.None, tooltip };
   }
 }
-let ActionBarRenderer = class ActionBarRenderer2 extends Disposable {
+let ActionBarRenderer = class ActionBarRenderer2 {
   static {
     __name(this, "ActionBarRenderer");
   }
   constructor(instantiationService, contextKeyService, menuService, contextViewService, remoteExplorerService, commandService, configurationService) {
-    super();
     this.instantiationService = instantiationService;
     this.contextKeyService = contextKeyService;
     this.menuService = menuService;
@@ -351,16 +350,19 @@ let ActionBarRenderer = class ActionBarRenderer2 extends Disposable {
   renderTemplate(container) {
     const cell = dom.append(container, dom.$(".ports-view-actionbar-cell"));
     const icon = dom.append(cell, dom.$(".ports-view-actionbar-cell-icon"));
-    const label = new IconLabel(cell, {
+    const templateDisposables = new DisposableStore();
+    const elementDisposables = new DisposableStore();
+    templateDisposables.add(elementDisposables);
+    const label = templateDisposables.add(new IconLabel(cell, {
       supportHighlights: true,
       hoverDelegate: this._hoverDelegate
-    });
+    }));
     const actionsContainer = dom.append(cell, dom.$(".actions"));
-    const actionBar = new ActionBar(actionsContainer, {
+    const actionBar = templateDisposables.add(new ActionBar(actionsContainer, {
       actionViewItemProvider: createActionViewItem.bind(void 0, this.instantiationService),
       hoverDelegate: this._hoverDelegate
-    });
-    return { label, icon, actionBar, container: cell, elementDisposable: Disposable.None };
+    }));
+    return { label, icon, actionBar, container: cell, templateDisposables, elementDisposables };
   }
   renderElement(element, index, templateData) {
     templateData.actionBar.clear();
@@ -371,17 +373,16 @@ let ActionBarRenderer = class ActionBarRenderer2 extends Disposable {
     templateData.container.style.height = "22px";
     if (templateData.button) {
       templateData.button.element.style.display = "none";
-      templateData.button.dispose();
     }
     templateData.container.style.paddingLeft = "0px";
-    templateData.elementDisposable.dispose();
+    templateData.elementDisposables.clear();
     let editableData;
     if (element.editId === TunnelEditId.New && (editableData = this.remoteExplorerService.getEditableData(void 0))) {
-      this.renderInputBox(templateData.container, editableData);
+      this.renderInputBox(templateData, editableData);
     } else {
       editableData = this.remoteExplorerService.getEditableData(element.tunnel, element.editId);
       if (editableData) {
-        this.renderInputBox(templateData.container, editableData);
+        this.renderInputBox(templateData, editableData);
       } else if (element.tunnel.tunnelType === TunnelType.Add && element.menuId === MenuId.TunnelPortInline) {
         this.renderButton(element, templateData);
       } else {
@@ -392,10 +393,10 @@ let ActionBarRenderer = class ActionBarRenderer2 extends Disposable {
   renderButton(element, templateData) {
     templateData.container.style.paddingLeft = "7px";
     templateData.container.style.height = "28px";
-    templateData.button = this._register(new Button(templateData.container, defaultButtonStyles));
+    templateData.button = templateData.elementDisposables.add(new Button(templateData.container, defaultButtonStyles));
     templateData.button.label = element.label;
     templateData.button.element.title = element.tooltip;
-    this._register(templateData.button.onDidClick(() => {
+    templateData.elementDisposables.add(templateData.button.onDidClick(() => {
       this.commandService.executeCommand(ForwardPortAction.INLINE_ID);
     }));
   }
@@ -439,10 +440,8 @@ let ActionBarRenderer = class ActionBarRenderer2 extends Disposable {
       [TunnelProtocolContextKey.key, element.tunnel.protocol]
     ];
     const contextKeyService = this.contextKeyService.createOverlay(context);
-    const disposableStore = new DisposableStore();
-    templateData.elementDisposable = disposableStore;
     if (element.menuId) {
-      const menu = disposableStore.add(this.menuService.createMenu(element.menuId, contextKeyService));
+      const menu = templateData.elementDisposables.add(this.menuService.createMenu(element.menuId, contextKeyService));
       let actions = getFlatActionBarActions(menu.getActions({ shouldForwardArgs: true }));
       if (actions) {
         const labelActions = actions.filter((action) => action.id.toLowerCase().indexOf("label") >= 0);
@@ -463,11 +462,12 @@ let ActionBarRenderer = class ActionBarRenderer2 extends Disposable {
       templateData.icon.style.display = "inline";
     }
   }
-  renderInputBox(container, editableData) {
+  renderInputBox(templateData, editableData) {
     if (this.inputDone) {
       this.inputDone(false, false);
       this.inputDone = void 0;
     }
+    const { container } = templateData;
     container.style.paddingLeft = "5px";
     const value = editableData.startingValue || "";
     const inputBox = new InputBox(container, this.contextViewService, {
@@ -530,18 +530,15 @@ let ActionBarRenderer = class ActionBarRenderer2 extends Disposable {
         return done(inputBox.validate() !== 3, true);
       })
     ];
-    return toDisposable(() => {
+    templateData.elementDisposables.add(toDisposable(() => {
       done(false, false);
-    });
+    }));
   }
   disposeElement(element, index, templateData) {
-    templateData.elementDisposable.dispose();
+    templateData.elementDisposables.clear();
   }
   disposeTemplate(templateData) {
-    templateData.label.dispose();
-    templateData.actionBar.dispose();
-    templateData.elementDisposable.dispose();
-    templateData.button?.dispose();
+    templateData.templateDisposables.dispose();
   }
 };
 ActionBarRenderer = __decorate([

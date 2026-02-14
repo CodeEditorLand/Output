@@ -25,8 +25,9 @@ import { IPromptsService } from "../../common/promptSyntax/service/promptsServic
 import { registerEditorFeature } from "../../../../../editor/common/editorFeatures.js";
 import { PromptFileRewriter } from "./promptFileRewriter.js";
 import { Range } from "../../../../../editor/common/core/range.js";
-import { PromptHeaderAttributes } from "../../common/promptSyntax/promptFileParser.js";
-import { isGithubTarget } from "../../common/promptSyntax/languageProviders/promptValidator.js";
+import { isTarget, parseCommaSeparatedList, PromptHeaderAttributes } from "../../common/promptSyntax/promptFileParser.js";
+import { getTarget, isVSCodeOrDefaultTarget } from "../../common/promptSyntax/languageProviders/promptValidator.js";
+import { isBoolean } from "../../../../../base/common/types.js";
 let PromptToolsCodeLensProvider = class PromptToolsCodeLensProvider2 extends Disposable {
   static {
     __name(this, "PromptToolsCodeLensProvider");
@@ -40,10 +41,10 @@ let PromptToolsCodeLensProvider = class PromptToolsCodeLensProvider2 extends Dis
     this.cmdId = `_configure/${generateUuid()}`;
     this._register(this.languageService.codeLensProvider.register(ALL_PROMPTS_LANGUAGE_SELECTOR, this));
     this._register(CommandsRegistry.registerCommand(this.cmdId, (_accessor, ...args) => {
-      const [first, second, third, forth] = args;
-      const model = first;
-      if (isITextModel(model) && Range.isIRange(second) && Array.isArray(third) && (typeof forth === "string" || forth === void 0)) {
-        this.updateTools(model, Range.lift(second), third, forth);
+      const [modelArg, rangeArg, isStringArg, toolsArg, targetArg] = args;
+      const model = modelArg;
+      if (isITextModel(model) && Range.isIRange(rangeArg) && isBoolean(isStringArg) && Array.isArray(toolsArg) && isTarget(targetArg)) {
+        this.updateTools(model, Range.lift(rangeArg), isStringArg, toolsArg, targetArg);
       }
     }));
   }
@@ -57,32 +58,40 @@ let PromptToolsCodeLensProvider = class PromptToolsCodeLensProvider2 extends Dis
     if (!header) {
       return void 0;
     }
-    if (isGithubTarget(promptType, header.target)) {
+    const target = getTarget(promptType, header);
+    if (!isVSCodeOrDefaultTarget(target)) {
       return void 0;
     }
     const toolsAttr = header.getAttribute(PromptHeaderAttributes.tools);
-    if (!toolsAttr || toolsAttr.value.type !== "array") {
+    if (!toolsAttr) {
       return void 0;
     }
-    const items = toolsAttr.value.items;
+    let value = toolsAttr.value;
+    if (value.type === "string") {
+      value = parseCommaSeparatedList(value);
+    }
+    if (value.type !== "array") {
+      return void 0;
+    }
+    const items = value.items;
     const selectedTools = items.filter((item) => item.type === "string").map((item) => item.value);
     const codeLens = {
       range: toolsAttr.range.collapseToStart(),
       command: {
         title: localize("configure-tools.capitalized.ellipsis", "Configure Tools..."),
         id: this.cmdId,
-        arguments: [model, toolsAttr.value.range, selectedTools, header.target]
+        arguments: [model, toolsAttr.range, toolsAttr.value.type === "string", selectedTools, target]
       }
     };
     return { lenses: [codeLens] };
   }
-  async updateTools(model, range, selectedTools, target) {
-    const selectedToolsNow = /* @__PURE__ */ __name(() => this.languageModelToolsService.toToolAndToolSetEnablementMap(selectedTools, target, void 0), "selectedToolsNow");
+  async updateTools(model, range, isString, selectedTools, target) {
+    const selectedToolsNow = /* @__PURE__ */ __name(() => this.languageModelToolsService.toToolAndToolSetEnablementMap(selectedTools, void 0), "selectedToolsNow");
     const newSelectedAfter = await this.instantiationService.invokeFunction(showToolsPicker, localize("placeholder", "Select tools"), "codeLens", void 0, selectedToolsNow);
     if (!newSelectedAfter) {
       return;
     }
-    this.instantiationService.createInstance(PromptFileRewriter).rewriteTools(model, newSelectedAfter, range);
+    this.instantiationService.createInstance(PromptFileRewriter).rewriteTools(model, newSelectedAfter, range, isString);
   }
 };
 PromptToolsCodeLensProvider = __decorate([

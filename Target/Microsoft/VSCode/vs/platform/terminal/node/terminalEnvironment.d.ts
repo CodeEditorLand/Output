@@ -32,3 +32,7 @@ export interface IShellIntegrationInjectionFailure {
  * enabled.
  */
 export declare function getShellIntegrationInjection(shellLaunchConfig: IShellLaunchConfig, options: ITerminalProcessOptions, env: ITerminalEnvironment | undefined, logService: ILogService, productService: IProductService, skipStickyBit?: boolean): Promise<IShellIntegrationConfigInjection | IShellIntegrationInjectionFailure>;
+/**
+ * Sanitizes environment variables for logging by redacting sensitive values.
+ */
+export declare function sanitizeEnvForLogging(env: IProcessEnvironment | undefined): IProcessEnvironment | undefined;

@@ -23,6 +23,8 @@ export declare class ChatWidgetService extends Disposable implements IChatWidget
     readonly onDidAddWidget: Event<IChatWidget>;
     private readonly _onDidBackgroundSession;
     readonly onDidBackgroundSession: Event<URI>;
+    private readonly _onDidChangeFocusedWidget;
+    readonly onDidChangeFocusedWidget: Event<IChatWidget | undefined>;
     constructor(editorGroupsService: IEditorGroupsService, viewsService: IViewsService, quickChatService: IQuickChatService, layoutService: ILayoutService, editorService: IEditorService, chatService: IChatService);
     get lastFocusedWidget(): IChatWidget | undefined;
     getAllWidgets(): ReadonlyArray<IChatWidget>;

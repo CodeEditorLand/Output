@@ -1,19 +1,25 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { basename, dirname } from "../../../../../../base/common/path.js";
+import { posix } from "../../../../../../base/common/path.js";
 import { PromptsType } from "../promptTypes.js";
 import { PromptsStorage } from "../service/promptsService.js";
+const { basename, dirname } = posix;
 const PROMPT_FILE_EXTENSION = ".prompt.md";
 const INSTRUCTION_FILE_EXTENSION = ".instructions.md";
 const LEGACY_MODE_FILE_EXTENSION = ".chatmode.md";
 const AGENT_FILE_EXTENSION = ".agent.md";
 const SKILL_FILENAME = "SKILL.md";
-const HOOKS_FILENAME = "hooks.json";
+const AGENT_MD_FILENAME = "AGENTS.md";
+const CLAUDE_MD_FILENAME = "CLAUDE.md";
+const CLAUDE_LOCAL_MD_FILENAME = "CLAUDE.local.md";
+const CLAUDE_CONFIG_FOLDER = ".claude";
 const COPILOT_CUSTOM_INSTRUCTIONS_FILENAME = "copilot-instructions.md";
 const PROMPT_DEFAULT_SOURCE_FOLDER = ".github/prompts";
 const INSTRUCTIONS_DEFAULT_SOURCE_FOLDER = ".github/instructions";
 const LEGACY_MODE_DEFAULT_SOURCE_FOLDER = ".github/chatmodes";
 const AGENTS_SOURCE_FOLDER = ".github/agents";
+const CLAUDE_AGENTS_SOURCE_FOLDER = ".claude/agents";
+const CLAUDE_RULES_SOURCE_FOLDER = ".claude/rules";
 const HOOKS_SOURCE_FOLDER = ".github/hooks";
 var PromptFileSource;
 (function(PromptFileSource2) {
@@ -38,25 +44,38 @@ const DEFAULT_SKILL_SOURCE_FOLDERS = [
   { path: "~/.claude/skills", source: PromptFileSource.ClaudePersonal, storage: PromptsStorage.user }
 ];
 const DEFAULT_INSTRUCTIONS_SOURCE_FOLDERS = [
-  { path: INSTRUCTIONS_DEFAULT_SOURCE_FOLDER, source: PromptFileSource.GitHubWorkspace, storage: PromptsStorage.local }
+  { path: INSTRUCTIONS_DEFAULT_SOURCE_FOLDER, source: PromptFileSource.GitHubWorkspace, storage: PromptsStorage.local },
+  { path: CLAUDE_RULES_SOURCE_FOLDER, source: PromptFileSource.ClaudeWorkspace, storage: PromptsStorage.local },
+  { path: "~/" + CLAUDE_RULES_SOURCE_FOLDER, source: PromptFileSource.ClaudePersonal, storage: PromptsStorage.user }
 ];
 const DEFAULT_PROMPT_SOURCE_FOLDERS = [
   { path: PROMPT_DEFAULT_SOURCE_FOLDER, source: PromptFileSource.GitHubWorkspace, storage: PromptsStorage.local }
 ];
 const DEFAULT_AGENT_SOURCE_FOLDERS = [
-  { path: AGENTS_SOURCE_FOLDER, source: PromptFileSource.GitHubWorkspace, storage: PromptsStorage.local }
+  { path: AGENTS_SOURCE_FOLDER, source: PromptFileSource.GitHubWorkspace, storage: PromptsStorage.local },
+  { path: CLAUDE_AGENTS_SOURCE_FOLDER, source: PromptFileSource.ClaudeWorkspace, storage: PromptsStorage.local }
 ];
 const DEFAULT_HOOK_FILE_PATHS = [
-  { path: ".github/hooks/hooks.json", source: PromptFileSource.GitHubWorkspace, storage: PromptsStorage.local },
+  { path: ".github/hooks", source: PromptFileSource.GitHubWorkspace, storage: PromptsStorage.local },
   { path: ".claude/settings.local.json", source: PromptFileSource.ClaudeWorkspaceLocal, storage: PromptsStorage.local },
   { path: ".claude/settings.json", source: PromptFileSource.ClaudeWorkspace, storage: PromptsStorage.local },
   { path: "~/.claude/settings.json", source: PromptFileSource.ClaudePersonal, storage: PromptsStorage.user }
 ];
 function isInAgentsFolder(fileUri) {
   const dir = dirname(fileUri.path);
-  return dir.endsWith("/" + AGENTS_SOURCE_FOLDER) || dir === AGENTS_SOURCE_FOLDER;
+  return dir.endsWith("/" + AGENTS_SOURCE_FOLDER) || dir.endsWith("/" + CLAUDE_AGENTS_SOURCE_FOLDER);
 }
 __name(isInAgentsFolder, "isInAgentsFolder");
+function isInClaudeAgentsFolder(fileUri) {
+  const dir = dirname(fileUri.path);
+  return dir.endsWith("/" + CLAUDE_AGENTS_SOURCE_FOLDER);
+}
+__name(isInClaudeAgentsFolder, "isInClaudeAgentsFolder");
+function isInClaudeRulesFolder(fileUri) {
+  const path = fileUri.path;
+  return path.includes("/" + CLAUDE_RULES_SOURCE_FOLDER + "/");
+}
+__name(isInClaudeRulesFolder, "isInClaudeRulesFolder");
 function getPromptFileType(fileUri) {
   const filename = basename(fileUri.path);
   if (filename.endsWith(PROMPT_FILE_EXTENSION)) {
@@ -74,14 +93,11 @@ function getPromptFileType(fileUri) {
   if (filename.endsWith(".md") && filename !== "README.md" && isInAgentsFolder(fileUri)) {
     return PromptsType.agent;
   }
-  if (filename.toLowerCase() === HOOKS_FILENAME.toLowerCase()) {
-    return PromptsType.hook;
+  if (filename.endsWith(".md") && filename !== "README.md" && isInClaudeRulesFolder(fileUri)) {
+    return PromptsType.instructions;
   }
-  if (filename.toLowerCase() === "settings.local.json" || filename.toLowerCase() === "settings.json") {
-    const dir = dirname(fileUri.path);
-    if (dir.endsWith("/.claude") || dir === ".claude") {
-      return PromptsType.hook;
-    }
+  if (filename.toLowerCase().endsWith(".json")) {
+    return PromptsType.hook;
   }
   return void 0;
 }
@@ -101,7 +117,7 @@ function getPromptFileExtension(type) {
     case PromptsType.skill:
       return SKILL_FILENAME;
     case PromptsType.hook:
-      return HOOKS_FILENAME;
+      return ".json";
     default:
       throw new Error("Unknown prompt type");
   }
@@ -146,19 +162,27 @@ function getCleanPromptName(fileUri) {
   if (fileName.endsWith(".md") && fileName !== "README.md" && isInAgentsFolder(fileUri)) {
     return basename(fileUri.path, ".md");
   }
+  if (fileName.endsWith(".md") && fileName !== "README.md" && isInClaudeRulesFolder(fileUri)) {
+    return basename(fileUri.path, ".md");
+  }
   return basename(fileUri.path);
 }
 __name(getCleanPromptName, "getCleanPromptName");
 export {
   AGENTS_SOURCE_FOLDER,
   AGENT_FILE_EXTENSION,
+  AGENT_MD_FILENAME,
+  CLAUDE_AGENTS_SOURCE_FOLDER,
+  CLAUDE_CONFIG_FOLDER,
+  CLAUDE_LOCAL_MD_FILENAME,
+  CLAUDE_MD_FILENAME,
+  CLAUDE_RULES_SOURCE_FOLDER,
   COPILOT_CUSTOM_INSTRUCTIONS_FILENAME,
   DEFAULT_AGENT_SOURCE_FOLDERS,
   DEFAULT_HOOK_FILE_PATHS,
   DEFAULT_INSTRUCTIONS_SOURCE_FOLDERS,
   DEFAULT_PROMPT_SOURCE_FOLDERS,
   DEFAULT_SKILL_SOURCE_FOLDERS,
-  HOOKS_FILENAME,
   HOOKS_SOURCE_FOLDER,
   INSTRUCTIONS_DEFAULT_SOURCE_FOLDER,
   INSTRUCTION_FILE_EXTENSION,
@@ -172,6 +196,8 @@ export {
   getPromptFileDefaultLocations,
   getPromptFileExtension,
   getPromptFileType,
+  isInClaudeAgentsFolder,
+  isInClaudeRulesFolder,
   isPromptOrInstructionsFile
 };
 //# sourceMappingURL=promptFileLocations.js.map

@@ -56,7 +56,7 @@ let AbstractFloatingClickMenu = class AbstractFloatingClickMenu2 extends Disposa
   }
   constructor(menuId, menuService, contextKeyService) {
     super();
-    this.renderEmitter = new Emitter();
+    this.renderEmitter = this._register(new Emitter());
     this.menu = this._register(menuService.createMenu(menuId, contextKeyService));
   }
   /** Should be called in implementation constructors after they initialized */

@@ -106,7 +106,7 @@ let ShareWorkbenchContribution = class ShareWorkbenchContribution2 extends Dispo
             primary: 512 | 2048 | 49
           },
           menu: [
-            { id: MenuId.CommandCenter, order: 1e3 }
+            { id: MenuId.CommandCenter, order: 3 }
           ]
         });
       }

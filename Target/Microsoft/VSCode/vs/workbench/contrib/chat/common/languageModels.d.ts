@@ -136,6 +136,7 @@ export interface ILanguageModelChatMetadata {
     readonly tooltip?: string;
     readonly detail?: string;
     readonly multiplier?: string;
+    readonly multiplierNumeric?: number;
     readonly family: string;
     readonly maxInputTokens: number;
     readonly maxOutputTokens: number;
@@ -168,6 +169,7 @@ export interface ILanguageModelChatResponse {
     stream: AsyncIterable<IChatResponsePart | IChatResponsePart[]>;
     result: Promise<any>;
 }
+export declare function getTextResponseFromStream(response: ILanguageModelChatResponse): Promise<string>;
 export interface ILanguageModelChatProvider {
     readonly onDidChange: Event<void>;
     provideLanguageModelChatInfo(options: ILanguageModelChatInfoOptions, token: CancellationToken): Promise<ILanguageModelChatMetadataAndIdentifier[]>;

@@ -257,6 +257,7 @@ let MarkerNavigationWidget = class MarkerNavigationWidget2 extends PeekViewWidge
   }
   dispose() {
     this._callOnDispose.dispose();
+    this._onDidSelectRelatedInformation.dispose();
     super.dispose();
   }
   focus() {

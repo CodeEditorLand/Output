@@ -29,6 +29,7 @@ export declare class UpdateStatusBarEntryContribution extends Disposable impleme
     private getDownloadingTooltip;
     private getReadyToInstallTooltip;
     private getRestartToUpdateTooltip;
+    private getUpdatingText;
     private getUpdatingTooltip;
     private getOverwritingTooltip;
     private createTooltipDisposableStore;
@@ -36,8 +37,11 @@ export declare class UpdateStatusBarEntryContribution extends Disposable impleme
     private appendHeader;
     private appendProductInfo;
     private appendWhatsIncluded;
-    private appendActionButton;
 }
+/**
+ * Returns the progress percentage based on the current and maximum progress values.
+ */
+export declare function getProgressPercent(current: number | undefined, max: number | undefined): number | undefined;
 /**
  * Tries to parse a date string and returns the timestamp or undefined if parsing fails.
  */

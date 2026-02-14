@@ -39,8 +39,9 @@ let PaneCompositeBar = class PaneCompositeBar2 extends Disposable {
   static {
     __name(this, "PaneCompositeBar");
   }
-  constructor(options, part, paneCompositePart, instantiationService, storageService, extensionService, viewDescriptorService, viewService, contextKeyService, environmentService, layoutService) {
+  constructor(location, options, part, paneCompositePart, instantiationService, storageService, extensionService, viewDescriptorService, viewService, contextKeyService, environmentService, layoutService) {
     super();
+    this.location = location;
     this.options = options;
     this.part = part;
     this.paneCompositePart = paneCompositePart;
@@ -56,7 +57,6 @@ let PaneCompositeBar = class PaneCompositeBar2 extends Disposable {
     this.compositeActions = /* @__PURE__ */ new Map();
     this.hasExtensionsRegistered = false;
     this._cachedViewContainers = void 0;
-    this.location = paneCompositePart.partId === "workbench.parts.panel" ? 1 : paneCompositePart.partId === "workbench.parts.auxiliarybar" ? 2 : 0;
     this.dndHandler = new CompositeDragAndDrop(this.viewDescriptorService, this.location, this.options.orientation, async (id, focus) => {
       return await this.paneCompositePart.openPaneComposite(id, focus) ?? null;
     }, (from, to, before) => this.compositeBar.move(from, to, this.options.orientation === 1 ? before?.verticallyBefore : before?.horizontallyBefore), () => this.compositeBar.getCompositeBarItems());
@@ -299,9 +299,9 @@ let PaneCompositeBar = class PaneCompositeBar2 extends Disposable {
         classNames = [iconId, "uri-icon"];
         createCSSRule(iconClass, `
 				mask: ${cssUrl} no-repeat 50% 50%;
-				mask-size: ${this.options.iconSize}px;
+				mask-size: var(--activity-bar-icon-size, ${this.options.iconSize}px);
 				-webkit-mask: ${cssUrl} no-repeat 50% 50%;
-				-webkit-mask-size: ${this.options.iconSize}px;
+				-webkit-mask-size: var(--activity-bar-icon-size, ${this.options.iconSize}px);
 				mask-origin: padding;
 				-webkit-mask-origin: padding;
 			`);
@@ -609,14 +609,14 @@ let PaneCompositeBar = class PaneCompositeBar2 extends Disposable {
   }
 };
 PaneCompositeBar = __decorate([
-  __param(3, IInstantiationService),
-  __param(4, IStorageService),
-  __param(5, IExtensionService),
-  __param(6, IViewDescriptorService),
-  __param(7, IViewsService),
-  __param(8, IContextKeyService),
-  __param(9, IWorkbenchEnvironmentService),
-  __param(10, IWorkbenchLayoutService)
+  __param(4, IInstantiationService),
+  __param(5, IStorageService),
+  __param(6, IExtensionService),
+  __param(7, IViewDescriptorService),
+  __param(8, IViewsService),
+  __param(9, IContextKeyService),
+  __param(10, IWorkbenchEnvironmentService),
+  __param(11, IWorkbenchLayoutService)
 ], PaneCompositeBar);
 let ViewContainerActivityAction = class ViewContainerActivityAction2 extends CompositeBarAction {
   static {

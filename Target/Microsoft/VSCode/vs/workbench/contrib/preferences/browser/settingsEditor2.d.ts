@@ -184,7 +184,6 @@ export declare class SettingsEditor2 extends EditorPane {
     private createSettingsTree;
     private onDidChangeSetting;
     private updateTreeScrollSync;
-    private getAncestors;
     private updateChangedSetting;
     private reportModifiedSetting;
     private scheduleRefresh;

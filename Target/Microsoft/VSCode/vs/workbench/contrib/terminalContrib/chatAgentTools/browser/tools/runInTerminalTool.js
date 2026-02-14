@@ -258,7 +258,7 @@ const telemetryIgnoredSequences = [
   "\x1B[O"
   // Focus out
 ];
-const altBufferMessage = localize("runInTerminalTool.altBufferMessage", "The command opened the alternate buffer.");
+const altBufferMessage = "\n" + localize("runInTerminalTool.altBufferMessage", "The command opened the alternate buffer.");
 let RunInTerminalTool = class RunInTerminalTool2 extends Disposable {
   static {
     __name(this, "RunInTerminalTool");
@@ -531,12 +531,13 @@ let RunInTerminalTool = class RunInTerminalTool2 extends Disposable {
         presenterInput = presenterResult.commandLine;
       }
     }
-    const confirmationMessages = isFinalAutoApproved ? void 0 : {
+    const shouldShowConfirmation = !isFinalAutoApproved || context.forceConfirmationReason !== void 0;
+    const confirmationMessages = shouldShowConfirmation ? {
       title: confirmationTitle,
       message: new MarkdownString(localize("runInTerminal.confirmationMessage", "Explanation: {0}\n\nGoal: {1}", args.explanation, args.goal)),
       disclaimer,
       terminalCustomActions: customActions
-    };
+    } : void 0;
     return {
       confirmationMessages,
       toolSpecificData
@@ -649,7 +650,7 @@ let RunInTerminalTool = class RunInTerminalTool2 extends Disposable {
         if (!outputMonitor) {
           outputMonitor = store.add(this._instantiationService.createInstance(OutputMonitor, {
             instance: toolTerminal.instance,
-            sessionId: invocation.context?.sessionId,
+            sessionResource: chatSessionResource,
             getOutput: /* @__PURE__ */ __name((marker) => execution.getOutput(marker ?? startMarker), "getOutput")
           }, void 0, invocation.context, token, command));
         }
@@ -762,6 +763,13 @@ ${pollingResult.output}`;
         this._logService.debug(`RunInTerminalTool: Threw exception`);
         if (e instanceof CancellationError) {
           await this._commandArtifactCollector.capture(toolSpecificData, toolTerminal.instance, commandId);
+          const state = toolSpecificData.terminalCommandState ?? {};
+          if (state.exitCode === void 0) {
+            state.exitCode = -1;
+            state.timestamp = state.timestamp ?? timingStart;
+            state.duration = state.duration ?? Math.max(0, Date.now() - state.timestamp);
+          }
+          toolSpecificData.terminalCommandState = state;
         }
         RunInTerminalTool_1._activeExecutions.get(termId)?.dispose();
         RunInTerminalTool_1._activeExecutions.delete(termId);

@@ -22,7 +22,7 @@ import { MarkdownString } from "../../../../../base/common/htmlContent.js";
 import { DisposableStore } from "../../../../../base/common/lifecycle.js";
 import { IMarkdownRendererService } from "../../../../../platform/markdown/browser/markdownRenderer.js";
 import { localize } from "../../../../../nls.js";
-import { createWorkbenchDialogOptions } from "../../../../../platform/dialogs/browser/dialog.js";
+import { createWorkbenchDialogOptions } from "../../../../browser/parts/dialogs/dialog.js";
 import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
 import { ILayoutService } from "../../../../../platform/layout/browser/layoutService.js";
 import { ILogService } from "../../../../../platform/log/common/log.js";
@@ -34,6 +34,7 @@ import { ChatEntitlement, IChatEntitlementService, isProUser } from "../../../..
 import { IChatWidgetService } from "../chat.js";
 import { ChatSetupAnonymous, ChatSetupStrategy } from "./chatSetup.js";
 import { IDefaultAccountService } from "../../../../../platform/defaultAccount/common/defaultAccount.js";
+import { IHostService } from "../../../../services/host/browser/host.js";
 const defaultChat = {
   publicCodeMatchesUrl: product.defaultChatAgent?.publicCodeMatchesUrl ?? "",
   provider: product.defaultChatAgent?.provider ?? { default: { id: "", name: "" }, enterprise: { id: "", name: "" }, apple: { id: "", name: "" }, google: { id: "", name: "" } },
@@ -57,12 +58,12 @@ let ChatSetup = class ChatSetup2 {
     let instance = ChatSetup_1.instance;
     if (!instance) {
       instance = ChatSetup_1.instance = instantiationService.invokeFunction((accessor) => {
-        return new ChatSetup_1(context, controller, accessor.get(ITelemetryService), accessor.get(IWorkbenchLayoutService), accessor.get(IKeybindingService), accessor.get(IChatEntitlementService), accessor.get(ILogService), accessor.get(IChatWidgetService), accessor.get(IWorkspaceTrustRequestService), accessor.get(IMarkdownRendererService), accessor.get(IDefaultAccountService));
+        return new ChatSetup_1(context, controller, accessor.get(ITelemetryService), accessor.get(IWorkbenchLayoutService), accessor.get(IKeybindingService), accessor.get(IChatEntitlementService), accessor.get(ILogService), accessor.get(IChatWidgetService), accessor.get(IWorkspaceTrustRequestService), accessor.get(IMarkdownRendererService), accessor.get(IDefaultAccountService), accessor.get(IHostService));
       });
     }
     return instance;
   }
-  constructor(context, controller, telemetryService, layoutService, keybindingService, chatEntitlementService, logService, widgetService, workspaceTrustRequestService, markdownRendererService, defaultAccountService) {
+  constructor(context, controller, telemetryService, layoutService, keybindingService, chatEntitlementService, logService, widgetService, workspaceTrustRequestService, markdownRendererService, defaultAccountService, hostService) {
     this.context = context;
     this.controller = controller;
     this.telemetryService = telemetryService;
@@ -74,6 +75,7 @@ let ChatSetup = class ChatSetup2 {
     this.workspaceTrustRequestService = workspaceTrustRequestService;
     this.markdownRendererService = markdownRendererService;
     this.defaultAccountService = defaultAccountService;
+    this.hostService = hostService;
     this.pendingRun = void 0;
     this.skipDialogOnce = false;
   }
@@ -164,7 +166,7 @@ let ChatSetup = class ChatSetup2 {
       disableCloseButton: true,
       renderFooter: /* @__PURE__ */ __name((footer) => footer.appendChild(this.createDialogFooter(disposables, options)), "renderFooter"),
       buttonOptions: buttons.map((button2) => button2[2])
-    }, this.keybindingService, this.layoutService)));
+    }, this.keybindingService, this.layoutService, this.hostService)));
     const { button } = await dialog.show();
     disposables.dispose();
     return buttons[button]?.[1] ?? ChatSetupStrategy.Canceled;
@@ -234,7 +236,8 @@ ChatSetup = ChatSetup_1 = __decorate([
   __param(7, IChatWidgetService),
   __param(8, IWorkspaceTrustRequestService),
   __param(9, IMarkdownRendererService),
-  __param(10, IDefaultAccountService)
+  __param(10, IDefaultAccountService),
+  __param(11, IHostService)
 ], ChatSetup);
 function refreshTokens(commandService) {
   commandService.executeCommand(defaultChat.completionsRefreshTokenCommand);

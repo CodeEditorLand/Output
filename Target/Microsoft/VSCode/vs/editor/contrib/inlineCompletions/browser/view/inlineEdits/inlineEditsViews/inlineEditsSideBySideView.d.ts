@@ -2,6 +2,7 @@ import { Disposable } from '../../../../../../../base/common/lifecycle.js';
 import { IObservable, IReader } from '../../../../../../../base/common/observable.js';
 import { IInstantiationService } from '../../../../../../../platform/instantiation/common/instantiation.js';
 import { IThemeService } from '../../../../../../../platform/theme/common/themeService.js';
+import { IUserInteractionService } from '../../../../../../../platform/userInteraction/browser/userInteractionService.js';
 import { ICodeEditor } from '../../../../../../browser/editorBrowser.js';
 import { EmbeddedCodeEditorWidget } from '../../../../../../browser/widget/codeEditor/embeddedCodeEditorWidget.js';
 import { ITextModel } from '../../../../../../common/model.js';
@@ -16,6 +17,7 @@ export declare class InlineEditsSideBySideView extends Disposable implements IIn
     private readonly _tabAction;
     private readonly _instantiationService;
     private readonly _themeService;
+    private readonly _userInteractionService;
     static fitsInsideViewport(editor: ICodeEditor, textModel: ITextModel, edit: InlineEditWithChanges, reader: IReader): boolean;
     private readonly _editorObs;
     private readonly _onDidClick;
@@ -23,7 +25,7 @@ export declare class InlineEditsSideBySideView extends Disposable implements IIn
     constructor(_editor: ICodeEditor, _edit: IObservable<InlineEditWithChanges | undefined>, _previewTextModel: ITextModel, _uiState: IObservable<{
         newTextLineCount: number;
         editorType: InlineCompletionEditorType;
-    } | undefined>, _tabAction: IObservable<InlineEditTabAction>, _instantiationService: IInstantiationService, _themeService: IThemeService);
+    } | undefined>, _tabAction: IObservable<InlineEditTabAction>, _instantiationService: IInstantiationService, _themeService: IThemeService, _userInteractionService: IUserInteractionService);
     private readonly _display;
     private readonly previewRef;
     private readonly _editorContainer;

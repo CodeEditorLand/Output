@@ -46,6 +46,7 @@ declare class AuxiliaryEditorPartImpl extends EditorPart implements IAuxiliaryEd
     private readonly optionsDisposable;
     private isCompact;
     constructor(windowId: number, editorPartsView: IEditorPartsView, state: IEditorPartUIState | undefined, groupsLabel: string, instantiationService: IInstantiationService, themeService: IThemeService, configurationService: IConfigurationService, storageService: IStorageService, layoutService: IWorkbenchLayoutService, hostService: IHostService, contextKeyService: IContextKeyService);
+    protected handleContextKeys(): void;
     updateOptions(options: {
         compact: boolean;
     }): void;

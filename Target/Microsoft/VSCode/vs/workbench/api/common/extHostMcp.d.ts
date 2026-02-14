@@ -18,6 +18,8 @@ export interface IExtHostMpcService extends ExtHostMcpShape {
     readonly onDidChangeMcpServerDefinitions: Event<void>;
     /** Returns all MCP server definitions known to the editor. */
     readonly mcpServerDefinitions: readonly vscode.McpServerDefinition[];
+    /** Starts an MCP gateway that exposes MCP servers via an HTTP endpoint. */
+    startMcpGateway(): Promise<vscode.McpGateway | undefined>;
 }
 export declare class ExtHostMcpService extends Disposable implements IExtHostMpcService {
     protected readonly _logService: ILogService;
@@ -46,6 +48,8 @@ export declare class ExtHostMcpService extends Disposable implements IExtHostMpc
     $resolveMcpLaunch(collectionId: string, label: string): Promise<McpServerLaunch.Serialized | undefined>;
     /** {@link vscode.lm.registerMcpServerDefinitionProvider} */
     registerMcpConfigurationProvider(extension: IExtensionDescription, id: string, provider: vscode.McpServerDefinitionProvider): IDisposable;
+    /** {@link vscode.lm.startMcpGateway} */
+    startMcpGateway(): Promise<vscode.McpGateway | undefined>;
 }
 /**
  * Implementation of both MCP HTTP Streaming as well as legacy SSE.

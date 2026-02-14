@@ -5,10 +5,11 @@ import { Schemas, matchesScheme } from "../../../../base/common/network.js";
 import { extname, isEqual } from "../../../../base/common/resources.js";
 import { isNumber, isObject, isString, isUndefined } from "../../../../base/common/types.js";
 import { URI } from "../../../../base/common/uri.js";
+import { Codicon } from "../../../../base/common/codicons.js";
 import { EditorContextKeys } from "../../../../editor/common/editorContextKeys.js";
 import { localize, localize2 } from "../../../../nls.js";
 import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
-import { Action2, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { Action2, MenuId, registerAction2 } from "../../../../platform/actions/common/actions.js";
 import { CommandsRegistry, ICommandService } from "../../../../platform/commands/common/commands.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
@@ -22,11 +23,12 @@ import { ITelemetryService } from "../../../../platform/telemetry/common/telemet
 import { ActiveGroupEditorsByMostRecentlyUsedQuickAccess } from "./editorQuickAccess.js";
 import { SideBySideEditor } from "./sideBySideEditor.js";
 import { TextDiffEditor } from "./textDiffEditor.js";
-import { ActiveEditorCanSplitInGroupContext, ActiveEditorGroupEmptyContext, ActiveEditorGroupLockedContext, ActiveEditorStickyContext, MultipleEditorGroupsContext, SideBySideEditorActiveContext, TextCompareEditorActiveContext } from "../../../common/contextkeys.js";
+import { ActiveEditorCanSplitInGroupContext, ActiveEditorGroupEmptyContext, ActiveEditorGroupLockedContext, ActiveEditorStickyContext, EditorPartModalContext, EditorPartModalMaximizedContext, MultipleEditorGroupsContext, SideBySideEditorActiveContext, TextCompareEditorActiveContext } from "../../../common/contextkeys.js";
 import { isEditorInputWithOptionsAndGroup } from "../../../common/editor.js";
 import { SideBySideEditorInput } from "../../../common/editor/sideBySideEditorInput.js";
 import { columnToEditorGroup } from "../../../services/editor/common/editorGroupColumn.js";
 import { IEditorGroupsService, preferredSideBySideGroupDirection } from "../../../services/editor/common/editorGroupsService.js";
+import { mainWindow } from "../../../../base/browser/window.js";
 import { IEditorResolverService } from "../../../services/editor/common/editorResolverService.js";
 import { IEditorService, SIDE_GROUP } from "../../../services/editor/common/editorService.js";
 import { IPathService } from "../../../services/path/common/pathService.js";
@@ -82,6 +84,9 @@ const COPY_EDITOR_INTO_NEW_WINDOW_COMMAND_ID = "workbench.action.copyEditorToNew
 const MOVE_EDITOR_GROUP_INTO_NEW_WINDOW_COMMAND_ID = "workbench.action.moveEditorGroupToNewWindow";
 const COPY_EDITOR_GROUP_INTO_NEW_WINDOW_COMMAND_ID = "workbench.action.copyEditorGroupToNewWindow";
 const NEW_EMPTY_EDITOR_WINDOW_COMMAND_ID = "workbench.action.newEmptyEditorWindow";
+const CLOSE_MODAL_EDITOR_COMMAND_ID = "workbench.action.closeModalEditor";
+const MOVE_MODAL_EDITOR_TO_MAIN_COMMAND_ID = "workbench.action.moveModalEditorToMain";
+const TOGGLE_MODAL_EDITOR_MAXIMIZED_COMMAND_ID = "workbench.action.toggleModalEditorMaximized";
 const API_OPEN_EDITOR_COMMAND_ID = "_workbench.open";
 const API_OPEN_DIFF_EDITOR_COMMAND_ID = "_workbench.diff";
 const API_OPEN_WITH_EDITOR_COMMAND_ID = "_workbench.openWith";
@@ -1307,6 +1312,101 @@ function registerOtherEditorCommands() {
   });
 }
 __name(registerOtherEditorCommands, "registerOtherEditorCommands");
+function registerModalEditorCommands() {
+  registerAction2(class extends Action2 {
+    constructor() {
+      super({
+        id: MOVE_MODAL_EDITOR_TO_MAIN_COMMAND_ID,
+        title: localize2("moveToMainWindow", "Open Modal Editor in Main Window"),
+        category: Categories.View,
+        f1: true,
+        icon: Codicon.openInProduct,
+        precondition: EditorPartModalContext,
+        menu: {
+          id: MenuId.ModalEditorTitle,
+          group: "navigation",
+          order: 0
+        }
+      });
+    }
+    run(accessor) {
+      const editorGroupsService = accessor.get(IEditorGroupsService);
+      for (const part of editorGroupsService.parts) {
+        if (isModalEditorPart(part)) {
+          part.close({ mergeAllEditorsToMainPart: true });
+          break;
+        }
+      }
+    }
+  });
+  registerAction2(class extends Action2 {
+    constructor() {
+      super({
+        id: TOGGLE_MODAL_EDITOR_MAXIMIZED_COMMAND_ID,
+        title: localize2("toggleModalEditorMaximized", "Maximize Modal Editor"),
+        category: Categories.View,
+        f1: true,
+        precondition: EditorPartModalContext,
+        icon: Codicon.screenFull,
+        toggled: {
+          condition: EditorPartModalMaximizedContext,
+          title: localize("restoreModalEditorSize", "Restore Modal Editor")
+        },
+        menu: {
+          id: MenuId.ModalEditorTitle,
+          group: "navigation",
+          order: 1
+        }
+      });
+    }
+    run(accessor) {
+      const editorGroupsService = accessor.get(IEditorGroupsService);
+      for (const part of editorGroupsService.parts) {
+        if (isModalEditorPart(part)) {
+          part.toggleMaximized();
+          break;
+        }
+      }
+    }
+  });
+  registerAction2(class extends Action2 {
+    constructor() {
+      super({
+        id: CLOSE_MODAL_EDITOR_COMMAND_ID,
+        title: localize2("closeModalEditor", "Close Modal Editor"),
+        category: Categories.View,
+        f1: true,
+        icon: Codicon.close,
+        precondition: EditorPartModalContext,
+        keybinding: {
+          primary: 9,
+          weight: 200 + 10,
+          when: EditorPartModalContext
+        },
+        menu: {
+          id: MenuId.ModalEditorTitle,
+          group: "navigation",
+          order: 2
+        }
+      });
+    }
+    async run(accessor) {
+      const editorGroupsService = accessor.get(IEditorGroupsService);
+      for (const part of editorGroupsService.parts) {
+        if (isModalEditorPart(part)) {
+          part.close();
+          break;
+        }
+      }
+    }
+  });
+}
+__name(registerModalEditorCommands, "registerModalEditorCommands");
+function isModalEditorPart(obj) {
+  const part = obj;
+  return !!part && typeof part.close === "function" && typeof part.onWillClose === "function" && typeof part.toggleMaximized === "function" && typeof part.maximized === "boolean" && part.windowId === mainWindow.vscodeWindowId;
+}
+__name(isModalEditorPart, "isModalEditorPart");
 function setup() {
   registerEditorMoveCopyCommand();
   registerEditorGroupsLayoutCommands();
@@ -1320,6 +1420,7 @@ function setup() {
   registerFocusEditorGroupAtIndexCommands();
   registerSplitEditorCommands();
   registerFocusEditorGroupWihoutWrapCommands();
+  registerModalEditorCommands();
 }
 __name(setup, "setup");
 export {
@@ -1331,6 +1432,7 @@ export {
   CLOSE_EDITORS_TO_THE_RIGHT_COMMAND_ID,
   CLOSE_EDITOR_COMMAND_ID,
   CLOSE_EDITOR_GROUP_COMMAND_ID,
+  CLOSE_MODAL_EDITOR_COMMAND_ID,
   CLOSE_OTHER_EDITORS_IN_GROUP_COMMAND_ID,
   CLOSE_PINNED_EDITOR_COMMAND_ID,
   CLOSE_SAVED_EDITORS_COMMAND_ID,
@@ -1356,6 +1458,7 @@ export {
   MOVE_EDITOR_INTO_LEFT_GROUP,
   MOVE_EDITOR_INTO_NEW_WINDOW_COMMAND_ID,
   MOVE_EDITOR_INTO_RIGHT_GROUP,
+  MOVE_MODAL_EDITOR_TO_MAIN_COMMAND_ID,
   NEW_EMPTY_EDITOR_WINDOW_COMMAND_ID,
   OPEN_EDITOR_AT_INDEX_COMMAND_ID,
   PIN_EDITOR_COMMAND_ID,
@@ -1371,6 +1474,7 @@ export {
   TOGGLE_KEEP_EDITORS_COMMAND_ID,
   TOGGLE_LOCK_GROUP_COMMAND_ID,
   TOGGLE_MAXIMIZE_EDITOR_GROUP,
+  TOGGLE_MODAL_EDITOR_MAXIMIZED_COMMAND_ID,
   TOGGLE_SPLIT_EDITOR_IN_GROUP,
   TOGGLE_SPLIT_EDITOR_IN_GROUP_LAYOUT,
   UNLOCK_GROUP_COMMAND_ID,

@@ -12,7 +12,7 @@ class GettingStartedIndexList extends Disposable {
   constructor(options) {
     super();
     this.options = options;
-    this._onDidChangeEntries = new Emitter();
+    this._onDidChangeEntries = this._register(new Emitter());
     this.onDidChangeEntries = this._onDidChangeEntries.event;
     this.isDisposed = false;
     this.contextKeysToWatch = /* @__PURE__ */ new Set();

@@ -44,6 +44,7 @@ export declare class WebSocketNodeSocket extends Disposable implements ISocket, 
     private readonly _state;
     get permessageDeflate(): boolean;
     get recordedInflateBytes(): VSBuffer;
+    setRecordInflateBytes(record: boolean): void;
     traceSocketEvent(type: SocketDiagnosticsEventType, data?: VSBuffer | Uint8Array | ArrayBuffer | ArrayBufferView | unknown): void;
     /**
      * Create a socket which can communicate using WebSocket frames.

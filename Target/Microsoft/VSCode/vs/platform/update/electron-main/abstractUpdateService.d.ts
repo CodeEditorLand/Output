@@ -1,5 +1,6 @@
 import { CancellationToken } from '../../../base/common/cancellation.js';
 import { Event } from '../../../base/common/event.js';
+import { IMeteredConnectionService } from '../../meteredConnection/common/meteredConnection.js';
 import { IConfigurationService } from '../../configuration/common/configuration.js';
 import { IEnvironmentMainService } from '../../environment/electron-main/environmentMainService.js';
 import { ILifecycleMainService } from '../../lifecycle/electron-main/lifecycleMainService.js';
@@ -11,6 +12,13 @@ export interface IUpdateURLOptions {
     readonly background?: boolean;
 }
 export declare function createUpdateURL(baseUpdateUrl: string, platform: string, quality: string, commit: string, options?: IUpdateURLOptions): string;
+/**
+ * Builds common headers for macOS update requests, including those issued
+ * via Electron's auto-updater (e.g. setFeedURL({ url, headers })) and
+ * manual HTTP requests that bypass the auto-updater. On macOS, this includes
+ * the Darwin kernel version which the update server uses for EOL detection.
+ */
+export declare function getUpdateRequestHeaders(productVersion: string): Record<string, string> | undefined;
 export type UpdateErrorClassification = {
     owner: 'joaomoreno';
     messageHash: {
@@ -27,6 +35,7 @@ export declare abstract class AbstractUpdateService implements IUpdateService {
     protected requestService: IRequestService;
     protected logService: ILogService;
     protected readonly productService: IProductService;
+    protected readonly meteredConnectionService: IMeteredConnectionService;
     protected readonly supportsUpdateOverwrite: boolean;
     readonly _serviceBrand: undefined;
     protected quality: string | undefined;
@@ -39,7 +48,7 @@ export declare abstract class AbstractUpdateService implements IUpdateService {
     readonly onStateChange: Event<State>;
     get state(): State;
     protected setState(state: State): void;
-    constructor(lifecycleMainService: ILifecycleMainService, configurationService: IConfigurationService, environmentMainService: IEnvironmentMainService, requestService: IRequestService, logService: ILogService, productService: IProductService, supportsUpdateOverwrite: boolean);
+    constructor(lifecycleMainService: ILifecycleMainService, configurationService: IConfigurationService, environmentMainService: IEnvironmentMainService, requestService: IRequestService, logService: ILogService, productService: IProductService, meteredConnectionService: IMeteredConnectionService, supportsUpdateOverwrite: boolean);
     /**
      * This must be called before any other call. This is a performance
      * optimization, to avoid using extra CPU cycles before first window open.
@@ -49,7 +58,7 @@ export declare abstract class AbstractUpdateService implements IUpdateService {
     private getProductQuality;
     private scheduleCheckForUpdates;
     checkForUpdates(explicit: boolean): Promise<void>;
-    downloadUpdate(): Promise<void>;
+    downloadUpdate(explicit: boolean): Promise<void>;
     protected doDownloadUpdate(state: AvailableForDownload): Promise<void>;
     applyUpdate(): Promise<void>;
     protected doApplyUpdate(): Promise<void>;

@@ -39,7 +39,7 @@ let TerminalConfigurationService = class TerminalConfigurationService2 extends D
   constructor(_configurationService) {
     super();
     this._configurationService = _configurationService;
-    this._onConfigChanged = new Emitter();
+    this._onConfigChanged = this._register(new Emitter());
     this._fontMetrics = this._register(new TerminalFontMetrics(this, this._configurationService));
     this._register(Event.runAndSubscribe(this._configurationService.onDidChangeConfiguration, (e) => {
       if (!e || e.affectsConfiguration(TERMINAL_CONFIG_SECTION)) {

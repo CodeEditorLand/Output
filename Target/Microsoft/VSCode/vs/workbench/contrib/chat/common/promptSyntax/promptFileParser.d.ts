@@ -1,5 +1,6 @@
 import { URI } from '../../../../../base/common/uri.js';
 import { Range } from '../../../../../editor/common/core/range.js';
+import { Target } from './service/promptsService.js';
 export declare class PromptFileParser {
     constructor();
     parse(uri: URI, content: string): ParsedPromptFile;
@@ -22,6 +23,7 @@ export declare namespace PromptHeaderAttributes {
     const mode = "mode";
     const model = "model";
     const applyTo = "applyTo";
+    const paths = "paths";
     const tools = "tools";
     const handOffs = "handoffs";
     const advancedOptions = "advancedOptions";
@@ -34,20 +36,22 @@ export declare namespace PromptHeaderAttributes {
     const metadata = "metadata";
     const agents = "agents";
     const userInvokable = "user-invokable";
+    const userInvocable = "user-invocable";
     const disableModelInvocation = "disable-model-invocation";
 }
 export declare namespace GithubPromptHeaderAttributes {
     const mcpServers = "mcp-servers";
 }
-export declare enum Target {
-    VSCode = "vscode",
-    GitHubCopilot = "github-copilot"
+export declare namespace ClaudeHeaderAttributes {
+    const disallowedTools = "disallowedTools";
 }
+export declare function isTarget(value: unknown): value is Target;
 export declare class PromptHeader {
     readonly range: Range;
+    readonly uri: URI;
     private readonly linesWithEOL;
     private _parsed;
-    constructor(range: Range, linesWithEOL: string[]);
+    constructor(range: Range, uri: URI, linesWithEOL: string[]);
     private get _parsedHeader();
     private asRange;
     private asValue;
@@ -60,6 +64,12 @@ export declare class PromptHeader {
     get agent(): string | undefined;
     get model(): readonly string[] | undefined;
     get applyTo(): string | undefined;
+    /**
+     * Gets the 'paths' attribute from the header.
+     * The `paths` field supports a list of glob patterns that scope the instruction
+     * to specific files (used by Claude rules). Returns a string array or undefined.
+     */
+    get paths(): readonly string[] | undefined;
     get argumentHint(): string | undefined;
     get target(): string | undefined;
     get infer(): boolean | undefined;
@@ -68,7 +78,7 @@ export declare class PromptHeader {
     private getStringArrayAttribute;
     private getStringOrStringArrayAttribute;
     get agents(): string[] | undefined;
-    get userInvokable(): boolean | undefined;
+    get userInvocable(): boolean | undefined;
     get disableModelInvocation(): boolean | undefined;
     private getBooleanAttribute;
 }
@@ -142,3 +152,11 @@ export interface IBodyVariableReference {
     readonly range: Range;
     readonly offset: number;
 }
+/**
+ * Parses a comma-separated list of values into an array of strings.
+ * Values can be unquoted or quoted (single or double quotes).
+ *
+ * @param input A string containing comma-separated values
+ * @returns An IArrayValue containing the parsed values and their ranges
+ */
+export declare function parseCommaSeparatedList(stringValue: IStringValue): IArrayValue;

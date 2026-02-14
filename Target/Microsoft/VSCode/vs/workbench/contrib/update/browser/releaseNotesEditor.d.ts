@@ -14,6 +14,8 @@ import { Disposable } from '../../../../base/common/lifecycle.js';
 import { SimpleSettingRenderer } from '../../markdown/browser/markdownSettingRenderer.js';
 import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
 import { ICodeEditorService } from '../../../../editor/browser/services/codeEditorService.js';
+import { IUpdateService } from '../../../../platform/update/common/update.js';
+import { ICommandService } from '../../../../platform/commands/common/commands.js';
 export declare class ReleaseNotesManager extends Disposable {
     private readonly _environmentService;
     private readonly _keybindingService;
@@ -28,11 +30,13 @@ export declare class ReleaseNotesManager extends Disposable {
     private readonly _extensionService;
     private readonly _productService;
     private readonly _instantiationService;
+    private readonly _updateService;
+    private readonly _commandService;
     private readonly _simpleSettingRenderer;
     private readonly _releaseNotesCache;
     private _currentReleaseNotes;
     private _lastMeta;
-    constructor(_environmentService: IEnvironmentService, _keybindingService: IKeybindingService, _languageService: ILanguageService, _openerService: IOpenerService, _requestService: IRequestService, _configurationService: IConfigurationService, _editorService: IEditorService, _editorGroupService: IEditorGroupsService, _codeEditorService: ICodeEditorService, _webviewWorkbenchService: IWebviewWorkbenchService, _extensionService: IExtensionService, _productService: IProductService, _instantiationService: IInstantiationService);
+    constructor(_environmentService: IEnvironmentService, _keybindingService: IKeybindingService, _languageService: ILanguageService, _openerService: IOpenerService, _requestService: IRequestService, _configurationService: IConfigurationService, _editorService: IEditorService, _editorGroupService: IEditorGroupsService, _codeEditorService: ICodeEditorService, _webviewWorkbenchService: IWebviewWorkbenchService, _extensionService: IExtensionService, _productService: IProductService, _instantiationService: IInstantiationService, _updateService: IUpdateService, _commandService: ICommandService);
     private updateHtml;
     private getBase;
     show(version: string, useCurrentFile: boolean): Promise<boolean>;
@@ -40,6 +44,8 @@ export declare class ReleaseNotesManager extends Disposable {
     private onDidClickLink;
     private addGAParameters;
     private renderBody;
+    private getUpdateAction;
+    private postUpdateAction;
     private onDidChangeConfiguration;
     private onDidChangeActiveWebviewEditor;
     private updateCheckboxWebview;

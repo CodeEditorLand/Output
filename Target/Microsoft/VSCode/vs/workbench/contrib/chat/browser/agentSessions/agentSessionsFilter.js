@@ -19,7 +19,7 @@ import { registerAction2, Action2 } from "../../../../../platform/actions/common
 import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
 import { IStorageService } from "../../../../../platform/storage/common/storage.js";
 import { IChatSessionsService } from "../../common/chatSessionsService.js";
-import { AgentSessionProviders, getAgentSessionProviderName } from "./agentSessions.js";
+import { AgentSessionProviders, getAgentSessionProvider, getAgentSessionProviderName } from "./agentSessions.js";
 var AgentSessionsGrouping;
 (function(AgentSessionsGrouping2) {
   AgentSessionsGrouping2["Capped"] = "capped";
@@ -114,15 +114,19 @@ let AgentSessionsFilter = class AgentSessionsFilter2 extends Disposable {
     this.registerResetAction(this.actionDisposables, menuId);
   }
   registerProviderActions(disposables, menuId) {
-    const providers = Object.values(AgentSessionProviders).map((provider) => ({
-      id: provider,
-      label: getAgentSessionProviderName(provider)
-    }));
-    for (const provider of this.chatSessionsService.getAllChatSessionContributions()) {
-      if (providers.find((p) => p.id === provider.type)) {
+    const providers = [{
+      id: AgentSessionProviders.Local,
+      label: getAgentSessionProviderName(AgentSessionProviders.Local)
+    }];
+    for (const contribution of this.chatSessionsService.getAllChatSessionContributions()) {
+      if (providers.find((p) => p.id === contribution.type)) {
         continue;
       }
-      providers.push({ id: provider.type, label: provider.name });
+      const knownProvider = getAgentSessionProvider(contribution.type);
+      providers.push({
+        id: contribution.type,
+        label: knownProvider ? getAgentSessionProviderName(knownProvider) : contribution.displayName
+      });
     }
     const that = this;
     let counter = 0;

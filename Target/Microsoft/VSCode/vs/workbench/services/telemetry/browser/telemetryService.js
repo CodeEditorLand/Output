@@ -14,7 +14,7 @@ var __param = function(paramIndex, decorator) {
 import { Disposable } from "../../../../base/common/lifecycle.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
-import { ILogService, ILoggerService } from "../../../../platform/log/common/log.js";
+import { ILoggerService } from "../../../../platform/log/common/log.js";
 import { IProductService } from "../../../../platform/product/common/productService.js";
 import { IStorageService } from "../../../../platform/storage/common/storage.js";
 import { OneDataSystemWebAppender } from "../../../../platform/telemetry/browser/1dsAppender.js";
@@ -24,6 +24,7 @@ import { TelemetryService as BaseTelemetryService } from "../../../../platform/t
 import { getTelemetryLevel, isInternalTelemetry, isLoggingOnly, NullTelemetryService, supportsTelemetry } from "../../../../platform/telemetry/common/telemetryUtils.js";
 import { IBrowserWorkbenchEnvironmentService } from "../../environment/browser/environmentService.js";
 import { IRemoteAgentService } from "../../remote/common/remoteAgentService.js";
+import { IMeteredConnectionService } from "../../../../platform/meteredConnection/common/meteredConnection.js";
 import { resolveWorkbenchCommonProperties } from "./workbenchCommonProperties.js";
 import { experimentsEnabled } from "../common/workbenchTelemetryUtils.js";
 let TelemetryService = class TelemetryService2 extends Disposable {
@@ -48,14 +49,14 @@ let TelemetryService = class TelemetryService2 extends Disposable {
   get msftInternal() {
     return this.impl.msftInternal;
   }
-  constructor(environmentService, logService, loggerService, configurationService, storageService, productService, remoteAgentService) {
+  constructor(environmentService, loggerService, configurationService, storageService, productService, remoteAgentService, meteredConnectionService) {
     super();
     this.impl = NullTelemetryService;
     this.sendErrorTelemetry = true;
-    this.impl = this.initializeService(environmentService, logService, loggerService, configurationService, storageService, productService, remoteAgentService);
+    this.impl = this.initializeService(environmentService, loggerService, configurationService, storageService, productService, remoteAgentService, meteredConnectionService);
     this._register(configurationService.onDidChangeConfiguration((e) => {
       if (e.affectsConfiguration(TELEMETRY_SETTING_ID)) {
-        this.impl = this.initializeService(environmentService, logService, loggerService, configurationService, storageService, productService, remoteAgentService);
+        this.impl = this.initializeService(environmentService, loggerService, configurationService, storageService, productService, remoteAgentService, meteredConnectionService);
       }
     }));
   }
@@ -64,7 +65,7 @@ let TelemetryService = class TelemetryService2 extends Disposable {
    * This is only done once and only when telemetry is enabled as this will also ping the endpoint to
    * ensure its not adblocked and we can send telemetry
    */
-  initializeService(environmentService, logService, loggerService, configurationService, storageService, productService, remoteAgentService) {
+  initializeService(environmentService, loggerService, configurationService, storageService, productService, remoteAgentService, meteredConnectionService) {
     const telemetrySupported = supportsTelemetry(productService, environmentService) && productService.aiConfig?.ariaKey;
     if (telemetrySupported && getTelemetryLevel(configurationService) !== 0 && this.impl === NullTelemetryService) {
       const appenders = [];
@@ -85,7 +86,8 @@ let TelemetryService = class TelemetryService2 extends Disposable {
         appenders,
         commonProperties: resolveWorkbenchCommonProperties(storageService, productService, isInternal, environmentService.remoteAuthority, environmentService.options && environmentService.options.resolveCommonTelemetryProperties),
         sendErrorTelemetry: this.sendErrorTelemetry,
-        waitForExperimentProperties: experimentsEnabled(configurationService, productService, environmentService)
+        waitForExperimentProperties: experimentsEnabled(configurationService, productService, environmentService),
+        meteredConnectionService
       };
       return this._register(new BaseTelemetryService(config, configurationService, productService));
     }
@@ -112,12 +114,12 @@ let TelemetryService = class TelemetryService2 extends Disposable {
 };
 TelemetryService = __decorate([
   __param(0, IBrowserWorkbenchEnvironmentService),
-  __param(1, ILogService),
-  __param(2, ILoggerService),
-  __param(3, IConfigurationService),
-  __param(4, IStorageService),
-  __param(5, IProductService),
-  __param(6, IRemoteAgentService)
+  __param(1, ILoggerService),
+  __param(2, IConfigurationService),
+  __param(3, IStorageService),
+  __param(4, IProductService),
+  __param(5, IRemoteAgentService),
+  __param(6, IMeteredConnectionService)
 ], TelemetryService);
 registerSingleton(
   ITelemetryService,

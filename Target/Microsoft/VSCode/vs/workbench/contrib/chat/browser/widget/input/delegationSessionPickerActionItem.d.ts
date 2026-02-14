@@ -16,7 +16,6 @@ export declare class DelegationSessionPickerActionItem extends SessionTypePicker
         order: number;
         showHeader: boolean;
     };
-    protected _getSessionDescription(sessionTypeItem: ISessionTypeItem): string | undefined;
     protected _getLearnMore(): IAction;
     protected _getAdditionalActions(): IActionWidgetDropdownAction[];
 }

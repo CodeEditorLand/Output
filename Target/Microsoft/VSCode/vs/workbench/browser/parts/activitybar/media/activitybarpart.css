@@ -1,5 +1,5 @@
 .monaco-workbench .part.activitybar {
-  width: 48px;
+  width: var(--activity-bar-width, 48px);
   height: 100%;
 }
 .monaco-workbench .activitybar.bordered::before {

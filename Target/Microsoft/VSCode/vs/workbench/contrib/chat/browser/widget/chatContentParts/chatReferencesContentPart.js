@@ -511,6 +511,7 @@ registerAction2(class OpenChatReferenceLinkAction extends Action2 {
 export {
   ChatCollapsibleListContentPart,
   ChatUsedReferencesListContentPart,
-  CollapsibleListPool
+  CollapsibleListPool,
+  CollapsibleListRenderer
 };
 //# sourceMappingURL=chatReferencesContentPart.js.map

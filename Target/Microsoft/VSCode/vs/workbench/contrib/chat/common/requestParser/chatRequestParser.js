@@ -171,7 +171,8 @@ let ChatRequestParser = class ChatRequestParser2 {
       if (subCommand) {
         return new ChatRequestAgentSubcommandPart(slashRange, slashEditorRange, subCommand);
       }
-    } else {
+    }
+    if (!usedAgent || context?.attachmentCapabilities?.supportsPromptAttachments) {
       const slashCommands = this.slashCommandService.getCommands(location, context?.mode ?? ChatModeKind.Ask);
       const slashCommand = slashCommands.find((c) => c.command === command);
       if (slashCommand) {

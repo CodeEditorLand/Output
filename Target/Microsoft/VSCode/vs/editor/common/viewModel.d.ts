@@ -9,6 +9,7 @@ import { INewScrollPosition, ScrollType } from './editorCommon.js';
 import { EditorTheme } from './editorTheme.js';
 import { EndOfLinePreference, IGlyphMarginLanesModel, IModelDecorationOptions, ITextModel, TextDirection } from './model.js';
 import { ILineBreaksComputer, InjectedText } from './modelLineProjectionData.js';
+import { InternalModelContentChangeEvent, ModelInjectedTextChangedEvent } from './textModelEvents.js';
 import { BracketGuideOptions, IActiveIndentGuideInfo, IndentGuide } from './textModelGuides.js';
 import { IViewLineTokens } from './tokens/lineTokens.js';
 import { ViewEventHandler } from './viewEventHandler.js';
@@ -69,6 +70,8 @@ export interface IViewModel extends ICursorSimpleModel, ISimpleModel {
         html: string;
         mode: string;
     } | null;
+    onDidChangeContentOrInjectedText(e: InternalModelContentChangeEvent | ModelInjectedTextChangedEvent): void;
+    emitContentChangeEvent(e: InternalModelContentChangeEvent | ModelInjectedTextChangedEvent): void;
     createLineBreaksComputer(): ILineBreaksComputer;
     getPrimaryCursorState(): CursorState;
     getLastAddedCursorIndex(): number;

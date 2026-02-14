@@ -16,6 +16,8 @@ import { IHoverService } from '../../../../../platform/hover/browser/hover.js';
 import { IInstantiationService } from '../../../../../platform/instantiation/common/instantiation.js';
 import { ILogService } from '../../../../../platform/log/common/log.js';
 import { IThemeService } from '../../../../../platform/theme/common/themeService.js';
+import { IAccessibilitySignalService } from '../../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js';
+import { IHostService } from '../../../../services/host/browser/host.js';
 import { IChatEntitlementService } from '../../../../services/chat/common/chatEntitlementService.js';
 import { IWorkbenchIssueService } from '../../../issue/common/issue.js';
 import { IChatFollowup, IChatService, IChatThinkingPart } from '../../common/chatService/chatService.js';
@@ -28,6 +30,8 @@ import { IChatContentPart, IChatContentPartRenderContext } from './chatContentPa
 import { ChatEditorOptions } from './chatOptions.js';
 import { CodeBlockPart } from './chatContentParts/codeBlockPart.js';
 import { IChatTipService } from '../chatTipService.js';
+import { IAccessibilityService } from '../../../../../platform/accessibility/common/accessibility.js';
+import { ChatPendingDragController } from './chatPendingDragAndDrop.js';
 export interface IChatListItemTemplate {
     currentElement?: ChatTreeItem;
     /**
@@ -39,6 +43,8 @@ export interface IChatListItemTemplate {
      * Element used to track whether the template is mounted in the DOM.
      */
     renderedPartsMounted?: boolean;
+    /** Drag handle element for reordering pending requests, if currently rendered. */
+    dragHandle?: HTMLElement;
     readonly rowContainer: HTMLElement;
     readonly titleToolbar?: MenuWorkbenchToolBar;
     readonly header?: HTMLElement;
@@ -86,6 +92,9 @@ export declare class ChatListItemRenderer extends Disposable implements ITreeRen
     private readonly chatEntitlementService;
     private readonly chatService;
     private readonly chatTipService;
+    private readonly hostService;
+    private readonly accessibilitySignalService;
+    private readonly accessibilityService;
     static readonly ID = "item";
     private readonly codeBlocksByResponseId;
     private readonly codeBlocksByEditorUri;
@@ -94,6 +103,11 @@ export declare class ChatListItemRenderer extends Disposable implements ITreeRen
     private readonly templateDataByRequestId;
     /** Track pending question carousels by session resource for auto-skip on chat submission */
     private readonly pendingQuestionCarousels;
+    private readonly _autoRepliedQuestionCarousels;
+    private readonly _autoReply;
+    private _activeTipPart;
+    private readonly _notifiedQuestionCarousels;
+    private readonly _questionCarouselToast;
     private readonly chatContentMarkdownRenderer;
     private readonly markdownDecorationsRenderer;
     protected readonly _onDidClickFollowup: Emitter<IChatFollowup>;
@@ -133,10 +147,14 @@ export declare class ChatListItemRenderer extends Disposable implements ITreeRen
      * by screen readers
      */
     private readonly _announcedToolProgressKeys;
-    constructor(editorOptions: ChatEditorOptions, rendererOptions: IChatListItemRendererOptions, delegate: IChatRendererDelegate, codeBlockModelCollection: CodeBlockModelCollection, overflowWidgetsDomNode: HTMLElement | undefined, viewModel: IChatViewModel | undefined, instantiationService: IInstantiationService, configService: IConfigurationService, logService: ILogService, contextKeyService: IContextKeyService, themeService: IThemeService, commandService: ICommandService, hoverService: IHoverService, chatWidgetService: IChatWidgetService, chatEntitlementService: IChatEntitlementService, chatService: IChatService, chatTipService: IChatTipService);
+    constructor(editorOptions: ChatEditorOptions, rendererOptions: IChatListItemRendererOptions, delegate: IChatRendererDelegate, codeBlockModelCollection: CodeBlockModelCollection, overflowWidgetsDomNode: HTMLElement | undefined, viewModel: IChatViewModel | undefined, instantiationService: IInstantiationService, configService: IConfigurationService, logService: ILogService, contextKeyService: IContextKeyService, themeService: IThemeService, commandService: ICommandService, hoverService: IHoverService, chatWidgetService: IChatWidgetService, chatEntitlementService: IChatEntitlementService, chatService: IChatService, chatTipService: IChatTipService, hostService: IHostService, accessibilitySignalService: IAccessibilitySignalService, accessibilityService: IAccessibilityService);
+    private _pendingDragController;
+    set pendingDragController(controller: ChatPendingDragController);
     updateOptions(options: IChatListItemRendererOptions): void;
     get templateId(): string;
     editorsInUse(): Iterable<CodeBlockPart>;
+    hasTipFocus(): boolean;
+    focusTip(): boolean;
     private traceLayout;
     /**
      * Compute a rate to render at in words/s.
@@ -207,11 +225,16 @@ export declare class ChatListItemRenderer extends Disposable implements ITreeRen
     private renderToolInvocation;
     private setupConfirmationTransitionWatcher;
     private renderExtensionsContent;
+    private renderHookPart;
     private renderPullRequestContent;
     private renderProgressTask;
     private renderConfirmation;
     private renderElicitation;
     private renderQuestionCarousel;
+    private _getCarouselStableKey;
+    private _notifyOnQuestionCarousel;
+    private maybeAutoReplyToQuestionCarousel;
+    private getRequestMessageText;
     private removeCarouselFromTracking;
     private renderChangesSummary;
     private renderAttachments;
@@ -220,6 +243,7 @@ export declare class ChatListItemRenderer extends Disposable implements ITreeRen
     renderThinkingPart(content: IChatThinkingPart, context: IChatContentPartRenderContext, templateData: IChatListItemTemplate): IChatContentPart;
     disposeElement(node: ITreeNode<ChatTreeItem, FuzzyScore>, index: number, templateData: IChatListItemTemplate, details?: IListElementRenderDetails): void;
     private renderMcpServersInteractionRequired;
+    private renderDisabledClaudeHooks;
     disposeTemplate(templateData: IChatListItemTemplate): void;
     private hoverVisible;
     private hoverHidden;

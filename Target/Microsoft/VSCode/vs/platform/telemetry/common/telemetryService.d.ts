@@ -1,4 +1,5 @@
 import { IConfigurationService } from '../../configuration/common/configuration.js';
+import { IMeteredConnectionService } from '../../meteredConnection/common/meteredConnection.js';
 import { IProductService } from '../../product/common/productService.js';
 import { ClassifiedEvent, IGDPRProperty, OmitMetadata, StrictPropertyCheck } from './gdprTypings.js';
 import { ITelemetryData, ITelemetryService, TelemetryLevel, ICommonProperties } from './telemetry.js';
@@ -13,6 +14,10 @@ export interface ITelemetryServiceConfig {
      * (up to 10 seconds) to ensure experiment context is attached to all events.
      */
     waitForExperimentProperties?: boolean;
+    /**
+     * If provided, telemetry events will be dropped when the connection is metered.
+     */
+    meteredConnectionService?: IMeteredConnectionService;
 }
 export declare class TelemetryService implements ITelemetryService {
     private _configurationService;
@@ -34,6 +39,7 @@ export declare class TelemetryService implements ITelemetryService {
     private _piiPaths;
     private _telemetryLevel;
     private _sendErrorTelemetry;
+    private readonly _meteredConnectionService;
     private _pendingEvents;
     private _isExperimentPropertySet;
     private _flushTimeout;

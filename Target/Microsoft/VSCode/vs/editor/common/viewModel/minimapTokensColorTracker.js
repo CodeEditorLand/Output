@@ -19,7 +19,7 @@ class MinimapTokensColorTracker extends Disposable {
   }
   constructor() {
     super();
-    this._onDidChange = new Emitter();
+    this._onDidChange = this._register(new Emitter());
     this.onDidChange = this._onDidChange.event;
     this._updateColorMap();
     this._register(TokenizationRegistry.onDidChange((e) => {

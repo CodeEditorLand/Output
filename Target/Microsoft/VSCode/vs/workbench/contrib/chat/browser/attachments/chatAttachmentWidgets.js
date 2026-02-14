@@ -60,6 +60,7 @@ import { getHistoryItemEditorTitle } from "../../../scm/browser/util.js";
 import { ITerminalService } from "../../../terminal/browser/terminal.js";
 import { PromptFileVariableKind, isStringVariableEntry } from "../../common/attachments/chatVariableEntries.js";
 import { ILanguageModelsService } from "../../common/languageModels.js";
+import { IChatEntitlementService } from "../../../../services/chat/common/chatEntitlementService.js";
 import { ILanguageModelToolsService, isToolSet } from "../../common/tools/languageModelToolsService.js";
 import { getCleanPromptName } from "../../common/promptSyntax/config/promptFileLocations.js";
 import { IChatContextService } from "../contextContrib/chatContextService.js";
@@ -339,11 +340,12 @@ let ImageAttachmentWidget = class ImageAttachmentWidget2 extends AbstractChatAtt
   static {
     __name(this, "ImageAttachmentWidget");
   }
-  constructor(resource, attachment, currentLanguageModel, options, container, contextResourceLabels, commandService, openerService, configurationService, hoverService, languageModelsService, instantiationService, labelService) {
+  constructor(resource, attachment, currentLanguageModel, options, container, contextResourceLabels, commandService, openerService, configurationService, hoverService, languageModelsService, instantiationService, labelService, chatEntitlementService) {
     super(attachment, options, container, contextResourceLabels, currentLanguageModel, commandService, openerService, configurationService);
     this.hoverService = hoverService;
     this.languageModelsService = languageModelsService;
     this.labelService = labelService;
+    this.chatEntitlementService = chatEntitlementService;
     let ariaLabel;
     if (attachment.omittedState === 2) {
       ariaLabel = localize("chat.omittedImageAttachment", "Omitted this image: {0}", attachment.name);
@@ -361,7 +363,7 @@ let ImageAttachmentWidget = class ImageAttachmentWidget2 extends AbstractChatAtt
     }, "clickHandler");
     const currentLanguageModelName = this.currentLanguageModel ? this.languageModelsService.lookupLanguageModel(this.currentLanguageModel.identifier)?.name ?? this.currentLanguageModel.identifier : "Current model";
     const fullName = resource ? this.labelService.getUriLabel(resource) : attachment.fullName || attachment.name;
-    this._register(createImageElements(resource, attachment.name, fullName, this.element, attachment.value, this.hoverService, ariaLabel, currentLanguageModelName, clickHandler, this.currentLanguageModel, attachment.omittedState));
+    this._register(createImageElements(resource, attachment.name, fullName, this.element, attachment.value, this.hoverService, ariaLabel, currentLanguageModelName, clickHandler, this.currentLanguageModel, attachment.omittedState, this.chatEntitlementService.previewFeaturesDisabled));
     if (resource) {
       this.addResourceOpenHandlers(resource, void 0);
       instantiationService.invokeFunction((accessor) => {
@@ -377,9 +379,10 @@ ImageAttachmentWidget = __decorate([
   __param(9, IHoverService),
   __param(10, ILanguageModelsService),
   __param(11, IInstantiationService),
-  __param(12, ILabelService)
+  __param(12, ILabelService),
+  __param(13, IChatEntitlementService)
 ], ImageAttachmentWidget);
-function createImageElements(resource, name, fullName, element, buffer, hoverService, ariaLabel, currentLanguageModelName, clickHandler, currentLanguageModel, omittedState) {
+function createImageElements(resource, name, fullName, element, buffer, hoverService, ariaLabel, currentLanguageModelName, clickHandler, currentLanguageModel, omittedState, previewFeaturesDisabled) {
   const disposable = new DisposableStore();
   if (omittedState === 1) {
     element.classList.add("partial-warning");
@@ -391,13 +394,20 @@ function createImageElements(resource, name, fullName, element, buffer, hoverSer
     disposable.add(dom.addDisposableListener(element, "click", clickHandler));
   }
   const supportsVision = modelSupportsVision(currentLanguageModel);
-  const pillIcon = dom.$("div.chat-attached-context-pill", {}, dom.$(supportsVision ? "span.codicon.codicon-file-media" : "span.codicon.codicon-warning"));
+  const pillIcon = dom.$("div.chat-attached-context-pill", {}, dom.$(supportsVision && !previewFeaturesDisabled ? "span.codicon.codicon-file-media" : "span.codicon.codicon-warning"));
   const textLabel = dom.$("span.chat-attached-context-custom-text", {}, name);
   element.appendChild(pillIcon);
   element.appendChild(textLabel);
   const hoverElement = dom.$("div.chat-attached-context-hover");
   hoverElement.setAttribute("aria-label", ariaLabel);
-  if (!supportsVision && currentLanguageModel || omittedState === 2) {
+  if (previewFeaturesDisabled) {
+    element.classList.add("warning");
+    hoverElement.textContent = localize("chat.imageAttachmentPreviewFeaturesDisabled", "Vision is disabled by your organization.");
+    disposable.add(hoverService.setupDelayedHover(element, {
+      content: hoverElement,
+      style: 1
+    }));
+  } else if (!supportsVision && currentLanguageModel || omittedState === 2) {
     element.classList.add("warning");
     hoverElement.textContent = localize("chat.imageAttachmentHover", "{0} does not support images.", currentLanguageModelName ?? "This model");
     disposable.add(hoverService.setupDelayedHover(element, {
@@ -689,12 +699,13 @@ let NotebookCellOutputChatAttachmentWidget = class NotebookCellOutputChatAttachm
   static {
     __name(this, "NotebookCellOutputChatAttachmentWidget");
   }
-  constructor(resource, attachment, currentLanguageModel, options, container, contextResourceLabels, commandService, openerService, configurationService, hoverService, languageModelsService, notebookService, instantiationService) {
+  constructor(resource, attachment, currentLanguageModel, options, container, contextResourceLabels, commandService, openerService, configurationService, hoverService, languageModelsService, notebookService, instantiationService, chatEntitlementService) {
     super(attachment, options, container, contextResourceLabels, currentLanguageModel, commandService, openerService, configurationService);
     this.hoverService = hoverService;
     this.languageModelsService = languageModelsService;
     this.notebookService = notebookService;
     this.instantiationService = instantiationService;
+    this.chatEntitlementService = chatEntitlementService;
     switch (attachment.mimeType) {
       case "application/vnd.code.notebook.error": {
         this.renderErrorOutput(resource, attachment);
@@ -749,7 +760,7 @@ let NotebookCellOutputChatAttachmentWidget = class NotebookCellOutputChatAttachm
     const clickHandler = /* @__PURE__ */ __name(async () => await this.openResource(resource, { editorOptions: { preserveFocus: true } }, false, void 0), "clickHandler");
     const currentLanguageModelName = this.currentLanguageModel ? this.languageModelsService.lookupLanguageModel(this.currentLanguageModel.identifier)?.name ?? this.currentLanguageModel.identifier : void 0;
     const buffer = this.getOutputItem(resource, attachment)?.data.buffer ?? new Uint8Array();
-    this._register(createImageElements(resource, attachment.name, attachment.name, this.element, buffer, this.hoverService, ariaLabel, currentLanguageModelName, clickHandler, this.currentLanguageModel, attachment.omittedState));
+    this._register(createImageElements(resource, attachment.name, attachment.name, this.element, buffer, this.hoverService, ariaLabel, currentLanguageModelName, clickHandler, this.currentLanguageModel, attachment.omittedState, this.chatEntitlementService.previewFeaturesDisabled));
   }
   getOutputItem(resource, attachment) {
     const parsedInfo = CellUri.parseCellOutputUri(resource);
@@ -775,7 +786,8 @@ NotebookCellOutputChatAttachmentWidget = __decorate([
   __param(9, IHoverService),
   __param(10, ILanguageModelsService),
   __param(11, INotebookService),
-  __param(12, IInstantiationService)
+  __param(12, IInstantiationService),
+  __param(13, IChatEntitlementService)
 ], NotebookCellOutputChatAttachmentWidget);
 let ElementChatAttachmentWidget = class ElementChatAttachmentWidget2 extends AbstractChatAttachmentWidget {
   static {

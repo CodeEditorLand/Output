@@ -335,13 +335,13 @@ class BranchNode {
     index = validateIndex(index, this.children.length);
     return this.splitview.isViewVisible(index);
   }
-  setChildVisible(index, visible) {
+  setChildVisible(index, visible, animation) {
     index = validateIndex(index, this.children.length);
     if (this.splitview.isViewVisible(index) === visible) {
       return;
     }
     const wereAllChildrenHidden = this.splitview.contentSize === 0;
-    this.splitview.setViewVisible(index, visible);
+    this.splitview.setViewVisible(index, visible, animation);
     const areAllChildrenHidden = this.splitview.contentSize === 0;
     if (visible && wereAllChildrenHidden || !visible && areAllChildrenHidden) {
       this._onDidVisibilityChange.fire(visible);
@@ -1004,7 +1004,7 @@ class GridView {
     }
     return true;
   }
-  maximizeView(location) {
+  maximizeView(location, excludeViews = []) {
     const [, nodeToMaximize] = this.getNode(location);
     if (!(nodeToMaximize instanceof LeafNode)) {
       throw new Error("Location is not a LeafNode");
@@ -1015,11 +1015,12 @@ class GridView {
     if (this.hasMaximizedView()) {
       this.exitMaximizedView();
     }
+    const excludeViewSet = new Set(excludeViews);
     function hideAllViewsBut(parent, exclude) {
       for (let i = 0; i < parent.children.length; i++) {
         const child = parent.children[i];
         if (child instanceof LeafNode) {
-          if (child !== exclude) {
+          if (child !== exclude && !excludeViewSet.has(child.view)) {
             parent.setChildVisible(i, false);
           }
         } else {
@@ -1108,7 +1109,7 @@ class GridView {
    *
    * @param location The {@link GridLocation location} of the view.
    */
-  setViewVisible(location, visible) {
+  setViewVisible(location, visible, animation) {
     if (this.hasMaximizedView()) {
       this.exitMaximizedView();
       return;
@@ -1118,7 +1119,7 @@ class GridView {
     if (!(parent instanceof BranchNode)) {
       throw new Error("Invalid from location");
     }
-    parent.setChildVisible(index, visible);
+    parent.setChildVisible(index, visible, animation);
   }
   getView(location) {
     const node = location ? this.getNode(location)[1] : this._root;

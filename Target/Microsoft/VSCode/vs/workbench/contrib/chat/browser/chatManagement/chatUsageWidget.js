@@ -27,7 +27,7 @@ let ChatUsageWidget = class ChatUsageWidget2 extends Disposable {
   constructor(chatEntitlementService) {
     super();
     this.chatEntitlementService = chatEntitlementService;
-    this._onDidChangeContentHeight = new Emitter();
+    this._onDidChangeContentHeight = this._register(new Emitter());
     this.onDidChangeContentHeight = this._onDidChangeContentHeight.event;
     this.dateFormatter = safeIntl.DateTimeFormat(language, { year: "numeric", month: "long", day: "numeric" });
     this.dateTimeFormatter = safeIntl.DateTimeFormat(language, { year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric" });

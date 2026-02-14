@@ -58,7 +58,6 @@ import { IExtHostConsumerFileSystem } from "./extHostFileSystemConsumer.js";
 import { ExtHostFileSystemEventService } from "./extHostFileSystemEventService.js";
 import { IExtHostFileSystemInfo } from "./extHostFileSystemInfo.js";
 import { IExtHostInitDataService } from "./extHostInitDataService.js";
-import { IExtHostHooks } from "./extHostHooks.js";
 import { ExtHostInteractive } from "./extHostInteractive.js";
 import { ExtHostLabelService } from "./extHostLabelService.js";
 import { ExtHostLanguageFeatures } from "./extHostLanguageFeatures.js";
@@ -108,8 +107,10 @@ import { ExtHostWebviews } from "./extHostWebview.js";
 import { ExtHostWebviewPanels } from "./extHostWebviewPanels.js";
 import { ExtHostWebviewViews } from "./extHostWebviewView.js";
 import { IExtHostWindow } from "./extHostWindow.js";
+import { IExtHostPower } from "./extHostPower.js";
 import { IExtHostWorkspace } from "./extHostWorkspace.js";
 import { ExtHostChatContext } from "./extHostChatContext.js";
+import { IExtHostMeteredConnection } from "./extHostMeteredConnection.js";
 function createApiFactoryAndRegisterActors(accessor) {
   const initData = accessor.get(IExtHostInitDataService);
   const extHostFileSystemInfo = accessor.get(IExtHostFileSystemInfo);
@@ -127,6 +128,7 @@ function createApiFactoryAndRegisterActors(accessor) {
   const extHostTunnelService = accessor.get(IExtHostTunnelService);
   const extHostApiDeprecation = accessor.get(IExtHostApiDeprecationService);
   const extHostWindow = accessor.get(IExtHostWindow);
+  const extHostPower = accessor.get(IExtHostPower);
   const extHostUrls = accessor.get(IExtHostUrlsService);
   const extHostSecretState = accessor.get(IExtHostSecretState);
   const extHostEditorTabs = accessor.get(IExtHostEditorTabs);
@@ -136,6 +138,7 @@ function createApiFactoryAndRegisterActors(accessor) {
   const extHostLanguageModels = accessor.get(IExtHostLanguageModels);
   const extHostMcp = accessor.get(IExtHostMpcService);
   const extHostDataChannels = accessor.get(IExtHostDataChannels);
+  const extHostMeteredConnection = accessor.get(IExtHostMeteredConnection);
   rpcProtocol.set(ExtHostContext.ExtHostFileSystemInfo, extHostFileSystemInfo);
   rpcProtocol.set(ExtHostContext.ExtHostLogLevelServiceShape, extHostLoggerService);
   rpcProtocol.set(ExtHostContext.ExtHostWorkspace, extHostWorkspace);
@@ -144,6 +147,7 @@ function createApiFactoryAndRegisterActors(accessor) {
   rpcProtocol.set(ExtHostContext.ExtHostStorage, extHostStorage);
   rpcProtocol.set(ExtHostContext.ExtHostTunnelService, extHostTunnelService);
   rpcProtocol.set(ExtHostContext.ExtHostWindow, extHostWindow);
+  rpcProtocol.set(ExtHostContext.ExtHostPower, extHostPower);
   rpcProtocol.set(ExtHostContext.ExtHostUrls, extHostUrls);
   rpcProtocol.set(ExtHostContext.ExtHostSecretState, extHostSecretState);
   rpcProtocol.set(ExtHostContext.ExtHostTelemetry, extHostTelemetry);
@@ -153,6 +157,7 @@ function createApiFactoryAndRegisterActors(accessor) {
   rpcProtocol.set(ExtHostContext.ExtHostAuthentication, extHostAuthentication);
   rpcProtocol.set(ExtHostContext.ExtHostChatProvider, extHostLanguageModels);
   rpcProtocol.set(ExtHostContext.ExtHostDataChannels, extHostDataChannels);
+  rpcProtocol.set(ExtHostContext.ExtHostMeteredConnection, extHostMeteredConnection);
   const extHostDecorations = rpcProtocol.set(ExtHostContext.ExtHostDecorations, accessor.get(IExtHostDecorations));
   const extHostDocumentsAndEditors = rpcProtocol.set(ExtHostContext.ExtHostDocumentsAndEditors, accessor.get(IExtHostDocumentsAndEditors));
   const extHostCommands = rpcProtocol.set(ExtHostContext.ExtHostCommands, accessor.get(IExtHostCommands));
@@ -209,7 +214,6 @@ function createApiFactoryAndRegisterActors(accessor) {
   const extHostSpeech = rpcProtocol.set(ExtHostContext.ExtHostSpeech, new ExtHostSpeech(rpcProtocol));
   const extHostEmbeddings = rpcProtocol.set(ExtHostContext.ExtHostEmbeddings, new ExtHostEmbeddings(rpcProtocol));
   rpcProtocol.set(ExtHostContext.ExtHostMcp, accessor.get(IExtHostMpcService));
-  rpcProtocol.set(ExtHostContext.ExtHostHooks, accessor.get(IExtHostHooks));
   const expected = Object.values(ExtHostContext);
   rpcProtocol.assertRegistered(expected);
   const extHostBulkEdits = new ExtHostBulkEdits(rpcProtocol, extHostDocumentsAndEditors);
@@ -217,7 +221,6 @@ function createApiFactoryAndRegisterActors(accessor) {
   const extHostMessageService = new ExtHostMessageService(rpcProtocol, extHostLogService);
   const extHostDialogs = new ExtHostDialogs(rpcProtocol);
   const extHostChatStatus = new ExtHostChatStatus(rpcProtocol);
-  const extHostHooks = accessor.get(IExtHostHooks);
   ExtHostApiCommands.register(extHostCommands);
   return function(extension, extensionInfo, configProvider) {
     function _asExtensionEvent(actual) {
@@ -382,6 +385,14 @@ function createApiFactoryAndRegisterActors(accessor) {
         checkProposedApiEnabled(extension, "telemetry");
         return _asExtensionEvent(extHostTelemetry.onDidChangeTelemetryConfiguration);
       },
+      get isMeteredConnection() {
+        checkProposedApiEnabled(extension, "envIsConnectionMetered");
+        return extHostMeteredConnection.isConnectionMetered;
+      },
+      get onDidChangeMeteredConnection() {
+        checkProposedApiEnabled(extension, "envIsConnectionMetered");
+        return _asExtensionEvent(extHostMeteredConnection.onDidChangeIsConnectionMetered);
+      },
       get isNewAppInstall() {
         return isNewAppInstall(initData.telemetryInfo.firstSessionDate);
       },
@@ -435,6 +446,59 @@ function createApiFactoryAndRegisterActors(accessor) {
       getDataChannel(channelId) {
         checkProposedApiEnabled(extension, "dataChannels");
         return extHostDataChannels.createDataChannel(extension, channelId);
+      },
+      get power() {
+        checkProposedApiEnabled(extension, "environmentPower");
+        return {
+          get onDidSuspend() {
+            return _asExtensionEvent(extHostPower.onDidSuspend);
+          },
+          get onDidResume() {
+            return _asExtensionEvent(extHostPower.onDidResume);
+          },
+          get onDidChangeOnBatteryPower() {
+            return _asExtensionEvent(extHostPower.onDidChangeOnBatteryPower);
+          },
+          get onDidChangeThermalState() {
+            return _asExtensionEvent(extHostPower.onDidChangeThermalState);
+          },
+          get onDidChangeSpeedLimit() {
+            return _asExtensionEvent(extHostPower.onDidChangeSpeedLimit);
+          },
+          get onWillShutdown() {
+            return _asExtensionEvent(extHostPower.onWillShutdown);
+          },
+          get onDidLockScreen() {
+            return _asExtensionEvent(extHostPower.onDidLockScreen);
+          },
+          get onDidUnlockScreen() {
+            return _asExtensionEvent(extHostPower.onDidUnlockScreen);
+          },
+          getSystemIdleState(idleThresholdSeconds) {
+            return extHostPower.getSystemIdleState(idleThresholdSeconds);
+          },
+          getSystemIdleTime() {
+            return extHostPower.getSystemIdleTime();
+          },
+          getCurrentThermalState() {
+            return extHostPower.getCurrentThermalState();
+          },
+          isOnBatteryPower() {
+            return extHostPower.isOnBatteryPower();
+          },
+          async startPowerSaveBlocker(type) {
+            const blocker = await extHostPower.startPowerSaveBlocker(type);
+            return {
+              id: blocker.id,
+              get isStarted() {
+                return blocker.isStarted;
+              },
+              dispose() {
+                blocker.dispose();
+              }
+            };
+          }
+        };
       }
     };
     if (!initData.environment.extensionTestsLocationURI) {
@@ -911,7 +975,15 @@ function createApiFactoryAndRegisterActors(accessor) {
       createChatStatusItem: /* @__PURE__ */ __name((id) => {
         checkProposedApiEnabled(extension, "chatStatusItem");
         return extHostChatStatus.createChatStatusItem(extension, id);
-      }, "createChatStatusItem")
+      }, "createChatStatusItem"),
+      get activeChatPanelSessionResource() {
+        checkProposedApiEnabled(extension, "chatParticipantPrivate");
+        return extHostChatAgents2.activeChatPanelSessionResource;
+      },
+      onDidChangeActiveChatPanelSessionResource: /* @__PURE__ */ __name((listeners, thisArgs, disposables) => {
+        checkProposedApiEnabled(extension, "chatParticipantPrivate");
+        return _asExtensionEvent(extHostChatAgents2.onDidChangeActiveChatPanelSessionResource)(listeners, thisArgs, disposables);
+      }, "onDidChangeActiveChatPanelSessionResource")
     };
     const workspace = {
       get rootPath() {
@@ -1484,10 +1556,6 @@ function createApiFactoryAndRegisterActors(accessor) {
       registerSkillProvider(provider) {
         checkProposedApiEnabled(extension, "chatPromptFiles");
         return extHostChatAgents2.registerPromptFileProvider(extension, PromptsType.skill, provider);
-      },
-      async executeHook(hookType, options, token) {
-        checkProposedApiEnabled(extension, "chatHooks");
-        return extHostHooks.executeHook(hookType, options, token);
       }
     };
     const lm = {
@@ -1568,6 +1636,10 @@ function createApiFactoryAndRegisterActors(accessor) {
       get mcpServerDefinitions() {
         checkProposedApiEnabled(extension, "mcpServerDefinitions");
         return extHostMcp.mcpServerDefinitions;
+      },
+      startMcpGateway() {
+        checkProposedApiEnabled(extension, "mcpServerDefinitions");
+        return extHostMcp.startMcpGateway();
       },
       onDidChangeChatRequestTools(...args) {
         checkProposedApiEnabled(extension, "chatParticipantAdditions");
@@ -1836,6 +1908,7 @@ function createApiFactoryAndRegisterActors(accessor) {
       ChatResponseProgressPart: extHostTypes.ChatResponseProgressPart,
       ChatResponseProgressPart2: extHostTypes.ChatResponseProgressPart2,
       ChatResponseThinkingProgressPart: extHostTypes.ChatResponseThinkingProgressPart,
+      ChatResponseHookPart: extHostTypes.ChatResponseHookPart,
       ChatResponseReferencePart: extHostTypes.ChatResponseReferencePart,
       ChatResponseReferencePart2: extHostTypes.ChatResponseReferencePart,
       ChatResponseCodeCitationPart: extHostTypes.ChatResponseCodeCitationPart,
@@ -1861,6 +1934,7 @@ function createApiFactoryAndRegisterActors(accessor) {
       ChatRequestTurn2: extHostTypes.ChatRequestTurn,
       ChatResponseTurn: extHostTypes.ChatResponseTurn,
       ChatResponseTurn2: extHostTypes.ChatResponseTurn2,
+      ChatSubagentToolInvocationData: extHostTypes.ChatSubagentToolInvocationData,
       ChatToolInvocationPart: extHostTypes.ChatToolInvocationPart,
       ChatLocation: extHostTypes.ChatLocation,
       ChatSessionStatus: extHostTypes.ChatSessionStatus,
@@ -1906,7 +1980,6 @@ function createApiFactoryAndRegisterActors(accessor) {
       McpToolAvailability: extHostTypes.McpToolAvailability,
       McpToolInvocationContentData: extHostTypes.McpToolInvocationContentData,
       SettingsSearchResultKind: extHostTypes.SettingsSearchResultKind,
-      ChatHookResultKind: extHostTypes.ChatHookResultKind,
       ChatTodoStatus: extHostTypes.ChatTodoStatus
     };
   };

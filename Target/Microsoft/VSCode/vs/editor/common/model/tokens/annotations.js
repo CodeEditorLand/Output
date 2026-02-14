@@ -41,6 +41,10 @@ class AnnotatedString {
     let startIndex;
     if (startIndexWhereToReplace >= 0) {
       startIndex = startIndexWhereToReplace;
+      const nextCandidate = this._annotations[startIndex]?.range;
+      if (nextCandidate && nextCandidate.endExclusive === offset) {
+        startIndex--;
+      }
     } else {
       const candidate = this._annotations[-(startIndexWhereToReplace + 2)]?.range;
       if (candidate && offset >= candidate.start && offset < candidate.endExclusive) {
@@ -58,9 +62,13 @@ class AnnotatedString {
     let endIndexExclusive;
     if (endIndexWhereToReplace >= 0) {
       endIndexExclusive = endIndexWhereToReplace + 1;
+      const nextCandidate = this._annotations[endIndexExclusive]?.range;
+      if (nextCandidate && nextCandidate.start === offset) {
+        endIndexExclusive++;
+      }
     } else {
       const candidate = this._annotations[-(endIndexWhereToReplace + 1)]?.range;
-      if (candidate && offset > candidate.start && offset <= candidate.endExclusive) {
+      if (candidate && offset >= candidate.start && offset <= candidate.endExclusive) {
         endIndexExclusive = -endIndexWhereToReplace;
       } else {
         endIndexExclusive = -(endIndexWhereToReplace + 1);

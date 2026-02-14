@@ -25,18 +25,20 @@ import { IFileService } from "../../../../../platform/files/common/files.js";
 import { createDecorator } from "../../../../../platform/instantiation/common/instantiation.js";
 import { ILogService } from "../../../../../platform/log/common/log.js";
 import { IRemoteAgentService } from "../../../../services/remote/common/remoteAgentService.js";
+import { ITrustedDomainService } from "../../../url/common/trustedDomainService.js";
 const ITerminalSandboxService = createDecorator("terminalSandboxService");
 let TerminalSandboxService = class TerminalSandboxService2 extends Disposable {
   static {
     __name(this, "TerminalSandboxService");
   }
-  constructor(_configurationService, _fileService, _environmentService, _logService, _remoteAgentService) {
+  constructor(_configurationService, _fileService, _environmentService, _logService, _remoteAgentService, _trustedDomainService) {
     super();
     this._configurationService = _configurationService;
     this._fileService = _fileService;
     this._environmentService = _environmentService;
     this._logService = _logService;
     this._remoteAgentService = _remoteAgentService;
+    this._trustedDomainService = _trustedDomainService;
     this._srtPathResolved = false;
     this._needsForceUpdateConfigFile = true;
     this._remoteEnvDetails = null;
@@ -66,6 +68,9 @@ let TerminalSandboxService = class TerminalSandboxService2 extends Disposable {
       )) {
         this.setNeedsForceUpdateConfigFile();
       }
+    }));
+    this._register(this._trustedDomainService.onDidChangeTrustedDomains(() => {
+      this.setNeedsForceUpdateConfigFile();
     }));
   }
   async isEnabled() {
@@ -141,9 +146,16 @@ let TerminalSandboxService = class TerminalSandboxService2 extends Disposable {
         /* TerminalChatAgentToolsSettingId.TerminalSandboxMacFileSystem */
       ) ?? {} : {};
       const configFileUri = URI.joinPath(this._tempDir, `vscode-sandbox-settings-${this._sandboxSettingsId}.json`);
+      const allowedDomainsSet = new Set(networkSetting.allowedDomains ?? []);
+      if (networkSetting.allowTrustedDomains) {
+        for (const domain of this._trustedDomainService.trustedDomains) {
+          allowedDomainsSet.add(domain);
+        }
+      }
+      const allowedDomains = Array.from(allowedDomainsSet);
       const sandboxSettings = {
         network: {
-          allowedDomains: networkSetting.allowedDomains ?? [],
+          allowedDomains,
           deniedDomains: networkSetting.deniedDomains ?? []
         },
         filesystem: {
@@ -179,7 +191,8 @@ TerminalSandboxService = __decorate([
   __param(1, IFileService),
   __param(2, IEnvironmentService),
   __param(3, ILogService),
-  __param(4, IRemoteAgentService)
+  __param(4, IRemoteAgentService),
+  __param(5, ITrustedDomainService)
 ], TerminalSandboxService);
 export {
   ITerminalSandboxService,

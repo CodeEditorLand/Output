@@ -3,6 +3,11 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
 import { isEditorInput } from "../../../common/editor.js";
 const IEditorGroupsService = createDecorator("editorGroupsService");
+var GroupActivationReason;
+(function(GroupActivationReason2) {
+  GroupActivationReason2[GroupActivationReason2["DEFAULT"] = 0] = "DEFAULT";
+  GroupActivationReason2[GroupActivationReason2["PART_CLOSE"] = 1] = "PART_CLOSE";
+})(GroupActivationReason || (GroupActivationReason = {}));
 var GroupDirection;
 (function(GroupDirection2) {
   GroupDirection2[GroupDirection2["UP"] = 0] = "UP";
@@ -64,6 +69,7 @@ function preferredSideBySideGroupDirection(configurationService) {
 }
 __name(preferredSideBySideGroupDirection, "preferredSideBySideGroupDirection");
 export {
+  GroupActivationReason,
   GroupDirection,
   GroupLocation,
   GroupOrientation,

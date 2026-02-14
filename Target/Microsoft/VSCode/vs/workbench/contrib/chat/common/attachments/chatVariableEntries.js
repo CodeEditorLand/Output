@@ -187,7 +187,7 @@ function isSCMHistoryItemChangeRangeVariableEntry(obj) {
 __name(isSCMHistoryItemChangeRangeVariableEntry, "isSCMHistoryItemChangeRangeVariableEntry");
 function isStringImplicitContextValue(value) {
   const asStringImplicitContextValue = value;
-  return typeof asStringImplicitContextValue === "object" && asStringImplicitContextValue !== null && (typeof asStringImplicitContextValue.value === "string" || typeof asStringImplicitContextValue.value === "undefined") && (typeof asStringImplicitContextValue.name === "string" || typeof asStringImplicitContextValue.name === "undefined") && (asStringImplicitContextValue.icon === void 0 || ThemeIcon.isThemeIcon(asStringImplicitContextValue.icon)) && URI.isUri(asStringImplicitContextValue.uri);
+  return typeof asStringImplicitContextValue === "object" && asStringImplicitContextValue !== null && (typeof asStringImplicitContextValue.value === "string" || typeof asStringImplicitContextValue.value === "undefined") && (typeof asStringImplicitContextValue.name === "string" || typeof asStringImplicitContextValue.name === "undefined") && (asStringImplicitContextValue.resourceUri === void 0 || URI.isUri(asStringImplicitContextValue.resourceUri)) && (typeof asStringImplicitContextValue.name === "string" || URI.isUri(asStringImplicitContextValue.resourceUri)) && (asStringImplicitContextValue.icon === void 0 || ThemeIcon.isThemeIcon(asStringImplicitContextValue.icon)) && URI.isUri(asStringImplicitContextValue.uri) && typeof asStringImplicitContextValue.handle === "number";
 }
 __name(isStringImplicitContextValue, "isStringImplicitContextValue");
 var PromptFileVariableKind;

@@ -20,6 +20,7 @@ export declare class LanguageFeatureRegistry<T> {
     has(model: ITextModel): boolean;
     all(model: ITextModel): T[];
     allNoModel(): T[];
+    get registeredLanguageIds(): ReadonlySet<string>;
     ordered(model: ITextModel, recursive?: boolean): T[];
     orderedGroups(model: ITextModel): T[][];
     private _orderedForEach;

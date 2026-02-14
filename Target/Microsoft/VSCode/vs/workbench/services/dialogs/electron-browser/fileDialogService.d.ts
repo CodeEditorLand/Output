@@ -18,9 +18,10 @@ import { ICommandService } from '../../../../platform/commands/common/commands.j
 import { ICodeEditorService } from '../../../../editor/browser/services/codeEditorService.js';
 import { IEditorService } from '../../editor/common/editorService.js';
 import { ILogService } from '../../../../platform/log/common/log.js';
+import { IRemoteAgentService } from '../../remote/common/remoteAgentService.js';
 export declare class FileDialogService extends AbstractFileDialogService implements IFileDialogService {
     private readonly nativeHostService;
-    constructor(hostService: IHostService, contextService: IWorkspaceContextService, historyService: IHistoryService, environmentService: IWorkbenchEnvironmentService, instantiationService: IInstantiationService, configurationService: IConfigurationService, fileService: IFileService, openerService: IOpenerService, nativeHostService: INativeHostService, dialogService: IDialogService, languageService: ILanguageService, workspacesService: IWorkspacesService, labelService: ILabelService, pathService: IPathService, commandService: ICommandService, editorService: IEditorService, codeEditorService: ICodeEditorService, logService: ILogService);
+    constructor(hostService: IHostService, contextService: IWorkspaceContextService, historyService: IHistoryService, environmentService: IWorkbenchEnvironmentService, instantiationService: IInstantiationService, configurationService: IConfigurationService, fileService: IFileService, openerService: IOpenerService, nativeHostService: INativeHostService, dialogService: IDialogService, languageService: ILanguageService, workspacesService: IWorkspacesService, labelService: ILabelService, pathService: IPathService, commandService: ICommandService, editorService: IEditorService, codeEditorService: ICodeEditorService, logService: ILogService, remoteAgentService: IRemoteAgentService);
     private toNativeOpenDialogOptions;
     private shouldUseSimplified;
     pickFileFolderAndOpen(options: IPickAndOpenOptions): Promise<void>;

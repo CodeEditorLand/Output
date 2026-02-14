@@ -33,6 +33,7 @@ import { EditorExtensions } from "../../../common/editor.js";
 import { UserDataProfilesEditor, UserDataProfilesEditorInput, UserDataProfilesEditorInputSerializer } from "./userDataProfilesEditor.js";
 import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
 import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { IEditorService, MODAL_GROUP } from "../../../services/editor/common/editorService.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { IHostService } from "../../../services/host/browser/host.js";
 import { IURLService } from "../../../../platform/url/common/url.js";
@@ -49,7 +50,7 @@ let UserDataProfilesWorkbenchContribution = class UserDataProfilesWorkbenchContr
   static {
     this.ID = "workbench.contrib.userDataProfiles";
   }
-  constructor(userDataProfileService, userDataProfilesService, userDataProfileManagementService, telemetryService, workspaceContextService, workspaceTagsService, contextKeyService, editorGroupsService, instantiationService, lifecycleService, urlService, environmentService) {
+  constructor(userDataProfileService, userDataProfilesService, userDataProfileManagementService, telemetryService, workspaceContextService, workspaceTagsService, contextKeyService, editorService, instantiationService, lifecycleService, urlService, environmentService) {
     super();
     this.userDataProfileService = userDataProfileService;
     this.userDataProfilesService = userDataProfilesService;
@@ -57,7 +58,7 @@ let UserDataProfilesWorkbenchContribution = class UserDataProfilesWorkbenchContr
     this.telemetryService = telemetryService;
     this.workspaceContextService = workspaceContextService;
     this.workspaceTagsService = workspaceTagsService;
-    this.editorGroupsService = editorGroupsService;
+    this.editorService = editorService;
     this.instantiationService = instantiationService;
     this.lifecycleService = lifecycleService;
     this.urlService = urlService;
@@ -102,7 +103,7 @@ let UserDataProfilesWorkbenchContribution = class UserDataProfilesWorkbenchContr
     return false;
   }
   async openProfilesEditor() {
-    const editor = await this.editorGroupsService.activeGroup.openEditor(new UserDataProfilesEditorInput(this.instantiationService));
+    const editor = await this.editorService.openEditor(new UserDataProfilesEditorInput(this.instantiationService), void 0, MODAL_GROUP);
     return editor;
   }
   registerEditor() {
@@ -365,9 +366,9 @@ let UserDataProfilesWorkbenchContribution = class UserDataProfilesWorkbenchContr
         });
       }
       run(accessor) {
-        const editorGroupsService = accessor.get(IEditorGroupsService);
+        const editorService = accessor.get(IEditorService);
         const instantiationService = accessor.get(IInstantiationService);
-        return editorGroupsService.activeGroup.openEditor(new UserDataProfilesEditorInput(instantiationService));
+        return editorService.openEditor(new UserDataProfilesEditorInput(instantiationService), void 0, MODAL_GROUP);
       }
     }));
     disposables.add(MenuRegistry.appendMenuItem(MenuId.CommandPalette, {
@@ -540,7 +541,7 @@ UserDataProfilesWorkbenchContribution = __decorate([
   __param(4, IWorkspaceContextService),
   __param(5, IWorkspaceTagsService),
   __param(6, IContextKeyService),
-  __param(7, IEditorGroupsService),
+  __param(7, IEditorService),
   __param(8, IInstantiationService),
   __param(9, ILifecycleService),
   __param(10, IURLService),

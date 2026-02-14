@@ -187,6 +187,7 @@ function anonymizeFilePaths(stack, cleanupPatterns) {
     }
   }
   const nodeModulesRegex = /^[\\\/]?(node_modules|node_modules\.asar)[\\\/]/;
+  const vscodeExtensionsPathRegex = /^(.*?)((?:\.vscode(?:-[a-z]+)*|resources[\\\/]app)[\\\/]extensions[\\\/].*)$/i;
   const fileRegex = /(file:\/\/)?([a-zA-Z]:(\\\\|\\|\/)|(\\\\|\\|\/))?([\w-\._]+(\\\\|\\|\/))+[\w-\._]*/g;
   let lastIndex = 0;
   updatedStack = "";
@@ -197,7 +198,12 @@ function anonymizeFilePaths(stack, cleanupPatterns) {
     }
     const overlappingRange = cleanUpIndexes.some(([start, end]) => result.index < end && start < fileRegex.lastIndex);
     if (!nodeModulesRegex.test(result[0]) && !overlappingRange) {
-      updatedStack += stack.substring(lastIndex, result.index) + "<REDACTED: user-file-path>";
+      const vscodeExtMatch = vscodeExtensionsPathRegex.exec(result[0]);
+      if (vscodeExtMatch) {
+        updatedStack += stack.substring(lastIndex, result.index) + "<REDACTED: user-file-path>/" + vscodeExtMatch[2];
+      } else {
+        updatedStack += stack.substring(lastIndex, result.index) + "<REDACTED: user-file-path>";
+      }
       lastIndex = fileRegex.lastIndex;
     }
   }

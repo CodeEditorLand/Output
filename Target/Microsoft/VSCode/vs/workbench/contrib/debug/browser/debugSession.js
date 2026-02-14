@@ -1232,6 +1232,16 @@ let DebugSession = class DebugSession2 {
     this.cancelAllRequests();
     this.rawListeners.dispose();
     this.globalDisposables.dispose();
+    this._onDidChangeState.dispose();
+    this._onDidEndAdapter.dispose();
+    this._onDidLoadedSource.dispose();
+    this._onDidCustomEvent.dispose();
+    this._onDidProgressStart.dispose();
+    this._onDidProgressUpdate.dispose();
+    this._onDidProgressEnd.dispose();
+    this._onDidInvalidMemory.dispose();
+    this._onDidChangeREPLElements.dispose();
+    this._onDidChangeName.dispose();
     this._waitToResume = void 0;
   }
   //---- sources

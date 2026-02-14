@@ -120,7 +120,7 @@ export declare class TextEditElementRenderer implements ITreeRenderer<TextEditEl
     constructor(_themeService: IThemeService);
     renderTemplate(container: HTMLElement): TextEditElementTemplate;
     renderElement({ element }: ITreeNode<TextEditElement, FuzzyScore>, _index: number, template: TextEditElementTemplate): void;
-    disposeTemplate(_template: TextEditElementTemplate): void;
+    disposeTemplate(template: TextEditElementTemplate): void;
 }
 export declare class BulkEditDelegate implements IListVirtualDelegate<BulkEditElement> {
     getHeight(): number;

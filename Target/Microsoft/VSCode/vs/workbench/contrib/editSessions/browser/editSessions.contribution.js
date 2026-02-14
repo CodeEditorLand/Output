@@ -182,11 +182,11 @@ let EditSessionsContribution = class EditSessionsContribution2 extends Disposabl
     this.registerViews();
     this.registerContributedEditSessionOptions();
     this._register(this.fileService.registerProvider(EditSessionsFileSystemProvider.SCHEMA, new EditSessionsFileSystemProvider(this.editSessionsStorageService)));
-    this.lifecycleService.onWillShutdown((e) => {
+    this._register(this.lifecycleService.onWillShutdown((e) => {
       if (e.reason !== 3 && this.editSessionsStorageService.isSignedIn && this.configurationService.getValue("workbench.experimental.cloudChanges.autoStore") === "onShutdown" && !isWeb) {
         e.join(this.autoStoreEditSession(), { id: "autoStoreWorkingChanges", label: localize("autoStoreWorkingChanges", "Storing current working changes...") });
       }
-    });
+    }));
     this._register(this.editSessionsStorageService.onDidSignIn(() => this.updateAccountsMenuBadge()));
     this._register(this.editSessionsStorageService.onDidSignOut(() => this.updateAccountsMenuBadge()));
   }
@@ -821,9 +821,9 @@ let EditSessionsContribution = class EditSessionsContribution2 extends Disposabl
     const workspaceContext = this.contextService.getWorkbenchState() === 2 ? this.contextService.getWorkspace().folders[0].name : this.contextService.getWorkspace().folders.map((folder) => folder.name).join(", ");
     quickPick.placeholder = localize("continueEditSessionPick.title.v2", "Select a development environment to continue working on {0} in", `'${workspaceContext}'`);
     quickPick.items = this.createPickItems();
-    this.extensionService.onDidChangeExtensions(() => {
+    disposables.add(this.extensionService.onDidChangeExtensions(() => {
       quickPick.items = this.createPickItems();
-    });
+    }));
     const command = await new Promise((resolve, reject) => {
       disposables.add(quickPick.onDidHide(() => {
         disposables.dispose();

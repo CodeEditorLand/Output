@@ -7,10 +7,12 @@ import { ITerminalInstance, Direction, ITerminalGroup, ITerminalInstanceService,
 import { IViewDescriptorService } from '../../../common/views.js';
 import { IShellLaunchConfig, ITerminalTabLayoutInfoById } from '../../../../platform/terminal/common/terminal.js';
 import { type SingleOrMany } from '../../../../base/common/types.js';
+import { IPaneCompositePartService } from '../../../services/panecomposite/browser/panecomposite.js';
 export declare class TerminalGroup extends Disposable implements ITerminalGroup {
     private _container;
     private readonly _terminalConfigurationService;
     private readonly _terminalInstanceService;
+    private readonly _paneCompositePartService;
     private readonly _layoutService;
     private readonly _viewDescriptorService;
     private readonly _instantiationService;
@@ -40,7 +42,7 @@ export declare class TerminalGroup extends Disposable implements ITerminalGroup 
     readonly onDidChangeActiveInstance: Event<ITerminalInstance | undefined>;
     private readonly _onPanelOrientationChanged;
     readonly onPanelOrientationChanged: Event<Orientation>;
-    constructor(_container: HTMLElement | undefined, shellLaunchConfigOrInstance: IShellLaunchConfig | ITerminalInstance | undefined, _terminalConfigurationService: ITerminalConfigurationService, _terminalInstanceService: ITerminalInstanceService, _layoutService: IWorkbenchLayoutService, _viewDescriptorService: IViewDescriptorService, _instantiationService: IInstantiationService);
+    constructor(_container: HTMLElement | undefined, shellLaunchConfigOrInstance: IShellLaunchConfig | ITerminalInstance | undefined, _terminalConfigurationService: ITerminalConfigurationService, _terminalInstanceService: ITerminalInstanceService, _paneCompositePartService: IPaneCompositePartService, _layoutService: IWorkbenchLayoutService, _viewDescriptorService: IViewDescriptorService, _instantiationService: IInstantiationService);
     addInstance(shellLaunchConfigOrInstance: IShellLaunchConfig | ITerminalInstance, parentTerminalId?: number): void;
     dispose(): void;
     get activeInstance(): ITerminalInstance | undefined;

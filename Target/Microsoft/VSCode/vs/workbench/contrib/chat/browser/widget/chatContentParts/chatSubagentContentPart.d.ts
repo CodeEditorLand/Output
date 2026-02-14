@@ -2,15 +2,15 @@ import { IDisposable } from '../../../../../../base/common/lifecycle.js';
 import { IHoverService } from '../../../../../../platform/hover/browser/hover.js';
 import { IInstantiationService } from '../../../../../../platform/instantiation/common/instantiation.js';
 import { IMarkdownRenderer } from '../../../../../../platform/markdown/browser/markdownRenderer.js';
+import { IChatHookPart, IChatMarkdownContent, IChatToolInvocation, IChatToolInvocationSerialized } from '../../../common/chatService/chatService.js';
 import { IChatRendererContent } from '../../../common/model/chatViewModel.js';
-import { ChatTreeItem } from '../../chat.js';
-import { IChatContentPart, IChatContentPartRenderContext } from './chatContentParts.js';
-import { ChatCollapsibleContentPart } from './chatCollapsibleContentPart.js';
-import { IChatMarkdownContent, IChatToolInvocation, IChatToolInvocationSerialized } from '../../../common/chatService/chatService.js';
-import { CollapsibleListPool } from './chatReferencesContentPart.js';
-import { EditorPool } from './chatContentCodePools.js';
 import { CodeBlockModelCollection } from '../../../common/widget/codeBlockModelCollection.js';
+import { ChatTreeItem } from '../../chat.js';
+import { ChatCollapsibleContentPart } from './chatCollapsibleContentPart.js';
+import { EditorPool } from './chatContentCodePools.js';
+import { IChatContentPart, IChatContentPartRenderContext } from './chatContentParts.js';
 import { IChatMarkdownAnchorService } from './chatMarkdownAnchorService.js';
+import { CollapsibleListPool } from './chatReferencesContentPart.js';
 import './media/chatSubagentContent.css';
 /**
  * This is generally copied from ChatThinkingContentPart. We are still experimenting with both UIs so I'm not
@@ -43,9 +43,16 @@ export declare class ChatSubagentContentPart extends ChatCollapsibleContentPart 
     private pendingPromptRender;
     private pendingResultText;
     private currentRunningToolMessage;
+    private modelName;
+    private readonly _hoverDisposable;
     private toolsWaitingForConfirmation;
     private userManuallyExpanded;
     private autoExpandedForConfirmation;
+    /**
+     * Check if a tool invocation is the parent subagent tool (the tool that spawns a subagent).
+     * A parent subagent tool has subagent toolSpecificData but no subAgentInvocationId.
+     */
+    private static isParentSubagentTool;
     /**
      * Extracts subagent info (description, agentName, prompt) from a tool invocation.
      */
@@ -63,6 +70,7 @@ export declare class ChatSubagentContentPart extends ChatCollapsibleContentPart 
     markAsInactive(): void;
     finalizeTitle(): void;
     private updateTitle;
+    private updateHover;
     /**
      * Tracks a tool invocation's state for:
      * 1. Updating the title with the current tool message (persists even after completion)
@@ -97,6 +105,17 @@ export declare class ChatSubagentContentPart extends ChatCollapsibleContentPart 
         domNode: HTMLElement;
         disposable?: IDisposable;
     }, _codeblocksPartId: string | undefined, _markdown: IChatMarkdownContent, _originalParent?: HTMLElement): void;
+    /**
+     * Appends a hook item (blocked/warning) to the subagent content part.
+     */
+    appendHookItem(factory: () => {
+        domNode: HTMLElement;
+        disposable?: IDisposable;
+    }, hookPart: IChatHookPart): void;
+    /**
+     * Appends a hook item's DOM node to the wrapper.
+     */
+    private appendHookItemToDOM;
     /**
      * Appends a markdown item's DOM node to the wrapper.
      */

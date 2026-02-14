@@ -16,23 +16,23 @@ import { CancellationToken } from "../../../../../../base/common/cancellation.js
 import { Codicon } from "../../../../../../base/common/codicons.js";
 import { Event } from "../../../../../../base/common/event.js";
 import { MarkdownString } from "../../../../../../base/common/htmlContent.js";
-import { generateUuid } from "../../../../../../base/common/uuid.js";
 import { Disposable, DisposableStore } from "../../../../../../base/common/lifecycle.js";
 import { ThemeIcon } from "../../../../../../base/common/themables.js";
+import { generateUuid } from "../../../../../../base/common/uuid.js";
 import { localize } from "../../../../../../nls.js";
 import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
 import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
 import { ILogService } from "../../../../../../platform/log/common/log.js";
-import { IChatAgentService } from "../../participants/chatAgents.js";
-import { IChatService } from "../../chatService/chatService.js";
 import { ChatRequestVariableSet } from "../../attachments/chatVariableEntries.js";
+import { IChatService } from "../../chatService/chatService.js";
 import { ChatAgentLocation, ChatConfiguration, ChatModeKind } from "../../constants.js";
 import { ILanguageModelsService } from "../../languageModels.js";
-import { ILanguageModelToolsService, isToolSet, ToolDataSource, VSCodeToolReference } from "../languageModelToolsService.js";
+import { IChatAgentService } from "../../participants/chatAgents.js";
 import { ComputeAutomaticInstructions } from "../../promptSyntax/computeAutomaticInstructions.js";
+import { IPromptsService } from "../../promptSyntax/service/promptsService.js";
+import { ILanguageModelToolsService, isToolSet, ToolDataSource, VSCodeToolReference } from "../languageModelToolsService.js";
 import { ManageTodoListToolToolId } from "./manageTodoListTool.js";
 import { createToolSimpleTextResult } from "./toolHelpers.js";
-import { IPromptsService } from "../../promptSyntax/service/promptsService.js";
 const BaseModelDescription = `Launch a new agent to handle complex, multi-step tasks autonomously. This tool is good at researching complex questions, searching for code, and executing multi-step tasks. When you are searching for a keyword or file and are not confident that you will find the right match in the first few tries, use this agent to perform the search for you.
 
 - Agents do not run async or in the background, you will wait for the agent's result.
@@ -61,6 +61,7 @@ let RunSubagentTool = class RunSubagentTool2 extends Disposable {
     this.configurationService = configurationService;
     this.promptsService = promptsService;
     this.instantiationService = instantiationService;
+    this._resolvedModels = /* @__PURE__ */ new Map();
     this.onDidUpdateToolData = Event.filter(this.configurationService.onDidChangeConfiguration, (e) => e.affectsConfiguration(ChatConfiguration.SubagentToolCustomAgents));
   }
   getToolData() {
@@ -120,23 +121,24 @@ let RunSubagentTool = class RunSubagentTool2 extends Disposable {
       let modeTools = invocation.userSelectedTools;
       let modeInstructions;
       let subagent;
+      let resolvedModelName;
       const subAgentName = args.agentName;
       if (subAgentName) {
         subagent = await this.getSubAgentByName(subAgentName);
         if (subagent) {
-          const modeModelQualifiedNames = subagent.model;
-          if (modeModelQualifiedNames) {
-            outer: for (const qualifiedName of modeModelQualifiedNames) {
-              const lmByQualifiedName = this.languageModelsService.lookupLanguageModelByQualifiedName(qualifiedName);
-              if (lmByQualifiedName?.identifier) {
-                modeModelId = lmByQualifiedName.identifier;
-                break outer;
-              }
-            }
+          const cached = this._resolvedModels.get(invocation.callId);
+          if (cached) {
+            this._resolvedModels.delete(invocation.callId);
+            modeModelId = cached.modeModelId;
+            resolvedModelName = cached.resolvedModelName;
+          } else {
+            const resolved = this.resolveSubagentModel(subagent, invocation.modelId);
+            modeModelId = resolved.modeModelId;
+            resolvedModelName = resolved.resolvedModelName;
           }
           const modeCustomTools = subagent.tools;
           if (modeCustomTools) {
-            const enablementMap = this.languageModelToolsService.toToolAndToolSetEnablementMap(modeCustomTools, subagent.target, void 0);
+            const enablementMap = this.languageModelToolsService.toToolAndToolSetEnablementMap(modeCustomTools, void 0);
             modeTools = {};
             for (const [tool, enabled] of enablementMap) {
               if (!isToolSet(tool)) {
@@ -154,6 +156,15 @@ let RunSubagentTool = class RunSubagentTool2 extends Disposable {
         } else {
           throw new Error(`Requested agent '${subAgentName}' not found. Try again with the correct agent name, or omit the agentName to use the current agent.`);
         }
+      } else {
+        const cached = this._resolvedModels.get(invocation.callId);
+        if (cached) {
+          this._resolvedModels.delete(invocation.callId);
+          resolvedModelName = cached.resolvedModelName;
+        } else {
+          const resolvedModelMetadata = modeModelId ? this.languageModelsService.lookupLanguageModel(modeModelId) : void 0;
+          resolvedModelName = resolvedModelMetadata?.name;
+        }
       }
       const markdownParts = [];
       const subAgentInvocationId = invocation.callId ?? `subagent-${generateUuid()}`;
@@ -170,6 +181,8 @@ let RunSubagentTool = class RunSubagentTool2 extends Disposable {
             } else {
               model.acceptResponseProgress(request, part);
             }
+          } else if (part.kind === "hook") {
+            model.acceptResponseProgress(request, { ...part, subAgentInvocationId });
           } else if (part.kind === "markdownContent") {
             if (inEdit) {
               model.acceptResponseProgress(request, { kind: "markdownContent", content: new MarkdownString("\n```\n\n") });
@@ -187,6 +200,13 @@ let RunSubagentTool = class RunSubagentTool2 extends Disposable {
       const variableSet = new ChatRequestVariableSet();
       const computer = this.instantiationService.createInstance(ComputeAutomaticInstructions, ChatModeKind.Agent, modeTools, void 0);
       await computer.collect(variableSet, token);
+      let collectedHooks;
+      try {
+        const info = await this.promptsService.getHooks(token);
+        collectedHooks = info?.hooks;
+      } catch (error) {
+        this.logService.warn("[ChatService] Failed to collect hooks:", error);
+      }
       const agentRequest = {
         sessionResource: invocation.context.sessionResource,
         requestId: invocation.callId ?? `subagent-${Date.now()}`,
@@ -199,7 +219,9 @@ let RunSubagentTool = class RunSubagentTool2 extends Disposable {
         userSelectedModelId: modeModelId,
         userSelectedTools: modeTools,
         modeInstructions,
-        parentRequestId: invocation.chatRequestId
+        parentRequestId: invocation.chatRequestId,
+        hooks: collectedHooks,
+        hasHooksEnabled: !!collectedHooks && Object.values(collectedHooks).some((arr) => arr.length > 0)
       };
       store.add(this.languageModelToolsService.onDidInvokeTool((e) => {
         if (e.subagentInvocationId === subAgentInvocationId) {
@@ -213,6 +235,7 @@ let RunSubagentTool = class RunSubagentTool2 extends Disposable {
       const resultText = markdownParts.join("").replace(/^\n*```\n+```\n*/g, "").trim() || "Agent completed with no output";
       if (invocation.toolSpecificData?.kind === "subagent") {
         invocation.toolSpecificData.result = resultText;
+        invocation.toolSpecificData.modelName = resolvedModelName;
       }
       return {
         content: [{
@@ -222,7 +245,8 @@ let RunSubagentTool = class RunSubagentTool2 extends Disposable {
         toolMetadata: {
           subAgentInvocationId,
           description: args.description,
-          agentName: agentRequest.subAgentName
+          agentName: agentRequest.subAgentName,
+          modelName: resolvedModelName
         }
       };
     } catch (error) {
@@ -237,16 +261,50 @@ let RunSubagentTool = class RunSubagentTool2 extends Disposable {
     const agents = await this.promptsService.getCustomAgents(CancellationToken.None);
     return agents.find((agent) => agent.name === name);
   }
+  /**
+   * Resolves the model to be used by a subagent, applying multiplier-based
+   * fallback to avoid using a more expensive model than the main agent.
+   */
+  resolveSubagentModel(subagent, mainModelId) {
+    let modeModelId = mainModelId;
+    if (subagent) {
+      const modeModelQualifiedNames = subagent.model;
+      if (modeModelQualifiedNames) {
+        outer: for (const qualifiedName of modeModelQualifiedNames) {
+          const lmByQualifiedName = this.languageModelsService.lookupLanguageModelByQualifiedName(qualifiedName);
+          if (lmByQualifiedName?.identifier) {
+            modeModelId = lmByQualifiedName.identifier;
+            break outer;
+          }
+        }
+      }
+      if (modeModelId && modeModelId !== mainModelId) {
+        const mainModelMetadata = mainModelId ? this.languageModelsService.lookupLanguageModel(mainModelId) : void 0;
+        const subagentModelMetadata = this.languageModelsService.lookupLanguageModel(modeModelId);
+        const mainMultiplier = mainModelMetadata?.multiplierNumeric;
+        const subagentMultiplier = subagentModelMetadata?.multiplierNumeric;
+        if (mainMultiplier !== void 0 && subagentMultiplier !== void 0 && subagentMultiplier > mainMultiplier) {
+          this.logService.warn(`[RunSubagentTool] Subagent '${subagent.name}' requested model '${subagentModelMetadata?.name}' (multiplier: ${subagentMultiplier}) which has a larger multiplier than the main agent model '${mainModelMetadata?.name}' (multiplier: ${mainMultiplier}). Falling back to the main agent model.`);
+          modeModelId = mainModelId;
+        }
+      }
+    }
+    const resolvedModelMetadata = modeModelId ? this.languageModelsService.lookupLanguageModel(modeModelId) : void 0;
+    return { modeModelId, resolvedModelName: resolvedModelMetadata?.name };
+  }
   async prepareToolInvocation(context, _token) {
     const args = context.parameters;
     const subagent = args.agentName ? await this.getSubAgentByName(args.agentName) : void 0;
+    const resolved = this.resolveSubagentModel(subagent, context.modelId);
+    this._resolvedModels.set(context.toolCallId, resolved);
     return {
       invocationMessage: args.description,
       toolSpecificData: {
         kind: "subagent",
         description: args.description,
         agentName: subagent?.name,
-        prompt: args.prompt
+        prompt: args.prompt,
+        modelName: resolved.resolvedModelName
       }
     };
   }

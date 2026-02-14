@@ -23,12 +23,6 @@ var ViewContainerLocation;
   ViewContainerLocation2[ViewContainerLocation2["Panel"] = 1] = "Panel";
   ViewContainerLocation2[ViewContainerLocation2["AuxiliaryBar"] = 2] = "AuxiliaryBar";
 })(ViewContainerLocation || (ViewContainerLocation = {}));
-const ViewContainerLocations = [
-  0,
-  1,
-  2
-  /* ViewContainerLocation.AuxiliaryBar */
-];
 function ViewContainerLocationToString(viewContainerLocation) {
   switch (viewContainerLocation) {
     case 0:
@@ -94,8 +88,8 @@ class ViewContainersRegistryImpl extends Disposable {
   getViewContainerLocation(container) {
     return [...this.viewContainers.keys()].filter((location) => this.getViewContainers(location).filter((viewContainer) => viewContainer?.id === container.id).length > 0)[0];
   }
-  getDefaultViewContainer(location) {
-    return this.defaultViewContainers.find((viewContainer) => this.getViewContainerLocation(viewContainer) === location);
+  getDefaultViewContainers(location) {
+    return this.defaultViewContainers.filter((viewContainer) => this.getViewContainerLocation(viewContainer) === location);
   }
 }
 Registry.add(Extensions.ViewContainersRegistry, new ViewContainersRegistryImpl());
@@ -324,7 +318,6 @@ export {
   VIEWS_LOG_NAME,
   ViewContainerLocation,
   ViewContainerLocationToString,
-  ViewContainerLocations,
   ViewContentGroups,
   ViewVisibilityState,
   defaultViewIcon

@@ -48,6 +48,7 @@ var TerminalSettingId;
   TerminalSettingId2["FontWeight"] = "terminal.integrated.fontWeight";
   TerminalSettingId2["FontWeightBold"] = "terminal.integrated.fontWeightBold";
   TerminalSettingId2["CursorBlinking"] = "terminal.integrated.cursorBlinking";
+  TerminalSettingId2["TextBlinking"] = "terminal.integrated.textBlinking";
   TerminalSettingId2["CursorStyle"] = "terminal.integrated.cursorStyle";
   TerminalSettingId2["CursorStyleInactive"] = "terminal.integrated.cursorStyleInactive";
   TerminalSettingId2["CursorWidth"] = "terminal.integrated.cursorWidth";

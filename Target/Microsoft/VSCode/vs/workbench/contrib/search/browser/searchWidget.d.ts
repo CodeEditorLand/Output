@@ -63,6 +63,13 @@ export declare class SearchWidget extends Widget {
     private _replaceHistoryDelayer;
     private ignoreGlobalFindBufferOnNextFocus;
     private previousGlobalFindBufferValue;
+    /**
+     * Tracks whether the accessibility help hint has been announced in the ARIA label.
+     * Reset when the widget loses focus, allowing the hint to be announced again
+     * on the next focus.
+     */
+    private _accessibilityHelpHintAnnounced;
+    private _labelResetTimeout;
     private _onSearchSubmit;
     readonly onSearchSubmit: Event<{
         triggeredOnType: boolean;
@@ -96,6 +103,14 @@ export declare class SearchWidget extends Widget {
     private _hasNotebookOpen;
     getNotebookFilters(): NotebookFindFilters;
     focus(select?: boolean, focusReplace?: boolean, suppressGlobalSearchBuffer?: boolean): void;
+    /**
+     * Updates the ARIA label of the search input box.
+     * When a screen reader is active and the accessibility verbosity setting is enabled,
+     * includes a hint about pressing Alt+F1 for accessibility help on first focus.
+     * The hint is only announced once per focus cycle to prevent double-speak.
+     * @param includeHint Whether to include the accessibility help hint in the label
+     */
+    private _updateSearchInputAriaLabel;
     setWidth(width: number): void;
     clear(): void;
     isReplaceShown(): boolean;

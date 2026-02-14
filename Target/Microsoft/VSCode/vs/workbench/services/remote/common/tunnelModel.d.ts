@@ -144,7 +144,7 @@ export declare class TunnelModel extends Disposable {
     readonly detected: Map<string, Tunnel>;
     private remoteTunnels;
     private _onForwardPort;
-    onForwardPort: Event<Tunnel | void>;
+    onForwardPort: Event<void | Tunnel>;
     private _onClosePort;
     onClosePort: Event<{
         host: string;

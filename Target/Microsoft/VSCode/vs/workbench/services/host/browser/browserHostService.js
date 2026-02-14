@@ -442,6 +442,8 @@ let BrowserHostService = class BrowserHostService2 extends Disposable {
   }
   async moveTop(targetWindow) {
   }
+  async setWindowDimmed(_targetWindow, _dimmed) {
+  }
   async getCursorScreenPoint() {
     return void 0;
   }

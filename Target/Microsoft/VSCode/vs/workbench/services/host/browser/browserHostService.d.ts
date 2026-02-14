@@ -54,6 +54,7 @@ export declare class BrowserHostService extends Disposable implements IHostServi
     private doOpen;
     toggleFullScreen(targetWindow: Window): Promise<void>;
     moveTop(targetWindow: Window): Promise<void>;
+    setWindowDimmed(_targetWindow: Window, _dimmed: boolean): Promise<void>;
     getCursorScreenPoint(): Promise<undefined>;
     getWindows(options: {
         includeAuxiliaryWindows: true;

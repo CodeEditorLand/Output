@@ -7,6 +7,7 @@ import { HoverService } from '../../../../platform/hover/browser/hoverService.js
 import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
 import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
 import { IThemeService } from '../../../../platform/theme/common/themeService.js';
+import { IUserInteractionService } from '../../../../platform/userInteraction/browser/userInteractionService.js';
 export declare class InlineChatGutterAffordance extends InlineEditsGutterIndicator {
     private readonly _myEditorObs;
     private readonly _hover;
@@ -15,7 +16,7 @@ export declare class InlineChatGutterAffordance extends InlineEditsGutterIndicat
         rect: DOMRect;
         above: boolean;
         lineNumber: number;
-    } | undefined>, _keybindingService: IKeybindingService, hoverService: HoverService, instantiationService: IInstantiationService, accessibilityService: IAccessibilityService, themeService: IThemeService);
+    } | undefined>, _keybindingService: IKeybindingService, hoverService: HoverService, instantiationService: IInstantiationService, accessibilityService: IAccessibilityService, themeService: IThemeService, userInteractionService: IUserInteractionService);
     protected _showHover(): void;
     private _doShowHover;
 }

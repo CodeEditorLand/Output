@@ -6,7 +6,7 @@ import { localize2 } from "../../../../../nls.js";
 import { Action2, MenuId, registerAction2 } from "../../../../../platform/actions/common/actions.js";
 import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
 import { ICommandService } from "../../../../../platform/commands/common/commands.js";
-import { IPromptsService } from "../../common/promptSyntax/service/promptsService.js";
+import { IPromptsService, AgentFileType } from "../../common/promptSyntax/service/promptsService.js";
 import { PromptsConfig } from "../../common/promptSyntax/config/config.js";
 import { PromptsType } from "../../common/promptSyntax/promptTypes.js";
 import { basename, dirname, relativePath } from "../../../../../base/common/resources.js";
@@ -19,6 +19,11 @@ import { CHAT_CATEGORY, CHAT_CONFIG_MENU_ID } from "./chatActions.js";
 import { ChatViewId } from "../chat.js";
 import { ChatContextKeys } from "../../common/actions/chatContextKeys.js";
 import { IWorkspaceContextService } from "../../../../../platform/workspace/common/workspace.js";
+import { IPathService } from "../../../../services/path/common/pathService.js";
+import { parseAllHookFiles } from "../promptSyntax/hookUtils.js";
+import { ILabelService } from "../../../../../platform/label/common/label.js";
+import { IRemoteAgentService } from "../../../../services/remote/common/remoteAgentService.js";
+import { OS } from "../../../../../base/common/platform.js";
 function encodePathForMarkdown(path) {
   return path.split("/").map((segment) => encodeURIComponent(segment)).join("/");
 }
@@ -38,6 +43,8 @@ const TREE_BRANCH = "\u251C\u2500";
 const TREE_END = "\u2514\u2500";
 const ICON_ERROR = "\u274C";
 const ICON_WARN = "\u26A0\uFE0F";
+const ICON_MANUAL = "\u{1F527}";
+const ICON_HIDDEN = "\u{1F441}\uFE0F\u200D\u{1F5E8}\uFE0F";
 function registerChatCustomizationDiagnosticsAction() {
   registerAction2(class DiagnosticsAction extends Action2 {
     static {
@@ -73,8 +80,11 @@ function registerChatCustomizationDiagnosticsAction() {
       const untitledTextEditorService = accessor.get(IUntitledTextEditorService);
       const commandService = accessor.get(ICommandService);
       const workspaceContextService = accessor.get(IWorkspaceContextService);
+      const labelService = accessor.get(ILabelService);
+      const remoteAgentService = accessor.get(IRemoteAgentService);
       const token = CancellationToken.None;
       const workspaceFolders = workspaceContextService.getWorkspace().folders;
+      const pathService = accessor.get(IPathService);
       const statusInfos = [];
       const agentsStatus = await collectAgentsStatus(promptsService, fileService, token);
       statusInfos.push(agentsStatus);
@@ -84,6 +94,8 @@ function registerChatCustomizationDiagnosticsAction() {
       statusInfos.push(promptsStatus);
       const skillsStatus = await collectSkillsStatus(promptsService, configurationService, fileService, token);
       statusInfos.push(skillsStatus);
+      const hooksStatus = await collectHooksStatus(promptsService, fileService, labelService, pathService, workspaceContextService, remoteAgentService, token);
+      statusInfos.push(hooksStatus);
       const specialFilesStatus = await collectSpecialFilesStatus(promptsService, configurationService, token);
       const output = formatStatusOutput(statusInfos, specialFilesStatus, workspaceFolders);
       const untitledModel = untitledTextEditorService.create({
@@ -135,20 +147,46 @@ async function collectSkillsStatus(promptsService, configurationService, fileSer
   return { type, paths, files, enabled };
 }
 __name(collectSkillsStatus, "collectSkillsStatus");
+async function collectHooksStatus(promptsService, fileService, labelService, pathService, workspaceContextService, remoteAgentService, token) {
+  const type = PromptsType.hook;
+  const enabled = true;
+  const resolvedFolders = await promptsService.getResolvedSourceFolders(type);
+  const paths = await convertResolvedFoldersToPathInfo(resolvedFolders, fileService);
+  const discoveryInfo = await promptsService.getPromptDiscoveryInfo(type, token);
+  const files = discoveryInfo.files.map(convertDiscoveryResultToFileStatus);
+  const disabledFileUris = discoveryInfo.files.filter((f) => f.status === "skipped" && f.skipReason === "all-hooks-disabled").map((f) => f.uri);
+  const parsedHooks = await parseHookFiles(promptsService, fileService, labelService, pathService, workspaceContextService, remoteAgentService, token, disabledFileUris);
+  return { type, paths, files, enabled, parsedHooks };
+}
+__name(collectHooksStatus, "collectHooksStatus");
+async function parseHookFiles(promptsService, fileService, labelService, pathService, workspaceContextService, remoteAgentService, token, additionalDisabledFileUris) {
+  const workspaceFolder = workspaceContextService.getWorkspace().folders[0];
+  const workspaceRootUri = workspaceFolder?.uri;
+  const userHomeUri = await pathService.userHome();
+  const userHome = userHomeUri.fsPath ?? userHomeUri.path;
+  const remoteEnv = await remoteAgentService.getEnvironment();
+  const targetOS = remoteEnv?.os ?? OS;
+  return parseAllHookFiles(promptsService, fileService, labelService, workspaceRootUri, userHome, targetOS, token, { additionalDisabledFileUris });
+}
+__name(parseHookFiles, "parseHookFiles");
 async function collectSpecialFilesStatus(promptsService, configurationService, token) {
   const useAgentMd = configurationService.getValue(PromptsConfig.USE_AGENT_MD) ?? false;
-  let agentMdFiles = [];
-  if (useAgentMd) {
-    agentMdFiles = await promptsService.listAgentMDs(token, false);
-  }
+  const useClaudeMd = configurationService.getValue(PromptsConfig.USE_CLAUDE_MD) ?? false;
   const useCopilotInstructions = configurationService.getValue(PromptsConfig.USE_COPILOT_INSTRUCTION_FILES) ?? false;
-  let copilotInstructionsFiles = [];
-  if (useCopilotInstructions) {
-    copilotInstructionsFiles = await promptsService.listCopilotInstructionsMDs(token);
-  }
+  const allFiles = await promptsService.listAgentInstructions(token);
   return {
-    agentsMd: { enabled: useAgentMd, files: agentMdFiles },
-    copilotInstructions: { enabled: useCopilotInstructions, files: copilotInstructionsFiles }
+    agentsMd: {
+      enabled: useAgentMd,
+      files: allFiles.filter((f) => f.type === AgentFileType.agentsMd).map((f) => f.uri)
+    },
+    claudeMd: {
+      enabled: useClaudeMd,
+      files: allFiles.filter((f) => f.type === AgentFileType.claudeMd).map((f) => f.uri)
+    },
+    copilotInstructions: {
+      enabled: useCopilotInstructions,
+      files: allFiles.filter((f) => f.type === AgentFileType.copilotInstructionsMd).map((f) => f.uri)
+    }
   };
 }
 __name(collectSpecialFilesStatus, "collectSpecialFilesStatus");
@@ -192,6 +230,10 @@ function getSkipReasonMessage(skipReason, errorMessage) {
       return errorMessage ?? nls.localize("status.parseError", "Parse error");
     case "disabled":
       return nls.localize("status.typeDisabled", "Disabled");
+    case "all-hooks-disabled":
+      return nls.localize("status.allHooksDisabled", "All hooks disabled via disableAllHooks");
+    case "claude-hooks-disabled":
+      return nls.localize("status.claudeHooksDisabled", "Claude hooks disabled via chat.useClaudeHooks setting");
     default:
       return errorMessage ?? nls.localize("status.unknownError", "Unknown error");
   }
@@ -204,7 +246,9 @@ function convertDiscoveryResultToFileStatus(result) {
       status: "loaded",
       name: result.name,
       storage: result.storage,
-      extensionId: result.extensionId
+      extensionId: result.extensionId,
+      userInvocable: result.userInvocable,
+      disableModelInvocation: result.disableModelInvocation
     };
   }
   if (result.skipReason === "duplicate-name" && result.duplicateOf) {
@@ -250,10 +294,21 @@ function formatStatusOutput(statusInfos, specialFiles, workspaceFolders) {
       if (specialFiles.copilotInstructions.enabled) {
         loadedCount += specialFiles.copilotInstructions.files.length;
       }
+      if (specialFiles.claudeMd.enabled) {
+        loadedCount += specialFiles.claudeMd.files.length;
+      }
     }
     lines.push(`**${typeName}**${enabledStatus}<br>`);
     const statsParts = [];
-    if (loadedCount > 0) {
+    if (info.type === PromptsType.hook) {
+      if (loadedCount > 0) {
+        statsParts.push(loadedCount === 1 ? nls.localize("status.fileLoaded", "1 file loaded") : nls.localize("status.filesLoaded", "{0} files loaded", loadedCount));
+      }
+      if (info.parsedHooks && info.parsedHooks.length > 0) {
+        const hookCount = info.parsedHooks.length;
+        statsParts.push(hookCount === 1 ? nls.localize("status.hookLoaded", "1 hook loaded") : nls.localize("status.hooksLoaded", "{0} hooks loaded", hookCount));
+      }
+    } else if (loadedCount > 0) {
       if (info.type === PromptsType.skill) {
         statsParts.push(loadedCount === 1 ? nls.localize("status.skillLoaded", "1 skill loaded") : nls.localize("status.skillsLoaded", "{0} skills loaded", loadedCount));
       } else {
@@ -289,39 +344,42 @@ function formatStatusOutput(statusInfos, specialFiles, workspaceFolders) {
       }
     }
     let hasContent = false;
-    for (const path of allPaths) {
-      const pathFiles = filesByPath.get(path.uri.toString()) || [];
-      if (path.exists) {
-        lines.push(`${path.displayPath}<br>`);
-      } else if (path.isDefault) {
-        lines.push(`${path.displayPath}<br>`);
-      } else {
-        lines.push(`${ICON_ERROR} ${path.displayPath} - *${nls.localize("status.folderNotFound", "Folder does not exist")}*<br>`);
-      }
-      if (path.exists && pathFiles.length > 0) {
-        for (let i = 0; i < pathFiles.length; i++) {
-          const file = pathFiles[i];
-          let fileName;
-          if (info.type === PromptsType.skill) {
-            fileName = file.name || `${basename(dirname(file.uri))}`;
-          } else {
-            fileName = basename(file.uri);
-          }
-          const isLast = i === pathFiles.length - 1;
-          const prefix = isLast ? TREE_END : TREE_BRANCH;
-          const filePath = getRelativePath(file.uri, workspaceFolders);
-          if (file.status === "loaded") {
-            lines.push(`${prefix} [\`${fileName}\`](${filePath})<br>`);
-          } else if (file.status === "overwritten") {
-            lines.push(`${prefix} ${ICON_WARN} [\`${fileName}\`](${filePath}) - *${nls.localize("status.overwrittenByHigherPriority", "Overwritten by higher priority file")}*<br>`);
-          } else {
-            lines.push(`${prefix} ${ICON_ERROR} [\`${fileName}\`](${filePath}) - *${file.reason}*<br>`);
+    if (info.type !== PromptsType.hook) {
+      for (const path of allPaths) {
+        const pathFiles = filesByPath.get(path.uri.toString()) || [];
+        if (path.exists) {
+          lines.push(`${path.displayPath}<br>`);
+        } else if (path.isDefault) {
+          lines.push(`${path.displayPath}<br>`);
+        } else {
+          lines.push(`${ICON_ERROR} ${path.displayPath} - *${nls.localize("status.folderNotFound", "Folder does not exist")}*<br>`);
+        }
+        if (path.exists && pathFiles.length > 0) {
+          for (let i = 0; i < pathFiles.length; i++) {
+            const file = pathFiles[i];
+            let fileName;
+            if (info.type === PromptsType.skill) {
+              fileName = file.name || `${basename(dirname(file.uri))}`;
+            } else {
+              fileName = basename(file.uri);
+            }
+            const isLast = i === pathFiles.length - 1;
+            const prefix = isLast ? TREE_END : TREE_BRANCH;
+            const filePath = getRelativePath(file.uri, workspaceFolders);
+            if (file.status === "loaded") {
+              const flags = getSkillFlags(file, info.type);
+              lines.push(`${prefix} [\`${fileName}\`](${filePath})${flags}<br>`);
+            } else if (file.status === "overwritten") {
+              lines.push(`${prefix} ${ICON_WARN} [\`${fileName}\`](${filePath}) - *${nls.localize("status.overwrittenByHigherPriority", "Overwritten by higher priority file")}*<br>`);
+            } else {
+              lines.push(`${prefix} ${ICON_ERROR} [\`${fileName}\`](${filePath}) - *${file.reason}*<br>`);
+            }
           }
         }
+        hasContent = true;
       }
-      hasContent = true;
     }
-    if (unmatchedFiles.length > 0) {
+    if (info.type !== PromptsType.hook && unmatchedFiles.length > 0) {
       const filesByExtension = /* @__PURE__ */ new Map();
       for (const file of unmatchedFiles) {
         const extId = file.extensionId || "unknown";
@@ -344,7 +402,8 @@ function formatStatusOutput(statusInfos, specialFiles, workspaceFolders) {
           const prefix = isLast ? TREE_END : TREE_BRANCH;
           const filePath = getRelativePath(file.uri, workspaceFolders);
           if (file.status === "loaded") {
-            lines.push(`${prefix} [\`${fileName}\`](${filePath})<br>`);
+            const flags = getSkillFlags(file, info.type);
+            lines.push(`${prefix} [\`${fileName}\`](${filePath})${flags}<br>`);
           } else if (file.status === "overwritten") {
             lines.push(`${prefix} ${ICON_WARN} [\`${fileName}\`](${filePath}) - *${nls.localize("status.overwrittenByHigherPriority", "Overwritten by higher priority file")}*<br>`);
           } else {
@@ -386,6 +445,36 @@ function formatStatusOutput(statusInfos, specialFiles, workspaceFolders) {
         hasContent = true;
       }
     }
+    if (info.type === PromptsType.hook && info.parsedHooks && info.parsedHooks.length > 0) {
+      const hooksByFile = /* @__PURE__ */ new Map();
+      for (const hook of info.parsedHooks) {
+        const fileKey = hook.fileUri.toString();
+        const existing = hooksByFile.get(fileKey) ?? [];
+        existing.push(hook);
+        hooksByFile.set(fileKey, existing);
+      }
+      const fileUris = Array.from(hooksByFile.keys());
+      for (let fileIdx = 0; fileIdx < fileUris.length; fileIdx++) {
+        const fileKey = fileUris[fileIdx];
+        const fileHooks = hooksByFile.get(fileKey);
+        const firstHook = fileHooks[0];
+        const filePath = getRelativePath(firstHook.fileUri, workspaceFolders);
+        const fileDisabled = fileHooks[0].disabled;
+        if (fileDisabled) {
+          lines.push(`[${firstHook.filePath}](${filePath}) - *${nls.localize("status.allHooksDisabledLabel", "all hooks disabled via disableAllHooks")}*<br>`);
+        } else {
+          lines.push(`[${firstHook.filePath}](${filePath})<br>`);
+        }
+        for (let i = 0; i < fileHooks.length; i++) {
+          const hook = fileHooks[i];
+          const isLast = i === fileHooks.length - 1;
+          const prefix = isLast ? TREE_END : TREE_BRANCH;
+          const disabledPrefix = hook.disabled ? `${ICON_ERROR} ` : "";
+          lines.push(`${prefix} ${disabledPrefix}${hook.hookTypeLabel}: \`${hook.commandLabel}\`<br>`);
+        }
+      }
+      hasContent = true;
+    }
     if (!hasContent && info.enabled) {
       lines.push(`*${nls.localize("status.noFilesLoaded", "No files loaded")}*`);
     }
@@ -394,6 +483,23 @@ function formatStatusOutput(statusInfos, specialFiles, workspaceFolders) {
   return lines.join("\n");
 }
 __name(formatStatusOutput, "formatStatusOutput");
+function getSkillFlags(file, type) {
+  if (type !== PromptsType.skill) {
+    return "";
+  }
+  const flags = [];
+  if (file.disableModelInvocation) {
+    flags.push(`${ICON_MANUAL} *${nls.localize("status.skill.manualOnly", "manual only")}*`);
+  }
+  if (file.userInvocable === false) {
+    flags.push(`${ICON_HIDDEN} *${nls.localize("status.skill.hiddenFromMenu", "hidden from menu")}*`);
+  }
+  if (flags.length === 0) {
+    return "";
+  }
+  return ` - ${flags.join(", ")}`;
+}
+__name(getSkillFlags, "getSkillFlags");
 function isFileUnderPath(fileUri, pathUri) {
   const filePath = fileUri.toString();
   const folderPath = pathUri.toString();
@@ -410,6 +516,8 @@ function getTypeName(type) {
       return nls.localize("status.type.prompts", "Prompt Files");
     case PromptsType.skill:
       return nls.localize("status.type.skills", "Skills");
+    case PromptsType.hook:
+      return nls.localize("status.type.hooks", "Hooks");
     default:
       return type;
   }

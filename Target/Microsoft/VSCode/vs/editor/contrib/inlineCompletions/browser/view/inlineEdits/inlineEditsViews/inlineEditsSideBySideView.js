@@ -19,6 +19,7 @@ import { autorun, constObservable, derived, derivedObservableWithCache, observab
 import { IInstantiationService } from "../../../../../../../platform/instantiation/common/instantiation.js";
 import { asCssVariable } from "../../../../../../../platform/theme/common/colorUtils.js";
 import { IThemeService } from "../../../../../../../platform/theme/common/themeService.js";
+import { IUserInteractionService } from "../../../../../../../platform/userInteraction/browser/userInteractionService.js";
 import { observableCodeEditor } from "../../../../../../browser/observableCodeEditor.js";
 import { Rect } from "../../../../../../common/core/2d/rect.js";
 import { EmbeddedCodeEditorWidget } from "../../../../../../browser/widget/codeEditor/embeddedCodeEditorWidget.js";
@@ -62,7 +63,7 @@ let InlineEditsSideBySideView = class InlineEditsSideBySideView2 extends Disposa
     const modifiedPadding = MODIFIED_END_PADDING + 2 * BORDER_WIDTH;
     return maxOriginalContent + maxModifiedContent + originalPadding + modifiedPadding < editorWidth - editorContentLeft - editorVerticalScrollbar - minimapWidth;
   }
-  constructor(_editor, _edit, _previewTextModel, _uiState, _tabAction, _instantiationService, _themeService) {
+  constructor(_editor, _edit, _previewTextModel, _uiState, _tabAction, _instantiationService, _themeService, _userInteractionService) {
     super();
     this._editor = _editor;
     this._edit = _edit;
@@ -71,6 +72,7 @@ let InlineEditsSideBySideView = class InlineEditsSideBySideView2 extends Disposa
     this._tabAction = _tabAction;
     this._instantiationService = _instantiationService;
     this._themeService = _themeService;
+    this._userInteractionService = _userInteractionService;
     this._onDidClick = this._register(new Emitter());
     this.onDidClick = this._onDidClick.event;
     this._editorObs = observableCodeEditor(this._editor);
@@ -89,7 +91,7 @@ let InlineEditsSideBySideView = class InlineEditsSideBySideView2 extends Disposa
     }, [
       n.div({ class: "preview", style: { pointerEvents: "none" }, ref: this.previewRef })
     ]).keepUpdated(this._store);
-    this.isHovered = this._editorContainer.didMouseMoveDuringHover;
+    this.isHovered = this._userInteractionService.createHoverTracker(this._editorContainer.element, this._store);
     this.previewEditor = this._register(this._instantiationService.createInstance(EmbeddedCodeEditorWidget, this.previewRef.element, {
       glyphMargin: false,
       lineNumbers: "off",
@@ -524,7 +526,8 @@ let InlineEditsSideBySideView = class InlineEditsSideBySideView2 extends Disposa
 };
 InlineEditsSideBySideView = __decorate([
   __param(5, IInstantiationService),
-  __param(6, IThemeService)
+  __param(6, IThemeService),
+  __param(7, IUserInteractionService)
 ], InlineEditsSideBySideView);
 export {
   InlineEditsSideBySideView

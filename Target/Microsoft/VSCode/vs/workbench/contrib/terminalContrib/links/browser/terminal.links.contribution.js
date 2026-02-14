@@ -79,9 +79,9 @@ let TerminalLinkContribution = class TerminalLinkContribution2 extends Disposabl
   async showLinkQuickpick(extended) {
     if (!this._terminalLinkQuickpick) {
       this._terminalLinkQuickpick = this.add(this._instantiationService.createInstance(TerminalLinkQuickpick));
-      this._terminalLinkQuickpick.onDidRequestMoreLinks(() => {
+      this.add(this._terminalLinkQuickpick.onDidRequestMoreLinks(() => {
         this.showLinkQuickpick(true);
-      });
+      }));
     }
     const links = await this._getLinks();
     return await this._terminalLinkQuickpick.show(this._ctx.instance, links);

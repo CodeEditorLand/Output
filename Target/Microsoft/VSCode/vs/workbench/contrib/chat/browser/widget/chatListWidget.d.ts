@@ -142,6 +142,7 @@ export declare class ChatListWidget extends Disposable {
     private _lastItem;
     private _mostRecentlyFocusedItemIndex;
     private _scrollLock;
+    private _suppressAutoScroll;
     private _settingChangeCounter;
     private _visibleChangeCount;
     private readonly _container;
@@ -238,6 +239,11 @@ export declare class ChatListWidget extends Disposable {
      * Scroll the list to reveal the last item.
      */
     scrollToEnd(): void;
+    /**
+     * Suppress auto-scroll behavior temporarily. While suppressed,
+     * _withPersistedAutoScroll will not scroll to bottom after operations.
+     */
+    set suppressAutoScroll(value: boolean);
     private _withPersistedAutoScroll;
     /**
      * Focus the list.
@@ -267,6 +273,15 @@ export declare class ChatListWidget extends Disposable {
      * Get editors currently in use.
      */
     editorsInUse(): Iterable<CodeBlockPart>;
+    /**
+     * Whether the active tip currently has focus.
+     */
+    hasTipFocus(): boolean;
+    /**
+     * Focus the active tip, if any.
+     * @returns Whether a tip was focused.
+     */
+    focusTip(): boolean;
     /**
      * Get template data for a request ID.
      */

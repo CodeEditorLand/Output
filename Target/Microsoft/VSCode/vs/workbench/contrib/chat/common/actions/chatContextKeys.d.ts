@@ -10,6 +10,11 @@ export declare namespace ChatContextKeys {
     const requestInProgress: RawContextKey<boolean>;
     const currentlyEditing: RawContextKey<boolean>;
     const currentlyEditingInput: RawContextKey<boolean>;
+    const enum EditingRequestType {
+        Sent = "s",
+        QueueOrSteer = "qs"
+    }
+    const editingRequestType: RawContextKey<EditingRequestType | undefined>;
     const isResponse: RawContextKey<boolean>;
     const isRequest: RawContextKey<boolean>;
     const isPendingRequest: RawContextKey<boolean>;
@@ -21,6 +26,8 @@ export declare namespace ChatContextKeys {
     const inChatInput: RawContextKey<boolean>;
     const inChatSession: RawContextKey<boolean>;
     const inChatEditor: RawContextKey<boolean>;
+    const inChatTodoList: RawContextKey<boolean>;
+    const inChatTip: RawContextKey<boolean>;
     const inChatTerminalToolOutput: RawContextKey<boolean>;
     const chatModeKind: RawContextKey<ChatModeKind>;
     const chatModeName: RawContextKey<string>;
@@ -105,7 +112,9 @@ export declare namespace ChatContextKeys {
     const isReadAgentSession: RawContextKey<boolean>;
     const hasMultipleAgentSessionsSelected: RawContextKey<boolean>;
     const hasAgentSessionChanges: RawContextKey<boolean>;
+    const chatEditsInTreeView: RawContextKey<boolean>;
     const isKatexMathElement: RawContextKey<boolean>;
+    const contextUsageHasBeenOpened: RawContextKey<boolean>;
 }
 export declare namespace ChatContextKeyExprs {
     const inEditingMode: import("../../../../../platform/contextkey/common/contextkey.js").ContextKeyExpression | undefined;

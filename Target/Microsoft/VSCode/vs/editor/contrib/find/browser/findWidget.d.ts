@@ -5,12 +5,14 @@ import { Widget } from '../../../../base/browser/ui/widget.js';
 import './findWidget.css';
 import { ICodeEditor, IOverlayWidget, IOverlayWidgetPosition, IViewZone } from '../../../browser/editorBrowser.js';
 import { FindReplaceState } from './findState.js';
+import { IAccessibilityService } from '../../../../platform/accessibility/common/accessibility.js';
 import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
 import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
 import { ThemeIcon } from '../../../../base/common/themables.js';
 import { IHoverService } from '../../../../platform/hover/browser/hover.js';
 import { IHistory } from '../../../../base/common/history.js';
 import { type IHoverLifecycleOptions } from '../../../../base/browser/ui/hover/hover.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
 export declare const findSelectionIcon: ThemeIcon;
 export declare const findReplaceIcon: ThemeIcon;
 export declare const findReplaceAllIcon: ThemeIcon;
@@ -34,6 +36,8 @@ export declare class FindWidget extends Widget implements IOverlayWidget, IVerti
     private readonly _hoverService;
     private readonly _findWidgetSearchHistory;
     private readonly _replaceWidgetHistory;
+    private readonly _configurationService;
+    private readonly _accessibilityService;
     private static readonly ID;
     private readonly _codeEditor;
     private readonly _state;
@@ -56,18 +60,41 @@ export declare class FindWidget extends Widget implements IOverlayWidget, IVerti
     private _isVisible;
     private _isReplaceVisible;
     private _ignoreChangeEvent;
+    private _accessibilityHelpHintAnnounced;
+    private _labelResetTimeout;
+    private _lastFocusedInputWasReplace;
     private readonly _findFocusTracker;
     private readonly _findInputFocused;
     private readonly _replaceFocusTracker;
     private readonly _replaceInputFocused;
+    private _widgetFocusTracker;
+    private readonly _findWidgetFocused;
+    private _lastFocusedElement;
     private _viewZone?;
     private _viewZoneId?;
     private _resizeSash;
     private _resized;
     private readonly _updateHistoryDelayer;
-    constructor(codeEditor: ICodeEditor, controller: IFindController, state: FindReplaceState, contextViewProvider: IContextViewProvider, keybindingService: IKeybindingService, contextKeyService: IContextKeyService, _hoverService: IHoverService, _findWidgetSearchHistory: IHistory<string> | undefined, _replaceWidgetHistory: IHistory<string> | undefined);
+    constructor(codeEditor: ICodeEditor, controller: IFindController, state: FindReplaceState, contextViewProvider: IContextViewProvider, keybindingService: IKeybindingService, contextKeyService: IContextKeyService, _hoverService: IHoverService, _findWidgetSearchHistory: IHistory<string> | undefined, _replaceWidgetHistory: IHistory<string> | undefined, _configurationService: IConfigurationService, _accessibilityService: IAccessibilityService);
     getId(): string;
     getDomNode(): HTMLElement;
+    /**
+     * Returns whether the Replace input was the last focused input in the find widget.
+     * This persists even after focus leaves the widget, allowing external code to know
+     * which input to restore focus to.
+     */
+    get lastFocusedInputWasReplace(): boolean;
+    /**
+     * Returns the last focused element within the Find widget.
+     * This is useful for restoring focus to the exact element after
+     * accessibility help or other overlays are dismissed.
+     */
+    get lastFocusedElement(): HTMLElement | null;
+    /**
+     * Focuses the last focused element in the Find widget.
+     * Falls back to the Find or Replace input based on lastFocusedInputWasReplace.
+     */
+    focusLastElement(): void;
     getPosition(): IOverlayWidgetPosition | null;
     private _onStateChanged;
     private _delayedUpdateHistory;
@@ -100,6 +127,7 @@ export declare class FindWidget extends Widget implements IOverlayWidget, IVerti
     private _keybindingLabelFor;
     private _buildDomNode;
     private updateAccessibilitySupport;
+    private _updateFindInputAriaLabel;
     getViewState(): {
         widgetViewZoneVisible: boolean;
         scrollTop: number;

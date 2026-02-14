@@ -62,7 +62,7 @@ var ElicitationState;
   ElicitationState2["Rejected"] = "rejected";
 })(ElicitationState || (ElicitationState = {}));
 function isLegacyChatTerminalToolInvocationData(data) {
-  return !!data && typeof data === "object" && "command" in data;
+  return !!data && typeof data === "object" && "command" in data && "language" in data;
 }
 __name(isLegacyChatTerminalToolInvocationData, "isLegacyChatTerminalToolInvocationData");
 var ToolConfirmKind;

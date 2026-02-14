@@ -1,23 +1,252 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
 import "./media/chatTipContent.css";
 import * as dom from "../../../../../../base/browser/dom.js";
+import { StandardMouseEvent } from "../../../../../../base/browser/mouseEvent.js";
+import { status } from "../../../../../../base/browser/ui/aria/aria.js";
 import { renderIcon } from "../../../../../../base/browser/ui/iconLabel/iconLabels.js";
 import { Codicon } from "../../../../../../base/common/codicons.js";
-import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import { Emitter } from "../../../../../../base/common/event.js";
+import { Disposable, MutableDisposable } from "../../../../../../base/common/lifecycle.js";
+import { localize, localize2 } from "../../../../../../nls.js";
+import { getFlatContextMenuActions } from "../../../../../../platform/actions/browser/menuEntryActionViewItem.js";
+import { MenuWorkbenchToolBar } from "../../../../../../platform/actions/browser/toolbar.js";
+import { Action2, IMenuService, MenuId, registerAction2 } from "../../../../../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../../../platform/contextview/browser/contextView.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { ChatContextKeys } from "../../../common/actions/chatContextKeys.js";
+import { IChatTipService } from "../../chatTipService.js";
 const $ = dom.$;
-class ChatTipContentPart extends Disposable {
+let ChatTipContentPart = class ChatTipContentPart2 extends Disposable {
   static {
     __name(this, "ChatTipContentPart");
   }
-  constructor(tip, renderer) {
+  constructor(tip, _renderer, _getNextTip, _chatTipService, _contextMenuService, _menuService, _contextKeyService, _instantiationService) {
     super();
+    this._renderer = _renderer;
+    this._getNextTip = _getNextTip;
+    this._chatTipService = _chatTipService;
+    this._contextMenuService = _contextMenuService;
+    this._menuService = _menuService;
+    this._contextKeyService = _contextKeyService;
+    this._instantiationService = _instantiationService;
+    this._onDidHide = this._register(new Emitter());
+    this.onDidHide = this._onDidHide.event;
+    this._renderedContent = this._register(new MutableDisposable());
+    this._toolbar = this._register(new MutableDisposable());
     this.domNode = $(".chat-tip-widget");
-    this.domNode.appendChild(renderIcon(Codicon.lightbulb));
-    const markdownContent = this._register(renderer.render(tip.content));
-    this.domNode.appendChild(markdownContent.element);
+    this.domNode.tabIndex = 0;
+    this.domNode.setAttribute("role", "region");
+    this.domNode.setAttribute("aria-roledescription", localize("chatTipRoleDescription", "tip"));
+    this._inChatTipContextKey = ChatContextKeys.inChatTip.bindTo(this._contextKeyService);
+    const focusTracker = this._register(dom.trackFocus(this.domNode));
+    this._register(focusTracker.onDidFocus(() => this._inChatTipContextKey.set(true)));
+    this._register(focusTracker.onDidBlur(() => this._inChatTipContextKey.set(false)));
+    this._register({ dispose: /* @__PURE__ */ __name(() => this._inChatTipContextKey.reset(), "dispose") });
+    this._renderTip(tip);
+    this._register(this._chatTipService.onDidDismissTip(() => {
+      const nextTip = this._getNextTip();
+      if (nextTip) {
+        this._renderTip(nextTip);
+      } else {
+        this._onDidHide.fire();
+      }
+    }));
+    this._register(this._chatTipService.onDidNavigateTip((tip2) => {
+      this._renderTip(tip2);
+    }));
+    this._register(this._chatTipService.onDidHideTip(() => {
+      this._onDidHide.fire();
+    }));
+    this._register(this._chatTipService.onDidDisableTips(() => {
+      this._onDidHide.fire();
+    }));
+    this._register(dom.addDisposableListener(this.domNode, dom.EventType.CONTEXT_MENU, (e) => {
+      dom.EventHelper.stop(e, true);
+      const event = new StandardMouseEvent(dom.getWindow(this.domNode), e);
+      this._contextMenuService.showContextMenu({
+        getAnchor: /* @__PURE__ */ __name(() => event, "getAnchor"),
+        getActions: /* @__PURE__ */ __name(() => {
+          const menu = this._menuService.getMenuActions(MenuId.ChatTipContext, this._contextKeyService);
+          return getFlatContextMenuActions(menu);
+        }, "getActions")
+      });
+    }));
   }
-}
+  hasFocus() {
+    return dom.isAncestorOfActiveElement(this.domNode);
+  }
+  focus() {
+    this.domNode.focus();
+  }
+  _renderTip(tip) {
+    dom.clearNode(this.domNode);
+    this._toolbar.clear();
+    this.domNode.appendChild(renderIcon(Codicon.lightbulb));
+    const markdownContent = this._renderer.render(tip.content);
+    this._renderedContent.value = markdownContent;
+    this.domNode.appendChild(markdownContent.element);
+    const toolbarContainer = $(".chat-tip-toolbar");
+    this._toolbar.value = this._instantiationService.createInstance(MenuWorkbenchToolBar, toolbarContainer, MenuId.ChatTipToolbar, {
+      menuOptions: {
+        shouldForwardArgs: true
+      }
+    });
+    this.domNode.appendChild(toolbarContainer);
+    const textContent = markdownContent.element.textContent ?? localize("chatTip", "Chat tip");
+    const hasLink = /\[.*?\]\(.*?\)/.test(tip.content.value);
+    const ariaLabel = hasLink ? localize("chatTipWithAction", "{0} Tab to the action.", textContent) : textContent;
+    this.domNode.setAttribute("aria-label", ariaLabel);
+    status(ariaLabel);
+  }
+};
+ChatTipContentPart = __decorate([
+  __param(3, IChatTipService),
+  __param(4, IContextMenuService),
+  __param(5, IMenuService),
+  __param(6, IContextKeyService),
+  __param(7, IInstantiationService)
+], ChatTipContentPart);
+registerAction2(class PreviousTipAction extends Action2 {
+  static {
+    __name(this, "PreviousTipAction");
+  }
+  constructor() {
+    super({
+      id: "workbench.action.chat.previousTip",
+      title: localize2("chatTip.previous", "Previous Tip"),
+      icon: Codicon.chevronLeft,
+      f1: false,
+      menu: [{
+        id: MenuId.ChatTipToolbar,
+        group: "navigation",
+        order: 1
+      }]
+    });
+  }
+  async run(accessor) {
+    const chatTipService = accessor.get(IChatTipService);
+    const contextKeyService = accessor.get(IContextKeyService);
+    chatTipService.navigateToPreviousTip(contextKeyService);
+  }
+});
+registerAction2(class NextTipAction extends Action2 {
+  static {
+    __name(this, "NextTipAction");
+  }
+  constructor() {
+    super({
+      id: "workbench.action.chat.nextTip",
+      title: localize2("chatTip.next", "Next Tip"),
+      icon: Codicon.chevronRight,
+      f1: false,
+      menu: [{
+        id: MenuId.ChatTipToolbar,
+        group: "navigation",
+        order: 2
+      }]
+    });
+  }
+  async run(accessor) {
+    const chatTipService = accessor.get(IChatTipService);
+    const contextKeyService = accessor.get(IContextKeyService);
+    chatTipService.navigateToNextTip(contextKeyService);
+  }
+});
+registerAction2(class DismissTipToolbarAction extends Action2 {
+  static {
+    __name(this, "DismissTipToolbarAction");
+  }
+  constructor() {
+    super({
+      id: "workbench.action.chat.dismissTipToolbar",
+      title: localize2("chatTip.dismissButton", "Dismiss Tip"),
+      icon: Codicon.check,
+      f1: false,
+      menu: [{
+        id: MenuId.ChatTipToolbar,
+        group: "navigation",
+        order: 3
+      }]
+    });
+  }
+  async run(accessor) {
+    accessor.get(IChatTipService).dismissTip();
+  }
+});
+registerAction2(class CloseTipToolbarAction extends Action2 {
+  static {
+    __name(this, "CloseTipToolbarAction");
+  }
+  constructor() {
+    super({
+      id: "workbench.action.chat.closeTip",
+      title: localize2("chatTip.close", "Close Tips"),
+      icon: Codicon.close,
+      f1: false,
+      menu: [{
+        id: MenuId.ChatTipToolbar,
+        group: "navigation",
+        order: 4
+      }]
+    });
+  }
+  async run(accessor) {
+    accessor.get(IChatTipService).hideTip();
+  }
+});
+registerAction2(class DismissTipAction extends Action2 {
+  static {
+    __name(this, "DismissTipAction");
+  }
+  constructor() {
+    super({
+      id: "workbench.action.chat.dismissTip",
+      title: localize2("chatTip.dismiss", "Dismiss this tip"),
+      f1: false,
+      menu: [{
+        id: MenuId.ChatTipContext,
+        group: "chatTip",
+        order: 1
+      }]
+    });
+  }
+  async run(accessor) {
+    accessor.get(IChatTipService).dismissTip();
+  }
+});
+registerAction2(class DisableTipsAction extends Action2 {
+  static {
+    __name(this, "DisableTipsAction");
+  }
+  constructor() {
+    super({
+      id: "workbench.action.chat.disableTips",
+      title: localize2("chatTip.disableTips", "Disable tips"),
+      f1: false,
+      menu: [{
+        id: MenuId.ChatTipContext,
+        group: "chatTip",
+        order: 2
+      }]
+    });
+  }
+  async run(accessor) {
+    await accessor.get(IChatTipService).disableTips();
+  }
+});
 export {
   ChatTipContentPart
 };

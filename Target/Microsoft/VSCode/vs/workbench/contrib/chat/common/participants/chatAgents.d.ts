@@ -34,6 +34,7 @@ export interface IChatAgentAttachmentCapabilities {
     supportsProblemAttachments?: boolean;
     supportsSymbolAttachments?: boolean;
     supportsTerminalAttachments?: boolean;
+    supportsPromptAttachments?: boolean;
 }
 export interface IChatAgentData {
     id: string;
@@ -75,6 +76,7 @@ export interface IChatWelcomeMessageContent {
 export interface IChatAgentImplementation {
     invoke(request: IChatAgentRequest, progress: (parts: IChatProgress[]) => void, history: IChatAgentHistoryEntry[], token: CancellationToken): Promise<IChatAgentResult>;
     setRequestTools?(requestId: string, tools: UserSelectedTools): void;
+    setYieldRequested?(requestId: string): void;
     provideFollowups?(request: IChatAgentRequest, result: IChatAgentResult, history: IChatAgentHistoryEntry[], token: CancellationToken): Promise<IChatFollowup[]>;
     provideChatTitle?: (history: IChatAgentHistoryEntry[], token: CancellationToken) => Promise<string | undefined>;
     provideChatSummary?: (history: IChatAgentHistoryEntry[], token: CancellationToken) => Promise<string | undefined>;
@@ -135,9 +137,13 @@ export interface IChatAgentRequest {
     editedFileEvents?: IChatAgentEditedFileEvent[];
     /**
      * Collected hooks configuration for this request.
-     * Contains all hooks defined in hooks.json files, organized by hook type.
+     * Contains all hooks defined in hooks .json files, organized by hook type.
      */
     hooks?: IChatRequestHooks;
+    /**
+     * Whether any hooks are enabled for this request.
+     */
+    hasHooksEnabled?: boolean;
     /**
      * Unique ID for the subagent invocation, used to group tool calls from the same subagent run together.
      */
@@ -146,10 +152,6 @@ export interface IChatAgentRequest {
      * Display name of the subagent that is invoking this request.
      */
     subAgentName?: string;
-    /**
-     * Set to true by the editor to request the language model gracefully stop after its next opportunity.
-     */
-    yieldRequested?: boolean;
     /**
      * The request ID of the parent request that invoked this subagent.
      */
@@ -163,16 +165,6 @@ export interface IChatQuestion {
 export interface IChatAgentResultTimings {
     firstProgress?: number;
     totalElapsed: number;
-}
-export interface IChatAgentPromptTokenDetail {
-    category: string;
-    label: string;
-    percentageOfPrompt: number;
-}
-export interface IChatAgentResultUsage {
-    promptTokens: number;
-    completionTokens: number;
-    promptTokenDetails?: readonly IChatAgentPromptTokenDetail[];
 }
 export interface IChatAgentResult {
     errorDetails?: IChatResponseErrorDetails;
@@ -215,6 +207,7 @@ export interface IChatAgentService {
     hasChatParticipantDetectionProviders(): boolean;
     invokeAgent(agent: string, request: IChatAgentRequest, progress: (parts: IChatProgress[]) => void, history: IChatAgentHistoryEntry[], token: CancellationToken): Promise<IChatAgentResult>;
     setRequestTools(agent: string, requestId: string, tools: UserSelectedTools): void;
+    setYieldRequested(agent: string, requestId: string): void;
     getFollowups(id: string, request: IChatAgentRequest, result: IChatAgentResult, history: IChatAgentHistoryEntry[], token: CancellationToken): Promise<IChatFollowup[]>;
     getChatTitle(id: string, history: IChatAgentHistoryEntry[], token: CancellationToken): Promise<string | undefined>;
     getChatSummary(id: string, history: IChatAgentHistoryEntry[], token: CancellationToken): Promise<string | undefined>;
@@ -277,6 +270,7 @@ export declare class ChatAgentService extends Disposable implements IChatAgentSe
     agentHasDupeName(id: string): boolean;
     invokeAgent(id: string, request: IChatAgentRequest, progress: (parts: IChatProgress[]) => void, history: IChatAgentHistoryEntry[], token: CancellationToken): Promise<IChatAgentResult>;
     setRequestTools(id: string, requestId: string, tools: UserSelectedTools): void;
+    setYieldRequested(id: string, requestId: string): void;
     getFollowups(id: string, request: IChatAgentRequest, result: IChatAgentResult, history: IChatAgentHistoryEntry[], token: CancellationToken): Promise<IChatFollowup[]>;
     getChatTitle(id: string, history: IChatAgentHistoryEntry[], token: CancellationToken): Promise<string | undefined>;
     getChatSummary(id: string, history: IChatAgentHistoryEntry[], token: CancellationToken): Promise<string | undefined>;
@@ -318,6 +312,7 @@ export declare class MergedChatAgent implements IChatAgent {
     }[];
     invoke(request: IChatAgentRequest, progress: (parts: IChatProgress[]) => void, history: IChatAgentHistoryEntry[], token: CancellationToken): Promise<IChatAgentResult>;
     setRequestTools(requestId: string, tools: UserSelectedTools): void;
+    setYieldRequested(requestId: string): void;
     provideFollowups(request: IChatAgentRequest, result: IChatAgentResult, history: IChatAgentHistoryEntry[], token: CancellationToken): Promise<IChatFollowup[]>;
     toJSON(): IChatAgentData;
 }

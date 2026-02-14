@@ -294,7 +294,9 @@ let FocusSessionActionViewItem = class FocusSessionActionViewItem2 extends Selec
       this.update();
     }));
     this.getSessions().forEach((session2) => {
-      this._register(session2.onDidChangeName(() => this.update()));
+      const sessionListeners = [];
+      sessionListeners.push(session2.onDidChangeName(() => this.update()));
+      sessionListeners.push(session2.onDidEndAdapter(() => dispose(sessionListeners)));
     });
     this._register(this.debugService.onDidEndSession(() => this.update()));
     const selectedSession = session ? this.mapFocusedSessionToSelected(session) : void 0;

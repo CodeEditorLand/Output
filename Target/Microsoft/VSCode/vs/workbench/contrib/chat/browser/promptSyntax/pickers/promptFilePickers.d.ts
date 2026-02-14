@@ -8,7 +8,6 @@ import { PromptsType } from '../../../common/promptSyntax/promptTypes.js';
 import { IKeyMods, IQuickInputService } from '../../../../../../platform/quickinput/common/quickInput.js';
 import { IInstantiationService } from '../../../../../../platform/instantiation/common/instantiation.js';
 import { ILabelService } from '../../../../../../platform/label/common/label.js';
-import { IConfigurationService } from '../../../../../../platform/configuration/common/configuration.js';
 import { IProductService } from '../../../../../../platform/product/common/productService.js';
 /**
  * Options for the {@link askToSelectInstructions} function.
@@ -51,9 +50,8 @@ export declare class PromptFilePickers {
     private readonly _instaService;
     private readonly _promptsService;
     private readonly _labelService;
-    private readonly _configurationService;
     private readonly _productService;
-    constructor(_quickInputService: IQuickInputService, _openerService: IOpenerService, _fileService: IFileService, _dialogService: IDialogService, _commandService: ICommandService, _instaService: IInstantiationService, _promptsService: IPromptsService, _labelService: ILabelService, _configurationService: IConfigurationService, _productService: IProductService);
+    constructor(_quickInputService: IQuickInputService, _openerService: IOpenerService, _fileService: IFileService, _dialogService: IDialogService, _commandService: ICommandService, _instaService: IInstantiationService, _promptsService: IPromptsService, _labelService: ILabelService, _productService: IProductService);
     /**
      * Shows the prompt file selection dialog to the user that allows to run a prompt file(s).
      *

@@ -1,4 +1,4 @@
-import * as http from 'http';
+import type * as http from 'http';
 import * as url from 'url';
 import { ServerParsedArgs } from './serverEnvironmentService.js';
 export declare const enum ServerConnectionTokenType {

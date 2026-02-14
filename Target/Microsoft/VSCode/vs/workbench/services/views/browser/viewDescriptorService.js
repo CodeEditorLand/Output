@@ -260,9 +260,15 @@ let ViewDescriptorService = class ViewDescriptorService2 extends Disposable {
     return this.viewContainers.filter((v) => this.getViewContainerLocation(v) === location);
   }
   getDefaultViewContainer(location) {
-    return this.viewContainersRegistry.getDefaultViewContainer(location);
+    return this.viewContainersRegistry.getDefaultViewContainers(location)[0];
+  }
+  canMoveViews() {
+    return true;
   }
   moveViewContainerToLocation(viewContainer, location, requestedIndex, reason) {
+    if (!this.canMoveViews()) {
+      return;
+    }
     this.logger.value.trace(`moveViewContainerToLocation: viewContainer:${viewContainer.id} location:${location} reason:${reason}`);
     this.moveViewContainerToLocationWithoutSaving(viewContainer, location, requestedIndex);
     this.saveViewCustomizations();
@@ -275,12 +281,18 @@ let ViewDescriptorService = class ViewDescriptorService2 extends Disposable {
     this.saveViewCustomizations();
   }
   moveViewToLocation(view, location, reason) {
+    if (!this.canMoveViews()) {
+      return;
+    }
     this.logger.value.trace(`moveViewToLocation: view:${view.id} location:${location} reason:${reason}`);
     const container = this.registerGeneratedViewContainer(location);
     this.moveViewsToContainer([view], container);
   }
   moveViewsToContainer(views, viewContainer, visibilityState, reason) {
     if (!views.length) {
+      return;
+    }
+    if (!this.canMoveViews()) {
       return;
     }
     this.logger.value.trace(`moveViewsToContainer: views:${views.map((view) => view.id).join(",")} viewContainer:${viewContainer.id} reason:${reason}`);

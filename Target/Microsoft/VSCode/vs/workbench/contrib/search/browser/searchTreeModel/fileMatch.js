@@ -98,7 +98,7 @@ let FileMatchImpl = class FileMatchImpl2 extends Disposable {
     this._resource = this.rawMatch.resource;
     this._textMatches = /* @__PURE__ */ new Map();
     this._removedTextMatches = /* @__PURE__ */ new Set();
-    this._updateScheduler = new RunOnceScheduler(this.updateMatchesForModel.bind(this), 250);
+    this._updateScheduler = this._register(new RunOnceScheduler(this.updateMatchesForModel.bind(this), 250));
     this._name = new Lazy(() => labelService.getUriBasenameLabel(this.resource));
   }
   get closestRoot() {

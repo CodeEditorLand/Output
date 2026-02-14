@@ -1,6 +1,6 @@
-import { IWorkspaceEditingService } from '../common/workspaceEditing.js';
+import { IDidEnterWorkspaceEvent, IWorkspaceEditingService } from '../common/workspaceEditing.js';
 import { URI } from '../../../../base/common/uri.js';
-import { IWorkspaceIdentifier } from '../../../../platform/workspace/common/workspace.js';
+import { IAnyWorkspaceIdentifier, IWorkspaceIdentifier } from '../../../../platform/workspace/common/workspace.js';
 import { IJSONEditingService } from '../../configuration/common/jsonEditing.js';
 import { IWorkspaceFolderCreationData, IWorkspacesService, IEnterWorkspaceResult } from '../../../../platform/workspaces/common/workspaces.js';
 import { WorkspaceService } from '../../configuration/browser/configurationService.js';
@@ -17,6 +17,16 @@ import { IWorkbenchConfigurationService } from '../../configuration/common/confi
 import { IUserDataProfilesService } from '../../../../platform/userDataProfile/common/userDataProfile.js';
 import { IUserDataProfileService } from '../../userDataProfile/common/userDataProfile.js';
 import { Disposable } from '../../../../base/common/lifecycle.js';
+import { Event } from '../../../../base/common/event.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+export declare class DidEnterWorkspaceEvent implements IDidEnterWorkspaceEvent {
+    readonly oldWorkspace: IAnyWorkspaceIdentifier;
+    readonly newWorkspace: IAnyWorkspaceIdentifier;
+    private readonly promises;
+    constructor(oldWorkspace: IAnyWorkspaceIdentifier, newWorkspace: IAnyWorkspaceIdentifier);
+    join(promise: Promise<void>): void;
+    wait(): Promise<void>;
+}
 export declare abstract class AbstractWorkspaceEditingService extends Disposable implements IWorkspaceEditingService {
     private readonly jsonEditingService;
     protected readonly contextService: WorkspaceService;
@@ -34,8 +44,11 @@ export declare abstract class AbstractWorkspaceEditingService extends Disposable
     private readonly workspaceTrustManagementService;
     private readonly userDataProfilesService;
     private readonly userDataProfileService;
+    protected readonly logService: ILogService;
     readonly _serviceBrand: undefined;
-    constructor(jsonEditingService: IJSONEditingService, contextService: WorkspaceService, configurationService: IWorkbenchConfigurationService, notificationService: INotificationService, commandService: ICommandService, fileService: IFileService, textFileService: ITextFileService, workspacesService: IWorkspacesService, environmentService: IWorkbenchEnvironmentService, fileDialogService: IFileDialogService, dialogService: IDialogService, hostService: IHostService, uriIdentityService: IUriIdentityService, workspaceTrustManagementService: IWorkspaceTrustManagementService, userDataProfilesService: IUserDataProfilesService, userDataProfileService: IUserDataProfileService);
+    private readonly _onDidEnterWorkspace;
+    readonly onDidEnterWorkspace: Event<IDidEnterWorkspaceEvent>;
+    constructor(jsonEditingService: IJSONEditingService, contextService: WorkspaceService, configurationService: IWorkbenchConfigurationService, notificationService: INotificationService, commandService: ICommandService, fileService: IFileService, textFileService: ITextFileService, workspacesService: IWorkspacesService, environmentService: IWorkbenchEnvironmentService, fileDialogService: IFileDialogService, dialogService: IDialogService, hostService: IHostService, uriIdentityService: IUriIdentityService, workspaceTrustManagementService: IWorkspaceTrustManagementService, userDataProfilesService: IUserDataProfilesService, userDataProfileService: IUserDataProfileService, logService: ILogService);
     pickNewWorkspacePath(): Promise<URI | undefined>;
     private getNewWorkspaceName;
     updateFolders(index: number, deleteCount?: number, foldersToAddCandidates?: IWorkspaceFolderCreationData[], donotNotifyError?: boolean): Promise<void>;
@@ -53,6 +66,7 @@ export declare abstract class AbstractWorkspaceEditingService extends Disposable
     private onInvalidWorkspaceConfigurationFileError;
     private askToOpenWorkspaceConfigurationFile;
     abstract enterWorkspace(workspaceUri: URI): Promise<void>;
+    protected fireDidEnterWorkspace(oldWorkspace: IAnyWorkspaceIdentifier, newWorkspace: IAnyWorkspaceIdentifier): Promise<void>;
     protected doEnterWorkspace(workspaceUri: URI): Promise<IEnterWorkspaceResult | undefined>;
     private migrateWorkspaceSettings;
     copyWorkspaceSettings(toWorkspace: IWorkspaceIdentifier): Promise<void>;

@@ -37,6 +37,7 @@ import { ICommandService } from "../../../../platform/commands/common/commands.j
 import { getContextMenuActions } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
 import { IHoverService } from "../../../../platform/hover/browser/hover.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { Extensions } from "../../panecomposite.js";
 let PanelPart = class PanelPart2 extends AbstractPaneCompositePart {
   static {
     __name(this, "PanelPart");
@@ -62,7 +63,7 @@ let PanelPart = class PanelPart2 extends AbstractPaneCompositePart {
     this.activePanelSettingsKey = "workbench.panelpart.activepanelid";
   }
   constructor(notificationService, storageService, contextMenuService, layoutService, keybindingService, hoverService, instantiationService, themeService, viewDescriptorService, contextKeyService, extensionService, commandService, menuService, configurationService) {
-    super("workbench.parts.panel", { hasTitle: true, trailingSeparator: true }, PanelPart_1.activePanelSettingsKey, ActivePanelContext.bindTo(contextKeyService), PanelFocusContext.bindTo(contextKeyService), "panel", "panel", void 0, PANEL_TITLE_BORDER, notificationService, storageService, contextMenuService, layoutService, keybindingService, hoverService, instantiationService, themeService, viewDescriptorService, contextKeyService, extensionService, menuService);
+    super("workbench.parts.panel", { hasTitle: true, trailingSeparator: true }, PanelPart_1.activePanelSettingsKey, ActivePanelContext.bindTo(contextKeyService), PanelFocusContext.bindTo(contextKeyService), "panel", "panel", void 0, PANEL_TITLE_BORDER, 1, Extensions.Panels, MenuId.PanelTitle, notificationService, storageService, contextMenuService, layoutService, keybindingService, hoverService, instantiationService, themeService, viewDescriptorService, contextKeyService, extensionService, menuService);
     this.commandService = commandService;
     this.configurationService = configurationService;
     this.minimumWidth = 300;

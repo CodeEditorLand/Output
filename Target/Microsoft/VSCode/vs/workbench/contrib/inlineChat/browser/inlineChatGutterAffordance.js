@@ -22,12 +22,13 @@ import { IHoverService } from "../../../../platform/hover/browser/hover.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
 import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { IUserInteractionService } from "../../../../platform/userInteraction/browser/userInteractionService.js";
 import { ACTION_START } from "../common/inlineChat.js";
 let InlineChatGutterAffordance = class InlineChatGutterAffordance2 extends InlineEditsGutterIndicator {
   static {
     __name(this, "InlineChatGutterAffordance");
   }
-  constructor(_myEditorObs, selection, _hover, _keybindingService, hoverService, instantiationService, accessibilityService, themeService) {
+  constructor(_myEditorObs, selection, _hover, _keybindingService, hoverService, instantiationService, accessibilityService, themeService, userInteractionService) {
     const data = derived((r) => {
       const value = selection.read(r);
       if (!value) {
@@ -61,7 +62,7 @@ let InlineChatGutterAffordance = class InlineChatGutterAffordance2 extends Inlin
       );
     });
     const focusIsInMenu = observableValue({}, false);
-    super(_myEditorObs, data, constObservable(InlineEditTabAction.Inactive), constObservable(0), constObservable(false), focusIsInMenu, hoverService, instantiationService, accessibilityService, themeService);
+    super(_myEditorObs, data, constObservable(InlineEditTabAction.Inactive), constObservable(0), constObservable(false), focusIsInMenu, hoverService, instantiationService, accessibilityService, themeService, userInteractionService);
     this._myEditorObs = _myEditorObs;
     this._hover = _hover;
     this._keybindingService = _keybindingService;
@@ -97,7 +98,8 @@ InlineChatGutterAffordance = __decorate([
   __param(4, IHoverService),
   __param(5, IInstantiationService),
   __param(6, IAccessibilityService),
-  __param(7, IThemeService)
+  __param(7, IThemeService),
+  __param(8, IUserInteractionService)
 ], InlineChatGutterAffordance);
 export {
   InlineChatGutterAffordance

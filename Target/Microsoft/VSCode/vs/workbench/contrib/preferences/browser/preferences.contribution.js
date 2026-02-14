@@ -205,7 +205,7 @@ let PreferencesActionsContribution = class PreferencesActionsContribution2 exten
       }
       run(accessor, args) {
         const opts = typeof args === "string" ? { query: args } : sanitizeOpenSettingsArgs(args);
-        return accessor.get(IPreferencesService).openSettings(opts);
+        return accessor.get(IPreferencesService).openSettings({ ...opts });
       }
     }));
     this._register(registerAction2(class extends Action2 {

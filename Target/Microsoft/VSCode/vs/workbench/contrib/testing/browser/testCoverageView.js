@@ -69,7 +69,7 @@ let TestCoverageView = class TestCoverageView2 extends ViewPane {
   constructor(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, hoverService, coverageService) {
     super(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, hoverService);
     this.coverageService = coverageService;
-    this.tree = new MutableDisposable();
+    this.tree = this._register(new MutableDisposable());
     this.sortOrder = observableValue(
       "sortOrder",
       1

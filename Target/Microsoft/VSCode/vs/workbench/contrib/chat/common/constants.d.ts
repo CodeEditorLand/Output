@@ -3,7 +3,10 @@ import { RawContextKey } from '../../../../platform/contextkey/common/contextkey
 export declare enum ChatConfiguration {
     AIDisabled = "chat.disableAIFeatures",
     AgentEnabled = "chat.agent.enabled",
+    PlanAgentDefaultModel = "chat.planAgent.defaultModel",
+    ExploreAgentDefaultModel = "chat.exploreAgent.defaultModel",
     RequestQueueingEnabled = "chat.requestQueuing.enabled",
+    RequestQueueingDefaultAction = "chat.requestQueuing.defaultAction",
     AgentStatusEnabled = "chat.agentsControl.enabled",
     EditorAssociations = "chat.editorAssociations",
     UnifiedAgentsBar = "chat.unifiedAgentsBar.enabled",
@@ -15,6 +18,7 @@ export declare enum ChatConfiguration {
     RepoInfoEnabled = "chat.repoInfo.enabled",
     EditRequests = "chat.editRequests",
     InlineReferencesStyle = "chat.inlineReferences.style",
+    AutoReply = "chat.autoReply",
     GlobalAutoApprove = "chat.tools.global.autoApprove",
     AutoApproveEdits = "chat.tools.edits.autoApprove",
     AutoApprovedUrls = "chat.tools.urls.autoApprove",

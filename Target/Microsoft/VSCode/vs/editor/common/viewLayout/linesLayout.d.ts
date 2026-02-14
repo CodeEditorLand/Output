@@ -1,5 +1,5 @@
 import { IEditorWhitespace, IPartialViewLinesViewportData, ILineHeightChangeAccessor, IViewWhitespaceViewportData, IWhitespaceChangeAccessor } from '../viewModel.js';
-import { ICustomLineHeightData } from './lineHeights.js';
+import { CustomLineHeightData } from './lineHeights.js';
 interface IPendingChange {
     id: string;
     newAfterLineNumber: number;
@@ -35,7 +35,7 @@ export declare class LinesLayout {
     private _paddingTop;
     private _paddingBottom;
     private _lineHeightsManager;
-    constructor(lineCount: number, defaultLineHeight: number, paddingTop: number, paddingBottom: number, customLineHeightData: ICustomLineHeightData[]);
+    constructor(lineCount: number, defaultLineHeight: number, paddingTop: number, paddingBottom: number, customLineHeightData: CustomLineHeightData[]);
     /**
      * Find the insertion index for a new value inside a sorted array of values.
      * If the value is already present in the sorted array, the insertion index will be after the already existing value.
@@ -54,7 +54,7 @@ export declare class LinesLayout {
      *
      * @param lineCount New number of lines.
      */
-    onFlushed(lineCount: number, customLineHeightData: ICustomLineHeightData[]): void;
+    onFlushed(lineCount: number, customLineHeightData: CustomLineHeightData[]): void;
     changeLineHeights(callback: (accessor: ILineHeightChangeAccessor) => void): boolean;
     changeWhitespace(callback: (accessor: IWhitespaceChangeAccessor) => void): boolean;
     _commitPendingChanges(inserts: EditorWhitespace[], changes: IPendingChange[], removes: IPendingRemove[]): void;
@@ -74,8 +74,9 @@ export declare class LinesLayout {
      *
      * @param fromLineNumber The line number at which the insertion started, inclusive
      * @param toLineNumber The line number at which the insertion ended, inclusive.
+     * @param lineHeightsAdded The custom line height data for the inserted lines.
      */
-    onLinesInserted(fromLineNumber: number, toLineNumber: number): void;
+    onLinesInserted(fromLineNumber: number, toLineNumber: number, lineHeightsAdded: CustomLineHeightData[]): void;
     /**
      * Get the sum of all the whitespaces.
      */

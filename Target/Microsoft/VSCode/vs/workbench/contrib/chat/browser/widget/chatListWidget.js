@@ -35,6 +35,7 @@ import { ChatAccessibilityProvider } from "../accessibility/chatAccessibilityPro
 import { IChatAccessibilityService } from "../chat.js";
 import { ChatListDelegate, ChatListItemRenderer } from "./chatListRenderer.js";
 import { ChatEditorOptions } from "./chatOptions.js";
+import { ChatPendingDragController } from "./chatPendingDragAndDrop.js";
 let ChatListWidget = class ChatListWidget2 extends Disposable {
   static {
     __name(this, "ChatListWidget");
@@ -118,6 +119,7 @@ let ChatListWidget = class ChatListWidget2 extends Disposable {
     this._visible = true;
     this._mostRecentlyFocusedItemIndex = -1;
     this._scrollLock = true;
+    this._suppressAutoScroll = false;
     this._settingChangeCounter = 0;
     this._visibleChangeCount = 0;
     this._bodyDimension = null;
@@ -171,6 +173,7 @@ let ChatListWidget = class ChatListWidget2 extends Disposable {
         this.chatService.resendRequest(request, sendOptions).catch((e2) => this.logService.error("FAILED to rerun request", e2));
       }
     }));
+    this._renderer.pendingDragController = this._register(scopedInstantiationService.createInstance(ChatPendingDragController, this._container, () => this._viewModel));
     const styles = options.styles ?? {};
     this._tree = this._register(scopedInstantiationService.createInstance(WorkbenchObjectTree, "ChatList", this._container, delegate, [this._renderer], {
       identityProvider: { getId: /* @__PURE__ */ __name((e) => e.id, "getId") },
@@ -309,18 +312,21 @@ let ChatListWidget = class ChatListWidget2 extends Disposable {
       collapsible: false
     }));
     const editing = this._viewModel.editing;
-    const checkpoint = this._viewModel.model?.checkpoint;
     this._withPersistedAutoScroll(() => {
       this._tree.setChildren(null, treeItems, {
         diffIdentityProvider: {
           getId: /* @__PURE__ */ __name((element) => {
             const baseId = isRequestVM(element) || isResponseVM(element) ? element.dataId : element.id;
             const disablement = isRequestVM(element) || isResponseVM(element) ? element.shouldBeRemovedOnSend : void 0;
+            const isEditTarget = isRequestVM(element) && editing?.id === element.id;
+            const isBlocked = isRequestVM(element) || isResponseVM(element) ? element.shouldBeBlocked.get() : false;
             return baseId + // If a response is in the process of progressive rendering, we need to ensure that it will
             // be re-rendered so progressive rendering is restarted, even if the model wasn't updated.
             `${isResponseVM(element) && element.renderData ? `_${this._visibleChangeCount}` : ""}` + // Re-render once content references are loaded
             (isResponseVM(element) ? `_${element.contentReferences.length}` : "") + // Re-render if element becomes hidden due to undo/redo
-            `_${disablement ? `${disablement.afterUndoStop || "1"}` : "0"}_${editing ? "1" : "0"}_${checkpoint ? "1" : "0"}_setting${this._settingChangeCounter}` + // Rerender request if we got new content references in the response
+            `_${disablement ? `${disablement.afterUndoStop || "1"}` : "0"}_${isEditTarget ? "edit" : ""}_${isBlocked ? "blocked" : ""}` + // Re-render requests when editing starts/stops (for hover button visibility, click handlers)
+            (isRequestVM(element) ? `_${editing ? "1" : "0"}` : "") + // Re-render all if invoked by setting change
+            `_setting${this._settingChangeCounter}` + // Rerender request if we got new content references in the response
             // since this may change how we render the corresponding attachments in the request
             (isRequestVM(element) && element.contentReferences ? `_${element.contentReferences?.length}` : "");
           }, "getId")
@@ -457,7 +463,18 @@ let ChatListWidget = class ChatListWidget2 extends Disposable {
       }
     }
   }
+  /**
+   * Suppress auto-scroll behavior temporarily. While suppressed,
+   * _withPersistedAutoScroll will not scroll to bottom after operations.
+   */
+  set suppressAutoScroll(value) {
+    this._suppressAutoScroll = value;
+  }
   _withPersistedAutoScroll(fn) {
+    if (this._suppressAutoScroll) {
+      fn();
+      return;
+    }
     const wasScrolledToBottom = this.isScrolledToBottom;
     fn();
     if (wasScrolledToBottom) {
@@ -507,6 +524,19 @@ let ChatListWidget = class ChatListWidget2 extends Disposable {
    */
   editorsInUse() {
     return this._renderer.editorsInUse();
+  }
+  /**
+   * Whether the active tip currently has focus.
+   */
+  hasTipFocus() {
+    return this._renderer.hasTipFocus();
+  }
+  /**
+   * Focus the active tip, if any.
+   * @returns Whether a tip was focused.
+   */
+  focusTip() {
+    return this._renderer.focusTip();
   }
   /**
    * Get template data for a request ID.

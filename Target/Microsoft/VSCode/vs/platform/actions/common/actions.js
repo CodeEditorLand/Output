@@ -103,6 +103,9 @@ class MenuId {
     this.EditorTitle = new MenuId("EditorTitle");
   }
   static {
+    this.ModalEditorTitle = new MenuId("ModalEditorTitle");
+  }
+  static {
     this.CompactWindowEditorTitle = new MenuId("CompactWindowEditorTitle");
   }
   static {
@@ -653,6 +656,12 @@ class MenuId {
   }
   static {
     this.ChatAttachmentsContext = new MenuId("ChatAttachmentsContext");
+  }
+  static {
+    this.ChatTipContext = new MenuId("ChatTipContext");
+  }
+  static {
+    this.ChatTipToolbar = new MenuId("ChatTipToolbar");
   }
   static {
     this.ChatToolOutputResourceToolbar = new MenuId("ChatToolOutputResourceToolbar");

@@ -1,9 +1,10 @@
 import { Event } from '../../../../base/common/event.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
 import { IRange } from '../../../common/core/range.js';
 import { Selection } from '../../../common/core/selection.js';
 import { IModelContentChangedEvent } from '../../../common/textModelEvents.js';
 import { FoldingModel } from './foldingModel.js';
-export declare class HiddenRangeModel {
+export declare class HiddenRangeModel implements IDisposable {
     private readonly _foldingModel;
     private _hiddenRanges;
     private _foldingModelListener;

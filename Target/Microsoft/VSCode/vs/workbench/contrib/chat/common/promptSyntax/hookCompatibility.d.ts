@@ -20,7 +20,7 @@ export interface IResolvedHookEntry {
  * Supported hook file formats.
  */
 export declare enum HookSourceFormat {
-    /** GitHub Copilot hooks.json format */
+    /** GitHub Copilot hooks .json format */
     Copilot = "copilot",
     /** Claude settings.json / settings.local.json format */
     Claude = "claude"
@@ -35,23 +35,42 @@ export declare function getHookSourceFormat(fileUri: URI): HookSourceFormat;
  */
 export declare function isReadOnlyHookSource(format: HookSourceFormat): boolean;
 /**
- * Parses hooks from a Copilot hooks.json file (our native format).
+ * Parses hooks from a Copilot hooks .json file (our native format).
  */
 export declare function parseCopilotHooks(json: unknown, workspaceRootUri: URI | undefined, userHome: string): Map<HookType, {
     hooks: IHookCommand[];
     originalId: string;
 }>;
 /**
- * Parses hooks from any supported format, auto-detecting the format from the file URI.
+ * Result of parsing hooks from a file.
  */
-export declare function parseHooksFromFile(fileUri: URI, json: unknown, workspaceRootUri: URI | undefined, userHome: string): {
-    format: HookSourceFormat;
-    hooks: Map<HookType, {
+export interface IParseHooksFromFileResult {
+    readonly format: HookSourceFormat;
+    readonly hooks: Map<HookType, {
         hooks: IHookCommand[];
         originalId: string;
     }>;
-};
+    /**
+     * Whether all hooks from this file were disabled via `disableAllHooks: true`.
+     */
+    readonly disabledAllHooks: boolean;
+}
+/**
+ * Parses hooks from any supported format, auto-detecting the format from the file URI.
+ */
+export declare function parseHooksFromFile(fileUri: URI, json: unknown, workspaceRootUri: URI | undefined, userHome: string): IParseHooksFromFileResult;
+/**
+ * Parses hooks from a file, ignoring the `disableAllHooks` flag.
+ * Used by diagnostics to show which hooks are hidden when `disableAllHooks: true` is set.
+ */
+export declare function parseHooksIgnoringDisableAll(fileUri: URI, json: unknown, workspaceRootUri: URI | undefined, userHome: string): IParseHooksFromFileResult;
 /**
  * Gets a human-readable label for a hook source format.
  */
 export declare function getHookSourceFormatLabel(format: HookSourceFormat): string;
+/**
+ * Builds a new hook entry object in the appropriate format for the given source format.
+ * - Copilot format: `{ type: 'command', command: '' }`
+ * - Claude format: `{ matcher: '', hooks: [{ type: 'command', command: '' }] }`
+ */
+export declare function buildNewHookEntry(format: HookSourceFormat): Record<string, unknown>;

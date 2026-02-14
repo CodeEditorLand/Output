@@ -10,10 +10,11 @@ import { IContextKeyService } from '../../../../platform/contextkey/common/conte
 import { IInstantiationService, ServicesAccessor } from '../../../../platform/instantiation/common/instantiation.js';
 import { INotificationService } from '../../../../platform/notification/common/notification.js';
 import { IThemeService } from '../../../../platform/theme/common/themeService.js';
+import { IUserInteractionService } from '../../../../platform/userInteraction/browser/userInteractionService.js';
 export declare class EmbeddedCodeEditorWidget extends CodeEditorWidget {
     private readonly _parentEditor;
     private readonly _overwriteOptions;
-    constructor(domElement: HTMLElement, options: IEditorOptions, codeEditorWidgetOptions: ICodeEditorWidgetOptions, parentEditor: ICodeEditor, instantiationService: IInstantiationService, codeEditorService: ICodeEditorService, commandService: ICommandService, contextKeyService: IContextKeyService, themeService: IThemeService, notificationService: INotificationService, accessibilityService: IAccessibilityService, languageConfigurationService: ILanguageConfigurationService, languageFeaturesService: ILanguageFeaturesService);
+    constructor(domElement: HTMLElement, options: IEditorOptions, codeEditorWidgetOptions: ICodeEditorWidgetOptions, parentEditor: ICodeEditor, instantiationService: IInstantiationService, codeEditorService: ICodeEditorService, commandService: ICommandService, contextKeyService: IContextKeyService, themeService: IThemeService, notificationService: INotificationService, accessibilityService: IAccessibilityService, languageConfigurationService: ILanguageConfigurationService, languageFeaturesService: ILanguageFeaturesService, userInteractionService: IUserInteractionService);
     getParentEditor(): ICodeEditor;
     private _onParentConfigurationChanged;
     updateOptions(newOptions: IEditorOptions): void;

@@ -34,6 +34,7 @@ import { IThemeService } from '../../../../platform/theme/common/themeService.js
 import { MenuId } from '../../../../platform/actions/common/actions.js';
 import { TextModelEditSource } from '../../../common/textModelEditSource.js';
 import { TextEdit } from '../../../common/core/edits/textEdit.js';
+import { IUserInteractionService } from '../../../../platform/userInteraction/browser/userInteractionService.js';
 export declare class CodeEditorWidget extends Disposable implements editorBrowser.ICodeEditor {
     private readonly languageConfigurationService;
     private static readonly dropIntoEditorDecorationOptions;
@@ -156,6 +157,7 @@ export declare class CodeEditorWidget extends Disposable implements editorBrowse
     protected readonly _codeEditorService: ICodeEditorService;
     private readonly _commandService;
     private readonly _themeService;
+    private readonly _userInteractionService;
     private _contentWidgets;
     private _overlayWidgets;
     private _glyphMarginWidgets;
@@ -167,7 +169,7 @@ export declare class CodeEditorWidget extends Disposable implements editorBrowse
     private _bannerDomNode;
     private _dropIntoEditorDecorations;
     inComposition: boolean;
-    constructor(domElement: HTMLElement, _options: Readonly<IEditorConstructionOptions>, codeEditorWidgetOptions: ICodeEditorWidgetOptions, instantiationService: IInstantiationService, codeEditorService: ICodeEditorService, commandService: ICommandService, contextKeyService: IContextKeyService, themeService: IThemeService, notificationService: INotificationService, accessibilityService: IAccessibilityService, languageConfigurationService: ILanguageConfigurationService, languageFeaturesService: ILanguageFeaturesService);
+    constructor(domElement: HTMLElement, _options: Readonly<IEditorConstructionOptions>, codeEditorWidgetOptions: ICodeEditorWidgetOptions, instantiationService: IInstantiationService, codeEditorService: ICodeEditorService, commandService: ICommandService, contextKeyService: IContextKeyService, themeService: IThemeService, notificationService: INotificationService, accessibilityService: IAccessibilityService, languageConfigurationService: ILanguageConfigurationService, languageFeaturesService: ILanguageFeaturesService, userInteractionService: IUserInteractionService);
     writeScreenReaderContent(reason: string): void;
     protected _createConfiguration(isSimpleWidget: boolean, contextMenuId: MenuId, options: Readonly<IEditorConstructionOptions>, accessibilityService: IAccessibilityService): EditorConfiguration;
     getId(): string;

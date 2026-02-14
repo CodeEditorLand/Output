@@ -17,7 +17,7 @@ class DebugMemoryFileSystemProvider extends Disposable {
     this.debugService = debugService;
     this.memoryFdCounter = 0;
     this.fdMemory = /* @__PURE__ */ new Map();
-    this.changeEmitter = new Emitter();
+    this.changeEmitter = this._register(new Emitter());
     this.onDidChangeCapabilities = Event.None;
     this.onDidChangeFile = this.changeEmitter.event;
     this.capabilities = 0 | 1024 | 4;
@@ -198,7 +198,7 @@ class MemoryRegionView extends Disposable {
     super();
     this.parent = parent;
     this.range = range;
-    this.invalidateEmitter = new Emitter();
+    this.invalidateEmitter = this._register(new Emitter());
     this.onDidInvalidate = this.invalidateEmitter.event;
     this.writable = parent.writable;
     this.width = range.toOffset - range.fromOffset;

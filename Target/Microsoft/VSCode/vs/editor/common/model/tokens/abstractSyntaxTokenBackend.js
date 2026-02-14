@@ -38,6 +38,9 @@ class AttachedViews {
     this._onDidChangeVisibleRanges.fire({ view, state: void 0 });
     this._viewsChanged.trigger(void 0);
   }
+  dispose() {
+    this._onDidChangeVisibleRanges.dispose();
+  }
 }
 class AttachedViewState {
   static {

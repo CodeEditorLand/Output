@@ -441,7 +441,7 @@ let StatusbarPart = class StatusbarPart2 extends Part {
     }
     const statusBarFocusColor = this.getColor(STATUS_BAR_FOCUS_BORDER);
     if (!this.styleElement) {
-      this.styleElement = createStyleSheet(container);
+      this.styleElement = createStyleSheet(container, void 0, this._store);
     }
     this.styleElement.textContent = `
 

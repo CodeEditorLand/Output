@@ -18,7 +18,6 @@ import { IInstantiationService } from "../../../platform/instantiation/common/in
 import { AuxiliaryBarPart } from "./auxiliarybar/auxiliaryBarPart.js";
 import { PanelPart } from "./panel/panelPart.js";
 import { SidebarPart } from "./sidebar/sidebarPart.js";
-import { ViewContainerLocations } from "../../common/views.js";
 import { IPaneCompositePartService } from "../../services/panecomposite/browser/panecomposite.js";
 import { Disposable, DisposableStore } from "../../../base/common/lifecycle.js";
 let PaneCompositePartService = class PaneCompositePartService2 extends Disposable {
@@ -34,13 +33,25 @@ let PaneCompositePartService = class PaneCompositePartService2 extends Disposabl
     this.paneCompositeParts.set(1, panelPart);
     this.paneCompositeParts.set(0, sideBarPart);
     this.paneCompositeParts.set(2, auxiliaryBarPart);
+    const viewContainerLocations = [
+      0,
+      1,
+      2
+      /* ViewContainerLocation.AuxiliaryBar */
+    ];
     const eventDisposables = this._register(new DisposableStore());
-    this.onDidPaneCompositeOpen = Event.any(...ViewContainerLocations.map((loc) => Event.map(this.paneCompositeParts.get(loc).onDidPaneCompositeOpen, (composite) => {
+    this.onDidPaneCompositeOpen = Event.any(...viewContainerLocations.map((loc) => Event.map(this.paneCompositeParts.get(loc).onDidPaneCompositeOpen, (composite) => {
       return { composite, viewContainerLocation: loc };
     }, eventDisposables)));
-    this.onDidPaneCompositeClose = Event.any(...ViewContainerLocations.map((loc) => Event.map(this.paneCompositeParts.get(loc).onDidPaneCompositeClose, (composite) => {
+    this.onDidPaneCompositeClose = Event.any(...viewContainerLocations.map((loc) => Event.map(this.paneCompositeParts.get(loc).onDidPaneCompositeClose, (composite) => {
       return { composite, viewContainerLocation: loc };
     }, eventDisposables)));
+  }
+  getRegistryId(viewContainerLocation) {
+    return this.getPartByLocation(viewContainerLocation).registryId;
+  }
+  getPartId(viewContainerLocation) {
+    return this.getPartByLocation(viewContainerLocation).partId;
   }
   openPaneComposite(id, viewContainerLocation, focus) {
     return this.getPartByLocation(viewContainerLocation).openPaneComposite(id, focus);

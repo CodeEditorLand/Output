@@ -54,7 +54,7 @@ let TestResultService = class TestResultService2 extends Disposable {
         this.push(loaded[i]);
       }
     }));
-    this.persistScheduler = new RunOnceScheduler(() => this.persistImmediately(), 500);
+    this.persistScheduler = this._register(new RunOnceScheduler(() => this.persistImmediately(), 500));
     this._register(toDisposable(() => dispose(this._resultsDisposables)));
     this.isRunning = TestingContextKeys.isRunning.bindTo(contextKeyService);
     this.hasAnyResults = TestingContextKeys.hasAnyResults.bindTo(contextKeyService);

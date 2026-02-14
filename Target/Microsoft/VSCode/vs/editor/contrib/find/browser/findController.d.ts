@@ -12,6 +12,8 @@ import { IKeybindingService } from '../../../../platform/keybinding/common/keybi
 import { INotificationService } from '../../../../platform/notification/common/notification.js';
 import { IStorageService } from '../../../../platform/storage/common/storage.js';
 import { IHoverService } from '../../../../platform/hover/browser/hover.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IAccessibilityService } from '../../../../platform/accessibility/common/accessibility.js';
 export declare function getSelectionSearchString(editor: ICodeEditor, seedSearchStringFromSelection?: 'single' | 'multiple', seedSearchStringFromNonEmptySelection?: boolean): string | null;
 export declare const enum FindStartFocusAction {
     NoFocusChange = 0,
@@ -58,6 +60,16 @@ export declare class CommonFindController extends Disposable implements IEditorC
     private saveQueryState;
     private loadQueryState;
     isFindInputFocused(): boolean;
+    /**
+     * Returns whether the Replace input was the last focused input in the find widget.
+     * Returns false by default; overridden in FindController.
+     */
+    wasReplaceInputLastFocused(): boolean;
+    /**
+     * Focuses the last focused element in the find widget.
+     * Implemented by FindController; base implementation does nothing.
+     */
+    focusLastElement(): void;
     getState(): FindReplaceState;
     closeFindWidget(): void;
     toggleCaseSensitive(): void;
@@ -81,14 +93,26 @@ export declare class CommonFindController extends Disposable implements IEditorC
 export declare class FindController extends CommonFindController implements IFindController {
     private readonly _contextViewService;
     private readonly _keybindingService;
+    private readonly _configurationService;
+    private readonly _accessibilityService;
     private _widget;
     private _findOptionsWidget;
     private _findWidgetSearchHistory;
     private _replaceWidgetHistory;
-    constructor(editor: ICodeEditor, _contextViewService: IContextViewService, _contextKeyService: IContextKeyService, _keybindingService: IKeybindingService, notificationService: INotificationService, _storageService: IStorageService, clipboardService: IClipboardService, hoverService: IHoverService);
+    constructor(editor: ICodeEditor, _contextViewService: IContextViewService, _contextKeyService: IContextKeyService, _keybindingService: IKeybindingService, notificationService: INotificationService, _storageService: IStorageService, clipboardService: IClipboardService, hoverService: IHoverService, _configurationService: IConfigurationService, _accessibilityService: IAccessibilityService);
     protected _start(opts: IFindStartOptions, newState?: INewFindReplaceState): Promise<void>;
     highlightFindOptions(ignoreWhenVisible?: boolean): void;
     private _createFindWidget;
+    /**
+     * Returns whether the Replace input was the last focused input in the find widget.
+     */
+    wasReplaceInputLastFocused(): boolean;
+    /**
+     * Focuses the last focused element in the find widget.
+     * This is more precise than just focusing the Find or Replace input,
+     * as it can restore focus to checkboxes, buttons, etc.
+     */
+    focusLastElement(): void;
     saveViewState(): any;
     restoreViewState(state: any): void;
 }

@@ -18,6 +18,7 @@ import { SnippetString } from './extHostTypes/snippetString.js';
 import { SymbolKind, SymbolTag } from './extHostTypes/symbolInformation.js';
 import { TextEdit } from './extHostTypes/textEdit.js';
 import { WorkspaceEdit } from './extHostTypes/workspaceEdit.js';
+import { HookTypeValue } from '../../contrib/chat/common/promptSyntax/hookSchema.js';
 export { CodeActionKind } from './extHostTypes/codeActionKind.js';
 export { Diagnostic, DiagnosticRelatedInformation, DiagnosticSeverity, DiagnosticTag } from './extHostTypes/diagnostic.js';
 export { Location } from './extHostTypes/location.js';
@@ -1453,6 +1454,13 @@ export declare class McpToolInvocationContentData {
     data: Uint8Array;
     constructor(data: Uint8Array, mimeType: string);
 }
+export declare class ChatSubagentToolInvocationData {
+    description?: string;
+    agentName?: string;
+    prompt?: string;
+    result?: string;
+    constructor(description?: string, agentName?: string, prompt?: string, result?: string);
+}
 export declare class ChatResponseExternalEditPart {
     uris: vscode.Uri[];
     callback: () => Thenable<unknown>;
@@ -1484,6 +1492,17 @@ export declare class ChatResponseThinkingProgressPart {
     };
     constructor(value: string | string[], id?: string, metadata?: {
         readonly [key: string]: any;
+    });
+}
+export declare class ChatResponseHookPart {
+    hookType: HookTypeValue;
+    stopReason?: string;
+    systemMessage?: string;
+    metadata?: {
+        readonly [key: string]: unknown;
+    };
+    constructor(hookType: HookTypeValue, stopReason?: string, systemMessage?: string, metadata?: {
+        readonly [key: string]: unknown;
     });
 }
 export declare class ChatResponseWarningPart {
@@ -1548,15 +1567,16 @@ export declare class ChatResponseExtensionsPart {
     constructor(extensions: string[]);
 }
 export declare class ChatResponsePullRequestPart {
-    readonly uri: vscode.Uri;
     readonly title: string;
     readonly description: string;
     readonly author: string;
     readonly linkTag: string;
-    constructor(uri: vscode.Uri, title: string, description: string, author: string, linkTag: string);
+    readonly uri?: vscode.Uri;
+    readonly command: vscode.Command;
+    constructor(uriOrCommand: vscode.Uri | vscode.Command, title: string, description: string, author: string, linkTag: string);
     toJSON(): {
         $mid: MarshalledId;
-        uri: vscode.Uri;
+        uri: vscode.Uri | undefined;
         title: string;
         description: string;
         author: string;
@@ -1657,7 +1677,7 @@ export declare enum ChatTodoStatus {
 export declare class ChatToolInvocationPart {
     toolName: string;
     toolCallId: string;
-    isError?: boolean;
+    errorMessage?: string;
     invocationMessage?: string | vscode.MarkdownString;
     originMessage?: string | vscode.MarkdownString;
     pastTenseMessage?: string | vscode.MarkdownString;
@@ -1667,7 +1687,7 @@ export declare class ChatToolInvocationPart {
     subAgentInvocationId?: string;
     subAgentName?: string;
     presentation?: 'hidden' | 'hiddenAfterComplete' | undefined;
-    constructor(toolName: string, toolCallId: string, isError?: boolean);
+    constructor(toolName: string, toolCallId: string, errorMessage?: string);
 }
 export declare class ChatRequestTurn implements vscode.ChatRequestTurn2 {
     readonly prompt: string;
@@ -1702,7 +1722,8 @@ export declare enum ChatLocation {
 export declare enum ChatSessionStatus {
     Failed = 0,
     Completed = 1,
-    InProgress = 2
+    InProgress = 2,
+    NeedsInput = 3
 }
 export declare class ChatSessionChangedFile {
     readonly modifiedUri: vscode.Uri;
@@ -1936,10 +1957,6 @@ export declare enum SettingsSearchResultKind {
     EMBEDDED = 1,
     LLM_RANKED = 2,
     CANCELED = 3
-}
-export declare enum ChatHookResultKind {
-    Success = 1,
-    Error = 2
 }
 export declare enum SpeechToTextStatus {
     Started = 1,

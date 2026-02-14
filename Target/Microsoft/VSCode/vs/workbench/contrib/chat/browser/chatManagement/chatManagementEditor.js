@@ -32,7 +32,7 @@ import { WorkbenchList } from "../../../../../platform/list/browser/listService.
 import { Event } from "../../../../../base/common/event.js";
 import { registerColor } from "../../../../../platform/theme/common/colorRegistry.js";
 import { PANEL_BORDER } from "../../../../common/theme.js";
-import { DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { DisposableStore, MutableDisposable } from "../../../../../base/common/lifecycle.js";
 import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
 import { CONTEXT_MODELS_EDITOR } from "../../common/constants.js";
 const $ = DOM.$;
@@ -114,6 +114,7 @@ let ChatManagementEditor = class ChatManagementEditor2 extends EditorPane {
     this.instantiationService = instantiationService;
     this.selectedSection = CHAT_MANAGEMENT_SECTION_USAGE;
     this.sections = [];
+    this.actionButtonClickListener = this._register(new MutableDisposable());
     this.commandService = commandService;
     this.chatEntitlementService = chatEntitlementService;
   }
@@ -293,7 +294,7 @@ let ChatManagementEditor = class ChatManagementEditor2 extends EditorPane {
         commandId = "workbench.action.chat.triggerSetup";
       }
       this.actionButton.label = buttonLabel;
-      this.actionButton.onDidClick(() => {
+      this.actionButtonClickListener.value = this.actionButton.onDidClick(() => {
         this.commandService.executeCommand(commandId);
       });
     } else {

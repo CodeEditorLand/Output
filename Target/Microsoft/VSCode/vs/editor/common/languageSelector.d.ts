@@ -18,3 +18,4 @@ export interface LanguageFilter {
 export type LanguageSelector = string | LanguageFilter | ReadonlyArray<string | LanguageFilter>;
 export declare function score(selector: LanguageSelector | undefined, candidateUri: URI, candidateLanguage: string, candidateIsSynchronized: boolean, candidateNotebookUri: URI | undefined, candidateNotebookType: string | undefined): number;
 export declare function targetsNotebooks(selector: LanguageSelector): boolean;
+export declare function selectLanguageIds(selector: LanguageSelector, into: Set<string>): void;

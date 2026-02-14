@@ -713,7 +713,7 @@ let RemoteStatusIndicator = class RemoteStatusIndicator2 extends Disposable {
     disposables.add(quickPick.onDidHide(() => disposables.dispose()));
     if (!this.remoteMetadataInitialized) {
       quickPick.busy = true;
-      this._register(this.onDidChangeEntries(() => {
+      disposables.add(this.onDidChangeEntries(() => {
         quickPick.busy = false;
         quickPick.items = computeItems();
       }));

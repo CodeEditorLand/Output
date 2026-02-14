@@ -11,6 +11,7 @@ import { combinedDisposable, Disposable, dispose, toDisposable } from "../../../
 import { clamp } from "../../../common/numbers.js";
 import { Scrollable } from "../../../common/scrollable.js";
 import * as types from "../../../common/types.js";
+import { isMotionReduced, scaleDuration } from "../motion/motion.js";
 import "./splitview.css";
 import { Orientation } from "../sash/sash.js";
 const defaultStyles = {
@@ -439,18 +440,139 @@ class SplitView extends Disposable {
   /**
    * Set a {@link IView view}'s visibility.
    *
+   * When {@link animation} is provided and motion is not reduced, the
+   * visibility change is animated. Otherwise the change is applied
+   * instantly. Any in-flight animation is always cancelled first.
+   *
    * @param index The {@link IView view} index.
    * @param visible Whether the {@link IView view} should be visible.
+   * @param animation Optional animation options. When omitted (or when
+   *   the user prefers reduced motion) the change is instant.
    */
-  setViewVisible(index, visible) {
+  setViewVisible(index, visible, animation) {
     if (index < 0 || index >= this.viewItems.length) {
       throw new Error("Index out of bounds");
     }
+    this._cleanupMotion?.();
+    this._cleanupMotion = void 0;
+    if (animation && !animation.token.isCancellationRequested && !isMotionReduced(this.el) && this.viewItems[index].visible !== visible) {
+      this._setViewVisibleAnimated(index, visible, animation);
+    } else {
+      this._setViewVisibleInstant(index, visible);
+    }
+  }
+  /**
+   * Apply the visibility change to the model without animation.
+   */
+  _setViewVisibleInstant(index, visible) {
     const viewItem = this.viewItems[index];
     viewItem.setVisible(visible);
     this.distributeEmptySpace(index);
     this.layoutViews();
     this.saveProportions();
+  }
+  /**
+   * Animate the visibility change using `requestAnimationFrame`.
+   *
+   * Interpolates all view sizes on each frame, which naturally cascades
+   * layout changes through nested splitviews in the grid hierarchy
+   * (e.g., the bottom panel resizing when the sidebar animates).
+   *
+   * The animation can be cancelled via {@link IViewVisibilityAnimationOptions.token}.
+   * {@link IViewVisibilityAnimationOptions.onComplete} is only called when the
+   * animation finishes naturally (not on cancellation).
+   */
+  _setViewVisibleAnimated(index, visible, animation) {
+    const { duration: baseDuration, easing, onComplete, token } = animation;
+    const container = this.viewContainer.children[index];
+    const window = getWindow(this.el);
+    let disposed = false;
+    let rafId;
+    const startSizes = this.viewItems.map((v) => v.size);
+    this._setViewVisibleInstant(index, visible);
+    const finalSizes = this.viewItems.map((v) => v.size);
+    for (let i = 0; i < this.viewItems.length; i++) {
+      this.viewItems[i].size = startSizes[i];
+    }
+    if (!visible) {
+      container.classList.add("visible");
+    }
+    container.style.overflow = "hidden";
+    const viewTargetSize = visible ? finalSizes[index] : startSizes[index];
+    container.style.opacity = visible ? "0" : "1";
+    const pixelDistance = Math.abs(finalSizes[index] - startSizes[index]);
+    const duration = scaleDuration(baseDuration, pixelDistance);
+    this.layoutViews();
+    try {
+      this.viewItems[index].view.layout(viewTargetSize, 0, this.layoutContext);
+    } catch (e) {
+      console.error("Splitview: Failed to layout view during animation");
+      console.error(e);
+    }
+    const applyFinalState = /* @__PURE__ */ __name(() => {
+      for (let i = 0; i < this.viewItems.length; i++) {
+        this.viewItems[i].size = finalSizes[i];
+      }
+      container.style.opacity = "";
+      container.style.overflow = "";
+      if (!visible) {
+        container.classList.remove("visible");
+      }
+      this.layoutViews();
+      this.saveProportions();
+    }, "applyFinalState");
+    const cleanup = /* @__PURE__ */ __name((completed) => {
+      if (disposed) {
+        return;
+      }
+      disposed = true;
+      tokenListener.dispose();
+      if (rafId !== void 0) {
+        window.cancelAnimationFrame(rafId);
+        rafId = void 0;
+      }
+      applyFinalState();
+      this._cleanupMotion = void 0;
+      if (completed) {
+        onComplete?.();
+      }
+    }, "cleanup");
+    this._cleanupMotion = () => cleanup(false);
+    const tokenListener = token.onCancellationRequested(() => cleanup(false));
+    const startTime = performance.now();
+    const totalSize = this.size;
+    const animate = /* @__PURE__ */ __name(() => {
+      if (disposed) {
+        return;
+      }
+      const elapsed = performance.now() - startTime;
+      const t = Math.min(elapsed / duration, 1);
+      const easedT = easing.solve(t);
+      container.style.opacity = String(visible ? easedT : 1 - easedT);
+      let runningTotal = 0;
+      for (let i = 0; i < this.viewItems.length; i++) {
+        if (i === this.viewItems.length - 1) {
+          this.viewItems[i].size = totalSize - runningTotal;
+        } else {
+          const size = Math.round(startSizes[i] + (finalSizes[i] - startSizes[i]) * easedT);
+          this.viewItems[i].size = size;
+          runningTotal += size;
+        }
+      }
+      this.layoutViews();
+      try {
+        this.viewItems[index].view.layout(viewTargetSize, 0, this.layoutContext);
+      } catch (e) {
+        console.error("Splitview: Failed to layout view during animation");
+        console.error(e);
+      }
+      if (t < 1) {
+        rafId = window.requestAnimationFrame(animate);
+      } else {
+        cleanup(true);
+      }
+    }, "animate");
+    rafId = window.requestAnimationFrame(animate);
   }
   /**
    * Returns the {@link IView view}'s size previously to being hidden.

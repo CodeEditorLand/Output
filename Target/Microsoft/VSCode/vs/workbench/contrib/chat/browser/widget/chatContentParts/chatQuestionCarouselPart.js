@@ -1,32 +1,46 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
 import * as dom from "../../../../../../base/browser/dom.js";
 import { StandardKeyboardEvent } from "../../../../../../base/browser/keyboardEvent.js";
-import { getBaseLayerHoverDelegate } from "../../../../../../base/browser/ui/hover/hoverDelegate2.js";
-import { getDefaultHoverDelegate } from "../../../../../../base/browser/ui/hover/hoverDelegateFactory.js";
 import { Emitter } from "../../../../../../base/common/event.js";
 import { Disposable, DisposableStore, MutableDisposable } from "../../../../../../base/common/lifecycle.js";
 import { hasKey } from "../../../../../../base/common/types.js";
 import { localize } from "../../../../../../nls.js";
+import { IAccessibilityService } from "../../../../../../platform/accessibility/common/accessibility.js";
 import { defaultButtonStyles, defaultCheckboxStyles, defaultInputBoxStyles } from "../../../../../../platform/theme/browser/defaultStyles.js";
 import { Button } from "../../../../../../base/browser/ui/button/button.js";
 import { InputBox } from "../../../../../../base/browser/ui/inputbox/inputBox.js";
 import { Checkbox } from "../../../../../../base/browser/ui/toggle/toggle.js";
 import { isResponseVM } from "../../../common/model/chatViewModel.js";
 import { Codicon } from "../../../../../../base/common/codicons.js";
+import { IHoverService } from "../../../../../../platform/hover/browser/hover.js";
 import "./media/chatQuestionCarousel.css";
-class ChatQuestionCarouselPart extends Disposable {
+let ChatQuestionCarouselPart = class ChatQuestionCarouselPart2 extends Disposable {
   static {
     __name(this, "ChatQuestionCarouselPart");
   }
-  constructor(carousel, context, _options) {
+  constructor(carousel, context, _options, _hoverService, _accessibilityService) {
     super();
     this.carousel = carousel;
     this._options = _options;
+    this._hoverService = _hoverService;
+    this._accessibilityService = _accessibilityService;
     this._onDidChangeHeight = this._register(new Emitter());
     this.onDidChangeHeight = this._onDidChangeHeight.event;
     this._currentIndex = 0;
     this._answers = /* @__PURE__ */ new Map();
+    this._nextButtonHover = this._register(new MutableDisposable());
     this._isSkipped = false;
     this._textInputBoxes = /* @__PURE__ */ new Map();
     this._singleSelectItems = /* @__PURE__ */ new Map();
@@ -35,6 +49,10 @@ class ChatQuestionCarouselPart extends Disposable {
     this._inputBoxes = this._register(new DisposableStore());
     this._interactiveUIStore = this._register(new MutableDisposable());
     this.domNode = dom.$(".chat-question-carousel-container");
+    this.domNode.tabIndex = 0;
+    this.domNode.setAttribute("role", "region");
+    this.domNode.setAttribute("aria-roledescription", localize("chat.questionCarousel.roleDescription", "chat question"));
+    this._updateAriaLabel();
     if (carousel.data) {
       for (const [key, value] of Object.entries(carousel.data)) {
         this._answers.set(key, value);
@@ -54,10 +72,11 @@ class ChatQuestionCarouselPart extends Disposable {
     if (carousel.allowSkip) {
       this._closeButtonContainer = dom.$(".chat-question-close-container");
       const skipAllTitle = localize("chat.questionCarousel.skipAllTitle", "Skip all questions");
-      const skipAllButton = interactiveStore.add(new Button(this._closeButtonContainer, { ...defaultButtonStyles, secondary: true, supportIcons: true, title: skipAllTitle }));
+      const skipAllButton = interactiveStore.add(new Button(this._closeButtonContainer, { ...defaultButtonStyles, secondary: true, supportIcons: true }));
       skipAllButton.label = `$(${Codicon.close.id})`;
       skipAllButton.element.classList.add("chat-question-nav-arrow", "chat-question-close");
       skipAllButton.element.setAttribute("aria-label", skipAllTitle);
+      interactiveStore.add(this._hoverService.setupDelayedHover(skipAllButton.element, { content: skipAllTitle }));
       this._skipAllButton = skipAllButton;
     }
     this._footerRow = dom.$(".chat-question-footer-row");
@@ -68,13 +87,13 @@ class ChatQuestionCarouselPart extends Disposable {
     this._navigationButtons.setAttribute("aria-label", localize("chat.questionCarousel.navigation", "Question navigation"));
     const arrowsContainer = dom.$(".chat-question-nav-arrows");
     const previousLabel = localize("previous", "Previous");
-    const prevButton = interactiveStore.add(new Button(arrowsContainer, { ...defaultButtonStyles, secondary: true, supportIcons: true, title: previousLabel }));
+    const prevButton = interactiveStore.add(new Button(arrowsContainer, { ...defaultButtonStyles, secondary: true, supportIcons: true }));
     prevButton.element.classList.add("chat-question-nav-arrow", "chat-question-nav-prev");
     prevButton.label = `$(${Codicon.chevronLeft.id})`;
     prevButton.element.setAttribute("aria-label", previousLabel);
+    interactiveStore.add(this._hoverService.setupDelayedHover(prevButton.element, { content: previousLabel }));
     this._prevButton = prevButton;
-    const nextLabel = localize("next", "Next");
-    const nextButton = interactiveStore.add(new Button(arrowsContainer, { ...defaultButtonStyles, secondary: true, supportIcons: true, title: nextLabel }));
+    const nextButton = interactiveStore.add(new Button(arrowsContainer, { ...defaultButtonStyles, secondary: true, supportIcons: true }));
     nextButton.element.classList.add("chat-question-nav-arrow", "chat-question-nav-next");
     nextButton.label = `$(${Codicon.chevronRight.id})`;
     this._nextButton = nextButton;
@@ -126,7 +145,7 @@ class ChatQuestionCarouselPart extends Disposable {
     if (newIndex >= 0 && newIndex < this.carousel.questions.length) {
       this.saveCurrentAnswer();
       this._currentIndex = newIndex;
-      this.renderCurrentQuestion();
+      this.renderCurrentQuestion(true);
     }
   }
   /**
@@ -137,10 +156,24 @@ class ChatQuestionCarouselPart extends Disposable {
     this.saveCurrentAnswer();
     if (this._currentIndex < this.carousel.questions.length - 1) {
       this._currentIndex++;
-      this.renderCurrentQuestion();
+      this.renderCurrentQuestion(true);
     } else {
       this._options.onSubmit(this._answers);
       this.hideAndShowSummary();
+    }
+  }
+  /**
+   * Focuses the container element and announces the question for screen reader users.
+   */
+  _focusContainerAndAnnounce() {
+    this.domNode.focus();
+    const question = this.carousel.questions[this._currentIndex];
+    if (question) {
+      const questionText = question.message ?? question.title;
+      const messageContent = typeof questionText === "string" ? questionText : questionText.value;
+      const questionCount = this.carousel.questions.length;
+      const alertMessage = questionCount === 1 ? messageContent : localize("chat.questionCarousel.questionAlertMulti", "Question {0} of {1}: {2}", this._currentIndex + 1, questionCount, messageContent);
+      this._accessibilityService.alert(alertMessage);
     }
   }
   /**
@@ -243,7 +276,47 @@ class ChatQuestionCarouselPart extends Disposable {
         return question.defaultValue;
     }
   }
-  renderCurrentQuestion() {
+  /**
+   * Returns whether auto-focus should be enabled.
+   * Disabled when screen reader mode is active or when explicitly disabled via options.
+   */
+  _shouldAutoFocus() {
+    if (this._options.shouldAutoFocus === false) {
+      return false;
+    }
+    return !this._accessibilityService.isScreenReaderOptimized();
+  }
+  /**
+   * Updates the aria-label of the carousel container based on the current question.
+   */
+  _updateAriaLabel() {
+    const question = this.carousel.questions[this._currentIndex];
+    if (!question) {
+      this.domNode.setAttribute("aria-label", localize("chat.questionCarousel.label", "Chat question"));
+      return;
+    }
+    const questionText = question.message ?? question.title;
+    const messageContent = typeof questionText === "string" ? questionText : questionText.value;
+    const questionCount = this.carousel.questions.length;
+    if (questionCount === 1) {
+      this.domNode.setAttribute("aria-label", localize("chat.questionCarousel.singleQuestionLabel", "Chat question: {0}", messageContent));
+    } else {
+      this.domNode.setAttribute("aria-label", localize("chat.questionCarousel.multiQuestionLabel", "Chat question {0} of {1}: {2}", this._currentIndex + 1, questionCount, messageContent));
+    }
+  }
+  /**
+   * Focuses the carousel container element.
+   */
+  focus() {
+    this.domNode.focus();
+  }
+  /**
+   * Returns whether the carousel container has focus.
+   */
+  hasFocus() {
+    return dom.isAncestorOfActiveElement(this.domNode);
+  }
+  renderCurrentQuestion(focusContainerForScreenReader = false) {
     if (!this._questionContainer || !this._prevButton || !this._nextButton) {
       return;
     }
@@ -295,14 +368,18 @@ class ChatQuestionCarouselPart extends Disposable {
     const nextLabel = localize("next", "Next");
     if (isLastQuestion) {
       this._nextButton.label = submitLabel;
-      this._nextButton.element.title = submitLabel;
       this._nextButton.element.setAttribute("aria-label", submitLabel);
       this._nextButton.element.classList.add("chat-question-nav-submit");
+      this._nextButtonHover.value = this._hoverService.setupDelayedHover(this._nextButton.element, { content: submitLabel });
     } else {
       this._nextButton.label = `$(${Codicon.chevronRight.id})`;
-      this._nextButton.element.title = nextLabel;
       this._nextButton.element.setAttribute("aria-label", nextLabel);
       this._nextButton.element.classList.remove("chat-question-nav-submit");
+      this._nextButtonHover.value = this._hoverService.setupDelayedHover(this._nextButton.element, { content: nextLabel });
+    }
+    this._updateAriaLabel();
+    if (focusContainerForScreenReader && this._accessibilityService.isScreenReaderOptimized()) {
+      this._focusContainerAndAnnounce();
     }
     this._onDidChangeHeight.fire();
   }
@@ -344,7 +421,7 @@ class ChatQuestionCarouselPart extends Disposable {
       inputBox.value = String(question.defaultValue);
     }
     this._textInputBoxes.set(question.id, inputBox);
-    if (this._options.shouldAutoFocus !== false) {
+    if (this._shouldAutoFocus()) {
       this._inputBoxes.add(dom.runAtThisOrScheduleAtNextAnimationFrame(dom.getWindow(inputBox.element), () => inputBox.focus()));
     }
   }
@@ -363,7 +440,7 @@ class ChatQuestionCarouselPart extends Disposable {
     options.forEach((option, index) => {
       if (previousSelectedValue !== void 0 && option.value === previousSelectedValue) {
         selectedIndex = index;
-      } else if (selectedIndex === -1 && defaultOptionId !== void 0 && option.id === defaultOptionId) {
+      } else if (selectedIndex === -1 && !previousFreeform && defaultOptionId !== void 0 && option.id === defaultOptionId) {
         selectedIndex = index;
       }
     });
@@ -419,11 +496,23 @@ class ChatQuestionCarouselPart extends Disposable {
       if (isSelected) {
         listItem.classList.add("selected");
       }
-      this._inputBoxes.add(getBaseLayerHoverDelegate().setupManagedHover(getDefaultHoverDelegate("mouse"), listItem, option.label));
       this._inputBoxes.add(dom.addDisposableListener(listItem, dom.EventType.CLICK, (e) => {
         e.preventDefault();
         e.stopPropagation();
         updateSelection(index);
+        const freeform = this._freeformTextareas.get(question.id);
+        if (freeform) {
+          freeform.value = "";
+        }
+        this.handleNext();
+      }));
+      this._inputBoxes.add(this._hoverService.setupDelayedHover(listItem, {
+        content: option.label,
+        position: {
+          hoverPosition: 2
+          /* HoverPosition.BELOW */
+        },
+        appearance: { showPointer: true }
       }));
       selectContainer.appendChild(listItem);
       listItems.push(listItem);
@@ -488,14 +577,20 @@ class ChatQuestionCarouselPart extends Disposable {
     if (previousFreeform !== void 0) {
       this._inputBoxes.add(dom.runAtThisOrScheduleAtNextAnimationFrame(dom.getWindow(freeformTextarea), () => autoResize()));
     }
-    if (this._options.shouldAutoFocus !== false && listItems.length > 0) {
-      const focusIndex = selectedIndex >= 0 ? selectedIndex : 0;
-      if (selectedIndex < 0) {
-        updateSelection(0);
+    if (this._shouldAutoFocus()) {
+      if (previousFreeform) {
+        this._inputBoxes.add(dom.runAtThisOrScheduleAtNextAnimationFrame(dom.getWindow(freeformTextarea), () => {
+          freeformTextarea.focus();
+        }));
+      } else if (listItems.length > 0) {
+        const focusIndex = selectedIndex >= 0 ? selectedIndex : 0;
+        if (selectedIndex < 0) {
+          updateSelection(0);
+        }
+        this._inputBoxes.add(dom.runAtThisOrScheduleAtNextAnimationFrame(dom.getWindow(selectContainer), () => {
+          listItems[focusIndex]?.focus();
+        }));
       }
-      this._inputBoxes.add(dom.runAtThisOrScheduleAtNextAnimationFrame(dom.getWindow(selectContainer), () => {
-        listItems[focusIndex]?.focus();
-      }));
     }
   }
   renderMultiSelect(container, question) {
@@ -518,7 +613,7 @@ class ChatQuestionCarouselPart extends Disposable {
       let isChecked = false;
       if (previousSelectedValues && previousSelectedValues.length > 0) {
         isChecked = previousSelectedValues.includes(option.value);
-      } else if (defaultOptionIds.includes(option.id)) {
+      } else if (!previousFreeform && defaultOptionIds.includes(option.id)) {
         isChecked = true;
       }
       const listItem = dom.$(".chat-question-list-item.multi-select");
@@ -563,7 +658,14 @@ class ChatQuestionCarouselPart extends Disposable {
           checkbox.domNode.click();
         }
       }));
-      this._inputBoxes.add(getBaseLayerHoverDelegate().setupManagedHover(getDefaultHoverDelegate("mouse"), listItem, option.label));
+      this._inputBoxes.add(this._hoverService.setupDelayedHover(listItem, {
+        content: option.label,
+        position: {
+          hoverPosition: 2
+          /* HoverPosition.BELOW */
+        },
+        appearance: { showPointer: true }
+      }));
       selectContainer.appendChild(listItem);
       checkboxes.push(checkbox);
       listItems.push(listItem);
@@ -619,12 +721,18 @@ class ChatQuestionCarouselPart extends Disposable {
     if (previousFreeform !== void 0) {
       this._inputBoxes.add(dom.runAtThisOrScheduleAtNextAnimationFrame(dom.getWindow(freeformTextarea), () => autoResize()));
     }
-    if (this._options.shouldAutoFocus !== false && listItems.length > 0) {
-      const initialFocusIndex = firstCheckedIndex >= 0 ? firstCheckedIndex : 0;
-      focusedIndex = initialFocusIndex;
-      this._inputBoxes.add(dom.runAtThisOrScheduleAtNextAnimationFrame(dom.getWindow(selectContainer), () => {
-        listItems[initialFocusIndex]?.focus();
-      }));
+    if (this._shouldAutoFocus()) {
+      if (previousFreeform) {
+        this._inputBoxes.add(dom.runAtThisOrScheduleAtNextAnimationFrame(dom.getWindow(freeformTextarea), () => {
+          freeformTextarea.focus();
+        }));
+      } else if (listItems.length > 0) {
+        const initialFocusIndex = firstCheckedIndex >= 0 ? firstCheckedIndex : 0;
+        focusedIndex = initialFocusIndex;
+        this._inputBoxes.add(dom.runAtThisOrScheduleAtNextAnimationFrame(dom.getWindow(selectContainer), () => {
+          listItems[initialFocusIndex]?.focus();
+        }));
+      }
     }
   }
   getCurrentAnswer() {
@@ -782,7 +890,11 @@ class ChatQuestionCarouselPart extends Disposable {
   addDisposable(disposable) {
     this._register(disposable);
   }
-}
+};
+ChatQuestionCarouselPart = __decorate([
+  __param(3, IHoverService),
+  __param(4, IAccessibilityService)
+], ChatQuestionCarouselPart);
 export {
   ChatQuestionCarouselPart
 };

@@ -43,6 +43,7 @@ export interface IDialogOptions {
     readonly disableCloseAction?: boolean;
     readonly disableCloseButton?: boolean;
     readonly disableDefaultAction?: boolean;
+    readonly onVisibilityChange?: (window: Window, visible: boolean) => void;
     readonly buttonStyles: IButtonStyles;
     readonly checkboxStyles: ICheckboxStyles;
     readonly inputBoxStyles: IInputBoxStyles;

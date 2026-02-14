@@ -39,6 +39,8 @@ export declare class OutputMonitor extends Disposable implements IOutputMonitor 
     private readonly _terminalService;
     private _state;
     get state(): OutputMonitorState;
+    private _formatLastLineForLog;
+    private _formatOptionsForLog;
     private _lastPromptMarker;
     private _lastPrompt;
     private _promptPart;
@@ -77,6 +79,9 @@ export declare class OutputMonitor extends Disposable implements IOutputMonitor 
     private _cleanupIdleInputListener;
     private _assessOutputForErrors;
     private _determineUserInputOptions;
+    private _isSensitivePrompt;
+    private _normalizeAutoReplyInput;
+    private _extractExplicitInputFromPrompt;
     private _selectAndHandleOption;
     private _requestFreeFormTerminalInput;
     private _confirmRunInTerminal;
@@ -84,6 +89,10 @@ export declare class OutputMonitor extends Disposable implements IOutputMonitor 
     private _createElicitationPart;
     private _getLanguageModel;
 }
+export declare function matchTerminalPromptOption(options: readonly string[], suggestedOption: string): {
+    option: string | undefined;
+    index: number;
+};
 export declare function detectsInputRequiredPattern(cursorLine: string): boolean;
 export declare function detectsNonInteractiveHelpPattern(cursorLine: string): boolean;
 /**

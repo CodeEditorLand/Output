@@ -36,10 +36,12 @@ import { IChatRequestVariableEntry, isImplicitVariableEntry, isStringImplicitCon
 import { migrateLegacyTerminalToolSpecificData } from "../chat.js";
 import { ChatResponseClearToPreviousToolInvocationReason, IChatService, IChatToolInvocation, isIUsedContext } from "../chatService/chatService.js";
 import { ChatAgentLocation, ChatModeKind } from "../constants.js";
+import { ChatToolInvocation } from "./chatProgressTypes/chatToolInvocation.js";
+import { ToolDataSource } from "../tools/languageModelToolsService.js";
 import { IChatEditingService } from "../editing/chatEditingService.js";
 import { IChatAgentService, reviveSerializedAgent } from "../participants/chatAgents.js";
 import { ChatRequestTextPart, reviveParsedChatRequest } from "../requestParser/chatParserTypes.js";
-import { LocalChatSessionUri } from "./chatUri.js";
+import { chatSessionResourceToId, LocalChatSessionUri } from "./chatUri.js";
 const CHAT_ATTACHABLE_IMAGE_MIME_TYPES = {
   png: "image/png",
   jpg: "image/jpeg",
@@ -194,9 +196,11 @@ class AbstractResponse {
         case "elicitation2":
         case "elicitationSerialized":
         case "thinking":
+        case "hook":
         case "multiDiffData":
         case "mcpServersStarting":
         case "questionCarousel":
+        case "disabledClaudeHooks":
           continue;
         case "toolInvocation":
         case "toolInvocationSerialized":
@@ -413,6 +417,9 @@ class Response extends AbstractResponse {
       });
       this._responseParts.push(progress);
       this._updateRepr(quiet);
+    } else if (progress.kind === "externalToolInvocationUpdate") {
+      this._handleExternalToolInvocationUpdate(progress);
+      this._updateRepr(quiet);
     } else {
       this._responseParts.push(progress);
       this._updateRepr(quiet);
@@ -441,6 +448,54 @@ class Response extends AbstractResponse {
       }
     }
     this._responseParts.push({ kind: "notebookEditGroup", uri, edits: [edits], done, isExternalEdit });
+  }
+  _handleExternalToolInvocationUpdate(progress) {
+    const existingInvocation = this._responseParts.findLast((part) => part.kind === "toolInvocation" && part.toolCallId === progress.toolCallId);
+    if (existingInvocation) {
+      if (progress.isComplete) {
+        existingInvocation.didExecuteTool({
+          content: [],
+          toolResultMessage: progress.pastTenseMessage,
+          toolResultError: progress.errorMessage
+        });
+      }
+      if (progress.toolSpecificData !== void 0) {
+        existingInvocation.toolSpecificData = progress.toolSpecificData;
+      }
+      return;
+    }
+    const toolData = {
+      id: progress.toolName,
+      source: ToolDataSource.External,
+      displayName: progress.toolName,
+      modelDescription: progress.toolName
+    };
+    const invocation = new ChatToolInvocation(
+      {
+        invocationMessage: progress.invocationMessage,
+        pastTenseMessage: progress.pastTenseMessage,
+        toolSpecificData: progress.toolSpecificData
+      },
+      toolData,
+      progress.toolCallId,
+      progress.subagentInvocationId,
+      void 0,
+      // parameters
+      {},
+      void 0
+      // chatRequestId
+    );
+    if (progress.isComplete) {
+      invocation.didExecuteTool({
+        content: [],
+        toolResultMessage: progress.pastTenseMessage,
+        toolResultError: progress.errorMessage
+      });
+      if (progress.toolSpecificData !== void 0) {
+        invocation.toolSpecificData = progress.toolSpecificData;
+      }
+    }
+    this._responseParts.push(invocation);
   }
   _updateRepr(quiet) {
     super._updateRepr();
@@ -608,6 +663,9 @@ class ChatResponseModel extends Disposable {
         }
         if (part.kind === "confirmation" && !part.isUsed) {
           return part.title;
+        }
+        if (part.kind === "questionCarousel" && !part.isUsed) {
+          return localize("waitingAnswer", "Answer questions to continue...");
         }
         if (part.kind === "elicitation2" && part.state.read(r) === "pending") {
           const title = part.title;
@@ -1047,8 +1105,16 @@ let ChatModel = ChatModel_1 = class ChatModel2 extends Disposable {
       this.logService.warn(`ChatModel#constructor: Loaded malformed session data: ${JSON.stringify(initialData)}`);
     }
     this._isImported = !!initialData && isValidExportedData && !isValidFullData;
-    this._sessionId = isValidFullData && initialData.sessionId || initialModelProps.sessionId || generateUuid();
-    this._sessionResource = initialModelProps.resource ?? LocalChatSessionUri.forSession(this._sessionId);
+    if (initialModelProps.resource) {
+      this._sessionId = chatSessionResourceToId(initialModelProps.resource);
+      this._sessionResource = initialModelProps.resource;
+    } else if (isValidFullData) {
+      this._sessionId = initialData.sessionId;
+      this._sessionResource = LocalChatSessionUri.forSession(initialData.sessionId);
+    } else {
+      this._sessionId = generateUuid();
+      this._sessionResource = LocalChatSessionUri.forSession(this._sessionId);
+    }
     this._disableBackgroundKeepAlive = initialModelProps.disableBackgroundKeepAlive ?? false;
     this._requests = initialData ? this._deserialize(initialData) : [];
     this._timestamp = isValidFullData && initialData.creationDate || Date.now();
@@ -1182,6 +1248,13 @@ let ChatModel = ChatModel_1 = class ChatModel2 extends Disposable {
       if (modelState.value === 0 || modelState.value === 4) {
         modelState = { value: 2, completedAt: Date.now() };
       }
+      if (raw.response) {
+        for (const part of raw.response) {
+          if (hasKey(part, { kind: true }) && part.kind === "questionCarousel") {
+            part.isUsed = true;
+          }
+        }
+      }
       request.response = new ChatResponseModel({
         responseContent: raw.response ?? [new MarkdownString(raw.response)],
         session: this,
@@ -1246,6 +1319,9 @@ let ChatModel = ChatModel_1 = class ChatModel2 extends Disposable {
   resetCheckpoint() {
     for (const request of this._requests) {
       request.setShouldBeBlocked(false);
+      if (request.response) {
+        request.response.setBlockedState(false);
+      }
     }
   }
   setCheckpoint(requestId) {
@@ -1267,6 +1343,9 @@ let ChatModel = ChatModel_1 = class ChatModel2 extends Disposable {
       const request = this._requests[i];
       if (this._checkpoint && !checkpoint) {
         request.setShouldBeBlocked(false);
+        if (request.response) {
+          request.response.setBlockedState(false);
+        }
       } else if (checkpoint && i >= checkpointIndex) {
         request.setShouldBeBlocked(true);
         if (request.response) {
@@ -1274,6 +1353,9 @@ let ChatModel = ChatModel_1 = class ChatModel2 extends Disposable {
         }
       } else if (checkpoint && i < checkpointIndex) {
         request.setShouldBeBlocked(false);
+        if (request.response) {
+          request.response.setBlockedState(false);
+        }
       }
     }
     this._checkpoint = checkpoint;

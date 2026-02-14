@@ -46,9 +46,9 @@ let SuggestEnabledInput = class SuggestEnabledInput2 extends Widget {
   }
   constructor(id, parent, suggestionProvider, ariaLabel, resourceHandle, options, defaultInstantiationService, modelService, contextKeyService, languageFeaturesService, configurationService) {
     super();
-    this._onShouldFocusResults = new Emitter();
+    this._onShouldFocusResults = this._register(new Emitter());
     this.onShouldFocusResults = this._onShouldFocusResults.event;
-    this._onInputDidChange = new Emitter();
+    this._onInputDidChange = this._register(new Emitter());
     this.onInputDidChange = this._onInputDidChange.event;
     this._onDidFocus = this._register(new Emitter());
     this.onDidFocus = this._onDidFocus.event;

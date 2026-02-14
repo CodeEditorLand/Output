@@ -33,11 +33,30 @@ import { IWorkbenchConfigurationService } from "../../configuration/common/confi
 import { IUserDataProfilesService } from "../../../../platform/userDataProfile/common/userDataProfile.js";
 import { IUserDataProfileService } from "../../userDataProfile/common/userDataProfile.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { Promises } from "../../../../base/common/async.js";
+class DidEnterWorkspaceEvent {
+  static {
+    __name(this, "DidEnterWorkspaceEvent");
+  }
+  constructor(oldWorkspace, newWorkspace) {
+    this.oldWorkspace = oldWorkspace;
+    this.newWorkspace = newWorkspace;
+    this.promises = [];
+  }
+  join(promise) {
+    this.promises.push(promise);
+  }
+  async wait() {
+    await Promises.settled(this.promises);
+  }
+}
 let AbstractWorkspaceEditingService = class AbstractWorkspaceEditingService2 extends Disposable {
   static {
     __name(this, "AbstractWorkspaceEditingService");
   }
-  constructor(jsonEditingService, contextService, configurationService, notificationService, commandService, fileService, textFileService, workspacesService, environmentService, fileDialogService, dialogService, hostService, uriIdentityService, workspaceTrustManagementService, userDataProfilesService, userDataProfileService) {
+  constructor(jsonEditingService, contextService, configurationService, notificationService, commandService, fileService, textFileService, workspacesService, environmentService, fileDialogService, dialogService, hostService, uriIdentityService, workspaceTrustManagementService, userDataProfilesService, userDataProfileService, logService) {
     super();
     this.jsonEditingService = jsonEditingService;
     this.contextService = contextService;
@@ -55,6 +74,9 @@ let AbstractWorkspaceEditingService = class AbstractWorkspaceEditingService2 ext
     this.workspaceTrustManagementService = workspaceTrustManagementService;
     this.userDataProfilesService = userDataProfilesService;
     this.userDataProfileService = userDataProfileService;
+    this.logService = logService;
+    this._onDidEnterWorkspace = this._register(new Emitter());
+    this.onDidEnterWorkspace = this._onDidEnterWorkspace.event;
   }
   async pickNewWorkspacePath() {
     const availableFileSystems = [Schemas.file];
@@ -266,6 +288,15 @@ let AbstractWorkspaceEditingService = class AbstractWorkspaceEditingService2 ext
       run: /* @__PURE__ */ __name(() => this.commandService.executeCommand("workbench.action.openWorkspaceConfigFile"), "run")
     }]);
   }
+  async fireDidEnterWorkspace(oldWorkspace, newWorkspace) {
+    const event = new DidEnterWorkspaceEvent(oldWorkspace, newWorkspace);
+    this._onDidEnterWorkspace.fire(event);
+    try {
+      await event.wait();
+    } catch (error) {
+      this.logService.error("Error while waiting for participants of onDidEnterWorkspace to join:", error);
+    }
+  }
   async doEnterWorkspace(workspaceUri) {
     if (this.environmentService.extensionTestsLocationURI) {
       throw new Error("Entering a new workspace is not possible in tests.");
@@ -329,9 +360,11 @@ AbstractWorkspaceEditingService = __decorate([
   __param(12, IUriIdentityService),
   __param(13, IWorkspaceTrustManagementService),
   __param(14, IUserDataProfilesService),
-  __param(15, IUserDataProfileService)
+  __param(15, IUserDataProfileService),
+  __param(16, ILogService)
 ], AbstractWorkspaceEditingService);
 export {
-  AbstractWorkspaceEditingService
+  AbstractWorkspaceEditingService,
+  DidEnterWorkspaceEvent
 };
 //# sourceMappingURL=abstractWorkspaceEditingService.js.map

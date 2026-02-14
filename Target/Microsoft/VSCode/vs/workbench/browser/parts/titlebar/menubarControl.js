@@ -367,9 +367,9 @@ let CustomMenubarControl = class CustomMenubarControl2 extends MenubarControl {
     this._onVisibilityChange = this._register(new Emitter());
     this._onFocusStateChange = this._register(new Emitter());
     this.actionRunner = this._register(new ActionRunner());
-    this.actionRunner.onDidRun((e) => {
+    this._register(this.actionRunner.onDidRun((e) => {
       this.telemetryService.publicLog2("workbenchActionExecuted", { id: e.action.id, from: "menu" });
-    });
+    }));
     this.workspacesService.getRecentlyOpened().then((recentlyOpened) => {
       this.recentlyOpened = recentlyOpened;
     });
@@ -401,7 +401,7 @@ let CustomMenubarControl = class CustomMenubarControl2 extends MenubarControl {
           id: "update.downloadNow",
           label: localize({ key: "download now", comment: ["&& denotes a mnemonic"] }, "D&&ownload Update"),
           enabled: true,
-          run: /* @__PURE__ */ __name(() => this.updateService.downloadUpdate(), "run")
+          run: /* @__PURE__ */ __name(() => this.updateService.downloadUpdate(true), "run")
         });
       case "downloading":
       case "overwriting":

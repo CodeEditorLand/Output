@@ -14,14 +14,14 @@ export interface IUpdate {
  *          Idle
  *          ↓  ↑
  *   Checking for Updates  →  Available for Download
- *         ↓
+ *         ↓                    ↓
  *                     ←   Overwriting
  *     Downloading              ↑
  *                     →      Ready
  *         ↓                    ↑
  *     Downloaded      →     Updating
  *
- * Available: There is an update available for download (linux).
+ * Available: There is an update available for download (linux, darwin on metered connection).
  * Ready: Code will be updated as soon as it restarts (win32, darwin).
  * Downloaded: There is an update ready to be installed in the background (win32).
  * Overwriting: A newer update is being downloaded to replace the pending update (darwin).
@@ -89,6 +89,8 @@ export type Downloaded = {
 export type Updating = {
     type: StateType.Updating;
     update: IUpdate;
+    currentProgress?: number;
+    maxProgress?: number;
 };
 export type Ready = {
     type: StateType.Ready;
@@ -110,7 +112,7 @@ export declare const State: {
     AvailableForDownload: (update: IUpdate) => AvailableForDownload;
     Downloading: (update: IUpdate | undefined, explicit: boolean, overwrite: boolean, downloadedBytes?: number, totalBytes?: number, startTime?: number) => Downloading;
     Downloaded: (update: IUpdate, explicit: boolean, overwrite: boolean) => Downloaded;
-    Updating: (update: IUpdate) => Updating;
+    Updating: (update: IUpdate, currentProgress?: number, maxProgress?: number) => Updating;
     Ready: (update: IUpdate, explicit: boolean, overwrite: boolean) => Ready;
     Overwriting: (update: IUpdate, explicit: boolean) => Overwriting;
 };
@@ -126,7 +128,7 @@ export interface IUpdateService {
     readonly onStateChange: Event<State>;
     readonly state: State;
     checkForUpdates(explicit: boolean): Promise<void>;
-    downloadUpdate(): Promise<void>;
+    downloadUpdate(explicit: boolean): Promise<void>;
     applyUpdate(): Promise<void>;
     quitAndInstall(): Promise<void>;
     isLatestVersion(): Promise<boolean | undefined>;

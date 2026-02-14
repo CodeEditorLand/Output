@@ -45,6 +45,10 @@ var RenderConstants;
 (function(RenderConstants2) {
   RenderConstants2[RenderConstants2["SmoothScrollDuration"] = 125] = "SmoothScrollDuration";
 })(RenderConstants || (RenderConstants = {}));
+var TextBlinkConstants;
+(function(TextBlinkConstants2) {
+  TextBlinkConstants2[TextBlinkConstants2["IntervalDuration"] = 600] = "IntervalDuration";
+})(TextBlinkConstants || (TextBlinkConstants = {}));
 function getFullBufferLineAsString(lineIndex, buffer) {
   let line = buffer.getLine(lineIndex);
   if (!line) {
@@ -181,6 +185,7 @@ let XtermTerminal = class XtermTerminal2 extends Disposable {
       minimumContrastRatio: config.minimumContrastRatio,
       tabStopWidth: config.tabStopWidth,
       cursorBlink: config.cursorBlinking,
+      blinkIntervalDuration: config.textBlinking ? 600 : 0,
       cursorStyle: vscodeToXtermCursorStyle(config.cursorStyle),
       cursorInactiveStyle: vscodeToXtermCursorStyle(config.cursorStyleInactive),
       cursorWidth: config.cursorWidth,
@@ -191,9 +196,11 @@ let XtermTerminal = class XtermTerminal2 extends Disposable {
       scrollSensitivity: config.mouseWheelScrollSensitivity,
       scrollOnEraseInDisplay: true,
       wordSeparator: config.wordSeparators,
-      overviewRuler: options.disableOverviewRuler ? { width: 0 } : {
+      scrollbar: options.disableOverviewRuler ? void 0 : {
         width: 14,
-        showTopBorder: true
+        overviewRuler: {
+          showTopBorder: true
+        }
       },
       ignoreBracketedPasteMode: config.ignoreBracketedPasteMode,
       rescaleOverlappingGlyphs: config.rescaleOverlappingGlyphs,
@@ -451,6 +458,7 @@ let XtermTerminal = class XtermTerminal2 extends Disposable {
     const config = this._terminalConfigurationService.config;
     this.raw.options.altClickMovesCursor = config.altClickMovesCursor;
     this._setCursorBlink(config.cursorBlinking);
+    this._setTextBlinking(config.textBlinking);
     this._setCursorStyle(config.cursorStyle);
     this._setCursorStyleInactive(config.cursorStyleInactive);
     this._setCursorWidth(config.cursorWidth);
@@ -537,16 +545,16 @@ let XtermTerminal = class XtermTerminal2 extends Disposable {
           /* XtermTerminalConstants.SearchHighlightLimit */
         });
         this.raw.loadAddon(this._searchAddon);
-        this._searchAddon.onDidChangeResults((results) => {
+        this._store.add(this._searchAddon.onDidChangeResults((results) => {
           this._lastFindResult = results;
           this._onDidChangeFindResults.fire(results);
-        });
-        this._searchAddon.onBeforeSearch(() => {
+        }));
+        this._store.add(this._searchAddon.onBeforeSearch(() => {
           this._onBeforeSearch.fire();
-        });
-        this._searchAddon.onAfterSearch(() => {
+        }));
+        this._store.add(this._searchAddon.onAfterSearch(() => {
           this._onAfterSearch.fire();
-        });
+        }));
         return this._searchAddon;
       });
     }
@@ -689,6 +697,13 @@ let XtermTerminal = class XtermTerminal2 extends Disposable {
       this.raw.refresh(0, this.raw.rows - 1);
     }
   }
+  _setTextBlinking(enabled) {
+    const blinkIntervalDuration = enabled ? 600 : 0;
+    const options = this.raw.options;
+    if (options.blinkIntervalDuration !== blinkIntervalDuration) {
+      options.blinkIntervalDuration = blinkIntervalDuration;
+    }
+  }
   _setCursorStyle(style) {
     const mapped = vscodeToXtermCursorStyle(style);
     if (this.raw.options.cursorStyle !== mapped) {
@@ -719,10 +734,10 @@ let XtermTerminal = class XtermTerminal2 extends Disposable {
     try {
       this.raw.loadAddon(this._webglAddon);
       this._logService.trace("Webgl was loaded");
-      this._webglAddon.onContextLoss(() => {
+      this._store.add(this._webglAddon.onContextLoss(() => {
         this._logService.info(`Webgl lost context, disposing of webgl renderer`);
         this._disposeOfWebglRenderer();
-      });
+      }));
       this._refreshImageAddon();
       this._onDidRequestRefreshDimensions.fire();
     } catch (e) {

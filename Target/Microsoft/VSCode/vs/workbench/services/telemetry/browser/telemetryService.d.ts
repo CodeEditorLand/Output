@@ -1,12 +1,13 @@
 import { Disposable } from '../../../../base/common/lifecycle.js';
 import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
-import { ILogService, ILoggerService } from '../../../../platform/log/common/log.js';
+import { ILoggerService } from '../../../../platform/log/common/log.js';
 import { IProductService } from '../../../../platform/product/common/productService.js';
 import { IStorageService } from '../../../../platform/storage/common/storage.js';
 import { ClassifiedEvent, IGDPRProperty, OmitMetadata, StrictPropertyCheck } from '../../../../platform/telemetry/common/gdprTypings.js';
 import { ITelemetryData, ITelemetryService, TelemetryLevel } from '../../../../platform/telemetry/common/telemetry.js';
 import { IBrowserWorkbenchEnvironmentService } from '../../environment/browser/environmentService.js';
 import { IRemoteAgentService } from '../../remote/common/remoteAgentService.js';
+import { IMeteredConnectionService } from '../../../../platform/meteredConnection/common/meteredConnection.js';
 export declare class TelemetryService extends Disposable implements ITelemetryService {
     readonly _serviceBrand: undefined;
     private impl;
@@ -17,7 +18,7 @@ export declare class TelemetryService extends Disposable implements ITelemetrySe
     get devDeviceId(): string;
     get firstSessionDate(): string;
     get msftInternal(): boolean | undefined;
-    constructor(environmentService: IBrowserWorkbenchEnvironmentService, logService: ILogService, loggerService: ILoggerService, configurationService: IConfigurationService, storageService: IStorageService, productService: IProductService, remoteAgentService: IRemoteAgentService);
+    constructor(environmentService: IBrowserWorkbenchEnvironmentService, loggerService: ILoggerService, configurationService: IConfigurationService, storageService: IStorageService, productService: IProductService, remoteAgentService: IRemoteAgentService, meteredConnectionService: IMeteredConnectionService);
     /**
      * Initializes the telemetry service to be a full fledged service.
      * This is only done once and only when telemetry is enabled as this will also ping the endpoint to

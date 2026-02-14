@@ -18,7 +18,7 @@ class MergeMarkersController extends Disposable {
     this.editor = editor;
     this.mergeEditorViewModel = mergeEditorViewModel;
     this.viewZoneIds = [];
-    this.disposableStore = new DisposableStore();
+    this.disposableStore = this._register(new DisposableStore());
     this._register(editor.onDidChangeModelContent((e) => {
       this.updateDecorations();
     }));

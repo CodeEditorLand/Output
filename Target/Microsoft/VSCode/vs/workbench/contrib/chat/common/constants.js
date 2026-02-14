@@ -7,7 +7,10 @@ var ChatConfiguration;
 (function(ChatConfiguration2) {
   ChatConfiguration2["AIDisabled"] = "chat.disableAIFeatures";
   ChatConfiguration2["AgentEnabled"] = "chat.agent.enabled";
+  ChatConfiguration2["PlanAgentDefaultModel"] = "chat.planAgent.defaultModel";
+  ChatConfiguration2["ExploreAgentDefaultModel"] = "chat.exploreAgent.defaultModel";
   ChatConfiguration2["RequestQueueingEnabled"] = "chat.requestQueuing.enabled";
+  ChatConfiguration2["RequestQueueingDefaultAction"] = "chat.requestQueuing.defaultAction";
   ChatConfiguration2["AgentStatusEnabled"] = "chat.agentsControl.enabled";
   ChatConfiguration2["EditorAssociations"] = "chat.editorAssociations";
   ChatConfiguration2["UnifiedAgentsBar"] = "chat.unifiedAgentsBar.enabled";
@@ -19,6 +22,7 @@ var ChatConfiguration;
   ChatConfiguration2["RepoInfoEnabled"] = "chat.repoInfo.enabled";
   ChatConfiguration2["EditRequests"] = "chat.editRequests";
   ChatConfiguration2["InlineReferencesStyle"] = "chat.inlineReferences.style";
+  ChatConfiguration2["AutoReply"] = "chat.autoReply";
   ChatConfiguration2["GlobalAutoApprove"] = "chat.tools.global.autoApprove";
   ChatConfiguration2["AutoApproveEdits"] = "chat.tools.edits.autoApprove";
   ChatConfiguration2["AutoApprovedUrls"] = "chat.tools.urls.autoApprove";

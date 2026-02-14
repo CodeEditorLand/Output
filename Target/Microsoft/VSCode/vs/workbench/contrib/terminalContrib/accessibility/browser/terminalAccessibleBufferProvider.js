@@ -32,7 +32,7 @@ let TerminalAccessibleBufferProvider = class TerminalAccessibleBufferProvider2 e
       /* AccessibleViewProviderId.Terminal */
     };
     this.verbositySettingKey = "accessibility.verbosity.terminal";
-    this._onDidRequestClearProvider = new Emitter();
+    this._onDidRequestClearProvider = this._register(new Emitter());
     this.onDidRequestClearLastProvider = this._onDidRequestClearProvider.event;
     this.options.customHelp = customHelp;
     this.options.position = configurationService.getValue(

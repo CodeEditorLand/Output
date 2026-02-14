@@ -3,6 +3,7 @@ import { PaneCompositeDescriptor } from '../../../browser/panecomposite.js';
 import { IProgressIndicator } from '../../../../platform/progress/common/progress.js';
 import { IPaneComposite } from '../../../common/panecomposite.js';
 import { ViewContainerLocation } from '../../../common/views.js';
+import { SINGLE_WINDOW_PARTS } from '../../layout/browser/layoutService.js';
 export declare const IPaneCompositePartService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IPaneCompositePartService>;
 export interface IPaneCompositePartService {
     readonly _serviceBrand: undefined;
@@ -14,6 +15,8 @@ export interface IPaneCompositePartService {
         composite: IPaneComposite;
         viewContainerLocation: ViewContainerLocation;
     }>;
+    getRegistryId(viewContainerLocation: ViewContainerLocation): string;
+    getPartId(viewContainerLocation: ViewContainerLocation): SINGLE_WINDOW_PARTS;
     /**
      * Opens a viewlet with the given identifier and pass keyboard focus to it if specified.
      */

@@ -64,7 +64,7 @@ let BrowserUpdateService = class BrowserUpdateService2 extends Disposable {
     }
     return void 0;
   }
-  async downloadUpdate() {
+  async downloadUpdate(_explicit) {
   }
   async applyUpdate() {
     this.hostService.reload();

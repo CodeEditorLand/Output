@@ -28,8 +28,9 @@ import { ILogService } from "../../../../../platform/log/common/log.js";
 import { IStorageService } from "../../../../../platform/storage/common/storage.js";
 import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
 import { IUserDataProfilesService } from "../../../../../platform/userDataProfile/common/userDataProfile.js";
-import { IWorkspaceContextService } from "../../../../../platform/workspace/common/workspace.js";
+import { isEmptyWorkspaceIdentifier, IWorkspaceContextService } from "../../../../../platform/workspace/common/workspace.js";
 import { ILifecycleService } from "../../../../services/lifecycle/common/lifecycle.js";
+import { IWorkspaceEditingService } from "../../../../services/workspaces/common/workspaceEditing.js";
 import { awaitStatsForSession } from "../chat.js";
 import { ChatModel, normalizeSerializableChatData } from "./chatModel.js";
 import { ChatSessionOperationLog } from "./chatSessionOperationLog.js";
@@ -44,7 +45,7 @@ let ChatSessionStore = class ChatSessionStore2 extends Disposable {
   static {
     ChatSessionStore_1 = this;
   }
-  constructor(fileService, environmentService, logService, workspaceContextService, telemetryService, storageService, lifecycleService, userDataProfilesService, configurationService) {
+  constructor(fileService, environmentService, logService, workspaceContextService, telemetryService, storageService, lifecycleService, userDataProfilesService, configurationService, workspaceEditingService) {
     super();
     this.fileService = fileService;
     this.environmentService = environmentService;
@@ -55,6 +56,7 @@ let ChatSessionStore = class ChatSessionStore2 extends Disposable {
     this.lifecycleService = lifecycleService;
     this.userDataProfilesService = userDataProfilesService;
     this.configurationService = configurationService;
+    this.workspaceEditingService = workspaceEditingService;
     this.storeQueue = new Sequencer();
     this.shuttingDown = false;
     const workspace = this.workspaceContextService.getWorkspace();
@@ -63,6 +65,10 @@ let ChatSessionStore = class ChatSessionStore2 extends Disposable {
     this.storageRoot = isEmptyWindow ? joinPath(this.userDataProfilesService.defaultProfile.globalStorageHome, "emptyWindowChatSessions") : joinPath(this.environmentService.workspaceStorageHome, workspaceId, "chatSessions");
     this.previousEmptyWindowStorageRoot = isEmptyWindow ? joinPath(this.environmentService.workspaceStorageHome, "no-workspace", "chatSessions") : void 0;
     this.transferredSessionStorageRoot = joinPath(this.userDataProfilesService.defaultProfile.globalStorageHome, "transferredChatSessions");
+    this._register(this.workspaceEditingService.onDidEnterWorkspace((event) => {
+      const transitionPromise = this.storeQueue.queue(() => this.handleWorkspaceTransition(event.oldWorkspace, event.newWorkspace));
+      event.join(transitionPromise);
+    }));
     this._register(this.lifecycleService.onWillShutdown((e) => {
       this.shuttingDown = true;
       if (!this.storeTask) {
@@ -73,6 +79,62 @@ let ChatSessionStore = class ChatSessionStore2 extends Disposable {
         label: localize("join.chatSessionStore", "Saving chat history")
       });
     }));
+  }
+  async handleWorkspaceTransition(oldWorkspace, newWorkspace) {
+    const wasEmptyWindow = isEmptyWorkspaceIdentifier(oldWorkspace);
+    const isNewWorkspaceEmpty = isEmptyWorkspaceIdentifier(newWorkspace);
+    const oldWorkspaceId = oldWorkspace.id;
+    const newWorkspaceId = newWorkspace.id;
+    this.logService.info(`ChatSessionStore: Workspace transition from ${oldWorkspaceId} to ${newWorkspaceId}`);
+    const oldStorageRoot = wasEmptyWindow ? joinPath(this.userDataProfilesService.defaultProfile.globalStorageHome, "emptyWindowChatSessions") : joinPath(this.environmentService.workspaceStorageHome, oldWorkspaceId, "chatSessions");
+    const newStorageRoot = isNewWorkspaceEmpty ? joinPath(this.userDataProfilesService.defaultProfile.globalStorageHome, "emptyWindowChatSessions") : joinPath(this.environmentService.workspaceStorageHome, newWorkspaceId, "chatSessions");
+    if (oldStorageRoot.toString() === newStorageRoot.toString()) {
+      this.storageRoot = newStorageRoot;
+      return;
+    }
+    this.storageRoot = newStorageRoot;
+    await this.migrateSessionsToNewWorkspace(oldStorageRoot, wasEmptyWindow, isNewWorkspaceEmpty);
+  }
+  async migrateSessionsToNewWorkspace(oldStorageRoot, wasEmptyWindow, isNewWorkspaceEmpty) {
+    try {
+      const oldStorageExists = await this.fileService.exists(oldStorageRoot);
+      if (!oldStorageExists) {
+        this.logService.info(`ChatSessionStore: Old storage location does not exist, skipping migration`);
+        return;
+      }
+      const oldDirectory = await this.fileService.resolve(oldStorageRoot);
+      if (!oldDirectory.children) {
+        this.logService.info(`ChatSessionStore: No children in old storage location, skipping migration`);
+        return;
+      }
+      this.logService.info(`ChatSessionStore: Found ${oldDirectory.children.length} files in old storage location`);
+      let migratedCount = 0;
+      for (const child of oldDirectory.children) {
+        if (!child.isDirectory && (child.name.endsWith(".json") || child.name.endsWith(".jsonl"))) {
+          const oldFilePath = child.resource;
+          const newFilePath = joinPath(this.storageRoot, child.name);
+          try {
+            await this.fileService.copy(oldFilePath, newFilePath, false);
+            migratedCount++;
+          } catch (e) {
+            if (toFileOperationResult(e) === 4) {
+              this.logService.trace(`ChatSessionStore: Session file ${child.name} already exists at target, skipping`);
+            } else {
+              this.reportError("sessionMigration", `Error migrating chat session file ${child.name}`, e);
+            }
+          }
+        }
+      }
+      this.logService.info(`ChatSessionStore: Copied ${migratedCount} chat session files from ${wasEmptyWindow ? "empty window" : oldStorageRoot.toString()} to ${isNewWorkspaceEmpty ? "empty window" : this.storageRoot.toString()} (originals preserved at old location)`);
+      this.indexCache = void 0;
+      try {
+        await this.flushIndex();
+      } catch (e) {
+        this.reportError("migrateWorkspace", "Error flushing chat session index after workspace migration", e);
+      }
+    } catch (e) {
+      this.reportError("migrateWorkspace", "Error migrating chat sessions to new workspace", e);
+    }
   }
   async storeSessions(sessions) {
     if (this.shuttingDown) {
@@ -515,7 +577,8 @@ ChatSessionStore = ChatSessionStore_1 = __decorate([
   __param(5, IStorageService),
   __param(6, ILifecycleService),
   __param(7, IUserDataProfilesService),
-  __param(8, IConfigurationService)
+  __param(8, IConfigurationService),
+  __param(9, IWorkspaceEditingService)
 ], ChatSessionStore);
 function isChatSessionEntryMetadata(obj) {
   return !!obj && typeof obj === "object" && typeof obj.sessionId === "string" && typeof obj.title === "string" && typeof obj.lastMessageDate === "number";

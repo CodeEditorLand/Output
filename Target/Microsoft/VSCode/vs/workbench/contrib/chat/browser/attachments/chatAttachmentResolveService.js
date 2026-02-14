@@ -221,6 +221,37 @@ let ChatAttachmentResolveService = class ChatAttachmentResolveService2 {
     }
     return [];
   }
+  // --- DIRECTORIES ---
+  async resolveDirectoryImages(directoryUri) {
+    const imageEntries = [];
+    await this._collectDirectoryImages(directoryUri, imageEntries);
+    return imageEntries;
+  }
+  async _collectDirectoryImages(directoryUri, results) {
+    let stat;
+    try {
+      stat = await this.fileService.resolve(directoryUri);
+    } catch {
+      return;
+    }
+    if (!stat.children) {
+      return;
+    }
+    const childPromises = [];
+    for (const child of stat.children) {
+      if (child.isDirectory && !child.isSymbolicLink) {
+        childPromises.push(this._collectDirectoryImages(child.resource, results));
+      } else if (child.isFile && !child.isSymbolicLink && SUPPORTED_IMAGE_EXTENSIONS_REGEX.test(child.resource.path)) {
+        childPromises.push(this.resolveImageEditorAttachContext(child.resource).then((entry) => {
+          if (entry) {
+            results.push(entry);
+          }
+        }).catch(() => {
+        }));
+      }
+    }
+    await Promise.all(childPromises);
+  }
   // --- SOURCE CONTROL ---
   resolveSourceControlHistoryItemAttachContext(data) {
     return data.map((d) => ({

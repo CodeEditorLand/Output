@@ -176,7 +176,7 @@ let TOCTree = class TOCTree2 extends WorkbenchObjectTree {
     __name(this, "TOCTree");
   }
   constructor(container, viewState, contextKeyService, listService, configurationService, hoverService, instantiationService) {
-    const filter = instantiationService.createInstance(SettingsTreeFilter, viewState);
+    const filter = instantiationService.createInstance(SettingsTreeFilter, viewState, false);
     const options = {
       filter,
       multipleSelectionSupport: false,

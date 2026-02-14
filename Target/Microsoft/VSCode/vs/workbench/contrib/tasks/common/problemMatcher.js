@@ -225,7 +225,7 @@ class AbstractLineMatcher {
       if (trim) {
         value = Strings.trim(value);
       }
-      data[property] += endOfLine + value;
+      data[property] = data[property] + endOfLine + value;
     }
   }
   fillProperty(data, property, pattern, matches, trim = false) {
@@ -454,7 +454,7 @@ var Config;
   let MultiLineProblemPattern;
   (function(MultiLineProblemPattern2) {
     function is(value) {
-      return value && Array.isArray(value);
+      return Array.isArray(value);
     }
     __name(is, "is");
     MultiLineProblemPattern2.is = is;

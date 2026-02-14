@@ -40,7 +40,8 @@ class LoggerChannelClient extends AbstractLoggerService {
     super.registerLogger(logger);
     this.channel.call("registerLogger", [logger, this.windowId]);
   }
-  deregisterLogger(resource) {
+  deregisterLogger(idOrResource) {
+    const resource = this.toResource(idOrResource);
     super.deregisterLogger(resource);
     this.channel.call("deregisterLogger", [resource, this.windowId]);
   }

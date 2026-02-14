@@ -1,6 +1,6 @@
 import { URI } from '../../../../../base/common/uri.js';
-import { Action2 } from '../../../../../platform/actions/common/actions.js';
 import { ServicesAccessor } from '../../../../../editor/browser/editorExtensions.js';
+import { Action2 } from '../../../../../platform/actions/common/actions.js';
 export interface IChatRemovePendingRequestContext {
     sessionResource: URI;
     pendingRequestId: string;

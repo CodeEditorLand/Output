@@ -3,8 +3,10 @@ import { Event } from '../../../../../base/common/event.js';
 import { Disposable, IDisposable } from '../../../../../base/common/lifecycle.js';
 import { IObservable, IReader } from '../../../../../base/common/observable.js';
 import { ThemeIcon } from '../../../../../base/common/themables.js';
+import { URI } from '../../../../../base/common/uri.js';
 import { IAccessibilityService } from '../../../../../platform/accessibility/common/accessibility.js';
 import { IAccessibilitySignalService } from '../../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js';
+import { ICommandService } from '../../../../../platform/commands/common/commands.js';
 import { IConfigurationService } from '../../../../../platform/configuration/common/configuration.js';
 import { IContextKeyService } from '../../../../../platform/contextkey/common/contextkey.js';
 import { IDialogService } from '../../../../../platform/dialogs/common/dialogs.js';
@@ -18,8 +20,7 @@ import { IVariableReference } from '../../common/chatModes.js';
 import { IChatService, IChatToolInvocation } from '../../common/chatService/chatService.js';
 import { ILanguageModelChatMetadata } from '../../common/languageModels.js';
 import { ILanguageModelToolsConfirmationService } from '../../common/tools/languageModelToolsConfirmationService.js';
-import { CountTokensCallback, IBeginToolCallOptions, ILanguageModelToolsService, IToolAndToolSetEnablementMap, IToolData, IToolImpl, IToolInvocation, IToolResult, ToolDataSource, ToolSet, IToolSet, IToolInvokedEvent } from '../../common/tools/languageModelToolsService.js';
-import { URI } from '../../../../../base/common/uri.js';
+import { CountTokensCallback, IBeginToolCallOptions, ILanguageModelToolsService, IToolAndToolSetEnablementMap, IToolData, IToolImpl, IToolInvocation, IToolInvokedEvent, IToolResult, IToolSet, ToolDataSource, ToolSet } from '../../common/tools/languageModelToolsService.js';
 export declare const globalAutoApproveDescription: import("../../../../../nls.js").ILocalizedString;
 export declare class LanguageModelToolsService extends Disposable implements ILanguageModelToolsService {
     private readonly _instantiationService;
@@ -34,6 +35,7 @@ export declare class LanguageModelToolsService extends Disposable implements ILa
     private readonly _accessibilitySignalService;
     private readonly _storageService;
     private readonly _confirmationService;
+    private readonly _commandService;
     _serviceBrand: undefined;
     readonly vscodeToolSet: ToolSet;
     readonly executeToolSet: ToolSet;
@@ -57,7 +59,7 @@ export declare class LanguageModelToolsService extends Disposable implements ILa
     /** Pending tool calls in the streaming phase, keyed by toolCallId */
     private readonly _pendingToolCalls;
     private readonly _isAgentModeEnabled;
-    constructor(_instantiationService: IInstantiationService, _extensionService: IExtensionService, _contextKeyService: IContextKeyService, _chatService: IChatService, _dialogService: IDialogService, _telemetryService: ITelemetryService, _logService: ILogService, _configurationService: IConfigurationService, _accessibilityService: IAccessibilityService, _accessibilitySignalService: IAccessibilitySignalService, _storageService: IStorageService, _confirmationService: ILanguageModelToolsConfirmationService);
+    constructor(_instantiationService: IInstantiationService, _extensionService: IExtensionService, _contextKeyService: IContextKeyService, _chatService: IChatService, _dialogService: IDialogService, _telemetryService: ITelemetryService, _logService: ILogService, _configurationService: IConfigurationService, _accessibilityService: IAccessibilityService, _accessibilitySignalService: IAccessibilitySignalService, _storageService: IStorageService, _confirmationService: ILanguageModelToolsConfirmationService, _commandService: ICommandService);
     /**
      * Returns if the given tool or toolset is permitted in the current context.
      * When agent mode is enabled, all tools are permitted (no restriction)
@@ -75,7 +77,25 @@ export declare class LanguageModelToolsService extends Disposable implements ILa
     getAllToolsIncludingDisabled(): Iterable<IToolData>;
     getTool(id: string): IToolData | undefined;
     getToolByName(name: string): IToolData | undefined;
+    private _handlePreToolUseDenial;
+    /**
+     * Validate updatedInput from a preToolUse hook against the tool's input schema
+     * using the json.validate command from the JSON extension.
+     * @returns An error message string if validation fails, or undefined if valid.
+     */
+    private _validateUpdatedInput;
     invokeTool(dto: IToolInvocation, countTokens: CountTokensCallback, token: CancellationToken): Promise<IToolResult>;
+    private prepareToolInvocationWithHookResult;
+    /**
+     * Determines the auto-confirm decision based on a preToolUse hook result.
+     * If the hook returned 'allow', auto-approves. If 'ask', forces confirmation
+     * and ensures confirmation messages exist on `preparedInvocation`. Otherwise
+     * falls back to normal auto-confirm logic.
+     *
+     * Returns the possibly-updated preparedInvocation along with the auto-confirm decision,
+     * since when the hook returns 'ask' and preparedInvocation was undefined, we create one.
+     */
+    private resolveAutoConfirmFromHook;
     private prepareToolInvocation;
     beginToolCall(options: IBeginToolCallOptions): IChatToolInvocation | undefined;
     private _callHandleToolStream;
@@ -100,7 +120,7 @@ export declare class LanguageModelToolsService extends Disposable implements ILa
      * @param fullReferenceNames A list of tool or toolset by their full reference names that are enabled.
      * @returns A map of tool or toolset instances to their enablement state.
      */
-    toToolAndToolSetEnablementMap(fullReferenceNames: readonly string[], _target: string | undefined, model: ILanguageModelChatMetadata | undefined): IToolAndToolSetEnablementMap;
+    toToolAndToolSetEnablementMap(fullReferenceNames: readonly string[], model: ILanguageModelChatMetadata | undefined): IToolAndToolSetEnablementMap;
     toFullReferenceNames(map: IToolAndToolSetEnablementMap): string[];
     toToolReferences(variableReferences: readonly IVariableReference[]): ChatRequestToolReferenceEntry[];
     private readonly _toolSets;

@@ -22,7 +22,7 @@ export interface ILayoutContentResult {
  * arranges an optional title and mandatory content area to show content.
  */
 export declare abstract class Part<MementoType extends object = object> extends Component<MementoType> implements ISerializableView {
-    private options;
+    protected options: IPartOptions;
     protected readonly layoutService: IWorkbenchLayoutService;
     private _dimension;
     get dimension(): Dimension | undefined;

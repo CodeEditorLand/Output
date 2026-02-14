@@ -11,7 +11,7 @@ var __param = function(paramIndex, decorator) {
     decorator(target, key, paramIndex);
   };
 };
-import { Delayer } from "../../../../base/common/async.js";
+import { Delayer, disposableTimeout } from "../../../../base/common/async.js";
 import * as DOM from "../../../../base/browser/dom.js";
 import { IContextViewService } from "../../../../platform/contextview/browser/contextView.js";
 import { toDisposable } from "../../../../base/common/lifecycle.js";
@@ -29,6 +29,8 @@ import { SubmenuEntryActionViewItem } from "../../../../platform/actions/browser
 import { Widget } from "../../../../base/browser/ui/widget.js";
 import { Emitter } from "../../../../base/common/event.js";
 import { defaultInputBoxStyles } from "../../../../platform/theme/browser/defaultStyles.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
 const viewFilterMenu = new MenuId("menu.view.filter");
 const viewFilterSubmenu = new MenuId("submenu.view.filter");
 MenuRegistry.appendMenuItem(viewFilterMenu, {
@@ -71,17 +73,20 @@ let FilterWidget = class FilterWidget2 extends Widget {
   get onDidBlur() {
     return this.focusTracker.onDidBlur;
   }
-  constructor(options, instantiationService, contextViewService, contextKeyService, keybindingService) {
+  constructor(options, instantiationService, contextViewService, contextKeyService, keybindingService, configurationService, accessibilityService) {
     super();
     this.options = options;
     this.instantiationService = instantiationService;
     this.contextViewService = contextViewService;
     this.keybindingService = keybindingService;
+    this.configurationService = configurationService;
+    this.accessibilityService = accessibilityService;
     this._onDidChangeFilterText = this._register(new Emitter());
     this.onDidChangeFilterText = this._onDidChangeFilterText.event;
     this._onDidAcceptFilterText = this._register(new Emitter());
     this.onDidAcceptFilterText = this._onDidAcceptFilterText.event;
     this.isMoreFiltersChecked = false;
+    this._accessibilityHelpHintAnnounced = false;
     this.delayedFilterUpdate = new Delayer(300);
     this._register(toDisposable(() => this.delayedFilterUpdate.cancel()));
     if (options.focusContextKey) {
@@ -100,7 +105,29 @@ let FilterWidget = class FilterWidget2 extends Widget {
     return this.filterInputBox.hasFocus();
   }
   focus() {
+    this._updateFilterInputAriaLabel();
     this.filterInputBox.focus();
+  }
+  /**
+   * Updates the ARIA label of the filter input box.
+   * When a screen reader is active and the accessibility verbosity setting is enabled,
+   * includes a hint about pressing Alt+F1 for accessibility help on first focus.
+   * The hint is only announced once per focus cycle to prevent double-speak.
+   */
+  _updateFilterInputAriaLabel() {
+    let ariaLabel = this.options.ariaLabel || localize("viewFilter", "Filter");
+    if (!this._accessibilityHelpHintAnnounced && this.configurationService.getValue("accessibility.verbosity.find") && this.accessibilityService.isScreenReaderOptimized()) {
+      const keybinding = this.keybindingService.lookupKeybinding("editor.action.accessibilityHelp")?.getAriaLabel();
+      if (keybinding) {
+        ariaLabel += ", " + localize("accessibilityHelpHintInLabel", "Press {0} for accessibility help", keybinding);
+        this._accessibilityHelpHintAnnounced = true;
+        this._labelResetTimeout?.dispose();
+        this._labelResetTimeout = disposableTimeout(() => {
+          this.filterInputBox.setAriaLabel(this.options.ariaLabel || localize("viewFilter", "Filter"));
+        }, 1e3);
+      }
+    }
+    this.filterInputBox.setAriaLabel(ariaLabel);
   }
   blur() {
     this.filterInputBox.blur();
@@ -238,7 +265,9 @@ FilterWidget = __decorate([
   __param(1, IInstantiationService),
   __param(2, IContextViewService),
   __param(3, IContextKeyService),
-  __param(4, IKeybindingService)
+  __param(4, IKeybindingService),
+  __param(5, IConfigurationService),
+  __param(6, IAccessibilityService)
 ], FilterWidget);
 export {
   FilterWidget,

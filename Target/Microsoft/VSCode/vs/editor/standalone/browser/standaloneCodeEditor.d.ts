@@ -26,6 +26,7 @@ import { DiffEditorWidget } from '../../browser/widget/diffEditor/diffEditorWidg
 import { IAccessibilitySignalService } from '../../../platform/accessibilitySignal/browser/accessibilitySignalService.js';
 import { IHoverService } from '../../../platform/hover/browser/hover.js';
 import { IMarkdownRendererService } from '../../../platform/markdown/browser/markdownRenderer.js';
+import { IUserInteractionService } from '../../../platform/userInteraction/browser/userInteractionService.js';
 /**
  * Description of an action contribution
  */
@@ -222,7 +223,7 @@ export interface IStandaloneDiffEditor extends IDiffEditor {
  */
 export declare class StandaloneCodeEditor extends CodeEditorWidget implements IStandaloneCodeEditor {
     private readonly _standaloneKeybindingService;
-    constructor(domElement: HTMLElement, _options: Readonly<IStandaloneEditorConstructionOptions>, instantiationService: IInstantiationService, codeEditorService: ICodeEditorService, commandService: ICommandService, contextKeyService: IContextKeyService, hoverService: IHoverService, keybindingService: IKeybindingService, themeService: IThemeService, notificationService: INotificationService, accessibilityService: IAccessibilityService, languageConfigurationService: ILanguageConfigurationService, languageFeaturesService: ILanguageFeaturesService, markdownRendererService: IMarkdownRendererService);
+    constructor(domElement: HTMLElement, _options: Readonly<IStandaloneEditorConstructionOptions>, instantiationService: IInstantiationService, codeEditorService: ICodeEditorService, commandService: ICommandService, contextKeyService: IContextKeyService, hoverService: IHoverService, keybindingService: IKeybindingService, themeService: IThemeService, notificationService: INotificationService, accessibilityService: IAccessibilityService, languageConfigurationService: ILanguageConfigurationService, languageFeaturesService: ILanguageFeaturesService, markdownRendererService: IMarkdownRendererService, userInteractionService: IUserInteractionService);
     addCommand(keybinding: number, handler: ICommandHandler, context?: string): string | null;
     createContextKey<T extends ContextKeyValue = ContextKeyValue>(key: string, defaultValue: T): IContextKey<T>;
     addAction(_descriptor: IActionDescriptor): IDisposable;
@@ -232,7 +233,7 @@ export declare class StandaloneEditor extends StandaloneCodeEditor implements IS
     private readonly _configurationService;
     private readonly _standaloneThemeService;
     private _ownsModel;
-    constructor(domElement: HTMLElement, _options: Readonly<IStandaloneEditorConstructionOptions> | undefined, instantiationService: IInstantiationService, codeEditorService: ICodeEditorService, commandService: ICommandService, contextKeyService: IContextKeyService, hoverService: IHoverService, keybindingService: IKeybindingService, themeService: IStandaloneThemeService, notificationService: INotificationService, configurationService: IConfigurationService, accessibilityService: IAccessibilityService, modelService: IModelService, languageService: ILanguageService, languageConfigurationService: ILanguageConfigurationService, languageFeaturesService: ILanguageFeaturesService, markdownRendererService: IMarkdownRendererService);
+    constructor(domElement: HTMLElement, _options: Readonly<IStandaloneEditorConstructionOptions> | undefined, instantiationService: IInstantiationService, codeEditorService: ICodeEditorService, commandService: ICommandService, contextKeyService: IContextKeyService, hoverService: IHoverService, keybindingService: IKeybindingService, themeService: IStandaloneThemeService, notificationService: INotificationService, configurationService: IConfigurationService, accessibilityService: IAccessibilityService, modelService: IModelService, languageService: ILanguageService, languageConfigurationService: ILanguageConfigurationService, languageFeaturesService: ILanguageFeaturesService, markdownRendererService: IMarkdownRendererService, userInteractionService: IUserInteractionService);
     dispose(): void;
     updateOptions(newOptions: Readonly<IEditorOptions & IGlobalEditorOptions>): void;
     protected _postDetachModelCleanup(detachedModel: ITextModel): void;

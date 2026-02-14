@@ -53,6 +53,21 @@ let ActivitybarPart = class ActivitybarPart2 extends Part {
     this.ACTION_HEIGHT = 48;
   }
   static {
+    this.COMPACT_ACTION_HEIGHT = 32;
+  }
+  static {
+    this.ACTIVITYBAR_WIDTH = 48;
+  }
+  static {
+    this.COMPACT_ACTIVITYBAR_WIDTH = 36;
+  }
+  static {
+    this.ICON_SIZE = 24;
+  }
+  static {
+    this.COMPACT_ICON_SIZE = 16;
+  }
+  static {
     this.pinnedViewContainersKey = "workbench.activity.pinnedViewlets2";
   }
   static {
@@ -61,25 +76,72 @@ let ActivitybarPart = class ActivitybarPart2 extends Part {
   static {
     this.viewContainersWorkspaceStateKey = "workbench.activity.viewletsWorkspaceState";
   }
-  constructor(paneCompositePart, instantiationService, layoutService, themeService, storageService) {
+  //#region IView
+  get minimumWidth() {
+    return this._isCompact ? ActivitybarPart_1.COMPACT_ACTIVITYBAR_WIDTH : ActivitybarPart_1.ACTIVITYBAR_WIDTH;
+  }
+  get maximumWidth() {
+    return this._isCompact ? ActivitybarPart_1.COMPACT_ACTIVITYBAR_WIDTH : ActivitybarPart_1.ACTIVITYBAR_WIDTH;
+  }
+  constructor(location, paneCompositePart, instantiationService, layoutService, themeService, storageService, configurationService) {
     super("workbench.parts.activitybar", { hasTitle: false }, themeService, storageService, layoutService);
+    this.location = location;
     this.paneCompositePart = paneCompositePart;
     this.instantiationService = instantiationService;
-    this.minimumWidth = 48;
-    this.maximumWidth = 48;
+    this.configurationService = configurationService;
     this.minimumHeight = 0;
     this.maximumHeight = Number.POSITIVE_INFINITY;
     this.compositeBar = this._register(new MutableDisposable());
+    this._isCompact = this.configurationService.getValue(
+      "workbench.activityBar.compact"
+      /* LayoutSettings.ACTIVITY_BAR_COMPACT */
+    ) ?? false;
+    this._register(this.configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(
+        "workbench.activityBar.compact"
+        /* LayoutSettings.ACTIVITY_BAR_COMPACT */
+      )) {
+        this._isCompact = this.configurationService.getValue(
+          "workbench.activityBar.compact"
+          /* LayoutSettings.ACTIVITY_BAR_COMPACT */
+        ) ?? false;
+        this.updateCompactStyle();
+        this.recreateCompositeBar();
+        this._onDidChange.fire(void 0);
+      }
+    }));
+  }
+  updateCompactStyle() {
+    if (this.element) {
+      this.element.classList.toggle("compact", this._isCompact);
+      this.element.style.setProperty("--activity-bar-width", `${this.minimumWidth}px`);
+      this.element.style.setProperty("--activity-bar-action-height", `${this._isCompact ? ActivitybarPart_1.COMPACT_ACTION_HEIGHT : ActivitybarPart_1.ACTION_HEIGHT}px`);
+      this.element.style.setProperty("--activity-bar-icon-size", `${this._isCompact ? ActivitybarPart_1.COMPACT_ICON_SIZE : ActivitybarPart_1.ICON_SIZE}px`);
+    }
+  }
+  recreateCompositeBar() {
+    if (!this.content || !this.compositeBar.value) {
+      return;
+    }
+    this.compositeBar.clear();
+    clearNode(this.content);
+    this.compositeBar.value = this.createCompositeBar();
+    this.compositeBar.value.create(this.content);
+    if (this.dimension) {
+      this.layout(this.dimension.width, this.dimension.height);
+    }
   }
   createCompositeBar() {
-    return this.instantiationService.createInstance(ActivityBarCompositeBar, {
+    const actionHeight = this._isCompact ? ActivitybarPart_1.COMPACT_ACTION_HEIGHT : ActivitybarPart_1.ACTION_HEIGHT;
+    const iconSize = this._isCompact ? ActivitybarPart_1.COMPACT_ICON_SIZE : ActivitybarPart_1.ICON_SIZE;
+    return this.instantiationService.createInstance(ActivityBarCompositeBar, this.location, {
       partContainerClass: "activitybar",
       pinnedViewContainersKey: ActivitybarPart_1.pinnedViewContainersKey,
       placeholderViewContainersKey: ActivitybarPart_1.placeholderViewContainersKey,
       viewContainersWorkspaceStateKey: ActivitybarPart_1.viewContainersWorkspaceStateKey,
       orientation: 1,
       icon: true,
-      iconSize: 24,
+      iconSize,
       activityHoverOptions: {
         position: /* @__PURE__ */ __name(() => this.layoutService.getSideBarPosition() === 0 ? 1 : 0, "position")
       },
@@ -100,12 +162,13 @@ let ActivitybarPart = class ActivitybarPart2 extends Part {
         inactiveBackgroundColor: void 0,
         activeBorderBottomColor: void 0
       }), "colors"),
-      overflowActionSize: ActivitybarPart_1.ACTION_HEIGHT
+      overflowActionSize: actionHeight
     }, "workbench.parts.activitybar", this.paneCompositePart, true);
   }
   createContentArea(parent) {
     this.element = parent;
     this.content = append(this.element, $(".content"));
+    this.updateCompactStyle();
     if (this.layoutService.isVisible(
       "workbench.parts.activitybar"
       /* Parts.ACTIVITYBAR_PART */
@@ -175,17 +238,18 @@ let ActivitybarPart = class ActivitybarPart2 extends Part {
   }
 };
 ActivitybarPart = ActivitybarPart_1 = __decorate([
-  __param(1, IInstantiationService),
-  __param(2, IWorkbenchLayoutService),
-  __param(3, IThemeService),
-  __param(4, IStorageService)
+  __param(2, IInstantiationService),
+  __param(3, IWorkbenchLayoutService),
+  __param(4, IThemeService),
+  __param(5, IStorageService),
+  __param(6, IConfigurationService)
 ], ActivitybarPart);
 let ActivityBarCompositeBar = class ActivityBarCompositeBar2 extends PaneCompositeBar {
   static {
     __name(this, "ActivityBarCompositeBar");
   }
-  constructor(options, part, paneCompositePart, showGlobalActivities, instantiationService, storageService, extensionService, viewDescriptorService, viewService, contextKeyService, environmentService, configurationService, menuService, layoutService) {
-    super({
+  constructor(location, options, part, paneCompositePart, showGlobalActivities, instantiationService, storageService, extensionService, viewDescriptorService, viewService, contextKeyService, environmentService, configurationService, menuService, layoutService) {
+    super(location, {
       ...options,
       fillExtraContextMenuActions: /* @__PURE__ */ __name((actions, e) => {
         options.fillExtraContextMenuActions(actions, e);
@@ -323,7 +387,7 @@ let ActivityBarCompositeBar = class ActivityBarCompositeBar2 extends PaneComposi
     }
     if (this.globalCompositeBar) {
       if (this.options.orientation === 1) {
-        height -= this.globalCompositeBar.size() * ActivitybarPart.ACTION_HEIGHT;
+        height -= this.globalCompositeBar.size() * this.options.overflowActionSize;
       } else {
         width -= this.globalCompositeBar.element.clientWidth;
       }
@@ -344,16 +408,16 @@ let ActivityBarCompositeBar = class ActivityBarCompositeBar2 extends PaneComposi
   }
 };
 ActivityBarCompositeBar = __decorate([
-  __param(4, IInstantiationService),
-  __param(5, IStorageService),
-  __param(6, IExtensionService),
-  __param(7, IViewDescriptorService),
-  __param(8, IViewsService),
-  __param(9, IContextKeyService),
-  __param(10, IWorkbenchEnvironmentService),
-  __param(11, IConfigurationService),
-  __param(12, IMenuService),
-  __param(13, IWorkbenchLayoutService)
+  __param(5, IInstantiationService),
+  __param(6, IStorageService),
+  __param(7, IExtensionService),
+  __param(8, IViewDescriptorService),
+  __param(9, IViewsService),
+  __param(10, IContextKeyService),
+  __param(11, IWorkbenchEnvironmentService),
+  __param(12, IConfigurationService),
+  __param(13, IMenuService),
+  __param(14, IWorkbenchLayoutService)
 ], ActivityBarCompositeBar);
 registerAction2(class extends Action2 {
   constructor() {

@@ -73,9 +73,9 @@ class ShellIntegrationAddon extends Disposable {
     this._commonProtocolDisposables = [];
     this._seenSequences = /* @__PURE__ */ new Set();
     this._status = 0;
-    this._onDidChangeStatus = new Emitter();
+    this._onDidChangeStatus = this._register(new Emitter());
     this.onDidChangeStatus = this._onDidChangeStatus.event;
-    this._onDidChangeSeenSequences = new Emitter();
+    this._onDidChangeSeenSequences = this._register(new Emitter());
     this.onDidChangeSeenSequences = this._onDidChangeSeenSequences.event;
     this._register(toDisposable(() => {
       this._clearActivationTimeout();

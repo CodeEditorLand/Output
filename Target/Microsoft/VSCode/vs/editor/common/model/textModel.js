@@ -17,7 +17,7 @@ import { SetWithKey } from "../../../base/common/collections.js";
 import { Color } from "../../../base/common/color.js";
 import { BugIndicatingError, illegalArgument, onUnexpectedError } from "../../../base/common/errors.js";
 import { Emitter } from "../../../base/common/event.js";
-import { Disposable, MutableDisposable, combinedDisposable } from "../../../base/common/lifecycle.js";
+import { Disposable, MutableDisposable } from "../../../base/common/lifecycle.js";
 import { listenStream } from "../../../base/common/stream.js";
 import * as strings from "../../../base/common/strings.js";
 import { URI } from "../../../base/common/uri.js";
@@ -215,10 +215,7 @@ let TextModel = class TextModel2 extends Disposable {
     return this._onDidChangeFont.event;
   }
   onDidChangeContent(listener) {
-    return this._eventEmitter.slowEvent((e) => listener(e.contentChangedEvent));
-  }
-  onDidChangeContentOrInjectedText(listener) {
-    return combinedDisposable(this._eventEmitter.fastEvent((e) => listener(e)), this._onDidChangeInjectedText.event((e) => listener(e)));
+    return this._eventEmitter.event((e) => listener(e.contentChangedEvent));
   }
   _isDisposing() {
     return this.__isDisposing;
@@ -244,13 +241,13 @@ let TextModel = class TextModel2 extends Disposable {
     this.onDidChangeDecorations = this._onDidChangeDecorations.event;
     this._onDidChangeOptions = this._register(new Emitter());
     this._onDidChangeAttached = this._register(new Emitter());
-    this._onDidChangeInjectedText = this._register(new Emitter());
     this._onDidChangeLineHeight = this._register(new Emitter());
     this._onDidChangeFont = this._register(new Emitter());
     this._eventEmitter = this._register(new DidChangeContentEmitter());
     this._languageSelectionListener = this._register(new MutableDisposable());
     this._deltaDecorationCallCnt = 0;
-    this._attachedViews = new AttachedViews();
+    this._attachedViews = this._register(new AttachedViews());
+    this._viewModels = /* @__PURE__ */ new Set();
     MODEL_ID++;
     this.id = "$model" + MODEL_ID;
     this.isForSimpleWidget = creationOptions.isForSimpleWidget;
@@ -337,12 +334,18 @@ let TextModel = class TextModel2 extends Disposable {
     this._bufferDisposable = Disposable.None;
   }
   _hasListeners() {
-    return this._onWillDispose.hasListeners() || this._onDidChangeDecorations.hasListeners() || this._tokenizationTextModelPart._hasListeners() || this._onDidChangeOptions.hasListeners() || this._onDidChangeAttached.hasListeners() || this._onDidChangeInjectedText.hasListeners() || this._onDidChangeLineHeight.hasListeners() || this._onDidChangeFont.hasListeners() || this._eventEmitter.hasListeners();
+    return this._onWillDispose.hasListeners() || this._onDidChangeDecorations.hasListeners() || this._tokenizationTextModelPart._hasListeners() || this._onDidChangeOptions.hasListeners() || this._onDidChangeAttached.hasListeners() || this._onDidChangeLineHeight.hasListeners() || this._onDidChangeFont.hasListeners() || this._eventEmitter.hasListeners();
   }
   _assertNotDisposed() {
     if (this._isDisposed) {
       throw new BugIndicatingError("Model is disposed!");
     }
+  }
+  registerViewModel(viewModel) {
+    this._viewModels.add(viewModel);
+  }
+  unregisterViewModel(viewModel) {
+    this._viewModels.delete(viewModel);
   }
   equalsTextBuffer(other) {
     this._assertNotDisposed();
@@ -352,14 +355,19 @@ let TextModel = class TextModel2 extends Disposable {
     this._assertNotDisposed();
     return this._buffer;
   }
-  _emitContentChangedEvent(rawChange, change) {
+  _emitContentChangedEvent(rawChange, change, resultingSelection = null) {
     if (this.__isDisposing) {
       return;
     }
     this._tokenizationTextModelPart.handleDidChangeContent(change);
     this._bracketPairs.handleDidChangeContent(change);
     this._fontTokenDecorationsProvider.handleDidChangeContent(change);
-    this._eventEmitter.fire(new InternalModelContentChangeEvent(rawChange, change));
+    const contentChangeEvent = new InternalModelContentChangeEvent(rawChange, change);
+    if (resultingSelection) {
+      contentChangeEvent.rawContentChangedEvent.resultingSelection = resultingSelection;
+    }
+    this._onDidChangeContentOrInjectedText(contentChangeEvent);
+    this._eventEmitter.fire(contentChangeEvent);
   }
   setValue(value, reason = EditSources.setValue()) {
     this._assertNotDisposed();
@@ -1137,7 +1145,8 @@ let TextModel = class TextModel2 extends Disposable {
       this._eventEmitter.beginDeferredEmit();
       this._isUndoing = isUndoing;
       this._isRedoing = isRedoing;
-      this.applyEdits(edits, false);
+      const operations = this._validateEditOperations(edits);
+      this._doApplyEdits(operations, false, EditSources.applyEdits(), resultingSelection);
       this.setEOL(eol);
       this._overwriteAlternativeVersionId(resultingAlternativeVersionId);
     } finally {
@@ -1158,7 +1167,7 @@ let TextModel = class TextModel2 extends Disposable {
       this._onDidChangeDecorations.endDeferredEmit();
     }
   }
-  _doApplyEdits(rawOperations, computeUndoEdits, reason) {
+  _doApplyEdits(rawOperations, computeUndoEdits, reason, resultingSelection = null) {
     const oldLineCount = this._buffer.getLineCount();
     const result = this._buffer.applyEdits(rawOperations, this._options.trimAutoWhitespace, computeUndoEdits);
     const newLineCount = this._buffer.getLineCount();
@@ -1193,7 +1202,7 @@ let TextModel = class TextModel2 extends Disposable {
           const currentEditLineNumber = currentEditStartLineNumber + j;
           injectedTextInEditedRangeQueue.takeFromEndWhile((r) => r.lineNumber > currentEditLineNumber);
           const decorationsInCurrentLine = injectedTextInEditedRangeQueue.takeFromEndWhile((r) => r.lineNumber === currentEditLineNumber);
-          rawContentChanges.push(new ModelRawLineChanged(editLineNumber, this.getLineContent(currentEditLineNumber), decorationsInCurrentLine));
+          rawContentChanges.push(new ModelRawLineChanged(editLineNumber, currentEditLineNumber, this.getLineContent(currentEditLineNumber), decorationsInCurrentLine));
         }
         if (editingLinesCnt < deletingLinesCnt) {
           const spliceStartLineNumber = startLineNumber + editingLinesCnt;
@@ -1212,7 +1221,7 @@ let TextModel = class TextModel2 extends Disposable {
             injectedTextInEditedRangeQueue2.takeWhile((r) => r.lineNumber < lineNumber);
             injectedTexts[i2] = injectedTextInEditedRangeQueue2.takeWhile((r) => r.lineNumber === lineNumber);
           }
-          rawContentChanges.push(new ModelRawLinesInserted(spliceLineNumber + 1, startLineNumber + insertingLinesCnt, newLines, injectedTexts));
+          rawContentChanges.push(new ModelRawLinesInserted(spliceLineNumber + 1, fromLineNumber, cnt, newLines, injectedTexts));
         }
         lineCount += changeLineCountDelta;
       }
@@ -1226,7 +1235,7 @@ let TextModel = class TextModel2 extends Disposable {
         isFlush: false,
         detailedReasons: [reason],
         detailedReasonsChangeLengths: [contentChanges.length]
-      });
+      }, resultingSelection);
     }
     return result.reverseEdits === null ? void 0 : result.reverseEdits;
   }
@@ -1247,8 +1256,8 @@ let TextModel = class TextModel2 extends Disposable {
   handleBeforeFireDecorationsChangedEvent(affectedInjectedTextLines, affectedLineHeights, affectedFontLines) {
     if (affectedInjectedTextLines && affectedInjectedTextLines.size > 0) {
       const affectedLines = Array.from(affectedInjectedTextLines);
-      const lineChangeEvents = affectedLines.map((lineNumber) => new ModelRawLineChanged(lineNumber, this.getLineContent(lineNumber), this._getInjectedTextInLine(lineNumber)));
-      this._onDidChangeInjectedText.fire(new ModelInjectedTextChangedEvent(lineChangeEvents));
+      const lineChangeEvents = affectedLines.map((lineNumber) => new ModelRawLineChanged(lineNumber, lineNumber, this.getLineContent(lineNumber), this._getInjectedTextInLine(lineNumber)));
+      this._onDidChangeContentOrInjectedText(new ModelInjectedTextChangedEvent(lineChangeEvents));
     }
     this._fireOnDidChangeLineHeight(affectedLineHeights);
     this._fireOnDidChangeFont(affectedFontLines);
@@ -1265,6 +1274,14 @@ let TextModel = class TextModel2 extends Disposable {
       const affectedLines = Array.from(affectedFontLines);
       const fontChangeEvent = affectedLines.map((fontChange) => new ModelFontChanged(fontChange.ownerId, fontChange.lineNumber));
       this._onDidChangeFont.fire(new ModelFontChangedEvent(fontChangeEvent));
+    }
+  }
+  _onDidChangeContentOrInjectedText(e) {
+    for (const viewModel of this._viewModels) {
+      viewModel.onDidChangeContentOrInjectedText(e);
+    }
+    for (const viewModel of this._viewModels) {
+      viewModel.emitContentChangeEvent(e);
     }
   }
   changeDecorations(callback, ownerId = 0) {
@@ -1414,6 +1431,11 @@ let TextModel = class TextModel2 extends Disposable {
   getCustomLineHeightsDecorations(ownerId = 0) {
     const decs = this._decorationsTree.getAllCustomLineHeights(this, ownerId);
     pushMany(decs, this._fontTokenDecorationsProvider.getAllDecorations(ownerId));
+    return decs;
+  }
+  getCustomLineHeightsDecorationsInRange(range, ownerId = 0) {
+    const decs = this._decorationsTree.getCustomLineHeightsInInterval(this, this.getOffsetAt(range.getStartPosition()), this.getOffsetAt(range.getEndPosition()), ownerId);
+    pushMany(decs, this._fontTokenDecorationsProvider.getDecorationsInRange(range, ownerId));
     return decs;
   }
   _getInjectedTextInLine(lineNumber) {
@@ -1726,6 +1748,11 @@ class DecorationsTrees {
   getAllCustomLineHeights(host, filterOwnerId) {
     const versionId = host.getVersionId();
     const result = this._search(filterOwnerId, false, false, false, versionId, false);
+    return this._ensureNodesHaveRanges(host, result).filter((i) => typeof i.options.lineHeight === "number");
+  }
+  getCustomLineHeightsInInterval(host, start, end, filterOwnerId) {
+    const versionId = host.getVersionId();
+    const result = this._intervalSearch(start, end, filterOwnerId, false, false, versionId, false);
     return this._ensureNodesHaveRanges(host, result).filter((i) => typeof i.options.lineHeight === "number");
   }
   getAll(host, filterOwnerId, filterOutValidation, filterFontDecorations, overviewRulerOnly, onlyMarginDecorations) {
@@ -2079,15 +2106,13 @@ class DidChangeContentEmitter extends Disposable {
   }
   constructor() {
     super();
-    this._fastEmitter = this._register(new Emitter());
-    this.fastEvent = this._fastEmitter.event;
-    this._slowEmitter = this._register(new Emitter());
-    this.slowEvent = this._slowEmitter.event;
+    this._emitter = this._register(new Emitter());
+    this.event = this._emitter.event;
     this._deferredCnt = 0;
     this._deferredEvent = null;
   }
   hasListeners() {
-    return this._fastEmitter.hasListeners() || this._slowEmitter.hasListeners();
+    return this._emitter.hasListeners();
   }
   beginDeferredEmit() {
     this._deferredCnt++;
@@ -2099,8 +2124,7 @@ class DidChangeContentEmitter extends Disposable {
         this._deferredEvent.rawContentChangedEvent.resultingSelection = resultingSelection;
         const e = this._deferredEvent;
         this._deferredEvent = null;
-        this._fastEmitter.fire(e);
-        this._slowEmitter.fire(e);
+        this._emitter.fire(e);
       }
     }
   }
@@ -2113,8 +2137,7 @@ class DidChangeContentEmitter extends Disposable {
       }
       return;
     }
-    this._fastEmitter.fire(e);
-    this._slowEmitter.fire(e);
+    this._emitter.fire(e);
   }
 }
 export {

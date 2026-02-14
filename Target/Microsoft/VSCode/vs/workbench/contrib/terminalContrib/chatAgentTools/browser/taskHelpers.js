@@ -20,12 +20,13 @@ function getTaskDefinition(id) {
 }
 __name(getTaskDefinition, "getTaskDefinition");
 function getTaskRepresentation(task) {
-  if ("label" in task && task.label) {
+  if (Object.hasOwn(task, "label") && task.label) {
     return task.label;
-  } else if ("script" in task && task.script) {
+  } else if (Object.hasOwn(task, "script") && task.script) {
     return task.script;
-  } else if ("command" in task && task.command) {
-    return isString(task.command) ? task.command : task.command.name?.toString() || "";
+  } else if (Object.hasOwn(task, "command") && task.command) {
+    const command = task.command;
+    return isString(command) ? command : command.name?.toString() || "";
   }
   return "";
 }
@@ -59,7 +60,7 @@ async function getTaskForTool(id, taskDefinition, workspaceFolder, configuration
     }
   }
   for (const configTask of configTasks) {
-    if (!allowParentTask && !configTask.type || "hide" in configTask && configTask.hide) {
+    if (!allowParentTask && !configTask.type || Object.hasOwn(configTask, "hide") && configTask.hide) {
       continue;
     }
     if ((configTask.type && taskDefinition.taskType ? configTask.type === taskDefinition.taskType : true) && (getTaskRepresentation(configTask) === taskDefinition?.taskLabel || id === configTask.label)) {
@@ -134,15 +135,15 @@ async function collectTerminalResults(terminals, task, instantiationService, inv
     if (dependencyTasks?.length) {
       const reconnectionData = instance.reconnectionProperties?.data;
       if (reconnectionData) {
-        if (reconnectionData.lastTask in commonTaskIdToTaskMap) {
+        if (Object.hasOwn(commonTaskIdToTaskMap, reconnectionData.lastTask)) {
           terminalTask = commonTaskIdToTaskMap[reconnectionData.lastTask];
-        } else if (reconnectionData.id in taskIdToTaskMap) {
+        } else if (Object.hasOwn(taskIdToTaskMap, reconnectionData.id)) {
           terminalTask = taskIdToTaskMap[reconnectionData.id];
         }
       } else {
-        if (instance.shellLaunchConfig.name && instance.shellLaunchConfig.name in taskLabelToTaskMap) {
+        if (instance.shellLaunchConfig.name && Object.hasOwn(taskLabelToTaskMap, instance.shellLaunchConfig.name)) {
           terminalTask = taskLabelToTaskMap[instance.shellLaunchConfig.name];
-        } else if (instance.title in taskLabelToTaskMap) {
+        } else if (Object.hasOwn(taskLabelToTaskMap, instance.title)) {
           terminalTask = taskLabelToTaskMap[instance.title];
         }
       }
@@ -153,7 +154,7 @@ async function collectTerminalResults(terminals, task, instantiationService, inv
       isActive: isActive ? () => isActive(terminalTask) : void 0,
       instance,
       dependencyTasks,
-      sessionId: invocationContext.sessionId
+      sessionResource: invocationContext.sessionResource
     };
     if (terminalTask.configurationProperties.problemMatchers && terminalTask.configurationProperties.problemMatchers.length > 0 && taskService) {
       const maxWaitTime = 1e3;

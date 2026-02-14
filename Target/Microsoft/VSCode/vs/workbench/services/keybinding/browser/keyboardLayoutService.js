@@ -63,7 +63,7 @@ class BrowserKeyboardMapperFactoryBase extends Disposable {
   constructor(_configurationService) {
     super();
     this._configurationService = _configurationService;
-    this._onDidChangeKeyboardMapper = new Emitter();
+    this._onDidChangeKeyboardMapper = this._register(new Emitter());
     this.onDidChangeKeyboardMapper = this._onDidChangeKeyboardMapper.event;
     this.keyboardLayoutMapAllowed = navigator.keyboard !== void 0;
     this._keyboardMapper = null;
@@ -387,7 +387,7 @@ let BrowserKeyboardLayoutService = class BrowserKeyboardLayoutService2 extends D
   constructor(environmentService, fileService, notificationService, storageService, commandService, configurationService) {
     super();
     this.configurationService = configurationService;
-    this._onDidChangeKeyboardLayout = new Emitter();
+    this._onDidChangeKeyboardLayout = this._register(new Emitter());
     this.onDidChangeKeyboardLayout = this._onDidChangeKeyboardLayout.event;
     const keyboardConfig = configurationService.getValue("keyboard");
     const layout = keyboardConfig.layout;

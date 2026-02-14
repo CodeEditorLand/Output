@@ -16,6 +16,7 @@ const CONTEXT_FIND_WIDGET_VISIBLE = new RawContextKey("findWidgetVisible", false
 const CONTEXT_FIND_WIDGET_NOT_VISIBLE = CONTEXT_FIND_WIDGET_VISIBLE.toNegated();
 const CONTEXT_FIND_INPUT_FOCUSED = new RawContextKey("findInputFocussed", false);
 const CONTEXT_REPLACE_INPUT_FOCUSED = new RawContextKey("replaceInputFocussed", false);
+const CONTEXT_FIND_WIDGET_FOCUSED = new RawContextKey("findWidgetFocused", false);
 const ToggleCaseSensitiveKeybinding = {
   primary: 512 | 33,
   mac: {
@@ -508,6 +509,7 @@ class FindModelBoundToEditorModel {
 }
 export {
   CONTEXT_FIND_INPUT_FOCUSED,
+  CONTEXT_FIND_WIDGET_FOCUSED,
   CONTEXT_FIND_WIDGET_NOT_VISIBLE,
   CONTEXT_FIND_WIDGET_VISIBLE,
   CONTEXT_REPLACE_INPUT_FOCUSED,

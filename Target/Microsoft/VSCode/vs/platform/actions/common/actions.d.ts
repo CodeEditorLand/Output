@@ -70,6 +70,7 @@ export declare class MenuId {
     static readonly EditorContextPeek: MenuId;
     static readonly EditorContextShare: MenuId;
     static readonly EditorTitle: MenuId;
+    static readonly ModalEditorTitle: MenuId;
     static readonly CompactWindowEditorTitle: MenuId;
     static readonly EditorTitleRun: MenuId;
     static readonly EditorTitleContext: MenuId;
@@ -254,6 +255,8 @@ export declare class MenuId {
     static readonly ChatEditingCodeBlockContext: MenuId;
     static readonly ChatTitleBarMenu: MenuId;
     static readonly ChatAttachmentsContext: MenuId;
+    static readonly ChatTipContext: MenuId;
+    static readonly ChatTipToolbar: MenuId;
     static readonly ChatToolOutputResourceToolbar: MenuId;
     static readonly ChatTextEditorMenu: MenuId;
     static readonly ChatToolOutputResourceContext: MenuId;

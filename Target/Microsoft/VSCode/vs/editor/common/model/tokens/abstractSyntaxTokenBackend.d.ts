@@ -1,5 +1,5 @@
 import { Emitter, Event } from '../../../../base/common/event.js';
-import { Disposable } from '../../../../base/common/lifecycle.js';
+import { Disposable, IDisposable } from '../../../../base/common/lifecycle.js';
 import { LineRange } from '../../core/ranges/lineRange.js';
 import { StandardTokenType } from '../../encodedTokenAttributes.js';
 import { ILanguageIdCodec } from '../../languages.js';
@@ -12,7 +12,7 @@ import { IObservable } from '../../../../base/common/observable.js';
 /**
  * @internal
  */
-export declare class AttachedViews {
+export declare class AttachedViews implements IDisposable {
     private readonly _onDidChangeVisibleRanges;
     readonly onDidChangeVisibleRanges: Event<{
         view: IAttachedView;
@@ -24,6 +24,7 @@ export declare class AttachedViews {
     constructor();
     attachView(): IAttachedView;
     detachView(view: IAttachedView): void;
+    dispose(): void;
 }
 /**
  * @internal

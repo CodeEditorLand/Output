@@ -31,7 +31,7 @@ let CommandService = class CommandService2 extends Disposable {
     this._extensionHostIsReady = false;
     this._onWillExecuteCommand = this._register(new Emitter());
     this.onWillExecuteCommand = this._onWillExecuteCommand.event;
-    this._onDidExecuteCommand = new Emitter();
+    this._onDidExecuteCommand = this._register(new Emitter());
     this.onDidExecuteCommand = this._onDidExecuteCommand.event;
     this._extensionService.whenInstalledExtensionsRegistered().then((value) => this._extensionHostIsReady = value);
     this._starActivation = null;

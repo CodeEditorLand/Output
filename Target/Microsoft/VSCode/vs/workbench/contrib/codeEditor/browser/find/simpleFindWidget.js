@@ -4,7 +4,7 @@ import "./simpleFindWidget.css";
 import * as nls from "../../../../../nls.js";
 import * as dom from "../../../../../base/browser/dom.js";
 import { Widget } from "../../../../../base/browser/ui/widget.js";
-import { Delayer } from "../../../../../base/common/async.js";
+import { Delayer, disposableTimeout } from "../../../../../base/common/async.js";
 import { FindReplaceState } from "../../../../../editor/contrib/find/browser/findState.js";
 import { SimpleButton, findPreviousMatchIcon, findNextMatchIcon, NLS_NO_RESULTS, NLS_MATCHES_LOCATION } from "../../../../../editor/contrib/find/browser/findWidget.js";
 import { ContextScopedFindInput } from "../../../../../platform/history/browser/contextScopedHistoryWidget.js";
@@ -27,12 +27,15 @@ class SimpleFindWidget extends Widget {
   static {
     __name(this, "SimpleFindWidget");
   }
-  constructor(options, contextViewService, contextKeyService, hoverService, _keybindingService) {
+  constructor(options, contextViewService, contextKeyService, hoverService, _keybindingService, _configurationService, _accessibilityService) {
     super();
     this._keybindingService = _keybindingService;
+    this._configurationService = _configurationService;
+    this._accessibilityService = _accessibilityService;
     this._isVisible = false;
     this._foundMatch = false;
     this._width = 0;
+    this._accessibilityHelpHintAnnounced = false;
     this.state = this._register(new FindReplaceState());
     this._matchesLimit = options.matchesLimit ?? Number.MAX_SAFE_INTEGER;
     this._findInput = this._register(new ContextScopedFindInput(null, contextViewService, {
@@ -218,6 +221,7 @@ class SimpleFindWidget extends Widget {
       return;
     }
     this._isVisible = true;
+    this._updateFindInputAriaLabel();
     this.updateResultCount();
     this.layout();
     setTimeout(() => {
@@ -245,6 +249,7 @@ class SimpleFindWidget extends Widget {
   }
   hide(animated = true) {
     if (this._isVisible) {
+      this._accessibilityHelpHintAnnounced = false;
       this._innerDomNode.classList.toggle("suppress-transition", !animated);
       this._innerDomNode.classList.remove("visible-transition");
       this._innerDomNode.setAttribute("aria-hidden", "true");
@@ -322,6 +327,29 @@ class SimpleFindWidget extends Widget {
   }
   changeState(state) {
     this.state.change(state, false);
+  }
+  /**
+   * Updates the ARIA label of the find input box.
+   * When a screen reader is active and the accessibility verbosity setting is enabled,
+   * includes a hint about pressing Alt+F1 for accessibility help on first reveal.
+   * The hint is only announced once per show/hide cycle to prevent double-speak.
+   */
+  _updateFindInputAriaLabel() {
+    let findLabel = NLS_FIND_INPUT_LABEL;
+    if (!this._accessibilityHelpHintAnnounced && this._configurationService.getValue("accessibility.verbosity.find") && this._accessibilityService.isScreenReaderOptimized()) {
+      const keybinding = this._keybindingService.lookupKeybinding("editor.action.accessibilityHelp")?.getAriaLabel();
+      if (keybinding) {
+        findLabel += ", " + nls.localize("accessibilityHelpHintInLabel", "Press {0} for accessibility help", keybinding);
+        this._accessibilityHelpHintAnnounced = true;
+        this._labelResetTimeout?.dispose();
+        this._labelResetTimeout = disposableTimeout(() => {
+          if (this._isVisible) {
+            this._findInput.inputBox.setAriaLabel(NLS_FIND_INPUT_LABEL);
+          }
+        }, 1e3);
+      }
+    }
+    this._findInput.inputBox.setAriaLabel(findLabel);
   }
   _announceSearchResults(label, searchString) {
     if (!searchString) {

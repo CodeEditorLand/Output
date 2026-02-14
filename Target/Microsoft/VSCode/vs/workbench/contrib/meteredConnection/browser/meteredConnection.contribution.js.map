@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../../../../../../Dependency/Microsoft/Dependency/Editor/src/vs/workbench/contrib/meteredConnection/browser/meteredConnection.contribution.ts"],
+  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\r\n *  Copyright (c) Microsoft Corporation. All rights reserved.\r\n *  Licensed under the MIT License. See License.txt in the project root for license information.\r\n *--------------------------------------------------------------------------------------------*/\r\n\r\nimport { registerWorkbenchContribution2, WorkbenchPhase } from '../../../common/contributions.js';\r\nimport { MeteredConnectionStatusContribution } from './meteredConnectionStatus.js';\r\n\r\nimport '../../../../platform/meteredConnection/common/meteredConnection.config.contribution.js';\r\n\r\nregisterWorkbenchContribution2(MeteredConnectionStatusContribution.ID, MeteredConnectionStatusContribution, WorkbenchPhase.AfterRestored);\r\n"],
+  "mappings": "AAKA,SAAS,sCAAsD;AAC/D,SAAS,2CAA2C;AAEpD,OAAO;AAEP;EAA+B,oCAAoC;EAAI;EAAmC;;AAAA;",
+  "names": []
+}

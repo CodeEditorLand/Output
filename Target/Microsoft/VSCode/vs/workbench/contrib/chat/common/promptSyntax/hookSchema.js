@@ -7,30 +7,30 @@ import { isAbsolute } from "../../../../../base/common/path.js";
 import { untildify } from "../../../../../base/common/labels.js";
 var HookType;
 (function(HookType2) {
-  HookType2["SessionStart"] = "sessionStart";
-  HookType2["UserPromptSubmitted"] = "userPromptSubmitted";
-  HookType2["PreToolUse"] = "preToolUse";
-  HookType2["PostToolUse"] = "postToolUse";
-  HookType2["PostToolUseFailure"] = "postToolUseFailure";
-  HookType2["SubagentStart"] = "subagentStart";
-  HookType2["SubagentStop"] = "subagentStop";
-  HookType2["Stop"] = "stop";
+  HookType2["SessionStart"] = "SessionStart";
+  HookType2["UserPromptSubmit"] = "UserPromptSubmit";
+  HookType2["PreToolUse"] = "PreToolUse";
+  HookType2["PostToolUse"] = "PostToolUse";
+  HookType2["PreCompact"] = "PreCompact";
+  HookType2["SubagentStart"] = "SubagentStart";
+  HookType2["SubagentStop"] = "SubagentStop";
+  HookType2["Stop"] = "Stop";
 })(HookType || (HookType = {}));
 const HOOK_TYPES = [
   {
     id: HookType.SessionStart,
     label: nls.localize("hookType.sessionStart.label", "Session Start"),
-    description: nls.localize("hookType.sessionStart.description", "Executed when a new agent session begins or when resuming an existing session.")
+    description: nls.localize("hookType.sessionStart.description", "Executed when a new agent session begins.")
   },
   {
-    id: HookType.UserPromptSubmitted,
-    label: nls.localize("hookType.userPromptSubmitted.label", "User Prompt Submitted"),
-    description: nls.localize("hookType.userPromptSubmitted.description", "Executed when the user submits a prompt to the agent.")
+    id: HookType.UserPromptSubmit,
+    label: nls.localize("hookType.userPromptSubmit.label", "User Prompt Submit"),
+    description: nls.localize("hookType.userPromptSubmit.description", "Executed when the user submits a prompt to the agent.")
   },
   {
     id: HookType.PreToolUse,
     label: nls.localize("hookType.preToolUse.label", "Pre-Tool Use"),
-    description: nls.localize("hookType.preToolUse.description", "Executed before the agent uses any tool (such as bash, edit, view).")
+    description: nls.localize("hookType.preToolUse.description", "Executed before the agent uses any tool.")
   },
   {
     id: HookType.PostToolUse,
@@ -38,9 +38,9 @@ const HOOK_TYPES = [
     description: nls.localize("hookType.postToolUse.description", "Executed after a tool completes execution successfully.")
   },
   {
-    id: HookType.PostToolUseFailure,
-    label: nls.localize("hookType.postToolUseFailure.label", "Post-Tool Use Failure"),
-    description: nls.localize("hookType.postToolUseFailure.description", "Executed after a tool completes execution with a failure.")
+    id: HookType.PreCompact,
+    label: nls.localize("hookType.preCompact.label", "Pre-Compact"),
+    description: nls.localize("hookType.preCompact.description", "Executed before the agent compacts the conversation context.")
   },
   {
     id: HookType.SubagentStart,
@@ -60,14 +60,17 @@ const HOOK_TYPES = [
 ];
 const hookCommandSchema = {
   type: "object",
-  additionalProperties: false,
+  additionalProperties: true,
   required: ["type"],
   anyOf: [
     { required: ["command"] },
+    { required: ["windows"] },
+    { required: ["linux"] },
+    { required: ["osx"] },
     { required: ["bash"] },
     { required: ["powershell"] }
   ],
-  errorMessage: nls.localize("hook.commandRequired", 'At least one of "command", "bash", or "powershell" must be specified.'),
+  errorMessage: nls.localize("hook.commandRequired", 'At least one of "command", "windows", "linux", or "osx" must be specified.'),
   properties: {
     type: {
       type: "string",
@@ -76,15 +79,19 @@ const hookCommandSchema = {
     },
     command: {
       type: "string",
-      description: nls.localize("hook.command", "The command to execute. This is the recommended way to specify commands and works cross-platform.")
+      description: nls.localize("hook.command", "The command to execute. This is the default cross-platform command.")
     },
-    bash: {
+    windows: {
       type: "string",
-      description: nls.localize("hook.bash", 'Path to a bash script or an inline bash command. Use for Unix-specific commands when cross-platform "command" is not sufficient.')
+      description: nls.localize("hook.windows", 'Windows-specific command. If specified and running on Windows, this overrides the "command" field.')
     },
-    powershell: {
+    linux: {
       type: "string",
-      description: nls.localize("hook.powershell", 'Path to a PowerShell script or an inline PowerShell command. Use for Windows-specific commands when cross-platform "command" is not sufficient.')
+      description: nls.localize("hook.linux", 'Linux-specific command. If specified and running on Linux, this overrides the "command" field.')
+    },
+    osx: {
+      type: "string",
+      description: nls.localize("hook.osx", 'macOS-specific command. If specified and running on macOS, this overrides the "command" field.')
     },
     cwd: {
       type: "string",
@@ -95,10 +102,10 @@ const hookCommandSchema = {
       additionalProperties: { type: "string" },
       description: nls.localize("hook.env", "Additional environment variables that are merged with the existing environment.")
     },
-    timeoutSec: {
+    timeout: {
       type: "number",
       default: 30,
-      description: nls.localize("hook.timeoutSec", "Maximum execution time in seconds (default: 30).")
+      description: nls.localize("hook.timeout", "Maximum execution time in seconds (default: 30).")
     }
   }
 };
@@ -110,48 +117,43 @@ const hookFileSchema = {
   $schema: "http://json-schema.org/draft-07/schema#",
   type: "object",
   description: nls.localize("hookFile.description", "GitHub Copilot hook configuration file. Hooks enable executing custom shell commands at strategic points in an agent's workflow."),
-  additionalProperties: false,
-  required: ["version", "hooks"],
+  additionalProperties: true,
+  required: ["hooks"],
   properties: {
-    version: {
-      type: "number",
-      enum: [1],
-      description: nls.localize("hookFile.version", "Schema version. Must be 1.")
-    },
     hooks: {
       type: "object",
       description: nls.localize("hookFile.hooks", "Hook definitions organized by type."),
-      additionalProperties: false,
+      additionalProperties: true,
       properties: {
-        sessionStart: {
+        SessionStart: {
           ...hookArraySchema,
-          description: nls.localize("hookFile.sessionStart", "Executed when a new agent session begins or when resuming an existing session. Use to initialize environments, log session starts, validate project state, or set up temporary resources.")
+          description: nls.localize("hookFile.sessionStart", "Executed when a new agent session begins. Use to initialize environments, log session starts, validate project state, or set up temporary resources.")
         },
-        userPromptSubmitted: {
+        UserPromptSubmit: {
           ...hookArraySchema,
-          description: nls.localize("hookFile.userPromptSubmitted", "Executed when the user submits a prompt to the agent. Use to log user requests for auditing and usage analysis.")
+          description: nls.localize("hookFile.userPromptSubmit", "Executed when the user submits a prompt to the agent. Use to log user requests for auditing and usage analysis.")
         },
-        preToolUse: {
+        PreToolUse: {
           ...hookArraySchema,
-          description: nls.localize("hookFile.preToolUse", "Executed before the agent uses any tool (such as bash, edit, view). This is the most powerful hook as it can approve or deny tool executions. Use to block dangerous commands, enforce security policies, require approval for sensitive operations, or log tool usage.")
+          description: nls.localize("hookFile.preToolUse", "Executed before the agent uses any tool. This is the most powerful hook as it can approve or deny tool executions. Use to block dangerous commands, enforce security policies, require approval for sensitive operations, or log tool usage.")
         },
-        postToolUse: {
+        PostToolUse: {
           ...hookArraySchema,
           description: nls.localize("hookFile.postToolUse", "Executed after a tool completes execution successfully. Use to log execution results, track usage statistics, generate audit trails, or monitor performance.")
         },
-        postToolUseFailure: {
+        PreCompact: {
           ...hookArraySchema,
-          description: nls.localize("hookFile.postToolUseFailure", "Executed after a tool completes execution with a failure. Use to log errors, send failure alerts, or trigger recovery actions.")
+          description: nls.localize("hookFile.preCompact", "Executed before the agent compacts the conversation context. Use to save conversation state, export important information, or prepare for context reduction.")
         },
-        subagentStart: {
+        SubagentStart: {
           ...hookArraySchema,
           description: nls.localize("hookFile.subagentStart", "Executed when a subagent is started. Use to log subagent spawning, track nested agent usage, or initialize subagent-specific resources.")
         },
-        subagentStop: {
+        SubagentStop: {
           ...hookArraySchema,
           description: nls.localize("hookFile.subagentStop", "Executed when a subagent stops. Use to log subagent completion, cleanup subagent resources, or aggregate subagent results.")
         },
-        stop: {
+        Stop: {
           ...hookArraySchema,
           description: nls.localize("hookFile.stop", "Executed when the agent session stops. Use to cleanup resources, generate final reports, or send completion notifications.")
         }
@@ -163,19 +165,18 @@ const hookFileSchema = {
       label: nls.localize("hookFile.snippet.basic", "Basic hook configuration"),
       description: nls.localize("hookFile.snippet.basic.description", "A basic hook configuration with common hooks"),
       body: {
-        version: 1,
         hooks: {
-          sessionStart: [
+          SessionStart: [
             {
               type: "command",
-              command: '${1:echo "Session started"}'
+              command: '${1:echo "Session started" >> session.log}'
             }
           ],
-          preToolUse: [
+          PreToolUse: [
             {
               type: "command",
               command: "${2:./scripts/validate.sh}",
-              timeoutSec: 15
+              timeout: 15
             }
           ]
         }
@@ -184,33 +185,14 @@ const hookFileSchema = {
   ]
 };
 const HOOK_SCHEMA_URI = "vscode://schemas/hooks";
-const HOOK_FILE_GLOB = "hooks/hooks.json";
-function normalizeHookTypeId(rawHookTypeId) {
+const HOOK_FILE_GLOB = ".github/hooks/*.json";
+function toHookType(rawHookTypeId) {
   if (Object.values(HookType).includes(rawHookTypeId)) {
     return rawHookTypeId;
   }
-  switch (rawHookTypeId) {
-    case "SessionStart":
-      return HookType.SessionStart;
-    case "UserPromptSubmit":
-      return HookType.UserPromptSubmitted;
-    case "PreToolUse":
-      return HookType.PreToolUse;
-    case "PostToolUse":
-      return HookType.PostToolUse;
-    case "PostToolUseFailure":
-      return HookType.PostToolUseFailure;
-    case "SubagentStart":
-      return HookType.SubagentStart;
-    case "SubagentStop":
-      return HookType.SubagentStop;
-    case "Stop":
-      return HookType.Stop;
-    default:
-      return void 0;
-  }
+  return void 0;
 }
-__name(normalizeHookTypeId, "normalizeHookTypeId");
+__name(toHookType, "toHookType");
 function normalizeHookCommand(raw) {
   if (raw.type !== "command") {
     return void 0;
@@ -218,28 +200,95 @@ function normalizeHookCommand(raw) {
   const hasCommand = typeof raw.command === "string" && raw.command.length > 0;
   const hasBash = typeof raw.bash === "string" && raw.bash.length > 0;
   const hasPowerShell = typeof raw.powershell === "string" && raw.powershell.length > 0;
+  const hasWindows = typeof raw.windows === "string" && raw.windows.length > 0;
+  const hasLinux = typeof raw.linux === "string" && raw.linux.length > 0;
+  const hasOsx = typeof raw.osx === "string" && raw.osx.length > 0;
+  const windows = hasWindows ? raw.windows : hasPowerShell ? raw.powershell : void 0;
+  const linux = hasLinux ? raw.linux : hasBash ? raw.bash : void 0;
+  const osx = hasOsx ? raw.osx : hasBash ? raw.bash : void 0;
+  const windowsSource = hasWindows ? "windows" : hasPowerShell ? "powershell" : void 0;
+  const linuxSource = hasLinux ? "linux" : hasBash ? "bash" : void 0;
+  const osxSource = hasOsx ? "osx" : hasBash ? "bash" : void 0;
   return {
     ...hasCommand && { command: raw.command },
-    ...hasBash && { bash: raw.bash },
-    ...hasPowerShell && { powershell: raw.powershell },
+    ...windows && { windows },
+    ...linux && { linux },
+    ...osx && { osx },
+    ...windowsSource && { windowsSource },
+    ...linuxSource && { linuxSource },
+    ...osxSource && { osxSource },
     ...typeof raw.cwd === "string" && { cwd: raw.cwd },
     ...typeof raw.env === "object" && raw.env !== null && { env: raw.env },
-    ...typeof raw.timeoutSec === "number" && { timeoutSec: raw.timeoutSec }
+    ...typeof raw.timeout !== "number" && typeof raw.timeoutSec === "number" && { timeout: raw.timeoutSec },
+    ...typeof raw.timeout === "number" && { timeout: raw.timeout }
   };
 }
 __name(normalizeHookCommand, "normalizeHookCommand");
-function formatHookCommandLabel(hook) {
-  if (hook.command) {
-    return hook.command;
+function getPlatformLabel(os) {
+  if (os === 1) {
+    return "Windows";
+  } else if (os === 2) {
+    return "macOS";
+  } else if (os === 3) {
+    return "Linux";
   }
-  const parts = [];
-  if (hook.bash) {
-    parts.push(`bash: ${hook.bash}`);
+  return "";
+}
+__name(getPlatformLabel, "getPlatformLabel");
+function resolveEffectiveCommand(hook, os) {
+  if (os === 1 && hook.windows) {
+    return hook.windows;
+  } else if (os === 2 && hook.osx) {
+    return hook.osx;
+  } else if (os === 3 && hook.linux) {
+    return hook.linux;
   }
-  if (hook.powershell) {
-    parts.push(`powershell: ${hook.powershell}`);
+  return hook.command;
+}
+__name(resolveEffectiveCommand, "resolveEffectiveCommand");
+function isUsingPlatformOverride(hook, os) {
+  if (os === 1 && hook.windows) {
+    return true;
+  } else if (os === 2 && hook.osx) {
+    return true;
+  } else if (os === 3 && hook.linux) {
+    return true;
   }
-  return parts.join(" | ");
+  return false;
+}
+__name(isUsingPlatformOverride, "isUsingPlatformOverride");
+function getEffectiveCommandSource(hook, os) {
+  if (os === 1 && hook.windows && hook.windowsSource === "powershell") {
+    return "powershell";
+  } else if (os === 2 && hook.osx && hook.osxSource === "bash") {
+    return "bash";
+  } else if (os === 3 && hook.linux && hook.linuxSource === "bash") {
+    return "bash";
+  }
+  return void 0;
+}
+__name(getEffectiveCommandSource, "getEffectiveCommandSource");
+function getEffectiveCommandFieldKey(hook, os) {
+  if (os === 1 && hook.windows) {
+    return hook.windowsSource ?? "windows";
+  } else if (os === 2 && hook.osx) {
+    return hook.osxSource ?? "osx";
+  } else if (os === 3 && hook.linux) {
+    return hook.linuxSource ?? "linux";
+  }
+  return "command";
+}
+__name(getEffectiveCommandFieldKey, "getEffectiveCommandFieldKey");
+function formatHookCommandLabel(hook, os) {
+  const command = resolveEffectiveCommand(hook, os);
+  if (!command) {
+    return "";
+  }
+  if (isUsingPlatformOverride(hook, os)) {
+    const platformLabel = getPlatformLabel(os);
+    return `[${platformLabel}] ${command}`;
+  }
+  return command;
 }
 __name(formatHookCommandLabel, "formatHookCommandLabel");
 function resolveHookCommand(raw, workspaceRootUri, userHome) {
@@ -261,11 +310,15 @@ function resolveHookCommand(raw, workspaceRootUri, userHome) {
   return {
     type: "command",
     ...normalized.command && { command: normalized.command },
-    ...normalized.bash && { bash: normalized.bash },
-    ...normalized.powershell && { powershell: normalized.powershell },
+    ...normalized.windows && { windows: normalized.windows },
+    ...normalized.linux && { linux: normalized.linux },
+    ...normalized.osx && { osx: normalized.osx },
+    ...normalized.windowsSource && { windowsSource: normalized.windowsSource },
+    ...normalized.linuxSource && { linuxSource: normalized.linuxSource },
+    ...normalized.osxSource && { osxSource: normalized.osxSource },
     ...cwdUri && { cwd: cwdUri },
     ...normalized.env && { env: normalized.env },
-    ...normalized.timeoutSec !== void 0 && { timeoutSec: normalized.timeoutSec }
+    ...normalized.timeout !== void 0 && { timeout: normalized.timeout }
   };
 }
 __name(resolveHookCommand, "resolveHookCommand");
@@ -275,8 +328,13 @@ export {
   HOOK_TYPES,
   HookType,
   formatHookCommandLabel,
+  getEffectiveCommandFieldKey,
+  getEffectiveCommandSource,
+  getPlatformLabel,
   hookFileSchema,
-  normalizeHookTypeId,
-  resolveHookCommand
+  isUsingPlatformOverride,
+  resolveEffectiveCommand,
+  resolveHookCommand,
+  toHookType
 };
 //# sourceMappingURL=hookSchema.js.map

@@ -4,6 +4,8 @@ import { Disposable } from '../../../../../../base/common/lifecycle.js';
 import { IObservable } from '../../../../../../base/common/observable.js';
 import { IHoverService } from '../../../../../../platform/hover/browser/hover.js';
 import { IInstantiationService } from '../../../../../../platform/instantiation/common/instantiation.js';
+import { IContextKeyService } from '../../../../../../platform/contextkey/common/contextkey.js';
+import { IStorageService } from '../../../../../../platform/storage/common/storage.js';
 import { IChatRequestModel } from '../../../common/model/chatModel.js';
 import { ILanguageModelsService } from '../../../common/languageModels.js';
 /**
@@ -32,6 +34,8 @@ export declare class ChatContextUsageWidget extends Disposable {
     private readonly hoverService;
     private readonly instantiationService;
     private readonly languageModelsService;
+    private readonly contextKeyService;
+    private readonly storageService;
     private readonly _onDidChangeVisibility;
     readonly onDidChangeVisibility: Event<void>;
     readonly domNode: HTMLElement;
@@ -42,7 +46,18 @@ export declare class ChatContextUsageWidget extends Disposable {
     private readonly _hoverDisposable;
     private readonly _contextUsageDetails;
     private currentData;
-    constructor(hoverService: IHoverService, instantiationService: IInstantiationService, languageModelsService: ILanguageModelsService);
+    private static readonly _OPENED_STORAGE_KEY;
+    private static readonly _HOVER_ID;
+    private readonly _contextUsageOpenedKey;
+    constructor(hoverService: IHoverService, instantiationService: IInstantiationService, languageModelsService: ILanguageModelsService, contextKeyService: IContextKeyService, storageService: IStorageService);
+    /**
+     * Shows the sticky context usage details hover and records that the user
+     * has opened it. Returns `true` if the details were shown.
+     */
+    showDetails(): boolean;
+    private readonly _hoverOptions;
+    private _createDetails;
+    private _markOpened;
     private setupHover;
     /**
      * Updates the widget with the latest request/response data.

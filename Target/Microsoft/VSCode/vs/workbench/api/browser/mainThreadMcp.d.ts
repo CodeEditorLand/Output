@@ -1,8 +1,10 @@
 import { Disposable } from '../../../base/common/lifecycle.js';
+import { URI } from '../../../base/common/uri.js';
 import { IContextKeyService } from '../../../platform/contextkey/common/contextkey.js';
 import { IDialogService } from '../../../platform/dialogs/common/dialogs.js';
 import { LogLevel } from '../../../platform/log/common/log.js';
 import { ITelemetryService } from '../../../platform/telemetry/common/telemetry.js';
+import { IWorkbenchMcpGatewayService } from '../../contrib/mcp/common/mcpGatewayService.js';
 import { IMcpRegistry } from '../../contrib/mcp/common/mcpRegistryTypes.js';
 import { McpCollectionDefinition, McpConnectionState, McpServerDefinition } from '../../contrib/mcp/common/mcpTypes.js';
 import { IAuthenticationMcpAccessService } from '../../services/authentication/browser/authenticationMcpAccessService.js';
@@ -25,13 +27,15 @@ export declare class MainThreadMcp extends Disposable implements MainThreadMcpSh
     private readonly _extensionService;
     private readonly _contextKeyService;
     private readonly _telemetryService;
+    private readonly _mcpGatewayService;
     private _serverIdCounter;
     private readonly _servers;
     private readonly _serverDefinitions;
     private readonly _serverAuthTracking;
     private readonly _proxy;
     private readonly _collectionDefinitions;
-    constructor(_extHostContext: IExtHostContext, _mcpRegistry: IMcpRegistry, dialogService: IDialogService, _authenticationService: IAuthenticationService, authenticationMcpServersService: IAuthenticationMcpService, authenticationMCPServerAccessService: IAuthenticationMcpAccessService, authenticationMCPServerUsageService: IAuthenticationMcpUsageService, _dynamicAuthenticationProviderStorageService: IDynamicAuthenticationProviderStorageService, _extensionService: IExtensionService, _contextKeyService: IContextKeyService, _telemetryService: ITelemetryService);
+    private readonly _gateways;
+    constructor(_extHostContext: IExtHostContext, _mcpRegistry: IMcpRegistry, dialogService: IDialogService, _authenticationService: IAuthenticationService, authenticationMcpServersService: IAuthenticationMcpService, authenticationMCPServerAccessService: IAuthenticationMcpAccessService, authenticationMCPServerUsageService: IAuthenticationMcpUsageService, _dynamicAuthenticationProviderStorageService: IDynamicAuthenticationProviderStorageService, _extensionService: IExtensionService, _contextKeyService: IContextKeyService, _telemetryService: ITelemetryService, _mcpGatewayService: IWorkbenchMcpGatewayService);
     private _publishServerDefinitions;
     $upsertMcpCollection(collection: McpCollectionDefinition.FromExtHost, serversDto: McpServerDefinition.Serialized[]): void;
     $deleteMcpCollection(collectionId: string): void;
@@ -44,6 +48,11 @@ export declare class MainThreadMcp extends Disposable implements MainThreadMcpSh
     private continueWithIncorrectAccountPrompt;
     private _onDidChangeAuthSessions;
     $logMcpAuthSetup(data: IAuthMetadataSource): void;
+    $startMcpGateway(): Promise<{
+        address: URI;
+        gatewayId: string;
+    } | undefined>;
+    $disposeMcpGateway(gatewayId: string): void;
     private loginPrompt;
     dispose(): void;
 }

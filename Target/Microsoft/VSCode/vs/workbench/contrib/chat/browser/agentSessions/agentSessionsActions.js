@@ -10,7 +10,6 @@ import { ChatContextKeys } from "../../common/actions/chatContextKeys.js";
 import { ChatViewId, IChatWidgetService } from "../chat.js";
 import { ACTIVE_GROUP, AUX_WINDOW_GROUP, SIDE_GROUP } from "../../../../services/editor/common/editorService.js";
 import { IViewDescriptorService } from "../../../../common/views.js";
-import { getPartByLocation } from "../../../../services/views/browser/viewsService.js";
 import { IWorkbenchLayoutService } from "../../../../services/layout/browser/layoutService.js";
 import { IAgentSessionsService } from "./agentSessionsService.js";
 import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
@@ -27,6 +26,7 @@ import { ActiveEditorContext } from "../../../../common/contextkeys.js";
 import { IQuickInputService } from "../../../../../platform/quickinput/common/quickInput.js";
 import { coalesce } from "../../../../../base/common/arrays.js";
 import { IStorageService } from "../../../../../platform/storage/common/storage.js";
+import { IPaneCompositePartService } from "../../../../services/panecomposite/browser/panecomposite.js";
 const AGENT_SESSIONS_CATEGORY = localize2("chatSessions", "Chat Agent Sessions");
 class ToggleShowAgentSessionsAction extends Action2 {
   static {
@@ -131,7 +131,7 @@ class PickAgentSessionAction extends Action2 {
   }
   async run(accessor) {
     const instantiationService = accessor.get(IInstantiationService);
-    const agentSessionsPicker = instantiationService.createInstance(AgentSessionsPicker);
+    const agentSessionsPicker = instantiationService.createInstance(AgentSessionsPicker, void 0);
     await agentSessionsPicker.pickAgentSession();
   }
 }
@@ -781,6 +781,7 @@ class UpdateChatViewWidthAction extends Action2 {
     const viewDescriptorService = accessor.get(IViewDescriptorService);
     const configurationService = accessor.get(IConfigurationService);
     const viewsService = accessor.get(IViewsService);
+    const paneCompositeService = accessor.get(IPaneCompositePartService);
     const chatLocation = viewDescriptorService.getViewLocationById(ChatViewId);
     if (typeof chatLocation !== "number") {
       return;
@@ -815,7 +816,7 @@ class UpdateChatViewWidthAction extends Action2 {
     if (!canResizeView) {
       return;
     }
-    const part = getPartByLocation(chatLocation);
+    const part = paneCompositeService.getPartId(chatLocation);
     let currentSize = layoutService.getSize(part);
     const chatViewDefaultWidth = 300;
     const sessionsViewDefaultWidth = chatViewDefaultWidth;

@@ -168,6 +168,13 @@ export interface IPickOptions<T extends IQuickPickItem> {
      * an optional property for the item to focus initially.
      */
     activeItem?: Promise<T> | T;
+    /**
+     * an optional anchor for the picker
+     */
+    anchor?: HTMLElement | {
+        x: number;
+        y: number;
+    };
     onKeyMods?: (keyMods: IKeyMods) => void;
     onDidFocus?: (entry: T) => void;
     onDidTriggerItemButton?: (context: IQuickPickItemButtonContext<T>) => void;
@@ -296,6 +303,13 @@ export interface IQuickInput extends IDisposable {
      * Indicates whether the quick input should be hidden when it loses focus.
      */
     ignoreFocusOut: boolean;
+    /**
+     * An optional anchor for the quick input.
+     */
+    anchor?: HTMLElement | {
+        x: number;
+        y: number;
+    };
     /**
      * Shows the quick input.
      */

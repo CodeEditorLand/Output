@@ -22,7 +22,7 @@ class UpdateChannel {
       case "checkForUpdates":
         return this.service.checkForUpdates(arg);
       case "downloadUpdate":
-        return this.service.downloadUpdate();
+        return this.service.downloadUpdate(arg);
       case "applyUpdate":
         return this.service.applyUpdate();
       case "quitAndInstall":
@@ -62,8 +62,8 @@ class UpdateChannelClient {
   checkForUpdates(explicit) {
     return this.channel.call("checkForUpdates", explicit);
   }
-  downloadUpdate() {
-    return this.channel.call("downloadUpdate");
+  downloadUpdate(explicit) {
+    return this.channel.call("downloadUpdate", explicit);
   }
   applyUpdate() {
     return this.channel.call("applyUpdate");

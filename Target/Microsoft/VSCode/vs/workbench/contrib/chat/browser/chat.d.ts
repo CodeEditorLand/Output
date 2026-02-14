@@ -105,6 +105,10 @@ export interface IChatWidgetService {
      */
     readonly onDidBackgroundSession: Event<URI>;
     /**
+     * Fires when the focused chat widget changes.
+     */
+    readonly onDidChangeFocusedWidget: Event<IChatWidget | undefined>;
+    /**
      * Reveals the widget, focusing its input unless `preserveFocus` is true.
      */
     reveal(widget: IChatWidget, preserveFocus?: boolean): Promise<boolean>;
@@ -322,6 +326,32 @@ export interface IChatWidget {
      */
     focusResponseItem(lastFocused?: boolean): void;
     focusInput(): void;
+    /**
+     * Focuses the Todos view in the chat widget.
+     * @returns Whether the operation succeeded (i.e., the Todos view was focused).
+     */
+    focusTodosView(): boolean;
+    /**
+     * Toggles focus between the Todos view and the previous focus target in the chat widget.
+     * @returns Whether the operation succeeded (i.e., the focus was toggled).
+     */
+    toggleTodosViewFocus(): boolean;
+    /**
+     * Focuses the question carousel in the chat widget.
+     * @returns Whether the operation succeeded (i.e., the question carousel was focused).
+     */
+    focusQuestionCarousel(): boolean;
+    /**
+     * Toggles focus between the question carousel and the chat input.
+     * @returns Whether the operation succeeded (i.e., the focus was toggled).
+     */
+    toggleQuestionCarouselFocus(): boolean;
+    /**
+     * Toggles focus between the tip widget and the chat input.
+     * Returns false if no tip is visible.
+     * @returns Whether the operation succeeded (i.e., the focus was toggled).
+     */
+    toggleTipFocus(): boolean;
     hasInputFocus(): boolean;
     getModeRequestOptions(): Partial<IChatSendRequestOptions>;
     getCodeBlockInfoForEditor(uri: URI): IChatCodeBlockInfo | undefined;

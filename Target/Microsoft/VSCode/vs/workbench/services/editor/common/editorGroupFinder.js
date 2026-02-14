@@ -4,17 +4,36 @@ import { IConfigurationService } from "../../../../platform/configuration/common
 import { EditorActivation } from "../../../../platform/editor/common/editor.js";
 import { isEditorInputWithOptions, isEditorInput } from "../../../common/editor.js";
 import { preferredSideBySideGroupDirection, IEditorGroupsService } from "./editorGroupsService.js";
-import { AUX_WINDOW_GROUP, SIDE_GROUP } from "./editorService.js";
+import { AUX_WINDOW_GROUP, MODAL_GROUP, SIDE_GROUP } from "./editorService.js";
 function findGroup(accessor, editor, preferredGroup) {
   const editorGroupService = accessor.get(IEditorGroupsService);
   const configurationService = accessor.get(IConfigurationService);
   const group = doFindGroup(editor, preferredGroup, editorGroupService, configurationService);
   if (group instanceof Promise) {
-    return group.then((group2) => handleGroupActivation(group2, editor, preferredGroup, editorGroupService));
+    return group.then((group2) => handleGroupResult(group2, editor, preferredGroup, editorGroupService));
+  }
+  return handleGroupResult(group, editor, preferredGroup, editorGroupService);
+}
+__name(findGroup, "findGroup");
+function handleGroupResult(group, editor, preferredGroup, editorGroupService) {
+  const modalEditorPart = editorGroupService.activeModalEditorPart;
+  if (modalEditorPart && preferredGroup !== MODAL_GROUP) {
+    group = handleModalEditorPart(group, editor, modalEditorPart, editorGroupService);
   }
   return handleGroupActivation(group, editor, preferredGroup, editorGroupService);
 }
-__name(findGroup, "findGroup");
+__name(handleGroupResult, "handleGroupResult");
+function handleModalEditorPart(group, editor, modalEditorPart, editorGroupService) {
+  const options = editor.options;
+  if (modalEditorPart.groups.some((modalGroup) => modalGroup.id === group.id)) {
+    group = editorGroupService.mainPart.activeGroup;
+  }
+  if (!options?.preserveFocus) {
+    modalEditorPart.close();
+  }
+  return group;
+}
+__name(handleModalEditorPart, "handleModalEditorPart");
 function handleGroupActivation(group, editor, preferredGroup, editorGroupService) {
   let activation = void 0;
   if (editorGroupService.activeGroup !== group && // only if target group is not already active
@@ -48,6 +67,8 @@ function doFindGroup(input, preferredGroup, editorGroupService, configurationSer
       compact: options?.auxiliary?.compact,
       alwaysOnTop: options?.auxiliary?.alwaysOnTop
     }).then((group2) => group2.activeGroup);
+  } else if (preferredGroup === MODAL_GROUP && configurationService.getValue("workbench.editor.allowOpenInModalEditor")) {
+    group = editorGroupService.createModalEditorPart().then((part) => part.activeGroup);
   } else if (!options || typeof options.index !== "number") {
     const groupsByLastActive = editorGroupService.getGroups(
       1

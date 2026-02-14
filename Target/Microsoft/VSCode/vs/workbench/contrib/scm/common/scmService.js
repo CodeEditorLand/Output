@@ -74,25 +74,25 @@ class SCMInput extends Disposable {
     this.repository = repository;
     this.history = history;
     this._value = "";
-    this._onDidChange = new Emitter();
+    this._onDidChange = this._register(new Emitter());
     this.onDidChange = this._onDidChange.event;
     this._placeholder = "";
-    this._onDidChangePlaceholder = new Emitter();
+    this._onDidChangePlaceholder = this._register(new Emitter());
     this.onDidChangePlaceholder = this._onDidChangePlaceholder.event;
     this._enabled = true;
-    this._onDidChangeEnablement = new Emitter();
+    this._onDidChangeEnablement = this._register(new Emitter());
     this.onDidChangeEnablement = this._onDidChangeEnablement.event;
     this._visible = true;
-    this._onDidChangeVisibility = new Emitter();
+    this._onDidChangeVisibility = this._register(new Emitter());
     this.onDidChangeVisibility = this._onDidChangeVisibility.event;
-    this._onDidChangeFocus = new Emitter();
+    this._onDidChangeFocus = this._register(new Emitter());
     this.onDidChangeFocus = this._onDidChangeFocus.event;
-    this._onDidChangeValidationMessage = new Emitter();
+    this._onDidChangeValidationMessage = this._register(new Emitter());
     this.onDidChangeValidationMessage = this._onDidChangeValidationMessage.event;
-    this._onDidClearValidation = new Emitter();
+    this._onDidClearValidation = this._register(new Emitter());
     this.onDidClearValidation = this._onDidClearValidation.event;
     this._validateInput = () => Promise.resolve(void 0);
-    this._onDidChangeValidateInput = new Emitter();
+    this._onDidChangeValidateInput = this._register(new Emitter());
     this.onDidChangeValidateInput = this._onDidChangeValidateInput.event;
     this.didChangeHistory = false;
     if (this.repository.provider.rootUri) {
@@ -173,6 +173,8 @@ class SCMRepository {
   }
   dispose() {
     this.disposables.dispose();
+    this._onDidChangeSelection.dispose();
+    this.input.dispose();
     this.provider.dispose();
   }
 }

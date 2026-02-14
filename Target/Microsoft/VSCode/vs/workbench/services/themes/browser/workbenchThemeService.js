@@ -46,10 +46,10 @@ import { IHostColorSchemeService } from "../common/hostColorSchemeService.js";
 import { RunOnceScheduler, Sequencer } from "../../../../base/common/async.js";
 import { IUserDataInitializationService } from "../../userData/browser/userDataInit.js";
 import { getIconsStyleSheet } from "../../../../platform/theme/browser/iconsStyleSheet.js";
-import { asCssVariableName, getColorRegistry } from "../../../../platform/theme/common/colorRegistry.js";
-import { asCssVariableName as asSizeCssVariableName, getSizeRegistry, sizeValueToCss } from "../../../../platform/theme/common/sizeRegistry.js";
+import { getColorRegistry } from "../../../../platform/theme/common/colorRegistry.js";
 import { ILanguageService } from "../../../../editor/common/languages/language.js";
 import { mainWindow } from "../../../../base/browser/window.js";
+import { generateColorThemeCSS } from "./colorThemeCss.js";
 const defaultThemeExtensionId = "vscode-theme-defaults";
 const DEFAULT_FILE_ICON_THEME_ID = "vscode.vscode-theme-seti-vs-seti";
 const fileIconsEnabledClass = "file-icons-enabled";
@@ -383,32 +383,8 @@ let WorkbenchThemeService = class WorkbenchThemeService2 extends Disposable {
     });
   }
   updateDynamicCSSRules(themeData) {
-    const cssRules = /* @__PURE__ */ new Set();
-    const ruleCollector = {
-      addRule: /* @__PURE__ */ __name((rule) => {
-        if (!cssRules.has(rule)) {
-          cssRules.add(rule);
-        }
-      }, "addRule")
-    };
-    ruleCollector.addRule(`.monaco-workbench { forced-color-adjust: none; }`);
-    themingRegistry.getThemingParticipants().forEach((p) => p(themeData, ruleCollector, this.environmentService));
-    const colorVariables = [];
-    for (const item of getColorRegistry().getColors()) {
-      const color = themeData.getColor(item.id, true);
-      if (color) {
-        colorVariables.push(`${asCssVariableName(item.id)}: ${color.toString()};`);
-      }
-    }
-    const sizeVariables = [];
-    for (const item of getSizeRegistry().getSizes()) {
-      const sizeValue = getSizeRegistry().resolveDefaultSize(item.id, themeData);
-      if (sizeValue) {
-        sizeVariables.push(`${asSizeCssVariableName(item.id)}: ${sizeValueToCss(sizeValue)};`);
-      }
-    }
-    ruleCollector.addRule(`.monaco-workbench { ${colorVariables.concat(sizeVariables).join("\n")} }`);
-    _applyRules([...cssRules].join("\n"), colorThemeRulesClassName);
+    const css = generateColorThemeCSS(themeData, ".monaco-workbench", themingRegistry.getThemingParticipants(), this.environmentService);
+    _applyRules(css.code, colorThemeRulesClassName);
   }
   applyTheme(newTheme, settingsTarget, silent = false) {
     this.updateDynamicCSSRules(newTheme);

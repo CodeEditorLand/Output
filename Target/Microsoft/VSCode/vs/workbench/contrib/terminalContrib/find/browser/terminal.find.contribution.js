@@ -253,4 +253,7 @@ registerActiveInstanceAction({
   ],
   run: /* @__PURE__ */ __name((activeInstance, c, accessor) => findInFilesCommand(accessor, { query: activeInstance.selection }), "run")
 });
+import { AccessibleViewRegistry } from "../../../../../platform/accessibility/browser/accessibleViewRegistry.js";
+import { TerminalFindAccessibilityHelp } from "./terminalFindAccessibilityHelp.js";
+AccessibleViewRegistry.register(new TerminalFindAccessibilityHelp());
 //# sourceMappingURL=terminal.find.contribution.js.map

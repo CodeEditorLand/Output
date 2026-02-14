@@ -437,6 +437,7 @@ let SCMViewService = class SCMViewService2 {
   }
   dispose() {
     this.disposables.dispose();
+    this._onDidFocusRepository.dispose();
     this._onDidChangeRepositories.dispose();
     this._onDidSetVisibleRepositories.dispose();
   }

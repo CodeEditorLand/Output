@@ -55,6 +55,7 @@ export declare const enum TerminalSettingId {
     FontWeight = "terminal.integrated.fontWeight",
     FontWeightBold = "terminal.integrated.fontWeightBold",
     CursorBlinking = "terminal.integrated.cursorBlinking",
+    TextBlinking = "terminal.integrated.textBlinking",
     CursorStyle = "terminal.integrated.cursorStyle",
     CursorStyleInactive = "terminal.integrated.cursorStyleInactive",
     CursorWidth = "terminal.integrated.cursorWidth",

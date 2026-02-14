@@ -79,6 +79,90 @@ async function showReleaseNotes(accessor, version) {
   }
 }
 __name(showReleaseNotes, "showReleaseNotes");
+function appendUpdateMenuItems(menuId, group) {
+  MenuRegistry.appendMenuItem(menuId, {
+    group,
+    command: {
+      id: "update.check",
+      title: nls.localize("checkForUpdates", "Check for Updates...")
+    },
+    when: CONTEXT_UPDATE_STATE.isEqualTo(
+      "idle"
+      /* StateType.Idle */
+    )
+  });
+  MenuRegistry.appendMenuItem(menuId, {
+    group,
+    command: {
+      id: "update.checking",
+      title: nls.localize("checkingForUpdates2", "Checking for Updates..."),
+      precondition: ContextKeyExpr.false()
+    },
+    when: CONTEXT_UPDATE_STATE.isEqualTo(
+      "checking for updates"
+      /* StateType.CheckingForUpdates */
+    )
+  });
+  MenuRegistry.appendMenuItem(menuId, {
+    group,
+    command: {
+      id: "update.downloadNow",
+      title: nls.localize("download update_1", "Download Update (1)")
+    },
+    when: CONTEXT_UPDATE_STATE.isEqualTo(
+      "available for download"
+      /* StateType.AvailableForDownload */
+    )
+  });
+  MenuRegistry.appendMenuItem(menuId, {
+    group,
+    command: {
+      id: "update.downloading",
+      title: nls.localize("DownloadingUpdate", "Downloading Update..."),
+      precondition: ContextKeyExpr.false()
+    },
+    when: CONTEXT_UPDATE_STATE.isEqualTo(
+      "downloading"
+      /* StateType.Downloading */
+    )
+  });
+  MenuRegistry.appendMenuItem(menuId, {
+    group,
+    command: {
+      id: "update.install",
+      title: nls.localize("installUpdate...", "Install Update... (1)")
+    },
+    when: CONTEXT_UPDATE_STATE.isEqualTo(
+      "downloaded"
+      /* StateType.Downloaded */
+    )
+  });
+  MenuRegistry.appendMenuItem(menuId, {
+    group,
+    command: {
+      id: "update.updating",
+      title: nls.localize("installingUpdate", "Installing Update..."),
+      precondition: ContextKeyExpr.false()
+    },
+    when: CONTEXT_UPDATE_STATE.isEqualTo(
+      "updating"
+      /* StateType.Updating */
+    )
+  });
+  MenuRegistry.appendMenuItem(menuId, {
+    group,
+    order: 2,
+    command: {
+      id: "update.restart",
+      title: nls.localize("restartToUpdate", "Restart to Update (1)")
+    },
+    when: CONTEXT_UPDATE_STATE.isEqualTo(
+      "ready"
+      /* StateType.Ready */
+    )
+  });
+}
+__name(appendUpdateMenuItems, "appendUpdateMenuItems");
 function parseVersion(version) {
   const match = /([0-9]+)\.([0-9]+)\.([0-9]+)/.exec(version);
   if (!match) {
@@ -289,7 +373,7 @@ let UpdateContribution = class UpdateContribution2 extends Disposable {
     }
     this.notificationService.prompt(severity.Info, nls.localize("thereIsUpdateAvailable", "There is an available update."), [{
       label: nls.localize("download update", "Download Update"),
-      run: /* @__PURE__ */ __name(() => this.updateService.downloadUpdate(), "run")
+      run: /* @__PURE__ */ __name(() => this.updateService.downloadUpdate(true), "run")
     }, {
       label: nls.localize("later", "Later"),
       run: /* @__PURE__ */ __name(() => {
@@ -413,83 +497,19 @@ let UpdateContribution = class UpdateContribution2 extends Disposable {
   }
   registerGlobalActivityActions() {
     CommandsRegistry.registerCommand("update.check", () => this.updateService.checkForUpdates(true));
-    MenuRegistry.appendMenuItem(MenuId.GlobalActivity, {
-      group: "7_update",
-      command: {
-        id: "update.check",
-        title: nls.localize("checkForUpdates", "Check for Updates...")
-      },
-      when: CONTEXT_UPDATE_STATE.isEqualTo(
-        "idle"
-        /* StateType.Idle */
-      )
-    });
     CommandsRegistry.registerCommand("update.checking", () => {
     });
-    MenuRegistry.appendMenuItem(MenuId.GlobalActivity, {
-      group: "7_update",
-      command: {
-        id: "update.checking",
-        title: nls.localize("checkingForUpdates2", "Checking for Updates..."),
-        precondition: ContextKeyExpr.false()
-      },
-      when: CONTEXT_UPDATE_STATE.isEqualTo(
-        "checking for updates"
-        /* StateType.CheckingForUpdates */
-      )
-    });
-    CommandsRegistry.registerCommand("update.downloadNow", () => this.updateService.downloadUpdate());
-    MenuRegistry.appendMenuItem(MenuId.GlobalActivity, {
-      group: "7_update",
-      command: {
-        id: "update.downloadNow",
-        title: nls.localize("download update_1", "Download Update (1)")
-      },
-      when: CONTEXT_UPDATE_STATE.isEqualTo(
-        "available for download"
-        /* StateType.AvailableForDownload */
-      )
-    });
+    CommandsRegistry.registerCommand("update.downloadNow", () => this.updateService.downloadUpdate(true));
     CommandsRegistry.registerCommand("update.downloading", () => {
     });
-    MenuRegistry.appendMenuItem(MenuId.GlobalActivity, {
-      group: "7_update",
-      command: {
-        id: "update.downloading",
-        title: nls.localize("DownloadingUpdate", "Downloading Update..."),
-        precondition: ContextKeyExpr.false()
-      },
-      when: CONTEXT_UPDATE_STATE.isEqualTo(
-        "downloading"
-        /* StateType.Downloading */
-      )
-    });
     CommandsRegistry.registerCommand("update.install", () => this.updateService.applyUpdate());
-    MenuRegistry.appendMenuItem(MenuId.GlobalActivity, {
-      group: "7_update",
-      command: {
-        id: "update.install",
-        title: nls.localize("installUpdate...", "Install Update... (1)")
-      },
-      when: CONTEXT_UPDATE_STATE.isEqualTo(
-        "downloaded"
-        /* StateType.Downloaded */
-      )
-    });
     CommandsRegistry.registerCommand("update.updating", () => {
     });
-    MenuRegistry.appendMenuItem(MenuId.GlobalActivity, {
-      group: "7_update",
-      command: {
-        id: "update.updating",
-        title: nls.localize("installingUpdate", "Installing Update..."),
-        precondition: ContextKeyExpr.false()
-      },
-      when: CONTEXT_UPDATE_STATE.isEqualTo(
-        "updating"
-        /* StateType.Updating */
-      )
+    CommandsRegistry.registerCommand("update.restart", () => this.updateService.quitAndInstall());
+    CommandsRegistry.registerCommand("_update.state", () => {
+      return this.state;
     });
+    appendUpdateMenuItems(MenuId.GlobalActivity, "7_update");
     if (this.productService.quality === "stable") {
       CommandsRegistry.registerCommand("update.showUpdateReleaseNotes", () => {
         if (this.updateService.state.type !== "ready") {
@@ -513,22 +533,6 @@ let UpdateContribution = class UpdateContribution2 extends Disposable {
         ), MAJOR_MINOR_UPDATE_AVAILABLE)
       });
     }
-    CommandsRegistry.registerCommand("update.restart", () => this.updateService.quitAndInstall());
-    MenuRegistry.appendMenuItem(MenuId.GlobalActivity, {
-      group: "7_update",
-      order: 2,
-      command: {
-        id: "update.restart",
-        title: nls.localize("restartToUpdate", "Restart to Update (1)")
-      },
-      when: CONTEXT_UPDATE_STATE.isEqualTo(
-        "ready"
-        /* StateType.Ready */
-      )
-    });
-    CommandsRegistry.registerCommand("_update.state", () => {
-      return this.state;
-    });
   }
 };
 UpdateContribution = __decorate([
@@ -706,6 +710,7 @@ export {
   RELEASE_NOTES_URL,
   SwitchProductQualityContribution,
   UpdateContribution,
+  appendUpdateMenuItems,
   showReleaseNotesInEditor
 };
 //# sourceMappingURL=update.js.map

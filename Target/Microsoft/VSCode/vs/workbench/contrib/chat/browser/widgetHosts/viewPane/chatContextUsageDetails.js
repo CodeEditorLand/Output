@@ -64,8 +64,8 @@ let ChatContextUsageDetails = class ChatContextUsageDetails2 extends Disposable 
     updateActionsVisibility();
   }
   update(data) {
-    const { percentage, promptTokens, maxInputTokens, promptTokenDetails } = data;
-    this.tokenCountLabel.textContent = localize("tokenCount", "{0} / {1} tokens", this.formatTokenCount(promptTokens, 1), this.formatTokenCount(maxInputTokens, 0));
+    const { percentage, usedTokens, totalContextWindow, promptTokenDetails } = data;
+    this.tokenCountLabel.textContent = localize("tokenCount", "{0} / {1} tokens", this.formatTokenCount(usedTokens, 1), this.formatTokenCount(totalContextWindow, 0));
     this.percentageLabel.textContent = `\u2022 ${percentage.toFixed(0)}%`;
     this.progressFill.style.width = `${Math.min(100, percentage)}%`;
     this.quotaItem.classList.remove("warning", "error");
@@ -78,7 +78,8 @@ let ChatContextUsageDetails = class ChatContextUsageDetails2 extends Disposable 
     this.warningMessage.style.display = percentage >= 75 ? "" : "none";
   }
   formatTokenCount(count, decimals) {
-    if (count >= 1e6) {
+    const mThreshold = 1e6 - 500 * Math.pow(10, -decimals);
+    if (count >= mThreshold) {
       return `${(count / 1e6).toFixed(decimals)}M`;
     } else if (count >= 1e3) {
       return `${(count / 1e3).toFixed(decimals)}K`;
@@ -107,10 +108,17 @@ let ChatContextUsageDetails = class ChatContextUsageDetails2 extends Disposable 
       ]);
     }
     for (const [category, items] of categoryMap) {
+      const visibleItems = items.filter((item) => {
+        const contextRelativePercentage = item.percentageOfPrompt / 100 * contextWindowPercentage;
+        return contextRelativePercentage >= 0.05;
+      });
+      if (visibleItems.length === 0) {
+        continue;
+      }
       const categorySection = this.tokenDetailsContainer.appendChild($(".token-category"));
       const categoryHeader = categorySection.appendChild($(".token-category-header"));
       categoryHeader.textContent = category;
-      for (const item of items) {
+      for (const item of visibleItems) {
         const itemRow = categorySection.appendChild($(".token-detail-item"));
         const itemLabel = itemRow.appendChild($(".token-detail-label"));
         itemLabel.textContent = item.label;

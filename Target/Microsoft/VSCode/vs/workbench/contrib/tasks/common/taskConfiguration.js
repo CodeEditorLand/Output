@@ -677,12 +677,13 @@ var ProblemMatcherConverter;
   ProblemMatcherConverter2.namedFrom = namedFrom;
   function fromWithOsConfig(external, context) {
     let result = {};
-    if (external.windows && external.windows.problemMatcher && context.platform === 3) {
-      result = from(external.windows.problemMatcher, context);
-    } else if (external.osx && external.osx.problemMatcher && context.platform === 1) {
-      result = from(external.osx.problemMatcher, context);
-    } else if (external.linux && external.linux.problemMatcher && context.platform === 2) {
-      result = from(external.linux.problemMatcher, context);
+    const osExternal = external;
+    if (osExternal.windows?.problemMatcher && context.platform === 3) {
+      result = from(osExternal.windows.problemMatcher, context);
+    } else if (osExternal.osx?.problemMatcher && context.platform === 1) {
+      result = from(osExternal.osx.problemMatcher, context);
+    } else if (osExternal.linux?.problemMatcher && context.platform === 2) {
+      result = from(osExternal.linux.problemMatcher, context);
     } else if (external.problemMatcher) {
       result = from(external.problemMatcher, context);
     }

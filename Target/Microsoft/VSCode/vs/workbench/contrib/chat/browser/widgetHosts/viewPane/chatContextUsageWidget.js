@@ -11,6 +11,7 @@ var __param = function(paramIndex, decorator) {
     decorator(target, key, paramIndex);
   };
 };
+var ChatContextUsageWidget_1;
 import "./media/chatContextUsageWidget.css";
 import * as dom from "../../../../../../base/browser/dom.js";
 import { EventType, addDisposableListener } from "../../../../../../base/browser/dom.js";
@@ -20,6 +21,9 @@ import { observableValue } from "../../../../../../base/common/observable.js";
 import { localize } from "../../../../../../nls.js";
 import { IHoverService } from "../../../../../../platform/hover/browser/hover.js";
 import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { IStorageService } from "../../../../../../platform/storage/common/storage.js";
+import { ChatContextKeys } from "../../../common/actions/chatContextKeys.js";
 import { ILanguageModelsService } from "../../../common/languageModels.js";
 import { ChatContextUsageDetails } from "./chatContextUsageDetails.js";
 import { StandardKeyboardEvent } from "../../../../../../base/browser/keyboardEvent.js";
@@ -87,20 +91,37 @@ let ChatContextUsageWidget = class ChatContextUsageWidget2 extends Disposable {
   static {
     __name(this, "ChatContextUsageWidget");
   }
+  static {
+    ChatContextUsageWidget_1 = this;
+  }
   get isVisible() {
     return this._isVisible;
   }
-  constructor(hoverService, instantiationService, languageModelsService) {
+  static {
+    this._OPENED_STORAGE_KEY = "chat.contextUsage.hasBeenOpened";
+  }
+  static {
+    this._HOVER_ID = "chat.contextUsage";
+  }
+  constructor(hoverService, instantiationService, languageModelsService, contextKeyService, storageService) {
     super();
     this.hoverService = hoverService;
     this.instantiationService = instantiationService;
     this.languageModelsService = languageModelsService;
+    this.contextKeyService = contextKeyService;
+    this.storageService = storageService;
     this._onDidChangeVisibility = this._register(new Emitter());
     this.onDidChangeVisibility = this._onDidChangeVisibility.event;
     this._isVisible = observableValue(this, false);
     this._lastRequestDisposable = this._register(new MutableDisposable());
     this._hoverDisposable = this._register(new MutableDisposable());
     this._contextUsageDetails = this._register(new MutableDisposable());
+    this._hoverOptions = {
+      id: ChatContextUsageWidget_1._HOVER_ID,
+      appearance: { showPointer: true, compact: true },
+      persistence: { hideOnHover: false },
+      trapFocus: true
+    };
     this.domNode = $(".chat-context-usage-widget");
     this.domNode.style.display = "none";
     this.domNode.setAttribute("tabindex", "0");
@@ -109,38 +130,56 @@ let ChatContextUsageWidget = class ChatContextUsageWidget2 extends Disposable {
     const iconContainer = this.domNode.appendChild($(".icon-container"));
     this.progressIndicator = new CircularProgressIndicator();
     iconContainer.appendChild(this.progressIndicator.domNode);
+    this._contextUsageOpenedKey = ChatContextKeys.contextUsageHasBeenOpened.bindTo(this.contextKeyService);
+    if (this.storageService.getBoolean(ChatContextUsageWidget_1._OPENED_STORAGE_KEY, 1, false)) {
+      this._contextUsageOpenedKey.set(true);
+    }
     this.setupHover();
+  }
+  /**
+   * Shows the sticky context usage details hover and records that the user
+   * has opened it. Returns `true` if the details were shown.
+   */
+  showDetails() {
+    const details = this._createDetails();
+    if (!details) {
+      return false;
+    }
+    this.hoverService.showInstantHover({ ...this._hoverOptions, content: details.domNode, target: this.domNode, persistence: { hideOnHover: false, sticky: true } }, true);
+    this._markOpened();
+    return true;
+  }
+  _createDetails() {
+    if (!this._isVisible.get() || !this.currentData) {
+      return void 0;
+    }
+    if (!this._contextUsageDetails.value) {
+      this._contextUsageDetails.value = this.instantiationService.createInstance(ChatContextUsageDetails);
+    }
+    this._contextUsageDetails.value.update(this.currentData);
+    return this._contextUsageDetails.value;
+  }
+  _markOpened() {
+    this._contextUsageOpenedKey.set(true);
+    this.storageService.store(
+      ChatContextUsageWidget_1._OPENED_STORAGE_KEY,
+      true,
+      1,
+      1
+      /* StorageTarget.MACHINE */
+    );
   }
   setupHover() {
     this._hoverDisposable.clear();
     const store = new DisposableStore();
     this._hoverDisposable.value = store;
-    const createDetails = /* @__PURE__ */ __name(() => {
-      if (!this._isVisible.get() || !this.currentData) {
-        return void 0;
-      }
-      this._contextUsageDetails.value = this.instantiationService.createInstance(ChatContextUsageDetails);
-      this._contextUsageDetails.value.update(this.currentData);
-      return this._contextUsageDetails.value;
-    }, "createDetails");
-    const hoverOptions = {
-      appearance: { showPointer: true, compact: true },
-      persistence: { hideOnHover: false },
-      trapFocus: true
-    };
     store.add(this.hoverService.setupDelayedHover(this.domNode, () => ({
-      ...hoverOptions,
-      content: createDetails()?.domNode ?? ""
+      ...this._hoverOptions,
+      content: this._createDetails()?.domNode ?? ""
     })));
-    const showStickyHover = /* @__PURE__ */ __name(() => {
-      const details = createDetails();
-      if (details) {
-        this.hoverService.showInstantHover({ ...hoverOptions, content: details.domNode, target: this.domNode, persistence: { hideOnHover: false, sticky: true } }, true);
-      }
-    }, "showStickyHover");
     store.add(addDisposableListener(this.domNode, EventType.CLICK, (e) => {
       e.stopPropagation();
-      showStickyHover();
+      this.showDetails();
     }));
     store.add(addDisposableListener(this.domNode, EventType.KEY_DOWN, (e) => {
       const evt = new StandardKeyboardEvent(e);
@@ -152,7 +191,7 @@ let ChatContextUsageWidget = class ChatContextUsageWidget2 extends Disposable {
         /* KeyCode.Enter */
       )) {
         e.preventDefault();
-        showStickyHover();
+        this.showDetails();
       }
     }));
   }
@@ -178,18 +217,21 @@ let ChatContextUsageWidget = class ChatContextUsageWidget2 extends Disposable {
     const usage = response.usage;
     const modelMetadata = this.languageModelsService.lookupLanguageModel(modelId);
     const maxInputTokens = modelMetadata?.maxInputTokens;
-    if (!usage || !maxInputTokens || maxInputTokens <= 0) {
+    const maxOutputTokens = modelMetadata?.maxOutputTokens;
+    if (!usage || !maxInputTokens || maxInputTokens <= 0 || !maxOutputTokens || maxOutputTokens <= 0) {
       this.hide();
       return;
     }
     const promptTokens = usage.promptTokens;
     const promptTokenDetails = usage.promptTokenDetails;
-    const percentage = Math.min(100, promptTokens / maxInputTokens * 100);
-    this.render(percentage, promptTokens, maxInputTokens, promptTokenDetails);
+    const totalContextWindow = maxInputTokens + maxOutputTokens;
+    const usedTokens = promptTokens + maxOutputTokens;
+    const percentage = Math.min(100, usedTokens / totalContextWindow * 100);
+    this.render(percentage, usedTokens, totalContextWindow, promptTokenDetails);
     this.show();
   }
-  render(percentage, promptTokens, maxTokens, promptTokenDetails) {
-    this.currentData = { promptTokens, maxInputTokens: maxTokens, percentage, promptTokenDetails };
+  render(percentage, usedTokens, totalContextWindow, promptTokenDetails) {
+    this.currentData = { usedTokens, totalContextWindow, percentage, promptTokenDetails };
     this.progressIndicator.setProgress(percentage);
     this.domNode.classList.remove("warning", "error");
     if (percentage >= 90) {
@@ -213,10 +255,12 @@ let ChatContextUsageWidget = class ChatContextUsageWidget2 extends Disposable {
     }
   }
 };
-ChatContextUsageWidget = __decorate([
+ChatContextUsageWidget = ChatContextUsageWidget_1 = __decorate([
   __param(0, IHoverService),
   __param(1, IInstantiationService),
-  __param(2, ILanguageModelsService)
+  __param(2, ILanguageModelsService),
+  __param(3, IContextKeyService),
+  __param(4, IStorageService)
 ], ChatContextUsageWidget);
 export {
   ChatContextUsageWidget,

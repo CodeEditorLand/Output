@@ -22,9 +22,21 @@ export declare const AGENT_FILE_EXTENSION = ".agent.md";
  */
 export declare const SKILL_FILENAME = "SKILL.md";
 /**
- * Default hook file name (case insensitive).
+ * AGENT file name
  */
-export declare const HOOKS_FILENAME = "hooks.json";
+export declare const AGENT_MD_FILENAME = "AGENTS.md";
+/**
+ * Claude file name.
+ */
+export declare const CLAUDE_MD_FILENAME = "CLAUDE.md";
+/**
+ * Claude local file name.
+ */
+export declare const CLAUDE_LOCAL_MD_FILENAME = "CLAUDE.local.md";
+/**
+ * Claude configuration folder name.
+ */
+export declare const CLAUDE_CONFIG_FOLDER = ".claude";
 /**
  * Copilot custom instructions file name.
  */
@@ -45,6 +57,14 @@ export declare const LEGACY_MODE_DEFAULT_SOURCE_FOLDER = ".github/chatmodes";
  * Agents folder.
  */
 export declare const AGENTS_SOURCE_FOLDER = ".github/agents";
+/**
+ * Claude agents folder.
+ */
+export declare const CLAUDE_AGENTS_SOURCE_FOLDER = ".claude/agents";
+/**
+ * Claude rules folder.
+ */
+export declare const CLAUDE_RULES_SOURCE_FOLDER = ".claude/rules";
 /**
  * Hooks folder.
  */
@@ -116,10 +136,25 @@ export declare const DEFAULT_PROMPT_SOURCE_FOLDERS: readonly IPromptSourceFolder
 export declare const DEFAULT_AGENT_SOURCE_FOLDERS: readonly IPromptSourceFolder[];
 /**
  * Default hook file paths.
+ * Entries can be either a directory or a specific file path (.json)
  */
 export declare const DEFAULT_HOOK_FILE_PATHS: readonly IPromptSourceFolder[];
 /**
+ * Helper function to check if a file is directly in the .claude/agents/ folder.
+ */
+export declare function isInClaudeAgentsFolder(fileUri: URI): boolean;
+/**
+ * Helper function to check if a file is inside the .claude/rules/ folder (including subfolders).
+ * Claude rules files (.md) in this folder are treated as instruction files.
+ */
+export declare function isInClaudeRulesFolder(fileUri: URI): boolean;
+/**
  * Gets the prompt file type from the provided path.
+ *
+ * Note: This function assumes the URI is already known to be a prompt file
+ * (e.g., from a configured prompt source folder). It does not validate that
+ * arbitrary URIs are prompt files - for example, any .json file will return
+ * PromptsType.hook regardless of its location.
  */
 export declare function getPromptFileType(fileUri: URI): PromptsType | undefined;
 /**

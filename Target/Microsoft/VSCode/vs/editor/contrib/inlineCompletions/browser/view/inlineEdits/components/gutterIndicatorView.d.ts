@@ -12,6 +12,7 @@ import { InlineSuggestionItem } from '../../../model/inlineSuggestionItem.js';
 import { InlineCompletionsModel } from '../../../model/inlineCompletionsModel.js';
 import { InlineSuggestAlternativeAction } from '../../../model/InlineSuggestAlternativeAction.js';
 import { ThemeIcon } from '../../../../../../../base/common/themables.js';
+import { IUserInteractionService } from '../../../../../../../platform/userInteraction/browser/userInteractionService.js';
 /**
  * Customization options for the gutter indicator appearance and behavior.
  */
@@ -54,7 +55,8 @@ export declare class InlineEditsGutterIndicator extends Disposable {
     private readonly _instantiationService;
     private readonly _accessibilityService;
     private readonly _themeService;
-    constructor(_editorObs: ObservableCodeEditor, _data: IObservable<InlineEditsGutterIndicatorData | undefined>, _tabAction: IObservable<InlineEditTabAction>, _verticalOffset: IObservable<number>, _isHoveringOverInlineEdit: IObservable<boolean>, _focusIsInMenu: ISettableObservable<boolean>, _hoverService: HoverService, _instantiationService: IInstantiationService, _accessibilityService: IAccessibilityService, _themeService: IThemeService);
+    private readonly _userInteractionService;
+    constructor(_editorObs: ObservableCodeEditor, _data: IObservable<InlineEditsGutterIndicatorData | undefined>, _tabAction: IObservable<InlineEditTabAction>, _verticalOffset: IObservable<number>, _isHoveringOverInlineEdit: IObservable<boolean>, _focusIsInMenu: ISettableObservable<boolean>, _hoverService: HoverService, _instantiationService: IInstantiationService, _accessibilityService: IAccessibilityService, _themeService: IThemeService, _userInteractionService: IUserInteractionService);
     private readonly _isHoveredOverInlineEditDebounced;
     private readonly _modifierPressed;
     private readonly _gutterIndicatorStyles;

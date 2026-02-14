@@ -185,9 +185,10 @@ class SettingMatches {
     }
     const hasContiguousKeyMatchTypes = this.matchType >= SettingMatchType.ContiguousWordsInSettingsLabel;
     if (this.searchDescription && !hasContiguousKeyMatchTypes) {
+      const searchableLines = setting.keywords?.length ? [...setting.description, setting.keywords.join(" ")] : setting.description;
       for (const word of queryWords) {
-        for (let lineIndex = 0; lineIndex < setting.description.length; lineIndex++) {
-          const descriptionMatches = matchesBaseContiguousSubString(word, setting.description[lineIndex]);
+        for (let lineIndex = 0; lineIndex < searchableLines.length; lineIndex++) {
+          const descriptionMatches = matchesBaseContiguousSubString(word, searchableLines[lineIndex]);
           if (descriptionMatches?.length) {
             descriptionMatchingWords.set(word, descriptionMatches.map((match) => this.toDescriptionRange(setting, match, lineIndex)));
           }

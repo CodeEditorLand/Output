@@ -36,7 +36,7 @@ import { IWorkbenchEnvironmentService } from '../../../services/environment/comm
 import { IHistoryService } from '../../../services/history/common/history.js';
 import { IPathService } from '../../../services/path/common/pathService.js';
 import { IPreferencesService } from '../../../services/preferences/common/preferences.js';
-import type { IMarker } from '@xterm/xterm';
+import type { IMarker, Terminal as XTermTerminal } from '@xterm/xterm';
 import type { IMenu } from '../../../../platform/actions/common/actions.js';
 import { IContextMenuService } from '../../../../platform/contextview/browser/contextView.js';
 import type { IProgressState } from '@xterm/addon-progress';
@@ -260,7 +260,7 @@ export declare class TerminalInstance extends Disposable implements ITerminalIns
     private _getDimension;
     get persistentProcessId(): number | undefined;
     get shouldPersist(): boolean;
-    static getXtermConstructor(keybindingService: IKeybindingService, contextKeyService: IContextKeyService): Promise<any>;
+    static getXtermConstructor(keybindingService: IKeybindingService, contextKeyService: IContextKeyService): Promise<typeof XTermTerminal>;
     /**
      * Create xterm.js instance and attach data listeners.
      */

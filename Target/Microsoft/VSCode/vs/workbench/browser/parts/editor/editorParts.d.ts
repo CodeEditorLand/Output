@@ -1,4 +1,4 @@
-import { EditorGroupLayout, GroupDirection, GroupOrientation, GroupsArrangement, GroupsOrder, IAuxiliaryEditorPart, IEditorGroupContextKeyProvider, IEditorDropTargetDelegate, IEditorGroupsService, IEditorSideGroup, IEditorWorkingSet, IFindGroupScope, IMergeGroupOptions, IEditorWorkingSetOptions, IEditorPart } from '../../../services/editor/common/editorGroupsService.js';
+import { EditorGroupLayout, GroupDirection, GroupOrientation, GroupsArrangement, GroupsOrder, IAuxiliaryEditorPart, IEditorGroupContextKeyProvider, IEditorDropTargetDelegate, IEditorGroupsService, IEditorSideGroup, IEditorWorkingSet, IFindGroupScope, IMergeGroupOptions, IEditorWorkingSetOptions, IEditorPart, IModalEditorPart, IEditorGroupActivationEvent } from '../../../services/editor/common/editorGroupsService.js';
 import { IDisposable } from '../../../../base/common/lifecycle.js';
 import { GroupIdentifier, IEditorPartOptions } from '../../../common/editor.js';
 import { EditorPart, IEditorPartUIState, MainEditorPart } from './editorPart.js';
@@ -33,15 +33,20 @@ export declare class EditorParts extends MultiWindowParts<EditorPart, IEditorPar
     private registerListeners;
     protected createMainEditorPart(): MainEditorPart;
     private readonly mapPartToInstantiationService;
+    private modalPartInstantiationService;
     getScopedInstantiationService(part: IEditorPart): IInstantiationService;
     private readonly _onDidCreateAuxiliaryEditorPart;
     readonly onDidCreateAuxiliaryEditorPart: import("../../../../base/common/event.js").Event<IAuxiliaryEditorPart>;
     createAuxiliaryEditorPart(options?: IAuxiliaryEditorPartOpenOptions): Promise<IAuxiliaryEditorPart>;
+    private modalEditorPart;
+    get activeModalEditorPart(): IModalEditorPart | undefined;
+    createModalEditorPart(): Promise<IModalEditorPart>;
     registerPart(part: EditorPart): IDisposable;
     protected unregisterPart(part: EditorPart): void;
     private registerEditorPartListeners;
     private doUpdateMostRecentActive;
     private getGroupsLabel;
+    protected getPartByDocument(document: Document): EditorPart;
     getPart(group: IEditorGroupView | GroupIdentifier): EditorPart;
     getPart(element: HTMLElement): EditorPart;
     private static readonly EDITOR_PARTS_UI_STATE_STORAGE_KEY;
@@ -77,7 +82,7 @@ export declare class EditorParts extends MultiWindowParts<EditorPart, IEditorPar
     private readonly _onDidMoveGroup;
     readonly onDidMoveGroup: import("../../../../base/common/event.js").Event<IEditorGroupView>;
     private readonly _onDidActivateGroup;
-    readonly onDidActivateGroup: import("../../../../base/common/event.js").Event<IEditorGroupView>;
+    readonly onDidActivateGroup: import("../../../../base/common/event.js").Event<IEditorGroupActivationEvent>;
     private readonly _onDidChangeGroupIndex;
     readonly onDidChangeGroupIndex: import("../../../../base/common/event.js").Event<IEditorGroupView>;
     private readonly _onDidChangeGroupLocked;

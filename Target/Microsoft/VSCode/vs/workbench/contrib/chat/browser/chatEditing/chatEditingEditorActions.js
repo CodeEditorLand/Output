@@ -4,6 +4,7 @@ import { Codicon } from "../../../../../base/common/codicons.js";
 import { CancellationToken } from "../../../../../base/common/cancellation.js";
 import { EditorContextKeys } from "../../../../../editor/common/editorContextKeys.js";
 import { localize, localize2 } from "../../../../../nls.js";
+import { CONTEXT_ACCESSIBILITY_MODE_ENABLED } from "../../../../../platform/accessibility/common/accessibility.js";
 import { Action2, MenuId, MenuRegistry, registerAction2 } from "../../../../../platform/actions/common/actions.js";
 import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
@@ -295,7 +296,7 @@ class ToggleAccessibleDiffViewAction extends ChatEditingEditorAction {
       f1: true,
       precondition: ContextKeyExpr.and(ctxHasEditorModification, ctxIsCurrentlyBeingModified.negate()),
       keybinding: {
-        when: EditorContextKeys.focus,
+        when: ContextKeyExpr.and(EditorContextKeys.focus, CONTEXT_ACCESSIBILITY_MODE_ENABLED),
         weight: 200,
         primary: 65
       }

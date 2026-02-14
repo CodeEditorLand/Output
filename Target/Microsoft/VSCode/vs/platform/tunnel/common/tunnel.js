@@ -131,11 +131,11 @@ let AbstractTunnelService = class AbstractTunnelService2 extends Disposable {
     super();
     this.logService = logService;
     this.configurationService = configurationService;
-    this._onTunnelOpened = new Emitter();
+    this._onTunnelOpened = this._register(new Emitter());
     this.onTunnelOpened = this._onTunnelOpened.event;
-    this._onTunnelClosed = new Emitter();
+    this._onTunnelClosed = this._register(new Emitter());
     this.onTunnelClosed = this._onTunnelClosed.event;
-    this._onAddedTunnelProvider = new Emitter();
+    this._onAddedTunnelProvider = this._register(new Emitter());
     this.onAddedTunnelProvider = this._onAddedTunnelProvider.event;
     this._tunnels = /* @__PURE__ */ new Map();
     this._canElevate = false;

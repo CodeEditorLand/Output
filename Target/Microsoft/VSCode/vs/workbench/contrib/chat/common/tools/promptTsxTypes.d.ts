@@ -2,6 +2,9 @@
  * This is a subset of the types export from jsonTypes.d.ts in @vscode/prompt-tsx.
  * It's just the types needed to stringify prompt-tsx tool results.
  * It should be kept in sync with the types in that file.
+ *
+ * Note: do NOT use `declare` with const enums, esbuild doesn't inline them.
+ * See https://github.com/evanw/esbuild/issues/4394
  */
 export declare const enum PromptNodeType {
     Piece = 1,

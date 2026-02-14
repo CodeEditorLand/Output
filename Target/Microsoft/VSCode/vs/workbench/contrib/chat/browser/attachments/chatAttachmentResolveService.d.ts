@@ -22,6 +22,7 @@ export interface IChatAttachmentResolveService {
     resolveSymbolsAttachContext(symbols: DocumentSymbolTransferData[]): ISymbolVariableEntry[];
     resolveNotebookOutputAttachContext(data: NotebookCellOutputTransferData): IChatRequestVariableEntry[];
     resolveSourceControlHistoryItemAttachContext(data: SCMHistoryItemTransferData[]): ISCMHistoryItemVariableEntry[];
+    resolveDirectoryImages(directoryUri: URI): Promise<IChatRequestVariableEntry[]>;
 }
 export declare class ChatAttachmentResolveService implements IChatAttachmentResolveService {
     private fileService;
@@ -39,6 +40,8 @@ export declare class ChatAttachmentResolveService implements IChatAttachmentReso
     resolveMarkerAttachContext(markers: MarkerTransferData[]): IDiagnosticVariableEntry[];
     resolveSymbolsAttachContext(symbols: DocumentSymbolTransferData[]): ISymbolVariableEntry[];
     resolveNotebookOutputAttachContext(data: NotebookCellOutputTransferData): IChatRequestVariableEntry[];
+    resolveDirectoryImages(directoryUri: URI): Promise<IChatRequestVariableEntry[]>;
+    private _collectDirectoryImages;
     resolveSourceControlHistoryItemAttachContext(data: SCMHistoryItemTransferData[]): ISCMHistoryItemVariableEntry[];
 }
 export type ImageTransferData = {

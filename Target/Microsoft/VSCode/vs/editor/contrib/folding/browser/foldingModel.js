@@ -190,6 +190,7 @@ class FoldingModel {
   }
   dispose() {
     this._decorationProvider.removeDecorations(this._editorDecorationIds);
+    this._updateEventEmitter.dispose();
   }
   getAllRegionsAtLine(lineNumber, filter) {
     const result = [];

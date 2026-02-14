@@ -56,6 +56,7 @@ import { IThemeService, registerThemingParticipant } from "../../../../platform/
 import { MenuId } from "../../../../platform/actions/common/actions.js";
 import { TextModelEditSource, EditSources } from "../../../common/textModelEditSource.js";
 import { isObject } from "../../../../base/common/types.js";
+import { IUserInteractionService } from "../../../../platform/userInteraction/browser/userInteractionService.js";
 let CodeEditorWidget = class CodeEditorWidget2 extends Disposable {
   static {
     __name(this, "CodeEditorWidget");
@@ -79,7 +80,7 @@ let CodeEditorWidget = class CodeEditorWidget2 extends Disposable {
   get contextKeyService() {
     return this._contextKeyService;
   }
-  constructor(domElement, _options, codeEditorWidgetOptions, instantiationService, codeEditorService, commandService, contextKeyService, themeService, notificationService, accessibilityService, languageConfigurationService, languageFeaturesService) {
+  constructor(domElement, _options, codeEditorWidgetOptions, instantiationService, codeEditorService, commandService, contextKeyService, themeService, notificationService, accessibilityService, languageConfigurationService, languageFeaturesService, userInteractionService) {
     super();
     this.languageConfigurationService = languageConfigurationService;
     this._deliveryQueue = createEventDeliveryQueue();
@@ -186,6 +187,7 @@ let CodeEditorWidget = class CodeEditorWidget2 extends Disposable {
     codeEditorService.willCreateCodeEditor();
     const options = { ..._options };
     this._domElement = domElement;
+    this._userInteractionService = userInteractionService;
     this._overflowWidgetsDomNode = options.overflowWidgetsDomNode;
     delete options.overflowWidgetsDomNode;
     this._id = ++EDITOR_ID;
@@ -1566,7 +1568,7 @@ let CodeEditorWidget = class CodeEditorWidget2 extends Disposable {
     viewUserInputEvents.onMouseDrop = (e) => this._onMouseDrop.fire(e);
     viewUserInputEvents.onMouseDropCanceled = (e) => this._onMouseDropCanceled.fire(e);
     viewUserInputEvents.onMouseWheel = (e) => this._onMouseWheel.fire(e);
-    const view = new View(this._domElement, this.getId(), commandDelegate, this._configuration, this._themeService.getColorTheme(), viewModel, viewUserInputEvents, this._overflowWidgetsDomNode, this._instantiationService);
+    const view = new View(this._domElement, this.getId(), commandDelegate, this._configuration, this._themeService.getColorTheme(), viewModel, viewUserInputEvents, this._overflowWidgetsDomNode, this._instantiationService, this._userInteractionService);
     return [view, true];
   }
   _postDetachModelCleanup(detachedModel) {
@@ -1646,7 +1648,8 @@ CodeEditorWidget = CodeEditorWidget_1 = __decorate([
   __param(8, INotificationService),
   __param(9, IAccessibilityService),
   __param(10, ILanguageConfigurationService),
-  __param(11, ILanguageFeaturesService)
+  __param(11, ILanguageFeaturesService),
+  __param(12, IUserInteractionService)
 ], CodeEditorWidget);
 let EDITOR_ID = 0;
 class ModelData {

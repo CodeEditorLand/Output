@@ -19,7 +19,7 @@ import { Button } from "../../../../base/browser/ui/button/button.js";
 import { InputBox } from "../../../../base/browser/ui/inputbox/inputBox.js";
 import { Widget } from "../../../../base/browser/ui/widget.js";
 import { Action } from "../../../../base/common/actions.js";
-import { Delayer } from "../../../../base/common/async.js";
+import { Delayer, disposableTimeout } from "../../../../base/common/async.js";
 import { Emitter } from "../../../../base/common/event.js";
 import { CONTEXT_FIND_WIDGET_NOT_VISIBLE } from "../../../../editor/contrib/find/browser/findModel.js";
 import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
@@ -119,6 +119,7 @@ let SearchWidget = class SearchWidget2 extends Widget {
     this.editorService = editorService;
     this.ignoreGlobalFindBufferOnNextFocus = false;
     this.previousGlobalFindBufferValue = null;
+    this._accessibilityHelpHintAnnounced = false;
     this._onSearchSubmit = this._register(new Emitter());
     this.onSearchSubmit = this._onSearchSubmit.event;
     this._onSearchCancel = this._register(new Emitter());
@@ -137,7 +138,7 @@ let SearchWidget = class SearchWidget2 extends Widget {
     this.onBlur = this._onBlur.event;
     this._onDidHeightChange = this._register(new Emitter());
     this.onDidHeightChange = this._onDidHeightChange.event;
-    this._onDidToggleContext = new Emitter();
+    this._onDidToggleContext = this._register(new Emitter());
     this.onDidToggleContext = this._onDidToggleContext.event;
     this.replaceActive = Constants.SearchContext.ReplaceActiveKey.bindTo(this.contextKeyService);
     this.searchInputBoxFocused = Constants.SearchContext.SearchInputBoxFocusedKey.bindTo(this.contextKeyService);
@@ -181,6 +182,7 @@ let SearchWidget = class SearchWidget2 extends Widget {
     this.ignoreGlobalFindBufferOnNextFocus = suppressGlobalSearchBuffer;
     if (focusReplace && this.isReplaceShown()) {
       if (this.replaceInput) {
+        this._updateSearchInputAriaLabel(false);
         this.replaceInput.focus();
         if (select) {
           this.replaceInput.select();
@@ -188,12 +190,40 @@ let SearchWidget = class SearchWidget2 extends Widget {
       }
     } else {
       if (this.searchInput) {
+        this._updateSearchInputAriaLabel(true);
         this.searchInput.focus();
         if (select) {
           this.searchInput.select();
         }
       }
     }
+  }
+  /**
+   * Updates the ARIA label of the search input box.
+   * When a screen reader is active and the accessibility verbosity setting is enabled,
+   * includes a hint about pressing Alt+F1 for accessibility help on first focus.
+   * The hint is only announced once per focus cycle to prevent double-speak.
+   * @param includeHint Whether to include the accessibility help hint in the label
+   */
+  _updateSearchInputAriaLabel(includeHint) {
+    if (!this.searchInput) {
+      return;
+    }
+    let searchLabel = nls.localize("label.Search", "Search: Type Search Term and press Enter to search");
+    if (includeHint && !this._accessibilityHelpHintAnnounced && this.configurationService.getValue("accessibility.verbosity.find") && this.accessibilityService.isScreenReaderOptimized()) {
+      const keybinding = this.keybindingService.lookupKeybinding("editor.action.accessibilityHelp")?.getAriaLabel();
+      if (keybinding) {
+        searchLabel += ", " + nls.localize("accessibilityHelpHintInLabel", "Press {0} for accessibility help", keybinding);
+        this._accessibilityHelpHintAnnounced = true;
+        this._labelResetTimeout?.dispose();
+        this._labelResetTimeout = disposableTimeout(() => {
+          if (this.searchInput) {
+            this.searchInput.inputBox.setAriaLabel(nls.localize("label.Search", "Search: Type Search Term and press Enter to search"));
+          }
+        }, 1e3);
+      }
+    }
+    this.searchInput.inputBox.setAriaLabel(searchLabel);
   }
   setWidth(width) {
     this.searchInput?.inputBox.layout();

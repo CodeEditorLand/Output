@@ -27,7 +27,8 @@ import { IStorageService } from "../../../../platform/storage/common/storage.js"
 import { IChatAgentService } from "./participants/chatAgents.js";
 import { ChatContextKeys } from "./actions/chatContextKeys.js";
 import { ChatConfiguration, ChatModeKind } from "./constants.js";
-import { ExtensionAgentSourceType, IPromptsService, isCustomAgentVisibility, PromptsStorage } from "./promptSyntax/service/promptsService.js";
+import { isTarget } from "./promptSyntax/promptFileParser.js";
+import { ExtensionAgentSourceType, IPromptsService, isCustomAgentVisibility, PromptsStorage, Target } from "./promptSyntax/service/promptsService.js";
 import { Codicon } from "../../../../base/common/codicons.js";
 import { isString } from "../../../../base/common/types.js";
 const IChatModeService = createDecorator("chatModeService");
@@ -49,7 +50,7 @@ let ChatModeService = class ChatModeService2 extends Disposable {
     this.storageService = storageService;
     this.configurationService = configurationService;
     this._customModeInstances = /* @__PURE__ */ new Map();
-    this._onDidChangeChatModes = new Emitter();
+    this._onDidChangeChatModes = this._register(new Emitter());
     this.onDidChangeChatModes = this._onDidChangeChatModes.event;
     this.hasCustomModes = ChatContextKeys.Modes.hasCustomChatModes.bindTo(contextKeyService);
     this.agentModeDisabledByPolicy = ChatContextKeys.Modes.agentModeDisabledByPolicy.bindTo(contextKeyService);
@@ -106,8 +107,8 @@ let ChatModeService = class ChatModeService2 extends Disposable {
             argumentHint: cachedMode.argumentHint,
             agentInstructions: cachedMode.modeInstructions ?? { content: cachedMode.body ?? "", toolReferences: [] },
             handOffs: cachedMode.handOffs,
-            target: cachedMode.target,
-            visibility: cachedMode.visibility ?? { userInvokable: true, agentInvokable: cachedMode.infer !== false },
+            target: cachedMode.target ?? Target.Undefined,
+            visibility: cachedMode.visibility ?? { userInvocable: true, agentInvocable: cachedMode.infer !== false },
             agents: cachedMode.agents,
             source: reviveChatModeSource(cachedMode.source) ?? { storage: PromptsStorage.local }
           };
@@ -139,7 +140,7 @@ let ChatModeService = class ChatModeService2 extends Disposable {
       const customModes = await this.promptsService.getCustomAgents(CancellationToken.None);
       const seenUris = /* @__PURE__ */ new Set();
       for (const customMode of customModes) {
-        if (!customMode.visibility.userInvokable) {
+        if (!customMode.visibility.userInvocable) {
           continue;
         }
         const uriString = customMode.uri.toString();
@@ -212,7 +213,7 @@ function isCachedChatModeData(data) {
     return false;
   }
   const mode = data;
-  return typeof mode.id === "string" && typeof mode.name === "string" && typeof mode.kind === "string" && (mode.description === void 0 || typeof mode.description === "string") && (mode.customTools === void 0 || Array.isArray(mode.customTools)) && (mode.modeInstructions === void 0 || typeof mode.modeInstructions === "object" && mode.modeInstructions !== null) && (mode.model === void 0 || typeof mode.model === "string" || Array.isArray(mode.model)) && (mode.argumentHint === void 0 || typeof mode.argumentHint === "string") && (mode.handOffs === void 0 || Array.isArray(mode.handOffs)) && (mode.uri === void 0 || typeof mode.uri === "object" && mode.uri !== null) && (mode.source === void 0 || isChatModeSourceData(mode.source)) && (mode.target === void 0 || typeof mode.target === "string") && (mode.visibility === void 0 || isCustomAgentVisibility(mode.visibility)) && (mode.agents === void 0 || Array.isArray(mode.agents));
+  return typeof mode.id === "string" && typeof mode.name === "string" && typeof mode.kind === "string" && (mode.description === void 0 || typeof mode.description === "string") && (mode.customTools === void 0 || Array.isArray(mode.customTools)) && (mode.modeInstructions === void 0 || typeof mode.modeInstructions === "object" && mode.modeInstructions !== null) && (mode.model === void 0 || typeof mode.model === "string" || Array.isArray(mode.model)) && (mode.argumentHint === void 0 || typeof mode.argumentHint === "string") && (mode.handOffs === void 0 || Array.isArray(mode.handOffs)) && (mode.uri === void 0 || typeof mode.uri === "object" && mode.uri !== null) && (mode.source === void 0 || isChatModeSourceData(mode.source)) && (mode.target === void 0 || isTarget(mode.target)) && (mode.visibility === void 0 || isCustomAgentVisibility(mode.visibility)) && (mode.agents === void 0 || Array.isArray(mode.agents));
 }
 __name(isCachedChatModeData, "isCachedChatModeData");
 class CustomChatMode {
@@ -359,15 +360,13 @@ class BuiltinChatMode {
     this.label = constObservable(label);
     this.description = observableValue("description", description);
     this.icon = constObservable(icon);
+    this.target = constObservable(Target.Undefined);
   }
   get isBuiltin() {
     return isBuiltinChatMode(this);
   }
   get id() {
     return this.kind;
-  }
-  get target() {
-    return observableValue("target", void 0);
   }
   /**
    * Getters are not json-stringified

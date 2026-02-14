@@ -70,6 +70,8 @@ let SuggestDetailsWidget = class SuggestDetailsWidget2 {
   dispose() {
     this._disposables.dispose();
     this._renderDisposeable.dispose();
+    this._onDidClose.dispose();
+    this._onDidChangeContents.dispose();
   }
   _configureFont() {
     const options = this._editor.getOptions();

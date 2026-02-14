@@ -35,7 +35,7 @@ import { DEFAULT_EDITOR_ASSOCIATION } from "../../../common/editor.js";
 import { SideBySideEditorInput } from "../../../common/editor/sideBySideEditorInput.js";
 import { IJSONEditingService } from "../../configuration/common/jsonEditing.js";
 import { IEditorGroupsService } from "../../editor/common/editorGroupsService.js";
-import { IEditorService, SIDE_GROUP } from "../../editor/common/editorService.js";
+import { ACTIVE_GROUP, IEditorService, MODAL_GROUP, SIDE_GROUP } from "../../editor/common/editorService.js";
 import { KeybindingsEditorInput } from "./keybindingsEditorInput.js";
 import { DEFAULT_SETTINGS_EDITOR_SETTING, FOLDER_SETTINGS_PATH, IPreferencesService, SETTINGS_AUTHORITY, USE_SPLIT_JSON_SETTING, validateSettingsEditorOptions } from "../common/preferences.js";
 import { PreferencesEditorInput, SettingsEditor2Input } from "../common/preferencesEditorInput.js";
@@ -53,7 +53,6 @@ import { IURLService } from "../../../../platform/url/common/url.js";
 import { compareIgnoreCase } from "../../../../base/common/strings.js";
 import { IExtensionService } from "../../extensions/common/extensions.js";
 import { IProgressService } from "../../../../platform/progress/common/progress.js";
-import { findGroup } from "../../editor/common/editorGroupFinder.js";
 const emptyEditableSettingsContent = "{\n}";
 let PreferencesService = class PreferencesService2 extends Disposable {
   static {
@@ -180,7 +179,7 @@ let PreferencesService = class PreferencesService2 extends Disposable {
     return this.configurationService.getValue("workbench.settings.editor") === "json";
   }
   async openPreferences() {
-    await this.editorGroupService.activeGroup.openEditor(this.instantiationService.createInstance(PreferencesEditorInput));
+    await this.editorService.openEditor(this.instantiationService.createInstance(PreferencesEditorInput), void 0, MODAL_GROUP);
   }
   openSettings(options = {}) {
     options = {
@@ -229,8 +228,8 @@ let PreferencesService = class PreferencesService2 extends Disposable {
       ...options,
       focusSearch: true
     };
-    const group = await this.getEditorGroupFromOptions(options);
-    return group.openEditor(input, validateSettingsEditorOptions(options));
+    const group = this.getEditorGroupFromOptions(false, options);
+    return this.editorService.openEditor(input, validateSettingsEditorOptions(options), group);
   }
   openApplicationSettings(options = {}) {
     options = {
@@ -306,7 +305,8 @@ let PreferencesService = class PreferencesService2 extends Disposable {
         await this.editorService.openEditor({ resource: editableKeybindings, options }, options.groupId);
       }
     } else {
-      const editor = await this.editorService.openEditor(this.instantiationService.createInstance(KeybindingsEditorInput), { ...options }, options.groupId);
+      const group = this.getEditorGroupFromOptions(false, options);
+      const editor = await this.editorService.openEditor(this.instantiationService.createInstance(KeybindingsEditorInput), { ...options }, group);
       if (options.query) {
         editor.search(options.query);
       }
@@ -315,15 +315,20 @@ let PreferencesService = class PreferencesService2 extends Disposable {
   openDefaultKeybindingsFile() {
     return this.editorService.openEditor({ resource: this.defaultKeybindingsResource, label: nls.localize("defaultKeybindings", "Default Keybindings") });
   }
-  async getEditorGroupFromOptions(options) {
-    let group = options?.groupId !== void 0 ? this.editorGroupService.getGroup(options.groupId) ?? this.editorGroupService.activeGroup : this.editorGroupService.activeGroup;
-    if (options.openToSide) {
-      group = (await this.instantiationService.invokeFunction(findGroup, {}, SIDE_GROUP))[0];
+  getEditorGroupFromOptions(isTextual, options) {
+    if (!isTextual && this.configurationService.getValue("workbench.editor.allowOpenInModalEditor")) {
+      return MODAL_GROUP;
     }
-    return group;
+    if (options.openToSide) {
+      return SIDE_GROUP;
+    }
+    if (options?.groupId !== void 0) {
+      return this.editorGroupService.getGroup(options.groupId) ?? this.editorGroupService.activeGroup;
+    }
+    return ACTIVE_GROUP;
   }
   async openSettingsJson(resource, options) {
-    const group = await this.getEditorGroupFromOptions(options);
+    const group = this.getEditorGroupFromOptions(true, options);
     const editor = await this.doOpenSettingsJson(resource, options, group);
     if (editor && options?.revealSetting) {
       await this.revealSetting(options.revealSetting.key, !!options.revealSetting.edit, editor, resource);
@@ -339,14 +344,14 @@ let PreferencesService = class PreferencesService2 extends Disposable {
     const configurationTarget = options?.target ?? 2;
     const editableSettingsEditorInput = await this.getOrCreateEditableSettingsEditorInput(configurationTarget, resource);
     options = { ...options, pinned: true };
-    return await group.openEditor(editableSettingsEditorInput, { ...validateSettingsEditorOptions(options) });
+    return await this.editorService.openEditor(editableSettingsEditorInput, { ...validateSettingsEditorOptions(options) }, group);
   }
   async doOpenSplitJSON(resource, options = {}, group) {
     const configurationTarget = options.target ?? 2;
     await this.createSettingsIfNotExists(configurationTarget, resource);
     const preferencesEditorInput = this.createSplitJsonEditorInput(configurationTarget, resource);
     options = { ...options, pinned: true };
-    return group.openEditor(preferencesEditorInput, validateSettingsEditorOptions(options));
+    return this.editorService.openEditor(preferencesEditorInput, validateSettingsEditorOptions(options), group);
   }
   createSplitJsonEditorInput(configurationTarget, resource) {
     const editableSettingsEditorInput = this.textEditorService.createTextEditor({ resource });

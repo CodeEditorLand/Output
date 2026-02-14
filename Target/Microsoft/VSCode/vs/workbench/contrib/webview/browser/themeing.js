@@ -18,6 +18,7 @@ import { EditorFontLigatures } from "../../../../editor/common/config/editorOpti
 import { EDITOR_FONT_DEFAULTS } from "../../../../editor/common/config/fontInfo.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import * as colorRegistry from "../../../../platform/theme/common/colorRegistry.js";
+import { getSizeRegistry, sizeValueToCss } from "../../../../platform/theme/common/sizeRegistry.js";
 import { ColorScheme } from "../../../../platform/theme/common/theme.js";
 import { IWorkbenchThemeService } from "../../../services/themes/common/workbenchThemeService.js";
 let WebviewThemeDataProvider = class WebviewThemeDataProvider2 extends Disposable {
@@ -60,6 +61,14 @@ let WebviewThemeDataProvider = class WebviewThemeDataProvider2 extends Disposabl
         }
         return colors;
       }, {});
+      const sizeRegistry = getSizeRegistry();
+      const exportedSizes = sizeRegistry.getSizes().reduce((sizes, entry) => {
+        const sizeValue = sizeRegistry.resolveDefaultSize(entry.id, theme);
+        if (sizeValue) {
+          sizes["vscode-" + entry.id.replace(/\./g, "-")] = sizeValueToCss(sizeValue);
+        }
+        return sizes;
+      }, {});
       const styles = {
         "vscode-font-family": DEFAULT_FONT_FAMILY,
         "vscode-font-weight": "normal",
@@ -69,6 +78,7 @@ let WebviewThemeDataProvider = class WebviewThemeDataProvider2 extends Disposabl
         "vscode-editor-font-size": editorFontSize + "px",
         "text-link-decoration": linkUnderlines ? "underline" : "none",
         ...exportedColors,
+        ...exportedSizes,
         "vscode-editor-font-feature-settings": editorFontLigatures
       };
       const activeTheme = ApiThemeClassName.fromTheme(theme);

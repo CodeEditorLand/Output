@@ -50,7 +50,8 @@ export declare const enum AccessibilityVerbositySettingId {
     DiffEditorActive = "accessibility.verbosity.diffEditorActive",
     Debug = "accessibility.verbosity.debug",
     Walkthrough = "accessibility.verbosity.walkthrough",
-    SourceControl = "accessibility.verbosity.sourceControl"
+    SourceControl = "accessibility.verbosity.sourceControl",
+    Find = "accessibility.verbosity.find"
 }
 export declare const accessibilityConfigurationNodeBase: Readonly<IConfigurationNode>;
 export declare const soundFeatureBase: IConfigurationPropertySchema;

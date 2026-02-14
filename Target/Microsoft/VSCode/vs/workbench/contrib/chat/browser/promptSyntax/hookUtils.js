@@ -1,6 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { findNodeAtLocation, parseTree } from "../../../../../base/common/json.js";
+import { findNodeAtLocation, parse as parseJSONC, parseTree } from "../../../../../base/common/json.js";
+import { PromptsType } from "../../common/promptSyntax/promptTypes.js";
+import { formatHookCommandLabel, HOOK_TYPES } from "../../common/promptSyntax/hookSchema.js";
+import { parseHooksFromFile, parseHooksIgnoringDisableAll } from "../../common/promptSyntax/hookCompatibility.js";
+import * as nls from "../../../../../nls.js";
 function offsetToPosition(content, offset) {
   let line = 1;
   let column = 1;
@@ -65,7 +69,75 @@ function findHookCommandSelection(content, hookType, index, fieldName) {
   };
 }
 __name(findHookCommandSelection, "findHookCommandSelection");
+async function parseAllHookFiles(promptsService, fileService, labelService, workspaceRootUri, userHome, os, token, options) {
+  const hookFiles = await promptsService.listPromptFiles(PromptsType.hook, token);
+  const parsedHooks = [];
+  for (const hookFile of hookFiles) {
+    try {
+      const content = await fileService.readFile(hookFile.uri);
+      const json = parseJSONC(content.value.toString());
+      const { hooks } = parseHooksFromFile(hookFile.uri, json, workspaceRootUri, userHome);
+      for (const [hookType, { hooks: commands, originalId }] of hooks) {
+        const hookTypeMeta = HOOK_TYPES.find((h) => h.id === hookType);
+        if (!hookTypeMeta) {
+          continue;
+        }
+        for (let i = 0; i < commands.length; i++) {
+          const command = commands[i];
+          const commandLabel = formatHookCommandLabel(command, os) || nls.localize("commands.hook.emptyCommand", "(empty command)");
+          parsedHooks.push({
+            hookType,
+            hookTypeLabel: hookTypeMeta.label,
+            command,
+            commandLabel,
+            fileUri: hookFile.uri,
+            filePath: labelService.getUriLabel(hookFile.uri, { relative: true }),
+            index: i,
+            originalHookTypeId: originalId
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Failed to read or parse hook file", hookFile.uri.toString(), error);
+    }
+  }
+  if (options?.additionalDisabledFileUris) {
+    for (const uri of options.additionalDisabledFileUris) {
+      try {
+        const content = await fileService.readFile(uri);
+        const json = parseJSONC(content.value.toString());
+        const { hooks } = parseHooksIgnoringDisableAll(uri, json, workspaceRootUri, userHome);
+        for (const [hookType, { hooks: commands, originalId }] of hooks) {
+          const hookTypeMeta = HOOK_TYPES.find((h) => h.id === hookType);
+          if (!hookTypeMeta) {
+            continue;
+          }
+          for (let i = 0; i < commands.length; i++) {
+            const command = commands[i];
+            const commandLabel = formatHookCommandLabel(command, os) || nls.localize("commands.hook.emptyCommand", "(empty command)");
+            parsedHooks.push({
+              hookType,
+              hookTypeLabel: hookTypeMeta.label,
+              command,
+              commandLabel,
+              fileUri: uri,
+              filePath: labelService.getUriLabel(uri, { relative: true }),
+              index: i,
+              originalHookTypeId: originalId,
+              disabled: true
+            });
+          }
+        }
+      } catch (error) {
+        console.error("Failed to read or parse disabled hook file", uri.toString(), error);
+      }
+    }
+  }
+  return parsedHooks;
+}
+__name(parseAllHookFiles, "parseAllHookFiles");
 export {
-  findHookCommandSelection
+  findHookCommandSelection,
+  parseAllHookFiles
 };
 //# sourceMappingURL=hookUtils.js.map

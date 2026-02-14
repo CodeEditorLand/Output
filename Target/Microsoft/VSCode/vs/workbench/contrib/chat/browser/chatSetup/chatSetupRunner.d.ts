@@ -17,6 +17,7 @@ export declare class ChatSetup {
     private readonly workspaceTrustRequestService;
     private readonly markdownRendererService;
     private readonly defaultAccountService;
+    private readonly hostService;
     private static instance;
     static getInstance(instantiationService: IInstantiationService, context: ChatEntitlementContext, controller: Lazy<ChatSetupController>): ChatSetup;
     private pendingRun;

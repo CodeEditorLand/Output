@@ -104,6 +104,10 @@ export declare class AgentSessionsModel extends Disposable implements IAgentSess
     getSession(resource: URI): IAgentSession | undefined;
     resolve(provider: string | string[] | undefined): Promise<void>;
     private doResolve;
+    /**
+     * Update the sessions by fetching from the service. This does not trigger an explicit refresh
+     */
+    private updateItems;
     private toAgentSession;
     private static readonly UNREAD_MARKER;
     private readonly sessionStates;

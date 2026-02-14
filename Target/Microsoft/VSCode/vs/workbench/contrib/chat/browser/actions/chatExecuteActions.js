@@ -21,6 +21,7 @@ import { IChatService } from "../../common/chatService/chatService.js";
 import { ChatAgentLocation, ChatConfiguration, ChatModeKind } from "../../common/constants.js";
 import { ILanguageModelToolsService } from "../../common/tools/languageModelToolsService.js";
 import { PromptsStorage } from "../../common/promptSyntax/service/promptsService.js";
+import { isInClaudeAgentsFolder } from "../../common/promptSyntax/config/promptFileLocations.js";
 import { IChatSessionsService } from "../../common/chatSessionsService.js";
 import { IChatWidgetService } from "../chat.js";
 import { getAgentSessionProvider, AgentSessionProviders } from "../agentSessions/agentSessions.js";
@@ -124,7 +125,8 @@ class SubmitAction extends Action2 {
     return new CreateRemoteAgentJobAction().run(accessor, targetContribution, widget);
   }
 }
-const whenNotInProgress = ChatContextKeys.requestInProgress.negate();
+const requestInProgressOrPendingToolCall = ContextKeyExpr.or(ChatContextKeys.requestInProgress, ChatContextKeys.Editing.hasToolConfirmation);
+const whenNotInProgress = ContextKeyExpr.and(ChatContextKeys.requestInProgress.negate(), ChatContextKeys.Editing.hasToolConfirmation.negate());
 class ChatSubmitAction extends SubmitAction {
   static {
     __name(this, "ChatSubmitAction");
@@ -231,6 +233,8 @@ class ToggleChatModeAction extends Action2 {
       }
       return mode.name.get();
     }, "getModeNameForTelemetry");
+    const modeUri = switchToMode.uri?.get();
+    const isClaudeAgent = modeUri ? isInClaudeAgentsFolder(modeUri) : void 0;
     telemetryService.publicLog2("chat.modeChange", {
       fromMode: getModeNameForTelemetry(currentMode),
       mode: getModeNameForTelemetry(switchToMode),
@@ -238,7 +242,8 @@ class ToggleChatModeAction extends Action2 {
       storage,
       extensionId,
       toolsCount,
-      handoffsCount
+      handoffsCount,
+      isClaudeAgent
     });
     widget.input.setChatMode(switchToMode.id);
     if (chatModeCheck.needToClearSession) {
@@ -526,8 +531,15 @@ class ChatEditingSessionSubmitAction extends SubmitAction {
     this.ID = "workbench.action.edits.submit";
   }
   constructor() {
+    const notInProgressOrEditing = ContextKeyExpr.and(ContextKeyExpr.or(whenNotInProgress, ChatContextKeys.editingRequestType.isEqualTo(
+      "s"
+      /* ChatContextKeys.EditingRequestType.Sent */
+    )), ChatContextKeys.editingRequestType.notEqualsTo(
+      "qs"
+      /* ChatContextKeys.EditingRequestType.QueueOrSteer */
+    ));
     const menuCondition = ChatContextKeys.chatModeKind.notEqualsTo(ChatModeKind.Ask);
-    const precondition = ContextKeyExpr.and(ChatContextKeys.inputHasText, whenNotInProgress, ChatContextKeys.chatSessionOptionsValid);
+    const precondition = ContextKeyExpr.and(ChatContextKeys.inputHasText, notInProgressOrEditing, ChatContextKeys.chatSessionOptionsValid);
     super({
       id: ChatEditingSessionSubmitAction.ID,
       title: localize2("edits.submit.label", "Send"),
@@ -539,7 +551,7 @@ class ChatEditingSessionSubmitAction extends SubmitAction {
         {
           id: MenuId.ChatExecute,
           order: 4,
-          when: ContextKeyExpr.and(ChatContextKeys.requestInProgress.negate(), menuCondition),
+          when: ContextKeyExpr.and(notInProgressOrEditing, menuCondition),
           group: "navigation",
           alt: {
             id: "workbench.action.chat.sendToNewChat",
@@ -662,6 +674,7 @@ class SendToNewChatAction extends Action2 {
         return;
       }
     }
+    widget.setInput("");
     await widget.clear();
     widget.acceptInput(inputBeforeClear, { storeToHistory: true });
   }
@@ -684,7 +697,7 @@ class CancelAction extends Action2 {
       menu: [
         {
           id: MenuId.ChatExecute,
-          when: ContextKeyExpr.and(ChatContextKeys.requestInProgress, ChatContextKeys.remoteJobCreating.negate(), ChatContextKeys.currentlyEditing.negate()),
+          when: ContextKeyExpr.and(requestInProgressOrPendingToolCall, ChatContextKeys.remoteJobCreating.negate(), ChatContextKeys.currentlyEditing.negate()),
           order: 4,
           group: "navigation"
         },
@@ -698,7 +711,7 @@ class CancelAction extends Action2 {
       keybinding: {
         weight: 200,
         primary: 2048 | 9,
-        when: ContextKeyExpr.and(ChatContextKeys.requestInProgress, ChatContextKeys.remoteJobCreating.negate()),
+        when: ContextKeyExpr.and(requestInProgressOrPendingToolCall, ChatContextKeys.remoteJobCreating.negate()),
         win: {
           primary: 512 | 1
           /* KeyCode.Backspace */

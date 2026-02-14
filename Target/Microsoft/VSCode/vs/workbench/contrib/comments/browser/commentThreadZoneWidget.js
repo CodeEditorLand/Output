@@ -479,6 +479,9 @@ let ReviewZoneWidget = class ReviewZoneWidget2 extends ZoneWidget {
     this._globalToDispose.dispose();
     this._commentThreadDisposables.forEach((global) => global.dispose());
     this._onDidClose.fire(void 0);
+    this._onDidClose.dispose();
+    this._onDidCreateThread.dispose();
+    this._onDidChangeExpandedState.dispose();
   }
 };
 ReviewZoneWidget = __decorate([

@@ -3,19 +3,21 @@ import { IEnvironmentMainService } from '../../environment/electron-main/environ
 import { ILifecycleMainService } from '../../lifecycle/electron-main/lifecycleMainService.js';
 import { ILogService } from '../../log/common/log.js';
 import { AvailableForDownload, IUpdateService, State, UpdateType } from '../common/update.js';
+import { IMeteredConnectionService } from '../../meteredConnection/common/meteredConnection.js';
 declare abstract class AbstractUpdateService implements IUpdateService {
     private readonly lifecycleMainService;
     protected logService: ILogService;
+    protected readonly meteredConnectionService: IMeteredConnectionService;
     readonly _serviceBrand: undefined;
     private _state;
     private readonly _onStateChange;
     readonly onStateChange: Event<State>;
     get state(): State;
     protected setState(state: State): void;
-    constructor(lifecycleMainService: ILifecycleMainService, environmentMainService: IEnvironmentMainService, logService: ILogService);
+    constructor(lifecycleMainService: ILifecycleMainService, environmentMainService: IEnvironmentMainService, logService: ILogService, meteredConnectionService: IMeteredConnectionService);
     private scheduleCheckForUpdates;
     checkForUpdates(explicit: boolean): Promise<void>;
-    downloadUpdate(): Promise<void>;
+    downloadUpdate(explicit: boolean): Promise<void>;
     protected doDownloadUpdate(state: AvailableForDownload): Promise<void>;
     applyUpdate(): Promise<void>;
     protected doApplyUpdate(): Promise<void>;
@@ -30,7 +32,7 @@ declare abstract class AbstractUpdateService implements IUpdateService {
 export declare class SnapUpdateService extends AbstractUpdateService {
     private snap;
     private snapRevision;
-    constructor(snap: string, snapRevision: string, lifecycleMainService: ILifecycleMainService, environmentMainService: IEnvironmentMainService, logService: ILogService);
+    constructor(snap: string, snapRevision: string, lifecycleMainService: ILifecycleMainService, environmentMainService: IEnvironmentMainService, logService: ILogService, meteredConnectionService: IMeteredConnectionService);
     protected doCheckForUpdates(): void;
     protected doQuitAndInstall(): void;
     private isUpdateAvailable;

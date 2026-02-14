@@ -1,6 +1,6 @@
 import { IMarkdownString } from '../../../../../../base/common/htmlContent.js';
 import { IObservable } from '../../../../../../base/common/observable.js';
-import { ConfirmedReason, IChatExtensionsContent, IChatSubagentToolInvocationData, IChatTodoListContent, IChatToolInputInvocationData, IChatToolInvocation, IChatToolInvocationSerialized, type IChatTerminalToolInvocationData } from '../../chatService/chatService.js';
+import { ConfirmedReason, IChatExtensionsContent, IChatSimpleToolInvocationData, IChatSubagentToolInvocationData, IChatTodoListContent, IChatToolInputInvocationData, IChatToolInvocation, IChatToolInvocationSerialized, ToolConfirmKind, type IChatTerminalToolInvocationData } from '../../chatService/chatService.js';
 import { IPreparedToolInvocation, IToolConfirmationMessages, IToolData, IToolProgressStep, IToolResult, ToolDataSource } from '../../tools/languageModelToolsService.js';
 export interface IStreamingToolCallOptions {
     toolCallId: string;
@@ -23,7 +23,7 @@ export declare class ChatToolInvocation implements IChatToolInvocation {
     parameters: unknown;
     generatedTitle?: string;
     readonly chatRequestId?: string;
-    toolSpecificData?: IChatTerminalToolInvocationData | IChatToolInputInvocationData | IChatExtensionsContent | IChatTodoListContent | IChatSubagentToolInvocationData;
+    toolSpecificData?: IChatTerminalToolInvocationData | IChatToolInputInvocationData | IChatExtensionsContent | IChatTodoListContent | IChatSubagentToolInvocationData | IChatSimpleToolInvocationData;
     private readonly _progress;
     private readonly _state;
     private readonly _partialInput;
@@ -34,7 +34,17 @@ export declare class ChatToolInvocation implements IChatToolInvocation {
      * Use this when the tool call is beginning to stream partial input from the LM.
      */
     static createStreaming(options: IStreamingToolCallOptions): ChatToolInvocation;
-    constructor(preparedInvocation: IPreparedToolInvocation | undefined, toolData: IToolData, toolCallId: string, subAgentInvocationId: string | undefined, parameters: unknown, isStreaming?: boolean, chatRequestId?: string);
+    /**
+     * Create a tool invocation already in cancelled state.
+     * Use this when a hook denies tool execution before it even starts.
+     */
+    static createCancelled(options: IStreamingToolCallOptions, parameters: unknown, reason: ToolConfirmKind.Denied | ToolConfirmKind.Skipped, reasonMessage?: string | IMarkdownString): ChatToolInvocation;
+    constructor(preparedInvocation: IPreparedToolInvocation | undefined, toolData: IToolData, toolCallId: string, subAgentInvocationId: string | undefined, parameters: unknown, startOptions?: {
+        startInStreaming?: boolean;
+        startInCancelled?: boolean;
+        cancelReason?: ToolConfirmKind.Denied | ToolConfirmKind.Skipped;
+        cancelReasonMessage?: string | IMarkdownString;
+    }, chatRequestId?: string);
     /**
      * Update the partial input observable during streaming.
      */
@@ -43,6 +53,12 @@ export declare class ChatToolInvocation implements IChatToolInvocation {
      * Update the streaming message (from handleToolStream).
      */
     updateStreamingMessage(message: string | IMarkdownString): void;
+    /**
+     * Cancel a streaming invocation directly (e.g., when preToolUse hook denies).
+     * Only works when in Streaming state.
+     * @returns true if the cancellation was applied, false if not in streaming state
+     */
+    cancelFromStreaming(reason: ToolConfirmKind.Denied | ToolConfirmKind.Skipped, reasonMessage?: string | IMarkdownString): boolean;
     /**
      * Transition from streaming state to prepared/executing state.
      * Called when the full tool call is ready.

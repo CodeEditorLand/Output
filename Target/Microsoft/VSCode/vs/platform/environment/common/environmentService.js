@@ -77,9 +77,6 @@ class AbstractNativeEnvironmentService {
   get untitledWorkspacesHome() {
     return URI.file(join(this.userDataPath, "Workspaces"));
   }
-  get builtinWorkbenchModesHome() {
-    return joinPath(URI.file(this.appRoot), "resources", "workbenchModes");
-  }
   get builtinExtensionsPath() {
     const cliBuiltinExtensionsDir = this.args["builtin-extensions-dir"];
     if (cliBuiltinExtensionsDir) {
@@ -277,9 +274,6 @@ __decorate([
 __decorate([
   memoize
 ], AbstractNativeEnvironmentService.prototype, "untitledWorkspacesHome", null);
-__decorate([
-  memoize
-], AbstractNativeEnvironmentService.prototype, "builtinWorkbenchModesHome", null);
 __decorate([
   memoize
 ], AbstractNativeEnvironmentService.prototype, "builtinExtensionsPath", null);

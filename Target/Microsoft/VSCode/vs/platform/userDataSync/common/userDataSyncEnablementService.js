@@ -27,9 +27,9 @@ let UserDataSyncEnablementService = class UserDataSyncEnablementService2 extends
     this.storageService = storageService;
     this.environmentService = environmentService;
     this.userDataSyncStoreManagementService = userDataSyncStoreManagementService;
-    this._onDidChangeEnablement = new Emitter();
+    this._onDidChangeEnablement = this._register(new Emitter());
     this.onDidChangeEnablement = this._onDidChangeEnablement.event;
-    this._onDidChangeResourceEnablement = new Emitter();
+    this._onDidChangeResourceEnablement = this._register(new Emitter());
     this.onDidChangeResourceEnablement = this._onDidChangeResourceEnablement.event;
     this._register(storageService.onDidChangeValue(-1, void 0, this._store)((e) => this.onDidStorageChange(e)));
   }

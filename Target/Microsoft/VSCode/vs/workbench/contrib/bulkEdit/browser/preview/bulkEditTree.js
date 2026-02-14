@@ -554,7 +554,8 @@ let TextEditElementRenderer = class TextEditElementRenderer2 {
   renderElement({ element }, _index, template) {
     template.set(element);
   }
-  disposeTemplate(_template) {
+  disposeTemplate(template) {
+    template.dispose();
   }
 };
 TextEditElementRenderer = TextEditElementRenderer_1 = __decorate([

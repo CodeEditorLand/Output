@@ -63,6 +63,7 @@ let TelemetryService = class TelemetryService2 {
     this._piiPaths = config.piiPaths || [];
     this._telemetryLevel = 3;
     this._sendErrorTelemetry = !!config.sendErrorTelemetry;
+    this._meteredConnectionService = config.meteredConnectionService;
     this._cleanupPatterns = [/(vscode-)?file:\/\/.*?\/resources\/app\//gi];
     for (const piiPath of this._piiPaths) {
       this._cleanupPatterns.push(new RegExp(escapeRegExpCharacters(piiPath), "gi"));
@@ -125,6 +126,9 @@ let TelemetryService = class TelemetryService2 {
   }
   _log(eventName, eventLevel, data) {
     if (this._telemetryLevel < eventLevel) {
+      return;
+    }
+    if (this._meteredConnectionService?.isConnectionMetered) {
       return;
     }
     if (!this._isExperimentPropertySet) {

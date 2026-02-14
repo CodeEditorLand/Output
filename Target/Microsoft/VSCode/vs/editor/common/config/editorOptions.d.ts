@@ -473,7 +473,7 @@ export interface IEditorOptions {
      * Enable quick suggestions (shadow suggestions)
      * Defaults to true.
      */
-    quickSuggestions?: boolean | IQuickSuggestionsOptions;
+    quickSuggestions?: boolean | QuickSuggestionsValue | IQuickSuggestionsOptions;
     /**
      * Quick suggestions show delay (in ms)
      * Defaults to 10 (ms)
@@ -1672,7 +1672,7 @@ export interface IEditorParameterHintOptions {
  * @internal
  */
 export type InternalParameterHintOptions = Readonly<Required<IEditorParameterHintOptions>>;
-export type QuickSuggestionsValue = 'on' | 'inline' | 'off';
+export type QuickSuggestionsValue = 'on' | 'inline' | 'off' | 'offWhenInlineCompletions';
 /**
  * Configuration options for quick suggestions
  */

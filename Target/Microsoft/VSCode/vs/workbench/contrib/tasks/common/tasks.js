@@ -312,7 +312,6 @@ class CommonTask {
   getTaskExecution() {
     const result = {
       id: this._id,
-      // eslint-disable-next-line local/code-no-any-casts
       task: this
     };
     return result;
@@ -423,7 +422,8 @@ class CustomTask extends CommonTask {
     }
   }
   fromObject(object) {
-    return new CustomTask(object._id, object._source, object._label, object.type, object.command, object.hasDefinedMatchers, object.runOptions, object.configurationProperties);
+    const obj = object;
+    return new CustomTask(obj._id, obj._source, obj._label, obj.type, obj.command, obj.hasDefinedMatchers, obj.runOptions, obj.configurationProperties);
   }
 }
 class ConfiguringTask extends CommonTask {
@@ -509,7 +509,8 @@ class ContributedTask extends CommonTask {
     return "extension";
   }
   fromObject(object) {
-    return new ContributedTask(object._id, object._source, object._label, object.type, object.defines, object.command, object.hasDefinedMatchers, object.runOptions, object.configurationProperties);
+    const obj = object;
+    return new ContributedTask(obj._id, obj._source, obj._label, obj.type, obj.defines, obj.command, obj.hasDefinedMatchers, obj.runOptions, obj.configurationProperties);
   }
 }
 class InMemoryTask extends CommonTask {
@@ -536,7 +537,8 @@ class InMemoryTask extends CommonTask {
     return void 0;
   }
   fromObject(object) {
-    return new InMemoryTask(object._id, object._source, object._label, object.type, object.runOptions, object.configurationProperties);
+    const obj = object;
+    return new InMemoryTask(obj._id, obj._source, obj._label, obj.type, obj.runOptions, obj.configurationProperties);
   }
 }
 var ExecutionEngine;

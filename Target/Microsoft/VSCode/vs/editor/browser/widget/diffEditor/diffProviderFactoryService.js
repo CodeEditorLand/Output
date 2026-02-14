@@ -62,6 +62,7 @@ let WorkerBasedDocumentDiffProvider = class WorkerBasedDocumentDiffProvider2 {
   }
   dispose() {
     this.diffAlgorithmOnDidChangeSubscription?.dispose();
+    this.onDidChangeEventEmitter.dispose();
   }
   async computeDiff(original, modified, options, cancellationToken) {
     if (typeof this.diffAlgorithm !== "string") {

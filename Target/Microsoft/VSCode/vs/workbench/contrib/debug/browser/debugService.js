@@ -95,10 +95,10 @@ let DebugService = class DebugService2 {
     this.sessionCancellationTokens = /* @__PURE__ */ new Map();
     this.haveDoneLazySetup = false;
     this.breakpointsToSendOnResourceSaved = /* @__PURE__ */ new Set();
-    this._onDidChangeState = new Emitter();
-    this._onDidNewSession = new Emitter();
-    this._onWillNewSession = new Emitter();
-    this._onDidEndSession = new Emitter();
+    this._onDidChangeState = this.disposables.add(new Emitter());
+    this._onDidNewSession = this.disposables.add(new Emitter());
+    this._onWillNewSession = this.disposables.add(new Emitter());
+    this._onDidEndSession = this.disposables.add(new Emitter());
     this.adapterManager = this.instantiationService.createInstance(AdapterManager, {
       onDidNewSession: this.onDidNewSession,
       configurationManager: /* @__PURE__ */ __name(() => this.configurationManager, "configurationManager")
@@ -110,7 +110,7 @@ let DebugService = class DebugService2 {
     this.chosenEnvironments = this.debugStorage.loadChosenEnvironments();
     this.model = this.instantiationService.createInstance(DebugModel, this.debugStorage);
     this.telemetry = this.instantiationService.createInstance(DebugTelemetry, this.model);
-    this.viewModel = new ViewModel(contextKeyService);
+    this.viewModel = this.disposables.add(new ViewModel(contextKeyService));
     this.taskRunner = this.instantiationService.createInstance(DebugTaskRunner);
     this.disposables.add(this.fileService.onDidFilesChange((e) => this.onFileChanges(e)));
     this.disposables.add(this.lifecycleService.onWillShutdown(this.dispose, this));

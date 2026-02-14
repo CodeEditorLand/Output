@@ -5,6 +5,7 @@ import { IEnvironmentService } from '../../../../../platform/environment/common/
 import { IFileService } from '../../../../../platform/files/common/files.js';
 import { ILogService } from '../../../../../platform/log/common/log.js';
 import { IRemoteAgentService } from '../../../../services/remote/common/remoteAgentService.js';
+import { ITrustedDomainService } from '../../../url/common/trustedDomainService.js';
 export declare const ITerminalSandboxService: import("../../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ITerminalSandboxService>;
 export interface ITerminalSandboxService {
     readonly _serviceBrand: undefined;
@@ -20,6 +21,7 @@ export declare class TerminalSandboxService extends Disposable implements ITermi
     private readonly _environmentService;
     private readonly _logService;
     private readonly _remoteAgentService;
+    private readonly _trustedDomainService;
     readonly _serviceBrand: undefined;
     private _srtPath;
     private _srtPathResolved;
@@ -32,7 +34,7 @@ export declare class TerminalSandboxService extends Disposable implements ITermi
     private _remoteEnvDetails;
     private _appRoot;
     private _os;
-    constructor(_configurationService: IConfigurationService, _fileService: IFileService, _environmentService: IEnvironmentService, _logService: ILogService, _remoteAgentService: IRemoteAgentService);
+    constructor(_configurationService: IConfigurationService, _fileService: IFileService, _environmentService: IEnvironmentService, _logService: ILogService, _remoteAgentService: IRemoteAgentService, _trustedDomainService: ITrustedDomainService);
     isEnabled(): Promise<boolean>;
     wrapCommand(command: string): string;
     getTempDir(): URI | undefined;

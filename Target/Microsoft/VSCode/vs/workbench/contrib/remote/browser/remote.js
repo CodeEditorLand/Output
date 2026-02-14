@@ -421,7 +421,7 @@ let RemoteViewPaneContainer = class RemoteViewPaneContainer2 extends FilterViewP
     this.remoteExplorerService = remoteExplorerService;
     this.helpPanelDescriptor = new HelpPanelDescriptor(this);
     this.helpInformation = [];
-    this._onDidChangeHelpInformation = new Emitter();
+    this._onDidChangeHelpInformation = this._register(new Emitter());
     this.onDidChangeHelpInformation = this._onDidChangeHelpInformation.event;
     this.hasRegisteredHelpView = false;
     this.addConstantViewDescriptors([this.helpPanelDescriptor]);

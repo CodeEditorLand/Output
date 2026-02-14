@@ -2,6 +2,7 @@ import { URI } from '../../../../../base/common/uri.js';
 export declare namespace LocalChatSessionUri {
     const scheme = "vscode-chat-session";
     function forSession(sessionId: string): URI;
+    function getNewSessionUri(): URI;
     function parseLocalSessionId(resource: URI): string | undefined;
     function isLocalSession(resource: URI): boolean;
 }

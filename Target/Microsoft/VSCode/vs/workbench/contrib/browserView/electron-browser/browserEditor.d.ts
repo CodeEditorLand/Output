@@ -22,6 +22,7 @@ export declare const CONTEXT_BROWSER_CAN_GO_BACK: RawContextKey<boolean>;
 export declare const CONTEXT_BROWSER_CAN_GO_FORWARD: RawContextKey<boolean>;
 export declare const CONTEXT_BROWSER_FOCUSED: RawContextKey<boolean>;
 export declare const CONTEXT_BROWSER_STORAGE_SCOPE: RawContextKey<string>;
+export declare const CONTEXT_BROWSER_HAS_URL: RawContextKey<boolean>;
 export declare const CONTEXT_BROWSER_DEVTOOLS_OPEN: RawContextKey<boolean>;
 export declare const CONTEXT_BROWSER_ELEMENT_SELECTION_ACTIVE: RawContextKey<boolean>;
 export { CONTEXT_BROWSER_FIND_WIDGET_FOCUSED, CONTEXT_BROWSER_FIND_WIDGET_VISIBLE };
@@ -51,6 +52,7 @@ export declare class BrowserEditor extends EditorPane {
     private _canGoBackContext;
     private _canGoForwardContext;
     private _storageScopeContext;
+    private _hasUrlContext;
     private _devToolsOpenContext;
     private _elementSelectionActiveContext;
     private _model;

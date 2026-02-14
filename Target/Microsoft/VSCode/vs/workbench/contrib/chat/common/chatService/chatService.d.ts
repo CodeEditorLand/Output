@@ -8,6 +8,7 @@ import { IObservable, IReader } from '../../../../../base/common/observable.js';
 import { ThemeIcon } from '../../../../../base/common/themables.js';
 import { URI, UriComponents } from '../../../../../base/common/uri.js';
 import { IRange } from '../../../../../editor/common/core/range.js';
+import { HookTypeValue } from '../promptSyntax/hookSchema.js';
 import { ISelection } from '../../../../../editor/common/core/selection.js';
 import { Command, Location, TextEdit } from '../../../../../editor/common/languages.js';
 import { FileType } from '../../../../../platform/files/common/files.js';
@@ -341,6 +342,27 @@ export interface IChatThinkingPart {
     };
     generatedTitle?: string;
 }
+/**
+ * A progress part representing the execution result of a hook.
+ * Aligned with the hook output JSON structure: { stopReason, systemMessage, hookSpecificOutput }.
+ * If {@link stopReason} is set, the hook blocked/denied the operation.
+ */
+export interface IChatHookPart {
+    kind: 'hook';
+    /** The type of hook that was executed */
+    hookType: HookTypeValue;
+    /** If set, the hook blocked processing. This message is shown to the user. */
+    stopReason?: string;
+    /** Warning/system message from the hook, shown to the user */
+    systemMessage?: string;
+    /** Display name of the tool that was affected by the hook */
+    toolDisplayName?: string;
+    metadata?: {
+        readonly [key: string]: unknown;
+    };
+    /** If set, this hook was executed within a subagent invocation and should be grouped with it. */
+    subAgentInvocationId?: string;
+}
 export interface IChatTerminalToolInvocationData {
     kind: 'terminal';
     commandLine: {
@@ -450,12 +472,13 @@ export type ConfirmedReason = {
     scope: 'session' | 'workspace' | 'profile';
 } | {
     type: ToolConfirmKind.UserAction;
+    selectedButton?: string;
 } | {
     type: ToolConfirmKind.Skipped;
 };
 export interface IChatToolInvocation {
     readonly presentation: IPreparedToolInvocation['presentation'];
-    readonly toolSpecificData?: IChatTerminalToolInvocationData | ILegacyChatTerminalToolInvocationData | IChatToolInputInvocationData | IChatExtensionsContent | IChatPullRequestContent | IChatTodoListContent | IChatSubagentToolInvocationData;
+    readonly toolSpecificData?: IChatTerminalToolInvocationData | ILegacyChatTerminalToolInvocationData | IChatToolInputInvocationData | IChatExtensionsContent | IChatPullRequestContent | IChatTodoListContent | IChatSubagentToolInvocationData | IChatSimpleToolInvocationData | IChatToolResourcesInvocationData;
     readonly originMessage: string | IMarkdownString | undefined;
     readonly invocationMessage: string | IMarkdownString;
     readonly pastTenseMessage: string | IMarkdownString | undefined;
@@ -523,13 +546,15 @@ export declare namespace IChatToolInvocation {
     interface IChatToolInvocationCancelledState extends IChatToolInvocationStateBase, IChatToolInvocationPostStreamState {
         type: StateKind.Cancelled;
         reason: ToolConfirmKind.Denied | ToolConfirmKind.Skipped;
+        /** Optional message explaining why the tool was cancelled (e.g., from hook denial) */
+        reasonMessage?: string | IMarkdownString;
     }
     export type State = IChatToolInvocationStreamingState | IChatToolInvocationWaitingForConfirmationState | IChatToolInvocationExecutingState | IChatToolWaitingForPostApprovalState | IChatToolInvocationCompleteState | IChatToolInvocationCancelledState;
     export function executionConfirmedOrDenied(invocation: IChatToolInvocation | IChatToolInvocationSerialized, reader?: IReader): ConfirmedReason | undefined;
     export function awaitConfirmation(invocation: IChatToolInvocation, token?: CancellationToken): Promise<ConfirmedReason>;
     export function confirmWith(invocation: IChatToolInvocation | undefined, reason: ConfirmedReason): boolean;
     export function awaitPostConfirmation(invocation: IChatToolInvocation, token?: CancellationToken): Promise<ConfirmedReason>;
-    export function resultDetails(invocation: IChatToolInvocation | IChatToolInvocationSerialized, reader?: IReader): (URI | Location)[] | IToolResultInputOutputDetails | IToolResultOutputDetailsSerialized | import("../tools/languageModelToolsService.js").IToolResultOutputDetails | undefined;
+    export function resultDetails(invocation: IChatToolInvocation | IChatToolInvocationSerialized, reader?: IReader): (URI | Location)[] | IToolResultInputOutputDetails | import("../tools/languageModelToolsService.js").IToolResultOutputDetails | IToolResultOutputDetailsSerialized | undefined;
     export function isComplete(invocation: IChatToolInvocation | IChatToolInvocationSerialized, reader?: IReader): boolean;
     export function isStreaming(invocation: IChatToolInvocation | IChatToolInvocationSerialized, reader?: IReader): boolean;
     /**
@@ -554,7 +579,7 @@ export interface IToolResultOutputDetailsSerialized {
  */
 export interface IChatToolInvocationSerialized {
     presentation: IPreparedToolInvocation['presentation'];
-    toolSpecificData?: IChatTerminalToolInvocationData | IChatToolInputInvocationData | IChatExtensionsContent | IChatPullRequestContent | IChatTodoListContent | IChatSubagentToolInvocationData;
+    toolSpecificData?: IChatTerminalToolInvocationData | IChatToolInputInvocationData | IChatExtensionsContent | IChatPullRequestContent | IChatTodoListContent | IChatSubagentToolInvocationData | IChatSimpleToolInvocationData | IChatToolResourcesInvocationData;
     invocationMessage: string | IMarkdownString;
     originMessage: string | IMarkdownString | undefined;
     pastTenseMessage: string | IMarkdownString | undefined;
@@ -574,7 +599,11 @@ export interface IChatExtensionsContent {
     kind: 'extensions';
 }
 export interface IChatPullRequestContent {
-    uri: URI;
+    /**
+     * @deprecated use `command` instead
+     */
+    uri?: URI;
+    command: Command;
     title: string;
     description: string;
     author: string;
@@ -587,6 +616,23 @@ export interface IChatSubagentToolInvocationData {
     agentName?: string;
     prompt?: string;
     result?: string;
+    modelName?: string;
+}
+/**
+ * Progress type for external tool invocation updates from extensions.
+ * When isComplete is false, creates or updates a tool invocation.
+ * When isComplete is true, completes an existing tool invocation.
+ */
+export interface IChatExternalToolInvocationUpdate {
+    kind: 'externalToolInvocationUpdate';
+    toolCallId: string;
+    toolName: string;
+    isComplete: boolean;
+    errorMessage?: string;
+    invocationMessage?: string | IMarkdownString;
+    pastTenseMessage?: string | IMarkdownString;
+    toolSpecificData?: IChatTerminalToolInvocationData | IChatToolInputInvocationData | IChatExtensionsContent | IChatTodoListContent | IChatSubagentToolInvocationData;
+    subagentInvocationId?: string;
 }
 export interface IChatTodoListContent {
     kind: 'todoList';
@@ -595,6 +641,15 @@ export interface IChatTodoListContent {
         title: string;
         status: 'not-started' | 'in-progress' | 'completed';
     }>;
+}
+export interface IChatSimpleToolInvocationData {
+    kind: 'simpleToolInvocation';
+    input: string;
+    output: string;
+}
+export interface IChatToolResourcesInvocationData {
+    readonly kind: 'resources';
+    readonly values: Array<URI | Location>;
 }
 export interface IChatMcpServersStarting {
     readonly kind: 'mcpServersStarting';
@@ -607,6 +662,9 @@ export interface IChatMcpServersStartingSerialized {
     readonly state?: undefined;
     didStartServerIds?: string[];
 }
+export interface IChatDisabledClaudeHooksPart {
+    readonly kind: 'disabledClaudeHooks';
+}
 export declare class ChatMcpServersStarting implements IChatMcpServersStarting {
     readonly state: IObservable<IAutostartResult>;
     readonly kind = "mcpServersStarting";
@@ -616,7 +674,7 @@ export declare class ChatMcpServersStarting implements IChatMcpServersStarting {
     wait(): Promise<IAutostartResult>;
     toJSON(): IChatMcpServersStartingSerialized;
 }
-export type IChatProgress = IChatMarkdownContent | IChatAgentMarkdownContentWithVulnerability | IChatTreeData | IChatMultiDiffData | IChatMultiDiffDataSerialized | IChatUsedContext | IChatContentReference | IChatContentInlineReference | IChatCodeCitation | IChatProgressMessage | IChatTask | IChatTaskResult | IChatCommandButton | IChatWarningMessage | IChatTextEdit | IChatNotebookEdit | IChatWorkspaceEdit | IChatMoveMessage | IChatResponseCodeblockUriPart | IChatConfirmation | IChatQuestionCarousel | IChatClearToPreviousToolInvocation | IChatToolInvocation | IChatToolInvocationSerialized | IChatExtensionsContent | IChatPullRequestContent | IChatUndoStop | IChatThinkingPart | IChatTaskSerialized | IChatElicitationRequest | IChatElicitationRequestSerialized | IChatMcpServersStarting | IChatMcpServersStartingSerialized;
+export type IChatProgress = IChatMarkdownContent | IChatAgentMarkdownContentWithVulnerability | IChatTreeData | IChatMultiDiffData | IChatMultiDiffDataSerialized | IChatUsedContext | IChatContentReference | IChatContentInlineReference | IChatCodeCitation | IChatProgressMessage | IChatTask | IChatTaskResult | IChatCommandButton | IChatWarningMessage | IChatTextEdit | IChatNotebookEdit | IChatWorkspaceEdit | IChatMoveMessage | IChatResponseCodeblockUriPart | IChatConfirmation | IChatQuestionCarousel | IChatClearToPreviousToolInvocation | IChatToolInvocation | IChatToolInvocationSerialized | IChatExtensionsContent | IChatPullRequestContent | IChatUndoStop | IChatThinkingPart | IChatTaskSerialized | IChatElicitationRequest | IChatElicitationRequestSerialized | IChatMcpServersStarting | IChatMcpServersStartingSerialized | IChatHookPart | IChatExternalToolInvocationUpdate | IChatDisabledClaudeHooksPart;
 export interface IChatFollowup {
     kind: 'reply';
     message: string;
@@ -864,6 +922,7 @@ export interface IChatSendRequestOptions {
     acceptedConfirmationData?: any[];
     rejectedConfirmationData?: any[];
     attachedContext?: IChatRequestVariableEntry[];
+    resolvedVariables?: IChatRequestVariableEntry[];
     /** The target agent ID can be specified with this property instead of using @ in 'message' */
     agentId?: string;
     /** agentId, but will not add a @ name to the request */

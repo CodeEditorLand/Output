@@ -3,7 +3,7 @@ import { IViewDescriptorService, ViewContainer, IViewDescriptor, IView, ViewCont
 import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
 import { Event } from '../../../../base/common/event.js';
 import { IPaneComposite } from '../../../common/panecomposite.js';
-import { IWorkbenchLayoutService, Parts } from '../../layout/browser/layoutService.js';
+import { IWorkbenchLayoutService } from '../../layout/browser/layoutService.js';
 import { IProgressIndicator } from '../../../../platform/progress/common/progress.js';
 import { IPaneCompositePartService } from '../../panecomposite/browser/panecomposite.js';
 import { IEditorService } from '../../editor/common/editorService.js';
@@ -72,4 +72,3 @@ export declare class ViewsService extends Disposable implements IViewsService {
     private deregisterPaneComposite;
     private createViewPaneContainer;
 }
-export declare function getPartByLocation(viewContainerLocation: ViewContainerLocation): Parts.AUXILIARYBAR_PART | Parts.SIDEBAR_PART | Parts.PANEL_PART;

@@ -1,22 +1,24 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Emitter } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
 import { CONTEXT_DISASSEMBLE_REQUEST_SUPPORTED, CONTEXT_EXPRESSION_SELECTED, CONTEXT_FOCUSED_SESSION_IS_ATTACH, CONTEXT_FOCUSED_SESSION_IS_NO_DEBUG, CONTEXT_FOCUSED_STACK_FRAME_HAS_INSTRUCTION_POINTER_REFERENCE, CONTEXT_JUMP_TO_CURSOR_SUPPORTED, CONTEXT_LOADED_SCRIPTS_SUPPORTED, CONTEXT_MULTI_SESSION_DEBUG, CONTEXT_RESTART_FRAME_SUPPORTED, CONTEXT_SET_DATA_BREAKPOINT_BYTES_SUPPORTED, CONTEXT_SET_EXPRESSION_SUPPORTED, CONTEXT_SET_VARIABLE_SUPPORTED, CONTEXT_STEP_BACK_SUPPORTED, CONTEXT_STEP_INTO_TARGETS_SUPPORTED, CONTEXT_SUSPEND_DEBUGGEE_SUPPORTED, CONTEXT_TERMINATE_DEBUGGEE_SUPPORTED, CONTEXT_TERMINATE_THREADS_SUPPORTED } from "./debug.js";
 import { isSessionAttach } from "./debugUtils.js";
-class ViewModel {
+class ViewModel extends Disposable {
   static {
     __name(this, "ViewModel");
   }
   constructor(contextKeyService) {
+    super();
     this.contextKeyService = contextKeyService;
     this.firstSessionStart = true;
-    this._onDidFocusSession = new Emitter();
-    this._onDidFocusThread = new Emitter();
-    this._onDidFocusStackFrame = new Emitter();
-    this._onDidSelectExpression = new Emitter();
-    this._onDidEvaluateLazyExpression = new Emitter();
-    this._onWillUpdateViews = new Emitter();
-    this._onDidChangeVisualization = new Emitter();
+    this._onDidFocusSession = this._register(new Emitter());
+    this._onDidFocusThread = this._register(new Emitter());
+    this._onDidFocusStackFrame = this._register(new Emitter());
+    this._onDidSelectExpression = this._register(new Emitter());
+    this._onDidEvaluateLazyExpression = this._register(new Emitter());
+    this._onWillUpdateViews = this._register(new Emitter());
+    this._onDidChangeVisualization = this._register(new Emitter());
     this.visualized = /* @__PURE__ */ new WeakMap();
     this.preferredVisualizers = /* @__PURE__ */ new Map();
     contextKeyService.bufferChangeEvents(() => {

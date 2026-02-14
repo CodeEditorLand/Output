@@ -24,7 +24,7 @@ import { Registry } from "../../../../platform/registry/common/platform.js";
 import { IWorkspaceTrustEnablementService, IWorkspaceTrustManagementService, IWorkspaceTrustRequestService } from "../../../../platform/workspace/common/workspaceTrust.js";
 import { Extensions as WorkbenchExtensions, registerWorkbenchContribution2 } from "../../../common/contributions.js";
 import { Codicon } from "../../../../base/common/codicons.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IEditorService, MODAL_GROUP } from "../../../services/editor/common/editorService.js";
 import { ContextKeyExpr, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
 import { ICommandService } from "../../../../platform/commands/common/commands.js";
 import { IStatusbarService } from "../../../services/statusbar/browser/statusbar.js";
@@ -649,7 +649,7 @@ registerAction2(class extends Action2 {
     const editorService = accessor.get(IEditorService);
     const instantiationService = accessor.get(IInstantiationService);
     const input = instantiationService.createInstance(WorkspaceTrustEditorInput);
-    editorService.openEditor(input, { pinned: true });
+    editorService.openEditor(input, { pinned: true }, MODAL_GROUP);
     return;
   }
 });

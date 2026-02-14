@@ -39,7 +39,8 @@ export declare class CLIServerBase {
     private readonly _commands;
     private readonly logService;
     private readonly _ipcHandlePath;
-    private readonly _server;
+    private _server;
+    private _disposed;
     constructor(_commands: ICommandsExecuter, logService: ILogService, _ipcHandlePath: string);
     get ipcHandlePath(): string;
     private setup;

@@ -10,9 +10,10 @@ import { ILogService } from '../../../../../platform/log/common/log.js';
 import { IThemeService } from '../../../../../platform/theme/common/themeService.js';
 import { IExtensionService } from '../../../../services/extensions/common/extensions.js';
 import { IChatAgentAttachmentCapabilities, IChatAgentService } from '../../common/participants/chatAgents.js';
-import { IChatSession, IChatSessionContentProvider, IChatSessionItem, IChatSessionItemProvider, IChatSessionOptionsWillNotifyExtensionEvent, IChatSessionProviderOptionGroup, IChatSessionProviderOptionItem, IChatSessionsExtensionPoint, IChatSessionsService } from '../../common/chatSessionsService.js';
+import { IChatSession, IChatSessionContentProvider, IChatSessionItem, IChatSessionItemController, IChatSessionOptionsWillNotifyExtensionEvent, IChatSessionProviderOptionGroup, IChatSessionProviderOptionItem, IChatSessionsExtensionPoint, IChatSessionsService } from '../../common/chatSessionsService.js';
 import { IChatModel } from '../../common/model/chatModel.js';
 import { IChatService } from '../../common/chatService/chatService.js';
+import { Target } from '../../common/promptSyntax/service/promptsService.js';
 export declare class ChatSessionsService extends Disposable implements IChatSessionsService {
     private readonly _logService;
     private readonly _chatAgentService;
@@ -22,7 +23,7 @@ export declare class ChatSessionsService extends Disposable implements IChatSess
     private readonly _themeService;
     private readonly _labelService;
     readonly _serviceBrand: undefined;
-    private readonly _itemsProviders;
+    private readonly _itemControllers;
     private readonly _contributions;
     private readonly _contributionDisposables;
     private readonly _contentProviders;
@@ -85,13 +86,15 @@ export declare class ChatSessionsService extends Disposable implements IChatSess
     private _updateHasCanDelegateProvidersContextKey;
     getChatSessionContribution(chatSessionType: string): IChatSessionsExtensionPoint | undefined;
     activateChatSessionItemProvider(chatViewType: string): Promise<void>;
-    private doActivateChatSessionItemProvider;
+    private doActivateChatSessionItemController;
     canResolveChatSession(chatSessionResource: URI): Promise<boolean>;
+    private tryActivateControllers;
     getChatSessionItems(providersToResolve: readonly string[] | undefined, token: CancellationToken): Promise<Array<{
         readonly chatSessionType: string;
-        readonly items: IChatSessionItem[];
+        readonly items: readonly IChatSessionItem[];
     }>>;
-    registerChatSessionItemProvider(provider: IChatSessionItemProvider): IDisposable;
+    refreshChatSessionItems(providersToResolve: readonly string[] | undefined, token: CancellationToken): Promise<void>;
+    registerChatSessionItemController(chatSessionType: string, controller: IChatSessionItemController): IDisposable;
     registerChatSessionContentProvider(chatSessionType: string, provider: IChatSessionContentProvider): IDisposable;
     registerChatModelChangeListeners(chatService: IChatService, chatSessionType: string, onChange: () => void): IDisposable;
     getInProgressSessionDescription(chatModel: IChatModel): string | undefined;
@@ -138,7 +141,7 @@ export declare class ChatSessionsService extends Disposable implements IChatSess
      * Get the customAgentTarget for a specific session type.
      * When set, the mode picker should show filtered custom agents matching this target.
      */
-    getCustomAgentTargetForSessionType(chatSessionType: string): string | undefined;
+    getCustomAgentTargetForSessionType(chatSessionType: string): Target;
     getContentProviderSchemes(): string[];
 }
 export declare enum ChatSessionPosition {

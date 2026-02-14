@@ -88,8 +88,8 @@ export declare class InlineCompletionsModel extends Disposable {
     }): Promise<void>;
     triggerExplicitly(tx?: ITransaction, onlyFetchInlineEdits?: boolean): Promise<void>;
     stop(stopReason?: 'explicitCancel' | 'automatic', tx?: ITransaction): void;
+    private readonly _inlineSuggestionItems;
     private readonly _inlineCompletionItems;
-    private readonly _filteredInlineCompletionItems;
     readonly selectedInlineCompletionIndex: IObservableWithChange<number, void>;
     readonly selectedInlineCompletion: IObservableWithChange<InlineCompletionItem | undefined, void>;
     readonly activeCommands: IObservable<InlineCompletionCommand[]>;

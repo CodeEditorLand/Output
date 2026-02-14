@@ -1,0 +1,181 @@
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { timeout } from "../../../../base/common/async.js";
+import { MarkdownString, isMarkdownString } from "../../../../base/common/htmlContent.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import * as nls from "../../../../nls.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IChatAgentService } from "../common/participants/chatAgents.js";
+import { IChatSlashCommandService } from "../common/participants/chatSlashCommands.js";
+import { ChatAgentLocation, ChatModeKind } from "../common/constants.js";
+import { ACTION_ID_NEW_CHAT } from "./actions/chatActions.js";
+import { ChatSubmitAction, OpenModelPickerAction } from "./actions/chatExecuteActions.js";
+import { ConfigureToolsAction } from "./actions/chatToolActions.js";
+import { IAgentSessionsService } from "./agentSessions/agentSessionsService.js";
+import { IChatWidgetService } from "./chat.js";
+import { showConfigureHooksQuickPick } from "./promptSyntax/hookActions.js";
+import { agentSlashCommandToMarkdown, agentToMarkdown } from "./widget/chatContentParts/chatMarkdownDecorationsRenderer.js";
+let ChatSlashCommandsContribution = class ChatSlashCommandsContribution2 extends Disposable {
+  static {
+    __name(this, "ChatSlashCommandsContribution");
+  }
+  static {
+    this.ID = "workbench.contrib.chatSlashCommands";
+  }
+  constructor(slashCommandService, commandService, chatAgentService, chatWidgetService, instantiationService, agentSessionsService) {
+    super();
+    this._store.add(slashCommandService.registerSlashCommand({
+      command: "clear",
+      detail: nls.localize("clear", "Start a new chat and archive the current one"),
+      sortText: "z2_clear",
+      executeImmediately: true,
+      locations: [ChatAgentLocation.Chat]
+    }, async (_prompt, _progress, _history, _location, sessionResource) => {
+      agentSessionsService.getSession(sessionResource)?.setArchived(true);
+      commandService.executeCommand(ACTION_ID_NEW_CHAT);
+    }));
+    this._store.add(slashCommandService.registerSlashCommand({
+      command: "hooks",
+      detail: nls.localize("hooks", "Configure hooks"),
+      sortText: "z3_hooks",
+      executeImmediately: true,
+      silent: true,
+      locations: [ChatAgentLocation.Chat]
+    }, async () => {
+      await instantiationService.invokeFunction(showConfigureHooksQuickPick);
+    }));
+    this._store.add(slashCommandService.registerSlashCommand({
+      command: "models",
+      detail: nls.localize("models", "Open the model picker"),
+      sortText: "z3_models",
+      executeImmediately: true,
+      silent: true,
+      locations: [ChatAgentLocation.Chat]
+    }, async () => {
+      await commandService.executeCommand(OpenModelPickerAction.ID);
+    }));
+    this._store.add(slashCommandService.registerSlashCommand({
+      command: "tools",
+      detail: nls.localize("tools", "Configure tools"),
+      sortText: "z3_tools",
+      executeImmediately: true,
+      silent: true,
+      locations: [ChatAgentLocation.Chat]
+    }, async () => {
+      await commandService.executeCommand(ConfigureToolsAction.ID);
+    }));
+    this._store.add(slashCommandService.registerSlashCommand({
+      command: "debug",
+      detail: nls.localize("debug", "Show Chat Debug View"),
+      sortText: "z3_debug",
+      executeImmediately: true,
+      silent: true,
+      locations: [ChatAgentLocation.Chat]
+    }, async () => {
+      await commandService.executeCommand("github.copilot.debug.showChatLogView");
+    }));
+    this._store.add(slashCommandService.registerSlashCommand({
+      command: "agents",
+      detail: nls.localize("agents", "Configure custom agents"),
+      sortText: "z3_agents",
+      executeImmediately: true,
+      silent: true,
+      locations: [ChatAgentLocation.Chat]
+    }, async () => {
+      await commandService.executeCommand("workbench.action.chat.configure.customagents");
+    }));
+    this._store.add(slashCommandService.registerSlashCommand({
+      command: "skills",
+      detail: nls.localize("skills", "Configure skills"),
+      sortText: "z3_skills",
+      executeImmediately: true,
+      silent: true,
+      locations: [ChatAgentLocation.Chat]
+    }, async () => {
+      await commandService.executeCommand("workbench.action.chat.configure.skills");
+    }));
+    this._store.add(slashCommandService.registerSlashCommand({
+      command: "instructions",
+      detail: nls.localize("instructions", "Configure instructions"),
+      sortText: "z3_instructions",
+      executeImmediately: true,
+      silent: true,
+      locations: [ChatAgentLocation.Chat]
+    }, async () => {
+      await commandService.executeCommand("workbench.action.chat.configure.instructions");
+    }));
+    this._store.add(slashCommandService.registerSlashCommand({
+      command: "prompts",
+      detail: nls.localize("prompts", "Configure prompt files"),
+      sortText: "z3_prompts",
+      executeImmediately: true,
+      silent: true,
+      locations: [ChatAgentLocation.Chat]
+    }, async () => {
+      await commandService.executeCommand("workbench.action.chat.configure.prompts");
+    }));
+    this._store.add(slashCommandService.registerSlashCommand({
+      command: "help",
+      detail: "",
+      sortText: "z1_help",
+      executeImmediately: true,
+      locations: [ChatAgentLocation.Chat],
+      modes: [ChatModeKind.Ask]
+    }, async (prompt, progress, _history, _location, sessionResource) => {
+      const defaultAgent = chatAgentService.getDefaultAgent(ChatAgentLocation.Chat);
+      const agents = chatAgentService.getAgents();
+      if (defaultAgent?.metadata.helpTextPrefix) {
+        if (isMarkdownString(defaultAgent.metadata.helpTextPrefix)) {
+          progress.report({ content: defaultAgent.metadata.helpTextPrefix, kind: "markdownContent" });
+        } else {
+          progress.report({ content: new MarkdownString(defaultAgent.metadata.helpTextPrefix), kind: "markdownContent" });
+        }
+        progress.report({ content: new MarkdownString("\n\n"), kind: "markdownContent" });
+      }
+      const agentText = (await Promise.all(agents.filter((a) => !a.isDefault && !a.isCore).filter((a) => a.locations.includes(ChatAgentLocation.Chat)).map(async (a) => {
+        const description = a.description ? `- ${a.description}` : "";
+        const agentMarkdown = instantiationService.invokeFunction((accessor) => agentToMarkdown(a, sessionResource, true, accessor));
+        const agentLine = `- ${agentMarkdown} ${description}`;
+        const commandText = a.slashCommands.map((c) => {
+          const description2 = c.description ? `- ${c.description}` : "";
+          return `	* ${agentSlashCommandToMarkdown(a, c, sessionResource)} ${description2}`;
+        }).join("\n");
+        return (agentLine + "\n" + commandText).trim();
+      }))).join("\n");
+      progress.report({ content: new MarkdownString(agentText, { isTrusted: { enabledCommands: [ChatSubmitAction.ID] } }), kind: "markdownContent" });
+      if (defaultAgent?.metadata.helpTextPostfix) {
+        progress.report({ content: new MarkdownString("\n\n"), kind: "markdownContent" });
+        if (isMarkdownString(defaultAgent.metadata.helpTextPostfix)) {
+          progress.report({ content: defaultAgent.metadata.helpTextPostfix, kind: "markdownContent" });
+        } else {
+          progress.report({ content: new MarkdownString(defaultAgent.metadata.helpTextPostfix), kind: "markdownContent" });
+        }
+      }
+      await timeout(200);
+    }));
+  }
+};
+ChatSlashCommandsContribution = __decorate([
+  __param(0, IChatSlashCommandService),
+  __param(1, ICommandService),
+  __param(2, IChatAgentService),
+  __param(3, IChatWidgetService),
+  __param(4, IInstantiationService),
+  __param(5, IAgentSessionsService)
+], ChatSlashCommandsContribution);
+export {
+  ChatSlashCommandsContribution
+};
+//# sourceMappingURL=chatSlashCommands.js.map

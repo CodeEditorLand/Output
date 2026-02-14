@@ -15,6 +15,8 @@ import { IContextKeyService } from "../../../../platform/contextkey/common/conte
 import { IContextViewService } from "../../../../platform/contextview/browser/contextView.js";
 import { IHoverService } from "../../../../platform/hover/browser/hover.js";
 import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
 import { SimpleFindWidget } from "../../codeEditor/browser/find/simpleFindWidget.js";
 import { KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_FOCUSED } from "./webview.js";
 let WebviewFindWidget = class WebviewFindWidget2 extends SimpleFindWidget {
@@ -24,12 +26,12 @@ let WebviewFindWidget = class WebviewFindWidget2 extends SimpleFindWidget {
   async _getResultCount(dataChanged) {
     return void 0;
   }
-  constructor(_delegate, contextViewService, contextKeyService, hoverService, keybindingService) {
+  constructor(_delegate, contextViewService, contextKeyService, hoverService, keybindingService, configurationService, accessibilityService) {
     super({
       showCommonFindToggles: false,
       checkImeCompletionState: _delegate.checkImeCompletionState,
       enableSash: true
-    }, contextViewService, contextKeyService, hoverService, keybindingService);
+    }, contextViewService, contextKeyService, hoverService, keybindingService, configurationService, accessibilityService);
     this._delegate = _delegate;
     this._findWidgetFocused = KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_FOCUSED.bindTo(contextKeyService);
     this._register(_delegate.hasFindResult((hasResult) => {
@@ -77,7 +79,9 @@ WebviewFindWidget = __decorate([
   __param(1, IContextViewService),
   __param(2, IContextKeyService),
   __param(3, IHoverService),
-  __param(4, IKeybindingService)
+  __param(4, IKeybindingService),
+  __param(5, IConfigurationService),
+  __param(6, IAccessibilityService)
 ], WebviewFindWidget);
 export {
   WebviewFindWidget

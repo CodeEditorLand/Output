@@ -38,6 +38,7 @@ import { IQuickInputService } from '../../../../platform/quickinput/common/quick
 import { IMarkdownString } from '../../../../base/common/htmlContent.js';
 import { IExtensionGalleryManifestService } from '../../../../platform/extensionManagement/common/extensionGalleryManifest.js';
 import { IUserDataProfilesService } from '../../../../platform/userDataProfile/common/userDataProfile.js';
+import { IMeteredConnectionService } from '../../../../platform/meteredConnection/common/meteredConnection.js';
 interface IExtensionStateProvider<T> {
     (extension: Extension): T;
 }
@@ -162,6 +163,7 @@ export declare class ExtensionsWorkbenchService extends Disposable implements IE
     private readonly fileDialogService;
     private readonly quickInputService;
     private readonly allowedExtensionsService;
+    private readonly meteredConnectionService;
     private static readonly UpdatesCheckInterval;
     readonly _serviceBrand: undefined;
     private hasOutdatedExtensionsContextKey;
@@ -181,7 +183,7 @@ export declare class ExtensionsWorkbenchService extends Disposable implements IE
     private installing;
     private tasksInProgress;
     readonly whenInitialized: Promise<void>;
-    constructor(instantiationService: IInstantiationService, editorService: IEditorService, extensionManagementService: IWorkbenchExtensionManagementService, galleryService: IExtensionGalleryService, extensionGalleryManifestService: IExtensionGalleryManifestService, configurationService: IConfigurationService, telemetryService: ITelemetryService, notificationService: INotificationService, urlService: IURLService, extensionEnablementService: IWorkbenchExtensionEnablementService, hostService: IHostService, progressService: IProgressService, extensionManagementServerService: IExtensionManagementServerService, languageService: ILanguageService, extensionsSyncManagementService: IIgnoredExtensionsManagementService, userDataAutoSyncService: IUserDataAutoSyncService, productService: IProductService, contextKeyService: IContextKeyService, extensionManifestPropertiesService: IExtensionManifestPropertiesService, logService: ILogService, extensionService: IExtensionService, localeService: ILocaleService, lifecycleService: ILifecycleService, fileService: IFileService, userDataProfileService: IUserDataProfileService, userDataProfilesService: IUserDataProfilesService, storageService: IStorageService, dialogService: IDialogService, userDataSyncEnablementService: IUserDataSyncEnablementService, updateService: IUpdateService, uriIdentityService: IUriIdentityService, workspaceContextService: IWorkspaceContextService, viewsService: IViewsService, fileDialogService: IFileDialogService, quickInputService: IQuickInputService, allowedExtensionsService: IAllowedExtensionsService);
+    constructor(instantiationService: IInstantiationService, editorService: IEditorService, extensionManagementService: IWorkbenchExtensionManagementService, galleryService: IExtensionGalleryService, extensionGalleryManifestService: IExtensionGalleryManifestService, configurationService: IConfigurationService, telemetryService: ITelemetryService, notificationService: INotificationService, urlService: IURLService, extensionEnablementService: IWorkbenchExtensionEnablementService, hostService: IHostService, progressService: IProgressService, extensionManagementServerService: IExtensionManagementServerService, languageService: ILanguageService, extensionsSyncManagementService: IIgnoredExtensionsManagementService, userDataAutoSyncService: IUserDataAutoSyncService, productService: IProductService, contextKeyService: IContextKeyService, extensionManifestPropertiesService: IExtensionManifestPropertiesService, logService: ILogService, extensionService: IExtensionService, localeService: ILocaleService, lifecycleService: ILifecycleService, fileService: IFileService, userDataProfileService: IUserDataProfileService, userDataProfilesService: IUserDataProfilesService, storageService: IStorageService, dialogService: IDialogService, userDataSyncEnablementService: IUserDataSyncEnablementService, updateService: IUpdateService, uriIdentityService: IUriIdentityService, workspaceContextService: IWorkspaceContextService, viewsService: IViewsService, fileDialogService: IFileDialogService, quickInputService: IQuickInputService, allowedExtensionsService: IAllowedExtensionsService, meteredConnectionService: IMeteredConnectionService);
     private initialize;
     private initializeAutoUpdate;
     private isAutoUpdateEnabled;

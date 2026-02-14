@@ -590,7 +590,7 @@ let Repl = class Repl2 extends FilterViewPane {
       lastSelectedString = selection ? selection.toString() : "";
     }));
     this.selectSession();
-    this.styleElement = domStylesheetsJs.createStyleSheet(this.container);
+    this.styleElement = domStylesheetsJs.createStyleSheet(this.container, void 0, this._store);
     this.onDidStyleChange();
   }
   createReplInput(container) {

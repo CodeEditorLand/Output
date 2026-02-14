@@ -42,6 +42,8 @@ let ChatWidgetService = class ChatWidgetService2 extends Disposable {
     this.onDidAddWidget = this._onDidAddWidget.event;
     this._onDidBackgroundSession = this._register(new Emitter());
     this.onDidBackgroundSession = this._onDidBackgroundSession.event;
+    this._onDidChangeFocusedWidget = this._register(new Emitter());
+    this.onDidChangeFocusedWidget = this._onDidChangeFocusedWidget.event;
   }
   get lastFocusedWidget() {
     return this._lastFocusedWidget;
@@ -172,6 +174,7 @@ let ChatWidgetService = class ChatWidgetService2 extends Disposable {
       return;
     }
     this._lastFocusedWidget = widget;
+    this._onDidChangeFocusedWidget.fire(widget);
   }
   register(newWidget) {
     if (this._widgets.some((widget) => widget === newWidget)) {

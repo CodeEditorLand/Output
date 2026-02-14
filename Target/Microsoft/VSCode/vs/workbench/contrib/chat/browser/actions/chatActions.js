@@ -1,6 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { isAncestorOfActiveElement } from "../../../../../base/browser/dom.js";
+import { alert } from "../../../../../base/browser/ui/aria/aria.js";
 import { coalesce } from "../../../../../base/common/arrays.js";
 import { timeout } from "../../../../../base/common/async.js";
 import { Codicon } from "../../../../../base/common/codicons.js";
@@ -29,7 +30,7 @@ import { ITelemetryService } from "../../../../../platform/telemetry/common/tele
 import { ActiveEditorContext } from "../../../../common/contextkeys.js";
 import { IViewDescriptorService } from "../../../../common/views.js";
 import { ChatEntitlement, IChatEntitlementService } from "../../../../services/chat/common/chatEntitlementService.js";
-import { AUX_WINDOW_GROUP } from "../../../../services/editor/common/editorService.js";
+import { ACTIVE_GROUP, AUX_WINDOW_GROUP } from "../../../../services/editor/common/editorService.js";
 import { IHostService } from "../../../../services/host/browser/host.js";
 import { IWorkbenchLayoutService } from "../../../../services/layout/browser/layoutService.js";
 import { IPreferencesService } from "../../../../services/preferences/common/preferences.js";
@@ -51,6 +52,7 @@ import { ILanguageModelToolsService, isToolSet } from "../../common/tools/langua
 import { ChatViewId, IChatWidgetService } from "../chat.js";
 import { ChatEditorInput, showClearEditingSessionConfirmation } from "../widgetHosts/editor/chatEditorInput.js";
 import { convertBufferToScreenshotVariable } from "../attachments/chatScreenshotContext.js";
+import { LocalChatSessionUri } from "../../common/model/chatUri.js";
 const CHAT_CATEGORY = localize2("chat.category", "Chat");
 const ACTION_ID_NEW_CHAT = `workbench.action.chat.newChat`;
 const ACTION_ID_NEW_EDIT_SESSION = `workbench.action.chat.newEditSession`;
@@ -95,6 +97,7 @@ class OpenChatGlobalAction extends Action2 {
     const languageModelService = accessor.get(ILanguageModelsService);
     const scmService = accessor.get(ISCMService);
     const logService = accessor.get(ILogService);
+    const configurationService = accessor.get(IConfigurationService);
     let chatWidget = widgetService.lastFocusedWidget;
     if (!this.mode || !chatWidget || !isAncestorOfActiveElement(chatWidget.domNode)) {
       chatWidget = await widgetService.revealWidget();
@@ -246,15 +249,30 @@ class OpenChatGlobalAction extends Action2 {
     if (opts?.blockOnResponse) {
       const response = await resp;
       if (response) {
+        const autoReplyEnabled = configurationService.getValue(ChatConfiguration.AutoReply);
         await new Promise((resolve) => {
           const d = response.onDidChange(async () => {
-            if (response.isComplete || response.isPendingConfirmation.get()) {
+            if (response.isComplete) {
+              d.dispose();
+              resolve();
+              return;
+            }
+            const pendingConfirmation = response.isPendingConfirmation.get();
+            if (pendingConfirmation) {
+              const hasPendingQuestionCarousel = response.response.value.some((part) => part.kind === "questionCarousel" && !part.isUsed);
+              if (autoReplyEnabled && hasPendingQuestionCarousel) {
+                return;
+              }
               d.dispose();
               resolve();
             }
           });
         });
-        return { ...response.result, type: response.isPendingConfirmation.get() ? "confirmation" : void 0 };
+        const confirmationInfo = getPendingConfirmationInfo(response);
+        if (confirmationInfo) {
+          return { ...response.result, ...confirmationInfo };
+        }
+        return { ...response.result };
       }
     }
     return void 0;
@@ -290,6 +308,52 @@ async function waitForDefaultAgent(chatAgentService, mode) {
   ]);
 }
 __name(waitForDefaultAgent, "waitForDefaultAgent");
+function getPendingConfirmationInfo(response) {
+  for (const part of response.response.value) {
+    if (part.kind === "toolInvocation") {
+      const state = part.state.get();
+      if (state.type === 1) {
+        return {
+          type: "confirmation",
+          kind: "toolInvocation",
+          toolId: part.toolId
+        };
+      }
+      if (state.type === 3) {
+        return {
+          type: "confirmation",
+          kind: "toolPostApproval",
+          toolId: part.toolId
+        };
+      }
+    }
+    if (part.kind === "confirmation" && !part.isUsed) {
+      return {
+        type: "confirmation",
+        kind: "confirmation",
+        title: part.title,
+        data: part.data
+      };
+    }
+    if (part.kind === "questionCarousel" && !part.isUsed) {
+      return {
+        type: "confirmation",
+        kind: "questionCarousel",
+        questions: part.questions
+      };
+    }
+    if (part.kind === "elicitation2" && part.state.get() === "pending") {
+      const title = part.title;
+      return {
+        type: "confirmation",
+        kind: "elicitation",
+        title: typeof title === "string" ? title : title.value
+      };
+    }
+  }
+  return void 0;
+}
+__name(getPendingConfirmationInfo, "getPendingConfirmationInfo");
 class PrimaryOpenChatGlobalAction extends OpenChatGlobalAction {
   static {
     __name(this, "PrimaryOpenChatGlobalAction");
@@ -460,7 +524,7 @@ function registerChatActions() {
     }
     async run(accessor) {
       const widgetService = accessor.get(IChatWidgetService);
-      await widgetService.openSession(ChatEditorInput.getNewEditorUri(), void 0, { pinned: true });
+      await widgetService.openSession(LocalChatSessionUri.getNewSessionUri(), ACTIVE_GROUP, { pinned: true });
     }
   });
   registerAction2(class NewChatWindowAction extends Action2 {
@@ -487,7 +551,7 @@ function registerChatActions() {
     }
     async run(accessor) {
       const widgetService = accessor.get(IChatWidgetService);
-      await widgetService.openSession(ChatEditorInput.getNewEditorUri(), AUX_WINDOW_GROUP, { pinned: true, auxiliary: { compact: true, bounds: { width: 640, height: 640 } } });
+      await widgetService.openSession(LocalChatSessionUri.getNewSessionUri(), AUX_WINDOW_GROUP, { pinned: true, auxiliary: { compact: true, bounds: { width: 640, height: 640 } } });
     }
   });
   registerAction2(class ClearChatInputHistoryAction extends Action2 {
@@ -612,6 +676,112 @@ function registerChatActions() {
     run(accessor, ...args) {
       const widgetService = accessor.get(IChatWidgetService);
       widgetService.lastFocusedWidget?.focusInput();
+    }
+  });
+  registerAction2(class FocusTodosViewAction extends Action2 {
+    static {
+      __name(this, "FocusTodosViewAction");
+    }
+    static {
+      this.ID = "workbench.action.chat.focusTodosView";
+    }
+    constructor() {
+      super({
+        id: FocusTodosViewAction.ID,
+        title: localize2("interactiveSession.focusTodosView.label", "Agent TODOs: Toggle Focus Between TODOs and Input"),
+        category: CHAT_CATEGORY,
+        f1: true,
+        precondition: ContextKeyExpr.and(ChatContextKeys.inChatSession, ChatContextKeys.chatModeKind.isEqualTo(ChatModeKind.Agent)),
+        keybinding: [{
+          weight: 200,
+          primary: 2048 | 1024 | 50,
+          when: ContextKeyExpr.or(ContextKeyExpr.and(ChatContextKeys.inChatSession, ChatContextKeys.chatModeKind.isEqualTo(ChatModeKind.Agent)), ChatContextKeys.inChatTodoList)
+        }]
+      });
+    }
+    run(accessor) {
+      const widgetService = accessor.get(IChatWidgetService);
+      const widget = widgetService.lastFocusedWidget;
+      if (!widget || !widget.toggleTodosViewFocus()) {
+        alert(localize("chat.todoList.focusUnavailable", "No agent todos to focus right now."));
+      }
+    }
+  });
+  registerAction2(class FocusQuestionCarouselAction extends Action2 {
+    static {
+      __name(this, "FocusQuestionCarouselAction");
+    }
+    static {
+      this.ID = "workbench.action.chat.focusQuestionCarousel";
+    }
+    constructor() {
+      super({
+        id: FocusQuestionCarouselAction.ID,
+        title: localize2("interactiveSession.focusQuestionCarousel.label", "Chat: Toggle Focus Between Question and Input"),
+        category: CHAT_CATEGORY,
+        f1: true,
+        precondition: ChatContextKeys.inChatSession,
+        keybinding: [{
+          weight: 200,
+          primary: 2048 | 1024 | 38,
+          when: ChatContextKeys.inChatSession
+        }]
+      });
+    }
+    run(accessor) {
+      const widgetService = accessor.get(IChatWidgetService);
+      const widget = widgetService.lastFocusedWidget;
+      if (!widget || !widget.toggleQuestionCarouselFocus()) {
+        alert(localize("chat.questionCarousel.focusUnavailable", "No chat question to focus right now."));
+      }
+    }
+  });
+  registerAction2(class FocusTipAction extends Action2 {
+    static {
+      __name(this, "FocusTipAction");
+    }
+    static {
+      this.ID = "workbench.action.chat.focusTip";
+    }
+    constructor() {
+      super({
+        id: FocusTipAction.ID,
+        title: localize2("interactiveSession.focusTip.label", "Chat: Toggle Focus Between Tip and Input"),
+        category: CHAT_CATEGORY,
+        f1: true,
+        precondition: ChatContextKeys.inChatSession,
+        keybinding: [{
+          weight: 200,
+          primary: 2048 | 1024 | 90,
+          when: ContextKeyExpr.or(ChatContextKeys.inChatSession, ChatContextKeys.inChatTip)
+        }]
+      });
+    }
+    run(accessor) {
+      const widgetService = accessor.get(IChatWidgetService);
+      const widget = widgetService.lastFocusedWidget;
+      if (!widget || !widget.toggleTipFocus()) {
+        alert(localize("chat.tip.focusUnavailable", "No chat tip."));
+      }
+    }
+  });
+  registerAction2(class ShowContextUsageAction extends Action2 {
+    static {
+      __name(this, "ShowContextUsageAction");
+    }
+    constructor() {
+      super({
+        id: "workbench.action.chat.showContextUsage",
+        title: localize2("interactiveSession.showContextUsage.label", "Show Context Window Usage"),
+        category: CHAT_CATEGORY,
+        f1: true,
+        precondition: ChatContextKeys.enabled
+      });
+    }
+    async run(accessor) {
+      const widgetService = accessor.get(IChatWidgetService);
+      const widget = widgetService.lastFocusedWidget ?? await widgetService.revealWidget();
+      widget?.input.showContextUsageDetails();
     }
   });
   const nonEnterpriseCopilotUsers = ContextKeyExpr.and(ChatContextKeys.enabled, ContextKeyExpr.notEquals(`config.${defaultChat.completionsAdvancedSetting}.authProvider`, defaultChat.provider.enterprise.id));
@@ -765,13 +935,7 @@ function registerChatActions() {
         category: CHAT_CATEGORY,
         icon: Codicon.sparkle,
         f1: true,
-        precondition: ChatContextKeys.enabled,
-        menu: {
-          id: CHAT_CONFIG_MENU_ID,
-          when: ContextKeyExpr.and(ChatContextKeys.enabled, ContextKeyExpr.equals("view", ChatViewId)),
-          order: 11,
-          group: "1_level"
-        }
+        precondition: ChatContextKeys.enabled
       });
     }
     async run(accessor) {

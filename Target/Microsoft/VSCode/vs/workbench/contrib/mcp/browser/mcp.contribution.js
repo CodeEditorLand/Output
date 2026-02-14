@@ -29,6 +29,8 @@ import { McpResourceFilesystem } from "../common/mcpResourceFilesystem.js";
 import { McpSamplingService } from "../common/mcpSamplingService.js";
 import { McpService } from "../common/mcpService.js";
 import { IMcpElicitationService, IMcpSamplingService, IMcpService, IMcpWorkbenchService } from "../common/mcpTypes.js";
+import { IWorkbenchMcpGatewayService } from "../common/mcpGatewayService.js";
+import { BrowserMcpGatewayService } from "./mcpGatewayService.js";
 import { McpAddContextContribution } from "./mcpAddContextContribution.js";
 import { AddConfigurationAction, EditStoredInput, InstallFromManifestAction, ListMcpServerCommand, McpBrowseCommand, McpBrowseResourcesCommand, McpConfigureSamplingModels, McpConfirmationServerOptionsCommand, MCPServerActionRendering, McpServerOptionsCommand, McpSkipCurrentAutostartCommand, McpStartPromptingServerCommand, OpenRemoteUserMcpResourceCommand, OpenUserMcpResourceCommand, OpenWorkspaceFolderMcpResourceCommand, OpenWorkspaceMcpResourceCommand, RemoveStoredInput, ResetMcpCachedTools, ResetMcpTrustCommand, RestartServer, ShowConfiguration, ShowInstalledMcpServersCommand, ShowOutput, StartServer, StopServer } from "./mcpCommands.js";
 import { McpDiscovery } from "./mcpDiscovery.js";
@@ -73,6 +75,12 @@ registerSingleton(
 registerSingleton(
   IMcpElicitationService,
   McpElicitationService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  IWorkbenchMcpGatewayService,
+  BrowserMcpGatewayService,
   1
   /* InstantiationType.Delayed */
 );

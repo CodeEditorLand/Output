@@ -58,9 +58,10 @@ let MarkerSeverityColumnRenderer = class MarkerSeverityColumnRenderer2 {
     const actionBar = new ActionBar(actionBarColumn, {
       actionViewItemProvider: /* @__PURE__ */ __name((action, options) => action.id === QuickFixAction.ID ? this.instantiationService.createInstance(QuickFixActionViewItem, action, options) : void 0, "actionViewItemProvider")
     });
-    return { actionBar, icon };
+    return { actionBar, icon, elementDisposables: new DisposableStore() };
   }
   renderElement(element, index, templateData) {
+    templateData.elementDisposables.clear();
     const toggleQuickFix = /* @__PURE__ */ __name((enabled) => {
       if (!isUndefinedOrNull(enabled)) {
         const container = DOM.findParentWithClass(templateData.icon, "monaco-table-td");
@@ -75,16 +76,18 @@ let MarkerSeverityColumnRenderer = class MarkerSeverityColumnRenderer2 {
       const quickFixAction = viewModel.quickFixAction;
       templateData.actionBar.push([quickFixAction], { icon: true, label: false });
       toggleQuickFix(viewModel.quickFixAction.enabled);
-      quickFixAction.onDidChange(({ enabled }) => toggleQuickFix(enabled));
-      quickFixAction.onShowQuickFixes(() => {
+      templateData.elementDisposables.add(quickFixAction.onDidChange(({ enabled }) => toggleQuickFix(enabled)));
+      templateData.elementDisposables.add(quickFixAction.onShowQuickFixes(() => {
         const quickFixActionViewItem = templateData.actionBar.viewItems[0];
         if (quickFixActionViewItem) {
           quickFixActionViewItem.showQuickFixes();
         }
-      });
+      }));
     }
   }
   disposeTemplate(templateData) {
+    templateData.elementDisposables.dispose();
+    templateData.actionBar.dispose();
   }
 };
 MarkerSeverityColumnRenderer = MarkerSeverityColumnRenderer_1 = __decorate([

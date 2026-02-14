@@ -11,7 +11,7 @@ var __param = function(paramIndex, decorator) {
     decorator(target, key, paramIndex);
   };
 };
-import { ModifierKeyEmitter, n, trackFocus } from "../../../../../../../base/browser/dom.js";
+import { n } from "../../../../../../../base/browser/dom.js";
 import { renderIcon } from "../../../../../../../base/browser/ui/iconLabel/iconLabels.js";
 import { Codicon } from "../../../../../../../base/common/codicons.js";
 import { BugIndicatingError } from "../../../../../../../base/common/errors.js";
@@ -32,6 +32,7 @@ import { GutterIndicatorMenuContent } from "./gutterIndicatorMenu.js";
 import { assertNever } from "../../../../../../../base/common/assert.js";
 import { localize } from "../../../../../../../nls.js";
 import { asCssVariable } from "../../../../../../../platform/theme/common/colorUtils.js";
+import { IUserInteractionService } from "../../../../../../../platform/userInteraction/browser/userInteractionService.js";
 class InlineEditsGutterIndicatorData {
   static {
     __name(this, "InlineEditsGutterIndicatorData");
@@ -79,7 +80,7 @@ let InlineEditsGutterIndicator = class InlineEditsGutterIndicator2 extends Dispo
   static {
     __name(this, "InlineEditsGutterIndicator");
   }
-  constructor(_editorObs, _data, _tabAction, _verticalOffset, _isHoveringOverInlineEdit, _focusIsInMenu, _hoverService, _instantiationService, _accessibilityService, _themeService) {
+  constructor(_editorObs, _data, _tabAction, _verticalOffset, _isHoveringOverInlineEdit, _focusIsInMenu, _hoverService, _instantiationService, _accessibilityService, _themeService, _userInteractionService) {
     super();
     this._editorObs = _editorObs;
     this._data = _data;
@@ -91,7 +92,8 @@ let InlineEditsGutterIndicator = class InlineEditsGutterIndicator2 extends Dispo
     this._instantiationService = _instantiationService;
     this._accessibilityService = _accessibilityService;
     this._themeService = _themeService;
-    this._modifierPressed = observableFromEvent(this, ModifierKeyEmitter.getInstance().event, () => ModifierKeyEmitter.getInstance().keyStatus.shiftKey);
+    this._userInteractionService = _userInteractionService;
+    this._modifierPressed = derived(this, (reader) => this._userInteractionService.readModifierKeyStatus(this._editorObs.editor.getDomNode(), reader).shiftKey);
     this._gutterIndicatorStyles = derived(this, (reader) => {
       let v = this._tabAction.read(reader);
       const altAction = this._data.read(reader)?.altAction;
@@ -462,9 +464,10 @@ let InlineEditsGutterIndicator = class InlineEditsGutterIndicator2 extends Dispo
       }
       h?.dispose();
     }).toDisposableLiveElement());
-    const focusTracker = disposableStore.add(trackFocus(content.element));
-    disposableStore.add(focusTracker.onDidBlur(() => this._focusIsInMenu.set(false, void 0)));
-    disposableStore.add(focusTracker.onDidFocus(() => this._focusIsInMenu.set(true, void 0)));
+    const isFocused = this._userInteractionService.createFocusTracker(content.element, disposableStore);
+    disposableStore.add(autorun((reader) => {
+      this._focusIsInMenu.set(isFocused.read(reader), void 0);
+    }));
     disposableStore.add(toDisposable(() => this._focusIsInMenu.set(false, void 0)));
     const h = this._hoverService.showInstantHover({
       target: this._iconRef.element,
@@ -486,7 +489,8 @@ InlineEditsGutterIndicator = __decorate([
   __param(6, IHoverService),
   __param(7, IInstantiationService),
   __param(8, IAccessibilityService),
-  __param(9, IThemeService)
+  __param(9, IThemeService),
+  __param(10, IUserInteractionService)
 ], InlineEditsGutterIndicator);
 function getRotationFromDirection(direction) {
   switch (direction) {

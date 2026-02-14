@@ -7,6 +7,8 @@ import { IContextViewService } from '../../../../../platform/contextview/browser
 import { IKeybindingService } from '../../../../../platform/keybinding/common/keybinding.js';
 import { IVerticalSashLayoutProvider, Sash } from '../../../../../base/browser/ui/sash/sash.js';
 import type { IHoverService } from '../../../../../platform/hover/browser/hover.js';
+import { IConfigurationService } from '../../../../../platform/configuration/common/configuration.js';
+import { IAccessibilityService } from '../../../../../platform/accessibility/common/accessibility.js';
 interface IFindOptions {
     showCommonFindToggles?: boolean;
     checkImeCompletionState?: boolean;
@@ -24,6 +26,8 @@ interface IFindOptions {
 }
 export declare abstract class SimpleFindWidget extends Widget implements IVerticalSashLayoutProvider {
     private readonly _keybindingService;
+    private readonly _configurationService;
+    private readonly _accessibilityService;
     private readonly _findInput;
     private readonly _domNode;
     private readonly _innerDomNode;
@@ -37,8 +41,15 @@ export declare abstract class SimpleFindWidget extends Widget implements IVertic
     private _isVisible;
     private _foundMatch;
     private _width;
+    /**
+     * Tracks whether the accessibility help hint has been announced in the ARIA label.
+     * Reset to false when the widget is hidden, allowing the hint to be announced again
+     * on the next reveal.
+     */
+    private _accessibilityHelpHintAnnounced;
+    private _labelResetTimeout;
     readonly state: FindReplaceState;
-    constructor(options: IFindOptions, contextViewService: IContextViewService, contextKeyService: IContextKeyService, hoverService: IHoverService, _keybindingService: IKeybindingService);
+    constructor(options: IFindOptions, contextViewService: IContextViewService, contextKeyService: IContextKeyService, hoverService: IHoverService, _keybindingService: IKeybindingService, _configurationService: IConfigurationService, _accessibilityService: IAccessibilityService);
     getVerticalSashLeft(_sash: Sash): number;
     abstract find(previous: boolean): void;
     abstract findFirst(): void;
@@ -71,6 +82,13 @@ export declare abstract class SimpleFindWidget extends Widget implements IVertic
     protected focusFindBox(): void;
     updateResultCount(): Promise<void>;
     changeState(state: INewFindReplaceState): void;
+    /**
+     * Updates the ARIA label of the find input box.
+     * When a screen reader is active and the accessibility verbosity setting is enabled,
+     * includes a hint about pressing Alt+F1 for accessibility help on first reveal.
+     * The hint is only announced once per show/hide cycle to prevent double-speak.
+     */
+    private _updateFindInputAriaLabel;
     private _announceSearchResults;
 }
 export declare const simpleFindWidgetSashBorder: string;

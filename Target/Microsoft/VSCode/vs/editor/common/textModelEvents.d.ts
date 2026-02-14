@@ -214,9 +214,13 @@ export declare class LineInjectedText {
 export declare class ModelRawLineChanged {
     readonly changeType = RawContentChangedType.LineChanged;
     /**
-     * The line that has changed.
+     * The line number that has changed (before the change was applied).
      */
     readonly lineNumber: number;
+    /**
+     * The new line number the old one is mapped to (after the change was applied).
+     */
+    readonly lineNumberPostEdit: number;
     /**
      * The new value of the line.
      */
@@ -225,7 +229,7 @@ export declare class ModelRawLineChanged {
      * The injected text on the line.
      */
     readonly injectedText: LineInjectedText[] | null;
-    constructor(lineNumber: number, detail: string, injectedText: LineInjectedText[] | null);
+    constructor(lineNumber: number, lineNumberPostEdit: number, detail: string, injectedText: LineInjectedText[] | null);
 }
 /**
  * An event describing that a line height has changed in the model.
@@ -292,9 +296,21 @@ export declare class ModelRawLinesInserted {
      */
     readonly fromLineNumber: number;
     /**
+     * The actual start line number in the updated buffer where the newly inserted content can be found.
+     */
+    readonly fromLineNumberPostEdit: number;
+    /**
+     * The count of inserted lines.
+    */
+    readonly count: number;
+    /**
      * `toLineNumber` - `fromLineNumber` + 1 denotes the number of lines that were inserted
      */
-    readonly toLineNumber: number;
+    get toLineNumber(): number;
+    /**
+     * The actual end line number of the insertion in the updated buffer.
+     */
+    get toLineNumberPostEdit(): number;
     /**
      * The text that was inserted
      */
@@ -303,7 +319,7 @@ export declare class ModelRawLinesInserted {
      * The injected texts for every inserted line.
      */
     readonly injectedTexts: (LineInjectedText[] | null)[];
-    constructor(fromLineNumber: number, toLineNumber: number, detail: string[], injectedTexts: (LineInjectedText[] | null)[]);
+    constructor(fromLineNumber: number, fromLineNumberPostEdit: number, count: number, detail: string[], injectedTexts: (LineInjectedText[] | null)[]);
 }
 /**
  * An event describing that a model has had its EOL changed.

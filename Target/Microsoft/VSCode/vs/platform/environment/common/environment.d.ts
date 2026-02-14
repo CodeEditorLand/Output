@@ -31,7 +31,6 @@ export interface IEnvironmentService {
     workspaceStorageHome: URI;
     localHistoryHome: URI;
     cacheHome: URI;
-    builtinWorkbenchModesHome: URI;
     userDataSyncHome: URI;
     sync: 'on' | 'off' | undefined;
     continueOn?: string;

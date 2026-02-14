@@ -16,6 +16,8 @@ import { IContextViewService } from "../../../../platform/contextview/browser/co
 import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
 import { IHoverService } from "../../../../platform/hover/browser/hover.js";
 import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
 import { localize } from "../../../../nls.js";
 import { DisposableStore } from "../../../../base/common/lifecycle.js";
 const CONTEXT_BROWSER_FIND_WIDGET_VISIBLE = new RawContextKey("browserFindWidgetVisible", false, localize("browser.findWidgetVisible", "Whether the browser find widget is visible"));
@@ -24,7 +26,7 @@ let BrowserFindWidget = class BrowserFindWidget2 extends SimpleFindWidget {
   static {
     __name(this, "BrowserFindWidget");
   }
-  constructor(container, contextViewService, contextKeyService, hoverService, keybindingService) {
+  constructor(container, contextViewService, contextKeyService, hoverService, keybindingService, configurationService, accessibilityService) {
     super({
       showCommonFindToggles: true,
       checkImeCompletionState: true,
@@ -34,7 +36,7 @@ let BrowserFindWidget = class BrowserFindWidget2 extends SimpleFindWidget {
       previousMatchActionId: "workbench.action.browser.findPrevious",
       nextMatchActionId: "workbench.action.browser.findNext",
       closeWidgetActionId: "workbench.action.browser.hideFind"
-    }, contextViewService, contextKeyService, hoverService, keybindingService);
+    }, contextViewService, contextKeyService, hoverService, keybindingService, configurationService, accessibilityService);
     this.container = container;
     this._modelDisposables = this._register(new DisposableStore());
     this._hasFoundMatch = false;
@@ -138,7 +140,9 @@ BrowserFindWidget = __decorate([
   __param(1, IContextViewService),
   __param(2, IContextKeyService),
   __param(3, IHoverService),
-  __param(4, IKeybindingService)
+  __param(4, IKeybindingService),
+  __param(5, IConfigurationService),
+  __param(6, IAccessibilityService)
 ], BrowserFindWidget);
 export {
   BrowserFindWidget,

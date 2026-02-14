@@ -2,7 +2,7 @@ import { IThemeService } from '../../../../platform/theme/common/themeService.js
 import { Part } from '../../part.js';
 import { Dimension } from '../../../../base/browser/dom.js';
 import { Event } from '../../../../base/common/event.js';
-import { GroupDirection, GroupsArrangement, GroupOrientation, IMergeGroupOptions, GroupsOrder, IFindGroupScope, EditorGroupLayout, IEditorSideGroup, IEditorDropTargetDelegate, IEditorPart } from '../../../services/editor/common/editorGroupsService.js';
+import { GroupDirection, GroupsArrangement, GroupOrientation, IMergeGroupOptions, GroupsOrder, IFindGroupScope, EditorGroupLayout, IEditorSideGroup, IEditorDropTargetDelegate, IEditorPart, GroupActivationReason, IEditorGroupActivationEvent } from '../../../services/editor/common/editorGroupsService.js';
 import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
 import { LayoutPriority, IViewSize, ISerializedGrid } from '../../../../base/browser/ui/grid/grid.js';
 import { GroupIdentifier, IEditorPartOptions, IEditorPartOptionsChangeEvent } from '../../../common/editor.js';
@@ -50,7 +50,7 @@ export declare class EditorPart extends Part<IEditorPartMemento> implements IEdi
     private readonly _onDidChangeGroupMaximized;
     readonly onDidChangeGroupMaximized: Event<boolean>;
     private readonly _onDidActivateGroup;
-    readonly onDidActivateGroup: Event<IEditorGroupView>;
+    readonly onDidActivateGroup: Event<IEditorGroupActivationEvent>;
     private readonly _onDidAddGroup;
     readonly onDidAddGroup: Event<IEditorGroupView>;
     private readonly _onDidRemoveGroup;
@@ -75,7 +75,7 @@ export declare class EditorPart extends Part<IEditorPartMemento> implements IEdi
     private mostRecentActiveGroups;
     protected readonly container: HTMLElement;
     readonly scopedInstantiationService: IInstantiationService;
-    private readonly scopedContextKeyService;
+    protected readonly scopedContextKeyService: IContextKeyService;
     private centeredLayoutWidget;
     private gridWidget;
     private readonly gridWidgetDisposables;
@@ -114,7 +114,7 @@ export declare class EditorPart extends Part<IEditorPartMemento> implements IEdi
     findGroup(scope: IFindGroupScope, source?: IEditorGroupView | GroupIdentifier, wrap?: boolean): IEditorGroupView | undefined;
     private doFindGroupByDirection;
     private doFindGroupByLocation;
-    activateGroup(group: IEditorGroupView | GroupIdentifier, preserveWindowOrder?: boolean): IEditorGroupView;
+    activateGroup(group: IEditorGroupView | GroupIdentifier, preserveWindowOrder?: boolean, reason?: GroupActivationReason): IEditorGroupView;
     restoreGroup(group: IEditorGroupView | GroupIdentifier): IEditorGroupView;
     getSize(group: IEditorGroupView | GroupIdentifier): {
         width: number;
@@ -164,7 +164,7 @@ export declare class EditorPart extends Part<IEditorPartMemento> implements IEdi
     private get gridSeparatorBorder();
     updateStyles(): void;
     protected createContentArea(parent: HTMLElement, options?: IEditorPartCreationOptions): HTMLElement;
-    private handleContextKeys;
+    protected handleContextKeys(): void;
     private setupDragAndDropSupport;
     centerLayout(active: boolean): void;
     isLayoutCentered(): boolean;

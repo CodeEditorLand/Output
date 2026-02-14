@@ -11,7 +11,7 @@ var __param = function(paramIndex, decorator) {
     decorator(target, key, paramIndex);
   };
 };
-import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IWorkspaceContextService, toWorkspaceIdentifier } from "../../../../platform/workspace/common/workspace.js";
 import { IJSONEditingService } from "../../configuration/common/jsonEditing.js";
 import { IWorkspacesService } from "../../../../platform/workspaces/common/workspaces.js";
 import { ICommandService } from "../../../../platform/commands/common/commands.js";
@@ -29,16 +29,19 @@ import { IWorkspaceTrustManagementService } from "../../../../platform/workspace
 import { IWorkbenchConfigurationService } from "../../configuration/common/configuration.js";
 import { IUserDataProfilesService } from "../../../../platform/userDataProfile/common/userDataProfile.js";
 import { IUserDataProfileService } from "../../userDataProfile/common/userDataProfile.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
 let BrowserWorkspaceEditingService = class BrowserWorkspaceEditingService2 extends AbstractWorkspaceEditingService {
   static {
     __name(this, "BrowserWorkspaceEditingService");
   }
-  constructor(jsonEditingService, contextService, configurationService, notificationService, commandService, fileService, textFileService, workspacesService, environmentService, fileDialogService, dialogService, hostService, uriIdentityService, workspaceTrustManagementService, userDataProfilesService, userDataProfileService) {
-    super(jsonEditingService, contextService, configurationService, notificationService, commandService, fileService, textFileService, workspacesService, environmentService, fileDialogService, dialogService, hostService, uriIdentityService, workspaceTrustManagementService, userDataProfilesService, userDataProfileService);
+  constructor(jsonEditingService, contextService, configurationService, notificationService, commandService, fileService, textFileService, workspacesService, environmentService, fileDialogService, dialogService, hostService, uriIdentityService, workspaceTrustManagementService, userDataProfilesService, userDataProfileService, logService) {
+    super(jsonEditingService, contextService, configurationService, notificationService, commandService, fileService, textFileService, workspacesService, environmentService, fileDialogService, dialogService, hostService, uriIdentityService, workspaceTrustManagementService, userDataProfilesService, userDataProfileService, logService);
   }
   async enterWorkspace(workspaceUri) {
+    const oldWorkspace = toWorkspaceIdentifier(this.contextService.getWorkspace());
     const result = await this.doEnterWorkspace(workspaceUri);
     if (result) {
+      await this.fireDidEnterWorkspace(oldWorkspace, result.workspace);
       await this.hostService.openWindow([{ workspaceUri }], { forceReuseWindow: true });
     }
   }
@@ -59,7 +62,8 @@ BrowserWorkspaceEditingService = __decorate([
   __param(12, IUriIdentityService),
   __param(13, IWorkspaceTrustManagementService),
   __param(14, IUserDataProfilesService),
-  __param(15, IUserDataProfileService)
+  __param(15, IUserDataProfileService),
+  __param(16, ILogService)
 ], BrowserWorkspaceEditingService);
 registerSingleton(
   IWorkspaceEditingService,

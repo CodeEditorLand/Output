@@ -44,7 +44,7 @@ export declare class ExtensionsViewletViewsContribution extends Disposable imple
     private readonly labelService;
     private readonly contextKeyService;
     private readonly container;
-    constructor(extensionManagementServerService: IExtensionManagementServerService, labelService: ILabelService, viewDescriptorService: IViewDescriptorService, contextKeyService: IContextKeyService);
+    constructor(extensionManagementServerService: IExtensionManagementServerService, labelService: ILabelService, contextKeyService: IContextKeyService);
     private registerViews;
     private createDefaultExtensionsViewDescriptors;
     private createSearchExtensionsViewDescriptors;

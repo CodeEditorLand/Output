@@ -76,7 +76,14 @@ export interface ICommonNativeHostService {
     readonly onDidFocusMainOrAuxiliaryWindow: Event<number>;
     readonly onDidBlurMainOrAuxiliaryWindow: Event<number>;
     readonly onDidChangeDisplay: Event<void>;
+    readonly onDidSuspendOS: Event<void>;
     readonly onDidResumeOS: Event<unknown>;
+    readonly onDidChangeOnBatteryPower: Event<boolean>;
+    readonly onDidChangeThermalState: Event<ThermalState>;
+    readonly onDidChangeSpeedLimit: Event<number>;
+    readonly onWillShutdownOS: Event<void>;
+    readonly onDidLockScreen: Event<void>;
+    readonly onDidUnlockScreen: Event<void>;
     readonly onDidChangeColorScheme: Event<IColorScheme>;
     readonly onDidChangePassword: Event<{
         readonly service: string;
@@ -114,15 +121,11 @@ export interface ICommonNativeHostService {
     isWindowAlwaysOnTop(options?: INativeHostOptions): Promise<boolean>;
     toggleWindowAlwaysOnTop(options?: INativeHostOptions): Promise<void>;
     setWindowAlwaysOnTop(alwaysOnTop: boolean, options?: INativeHostOptions): Promise<void>;
-    /**
-     * Only supported on Windows and macOS. Updates the window controls to match the title bar size.
-     *
-     * @param options `backgroundColor` and `foregroundColor` are only supported on Windows
-     */
     updateWindowControls(options: INativeHostOptions & {
         height?: number;
         backgroundColor?: string;
         foregroundColor?: string;
+        dimmed?: boolean;
     }): Promise<void>;
     updateWindowAccentColor(color: 'default' | 'off' | string, inactiveColor: string | undefined): Promise<void>;
     setMinimumSize(width: number | undefined, height: number | undefined): Promise<void>;
@@ -217,7 +220,26 @@ export interface ICommonNativeHostService {
         path: string;
         contents: string;
     }[]): Promise<void>;
+    getSystemIdleState(idleThreshold: number): Promise<SystemIdleState>;
+    getSystemIdleTime(): Promise<number>;
+    getCurrentThermalState(): Promise<ThermalState>;
+    isOnBatteryPower(): Promise<boolean>;
+    startPowerSaveBlocker(type: PowerSaveBlockerType): Promise<number>;
+    stopPowerSaveBlocker(id: number): Promise<boolean>;
+    isPowerSaveBlockerStarted(id: number): Promise<boolean>;
 }
+/**
+ * Represents the system's idle state.
+ */
+export type SystemIdleState = 'active' | 'idle' | 'locked' | 'unknown';
+/**
+ * Represents the system's thermal state.
+ */
+export type ThermalState = 'unknown' | 'nominal' | 'fair' | 'serious' | 'critical';
+/**
+ * The type of power save blocker.
+ */
+export type PowerSaveBlockerType = 'prevent-app-suspension' | 'prevent-display-sleep';
 export declare const INativeHostService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<INativeHostService>;
 /**
  * A set of methods specific to a native host, i.e. unsupported in web

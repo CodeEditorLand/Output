@@ -31,12 +31,13 @@ import { IViewsService } from "../../views/common/viewsService.js";
 import { IPaneCompositePartService } from "../../panecomposite/browser/panecomposite.js";
 import { stripIcons } from "../../../../base/common/iconLabels.js";
 import { IUserActivityService } from "../../userActivity/common/userActivityService.js";
-import { createWorkbenchDialogOptions } from "../../../../platform/dialogs/browser/dialog.js";
+import { createWorkbenchDialogOptions } from "../../../browser/parts/dialogs/dialog.js";
+import { IHostService } from "../../host/browser/host.js";
 let ProgressService = class ProgressService2 extends Disposable {
   static {
     __name(this, "ProgressService");
   }
-  constructor(activityService, paneCompositeService, viewDescriptorService, viewsService, notificationService, statusbarService, layoutService, keybindingService, userActivityService) {
+  constructor(activityService, paneCompositeService, viewDescriptorService, viewsService, notificationService, statusbarService, layoutService, keybindingService, userActivityService, hostService) {
     super();
     this.activityService = activityService;
     this.paneCompositeService = paneCompositeService;
@@ -47,6 +48,7 @@ let ProgressService = class ProgressService2 extends Disposable {
     this.layoutService = layoutService;
     this.keybindingService = keybindingService;
     this.userActivityService = userActivityService;
+    this.hostService = hostService;
     this.windowProgressStack = [];
     this.windowProgressStatusEntry = void 0;
   }
@@ -439,7 +441,7 @@ let ProgressService = class ProgressService2 extends Disposable {
         cancelId: buttons.length - 1,
         disableCloseAction: options.sticky,
         disableDefaultAction: options.sticky
-      }, this.keybindingService, this.layoutService));
+      }, this.keybindingService, this.layoutService, this.hostService));
       disposables.add(dialog);
       dialog.show().then((dialogResult) => {
         if (!taskCompleted) {
@@ -489,7 +491,8 @@ ProgressService = __decorate([
   __param(5, IStatusbarService),
   __param(6, ILayoutService),
   __param(7, IKeybindingService),
-  __param(8, IUserActivityService)
+  __param(8, IUserActivityService),
+  __param(9, IHostService)
 ], ProgressService);
 registerSingleton(
   IProgressService,

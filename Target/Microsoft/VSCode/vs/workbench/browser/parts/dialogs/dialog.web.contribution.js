@@ -11,20 +11,14 @@ var __param = function(paramIndex, decorator) {
     decorator(target, key, paramIndex);
   };
 };
-import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
 import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import { ILayoutService } from "../../../../platform/layout/browser/layoutService.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
 import { IProductService } from "../../../../platform/product/common/productService.js";
 import { registerWorkbenchContribution2 } from "../../../common/contributions.js";
 import { BrowserDialogHandler } from "./dialogHandler.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { Lazy } from "../../../../base/common/lazy.js";
-import { IOpenerService } from "../../../../platform/opener/common/opener.js";
-import { createBrowserAboutDialogDetails } from "../../../../platform/dialogs/browser/dialog.js";
-import { IMarkdownRendererService } from "../../../../platform/markdown/browser/markdownRenderer.js";
+import { createBrowserAboutDialogDetails } from "./dialog.js";
 let DialogHandlerContribution = class DialogHandlerContribution2 extends Disposable {
   static {
     __name(this, "DialogHandlerContribution");
@@ -32,11 +26,11 @@ let DialogHandlerContribution = class DialogHandlerContribution2 extends Disposa
   static {
     this.ID = "workbench.contrib.dialogHandler";
   }
-  constructor(dialogService, logService, layoutService, keybindingService, instantiationService, productService, clipboardService, openerService, markdownRendererService) {
+  constructor(dialogService, instantiationService, productService) {
     super();
     this.dialogService = dialogService;
     this.productService = productService;
-    this.impl = new Lazy(() => new BrowserDialogHandler(logService, layoutService, keybindingService, instantiationService, clipboardService, openerService, markdownRendererService));
+    this.impl = new Lazy(() => instantiationService.createInstance(BrowserDialogHandler));
     this.model = this.dialogService.model;
     this._register(this.model.onWillShowDialog(() => {
       if (!this.currentDialog) {
@@ -73,14 +67,8 @@ let DialogHandlerContribution = class DialogHandlerContribution2 extends Disposa
 };
 DialogHandlerContribution = __decorate([
   __param(0, IDialogService),
-  __param(1, ILogService),
-  __param(2, ILayoutService),
-  __param(3, IKeybindingService),
-  __param(4, IInstantiationService),
-  __param(5, IProductService),
-  __param(6, IClipboardService),
-  __param(7, IOpenerService),
-  __param(8, IMarkdownRendererService)
+  __param(1, IInstantiationService),
+  __param(2, IProductService)
 ], DialogHandlerContribution);
 registerWorkbenchContribution2(
   DialogHandlerContribution.ID,

@@ -203,6 +203,7 @@ __name(registerChatToolActions, "registerChatToolActions");
 export {
   AcceptToolConfirmationActionId,
   AcceptToolPostConfirmationActionId,
+  ConfigureToolsAction,
   SkipToolConfirmationActionId,
   SkipToolPostConfirmationActionId,
   registerChatToolActions

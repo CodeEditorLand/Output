@@ -1,3 +1,6 @@
+import { IEditorConfiguration } from '../config/editorConfiguration.js';
+import { ICoordinatesConverter } from '../coordinatesConverter.js';
+import { IModelDecoration } from '../model.js';
 export declare class CustomLine {
     index: number;
     lineNumber: number;
@@ -41,7 +44,7 @@ export declare class LineHeightsManager {
     private _invalidIndex;
     private _defaultLineHeight;
     private _hasPending;
-    constructor(defaultLineHeight: number, customLineHeightData: ICustomLineHeightData[]);
+    constructor(defaultLineHeight: number, customLineHeightData: CustomLineHeightData[]);
     set defaultLineHeight(defaultLineHeight: number);
     get defaultLineHeight(): number;
     removeCustomLineHeight(decorationID: string): void;
@@ -49,13 +52,15 @@ export declare class LineHeightsManager {
     heightForLineNumber(lineNumber: number): number;
     getAccumulatedLineHeightsIncludingLineNumber(lineNumber: number): number;
     onLinesDeleted(fromLineNumber: number, toLineNumber: number): void;
-    onLinesInserted(fromLineNumber: number, toLineNumber: number): void;
+    onLinesInserted(fromLineNumber: number, toLineNumber: number, lineHeightsAdded: CustomLineHeightData[]): void;
     commit(): void;
     private _binarySearchOverOrderedCustomLinesArray;
 }
-export interface ICustomLineHeightData {
+export declare class CustomLineHeightData {
     readonly decorationId: string;
     readonly startLineNumber: number;
     readonly endLineNumber: number;
     readonly lineHeight: number;
+    constructor(decorationId: string, startLineNumber: number, endLineNumber: number, lineHeight: number);
+    static fromDecorations(decorations: IModelDecoration[], coordinatesConverter: ICoordinatesConverter, configuration: IEditorConfiguration): CustomLineHeightData[];
 }

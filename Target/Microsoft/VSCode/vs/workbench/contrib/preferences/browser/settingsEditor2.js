@@ -161,6 +161,7 @@ let SettingsEditor2 = class SettingsEditor22 extends EditorPane {
       `@${FEATURE_SETTING_TAG}remote`,
       `@${FEATURE_SETTING_TAG}timeline`,
       `@${FEATURE_SETTING_TAG}notebook`,
+      `@${FEATURE_SETTING_TAG}chat`,
       `@${POLICY_SETTING_TAG}`
     ];
   }
@@ -211,15 +212,15 @@ let SettingsEditor2 = class SettingsEditor22 extends EditorPane {
     this.DISMISSED_EXTENSION_SETTINGS_STORAGE_KEY = "settingsEditor2.dismissedExtensionSettings";
     this.DISMISSED_EXTENSION_SETTINGS_DELIMITER = "	";
     this.searchInputActionBar = null;
-    this.searchDelayer = new Delayer(200);
+    this.searchDelayer = this._register(new Delayer(200));
     this.viewState = {
       settingsTarget: 3
       /* ConfigurationTarget.USER_LOCAL */
     };
-    this.settingFastUpdateDelayer = new Delayer(SettingsEditor2_1.SETTING_UPDATE_FAST_DEBOUNCE);
-    this.settingSlowUpdateDelayer = new Delayer(SettingsEditor2_1.SETTING_UPDATE_SLOW_DEBOUNCE);
-    this.searchInputDelayer = new Delayer(SettingsEditor2_1.SEARCH_DEBOUNCE);
-    this.updatedConfigSchemaDelayer = new Delayer(SettingsEditor2_1.CONFIG_SCHEMA_UPDATE_DELAYER);
+    this.settingFastUpdateDelayer = this._register(new Delayer(SettingsEditor2_1.SETTING_UPDATE_FAST_DEBOUNCE));
+    this.settingSlowUpdateDelayer = this._register(new Delayer(SettingsEditor2_1.SETTING_UPDATE_SLOW_DEBOUNCE));
+    this.searchInputDelayer = this._register(new Delayer(SettingsEditor2_1.SEARCH_DEBOUNCE));
+    this.updatedConfigSchemaDelayer = this._register(new Delayer(SettingsEditor2_1.CONFIG_SCHEMA_UPDATE_DELAYER));
     this.inSettingsEditorContextKey = CONTEXT_SETTINGS_EDITOR.bindTo(contextKeyService);
     this.searchFocusContextKey = CONTEXT_SETTINGS_SEARCH_FOCUS.bindTo(contextKeyService);
     this.tocRowFocused = CONTEXT_TOC_ROW_FOCUS.bindTo(contextKeyService);
@@ -626,8 +627,13 @@ let SettingsEditor2 = class SettingsEditor22 extends EditorPane {
         this.focusSettings();
       }
     }));
+    const headerRightControlsContainer = DOM.append(headerControlsContainer, $(".settings-right-controls"));
+    const openSettingsJsonContainer = DOM.append(headerRightControlsContainer, $(".open-settings-json"));
+    const openSettingsJsonButton = this._register(new Button(openSettingsJsonContainer, { secondary: true, title: true, ...defaultButtonStyles }));
+    openSettingsJsonButton.label = localize("openSettingsJson", "Edit as JSON");
+    this._register(openSettingsJsonButton.onDidClick(() => this.openSettingsFile()));
     if (this.userDataSyncWorkbenchService.enabled && this.userDataSyncEnablementService.canToggleEnablement()) {
-      const syncControls = this._register(this.instantiationService.createInstance(SyncControls, this.window, headerControlsContainer));
+      const syncControls = this._register(this.instantiationService.createInstance(SyncControls, this.window, headerRightControlsContainer));
       this._register(syncControls.onDidChangeLastSyncedLabel((lastSyncedLabel) => {
         this.lastSyncedLabel = lastSyncedLabel;
         this.updateInputAriaLabel();
@@ -699,7 +705,7 @@ let SettingsEditor2 = class SettingsEditor22 extends EditorPane {
         }
       } catch {
       }
-      if (this.viewState.filterToCategory && evt.source.displayCategory !== targetElement.displayCategory) {
+      if (this.viewState.categoryFilter && evt.source.displayCategory !== targetElement.displayCategory) {
         this.tocTree.setFocus([]);
       }
       try {
@@ -838,47 +844,10 @@ let SettingsEditor2 = class SettingsEditor22 extends EditorPane {
       }
       this.tocFocusedElement = element;
       this.tocTree.setSelection(element ? [element] : []);
-      if (this.searchResultModel) {
-        if (this.viewState.filterToCategory !== element) {
-          this.viewState.filterToCategory = element ?? void 0;
-          this.renderTree(void 0, true);
-          this.settingsTree.scrollTop = 0;
-        }
-      } else if (element && (!e.browserEvent || !e.browserEvent.fromScroll)) {
-        let targetElement = element;
-        if (!this.settingsTree.hasElement(targetElement)) {
-          if (element instanceof SettingsTreeGroupElement) {
-            const targetId = element.id;
-            const findInViewNodes = /* @__PURE__ */ __name((nodes) => {
-              for (const node of nodes) {
-                if (node.element instanceof SettingsTreeGroupElement && node.element.id === targetId) {
-                  return node.element;
-                }
-                if (node.children && node.children.length > 0) {
-                  const found = findInViewNodes(node.children);
-                  if (found) {
-                    return found;
-                  }
-                }
-              }
-              return void 0;
-            }, "findInViewNodes");
-            try {
-              const rootNode = this.settingsTree.getNode(null);
-              if (rootNode && rootNode.children) {
-                const foundOldElement = findInViewNodes(rootNode.children);
-                if (foundOldElement) {
-                  targetElement = foundOldElement;
-                }
-              }
-            } catch (err) {
-            }
-          }
-        }
-        if (this.settingsTree.hasElement(targetElement)) {
-          this.settingsTree.reveal(targetElement, 0);
-          this.settingsTree.setFocus([targetElement]);
-        }
+      if (this.viewState.categoryFilter !== element) {
+        this.viewState.categoryFilter = element ?? void 0;
+        this.renderTree(void 0, true);
+        this.settingsTree.scrollTop = 0;
       }
     }));
     this._register(this.tocTree.onDidFocus(() => {
@@ -1003,54 +972,6 @@ let SettingsEditor2 = class SettingsEditor22 extends EditorPane {
   }
   updateTreeScrollSync() {
     this.settingRenderers.cancelSuggesters();
-    if (this.searchResultModel) {
-      return;
-    }
-    if (!this.tocTreeModel) {
-      return;
-    }
-    const elementToSync = this.settingsTree.firstVisibleElement;
-    const element = elementToSync instanceof SettingsTreeSettingElement ? elementToSync.parent : elementToSync instanceof SettingsTreeGroupElement ? elementToSync : null;
-    let nodeExists = true;
-    try {
-      this.tocTree.getNode(element);
-    } catch (e) {
-      nodeExists = false;
-    }
-    if (!nodeExists) {
-      return;
-    }
-    if (element && this.tocTree.getSelection()[0] !== element) {
-      const ancestors = this.getAncestors(element);
-      ancestors.forEach((e) => this.tocTree.expand(e));
-      this.tocTree.reveal(element);
-      const elementTop = this.tocTree.getRelativeTop(element);
-      if (typeof elementTop !== "number") {
-        return;
-      }
-      this.tocTree.collapseAll();
-      ancestors.forEach((e) => this.tocTree.expand(e));
-      if (elementTop < 0 || elementTop > 1) {
-        this.tocTree.reveal(element);
-      } else {
-        this.tocTree.reveal(element, elementTop);
-      }
-      this.tocTree.expand(element);
-      this.tocTree.setSelection([element]);
-      const fakeKeyboardEvent = new KeyboardEvent("keydown");
-      fakeKeyboardEvent.fromScroll = true;
-      this.tocTree.setFocus([element], fakeKeyboardEvent);
-    }
-  }
-  getAncestors(element) {
-    const ancestors = [];
-    while (element.parent) {
-      if (element.parent.id !== "root") {
-        ancestors.push(element.parent);
-      }
-      element = element.parent;
-    }
-    return ancestors.reverse();
   }
   updateChangedSetting(key, value, manualReset, languageFilter, scope) {
     const settingsTarget = this.settingsTargetsWidget.settingsTarget;
@@ -1347,6 +1268,15 @@ let SettingsEditor2 = class SettingsEditor22 extends EditorPane {
         await this.onSearchInputChanged(true);
       } else {
         this.refreshTOCTree();
+        const rootChildren = this.settingsTreeModel.value.root.children;
+        if (Array.isArray(rootChildren) && rootChildren.length > 0) {
+          const firstCategory = rootChildren[0];
+          if (firstCategory instanceof SettingsTreeGroupElement) {
+            this.viewState.categoryFilter = firstCategory;
+            this.tocTree.setFocus([firstCategory]);
+            this.tocTree.setSelection([firstCategory]);
+          }
+        }
         this.refreshTree();
         this.tocTree.collapseAll();
       }
@@ -1510,7 +1440,7 @@ let SettingsEditor2 = class SettingsEditor22 extends EditorPane {
       }
       if (expandResults) {
         this.tocTree.setFocus([]);
-        this.viewState.filterToCategory = void 0;
+        this.viewState.categoryFilter = void 0;
       }
       this.tocTreeModel.currentSearchModel = this.searchResultModel;
       if (this.searchResultModel) {
@@ -1613,7 +1543,7 @@ let SettingsEditor2 = class SettingsEditor22 extends EditorPane {
     this.tocTreeModel.currentSearchModel = this.searchResultModel;
     if (expandResults) {
       this.tocTree.setFocus([]);
-      this.viewState.filterToCategory = void 0;
+      this.viewState.categoryFilter = void 0;
       this.tocTree.expandAll();
       this.settingsTree.scrollTop = 0;
     }
@@ -1827,10 +1757,9 @@ let SyncControls = class SyncControls2 extends Disposable {
     this.userDataSyncEnablementService = userDataSyncEnablementService;
     this._onDidChangeLastSyncedLabel = this._register(new Emitter());
     this.onDidChangeLastSyncedLabel = this._onDidChangeLastSyncedLabel.event;
-    const headerRightControlsContainer = DOM.append(container, $(".settings-right-controls"));
-    const turnOnSyncButtonContainer = DOM.append(headerRightControlsContainer, $(".turn-on-sync"));
+    const turnOnSyncButtonContainer = DOM.append(container, $(".turn-on-sync"));
     this.turnOnSyncButton = this._register(new Button(turnOnSyncButtonContainer, { title: true, ...defaultButtonStyles }));
-    this.lastSyncedLabel = DOM.append(headerRightControlsContainer, $(".last-synced-label"));
+    this.lastSyncedLabel = DOM.append(container, $(".last-synced-label"));
     DOM.hide(this.lastSyncedLabel);
     this.turnOnSyncButton.enabled = true;
     this.turnOnSyncButton.label = localize("turnOnSyncButton", "Backup and Sync Settings");

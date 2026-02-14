@@ -26,6 +26,7 @@ var ExtensionsFilter;
   ExtensionsFilter2["CompletionsVersionInCopilotChat"] = "X-VSCode-CompletionsInChatExtensionVersion";
   ExtensionsFilter2["CopilotSku"] = "X-GitHub-Copilot-SKU";
   ExtensionsFilter2["MicrosoftInternalOrg"] = "X-Microsoft-Internal-Org";
+  ExtensionsFilter2["CopilotTrackingId"] = "X-Copilot-Tracking-Id";
 })(ExtensionsFilter || (ExtensionsFilter = {}));
 var StorageVersionKeys;
 (function(StorageVersionKeys2) {
@@ -34,6 +35,7 @@ var StorageVersionKeys;
   StorageVersionKeys2["CompletionsVersion"] = "extensionsAssignmentFilterProvider.copilotCompletionsVersion";
   StorageVersionKeys2["CopilotSku"] = "extensionsAssignmentFilterProvider.copilotSku";
   StorageVersionKeys2["CopilotInternalOrg"] = "extensionsAssignmentFilterProvider.copilotInternalOrg";
+  StorageVersionKeys2["CopilotTrackingId"] = "extensionsAssignmentFilterProvider.copilotTrackingId";
 })(StorageVersionKeys || (StorageVersionKeys = {}));
 let CopilotAssignmentFilterProvider = CopilotAssignmentFilterProvider_1 = class CopilotAssignmentFilterProvider2 extends Disposable {
   static {
@@ -69,6 +71,11 @@ let CopilotAssignmentFilterProvider = CopilotAssignmentFilterProvider_1 = class 
     );
     this.copilotInternalOrg = this._storageService.get(
       StorageVersionKeys.CopilotInternalOrg,
+      0
+      /* StorageScope.PROFILE */
+    );
+    this.copilotTrackingId = this._storageService.get(
+      StorageVersionKeys.CopilotTrackingId,
       0
       /* StorageScope.PROFILE */
     );
@@ -129,15 +136,17 @@ let CopilotAssignmentFilterProvider = CopilotAssignmentFilterProvider_1 = class 
   }
   updateCopilotEntitlementInfo() {
     const newSku = this._chatEntitlementService.sku;
+    const newTrackingId = this._chatEntitlementService.copilotTrackingId;
     const newIsGitHubInternal = this._chatEntitlementService.organisations?.includes("github");
     const newIsMicrosoftInternal = this._chatEntitlementService.organisations?.includes("microsoft") || this._chatEntitlementService.organisations?.includes("ms-copilot") || this._chatEntitlementService.organisations?.includes("MicrosoftCopilot");
     const newIsVSCodeInternal = this._chatEntitlementService.organisations?.includes("Visual-Studio-Code");
     const newInternalOrg = newIsVSCodeInternal ? "vscode" : newIsGitHubInternal ? "github" : newIsMicrosoftInternal ? "microsoft" : void 0;
-    if (this.copilotSku === newSku && this.copilotInternalOrg === newInternalOrg) {
+    if (this.copilotSku === newSku && this.copilotInternalOrg === newInternalOrg && this.copilotTrackingId === newTrackingId) {
       return;
     }
     this.copilotSku = newSku;
     this.copilotInternalOrg = newInternalOrg;
+    this.copilotTrackingId = newTrackingId;
     this._storageService.store(
       StorageVersionKeys.CopilotSku,
       this.copilotSku,
@@ -148,6 +157,13 @@ let CopilotAssignmentFilterProvider = CopilotAssignmentFilterProvider_1 = class 
     this._storageService.store(
       StorageVersionKeys.CopilotInternalOrg,
       this.copilotInternalOrg,
+      0,
+      1
+      /* StorageTarget.MACHINE */
+    );
+    this._storageService.store(
+      StorageVersionKeys.CopilotTrackingId,
+      this.copilotTrackingId,
       0,
       1
       /* StorageTarget.MACHINE */
@@ -178,6 +194,8 @@ let CopilotAssignmentFilterProvider = CopilotAssignmentFilterProvider_1 = class 
         return this.copilotSku ?? null;
       case ExtensionsFilter.MicrosoftInternalOrg:
         return this.copilotInternalOrg ?? null;
+      case ExtensionsFilter.CopilotTrackingId:
+        return this.copilotTrackingId ?? null;
       default:
         return null;
     }

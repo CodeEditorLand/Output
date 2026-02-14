@@ -70,7 +70,7 @@ let ConfigurationManager = class ConfigurationManager2 {
     this._onDidChangeConfigurationProviders = new Emitter();
     this.onDidChangeConfigurationProviders = this._onDidChangeConfigurationProviders.event;
     this.configProviders = [];
-    this.toDispose = [this._onDidChangeConfigurationProviders];
+    this.toDispose = [this._onDidChangeConfigurationProviders, this._onDidSelectConfigurationName];
     this.initLaunches();
     this.setCompoundSchemaValues();
     this.registerListeners();

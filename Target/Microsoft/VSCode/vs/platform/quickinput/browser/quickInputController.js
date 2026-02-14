@@ -46,6 +46,9 @@ import { TriStateCheckbox, createToggleActionViewItemProvider } from "../../../b
 import { defaultCheckboxStyles } from "../../theme/browser/defaultStyles.js";
 import { QuickInputTreeController } from "./tree/quickInputTreeController.js";
 import { QuickTree } from "./tree/quickTree.js";
+import { isMotionReduced } from "../../../base/browser/ui/motion/motion.js";
+import { layout2d } from "../../../base/common/layout.js";
+import { getAnchorRect } from "../../../base/browser/ui/contextview/contextview.js";
 const $ = dom.$;
 const VIEWSTATE_STORAGE_KEY = "workbench.quickInput.viewState";
 let QuickInputController = class QuickInputController2 extends Disposable {
@@ -454,6 +457,7 @@ let QuickInputController = class QuickInputController2 extends Disposable {
       input.quickNavigate = options.quickNavigate;
       input.hideInput = !!options.hideInput;
       input.contextKey = options.contextKey;
+      input.anchor = options.anchor;
       input.busy = true;
       Promise.all([picks, options.activeItem]).then(([items, _activeItem]) => {
         activeItem = _activeItem;
@@ -600,11 +604,23 @@ let QuickInputController = class QuickInputController2 extends Disposable {
     ui.inputBox.actions = void 0;
     const backKeybindingLabel = this.options.backKeybindingLabel();
     backButton.tooltip = backKeybindingLabel ? localize("quickInput.backWithKeybinding", "Back ({0})", backKeybindingLabel) : localize("quickInput.back", "Back");
+    const wasVisible = ui.container.style.display !== "none";
     ui.container.style.display = "";
+    this._cancelExitAnimation?.();
+    this._cancelExitAnimation = void 0;
     this.updateLayout();
+    this.dndController?.setEnabled(!controller.anchor);
     this.dndController?.layoutContainer();
     ui.inputBox.setFocus();
     this.quickInputTypeContext.set(controller.type);
+    if (!wasVisible && !isMotionReduced(ui.container)) {
+      ui.container.classList.add("animating-entrance");
+      const onAnimationEnd = /* @__PURE__ */ __name(() => {
+        ui.container.classList.remove("animating-entrance");
+        ui.container.removeEventListener("animationend", onAnimationEnd);
+      }, "onAnimationEnd");
+      ui.container.addEventListener("animationend", onAnimationEnd);
+    }
   }
   isVisible() {
     return !!this.ui && this.ui.container.style.display !== "none";
@@ -666,7 +682,22 @@ let QuickInputController = class QuickInputController2 extends Disposable {
     this.controller = null;
     this.onHideEmitter.fire();
     if (container) {
-      container.style.display = "none";
+      if (!isMotionReduced(container)) {
+        container.classList.add("animating-exit");
+        const cleanupAnimation = /* @__PURE__ */ __name(() => {
+          container.classList.remove("animating-exit");
+          container.removeEventListener("animationend", onAnimationEnd);
+          this._cancelExitAnimation = void 0;
+        }, "cleanupAnimation");
+        const onAnimationEnd = /* @__PURE__ */ __name(() => {
+          container.style.display = "none";
+          cleanupAnimation();
+        }, "onAnimationEnd");
+        this._cancelExitAnimation = cleanupAnimation;
+        container.addEventListener("animationend", onAnimationEnd);
+      } else {
+        container.style.display = "none";
+      }
     }
     if (!focusChanged) {
       let currentElement = this.previousFocusElement;
@@ -734,13 +765,45 @@ let QuickInputController = class QuickInputController2 extends Disposable {
   updateLayout() {
     if (this.ui && this.isVisible()) {
       const style = this.ui.container.style;
-      const width = Math.min(this.dimension.width * 0.62, QuickInputController_1.MAX_WIDTH);
+      let width = Math.min(this.dimension.width * 0.62, QuickInputController_1.MAX_WIDTH);
       style.width = width + "px";
-      style.top = `${this.viewState?.top ? Math.round(this.dimension.height * this.viewState.top) : this.titleBarOffset}px`;
-      style.left = `${Math.round(this.dimension.width * (this.viewState?.left ?? 0.5) - width / 2)}px`;
+      let listHeight = this.dimension && this.dimension.height * 0.4;
+      if (this.controller?.anchor) {
+        const container = this.layoutService.getContainer(dom.getActiveWindow()).getBoundingClientRect();
+        const anchor = getAnchorRect(this.controller.anchor);
+        width = 380;
+        listHeight = this.dimension ? Math.min(this.dimension.height * 0.2, 200) : 200;
+        const containerHeight = Math.floor(listHeight) + 6 + 26 + 16;
+        const { top, left, right, bottom, anchorAlignment, anchorPosition } = layout2d(container, { width, height: containerHeight }, anchor, {
+          anchorPosition: 1
+          /* AnchorPosition.ABOVE */
+        });
+        if (anchorAlignment === 1) {
+          style.right = `${right}px`;
+          style.left = "initial";
+        } else {
+          style.left = `${left}px`;
+          style.right = "initial";
+        }
+        if (anchorPosition === 1) {
+          style.bottom = `${bottom}px`;
+          style.top = "initial";
+        } else {
+          style.top = `${top}px`;
+          style.bottom = "initial";
+        }
+        style.width = `${width}px`;
+        style.height = "";
+      } else {
+        style.top = `${this.viewState?.top ? Math.round(this.dimension.height * this.viewState.top) : this.titleBarOffset}px`;
+        style.left = `${Math.round(this.dimension.width * (this.viewState?.left ?? 0.5) - width / 2)}px`;
+        style.right = "";
+        style.bottom = "";
+        style.height = "";
+      }
       this.ui.inputBox.layout();
-      this.ui.list.layout(this.dimension && this.dimension.height * 0.4);
-      this.ui.tree.layout(this.dimension && this.dimension.height * 0.4);
+      this.ui.list.layout(listHeight);
+      this.ui.tree.layout(listHeight);
     }
   }
   applyStyles(styles) {
@@ -843,6 +906,7 @@ let QuickInputDragAndDropController = class QuickInputDragAndDropController2 ext
     this._layoutService = _layoutService;
     this.configurationService = configurationService;
     this.dndViewState = observableValue(this, void 0);
+    this._enabled = true;
     this._snapThreshold = 20;
     this._snapLineHorizontalRatio = 0.25;
     this._quickInputAlignmentContext = QuickInputAlignmentContextKey.bindTo(contextKeyService);
@@ -857,6 +921,9 @@ let QuickInputDragAndDropController = class QuickInputDragAndDropController2 ext
     this._container = container;
   }
   layoutContainer(dimension = this._layoutService.activeContainerDimension) {
+    if (!this._enabled) {
+      return;
+    }
     const state = this.dndViewState.get();
     const dragAreaRect = this._quickInputContainer.getBoundingClientRect();
     if (state?.top && state?.left) {
@@ -866,6 +933,10 @@ let QuickInputDragAndDropController = class QuickInputDragAndDropController2 ext
       const d = a * b - c / 2;
       this._layout(state.top * dimension.height, d);
     }
+  }
+  setEnabled(enabled) {
+    this._enabled = enabled;
+    this._quickInputContainer.classList.toggle("no-drag", !enabled);
   }
   setAlignment(alignment, done = true) {
     if (alignment === "top") {
@@ -893,6 +964,9 @@ let QuickInputDragAndDropController = class QuickInputDragAndDropController2 ext
   registerMouseListeners() {
     const dragArea = this._quickInputContainer;
     this._register(dom.addDisposableGenericMouseUpListener(dragArea, (event) => {
+      if (!this._enabled) {
+        return;
+      }
       const originEvent = new StandardMouseEvent(dom.getWindow(dragArea), event);
       if (originEvent.detail !== 2) {
         return;
@@ -904,6 +978,9 @@ let QuickInputDragAndDropController = class QuickInputDragAndDropController2 ext
       this.dndViewState.set({ top: void 0, left: void 0, done: true }, void 0);
     }));
     this._register(dom.addDisposableGenericMouseDownListener(dragArea, (e) => {
+      if (!this._enabled) {
+        return;
+      }
       const activeWindow = dom.getWindow(this._layoutService.activeContainer);
       const originEvent = new StandardMouseEvent(activeWindow, e);
       const area = this._quickInputDragAreas.find(({ node, includeChildren }) => includeChildren ? dom.isAncestor(originEvent.target, node) : originEvent.target === node);

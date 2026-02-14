@@ -68,7 +68,7 @@ let VariablesView = class VariablesView2 extends ViewPane {
     this.needsRefresh = false;
     this.savedViewState = /* @__PURE__ */ new Map();
     this.autoExpandedScopes = /* @__PURE__ */ new Set();
-    this.updateTreeScheduler = new RunOnceScheduler(async () => {
+    this.updateTreeScheduler = this._register(new RunOnceScheduler(async () => {
       const stackFrame = this.debugService.getViewModel().focusedStackFrame;
       this.needsRefresh = false;
       const input = this.tree.getInput();
@@ -87,7 +87,7 @@ let VariablesView = class VariablesView2 extends ViewPane {
         this.autoExpandedScopes.add(toExpand.getId());
         await this.tree.expand(toExpand);
       }
-    }, 400);
+    }, 400));
   }
   renderBody(container) {
     super.renderBody(container);

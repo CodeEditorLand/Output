@@ -1,13 +1,13 @@
 import { URI } from '../../../../../../base/common/uri.js';
 import { IFileService } from '../../../../../../platform/files/common/files.js';
-import { IWorkspaceContextService } from '../../../../../../platform/workspace/common/workspace.js';
+import { IWorkspaceContextService, IWorkspaceFolder } from '../../../../../../platform/workspace/common/workspace.js';
 import { IConfigurationService } from '../../../../../../platform/configuration/common/configuration.js';
 import { IResolvedPromptFile, IResolvedPromptSourceFolder } from '../config/promptFileLocations.js';
 import { PromptsType } from '../promptTypes.js';
 import { IWorkbenchEnvironmentService } from '../../../../../services/environment/common/environmentService.js';
 import { ISearchService } from '../../../../../services/search/common/search.js';
 import { CancellationToken } from '../../../../../../base/common/cancellation.js';
-import { PromptsStorage } from '../service/promptsService.js';
+import { AgentFileType, IResolvedAgentFile, PromptsStorage } from '../service/promptsService.js';
 import { IUserDataProfileService } from '../../../../../services/userDataProfile/common/userDataProfile.js';
 import { Event } from '../../../../../../base/common/event.js';
 import { ILogService } from '../../../../../../platform/log/common/log.js';
@@ -25,6 +25,9 @@ export declare class PromptFilesLocator {
     private readonly logService;
     private readonly pathService;
     constructor(fileService: IFileService, configService: IConfigurationService, workspaceService: IWorkspaceContextService, environmentService: IWorkbenchEnvironmentService, searchService: ISearchService, userDataService: IUserDataProfileService, logService: ILogService, pathService: IPathService);
+    protected getWorkspaceFolders(): readonly IWorkspaceFolder[];
+    protected getWorkspaceFolder(resource: URI): IWorkspaceFolder | undefined;
+    protected onDidChangeWorkspaceFolders(): Event<void>;
     /**
      * List all prompt files from the filesystem.
      *
@@ -49,7 +52,7 @@ export declare class PromptFilesLocator {
     getAgentSourceFolders(): Promise<readonly URI[]>;
     /**
      * Gets the hook source folders for creating new hooks.
-     * Returns only the Copilot hooks folder (.github/hooks) since Claude paths are read-only.
+     * Returns folders from config, excluding user storage and Claude paths (which are read-only).
      */
     getHookSourceFolders(): Promise<readonly URI[]>;
     /**
@@ -100,6 +103,7 @@ export declare class PromptFilesLocator {
     private toAbsoluteLocations;
     /**
      * Uses the file service to resolve the provided location and return either the file at the location of files in the directory.
+     * For claude rules folders (.claude/rules), this searches recursively to support subdirectories.
      */
     private resolveFilesAtLocation;
     /**
@@ -107,11 +111,11 @@ export declare class PromptFilesLocator {
      * Requires a FileSearchProvider to be available for the folder's scheme.
      */
     private searchFilesInLocation;
-    findCopilotInstructionsMDsInWorkspace(token: CancellationToken): Promise<URI[]>;
+    findCopilotInstructionsMDsInWorkspace(token: CancellationToken): Promise<IResolvedAgentFile[]>;
     /**
      * Gets list of `AGENTS.md` files anywhere in the workspace.
      */
-    findAgentMDsInWorkspace(token: CancellationToken): Promise<URI[]>;
+    findAgentMDsInWorkspace(token: CancellationToken): Promise<IResolvedAgentFile[]>;
     private findAgentMDsInFolder;
     /**
      * Recursively traverses a folder using the file service to find AGENTS.md files.
@@ -119,9 +123,10 @@ export declare class PromptFilesLocator {
      */
     private findAgentMDsUsingFileService;
     /**
-     * Gets list of `AGENTS.md` files only at the root workspace folder(s).
+     * Gets list of files at the root workspace folder(s).
      */
-    findAgentMDsInWorkspaceRoots(token: CancellationToken): Promise<URI[]>;
+    findFilesInWorkspaceRoots(fileName: string, folder: string | undefined, type: AgentFileType, token: CancellationToken, result?: IResolvedAgentFile[]): Promise<IResolvedAgentFile[]>;
+    findFilesInRoots(roots: URI[], fileName: string, type: AgentFileType, token: CancellationToken, result?: IResolvedAgentFile[]): Promise<IResolvedAgentFile[]>;
     getAgentFileURIFromModeFile(oldURI: URI): URI | undefined;
     private findAgentSkillsInFolder;
     /**

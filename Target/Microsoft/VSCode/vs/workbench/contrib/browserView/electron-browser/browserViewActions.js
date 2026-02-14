@@ -5,7 +5,7 @@ import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextke
 import { Action2, registerAction2, MenuId } from "../../../../platform/actions/common/actions.js";
 import { ACTIVE_GROUP, IEditorService, SIDE_GROUP } from "../../../services/editor/common/editorService.js";
 import { Codicon } from "../../../../base/common/codicons.js";
-import { BrowserEditor, CONTEXT_BROWSER_CAN_GO_BACK, CONTEXT_BROWSER_CAN_GO_FORWARD, CONTEXT_BROWSER_DEVTOOLS_OPEN, CONTEXT_BROWSER_FOCUSED, CONTEXT_BROWSER_STORAGE_SCOPE, CONTEXT_BROWSER_ELEMENT_SELECTION_ACTIVE, CONTEXT_BROWSER_FIND_WIDGET_FOCUSED, CONTEXT_BROWSER_FIND_WIDGET_VISIBLE } from "./browserEditor.js";
+import { BrowserEditor, CONTEXT_BROWSER_CAN_GO_BACK, CONTEXT_BROWSER_CAN_GO_FORWARD, CONTEXT_BROWSER_DEVTOOLS_OPEN, CONTEXT_BROWSER_FOCUSED, CONTEXT_BROWSER_HAS_URL, CONTEXT_BROWSER_STORAGE_SCOPE, CONTEXT_BROWSER_ELEMENT_SELECTION_ACTIVE, CONTEXT_BROWSER_FIND_WIDGET_FOCUSED, CONTEXT_BROWSER_FIND_WIDGET_VISIBLE } from "./browserEditor.js";
 import { BrowserViewUri } from "../../../../platform/browserView/common/browserViewUri.js";
 import { IBrowserViewWorkbenchService } from "../common/browserView.js";
 import { BrowserViewStorageScope } from "../../../../platform/browserView/common/browserView.js";
@@ -133,8 +133,7 @@ class GoForwardAction extends Action2 {
       menu: {
         id: MenuId.BrowserNavigationToolbar,
         group: "navigation",
-        order: 2,
-        when: CONTEXT_BROWSER_CAN_GO_FORWARD
+        order: 2
       },
       keybinding: {
         weight: 200 + 50,
@@ -276,14 +275,14 @@ class ToggleDevToolsAction extends Action2 {
       id: ToggleDevToolsAction.ID,
       title: localize2("browser.toggleDevToolsAction", "Toggle Developer Tools"),
       category: BrowserCategory,
-      icon: Codicon.console,
+      icon: Codicon.terminal,
       f1: true,
-      precondition: BROWSER_EDITOR_ACTIVE,
+      precondition: ContextKeyExpr.and(BROWSER_EDITOR_ACTIVE, CONTEXT_BROWSER_HAS_URL),
       toggled: ContextKeyExpr.equals(CONTEXT_BROWSER_DEVTOOLS_OPEN.key, true),
       menu: {
         id: MenuId.BrowserActionsToolbar,
-        group: ActionGroupPage,
-        order: 5
+        group: "actions",
+        order: 2
       },
       keybinding: {
         weight: 200,

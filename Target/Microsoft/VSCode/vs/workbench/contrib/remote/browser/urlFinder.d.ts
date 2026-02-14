@@ -3,6 +3,16 @@ import { Disposable } from '../../../../base/common/lifecycle.js';
 import { IDebugService } from '../../debug/common/debug.js';
 export declare class UrlFinder extends Disposable {
     /**
+     * Debounce time in ms before processing accumulated terminal data.
+     */
+    private static readonly dataDebounceTimeout;
+    /**
+     * Maximum amount of data to accumulate before skipping URL detection.
+     * When data exceeds this threshold, it indicates high-throughput scenarios
+     * (like games or animations) where URL detection is unlikely to find useful results.
+     */
+    private static readonly maxDataLength;
+    /**
      * Local server url pattern matching following urls:
      * http://localhost:3000/ - commonly used across multiple frameworks
      * https://127.0.0.1:5001/ - ASP.NET
@@ -16,14 +26,17 @@ export declare class UrlFinder extends Disposable {
      */
     private static readonly localPythonServerRegex;
     private static readonly excludeTerminals;
-    private _onDidMatchLocalUrl;
+    private readonly _onDidMatchLocalUrl;
     readonly onDidMatchLocalUrl: import("../../../../base/common/event.js").Event<{
         host: string;
         port: number;
     }>;
-    private listeners;
+    private readonly listeners;
+    private readonly terminalDataWorkers;
     constructor(terminalService: ITerminalService, debugService: IDebugService);
     private registerTerminalInstance;
+    private getOrCreateWorker;
+    private processTerminalData;
     private replPositions;
     private processNewReplElements;
     dispose(): void;

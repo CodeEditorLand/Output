@@ -69,6 +69,13 @@ export interface IWindowUtilityProcessConfiguration extends IUtilityProcessConfi
      * when the associated browser window closes or reloads.
      */
     readonly windowLifecycleBound?: boolean;
+    /**
+     * Optional period in milliseconds to allow for graceful shutdown
+     * before forcefully killing the process when the window lifecycle ends.
+     * If not set or 0, the process will be killed immediately.
+     * This is useful for extension hosts that need time to deactivate extensions.
+     */
+    readonly windowLifecycleGraceTime?: number;
 }
 interface IUtilityProcessExitBaseEvent {
     /**

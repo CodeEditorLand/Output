@@ -34,7 +34,7 @@ let NotebookAccessibilityProvider = class NotebookAccessibilityProvider2 extends
     this.keybindingService = keybindingService;
     this.configurationService = configurationService;
     this.accessibilityService = accessibilityService;
-    this._onDidAriaLabelChange = new Emitter();
+    this._onDidAriaLabelChange = this._register(new Emitter());
     this.onDidAriaLabelChange = this._onDidAriaLabelChange.event;
     this._register(Event.debounce(this.notebookExecutionStateService.onDidChangeExecution, (last, e) => this.mergeEvents(last, e), 100)((updates) => {
       if (!updates.length) {

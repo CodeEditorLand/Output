@@ -10,12 +10,13 @@ export declare const deleteButton: IQuickInputButton;
 export declare function getSessionDescription(session: IAgentSession): string;
 export declare function getSessionButtons(session: IAgentSession): IQuickInputButton[];
 export declare class AgentSessionsPicker {
+    private readonly anchor;
     private readonly agentSessionsService;
     private readonly quickInputService;
     private readonly instantiationService;
     private readonly commandService;
     private readonly sorter;
-    constructor(agentSessionsService: IAgentSessionsService, quickInputService: IQuickInputService, instantiationService: IInstantiationService, commandService: ICommandService);
+    constructor(anchor: HTMLElement | undefined, agentSessionsService: IAgentSessionsService, quickInputService: IQuickInputService, instantiationService: IInstantiationService, commandService: ICommandService);
     pickAgentSession(): Promise<void>;
     private createPickerItems;
     private toPickItem;

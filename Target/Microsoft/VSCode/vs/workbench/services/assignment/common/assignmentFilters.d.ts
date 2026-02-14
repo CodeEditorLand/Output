@@ -24,7 +24,11 @@ export declare enum ExtensionsFilter {
     /**
      * The internal org of the user.
      */
-    MicrosoftInternalOrg = "X-Microsoft-Internal-Org"
+    MicrosoftInternalOrg = "X-Microsoft-Internal-Org",
+    /**
+     * The tracking ID of the user from Copilot entitlement API.
+     */
+    CopilotTrackingId = "X-Copilot-Tracking-Id"
 }
 export declare class CopilotAssignmentFilterProvider extends Disposable implements IExperimentationFilterProvider {
     private readonly _extensionService;
@@ -36,6 +40,7 @@ export declare class CopilotAssignmentFilterProvider extends Disposable implemen
     private copilotCompletionsVersion;
     private copilotInternalOrg;
     private copilotSku;
+    private copilotTrackingId;
     private readonly _onDidChangeFilters;
     readonly onDidChangeFilters: import("../../../../base/common/event.js").Event<void>;
     constructor(_extensionService: IExtensionService, _logService: ILogService, _storageService: IStorageService, _chatEntitlementService: IChatEntitlementService);

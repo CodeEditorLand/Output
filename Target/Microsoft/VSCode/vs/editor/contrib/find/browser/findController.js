@@ -36,6 +36,8 @@ import { themeColorFromId } from "../../../../platform/theme/common/themeService
 import { IHoverService } from "../../../../platform/hover/browser/hover.js";
 import { FindWidgetSearchHistory } from "./findWidgetSearchHistory.js";
 import { ReplaceWidgetHistory } from "./replaceWidgetHistory.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
 const SEARCH_STRING_MAX_LENGTH = 524288;
 function getSelectionSearchString(editor, seedSearchStringFromSelection = "single", seedSearchStringFromNonEmptySelection = false) {
   if (!editor.hasModel()) {
@@ -88,7 +90,7 @@ let CommonFindController = class CommonFindController2 extends Disposable {
     this._clipboardService = clipboardService;
     this._notificationService = notificationService;
     this._hoverService = hoverService;
-    this._updateHistoryDelayer = new Delayer(500);
+    this._updateHistoryDelayer = this._register(new Delayer(500));
     this._state = this._register(new FindReplaceState());
     this.loadQueryState();
     this._register(this._state.onFindReplaceStateChange((e) => this._onStateChanged(e)));
@@ -192,6 +194,19 @@ let CommonFindController = class CommonFindController2 extends Disposable {
   }
   isFindInputFocused() {
     return !!CONTEXT_FIND_INPUT_FOCUSED.getValue(this._contextKeyService);
+  }
+  /**
+   * Returns whether the Replace input was the last focused input in the find widget.
+   * Returns false by default; overridden in FindController.
+   */
+  wasReplaceInputLastFocused() {
+    return false;
+  }
+  /**
+   * Focuses the last focused element in the find widget.
+   * Implemented by FindController; base implementation does nothing.
+   */
+  focusLastElement() {
   }
   getState() {
     return this._state;
@@ -385,10 +400,12 @@ let FindController = class FindController2 extends CommonFindController {
   static {
     __name(this, "FindController");
   }
-  constructor(editor, _contextViewService, _contextKeyService, _keybindingService, notificationService, _storageService, clipboardService, hoverService) {
+  constructor(editor, _contextViewService, _contextKeyService, _keybindingService, notificationService, _storageService, clipboardService, hoverService, _configurationService, _accessibilityService) {
     super(editor, _contextKeyService, _storageService, clipboardService, notificationService, hoverService);
     this._contextViewService = _contextViewService;
     this._keybindingService = _keybindingService;
+    this._configurationService = _configurationService;
+    this._accessibilityService = _accessibilityService;
     this._widget = null;
     this._findOptionsWidget = null;
     this._findWidgetSearchHistory = FindWidgetSearchHistory.getOrCreate(_storageService);
@@ -439,8 +456,22 @@ let FindController = class FindController2 extends CommonFindController {
     }
   }
   _createFindWidget() {
-    this._widget = this._register(new FindWidget(this._editor, this, this._state, this._contextViewService, this._keybindingService, this._contextKeyService, this._hoverService, this._findWidgetSearchHistory, this._replaceWidgetHistory));
+    this._widget = this._register(new FindWidget(this._editor, this, this._state, this._contextViewService, this._keybindingService, this._contextKeyService, this._hoverService, this._findWidgetSearchHistory, this._replaceWidgetHistory, this._configurationService, this._accessibilityService));
     this._findOptionsWidget = this._register(new FindOptionsWidget(this._editor, this._state, this._keybindingService));
+  }
+  /**
+   * Returns whether the Replace input was the last focused input in the find widget.
+   */
+  wasReplaceInputLastFocused() {
+    return this._widget?.lastFocusedInputWasReplace ?? false;
+  }
+  /**
+   * Focuses the last focused element in the find widget.
+   * This is more precise than just focusing the Find or Replace input,
+   * as it can restore focus to checkboxes, buttons, etc.
+   */
+  focusLastElement() {
+    this._widget?.focusLastElement();
   }
   saveViewState() {
     return this._widget?.getViewState();
@@ -456,7 +487,9 @@ FindController = __decorate([
   __param(4, INotificationService),
   __param(5, IStorageService),
   __param(6, IClipboardService),
-  __param(7, IHoverService)
+  __param(7, IHoverService),
+  __param(8, IConfigurationService),
+  __param(9, IAccessibilityService)
 ], FindController);
 const StartFindAction = registerMultiEditorAction(new MultiEditorAction({
   id: FIND_IDS.StartFindAction,

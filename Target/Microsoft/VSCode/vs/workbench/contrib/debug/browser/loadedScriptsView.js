@@ -16,7 +16,7 @@ import { RunOnceScheduler } from "../../../../base/common/async.js";
 import { Codicon } from "../../../../base/common/codicons.js";
 import { createMatches } from "../../../../base/common/filters.js";
 import { normalizeDriveLetter, tildify } from "../../../../base/common/labels.js";
-import { dispose } from "../../../../base/common/lifecycle.js";
+import { dispose, DisposableMap, DisposableStore } from "../../../../base/common/lifecycle.js";
 import { isAbsolute, normalize, posix } from "../../../../base/common/path.js";
 import { isWindows } from "../../../../base/common/platform.js";
 import { ltrim } from "../../../../base/common/strings.js";
@@ -447,15 +447,18 @@ let LoadedScriptsView = class LoadedScriptsView2 extends ViewPane {
         scheduleRefreshOnVisible();
       }
     }, "addSourcePathsToSession");
+    const sessionListeners = this._register(new DisposableMap());
     const registerSessionListeners = /* @__PURE__ */ __name((session) => {
-      this._register(session.onDidChangeName(async () => {
+      const store = new DisposableStore();
+      sessionListeners.set(session.getId(), store);
+      store.add(session.onDidChangeName(async () => {
         const sessionRoot = root.find(session);
         if (sessionRoot) {
           sessionRoot.updateLabel(session.getLabel());
           scheduleRefreshOnVisible();
         }
       }));
-      this._register(session.onDidLoadedSource(async (event) => {
+      store.add(session.onDidLoadedSource(async (event) => {
         let sessionRoot;
         switch (event.reason) {
           case "new":
@@ -483,6 +486,7 @@ let LoadedScriptsView = class LoadedScriptsView2 extends ViewPane {
     this._register(this.debugService.onDidNewSession(registerSessionListeners));
     this.debugService.getModel().getSessions().forEach(registerSessionListeners);
     this._register(this.debugService.onDidEndSession(({ session }) => {
+      sessionListeners.deleteAndDispose(session.getId());
       root.remove(session.getId());
       this.changeScheduler.schedule();
     }));

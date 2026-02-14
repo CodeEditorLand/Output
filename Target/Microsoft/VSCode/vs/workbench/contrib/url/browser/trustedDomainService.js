@@ -14,12 +14,12 @@ var __param = function(paramIndex, decorator) {
 import { WindowIdleValue } from "../../../../base/browser/dom.js";
 import { mainWindow } from "../../../../base/browser/window.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IInstantiationService, createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { IStorageService } from "../../../../platform/storage/common/storage.js";
 import { TRUSTED_DOMAINS_STORAGE_KEY, readStaticTrustedDomains } from "./trustedDomains.js";
 import { isURLDomainTrusted } from "../../../../platform/url/common/trustedDomains.js";
 import { Emitter } from "../../../../base/common/event.js";
-const ITrustedDomainService = createDecorator("ITrustedDomainService");
+import { ITrustedDomainService } from "../common/trustedDomainService.js";
 let TrustedDomainService = class TrustedDomainService2 extends Disposable {
   static {
     __name(this, "TrustedDomainService");

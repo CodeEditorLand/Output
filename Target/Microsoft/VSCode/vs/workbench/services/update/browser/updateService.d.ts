@@ -27,7 +27,7 @@ export declare class BrowserUpdateService extends Disposable implements IUpdateS
     isLatestVersion(): Promise<boolean | undefined>;
     checkForUpdates(explicit: boolean): Promise<void>;
     private doCheckForUpdates;
-    downloadUpdate(): Promise<void>;
+    downloadUpdate(_explicit: boolean): Promise<void>;
     applyUpdate(): Promise<void>;
     quitAndInstall(): Promise<void>;
     _applySpecificUpdate(packagePath: string): Promise<void>;

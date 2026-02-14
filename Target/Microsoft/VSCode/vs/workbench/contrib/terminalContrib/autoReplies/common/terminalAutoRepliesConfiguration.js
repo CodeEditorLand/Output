@@ -19,6 +19,7 @@ const terminalAutoRepliesConfiguration = {
         { type: "null" }
       ]
     },
+    restricted: true,
     default: {}
   }
 };

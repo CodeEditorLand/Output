@@ -2,6 +2,7 @@ import { Event } from '../../../../base/common/event.js';
 import { IModelDecorationOptions, IModelDecorationsChangeAccessor, ITextModel } from '../../../common/model.js';
 import { FoldingRegion, FoldingRegions, ILineRange, FoldSource } from './foldingRanges.js';
 import { SelectedLines } from './folding.js';
+import { IDisposable } from '../../../../base/common/lifecycle.js';
 export interface IDecorationProvider {
     getDecorationOption(isCollapsed: boolean, isHidden: boolean, isManual: boolean): IModelDecorationOptions;
     changeDecorations<T>(callback: (changeAccessor: IModelDecorationsChangeAccessor) => T): T | null;
@@ -17,7 +18,7 @@ interface ILineMemento extends ILineRange {
     source?: FoldSource;
 }
 export type CollapseMemento = ILineMemento[];
-export declare class FoldingModel {
+export declare class FoldingModel implements IDisposable {
     private readonly _textModel;
     private readonly _decorationProvider;
     private _regions;

@@ -209,6 +209,8 @@ class ExtHostStatusBarEntry {
   }
   dispose() {
     this.hide();
+    this._staleCommandRegistrations.dispose();
+    this._latestCommandRegistration?.dispose();
     this._onDispose?.();
     this._disposed = true;
   }

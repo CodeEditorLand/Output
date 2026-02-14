@@ -88,7 +88,7 @@ let TaskTerminalStatus = class TaskTerminalStatus2 extends Disposable {
     });
   }
   terminalFromEvent(event) {
-    if (!("terminalId" in event) || !event.terminalId) {
+    if (!Object.hasOwn(event, "terminalId") || !event.terminalId) {
       return void 0;
     }
     return this.terminalMap.get(event.terminalId);

@@ -31,6 +31,12 @@ var AccessibleViewProviderId;
   AccessibleViewProviderId2["RunAndDebug"] = "runAndDebug";
   AccessibleViewProviderId2["Walkthrough"] = "walkthrough";
   AccessibleViewProviderId2["SourceControl"] = "scm";
+  AccessibleViewProviderId2["EditorFindHelp"] = "editorFindHelp";
+  AccessibleViewProviderId2["SearchHelp"] = "searchHelp";
+  AccessibleViewProviderId2["TerminalFindHelp"] = "terminalFindHelp";
+  AccessibleViewProviderId2["WebviewFindHelp"] = "webviewFindHelp";
+  AccessibleViewProviderId2["OutputFindHelp"] = "outputFindHelp";
+  AccessibleViewProviderId2["ProblemsFilterHelp"] = "problemsFilterHelp";
 })(AccessibleViewProviderId || (AccessibleViewProviderId = {}));
 var AccessibleViewType;
 (function(AccessibleViewType2) {

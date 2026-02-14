@@ -84,6 +84,7 @@ import { agentOptionId, IChatSessionsService, isIChatSessionFileChange2, localCh
 import { ChatAgentLocation, ChatConfiguration, ChatModeKind, validateChatMode } from "../../../common/constants.js";
 import { ILanguageModelChatMetadata, ILanguageModelsService } from "../../../common/languageModels.js";
 import { getChatSessionType } from "../../../common/model/chatUri.js";
+import { isResponseVM } from "../../../common/model/chatViewModel.js";
 import { IChatAgentService } from "../../../common/participants/chatAgents.js";
 import { ILanguageModelToolsService } from "../../../common/tools/languageModelToolsService.js";
 import { ChatHistoryNavigator } from "../../../common/widget/chatWidgetHistoryService.js";
@@ -95,14 +96,15 @@ import { DefaultChatAttachmentWidget, ElementChatAttachmentWidget, FileAttachmen
 import { ChatImplicitContexts } from "../../attachments/chatImplicitContext.js";
 import { ImplicitContextAttachmentWidget } from "../../attachments/implicitContextAttachment.js";
 import { isIChatResourceViewContext, isIChatViewViewContext } from "../../chat.js";
-import { ChatEditingShowChangesAction, ViewAllSessionChangesAction, ViewPreviousEditsAction } from "../../chatEditing/chatEditingActions.js";
+import { ChatEditingShowChangesAction, ChatEditsViewAsListActionId, ChatEditsViewAsTreeActionId, ViewAllSessionChangesAction, ViewPreviousEditsAction } from "../../chatEditing/chatEditingActions.js";
 import { resizeImage } from "../../chatImageUtils.js";
 import { ChatSessionPickerActionItem } from "../../chatSessions/chatSessionPickerActionItem.js";
 import { SearchableOptionPickerActionItem } from "../../chatSessions/searchableOptionPickerActionItem.js";
 import { IChatContextService } from "../../contextContrib/chatContextService.js";
-import { CollapsibleListPool } from "../chatContentParts/chatReferencesContentPart.js";
+import { ChatQuestionCarouselPart } from "../chatContentParts/chatQuestionCarouselPart.js";
 import { ChatTodoListWidget } from "../chatContentParts/chatTodoListWidget.js";
 import { ChatDragAndDrop } from "../chatDragAndDrop.js";
+import { ChatEditsListWidget } from "./chatEditsTree.js";
 import { ChatFollowups } from "./chatFollowups.js";
 import { ChatInputPartWidgetController } from "./chatInputPartWidgets.js";
 import { ChatSelectedTools } from "./chatSelectedTools.js";
@@ -112,6 +114,7 @@ import { ModePickerActionItem } from "./modePickerActionItem.js";
 import { SessionTypePickerActionItem } from "./sessionTargetPickerActionItem.js";
 import { WorkspacePickerActionItem } from "./workspacePickerActionItem.js";
 import { ChatContextUsageWidget } from "../../widgetHosts/viewPane/chatContextUsageWidget.js";
+import { Target } from "../../../common/promptSyntax/service/promptsService.js";
 const $ = dom.$;
 const INPUT_EDITOR_MAX_HEIGHT = 250;
 const CachedLanguageModelsKey = "chat.cachedLanguageModels.v2";
@@ -166,6 +169,12 @@ let ChatInputPart = class ChatInputPart2 extends Disposable {
   get implicitContext() {
     return this._implicitContext;
   }
+  get inputContainerElement() {
+    return this.inputContainer;
+  }
+  get gettingStartedTipContainerElement() {
+    return this.chatGettingStartedTipContainer;
+  }
   get inputEditor() {
     return this._inputEditor;
   }
@@ -200,15 +209,7 @@ let ChatInputPart = class ChatInputPart2 extends Disposable {
     };
   }
   get selectedElements() {
-    const edits = [];
-    const editsList = this._chatEditList?.object;
-    const selectedElements = editsList?.getSelectedElements() ?? [];
-    for (const element of selectedElements) {
-      if (element.kind === "reference" && URI.isUri(element.reference)) {
-        edits.push(element.reference);
-      }
-    }
-    return edits;
+    return this._chatEditsListWidget.value?.selectedElements ?? [];
   }
   /**
    * The number of working set entries that the user actually wanted to attach.
@@ -258,6 +259,8 @@ let ChatInputPart = class ChatInputPart2 extends Disposable {
     this.viewDescriptorService = viewDescriptorService;
     this._workingSetCollapsed = observableValue("chatInputPart.workingSetCollapsed", true);
     this._chatInputTodoListWidget = this._register(new MutableDisposable());
+    this._chatQuestionCarouselWidget = this._register(new MutableDisposable());
+    this._chatQuestionCarouselDisposables = this._register(new DisposableStore());
     this._chatEditingTodosDisposables = this._register(new DisposableStore());
     this._onDidLoadInputState = this._register(new Emitter());
     this.onDidLoadInputState = this._onDidLoadInputState.event;
@@ -295,8 +298,8 @@ let ChatInputPart = class ChatInputPart2 extends Disposable {
     this._workingSetLinesAddedSpan = new Lazy(() => dom.$(".working-set-lines-added"));
     this._workingSetLinesRemovedSpan = new Lazy(() => dom.$(".working-set-lines-removed"));
     this._chatEditsActionsDisposables = this._register(new DisposableStore());
-    this._chatEditsDisposables = this._register(new DisposableStore());
     this._renderingChatEdits = this._register(new MutableDisposable());
+    this._chatEditsListWidget = this._register(new MutableDisposable());
     this._attemptedWorkingSetEntriesCount = 0;
     this._chatSessionIsEmpty = false;
     this._pendingDelegationTarget = void 0;
@@ -377,10 +380,6 @@ let ChatInputPart = class ChatInputPart2 extends Disposable {
       }
       this.inputEditor.updateOptions(newOptions);
     }));
-    this._chatEditsListPool = this._register(this.instantiationService.createInstance(CollapsibleListPool, this._onDidChangeVisibility.event, MenuId.ChatEditingWidgetModifiedFilesToolbar, {
-      verticalScrollMode: 3
-      /* ScrollbarVisibility.Visible */
-    }));
     this._hasFileAttachmentContextKey = ChatContextKeys.hasFileAttachments.bindTo(contextKeyService);
     this.initSelectedModel();
     this._register(this.languageModelsService.onDidChangeLanguageModels((vendor) => {
@@ -455,7 +454,7 @@ let ChatInputPart = class ChatInputPart2 extends Disposable {
       -1
       /* StorageScope.APPLICATION */
     );
-    const persistedAsDefault = this.storageService.getBoolean(this.getSelectedModelIsDefaultStorageKey(), -1, persistedSelection === "copilot/gpt-4.1");
+    const persistedAsDefault = this.storageService.getBoolean(this.getSelectedModelIsDefaultStorageKey(), -1, true);
     if (persistedSelection) {
       const model = this.getModels().find((m) => m.identifier === persistedSelection);
       if (model) {
@@ -489,8 +488,9 @@ let ChatInputPart = class ChatInputPart2 extends Disposable {
       }
     }));
   }
-  setEditing(enabled) {
+  setEditing(enabled, editingSentRequest) {
     this.currentlyEditingInputKey?.set(enabled);
+    this.editingSentRequestKey?.set(editingSentRequest);
   }
   switchModel(modelMetadata) {
     const models = this.getModels();
@@ -949,6 +949,15 @@ let ChatInputPart = class ChatInputPart2 extends Disposable {
   hasFocus() {
     return this._inputEditor.hasWidgetFocus();
   }
+  focusTodoList() {
+    return this._chatInputTodoListWidget.value?.focus() ?? false;
+  }
+  isTodoListFocused() {
+    return this._chatInputTodoListWidget.value?.hasFocus() ?? false;
+  }
+  hasVisibleTodos() {
+    return this._chatInputTodoListWidget.value?.hasTodos() ?? false;
+  }
   /**
    * Reset the input and update history.
    * @param userQuery If provided, this will be added to the history. Followups and programmatic queries should not be passed.
@@ -1076,7 +1085,7 @@ let ChatInputPart = class ChatInputPart2 extends Disposable {
     const sessionResource = this._widget?.viewModel?.model.sessionResource;
     const ctx = sessionResource ? this.chatService.getChatSessionFromInternalUri(sessionResource) : void 0;
     const customAgentTarget = ctx && this.chatSessionsService.getCustomAgentTargetForSessionType(ctx.chatSessionType);
-    this.chatSessionHasCustomAgentTarget.set(!!customAgentTarget);
+    this.chatSessionHasCustomAgentTarget.set(customAgentTarget !== Target.Undefined);
     if (customAgentTarget) {
       const agentOption = this.chatSessionsService.getSessionOption(ctx.chatSessionResource, agentOptionId);
       if (typeof agentOption !== "undefined") {
@@ -1278,6 +1287,13 @@ let ChatInputPart = class ChatInputPart2 extends Disposable {
     }
   }
   /**
+   * Shows the context usage details popup and focuses it.
+   * @returns Whether the details were successfully shown.
+   */
+  showContextUsageDetails() {
+    return this.contextUsageWidget?.showDetails() ?? false;
+  }
+  /**
    * Updates the context usage widget based on the current model.
    */
   updateContextUsageWidget() {
@@ -1311,14 +1327,17 @@ let ChatInputPart = class ChatInputPart2 extends Disposable {
       this.refreshChatSessionPickers();
       this.tryUpdateWidgetController();
       this.updateContextUsageWidget();
+      this.clearQuestionCarousel();
     }));
     let elements;
     if (this.options.renderStyle === "compact") {
       elements = dom.h(".interactive-input-part", [
         dom.h(".interactive-input-and-edit-session", [
+          dom.h(".chat-question-carousel-widget-container@chatQuestionCarouselContainer"),
           dom.h(".chat-input-widgets-container@chatInputWidgetsContainer"),
           dom.h(".chat-todo-list-widget-container@chatInputTodoListWidgetContainer"),
           dom.h(".chat-editing-session@chatEditingSessionWidgetContainer"),
+          dom.h(".chat-getting-started-tip-container@chatGettingStartedTipContainer"),
           dom.h(".interactive-input-and-side-toolbar@inputAndSideToolbar", [
             dom.h(".chat-input-container@inputContainer", [
               dom.h(".chat-context-usage-container@contextUsageWidgetContainer"),
@@ -1335,10 +1354,12 @@ let ChatInputPart = class ChatInputPart2 extends Disposable {
       ]);
     } else {
       elements = dom.h(".interactive-input-part", [
+        dom.h(".chat-question-carousel-widget-container@chatQuestionCarouselContainer"),
         dom.h(".interactive-input-followups@followupsContainer"),
         dom.h(".chat-input-widgets-container@chatInputWidgetsContainer"),
         dom.h(".chat-todo-list-widget-container@chatInputTodoListWidgetContainer"),
         dom.h(".chat-editing-session@chatEditingSessionWidgetContainer"),
+        dom.h(".chat-getting-started-tip-container@chatGettingStartedTipContainer"),
         dom.h(".interactive-input-and-side-toolbar@inputAndSideToolbar", [
           dom.h(".chat-input-container@inputContainer", [
             dom.h(".chat-context-usage-container@contextUsageWidgetContainer"),
@@ -1361,6 +1382,7 @@ let ChatInputPart = class ChatInputPart2 extends Disposable {
     this.followupsContainer = elements.followupsContainer;
     const inputAndSideToolbar = elements.inputAndSideToolbar;
     const inputContainer = elements.inputContainer;
+    this.inputContainer = inputContainer;
     const editorContainer = elements.editorContainer;
     this.attachmentsContainer = elements.attachmentsContainer;
     this.attachedContextContainer = elements.attachedContextContainer;
@@ -1368,6 +1390,9 @@ let ChatInputPart = class ChatInputPart2 extends Disposable {
     const attachmentToolbarContainer = elements.attachmentToolbar;
     this.chatEditingSessionWidgetContainer = elements.chatEditingSessionWidgetContainer;
     this.chatInputTodoListWidgetContainer = elements.chatInputTodoListWidgetContainer;
+    this.chatGettingStartedTipContainer = elements.chatGettingStartedTipContainer;
+    this.chatGettingStartedTipContainer.style.display = "none";
+    this.chatQuestionCarouselContainer = elements.chatQuestionCarouselContainer;
     this.chatInputWidgetsContainer = elements.chatInputWidgetsContainer;
     this.contextUsageWidgetContainer = elements.contextUsageWidgetContainer;
     this.contextUsageWidget = this._register(this.instantiationService.createInstance(ChatContextUsageWidget));
@@ -1395,6 +1420,7 @@ let ChatInputPart = class ChatInputPart2 extends Disposable {
     const inputScopedContextKeyService = this._register(this.contextKeyService.createScoped(inputContainer));
     ChatContextKeys.inChatInput.bindTo(inputScopedContextKeyService).set(true);
     this.currentlyEditingInputKey = ChatContextKeys.currentlyEditingInput.bindTo(inputScopedContextKeyService);
+    this.editingSentRequestKey = ChatContextKeys.editingRequestType.bindTo(this.contextKeyService);
     const scopedInstantiationService = this._register(this.instantiationService.createChild(new ServiceCollection([IContextKeyService, inputScopedContextKeyService])));
     const { historyNavigationBackwardsEnablement, historyNavigationForwardsEnablement } = this._register(registerAndCreateHistoryNavigationContext(inputScopedContextKeyService, this));
     this.historyNavigationBackwardsEnablement = historyNavigationBackwardsEnablement;
@@ -1528,7 +1554,7 @@ let ChatInputPart = class ChatInputPart2 extends Disposable {
             customAgentTarget: /* @__PURE__ */ __name(() => {
               const sessionResource = this._widget?.viewModel?.model.sessionResource;
               const ctx = sessionResource && this.chatService.getChatSessionFromInternalUri(sessionResource);
-              return ctx && this.chatSessionsService.getCustomAgentTargetForSessionType(ctx.chatSessionType);
+              return (ctx && this.chatSessionsService.getCustomAgentTargetForSessionType(ctx.chatSessionType)) ?? Target.Undefined;
             }, "customAgentTarget")
           };
           return this.modeWidget = this.instantiationService.createInstance(ModePickerActionItem, action, delegate2, pickerOptions);
@@ -1879,6 +1905,49 @@ let ChatInputPart = class ChatInputPart2 extends Disposable {
   clearTodoListWidget(sessionResource, force) {
     this._chatInputTodoListWidget.value?.clear(sessionResource, force);
   }
+  renderQuestionCarousel(carousel, context, options) {
+    if (this._chatQuestionCarouselWidget.value) {
+      const existingCarousel = this._chatQuestionCarouselWidget.value;
+      const existingResolveId = existingCarousel.carousel.resolveId;
+      if (existingResolveId && carousel.resolveId && existingResolveId === carousel.resolveId) {
+        return existingCarousel;
+      }
+      this.clearQuestionCarousel();
+    }
+    this._currentQuestionCarouselResponseId = isResponseVM(context.element) ? context.element.requestId : void 0;
+    const part = this._chatQuestionCarouselDisposables.add(this.instantiationService.createInstance(ChatQuestionCarouselPart, carousel, context, options));
+    this._chatQuestionCarouselWidget.value = part;
+    dom.clearNode(this.chatQuestionCarouselContainer);
+    dom.append(this.chatQuestionCarouselContainer, part.domNode);
+    return part;
+  }
+  clearQuestionCarousel(responseId) {
+    if (responseId && this._currentQuestionCarouselResponseId !== responseId) {
+      return;
+    }
+    this._chatQuestionCarouselDisposables.clear();
+    this._chatQuestionCarouselWidget.clear();
+    this._currentQuestionCarouselResponseId = void 0;
+    dom.clearNode(this.chatQuestionCarouselContainer);
+  }
+  get questionCarouselResponseId() {
+    return this._currentQuestionCarouselResponseId;
+  }
+  get questionCarousel() {
+    return this._chatQuestionCarouselWidget.value;
+  }
+  focusQuestionCarousel() {
+    const carousel = this._chatQuestionCarouselWidget.value;
+    if (carousel) {
+      carousel.focus();
+      return true;
+    }
+    return false;
+  }
+  isQuestionCarouselFocused() {
+    const carousel = this._chatQuestionCarouselWidget.value;
+    return carousel?.hasFocus() ?? false;
+  }
   setWorkingSetCollapsed(collapsed) {
     this._workingSetCollapsed.set(collapsed, void 0);
   }
@@ -1960,8 +2029,7 @@ let ChatInputPart = class ChatInputPart2 extends Disposable {
         this.renderChatEditingSessionWithEntries(reader.store, chatEditingSession, editSessionEntries, sessionFiles);
       } else {
         dom.clearNode(this.chatEditingSessionWidgetContainer);
-        this._chatEditsDisposables.clear();
-        this._chatEditList = void 0;
+        this._chatEditsListWidget.value?.clear();
       }
     });
   }
@@ -2024,7 +2092,7 @@ let ChatInputPart = class ChatInputPart2 extends Disposable {
         } : void 0,
         disableWhileRunning: isSessionMenu,
         buttonConfigProvider: /* @__PURE__ */ __name((action) => {
-          if (action.id === ChatEditingShowChangesAction.ID || action.id === ViewPreviousEditsAction.Id || action.id === ViewAllSessionChangesAction.ID) {
+          if (action.id === ChatEditingShowChangesAction.ID || action.id === ViewPreviousEditsAction.Id || action.id === ViewAllSessionChangesAction.ID || action.id === ChatEditsViewAsTreeActionId || action.id === ChatEditsViewAsListActionId) {
             return { showIcon: true, showLabel: false, isSecondary: true };
           }
           return void 0;
@@ -2063,62 +2131,53 @@ let ChatInputPart = class ChatInputPart2 extends Disposable {
       button.icon = collapsed ? Codicon.chevronRight : Codicon.chevronDown;
       workingSetContainer.classList.toggle("collapsed", collapsed);
     }));
-    if (!this._chatEditList) {
-      this._chatEditList = this._chatEditsListPool.get();
-      const list = this._chatEditList.object;
-      this._chatEditsDisposables.add(this._chatEditList);
-      this._chatEditsDisposables.add(list.onDidFocus(() => {
-        this._onDidFocus.fire();
-      }));
-      this._chatEditsDisposables.add(list.onDidOpen(async (e) => {
-        if (e.element?.kind === "reference" && URI.isUri(e.element.reference)) {
-          const modifiedFileUri = e.element.reference;
-          const originalUri = e.element.options?.originalUri;
-          if (e.element.options?.isDeletion && originalUri) {
-            await this.editorService.openEditor({
-              resource: originalUri,
-              // instead of modified, because modified will not exist
-              options: e.editorOptions
-            }, e.sideBySide ? SIDE_GROUP : ACTIVE_GROUP);
+    if (!this._chatEditsListWidget.value || this._chatEditsListWidget.value.needsRebuild) {
+      if (!this._chatEditsListWidget.value) {
+        const widget = this.instantiationService.createInstance(ChatEditsListWidget, this._onDidChangeVisibility.event);
+        this._chatEditsListWidget.value = widget;
+        this._register(widget.onDidFocus(() => this._onDidFocus.fire()));
+        this._register(widget.onDidOpen(async (e) => {
+          const element = e.element;
+          if (!element || element.kind === "folder" || element.kind === "warning") {
             return;
           }
-          if (originalUri) {
-            await this.editorService.openEditor({
-              original: { resource: originalUri },
-              modified: { resource: modifiedFileUri },
+          if (element.kind === "reference" && URI.isUri(element.reference)) {
+            const modifiedFileUri = element.reference;
+            const originalUri = element.options?.originalUri;
+            if (element.options?.isDeletion && originalUri) {
+              await this.editorService.openEditor({
+                resource: originalUri,
+                options: e.editorOptions
+              }, e.sideBySide ? SIDE_GROUP : ACTIVE_GROUP);
+              return;
+            }
+            if (originalUri) {
+              await this.editorService.openEditor({
+                original: { resource: originalUri },
+                modified: { resource: modifiedFileUri },
+                options: e.editorOptions
+              }, e.sideBySide ? SIDE_GROUP : ACTIVE_GROUP);
+              return;
+            }
+            const entry = widget.currentSession?.getEntry(modifiedFileUri);
+            const pane = await this.editorService.openEditor({
+              resource: modifiedFileUri,
               options: e.editorOptions
             }, e.sideBySide ? SIDE_GROUP : ACTIVE_GROUP);
-            return;
+            if (pane) {
+              entry?.getEditorIntegration(pane).reveal(true, e.editorOptions.preserveFocus);
+            }
           }
-          const entry = chatEditingSession?.getEntry(modifiedFileUri);
-          const pane = await this.editorService.openEditor({
-            resource: modifiedFileUri,
-            options: e.editorOptions
-          }, e.sideBySide ? SIDE_GROUP : ACTIVE_GROUP);
-          if (pane) {
-            entry?.getEditorIntegration(pane).reveal(true, e.editorOptions.preserveFocus);
-          }
-        }
-      }));
-      this._chatEditsDisposables.add(addDisposableListener(list.getHTMLElement(), "click", (e) => {
-        if (!this.hasFocus()) {
-          this._onDidFocus.fire();
-        }
-      }, true));
-      dom.append(workingSetContainer, list.getHTMLElement());
+        }));
+      }
+      this._chatEditsListWidget.value.rebuild(workingSetContainer, chatEditingSession);
       dom.append(innerContainer, workingSetContainer);
     }
     store.add(autorun((reader) => {
       const editEntries = editSessionEntriesObs.read(reader);
       const sessionFileEntries = sessionEntriesObs.read(reader);
       const allEntries = editEntries.concat(sessionFileEntries);
-      const maxItemsShown = 6;
-      const itemsShown = Math.min(allEntries.length, maxItemsShown);
-      const height = itemsShown * 22;
-      const list = this._chatEditList.object;
-      list.layout(height);
-      list.getHTMLElement().style.height = `${height}px`;
-      list.splice(0, list.length, allEntries);
+      this._chatEditsListWidget.value?.setEntries(allEntries);
     }));
   }
   async renderFollowups(items, response) {

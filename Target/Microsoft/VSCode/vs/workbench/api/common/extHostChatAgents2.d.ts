@@ -2,7 +2,7 @@ import type * as vscode from 'vscode';
 import { DeferredPromise } from '../../../base/common/async.js';
 import { CancellationToken } from '../../../base/common/cancellation.js';
 import { Disposable, DisposableStore } from '../../../base/common/lifecycle.js';
-import { UriComponents } from '../../../base/common/uri.js';
+import { URI, UriComponents } from '../../../base/common/uri.js';
 import { IExtensionDescription } from '../../../platform/extensions/common/extensions.js';
 import { ILogService } from '../../../platform/log/common/log.js';
 import { IChatAgentRequest, IChatAgentResult, IChatAgentResultTimings, UserSelectedTools } from '../../contrib/chat/common/participants/chatAgents.js';
@@ -58,6 +58,10 @@ export declare class ExtHostChatAgents2 extends Disposable implements ExtHostCha
     readonly onDidChangeChatRequestTools: import("../../../base/common/event.js").Event<vscode.ChatRequest>;
     private readonly _onDidDisposeChatSession;
     readonly onDidDisposeChatSession: import("../../../base/common/event.js").Event<string>;
+    private _activeChatPanelSessionResource;
+    private readonly _onDidChangeActiveChatPanelSessionResource;
+    readonly onDidChangeActiveChatPanelSessionResource: import("../../../base/common/event.js").Event<URI | undefined>;
+    get activeChatPanelSessionResource(): URI | undefined;
     constructor(mainContext: IMainContext, _logService: ILogService, _commands: ExtHostCommands, _documents: ExtHostDocuments, _editorsAndDocuments: ExtHostDocumentsAndEditors, _languageModels: ExtHostLanguageModels, _diagnostics: ExtHostDiagnostics, _tools: ExtHostLanguageModelTools);
     transferActiveChat(newWorkspace: vscode.Uri): Promise<void>;
     createChatAgent(extension: IExtensionDescription, id: string, handler: vscode.ChatExtendedRequestHandler): vscode.ChatParticipant;
@@ -78,6 +82,7 @@ export declare class ExtHostChatAgents2 extends Disposable implements ExtHostCha
     private _createRequest;
     private getModelForRequest;
     $setRequestTools(requestId: string, tools: UserSelectedTools): Promise<void>;
+    $setYieldRequested(requestId: string): void;
     $invokeAgent(handle: number, requestDto: Dto<IChatAgentRequest>, context: {
         history: IChatAgentHistoryEntryDto[];
         chatSessionContext?: IChatSessionContextDto;
@@ -86,6 +91,7 @@ export declare class ExtHostChatAgents2 extends Disposable implements ExtHostCha
     private getToolsForRequest;
     private prepareHistoryTurns;
     $releaseSession(sessionResourceDto: UriComponents): void;
+    $acceptActiveChatSession(sessionResourceDto: UriComponents | undefined): void;
     $provideFollowups(requestDto: Dto<IChatAgentRequest>, handle: number, result: IChatAgentResult, context: {
         history: IChatAgentHistoryEntryDto[];
     }, token: CancellationToken): Promise<IChatFollowup[]>;

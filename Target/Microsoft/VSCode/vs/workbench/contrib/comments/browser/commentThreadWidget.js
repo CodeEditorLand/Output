@@ -55,7 +55,7 @@ let CommentThreadWidget = class CommentThreadWidget2 extends Disposable {
     this.configurationService = configurationService;
     this._keybindingService = _keybindingService;
     this._commentThreadDisposables = [];
-    this._onDidResize = new Emitter();
+    this._onDidResize = this._register(new Emitter());
     this.onDidResize = this._onDidResize.event;
     this._threadIsEmpty = CommentContextKeys.commentThreadIsEmpty.bindTo(this._contextKeyService);
     this._threadIsEmpty.set(!_commentThread.comments || !_commentThread.comments.length);

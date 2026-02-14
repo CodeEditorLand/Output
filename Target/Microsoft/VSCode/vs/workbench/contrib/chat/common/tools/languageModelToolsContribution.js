@@ -275,6 +275,7 @@ let LanguageModelToolsExtensionPointHandler = class LanguageModelToolsExtensionP
           }
           const tools = [];
           const toolSets = [];
+          const missingToolNames = [];
           for (const toolName of toolSet.tools) {
             const toolObj = languageModelToolsService.getToolByName(toolName);
             if (toolObj) {
@@ -286,7 +287,7 @@ let LanguageModelToolsExtensionPointHandler = class LanguageModelToolsExtensionP
               toolSets.push(toolSetObj);
               continue;
             }
-            extension.collector.warn(`Tool set '${toolSet.name}' CANNOT find tool or tool set by name: ${toolName}`);
+            missingToolNames.push(toolName);
           }
           if (toolSets.length === 0 && tools.length === 0) {
             extension.collector.error(`Tool set '${toolSet.name}' CANNOT have an empty tools array (none of the tools were found)`);
@@ -309,6 +310,27 @@ let LanguageModelToolsExtensionPointHandler = class LanguageModelToolsExtensionP
             tools.forEach((tool) => store.add(obj.addTool(tool, tx)));
             toolSets.forEach((toolSet2) => store.add(obj.addToolSet(toolSet2, tx)));
           });
+          if (missingToolNames.length > 0) {
+            const pending = new Set(missingToolNames);
+            const listener = store.add(languageModelToolsService.onDidChangeTools(() => {
+              for (const toolName of pending) {
+                const toolObj = languageModelToolsService.getToolByName(toolName);
+                if (toolObj) {
+                  store.add(obj.addTool(toolObj));
+                  pending.delete(toolName);
+                } else {
+                  const toolSetObj = languageModelToolsService.getToolSetByName(toolName);
+                  if (toolSetObj) {
+                    store.add(obj.addToolSet(toolSetObj));
+                    pending.delete(toolName);
+                  }
+                }
+              }
+              if (pending.size === 0) {
+                store.delete(listener);
+              }
+            }));
+          }
           this._registrationDisposables.set(toToolSetKey(extension.description.identifier, toolSet.name), store);
         }
       }

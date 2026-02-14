@@ -434,6 +434,14 @@ const terminalConfiguration = {
     default: false
   },
   [
+    "terminal.integrated.textBlinking"
+    /* TerminalSettingId.TextBlinking */
+  ]: {
+    description: localize("terminal.integrated.textBlinking", "Controls whether text blinking is enabled in the terminal."),
+    type: "boolean",
+    default: false
+  },
+  [
     "terminal.integrated.cursorStyle"
     /* TerminalSettingId.CursorStyle */
   ]: {
@@ -506,7 +514,7 @@ const terminalConfiguration = {
     /* TerminalSettingId.TerminalTitle */
   ]: {
     "type": "string",
-    "default": "${process}",
+    "default": "${sequence}",
     "markdownDescription": terminalTitle
   },
   [
@@ -835,13 +843,10 @@ const terminalConfiguration = {
     /* TerminalSettingId.EnableKittyKeyboardProtocol */
   ]: {
     restricted: true,
-    markdownDescription: localize("terminal.integrated.enableKittyKeyboardProtocol", "Whether to enable the kitty keyboard protocol, which provides more detailed keyboard input reporting to the terminal."),
+    markdownDescription: localize("terminal.integrated.enableKittyKeyboardProtocol", "Whether to enable the kitty keyboard protocol, which allows a program in the terminal to request more detailed keyboard input reporting. This can, for example, enable `Shift+Enter` to be handled by the program."),
     type: "boolean",
-    default: false,
-    tags: ["experimental", "advanced"],
-    experiment: {
-      mode: "auto"
-    }
+    default: true,
+    tags: ["advanced"]
   },
   [
     "terminal.integrated.enableWin32InputMode"

@@ -9,6 +9,7 @@ import { ITelemetryService } from '../../../../../platform/telemetry/common/tele
 import { IUserDataProfilesService } from '../../../../../platform/userDataProfile/common/userDataProfile.js';
 import { IWorkspaceContextService } from '../../../../../platform/workspace/common/workspace.js';
 import { ILifecycleService } from '../../../../services/lifecycle/common/lifecycle.js';
+import { IWorkspaceEditingService } from '../../../../services/workspaces/common/workspaceEditing.js';
 import { IChatSessionStats, IChatSessionTiming, ResponseModelState } from '../chatService/chatService.js';
 import { ChatAgentLocation } from '../constants.js';
 import { ChatModel, ISerializableChatData, ISerializableChatsData, ISerializedChatDataReference } from './chatModel.js';
@@ -22,13 +23,16 @@ export declare class ChatSessionStore extends Disposable {
     private readonly lifecycleService;
     private readonly userDataProfilesService;
     private readonly configurationService;
-    private readonly storageRoot;
+    private readonly workspaceEditingService;
+    private storageRoot;
     private readonly previousEmptyWindowStorageRoot;
     private readonly transferredSessionStorageRoot;
     private readonly storeQueue;
     private storeTask;
     private shuttingDown;
-    constructor(fileService: IFileService, environmentService: IEnvironmentService, logService: ILogService, workspaceContextService: IWorkspaceContextService, telemetryService: ITelemetryService, storageService: IStorageService, lifecycleService: ILifecycleService, userDataProfilesService: IUserDataProfilesService, configurationService: IConfigurationService);
+    constructor(fileService: IFileService, environmentService: IEnvironmentService, logService: ILogService, workspaceContextService: IWorkspaceContextService, telemetryService: ITelemetryService, storageService: IStorageService, lifecycleService: ILifecycleService, userDataProfilesService: IUserDataProfilesService, configurationService: IConfigurationService, workspaceEditingService: IWorkspaceEditingService);
+    private handleWorkspaceTransition;
+    private migrateSessionsToNewWorkspace;
     storeSessions(sessions: ChatModel[]): Promise<void>;
     storeSessionsMetadataOnly(sessions: ChatModel[]): Promise<void>;
     storeTransferSession(transferData: IChatTransfer, session: ChatModel): Promise<void>;

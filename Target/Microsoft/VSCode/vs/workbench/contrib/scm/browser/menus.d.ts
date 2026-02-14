@@ -11,10 +11,10 @@ export declare class SCMTitleMenu implements IDisposable {
     get actions(): IAction[];
     private _secondaryActions;
     get secondaryActions(): IAction[];
-    private readonly _onDidChangeTitle;
-    readonly onDidChangeTitle: import("../../../../base/common/event.js").Event<void>;
     readonly menu: IMenu;
     private readonly disposables;
+    private readonly _onDidChangeTitle;
+    readonly onDidChangeTitle: import("../../../../base/common/event.js").Event<void>;
     constructor(menuService: IMenuService, contextKeyService: IContextKeyService);
     private updateTitleActions;
     dispose(): void;

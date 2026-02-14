@@ -20,7 +20,7 @@ import { IConfigurationService } from "../../../../../../platform/configuration/
 import { createDecorator } from "../../../../../../platform/instantiation/common/instantiation.js";
 import { ILogService } from "../../../../../../platform/log/common/log.js";
 import { IEditorGroupsService } from "../../../../../services/editor/common/editorGroupsService.js";
-import { IEditorService } from "../../../../../services/editor/common/editorService.js";
+import { IEditorService, MODAL_GROUP } from "../../../../../services/editor/common/editorService.js";
 import { ICommandService } from "../../../../../../platform/commands/common/commands.js";
 import { isSessionInProgressStatus } from "../agentSessionsModel.js";
 import { IChatWidgetService } from "../../chat.js";
@@ -125,13 +125,15 @@ let AgentSessionProjectionService = class AgentSessionProjectionService2 extends
       }));
       this.logService.trace(`[AgentSessionProjection] Found ${diffResources.length} files with diffs to display`);
       if (diffResources.length > 0) {
-        await this.editorGroupsService.applyWorkingSet("empty", { preserveFocus: true });
-        await this.commandService.executeCommand("_workbench.openMultiDiffEditor", {
-          multiDiffSourceUri: session.resource.with({ scheme: session.resource.scheme + "-agent-session-projection" }),
-          title: localize("agentSessionProjection.changes.title", "{0} - All Changes", session.label),
-          resources: diffResources
-        });
-        this.logService.trace(`[AgentSessionProjection] Multi-diff editor opened successfully`);
+        await this.editorService.openEditor({
+          multiDiffSource: session.resource.with({ scheme: session.resource.scheme + "-agent-session-projection" }),
+          resources: diffResources.map((dr) => ({
+            original: { resource: dr.originalUri },
+            modified: { resource: dr.modifiedUri }
+          })),
+          label: localize("agentSessionProjection.changes.title", "{0} - All Changes", session.label)
+        }, MODAL_GROUP);
+        this.logService.trace(`[AgentSessionProjection] Multi-diff editor opened successfully in modal view`);
         const sessionKey = session.resource.toString();
         const newWorkingSet = this.editorGroupsService.saveWorkingSet(`agent-session-projection-${sessionKey}`);
         this._sessionWorkingSets.set(sessionKey, newWorkingSet);
@@ -214,7 +216,6 @@ let AgentSessionProjectionService = class AgentSessionProjectionService2 extends
       try {
         let filesOpened = false;
         if (session.providerType === AgentSessionProviders.Local) {
-          await this.editorGroupsService.applyWorkingSet("empty", { preserveFocus: true });
           filesOpened = true;
         } else {
           filesOpened = await this._openSessionFiles(session);

@@ -18,16 +18,17 @@ import { IInstantiationService } from "../../../../../../platform/instantiation/
 import { defaultButtonStyles } from "../../../../../../platform/theme/browser/defaultStyles.js";
 import { IChatService } from "../../../common/chatService/chatService.js";
 import { assertIsResponseVM } from "../../../common/model/chatViewModel.js";
-import { IChatWidgetService } from "../../chat.js";
+import { IChatAccessibilityService, IChatWidgetService } from "../../chat.js";
 import { ChatErrorWidget } from "./chatErrorContentPart.js";
 const $ = dom.$;
 let ChatErrorConfirmationContentPart = class ChatErrorConfirmationContentPart2 extends Disposable {
   static {
     __name(this, "ChatErrorConfirmationContentPart");
   }
-  constructor(kind, content, errorDetails, confirmationButtons, renderer, context, instantiationService, chatWidgetService, chatService) {
+  constructor(kind, content, errorDetails, confirmationButtons, renderer, context, instantiationService, chatWidgetService, chatService, chatAccessibilityService) {
     super();
     this.errorDetails = errorDetails;
+    this.chatAccessibilityService = chatAccessibilityService;
     const element = context.element;
     assertIsResponseVM(element);
     this.domNode = $(".chat-error-confirmation");
@@ -46,6 +47,7 @@ let ChatErrorConfirmationContentPart = class ChatErrorConfirmationContentPart2 e
         const widget = chatWidgetService.getWidgetBySessionResource(element.sessionResource);
         options.userSelectedModelId = widget?.input.currentLanguageModel;
         Object.assign(options, widget?.getModeRequestOptions());
+        this.chatAccessibilityService.acceptRequest(element.sessionResource);
         await chatService.sendRequest(element.sessionResource, prompt, options);
       }));
     });
@@ -60,7 +62,8 @@ let ChatErrorConfirmationContentPart = class ChatErrorConfirmationContentPart2 e
 ChatErrorConfirmationContentPart = __decorate([
   __param(6, IInstantiationService),
   __param(7, IChatWidgetService),
-  __param(8, IChatService)
+  __param(8, IChatService),
+  __param(9, IChatAccessibilityService)
 ], ChatErrorConfirmationContentPart);
 export {
   ChatErrorConfirmationContentPart

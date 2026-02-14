@@ -650,6 +650,7 @@ class DefaultSettings extends Disposable {
       value,
       description: descriptionLines,
       descriptionIsMarkdown: !!prop.markdownDescription,
+      keywords: prop.keywords,
       range: nullRange,
       keyRange: nullRange,
       valueRange: nullRange,

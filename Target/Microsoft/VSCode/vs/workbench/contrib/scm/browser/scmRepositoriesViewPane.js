@@ -702,6 +702,7 @@ let SCMRepositoriesViewPane = class SCMRepositoriesViewPane2 extends ViewPane {
   }
   dispose() {
     this.visibilityDisposables.dispose();
+    this.repositoryDisposables.dispose();
     super.dispose();
   }
 };

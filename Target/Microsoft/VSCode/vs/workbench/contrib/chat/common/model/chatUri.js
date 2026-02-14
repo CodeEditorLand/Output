@@ -13,6 +13,12 @@ var LocalChatSessionUri;
   }
   __name(forSession, "forSession");
   LocalChatSessionUri2.forSession = forSession;
+  function getNewSessionUri() {
+    const handle = Math.floor(Math.random() * 1e9);
+    return forSession(`chat-${handle}`);
+  }
+  __name(getNewSessionUri, "getNewSessionUri");
+  LocalChatSessionUri2.getNewSessionUri = getNewSessionUri;
   function parseLocalSessionId(resource) {
     const parsed = parse(resource);
     return parsed?.chatSessionType === localChatSessionType ? parsed.sessionId : void 0;

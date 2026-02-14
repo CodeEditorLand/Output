@@ -3,6 +3,7 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
 import { MarkdownString } from "../../../../../../base/common/htmlContent.js";
 import { ToolDataSource, ToolInvocationPresentation } from "../languageModelToolsService.js";
 const ConfirmationToolId = "vscode_get_confirmation";
+const ConfirmationToolWithOptionsId = "vscode_get_confirmation_with_options";
 const ConfirmationToolData = {
   id: ConfirmationToolId,
   displayName: "Confirmation Tool",
@@ -33,6 +34,32 @@ const ConfirmationToolData = {
     additionalProperties: false
   }
 };
+const ConfirmationToolWithOptionsData = {
+  id: ConfirmationToolWithOptionsId,
+  displayName: "Confirmation Tool with Options",
+  modelDescription: "A tool that demonstrates different types of confirmations. Takes a title, message, and buttons.",
+  source: ToolDataSource.Internal,
+  inputSchema: {
+    type: "object",
+    properties: {
+      title: {
+        type: "string",
+        description: "Title for the confirmation dialog"
+      },
+      message: {
+        type: "string",
+        description: "Message to show in the confirmation dialog"
+      },
+      buttons: {
+        type: "array",
+        items: { type: "string" },
+        description: "Custom button labels to display."
+      }
+    },
+    required: ["title", "message", "buttons"],
+    additionalProperties: false
+  }
+};
 class ConfirmationTool {
   static {
     __name(this, "ConfirmationTool");
@@ -59,13 +86,23 @@ class ConfirmationTool {
       confirmationMessages: {
         title: parameters.title,
         message: new MarkdownString(parameters.message),
-        allowAutoConfirm: true
+        allowAutoConfirm: (parameters.buttons || []).length ? false : true,
+        // We cannot auto confirm if there are custom buttons, as we don't know which one to select
+        customButtons: parameters.buttons
       },
       toolSpecificData,
       presentation: ToolInvocationPresentation.HiddenAfterComplete
     };
   }
   async invoke(invocation, countTokens, progress, token) {
+    if (invocation.selectedCustomButton) {
+      return {
+        content: [{
+          kind: "text",
+          value: invocation.selectedCustomButton
+        }]
+      };
+    }
     return {
       content: [{
         kind: "text",
@@ -78,6 +115,8 @@ class ConfirmationTool {
 export {
   ConfirmationTool,
   ConfirmationToolData,
-  ConfirmationToolId
+  ConfirmationToolId,
+  ConfirmationToolWithOptionsData,
+  ConfirmationToolWithOptionsId
 };
 //# sourceMappingURL=confirmationTool.js.map

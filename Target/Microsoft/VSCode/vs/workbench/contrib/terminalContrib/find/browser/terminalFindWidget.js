@@ -27,12 +27,13 @@ import { TerminalClipboardContribution } from "../../clipboard/browser/terminal.
 import { StandardMouseEvent } from "../../../../../base/browser/mouseEvent.js";
 import { createTextInputActions } from "../../../../browser/actions/textInputActions.js";
 import { ILogService } from "../../../../../platform/log/common/log.js";
+import { IAccessibilityService } from "../../../../../platform/accessibility/common/accessibility.js";
 const TERMINAL_FIND_WIDGET_INITIAL_WIDTH = 419;
 let TerminalFindWidget = class TerminalFindWidget2 extends SimpleFindWidget {
   static {
     __name(this, "TerminalFindWidget");
   }
-  constructor(_instance, clipboardService, configurationService, contextKeyService, contextMenuService, contextViewService, hoverService, keybindingService, themeService, logService) {
+  constructor(_instance, clipboardService, configurationService, contextKeyService, contextMenuService, contextViewService, hoverService, keybindingService, themeService, logService, accessibilityService) {
     super({
       showCommonFindToggles: true,
       checkImeCompletionState: true,
@@ -48,7 +49,7 @@ let TerminalFindWidget = class TerminalFindWidget2 extends SimpleFindWidget {
       type: "Terminal",
       matchesLimit: 2e4
       /* XtermTerminalConstants.SearchHighlightLimit */
-    }, contextViewService, contextKeyService, hoverService, keybindingService);
+    }, contextViewService, contextKeyService, hoverService, keybindingService, configurationService, accessibilityService);
     this._instance = _instance;
     this._overrideCopyOnSelectionDisposable = this._register(new MutableDisposable());
     this._selectionDisposable = this._register(new MutableDisposable());
@@ -203,7 +204,8 @@ TerminalFindWidget = __decorate([
   __param(6, IHoverService),
   __param(7, IKeybindingService),
   __param(8, IThemeService),
-  __param(9, ILogService)
+  __param(9, ILogService),
+  __param(10, IAccessibilityService)
 ], TerminalFindWidget);
 export {
   TerminalFindWidget

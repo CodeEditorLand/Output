@@ -695,7 +695,7 @@ let TimelinePane = class TimelinePane2 extends ViewPane {
     this.$tree = document.createElement("div");
     this.$tree.classList.add("customview-tree", "file-icon-themable-tree", "hide-arrows");
     container.appendChild(this.$tree);
-    this.treeRenderer = this.instantiationService.createInstance(TimelineTreeRenderer, this.commands, this.viewDescriptorService.getViewLocationById(this.id));
+    this.treeRenderer = this._register(this.instantiationService.createInstance(TimelineTreeRenderer, this.commands, this.viewDescriptorService.getViewLocationById(this.id)));
     this._register(this.treeRenderer.onDidScrollToEnd((item) => {
       if (this.pageOnScroll) {
         this.loadMore(item);
@@ -906,16 +906,17 @@ class TimelineListVirtualDelegate {
     return TimelineElementTemplate.id;
   }
 }
-let TimelineTreeRenderer = class TimelineTreeRenderer2 {
+let TimelineTreeRenderer = class TimelineTreeRenderer2 extends Disposable {
   static {
     __name(this, "TimelineTreeRenderer");
   }
   constructor(commands, viewContainerLocation, instantiationService, themeService) {
+    super();
     this.commands = commands;
     this.viewContainerLocation = viewContainerLocation;
     this.instantiationService = instantiationService;
     this.themeService = themeService;
-    this._onDidScrollToEnd = new Emitter();
+    this._onDidScrollToEnd = this._register(new Emitter());
     this.onDidScrollToEnd = this._onDidScrollToEnd.event;
     this.templateId = TimelineElementTemplate.id;
     this.actionViewItemProvider = createActionViewItem.bind(void 0, this.instantiationService);

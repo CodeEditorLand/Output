@@ -11,7 +11,7 @@ export declare class PromptFileRewriter {
     private readonly _languageModelToolsService;
     constructor(_codeEditorService: ICodeEditorService, _promptsService: IPromptsService, _languageModelToolsService: ILanguageModelToolsService);
     openAndRewriteTools(uri: URI, newTools: IToolAndToolSetEnablementMap | undefined, token: CancellationToken): Promise<void>;
-    rewriteTools(model: ITextModel, newTools: IToolAndToolSetEnablementMap, range: Range): void;
+    rewriteTools(model: ITextModel, newTools: IToolAndToolSetEnablementMap, range: Range, isString: boolean): void;
     private rewriteAttribute;
     openAndRewriteName(uri: URI, newName: string, token: CancellationToken): Promise<void>;
 }

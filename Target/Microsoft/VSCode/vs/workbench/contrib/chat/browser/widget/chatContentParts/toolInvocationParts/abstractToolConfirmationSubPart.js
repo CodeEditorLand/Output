@@ -42,33 +42,46 @@ let AbstractToolConfirmationSubPart = class AbstractToolConfirmationSubPart2 ext
   }
   render(config) {
     const { keybindingService, languageModelToolsService, toolInvocation } = this;
-    const allowTooltip = keybindingService.appendKeybinding(config.allowLabel, config.allowActionId);
-    const skipTooltip = keybindingService.appendKeybinding(config.skipLabel, config.skipActionId);
-    const additionalActions = this.additionalPrimaryActions();
-    const buttons = [
-      {
-        label: config.allowLabel,
-        tooltip: allowTooltip,
+    const state = toolInvocation.state.get();
+    const customButtons = state.type === 1 ? state.confirmationMessages?.customButtons : void 0;
+    let buttons;
+    if (customButtons && customButtons.length > 0) {
+      buttons = customButtons.map((label, index) => ({
+        label,
         data: /* @__PURE__ */ __name(() => {
-          this.confirmWith(toolInvocation, {
-            type: 4
-            /* ToolConfirmKind.UserAction */
-          });
+          this.confirmWith(toolInvocation, { type: 4, selectedButton: label });
         }, "data"),
-        moreActions: additionalActions.length > 0 ? additionalActions : void 0
-      },
-      {
-        label: localize("skip", "Skip"),
-        tooltip: skipTooltip,
-        data: /* @__PURE__ */ __name(() => {
-          this.confirmWith(toolInvocation, {
-            type: 5
-            /* ToolConfirmKind.Skipped */
-          });
-        }, "data"),
-        isSecondary: true
-      }
-    ];
+        isSecondary: index > 0
+      }));
+    } else {
+      const allowTooltip = keybindingService.appendKeybinding(config.allowLabel, config.allowActionId);
+      const skipTooltip = keybindingService.appendKeybinding(config.skipLabel, config.skipActionId);
+      const additionalActions = this.additionalPrimaryActions();
+      buttons = [
+        {
+          label: config.allowLabel,
+          tooltip: allowTooltip,
+          data: /* @__PURE__ */ __name(() => {
+            this.confirmWith(toolInvocation, {
+              type: 4
+              /* ToolConfirmKind.UserAction */
+            });
+          }, "data"),
+          moreActions: additionalActions.length > 0 ? additionalActions : void 0
+        },
+        {
+          label: localize("skip", "Skip"),
+          tooltip: skipTooltip,
+          data: /* @__PURE__ */ __name(() => {
+            this.confirmWith(toolInvocation, {
+              type: 5
+              /* ToolConfirmKind.Skipped */
+            });
+          }, "data"),
+          isSecondary: true
+        }
+      ];
+    }
     const contentElement = this.createContentElement();
     const tool = languageModelToolsService.getTool(toolInvocation.toolId);
     const confirmWidget = this._register(this.instantiationService.createInstance(ChatCustomConfirmationWidget, this.context, {

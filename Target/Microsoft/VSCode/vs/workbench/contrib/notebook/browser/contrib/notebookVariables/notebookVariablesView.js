@@ -57,7 +57,7 @@ let NotebookVariablesView = class NotebookVariablesView2 extends ViewPane {
     this.accessibilityProvider = new NotebookVariableAccessibilityProvider();
     this.handleActiveEditorChange(false);
     this.dataSource = new NotebookVariableDataSource(this.notebookKernelService);
-    this.updateScheduler = new RunOnceScheduler(() => this.tree?.updateChildren(), 100);
+    this.updateScheduler = this._register(new RunOnceScheduler(() => this.tree?.updateChildren(), 100));
   }
   renderBody(container) {
     super.renderBody(container);

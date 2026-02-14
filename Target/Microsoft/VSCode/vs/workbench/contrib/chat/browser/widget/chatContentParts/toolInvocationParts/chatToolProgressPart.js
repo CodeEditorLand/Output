@@ -50,11 +50,22 @@ let ChatToolProgressSubPart = class ChatToolProgressSubPart2 extends BaseChatToo
       return part.domNode;
     } else {
       const container = document.createElement("div");
-      const progressObservable = this.toolInvocation.kind === "toolInvocation" ? this.toolInvocation.state.map((s, r) => s.type === 2 ? s.progress.read(r) : void 0) : void 0;
       this._register(autorun((reader) => {
-        const progress = progressObservable?.read(reader);
+        let progressContent;
         const key = this.getAnnouncementKey("progress");
-        const progressContent = progress?.message ?? this.toolInvocation.invocationMessage;
+        if (this.toolInvocation.kind === "toolInvocation") {
+          const state = this.toolInvocation.state.read(reader);
+          if (state.type === 5 && state.reasonMessage) {
+            progressContent = state.reasonMessage;
+          } else if (state.type === 2) {
+            const progress = state.progress.read(reader);
+            progressContent = progress?.message ?? this.toolInvocation.invocationMessage;
+          } else {
+            progressContent = this.toolInvocation.invocationMessage;
+          }
+        } else {
+          progressContent = this.toolInvocation.invocationMessage;
+        }
         if (!this.hasMeaningfulContent(progressContent)) {
           dom.clearNode(container);
           return;

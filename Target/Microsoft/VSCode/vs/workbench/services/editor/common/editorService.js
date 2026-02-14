@@ -6,6 +6,7 @@ const IEditorService = createDecorator("editorService");
 const ACTIVE_GROUP = -1;
 const SIDE_GROUP = -2;
 const AUX_WINDOW_GROUP = -3;
+const MODAL_GROUP = -4;
 function isPreferredGroup(obj) {
   const candidate = obj;
   return typeof obj === "number" || isEditorGroup(candidate);
@@ -15,6 +16,7 @@ export {
   ACTIVE_GROUP,
   AUX_WINDOW_GROUP,
   IEditorService,
+  MODAL_GROUP,
   SIDE_GROUP,
   isPreferredGroup
 };

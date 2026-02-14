@@ -186,6 +186,7 @@ let NotebookCellOutlineDataSource = class NotebookCellOutlineDataSource2 {
     this._entries.length = 0;
     this._activeEntry = void 0;
     this._disposables.dispose();
+    this._onDidChange.dispose();
   }
 };
 NotebookCellOutlineDataSource = __decorate([

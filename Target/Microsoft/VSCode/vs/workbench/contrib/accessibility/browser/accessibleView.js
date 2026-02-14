@@ -79,6 +79,7 @@ let AccessibleView = class AccessibleView2 extends Disposable {
     this._quickInputService = _quickInputService;
     this._accessibilitySignalService = _accessibilitySignalService;
     this._isInQuickPick = false;
+    this._lastProviderPosition = /* @__PURE__ */ new Map();
     this._accessiblityHelpIsShown = accessibilityHelpIsShown.bindTo(this._contextKeyService);
     this._accessibleViewIsShown = accessibleViewIsShown.bindTo(this._contextKeyService);
     this._accessibleViewSupportsNavigation = accessibleViewSupportsNavigation.bindTo(this._contextKeyService);
@@ -268,6 +269,12 @@ let AccessibleView = class AccessibleView2 extends Disposable {
       onHide: /* @__PURE__ */ __name(() => {
         if (!showAccessibleViewHelp) {
           this._updateLastProvider();
+          if (this._currentProvider) {
+            const currentPosition = this._editorWidget.getPosition();
+            if (currentPosition) {
+              this._lastProviderPosition.set(this._currentProvider.id, currentPosition);
+            }
+          }
           this._currentProvider?.dispose();
           this._currentProvider = void 0;
           this._resetContextKeys();
@@ -289,6 +296,7 @@ let AccessibleView = class AccessibleView2 extends Disposable {
         if (this._lastProvider?.options.id === id) {
           this._lastProvider = void 0;
         }
+        this._lastProviderPosition.delete(id);
       }));
     }
     if (provider.options.id) {
@@ -587,6 +595,15 @@ let AccessibleView = class AccessibleView2 extends Disposable {
         }
       } else if (previousPosition) {
         this._editorWidget.setPosition(previousPosition);
+      } else {
+        const savedPosition = this._lastProviderPosition.get(provider.id);
+        if (savedPosition) {
+          const lineCount = this._editorWidget.getModel()?.getLineCount() ?? 0;
+          if (savedPosition.lineNumber <= lineCount) {
+            this._editorWidget.setPosition(savedPosition);
+            this._editorWidget.revealPosition(savedPosition);
+          }
+        }
       }
     });
     this._updateToolbar(this._currentProvider.actions, provider.options.type);
@@ -606,6 +623,10 @@ let AccessibleView = class AccessibleView2 extends Disposable {
         return;
       }
       this._updateContextKeys(provider, false);
+      const currentPosition = this._editorWidget.getPosition();
+      if (currentPosition) {
+        this._lastProviderPosition.set(provider.id, currentPosition);
+      }
       this._lastProvider = void 0;
       this._currentContent = void 0;
       this._currentProvider?.dispose();

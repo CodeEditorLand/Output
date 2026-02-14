@@ -50,6 +50,7 @@ import { ChatSessionPosition, getResourceForNewChatSession } from "../../chat/br
 import { IChatEntitlementService } from "../../../services/chat/common/chatEntitlementService.js";
 import { AgentSessionsControl } from "../../chat/browser/agentSessions/agentSessionsControl.js";
 import { AgentSessionsFilter } from "../../chat/browser/agentSessions/agentSessionsFilter.js";
+import { AgentSessionsListDelegate } from "../../chat/browser/agentSessions/agentSessionsViewer.js";
 import { IWalkthroughsService } from "../../welcomeGettingStarted/browser/gettingStartedService.js";
 import { GettingStartedInput } from "../../welcomeGettingStarted/browser/gettingStartedInput.js";
 import { IMarkdownRendererService } from "../../../../platform/markdown/browser/markdownRenderer.js";
@@ -404,7 +405,6 @@ let AgentSessionsWelcomePage = class AgentSessionsWelcomePage2 extends EditorPan
   buildSessionsOrPrompts(container) {
     this.sessionsControlDisposables.clear();
     this.sessionsControl = void 0;
-    this.sessionsLoadingContainer = void 0;
     const sessions = this.agentSessionsService.model.sessions.filter((s) => !s.isArchived());
     if (sessions.length > 0) {
       this.buildSessionsGrid(container, sessions);
@@ -412,34 +412,8 @@ let AgentSessionsWelcomePage = class AgentSessionsWelcomePage2 extends EditorPan
       this.buildWalkthroughs(container);
     }
   }
-  buildLoadingSkeleton(container) {
-    const loadingContainer = append(container, $(".agentSessionsWelcome-sessionsLoading", {
-      "role": "status",
-      "aria-busy": "true",
-      "aria-label": localize("loadingSessions", "Loading sessions...")
-    }));
-    for (let i = 0; i < MAX_SESSIONS; i++) {
-      const skeleton = append(loadingContainer, $(".agentSessionsWelcome-sessionSkeleton", { "aria-hidden": "true" }));
-      append(skeleton, $(".agentSessionsWelcome-sessionSkeleton-icon"));
-      const content = append(skeleton, $(".agentSessionsWelcome-sessionSkeleton-content"));
-      append(content, $(".agentSessionsWelcome-sessionSkeleton-title"));
-      append(content, $(".agentSessionsWelcome-sessionSkeleton-description"));
-    }
-    return loadingContainer;
-  }
-  hideLoadingSkeleton() {
-    if (this.sessionsLoadingContainer) {
-      this.sessionsLoadingContainer.style.display = "none";
-    }
-    if (this.sessionsControlContainer) {
-      this.sessionsControlContainer.style.display = "";
-      this.layoutSessionsControl();
-    }
-  }
   buildSessionsGrid(container, _sessions) {
-    this.sessionsLoadingContainer = this.buildLoadingSkeleton(container);
     this.sessionsControlContainer = append(container, $(".agentSessionsWelcome-sessionsGrid"));
-    this.sessionsControlContainer.style.display = "none";
     const options = {
       overrideStyles: getListStyles({
         listBackground: editorBackground
@@ -460,10 +434,10 @@ let AgentSessionsWelcomePage = class AgentSessionsWelcomePage2 extends EditorPan
     };
     this.sessionsControl = this.sessionsControlDisposables.add(this.instantiationService.createInstance(AgentSessionsControl, this.sessionsControlContainer, options));
     this.sessionsControlDisposables.add(this.agentSessionsService.model.onDidResolve(() => {
-      this.hideLoadingSkeleton();
+      this.layoutSessionsControl();
     }));
     if (this.agentSessionsService.model.resolved) {
-      this.hideLoadingSkeleton();
+      this.layoutSessionsControl();
     }
     this.sessionsControlDisposables.add(scheduleAtNextAnimationFrame(getWindow(this.sessionsControlContainer), () => {
       this.layoutSessionsControl();
@@ -562,7 +536,7 @@ let AgentSessionsWelcomePage = class AgentSessionsWelcomePage2 extends EditorPan
     iconContainer.appendChild(renderIcon(Codicon.chatSparkle));
     const content = append(tosCard, $(".agentSessionsWelcome-walkthroughCard-content"));
     const title = append(content, $(".agentSessionsWelcome-walkthroughCard-title"));
-    title.textContent = localize("tosTitle", "Your GitHub Copilot trial is active");
+    title.textContent = localize("tosTitle", "Try GitHub Copilot for free, no sign-in required!");
     const desc = append(content, $(".agentSessionsWelcome-walkthroughCard-description"));
     const descriptionMarkdown = new MarkdownString(localize({ key: "tosDescription", comment: ['{Locked="]({1})"}', '{Locked="]({2})"}'] }, "By continuing, you agree to {0}'s [Terms]({1}) and [Privacy Statement]({2}).", providers.default.name, this.productService.defaultChatAgent.termsStatementUrl, this.productService.defaultChatAgent.privacyStatementUrl), { isTrusted: true });
     const renderedMarkdown = this.markdownRendererService.render(descriptionMarkdown);
@@ -628,9 +602,9 @@ let AgentSessionsWelcomePage = class AgentSessionsWelcomePage2 extends EditorPan
     }
     const sessionsWidth = Math.min(800, this.lastDimension.width - 80);
     const visibleSessions = Math.min(this.agentSessionsService.model.sessions.filter((s) => !s.isArchived()).length, MAX_SESSIONS);
-    const sessionsHeight = visibleSessions * 52;
+    const sessionsHeight = visibleSessions * AgentSessionsListDelegate.ITEM_HEIGHT;
     this.sessionsControl.layout(sessionsHeight, sessionsWidth);
-    const marginOffset = Math.floor(visibleSessions / 2) * 52;
+    const marginOffset = Math.floor(visibleSessions / 2) * AgentSessionsListDelegate.ITEM_HEIGHT;
     this.sessionsControl.element.style.marginBottom = `-${marginOffset}px`;
   }
   focus() {

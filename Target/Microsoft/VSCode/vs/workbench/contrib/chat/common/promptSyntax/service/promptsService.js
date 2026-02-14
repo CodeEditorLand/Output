@@ -22,10 +22,24 @@ function isCustomAgentVisibility(obj) {
     return false;
   }
   const v = obj;
-  return typeof v.userInvokable === "boolean" && typeof v.agentInvokable === "boolean";
+  return typeof v.userInvocable === "boolean" && typeof v.agentInvocable === "boolean";
 }
 __name(isCustomAgentVisibility, "isCustomAgentVisibility");
+var Target;
+(function(Target2) {
+  Target2["VSCode"] = "vscode";
+  Target2["GitHubCopilot"] = "github-copilot";
+  Target2["Claude"] = "claude";
+  Target2["Undefined"] = "undefined";
+})(Target || (Target = {}));
+var AgentFileType;
+(function(AgentFileType2) {
+  AgentFileType2["agentsMd"] = "agentsMd";
+  AgentFileType2["claudeMd"] = "claudeMd";
+  AgentFileType2["copilotInstructionsMd"] = "copilotInstructionsMd";
+})(AgentFileType || (AgentFileType = {}));
 export {
+  AgentFileType,
   CUSTOM_AGENT_PROVIDER_ACTIVATION_EVENT,
   ExtensionAgentSourceType,
   INSTRUCTIONS_PROVIDER_ACTIVATION_EVENT,
@@ -33,6 +47,7 @@ export {
   PROMPT_FILE_PROVIDER_ACTIVATION_EVENT,
   PromptsStorage,
   SKILL_PROVIDER_ACTIVATION_EVENT,
+  Target,
   isCustomAgentVisibility
 };
 //# sourceMappingURL=promptsService.js.map

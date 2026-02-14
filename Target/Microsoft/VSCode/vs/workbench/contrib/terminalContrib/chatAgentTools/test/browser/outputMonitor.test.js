@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import * as assert from "assert";
-import { detectsGenericPressAnyKeyPattern, detectsInputRequiredPattern, detectsNonInteractiveHelpPattern, detectsVSCodeTaskFinishMessage, OutputMonitor } from "../../browser/tools/monitoring/outputMonitor.js";
+import { detectsGenericPressAnyKeyPattern, detectsInputRequiredPattern, detectsNonInteractiveHelpPattern, detectsVSCodeTaskFinishMessage, matchTerminalPromptOption, OutputMonitor } from "../../browser/tools/monitoring/outputMonitor.js";
 import { CancellationTokenSource } from "../../../../../../base/common/cancellation.js";
 import { ensureNoDisposablesAreLeakedInTestSuite } from "../../../../../../base/test/common/utils.js";
 import { OutputMonitorState } from "../../browser/tools/monitoring/types.js";
@@ -42,7 +42,7 @@ suite("OutputMonitor", () => {
         // eslint-disable-next-line local/code-no-any-casts
         registerMarker: /* @__PURE__ */ __name(() => ({ id: 1 }), "registerMarker")
       },
-      sessionId: "1"
+      sessionResource: LocalChatSessionUri.forSession("1")
     };
     instantiationService = new TestInstantiationService();
     instantiationService.stub(ILanguageModelsService, {
@@ -232,6 +232,24 @@ suite("OutputMonitor", () => {
       assert.strictEqual(detectsNonInteractiveHelpPattern("press q to quit"), true);
       assert.strictEqual(detectsInputRequiredPattern("press u to show server url"), false);
       assert.strictEqual(detectsNonInteractiveHelpPattern("press u to show server url"), true);
+    });
+  });
+  suite("matchTerminalPromptOption", () => {
+    test("matches suggested option case-insensitively", () => {
+      assert.deepStrictEqual(matchTerminalPromptOption(["Y", "n"], "y"), { option: "Y", index: 0 });
+      assert.deepStrictEqual(matchTerminalPromptOption(["y", "N"], "n"), { option: "N", index: 1 });
+    });
+    test("strips quotes and trailing punctuation", () => {
+      assert.deepStrictEqual(matchTerminalPromptOption(["Y", "n"], '"y"'), { option: "Y", index: 0 });
+      assert.deepStrictEqual(matchTerminalPromptOption(["yes", "no"], "no."), { option: "no", index: 1 });
+    });
+    test("handles bracketed options like [Y]", () => {
+      assert.deepStrictEqual(matchTerminalPromptOption(["Y", "n"], "[y]"), { option: "Y", index: 0 });
+      assert.deepStrictEqual(matchTerminalPromptOption(["y", "N"], "(n)"), { option: "N", index: 1 });
+    });
+    test("handles default suffixes by using first token", () => {
+      assert.deepStrictEqual(matchTerminalPromptOption(["Y", "n"], "Y (default)"), { option: "Y", index: 0 });
+      assert.deepStrictEqual(matchTerminalPromptOption(["Enter"], "Enter to continue"), { option: "Enter", index: 0 });
     });
   });
   suite("detectsVSCodeTaskFinishMessage", () => {

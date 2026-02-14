@@ -312,10 +312,10 @@ let McpAddConfigurationCommand = class McpAddConfigurationCommand2 {
       loadingQuickPick.busy = false;
     });
     const loadingAction = await new Promise((resolve) => {
-      loadingQuickPick.onDidAccept(() => resolve(loadingQuickPick.selectedItems[0]));
-      loadingQuickPick.onDidHide(() => resolve(void 0));
+      loadingQuickPickStore.add(loadingQuickPick.onDidAccept(() => resolve(loadingQuickPick.selectedItems[0])));
+      loadingQuickPickStore.add(loadingQuickPick.onDidHide(() => resolve(void 0)));
       loadingQuickPick.show();
-    }).finally(() => loadingQuickPick.dispose());
+    }).finally(() => loadingQuickPickStore.dispose());
     switch (loadingAction?.id) {
       case "retry":
         return this.getAssistedConfig(type);

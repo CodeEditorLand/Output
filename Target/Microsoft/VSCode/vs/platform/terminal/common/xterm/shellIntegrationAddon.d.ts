@@ -7,19 +7,6 @@ import { ITelemetryService } from '../../../telemetry/common/telemetry.js';
 import { Event } from '../../../../base/common/event.js';
 import type { ITerminalAddon, Terminal } from '@xterm/headless';
 /**
- * Shell integration is a feature that enhances the terminal's understanding of what's happening
- * in the shell by injecting special sequences into the shell's prompt using the "Set Text
- * Parameters" sequence (`OSC Ps ; Pt ST`).
- *
- * Definitions:
- * - OSC: `\x1b]`
- * - Ps:  A single (usually optional) numeric parameter, composed of one or more digits.
- * - Pt:  A text parameter composed of printable characters.
- * - ST: `\x7`
- *
- * This is inspired by a feature of the same name in the FinalTerm, iTerm2 and kitty terminals.
- */
-/**
  * The identifier for the first numeric parameter (`Ps`) for OSC commands used by shell integration.
  */
 export declare const enum ShellIntegrationOscPs {

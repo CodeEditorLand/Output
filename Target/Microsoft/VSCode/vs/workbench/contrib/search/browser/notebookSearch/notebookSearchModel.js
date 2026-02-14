@@ -158,7 +158,7 @@ let NotebookCompatibleFileMatch = class NotebookCompatibleFileMatch2 extends Fil
     this._notebookEditorWidget = null;
     this._editorWidgetListener = null;
     this._cellMatches = /* @__PURE__ */ new Map();
-    this._notebookUpdateScheduler = new RunOnceScheduler(this.updateMatchesForEditorWidget.bind(this), 250);
+    this._notebookUpdateScheduler = this._register(new RunOnceScheduler(this.updateMatchesForEditorWidget.bind(this), 250));
   }
   get cellContext() {
     const cellContext = /* @__PURE__ */ new Map();

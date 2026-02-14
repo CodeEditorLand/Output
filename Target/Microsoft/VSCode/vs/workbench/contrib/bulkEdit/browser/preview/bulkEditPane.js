@@ -128,6 +128,7 @@ let BulkEditPane = class BulkEditPane2 extends ViewPane {
   dispose() {
     this._tree.dispose();
     this._disposables.dispose();
+    this._sessionDisposables.dispose();
     super.dispose();
   }
   renderBody(parent) {

@@ -644,4 +644,5 @@ export declare const codiconsLibrary: {
     readonly ask: import("./themables.ts").ThemeIcon;
     readonly openai: import("./themables.ts").ThemeIcon;
     readonly claude: import("./themables.ts").ThemeIcon;
+    readonly openInWindow: import("./themables.ts").ThemeIcon;
 };

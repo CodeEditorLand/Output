@@ -26,15 +26,16 @@ interface IAgentSessionItemTemplate {
     readonly element: HTMLElement;
     readonly icon: HTMLElement;
     readonly title: IconLabel;
+    readonly statusContainer: HTMLElement;
+    readonly statusProviderIcon: HTMLElement;
+    readonly statusTime: HTMLElement;
     readonly titleToolbar: MenuWorkbenchToolBar;
     readonly diffContainer: HTMLElement;
     readonly diffAddedSpan: HTMLSpanElement;
     readonly diffRemovedSpan: HTMLSpanElement;
     readonly badge: HTMLElement;
+    readonly separator: HTMLElement;
     readonly description: HTMLElement;
-    readonly statusContainer: HTMLElement;
-    readonly statusProviderIcon: HTMLElement;
-    readonly statusTime: HTMLElement;
     readonly contextKeyService: IContextKeyService;
     readonly elementDisposable: DisposableStore;
     readonly disposables: IDisposable;
@@ -89,7 +90,7 @@ export declare class AgentSessionSectionRenderer implements ICompressibleTreeRen
     disposeTemplate(templateData: IAgentSessionSectionTemplate): void;
 }
 export declare class AgentSessionsListDelegate implements IListVirtualDelegate<AgentSessionListItem> {
-    static readonly ITEM_HEIGHT = 52;
+    static readonly ITEM_HEIGHT = 44;
     static readonly SECTION_HEIGHT = 26;
     getHeight(element: AgentSessionListItem): number;
     getTemplateId(element: AgentSessionListItem): string;

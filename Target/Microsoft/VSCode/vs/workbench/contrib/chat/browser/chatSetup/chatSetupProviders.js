@@ -17,9 +17,9 @@ import { Codicon } from "../../../../../base/common/codicons.js";
 import { toErrorMessage } from "../../../../../base/common/errorMessage.js";
 import { Emitter, Event } from "../../../../../base/common/event.js";
 import { MarkdownString } from "../../../../../base/common/htmlContent.js";
-import { Disposable, DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { Disposable, DisposableStore, toDisposable } from "../../../../../base/common/lifecycle.js";
 import { localize, localize2 } from "../../../../../nls.js";
-import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
+import { ContextKeyExpr, IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
 import { ILogService } from "../../../../../platform/log/common/log.js";
 import product from "../../../../../platform/product/common/product.js";
@@ -47,6 +47,7 @@ import { ACTION_START as INLINE_CHAT_START } from "../../../inlineChat/common/in
 import { IMarkerService, MarkerSeverity } from "../../../../../platform/markers/common/markers.js";
 import { ChatSetupAnonymous, ChatSetupStep } from "./chatSetup.js";
 import { ChatSetup } from "./chatSetupRunner.js";
+import { chatViewsWelcomeRegistry } from "../viewsWelcome/chatViewsWelcome.js";
 import { CommandsRegistry } from "../../../../../platform/commands/common/commands.js";
 import { IDefaultAccountService } from "../../../../../platform/defaultAccount/common/defaultAccount.js";
 import { IHostService } from "../../../../services/host/browser/host.js";
@@ -162,7 +163,7 @@ let SetupAgent = class SetupAgent2 extends Disposable {
   static {
     this.CHAT_RETRY_COMMAND_ID = "workbench.action.chat.retrySetup";
   }
-  constructor(context, controller, location, instantiationService, logService, telemetryService, environmentService, workspaceTrustManagementService, chatEntitlementService, viewsService) {
+  constructor(context, controller, location, instantiationService, logService, telemetryService, environmentService, workspaceTrustManagementService, chatEntitlementService, viewsService, contextKeyService) {
     super();
     this.context = context;
     this.controller = controller;
@@ -174,6 +175,7 @@ let SetupAgent = class SetupAgent2 extends Disposable {
     this.workspaceTrustManagementService = workspaceTrustManagementService;
     this.chatEntitlementService = chatEntitlementService;
     this.viewsService = viewsService;
+    this.contextKeyService = contextKeyService;
     this._onUnresolvableError = this._register(new Emitter());
     this.onUnresolvableError = this._onUnresolvableError.event;
     this.pendingForwardedRequests = new ResourceMap();
@@ -273,9 +275,12 @@ let SetupAgent = class SetupAgent2 extends Disposable {
           content: new MarkdownString(localize("waitingChat2", "Chat is almost ready..."))
         });
       }, 1e4);
+      const disposables = new DisposableStore();
+      disposables.add(toDisposable(() => clearTimeout(timeoutHandle)));
       try {
         const ready = await Promise.race([
           timeout(this.environmentService.remoteAuthority ? 6e4 : 2e4).then(() => "timedout"),
+          this.whenPanelAgentHasGuidance(disposables).then(() => "panelGuidance"),
           Promise.allSettled([
             whenAgentActivated,
             whenAgentReady,
@@ -283,6 +288,15 @@ let SetupAgent = class SetupAgent2 extends Disposable {
             whenToolsModelReady
           ])
         ]);
+        if (ready === "panelGuidance") {
+          const warningMessage = localize("chatTookLongWarningExtension", "Please try again.");
+          progress({
+            kind: "markdownContent",
+            content: new MarkdownString(warningMessage)
+          });
+          this._onUnresolvableError.fire();
+          return;
+        }
         if (ready === "timedout") {
           let warningMessage;
           if (this.chatEntitlementService.anonymous) {
@@ -290,10 +304,35 @@ let SetupAgent = class SetupAgent2 extends Disposable {
           } else {
             warningMessage = localize("chatTookLongWarning", "Chat took too long to get ready. Please ensure you are signed in to {0} and that the extension `{1}` is installed and enabled. Click restart to try again if this issue persists.", defaultChat.provider.default.name, defaultChat.chatExtensionId);
           }
+          const languageModelIds = languageModelsService.getLanguageModelIds();
+          let languageModelDefaultCount = 0;
+          for (const id of languageModelIds) {
+            const model = languageModelsService.lookupLanguageModel(id);
+            if (model?.isDefaultForLocation[ChatAgentLocation.Chat]) {
+              languageModelDefaultCount++;
+            }
+          }
+          const defaultAgent = chatAgentService.getDefaultAgent(this.location, modeInfo?.kind);
+          const agentHasDefault = !!defaultAgent;
+          const agentDefaultIsCore = defaultAgent?.isCore ?? false;
+          const contributedDefaultAgent = chatAgentService.getContributedDefaultAgent(this.location);
+          const agentHasContributedDefault = !!contributedDefaultAgent;
+          const agentContributedDefaultIsCore = contributedDefaultAgent?.isCore ?? false;
+          const agentActivatedCount = chatAgentService.getActivatedAgents().length;
           this.logService.warn(warningMessage, {
             agentActivated,
             agentReady,
+            agentHasDefault,
+            agentDefaultIsCore,
+            agentHasContributedDefault,
+            agentContributedDefaultIsCore,
+            agentActivatedCount,
+            agentLocation: this.location,
+            agentModeKind: modeInfo?.kind,
             languageModelReady,
+            languageModelCount: languageModelIds.length,
+            languageModelDefaultCount,
+            languageModelHasRequestedModel: !!requestModel.modelId,
             toolsModelReady
           });
           const chatViewPane = this.viewsService.getActiveViewWithId(ChatViewId);
@@ -301,7 +340,17 @@ let SetupAgent = class SetupAgent2 extends Disposable {
           this.telemetryService.publicLog2("chatSetup.timeout", {
             agentActivated,
             agentReady,
+            agentHasDefault,
+            agentDefaultIsCore,
+            agentHasContributedDefault,
+            agentContributedDefaultIsCore,
+            agentActivatedCount,
+            agentLocation: this.location,
+            agentModeKind: modeInfo?.kind ?? "",
             languageModelReady,
+            languageModelCount: languageModelIds.length,
+            languageModelDefaultCount,
+            languageModelHasRequestedModel: !!requestModel.modelId,
             toolsModelReady,
             isRemote: !!this.environmentService.remoteAuthority,
             isAnonymous: this.chatEntitlementService.anonymous,
@@ -323,13 +372,37 @@ let SetupAgent = class SetupAgent2 extends Disposable {
           return;
         }
       } finally {
-        clearTimeout(timeoutHandle);
+        disposables.dispose();
       }
     }
     await chatService.resendRequest(requestModel, {
       ...widget?.getModeRequestOptions(),
       modeInfo,
       userSelectedModelId: widget?.input.currentLanguageModel
+    });
+  }
+  async whenPanelAgentHasGuidance(disposables) {
+    const panelAgentHasGuidance = /* @__PURE__ */ __name(() => chatViewsWelcomeRegistry.get().some((descriptor) => this.contextKeyService.contextMatchesRules(descriptor.when)), "panelAgentHasGuidance");
+    if (panelAgentHasGuidance()) {
+      return;
+    }
+    return new Promise((resolve) => {
+      let descriptorKeys = /* @__PURE__ */ new Set();
+      const updateDescriptorKeys = /* @__PURE__ */ __name(() => {
+        const descriptors = chatViewsWelcomeRegistry.get();
+        descriptorKeys = new Set(descriptors.flatMap((d) => d.when.keys()));
+      }, "updateDescriptorKeys");
+      updateDescriptorKeys();
+      const onDidChangeRegistry = Event.map(chatViewsWelcomeRegistry.onDidChange, () => "registry");
+      const onDidChangeRelevantContext = Event.map(Event.filter(this.contextKeyService.onDidChangeContext, (e) => e.affectsSome(descriptorKeys)), () => "context");
+      disposables.add(Event.any(onDidChangeRegistry, onDidChangeRelevantContext)((source) => {
+        if (source === "registry") {
+          updateDescriptorKeys();
+        }
+        if (panelAgentHasGuidance()) {
+          resolve();
+        }
+      }));
     });
   }
   whenLanguageModelReady(languageModelsService, modelId) {
@@ -520,7 +593,8 @@ SetupAgent = SetupAgent_1 = __decorate([
   __param(6, IWorkbenchEnvironmentService),
   __param(7, IWorkspaceTrustManagementService),
   __param(8, IChatEntitlementService),
-  __param(9, IViewsService)
+  __param(9, IViewsService),
+  __param(10, IContextKeyService)
 ], SetupAgent);
 class SetupTool {
   static {

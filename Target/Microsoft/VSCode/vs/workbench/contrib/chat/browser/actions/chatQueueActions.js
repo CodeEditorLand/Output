@@ -12,6 +12,14 @@ import { isRequestVM } from "../../common/model/chatViewModel.js";
 import { IChatWidgetService } from "../chat.js";
 import { CHAT_CATEGORY } from "./chatActions.js";
 const queueingEnabledCondition = ContextKeyExpr.equals(`config.${ChatConfiguration.RequestQueueingEnabled}`, true);
+const requestInProgressOrPendingToolCall = ContextKeyExpr.or(ChatContextKeys.requestInProgress, ChatContextKeys.Editing.hasToolConfirmation);
+const queuingActionsPresent = ContextKeyExpr.and(queueingEnabledCondition, ContextKeyExpr.or(requestInProgressOrPendingToolCall, ChatContextKeys.editingRequestType.isEqualTo(
+  "qs"
+  /* ChatContextKeys.EditingRequestType.QueueOrSteer */
+)), ChatContextKeys.editingRequestType.notEqualsTo(
+  "s"
+  /* ChatContextKeys.EditingRequestType.Sent */
+));
 function isRemovePendingRequestContext(context) {
   return !!context && typeof context === "object" && "sessionResource" in context && "pendingRequestId" in context && URI.isUri(context.sessionResource) && typeof context.pendingRequestId === "string";
 }
@@ -31,17 +39,12 @@ class ChatQueueMessageAction extends Action2 {
       icon: Codicon.add,
       f1: false,
       category: CHAT_CATEGORY,
-      precondition: ContextKeyExpr.and(queueingEnabledCondition, ChatContextKeys.requestInProgress, ChatContextKeys.inputHasText),
+      precondition: ContextKeyExpr.and(queuingActionsPresent, ChatContextKeys.inputHasText),
       keybinding: {
-        when: ContextKeyExpr.and(ChatContextKeys.inChatInput, ChatContextKeys.requestInProgress, queueingEnabledCondition),
-        primary: 3,
+        when: ContextKeyExpr.and(ChatContextKeys.inChatInput, queuingActionsPresent),
+        primary: 512 | 3,
         weight: 100 + 1
-      },
-      menu: [{
-        id: MenuId.ChatExecuteQueue,
-        group: "navigation",
-        order: 1
-      }]
+      }
     });
   }
   run(accessor, ...args) {
@@ -75,17 +78,12 @@ class ChatSteerWithMessageAction extends Action2 {
       icon: Codicon.arrowRight,
       f1: false,
       category: CHAT_CATEGORY,
-      precondition: ContextKeyExpr.and(queueingEnabledCondition, ChatContextKeys.requestInProgress, ChatContextKeys.inputHasText),
+      precondition: ContextKeyExpr.and(queuingActionsPresent, ChatContextKeys.inputHasText),
       keybinding: {
-        when: ContextKeyExpr.and(ChatContextKeys.inChatInput, ChatContextKeys.requestInProgress, queueingEnabledCondition),
-        primary: 512 | 3,
+        when: ContextKeyExpr.and(ChatContextKeys.inChatInput, queuingActionsPresent),
+        primary: 3,
         weight: 100 + 1
-      },
-      menu: [{
-        id: MenuId.ChatExecuteQueue,
-        group: "navigation",
-        order: 2
-      }]
+      }
     });
   }
   run(accessor, ...args) {
@@ -230,14 +228,23 @@ function registerChatQueueActions() {
   registerAction2(ChatRemovePendingRequestAction);
   registerAction2(ChatSendPendingImmediatelyAction);
   registerAction2(ChatRemoveAllPendingRequestsAction);
+  MenuRegistry.appendMenuItem(MenuId.ChatExecuteQueue, {
+    command: { id: ChatQueueMessageAction.ID, title: localize2("chat.queueMessage", "Add to Queue"), icon: Codicon.add },
+    group: "navigation",
+    order: 1
+  });
+  MenuRegistry.appendMenuItem(MenuId.ChatExecuteQueue, {
+    command: { id: ChatSteerWithMessageAction.ID, title: localize2("chat.steerWithMessage", "Steer with Message"), icon: Codicon.arrowRight },
+    group: "navigation",
+    order: 2
+  });
   MenuRegistry.appendMenuItem(MenuId.ChatExecute, {
     submenu: MenuId.ChatExecuteQueue,
     title: localize2("chat.queueSubmenu", "Queue"),
     icon: Codicon.listOrdered,
-    when: ContextKeyExpr.and(queueingEnabledCondition, ChatContextKeys.requestInProgress, ChatContextKeys.inputHasText),
+    when: queuingActionsPresent,
     group: "navigation",
-    order: 4,
-    isSplitButton: { togglePrimaryAction: true }
+    order: 4
   });
 }
 __name(registerChatQueueActions, "registerChatQueueActions");

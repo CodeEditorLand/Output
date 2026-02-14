@@ -3,7 +3,7 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
 import { localize } from "../../../../../nls.js";
 import { Codicon } from "../../../../../base/common/codicons.js";
 import { URI } from "../../../../../base/common/uri.js";
-import { localChatSessionType } from "../../common/chatSessionsService.js";
+import { observableValue } from "../../../../../base/common/observable.js";
 import { foreground, listActiveSelectionForeground, registerColor, transparent } from "../../../../../platform/theme/common/colorRegistry.js";
 import { getChatSessionType } from "../../common/model/chatUri.js";
 var AgentSessionProviders;
@@ -13,6 +13,7 @@ var AgentSessionProviders;
   AgentSessionProviders2["Cloud"] = "copilot-cloud-agent";
   AgentSessionProviders2["Claude"] = "claude-code";
   AgentSessionProviders2["Codex"] = "openai-codex";
+  AgentSessionProviders2["Growth"] = "copilot-growth";
 })(AgentSessionProviders || (AgentSessionProviders = {}));
 function isBuiltInAgentSessionProvider(provider) {
   return provider === AgentSessionProviders.Local || provider === AgentSessionProviders.Background || provider === AgentSessionProviders.Cloud || provider === AgentSessionProviders.Claude;
@@ -26,24 +27,28 @@ function getAgentSessionProvider(sessionResource) {
     case AgentSessionProviders.Cloud:
     case AgentSessionProviders.Claude:
     case AgentSessionProviders.Codex:
+    case AgentSessionProviders.Growth:
       return type;
     default:
       return void 0;
   }
 }
 __name(getAgentSessionProvider, "getAgentSessionProvider");
+const backgroundAgentDisplayName = observableValue("backgroundAgentDisplayName", localize("chat.session.providerLabel.background", "Background"));
 function getAgentSessionProviderName(provider) {
   switch (provider) {
     case AgentSessionProviders.Local:
       return localize("chat.session.providerLabel.local", "Local");
     case AgentSessionProviders.Background:
-      return localize("chat.session.providerLabel.background", "Background");
+      return backgroundAgentDisplayName.get();
     case AgentSessionProviders.Cloud:
       return localize("chat.session.providerLabel.cloud", "Cloud");
     case AgentSessionProviders.Claude:
       return "Claude";
     case AgentSessionProviders.Codex:
       return "Codex";
+    case AgentSessionProviders.Growth:
+      return "Growth";
   }
 }
 __name(getAgentSessionProviderName, "getAgentSessionProviderName");
@@ -59,6 +64,8 @@ function getAgentSessionProviderIcon(provider) {
       return Codicon.openai;
     case AgentSessionProviders.Claude:
       return Codicon.claude;
+    case AgentSessionProviders.Growth:
+      return Codicon.lightbulb;
   }
 }
 __name(getAgentSessionProviderIcon, "getAgentSessionProviderIcon");
@@ -70,11 +77,15 @@ function isFirstPartyAgentSessionProvider(provider) {
       return true;
     case AgentSessionProviders.Claude:
     case AgentSessionProviders.Codex:
+    case AgentSessionProviders.Growth:
       return false;
   }
 }
 __name(isFirstPartyAgentSessionProvider, "isFirstPartyAgentSessionProvider");
-function getAgentCanContinueIn(provider) {
+function getAgentCanContinueIn(provider, contribution) {
+  if (contribution?.isReadOnly) {
+    return false;
+  }
   switch (provider) {
     case AgentSessionProviders.Local:
     case AgentSessionProviders.Background:
@@ -82,6 +93,7 @@ function getAgentCanContinueIn(provider) {
       return true;
     case AgentSessionProviders.Claude:
     case AgentSessionProviders.Codex:
+    case AgentSessionProviders.Growth:
       return false;
   }
 }
@@ -98,6 +110,8 @@ function getAgentSessionProviderDescription(provider) {
       return localize("chat.session.providerDescription.claude", "Delegate tasks to the Claude Agent SDK using the Claude models included in your GitHub Copilot subscription. The agent iterates via chat and works interactively to implement changes on your main workspace.");
     case AgentSessionProviders.Codex:
       return localize("chat.session.providerDescription.codex", "Opens a new Codex session in the editor. Codex sessions can be managed from the chat sessions view.");
+    case AgentSessionProviders.Growth:
+      return localize("chat.session.providerDescription.growth", "Educational messages to help you learn Copilot features.");
   }
 }
 __name(getAgentSessionProviderDescription, "getAgentSessionProviderDescription");
@@ -111,7 +125,7 @@ var AgentSessionsViewerPosition;
   AgentSessionsViewerPosition2[AgentSessionsViewerPosition2["Left"] = 1] = "Left";
   AgentSessionsViewerPosition2[AgentSessionsViewerPosition2["Right"] = 2] = "Right";
 })(AgentSessionsViewerPosition || (AgentSessionsViewerPosition = {}));
-const agentSessionReadIndicatorForeground = registerColor("agentSessionReadIndicator.foreground", { dark: transparent(foreground, 0.15), light: transparent(foreground, 0.15), hcDark: null, hcLight: null }, localize("agentSessionReadIndicatorForeground", "Foreground color for the read indicator in an agent session."));
+const agentSessionReadIndicatorForeground = registerColor("agentSessionReadIndicator.foreground", { dark: transparent(foreground, 0.2), light: transparent(foreground, 0.2), hcDark: null, hcLight: null }, localize("agentSessionReadIndicatorForeground", "Foreground color for the read indicator in an agent session."));
 const agentSessionSelectedBadgeBorder = registerColor("agentSessionSelectedBadge.border", { dark: transparent(listActiveSelectionForeground, 0.3), light: transparent(listActiveSelectionForeground, 0.3), hcDark: foreground, hcLight: foreground }, localize("agentSessionSelectedBadgeBorder", "Border color for the badges in selected agent session items."));
 const agentSessionSelectedUnfocusedBadgeBorder = registerColor("agentSessionSelectedUnfocusedBadge.border", { dark: transparent(foreground, 0.3), light: transparent(foreground, 0.3), hcDark: foreground, hcLight: foreground }, localize("agentSessionSelectedUnfocusedBadgeBorder", "Border color for the badges in selected agent session items when the view is unfocused."));
 const AGENT_SESSION_RENAME_ACTION_ID = "agentSession.rename";
@@ -129,6 +143,7 @@ export {
   agentSessionReadIndicatorForeground,
   agentSessionSelectedBadgeBorder,
   agentSessionSelectedUnfocusedBadgeBorder,
+  backgroundAgentDisplayName,
   getAgentCanContinueIn,
   getAgentSessionProvider,
   getAgentSessionProviderDescription,

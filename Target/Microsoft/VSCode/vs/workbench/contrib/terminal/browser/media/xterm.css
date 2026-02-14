@@ -193,31 +193,31 @@
   z-index: 2;
   position: relative;
 }
-.xterm .xterm-scrollable-element > .scrollbar {
+.xterm .xterm-scrollable-element > .xterm-scrollbar {
   cursor: default;
 }
-.xterm .xterm-scrollable-element > .scrollbar > .scra {
+.xterm .xterm-scrollable-element > .xterm-scrollbar > .xterm-scra {
   cursor: pointer;
   font-size: 11px !important;
 }
-.xterm .xterm-scrollable-element > .visible {
+.xterm .xterm-scrollable-element > .xterm-visible {
   opacity: 1;
   background: rgba(0, 0, 0, 0);
   transition: opacity 100ms linear;
   z-index: 11;
 }
-.xterm .xterm-scrollable-element > .invisible {
+.xterm .xterm-scrollable-element > .xterm-invisible {
   opacity: 0;
   pointer-events: none;
 }
-.xterm .xterm-scrollable-element > .invisible.fade {
+.xterm .xterm-scrollable-element > .xterm-invisible.xterm-fade {
   transition: opacity 800ms linear;
 }
-.xterm .xterm-scrollable-element > .shadow {
+.xterm .xterm-scrollable-element > .xterm-shadow {
   position: absolute;
   display: none;
 }
-.xterm .xterm-scrollable-element > .shadow.top {
+.xterm .xterm-scrollable-element > .xterm-shadow.xterm-shadow-top {
   display: block;
   top: 0;
   left: 3px;
@@ -225,7 +225,7 @@
   width: 100%;
   box-shadow: var(--vscode-scrollbar-shadow, #000) 0 6px 6px -6px inset;
 }
-.xterm .xterm-scrollable-element > .shadow.left {
+.xterm .xterm-scrollable-element > .xterm-shadow.xterm-shadow-left {
   display: block;
   top: 3px;
   left: 0;
@@ -233,14 +233,14 @@
   width: 3px;
   box-shadow: var(--vscode-scrollbar-shadow, #000) 6px 0 6px -6px inset;
 }
-.xterm .xterm-scrollable-element > .shadow.top-left-corner {
+.xterm .xterm-scrollable-element > .xterm-shadow.xterm-shadow-top-left-corner {
   display: block;
   top: 0;
   left: 0;
   height: 3px;
   width: 3px;
 }
-.xterm .xterm-scrollable-element > .shadow.top.left {
+.xterm .xterm-scrollable-element > .xterm-shadow.xterm-shadow-top.xterm-shadow-left {
   box-shadow: var(--vscode-scrollbar-shadow, #000) 6px 0 6px -6px inset;
 }
 /*# sourceMappingURL=xterm.css.map */

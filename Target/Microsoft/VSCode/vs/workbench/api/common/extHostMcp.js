@@ -203,6 +203,21 @@ let ExtHostMcpService = class ExtHostMcpService2 extends Disposable {
     this._initialProviderPromises.add(promise);
     return store;
   }
+  /** {@link vscode.lm.startMcpGateway} */
+  async startMcpGateway() {
+    const result = await this._proxy.$startMcpGateway();
+    if (!result) {
+      return void 0;
+    }
+    const address = URI.revive(result.address);
+    const gatewayId = result.gatewayId;
+    return {
+      address,
+      dispose: /* @__PURE__ */ __name(() => {
+        this._proxy.$disposeMcpGateway(gatewayId);
+      }, "dispose")
+    };
+  }
 };
 ExtHostMcpService = __decorate([
   __param(0, IExtHostRpcService),

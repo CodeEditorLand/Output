@@ -32,8 +32,8 @@ async function showLoadedScriptMenu(accessor) {
     const selectedItem = quickPick.selectedItems[0];
     selectedItem.accept();
     quickPick.hide();
-    localDisposableStore.dispose();
   }));
+  localDisposableStore.add(quickPick.onDidHide(() => localDisposableStore.dispose()));
   quickPick.show();
 }
 __name(showLoadedScriptMenu, "showLoadedScriptMenu");

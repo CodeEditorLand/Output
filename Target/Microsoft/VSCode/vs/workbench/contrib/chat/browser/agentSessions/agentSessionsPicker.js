@@ -62,7 +62,8 @@ let AgentSessionsPicker = class AgentSessionsPicker2 {
   static {
     __name(this, "AgentSessionsPicker");
   }
-  constructor(agentSessionsService, quickInputService, instantiationService, commandService) {
+  constructor(anchor, agentSessionsService, quickInputService, instantiationService, commandService) {
+    this.anchor = anchor;
     this.agentSessionsService = agentSessionsService;
     this.quickInputService = quickInputService;
     this.instantiationService = instantiationService;
@@ -73,6 +74,7 @@ let AgentSessionsPicker = class AgentSessionsPicker2 {
     const disposables = new DisposableStore();
     const picker = disposables.add(this.quickInputService.createQuickPick({ useSeparators: true }));
     const filter = disposables.add(this.instantiationService.createInstance(AgentSessionsFilter, {}));
+    picker.anchor = this.anchor;
     picker.items = this.createPickerItems(filter);
     picker.canAcceptInBackground = true;
     picker.placeholder = localize("chatAgentPickerPlaceholder", "Search agent sessions by name");
@@ -141,10 +143,10 @@ let AgentSessionsPicker = class AgentSessionsPicker2 {
   }
 };
 AgentSessionsPicker = __decorate([
-  __param(0, IAgentSessionsService),
-  __param(1, IQuickInputService),
-  __param(2, IInstantiationService),
-  __param(3, ICommandService)
+  __param(1, IAgentSessionsService),
+  __param(2, IQuickInputService),
+  __param(3, IInstantiationService),
+  __param(4, ICommandService)
 ], AgentSessionsPicker);
 export {
   AgentSessionsPicker,

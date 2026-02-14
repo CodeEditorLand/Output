@@ -128,6 +128,31 @@ declare abstract class OpenChatGlobalAction extends Action2 {
     } | undefined>;
     private handleSwitchToMode;
 }
+/**
+ * Information about a pending confirmation in a chat response.
+ */
+export type IChatPendingConfirmationInfo = {
+    type: 'confirmation';
+    kind: 'toolInvocation';
+    toolId: string;
+} | {
+    type: 'confirmation';
+    kind: 'toolPostApproval';
+    toolId: string;
+} | {
+    type: 'confirmation';
+    kind: 'confirmation';
+    title: string;
+    data: unknown;
+} | {
+    type: 'confirmation';
+    kind: 'questionCarousel';
+    questions: unknown[];
+} | {
+    type: 'confirmation';
+    kind: 'elicitation';
+    title: string;
+};
 export declare function getOpenChatActionIdForMode(mode: IChatMode): string;
 export declare abstract class ModeOpenChatGlobalAction extends OpenChatGlobalAction {
     constructor(mode: IChatMode, keybinding?: ICommandPaletteOptions['keybinding']);

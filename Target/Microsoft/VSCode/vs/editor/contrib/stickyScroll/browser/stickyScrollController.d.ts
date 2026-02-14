@@ -54,6 +54,7 @@ export declare class StickyScrollController extends Disposable implements IEdito
     private _minRebuildFromLine;
     private _mouseTarget;
     private _cursorPositionListener;
+    private _positionLineNumber;
     private readonly _onDidChangeStickyScrollHeight;
     readonly onDidChangeStickyScrollHeight: Event<{
         height: number;

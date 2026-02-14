@@ -16,7 +16,7 @@ import { IWorkbenchEnvironmentService } from "../../../services/environment/comm
 import { localize } from "../../../../nls.js";
 import { isWeb } from "../../../../base/common/platform.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { getRemoteName } from "../../../../platform/remote/common/remoteHosts.js";
+import { getRemoteName, getRemoteServerRootPath } from "../../../../platform/remote/common/remoteHosts.js";
 import { IBannerService } from "../../../services/banner/browser/bannerService.js";
 import { IOpenerService } from "../../../../platform/opener/common/opener.js";
 import { IHostService } from "../../../services/host/browser/host.js";
@@ -143,7 +143,8 @@ let InitialRemoteConnectionHealthContribution = class InitialRemoteConnectionHea
       this._telemetryService.publicLog2("remoteConnectionSuccess", {
         web: isWeb,
         connectionTimeMs: await this._remoteAgentService.getConnection()?.getInitialConnectionTimeMs(),
-        remoteName: getRemoteName(this._environmentService.remoteAuthority)
+        remoteName: getRemoteName(this._environmentService.remoteAuthority),
+        tunnelName: getRemoteServerRootPath(this._environmentService.remoteAuthority)
       });
       await this._measureExtHostLatency();
     } catch (err) {

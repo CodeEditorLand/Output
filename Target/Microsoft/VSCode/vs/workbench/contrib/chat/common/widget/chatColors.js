@@ -1,6 +1,7 @@
 import { Color, RGBA } from "../../../../../base/common/color.js";
 import { localize } from "../../../../../nls.js";
 import { badgeBackground, badgeForeground, contrastBorder, editorBackground, editorSelectionBackground, editorWidgetBackground, foreground, registerColor, transparent } from "../../../../../platform/theme/common/colorRegistry.js";
+const agentStatusIndicatorBackground = registerColor("agentStatusIndicator.background", { dark: Color.white.transparent(0.05), light: Color.black.transparent(0.05), hcDark: null, hcLight: null }, localize("agentStatusIndicator.background", "Background color of the agent status indicator in the titlebar."));
 const chatRequestBorder = registerColor("chat.requestBorder", { dark: new Color(new RGBA(255, 255, 255, 0.1)), light: new Color(new RGBA(0, 0, 0, 0.1)), hcDark: contrastBorder, hcLight: contrastBorder }, localize("chat.requestBorder", "The border color of a chat request."));
 const chatRequestBackground = registerColor("chat.requestBackground", { dark: transparent(editorBackground, 0.62), light: transparent(editorBackground, 0.62), hcDark: editorWidgetBackground, hcLight: null }, localize("chat.requestBackground", "The background color of a chat request."));
 const chatSlashCommandBackground = registerColor("chat.slashCommandBackground", { dark: "#26477866", light: "#adceff7a", hcDark: Color.white, hcLight: badgeBackground }, localize("chat.slashCommandBackground", "The background color of a chat slash command."));
@@ -21,6 +22,7 @@ const chatLinesAddedForeground = registerColor("chat.linesAddedForeground", { da
 const chatLinesRemovedForeground = registerColor("chat.linesRemovedForeground", { dark: "#FC6A6A", light: "#BC2F32", hcDark: "#F48771", hcLight: "#B5200D" }, localize("chat.linesRemovedForeground", "Foreground color of lines removed in chat code block pill."), true);
 const chatThinkingShimmer = registerColor("chat.thinkingShimmer", { dark: "#ffffff", light: "#000000", hcDark: "#ffffff", hcLight: "#000000" }, localize("chat.thinkingShimmer", "Shimmer highlight for thinking/working labels."), true);
 export {
+  agentStatusIndicatorBackground,
   chatAvatarBackground,
   chatAvatarForeground,
   chatCheckpointSeparator,

@@ -13,6 +13,7 @@ import { ILanguageConfigurationService } from '../../../../editor/common/languag
 import { ILanguageFeaturesService } from '../../../../editor/common/services/languageFeatures.js';
 import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
 import { ICodeEditor } from '../../../../editor/browser/editorBrowser.js';
+import { IUserInteractionService } from '../../../../platform/userInteraction/browser/userInteractionService.js';
 export declare const ctxCommentEditorFocused: RawContextKey<boolean>;
 export declare const MIN_EDITOR_HEIGHT: number;
 export declare const MAX_EDITOR_HEIGHT: number;
@@ -25,7 +26,7 @@ export declare class SimpleCommentEditor extends CodeEditorWidget {
     private _parentThread;
     private _commentEditorFocused;
     private _commentEditorEmpty;
-    constructor(domElement: HTMLElement, options: IEditorOptions, scopedContextKeyService: IContextKeyService, parentThread: ICommentThreadWidget, instantiationService: IInstantiationService, codeEditorService: ICodeEditorService, commandService: ICommandService, themeService: IThemeService, notificationService: INotificationService, accessibilityService: IAccessibilityService, languageConfigurationService: ILanguageConfigurationService, languageFeaturesService: ILanguageFeaturesService);
+    constructor(domElement: HTMLElement, options: IEditorOptions, scopedContextKeyService: IContextKeyService, parentThread: ICommentThreadWidget, instantiationService: IInstantiationService, codeEditorService: ICodeEditorService, commandService: ICommandService, themeService: IThemeService, notificationService: INotificationService, accessibilityService: IAccessibilityService, languageConfigurationService: ILanguageConfigurationService, languageFeaturesService: ILanguageFeaturesService, userInteractionService: IUserInteractionService);
     getParentThread(): ICommentThreadWidget;
     protected _getActions(): Iterable<EditorAction>;
     updateOptions(newOptions: Readonly<IEditorOptions> | undefined): void;

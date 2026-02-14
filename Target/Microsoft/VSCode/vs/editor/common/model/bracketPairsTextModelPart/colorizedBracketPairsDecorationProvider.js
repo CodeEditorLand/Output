@@ -13,7 +13,7 @@ class ColorizedBracketPairsDecorationProvider extends Disposable {
     super();
     this.textModel = textModel;
     this.colorProvider = new ColorProvider();
-    this.onDidChangeEmitter = new Emitter();
+    this.onDidChangeEmitter = this._register(new Emitter());
     this.onDidChange = this.onDidChangeEmitter.event;
     this.colorizationOptions = textModel.getOptions().bracketPairColorizationOptions;
     this._register(textModel.bracketPairs.onDidChange((e) => {

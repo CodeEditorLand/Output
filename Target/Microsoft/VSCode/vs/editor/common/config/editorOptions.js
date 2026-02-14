@@ -1833,32 +1833,45 @@ class EditorQuickSuggestions extends BaseEditorOption {
       { type: "boolean" },
       {
         type: "string",
-        enum: ["on", "inline", "off"],
-        enumDescriptions: [nls.localize("on", "Quick suggestions show inside the suggest widget"), nls.localize("inline", "Quick suggestions show as ghost text"), nls.localize("off", "Quick suggestions are disabled")]
+        enum: ["on", "inline", "off", "offWhenInlineCompletions"],
+        enumDescriptions: [nls.localize("on", "Quick suggestions show inside the suggest widget"), nls.localize("inline", "Quick suggestions show as ghost text"), nls.localize("off", "Quick suggestions are disabled"), nls.localize("offWhenInlineCompletions", "Quick suggestions are disabled when an inline completion provider is available")]
       }
     ];
     super(102, "quickSuggestions", defaults, {
-      type: "object",
-      additionalProperties: false,
-      properties: {
-        strings: {
-          anyOf: types,
-          default: defaults.strings,
-          description: nls.localize("quickSuggestions.strings", "Enable quick suggestions inside strings.")
+      anyOf: [
+        { type: "boolean" },
+        {
+          type: "string",
+          enum: ["on", "inline", "off", "offWhenInlineCompletions"],
+          enumDescriptions: [nls.localize("quickSuggestions.topLevel.on", "Quick suggestions are enabled for all token types"), nls.localize("quickSuggestions.topLevel.inline", "Quick suggestions show as ghost text for all token types"), nls.localize("quickSuggestions.topLevel.off", "Quick suggestions are disabled for all token types"), nls.localize("quickSuggestions.topLevel.offWhenInlineCompletions", "Quick suggestions are disabled for all token types when an inline completion provider is available")]
         },
-        comments: {
-          anyOf: types,
-          default: defaults.comments,
-          description: nls.localize("quickSuggestions.comments", "Enable quick suggestions inside comments.")
-        },
-        other: {
-          anyOf: types,
-          default: defaults.other,
-          description: nls.localize("quickSuggestions.other", "Enable quick suggestions outside of strings and comments.")
+        {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            strings: {
+              anyOf: types,
+              default: defaults.strings,
+              description: nls.localize("quickSuggestions.strings", "Enable quick suggestions inside strings.")
+            },
+            comments: {
+              anyOf: types,
+              default: defaults.comments,
+              description: nls.localize("quickSuggestions.comments", "Enable quick suggestions inside comments.")
+            },
+            other: {
+              anyOf: types,
+              default: defaults.other,
+              description: nls.localize("quickSuggestions.other", "Enable quick suggestions outside of strings and comments.")
+            }
+          }
         }
-      },
+      ],
       default: defaults,
-      markdownDescription: nls.localize("quickSuggestions", "Controls whether suggestions should automatically show up while typing. This can be controlled for typing in comments, strings, and other code. Quick suggestion can be configured to show as ghost text or with the suggest widget. Also be aware of the {0}-setting which controls if suggestions are triggered by special characters.", "`#editor.suggestOnTriggerCharacters#`")
+      markdownDescription: nls.localize("quickSuggestions", "Controls whether suggestions should automatically show up while typing. This can be controlled for typing in comments, strings, and other code. Quick suggestion can be configured to show as ghost text or with the suggest widget. Also be aware of the {0}-setting which controls if suggestions are triggered by special characters.", "`#editor.suggestOnTriggerCharacters#`"),
+      experiment: {
+        mode: "auto"
+      }
     });
     this.defaultValue = defaults;
   }
@@ -1867,11 +1880,16 @@ class EditorQuickSuggestions extends BaseEditorOption {
       const value = input ? "on" : "off";
       return { comments: value, strings: value, other: value };
     }
+    if (typeof input === "string") {
+      const allowedValues2 = ["on", "inline", "off", "offWhenInlineCompletions"];
+      const validated = stringSet(input, this.defaultValue.other, allowedValues2);
+      return { comments: validated, strings: validated, other: validated };
+    }
     if (!input || typeof input !== "object") {
       return this.defaultValue;
     }
     const { other, comments, strings } = input;
-    const allowedValues = ["on", "inline", "off"];
+    const allowedValues = ["on", "inline", "off", "offWhenInlineCompletions"];
     let validatedOther;
     let validatedComments;
     let validatedStrings;

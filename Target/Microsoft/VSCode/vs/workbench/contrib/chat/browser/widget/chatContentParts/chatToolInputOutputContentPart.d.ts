@@ -11,6 +11,7 @@ import { LanguageModelPartAudience } from '../../../common/languageModels.js';
 import { ChatTreeItem, IChatCodeBlockInfo } from '../../chat.js';
 import { ICodeBlockRenderOptions } from './codeBlockPart.js';
 import { IChatContentPartRenderContext } from './chatContentParts.js';
+import { IChatMarkdownAnchorService } from './chatMarkdownAnchorService.js';
 export interface IChatCollapsibleIOCodePart {
     kind: 'code';
     data: string;
@@ -46,6 +47,7 @@ export declare class ChatCollapsibleInputOutputContentPart extends Disposable {
     private readonly _instantiationService;
     private readonly modelService;
     private readonly languageService;
+    private readonly chatMarkdownAnchorService;
     private readonly _editorReferences;
     private readonly _titlePart;
     private _outputSubPart;
@@ -56,7 +58,7 @@ export declare class ChatCollapsibleInputOutputContentPart extends Disposable {
     get title(): string | IMarkdownString;
     private readonly _expanded;
     get expanded(): boolean;
-    constructor(title: IMarkdownString | string, subtitle: string | IMarkdownString | undefined, progressTooltip: IMarkdownString | string | undefined, context: IChatContentPartRenderContext, input: IChatCollapsibleInputData, output: IChatCollapsibleOutputData | undefined, isError: boolean, initiallyExpanded: boolean, contextKeyService: IContextKeyService, _instantiationService: IInstantiationService, hoverService: IHoverService, modelService: IModelService, languageService: ILanguageService);
+    constructor(title: IMarkdownString | string, subtitle: string | IMarkdownString | undefined, progressTooltip: IMarkdownString | string | undefined, context: IChatContentPartRenderContext, input: IChatCollapsibleInputData, output: IChatCollapsibleOutputData | undefined, isError: boolean, initiallyExpanded: boolean, contextKeyService: IContextKeyService, _instantiationService: IInstantiationService, hoverService: IHoverService, modelService: IModelService, languageService: ILanguageService, chatMarkdownAnchorService: IChatMarkdownAnchorService);
     private createMessageContents;
     private addCodeBlock;
     hasSameContent(other: IChatRendererContent, followingContent: IChatRendererContent[], element: ChatTreeItem): boolean;

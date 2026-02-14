@@ -15,7 +15,7 @@ import { localize } from "../../../../../../nls.js";
 import { URI } from "../../../../../../base/common/uri.js";
 import { Codicon } from "../../../../../../base/common/codicons.js";
 import { ThemeIcon } from "../../../../../../base/common/themables.js";
-import { IPromptsService, PromptsStorage } from "../../../common/promptSyntax/service/promptsService.js";
+import { AgentFileType, IPromptsService, PromptsStorage } from "../../../common/promptSyntax/service/promptsService.js";
 import { dirname, extUri, joinPath } from "../../../../../../base/common/resources.js";
 import { DisposableStore } from "../../../../../../base/common/lifecycle.js";
 import { IFileService } from "../../../../../../platform/files/common/files.js";
@@ -31,8 +31,6 @@ import { IInstantiationService } from "../../../../../../platform/instantiation/
 import { CancellationToken, CancellationTokenSource } from "../../../../../../base/common/cancellation.js";
 import { askForPromptSourceFolder } from "./askForPromptSourceFolder.js";
 import { ILabelService } from "../../../../../../platform/label/common/label.js";
-import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
-import { PromptsConfig } from "../../../common/promptSyntax/config/config.js";
 import { IProductService } from "../../../../../../platform/product/common/productService.js";
 import { PromptFileRewriter } from "../promptFileRewriter.js";
 import { isOrganizationPromptFile } from "../../../common/promptSyntax/utils/promptsServiceUtils.js";
@@ -153,7 +151,7 @@ let PromptFilePickers = class PromptFilePickers2 {
   static {
     __name(this, "PromptFilePickers");
   }
-  constructor(_quickInputService, _openerService, _fileService, _dialogService, _commandService, _instaService, _promptsService, _labelService, _configurationService, _productService) {
+  constructor(_quickInputService, _openerService, _fileService, _dialogService, _commandService, _instaService, _promptsService, _labelService, _productService) {
     this._quickInputService = _quickInputService;
     this._openerService = _openerService;
     this._fileService = _fileService;
@@ -162,7 +160,6 @@ let PromptFilePickers = class PromptFilePickers2 {
     this._instaService = _instaService;
     this._promptsService = _promptsService;
     this._labelService = _labelService;
-    this._configurationService = _configurationService;
     this._productService = _productService;
   }
   /**
@@ -265,17 +262,12 @@ let PromptFilePickers = class PromptFilePickers2 {
     }
     let agentInstructionFiles = [];
     if (options.type === PromptsType.instructions) {
-      const useNestedAgentMD = this._configurationService.getValue(PromptsConfig.USE_NESTED_AGENT_MD);
-      const agentInstructionUris = [
-        ...await this._promptsService.listCopilotInstructionsMDs(token),
-        ...await this._promptsService.listAgentMDs(token, !!useNestedAgentMD)
-      ];
-      agentInstructionFiles = agentInstructionUris.map((uri) => {
-        const folderName = this._labelService.getUriLabel(dirname(uri), { relative: true });
-        const shouldShowFolderPath = folderName?.toLowerCase() !== ".github";
+      const agentInstructionUris = await this._promptsService.listAgentInstructions(token);
+      agentInstructionFiles = agentInstructionUris.map((agentInstructionFile) => {
+        const folderName = this._labelService.getUriLabel(dirname(agentInstructionFile.uri), { relative: true });
         return {
-          uri,
-          description: shouldShowFolderPath ? folderName : void 0,
+          uri: agentInstructionFile.uri,
+          description: agentInstructionFile.type !== AgentFileType.copilotInstructionsMd ? folderName : void 0,
           storage: PromptsStorage.local,
           type: options.type
         };
@@ -528,8 +520,7 @@ PromptFilePickers = __decorate([
   __param(5, IInstantiationService),
   __param(6, IPromptsService),
   __param(7, ILabelService),
-  __param(8, IConfigurationService),
-  __param(9, IProductService)
+  __param(8, IProductService)
 ], PromptFilePickers);
 export {
   PromptFilePickers

@@ -1,4 +1,4 @@
-import * as http from 'http';
+import type * as http from 'http';
 import * as url from 'url';
 import { ILogService } from '../../platform/log/common/log.js';
 import { IServerEnvironmentService } from './serverEnvironmentService.js';

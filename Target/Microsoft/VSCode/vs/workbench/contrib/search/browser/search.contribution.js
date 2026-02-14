@@ -38,6 +38,8 @@ import "./searchActionsTextQuickAccess.js";
 import { TEXT_SEARCH_QUICK_ACCESS_PREFIX, TextSearchQuickAccess } from "./quickTextSearch/textSearchQuickAccess.js";
 import { Extensions } from "../../../common/configuration.js";
 import { registerWorkbenchContribution2 } from "../../../common/contributions.js";
+import { AccessibleViewRegistry } from "../../../../platform/accessibility/browser/accessibleViewRegistry.js";
+import { SearchAccessibilityHelp } from "./searchAccessibilityHelp.js";
 registerSingleton(
   ISearchViewModelWorkbenchService,
   SearchViewModelWorkbenchService,
@@ -59,6 +61,7 @@ registerWorkbenchContribution2(
   3
   /* WorkbenchPhase.AfterRestored */
 );
+AccessibleViewRegistry.register(new SearchAccessibilityHelp());
 const SEARCH_MODE_CONFIG = "search.mode";
 const viewContainer = Registry.as(ViewExtensions.ViewContainersRegistry).registerViewContainer({
   id: VIEWLET_ID,

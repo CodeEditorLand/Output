@@ -10,6 +10,7 @@ import { ICommand, ICursorState, IViewState, ScrollType } from '../editorCommon.
 import { IEditorConfiguration } from '../config/editorConfiguration.js';
 import { EndOfLinePreference, IAttachedView, ICursorStateComputer, IGlyphMarginLanesModel, IIdentifiedSingleEditOperation, ITextModel, PositionAffinity, TextDirection } from '../model.js';
 import { IActiveIndentGuideInfo, BracketGuideOptions, IndentGuide } from '../textModelGuides.js';
+import * as textModelEvents from '../textModelEvents.js';
 import { ILanguageConfigurationService } from '../languages/languageConfigurationRegistry.js';
 import { EditorTheme } from '../editorTheme.js';
 import * as viewEvents from '../viewEvents.js';
@@ -48,6 +49,7 @@ export declare class ViewModel extends Disposable implements IViewModel {
     addViewEventHandler(eventHandler: ViewEventHandler): void;
     removeViewEventHandler(eventHandler: ViewEventHandler): void;
     private _getCustomLineHeights;
+    private _getCustomLineHeightsForLines;
     private _updateConfigurationViewLineCountNow;
     private getModelVisibleRanges;
     visibleLinesStabilized(): void;
@@ -58,6 +60,14 @@ export declare class ViewModel extends Disposable implements IViewModel {
     onCompositionEnd(): void;
     private _captureStableViewport;
     private _onConfigurationChanged;
+    /**
+     * Gets called directly by the text model.
+     */
+    onDidChangeContentOrInjectedText(e: textModelEvents.InternalModelContentChangeEvent | textModelEvents.ModelInjectedTextChangedEvent): void;
+    /**
+     * Gets called directly by the text model.
+     */
+    emitContentChangeEvent(e: textModelEvents.InternalModelContentChangeEvent | textModelEvents.ModelInjectedTextChangedEvent): void;
     private _registerModelEvents;
     private readonly hiddenAreasModel;
     private previousHiddenAreas;
@@ -157,6 +167,7 @@ export declare class ViewModel extends Disposable implements IViewModel {
     revealRange(source: string | null | undefined, revealHorizontal: boolean, viewRange: Range, verticalType: viewEvents.VerticalRevealType, scrollType: ScrollType): void;
     changeWhitespace(callback: (accessor: IWhitespaceChangeAccessor) => void): void;
     private _withViewEventsCollector;
+    private _emitViewEvent;
     batchEvents(callback: () => void): void;
     normalizePosition(position: Position, affinity: PositionAffinity): Position;
     /**

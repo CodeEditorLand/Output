@@ -10,7 +10,9 @@ function _validateUri(ret, _strict) {
     throw new Error(`[UriError]: Scheme is missing: {scheme: "", authority: "${ret.authority}", path: "${ret.path}", query: "${ret.query}", fragment: "${ret.fragment}"}`);
   }
   if (ret.scheme && !_schemePattern.test(ret.scheme)) {
-    throw new Error("[UriError]: Scheme contains illegal characters.");
+    const matches = [...ret.scheme.matchAll(/[^\w\d+.-]/gu)];
+    const detail = matches.length > 0 ? ` Found '${matches[0][0]}' at index ${matches[0].index} (${matches.length} total)` : "";
+    throw new Error(`[UriError]: Scheme contains illegal characters.${detail} (len:${ret.scheme.length})`);
   }
   if (ret.path) {
     if (ret.authority) {

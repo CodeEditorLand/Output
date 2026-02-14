@@ -73,7 +73,7 @@ let TestingContentProvider = class TestingContentProvider2 {
           dispose.dispose();
         }
       });
-      model.onWillDispose(() => dispose.dispose());
+      dispose.add(model.onWillDispose(() => dispose.dispose()));
       return model;
     }
     const test = result?.getStateById(parsed.testExtId);

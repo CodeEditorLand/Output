@@ -6,7 +6,7 @@ import { ScrollType } from '../editorCommon.js';
 import { IEditorConfiguration } from '../config/editorConfiguration.js';
 import { IEditorWhitespace, IPartialViewLinesViewportData, ILineHeightChangeAccessor, IViewLayout, IViewWhitespaceViewportData, IWhitespaceChangeAccessor, Viewport } from '../viewModel.js';
 import { ContentSizeChangedEvent } from '../viewModelEventDispatcher.js';
-import { ICustomLineHeightData } from './lineHeights.js';
+import { CustomLineHeightData } from './lineHeights.js';
 export declare class ViewLayout extends Disposable implements IViewLayout {
     private readonly _configuration;
     private readonly _linesLayout;
@@ -15,15 +15,15 @@ export declare class ViewLayout extends Disposable implements IViewLayout {
     private readonly _scrollable;
     readonly onDidScroll: Event<ScrollEvent>;
     readonly onDidContentSizeChange: Event<ContentSizeChangedEvent>;
-    constructor(configuration: IEditorConfiguration, lineCount: number, customLineHeightData: ICustomLineHeightData[], scheduleAtNextAnimationFrame: (callback: () => void) => IDisposable);
+    constructor(configuration: IEditorConfiguration, lineCount: number, customLineHeightData: CustomLineHeightData[], scheduleAtNextAnimationFrame: (callback: () => void) => IDisposable);
     dispose(): void;
     getScrollable(): Scrollable;
     onHeightMaybeChanged(): void;
     private _configureSmoothScrollDuration;
     onConfigurationChanged(e: ConfigurationChangedEvent): void;
-    onFlushed(lineCount: number, customLineHeightData: ICustomLineHeightData[]): void;
+    onFlushed(lineCount: number, customLineHeightData: CustomLineHeightData[]): void;
     onLinesDeleted(fromLineNumber: number, toLineNumber: number): void;
-    onLinesInserted(fromLineNumber: number, toLineNumber: number): void;
+    onLinesInserted(fromLineNumber: number, toLineNumber: number, lineHeightsAdded: CustomLineHeightData[]): void;
     private _getHorizontalScrollbarHeight;
     private _getContentHeight;
     private _updateHeight;

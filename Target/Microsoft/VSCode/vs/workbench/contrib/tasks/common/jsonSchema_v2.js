@@ -10,7 +10,11 @@ import { inputsSchema } from "../../../services/configurationResolver/common/con
 import { getAllCodicons } from "../../../../base/common/codicons.js";
 function fixReferences(literal) {
   if (Array.isArray(literal)) {
-    literal.forEach(fixReferences);
+    literal.forEach((element) => {
+      if (typeof element === "object" && element !== null) {
+        fixReferences(element);
+      }
+    });
   } else if (typeof literal === "object") {
     if (literal["$ref"]) {
       literal["$ref"] = literal["$ref"] + "2";

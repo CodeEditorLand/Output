@@ -14,7 +14,6 @@ var __param = function(paramIndex, decorator) {
 var UpdateStatusBarEntryContribution_1;
 import * as dom from "../../../../base/browser/dom.js";
 import { ActionBar } from "../../../../base/browser/ui/actionbar/actionbar.js";
-import { Button } from "../../../../base/browser/ui/button/button.js";
 import { toAction } from "../../../../base/common/actions.js";
 import { Codicon } from "../../../../base/common/codicons.js";
 import { Disposable, DisposableStore, MutableDisposable } from "../../../../base/common/lifecycle.js";
@@ -25,7 +24,6 @@ import { ICommandService } from "../../../../platform/commands/common/commands.j
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { IHoverService, nativeHoverDelegate } from "../../../../platform/hover/browser/hover.js";
 import { IProductService } from "../../../../platform/product/common/productService.js";
-import { defaultButtonStyles } from "../../../../platform/theme/browser/defaultStyles.js";
 import { IUpdateService } from "../../../../platform/update/common/update.js";
 import { IStatusbarService, ShowTooltipCommand } from "../../../services/statusbar/browser/statusbar.js";
 import "./media/updateStatusBarEntry.css";
@@ -124,9 +122,9 @@ let UpdateStatusBarEntryContribution = class UpdateStatusBarEntryContribution2 e
       case "updating":
         this.updateStatusBarEntry({
           name: UpdateStatusBarEntryContribution_1.NAME,
-          text: nls.localize("updateStatus.installingUpdateStatus", "$(sync~spin) Installing update..."),
-          ariaLabel: nls.localize("updateStatus.installingUpdateAria", "Installing update"),
-          tooltip: this.getUpdatingTooltip(state.update),
+          text: this.getUpdatingText(state),
+          ariaLabel: this.getUpdatingText(state),
+          tooltip: this.getUpdatingTooltip(state),
           command: ShowTooltipCommand
         });
         break;
@@ -164,8 +162,8 @@ let UpdateStatusBarEntryContribution = class UpdateStatusBarEntryContribution2 e
         const container = dom.$(".update-status-tooltip");
         this.appendHeader(container, nls.localize("updateStatus.checkingForUpdatesTitle", "Checking for Updates"), store);
         this.appendProductInfo(container);
-        const waitMessage = dom.append(container, dom.$(".progress-details"));
-        waitMessage.textContent = nls.localize("updateStatus.checkingPleaseWait", "Checking for updates, please wait...");
+        const message = dom.append(container, dom.$(".progress-details"));
+        message.textContent = nls.localize("updateStatus.checkingPleaseWait", "Checking for updates, please wait...");
         return container;
       }, "element")
     };
@@ -178,16 +176,13 @@ let UpdateStatusBarEntryContribution = class UpdateStatusBarEntryContribution2 e
         this.appendHeader(container, nls.localize("updateStatus.updateAvailableTitle", "Update Available"), store);
         this.appendProductInfo(container, update);
         this.appendWhatsIncluded(container);
-        this.appendActionButton(container, nls.localize("updateStatus.downloadButton", "Download"), store, () => {
-          this.runCommandAndClose("update.downloadNow");
-        });
         return container;
       }, "element")
     };
   }
   getDownloadingText({ downloadedBytes, totalBytes }) {
     if (downloadedBytes !== void 0 && totalBytes !== void 0 && totalBytes > 0) {
-      return nls.localize("updateStatus.downloadUpdateProgressStatus", "$(sync~spin) Downloading update: {0} / {1} \u2022 {2}%", formatBytes(downloadedBytes), formatBytes(totalBytes), Math.round(downloadedBytes / totalBytes * 100));
+      return nls.localize("updateStatus.downloadUpdateProgressStatus", "$(sync~spin) Downloading update: {0} / {1} \u2022 {2}%", formatBytes(downloadedBytes), formatBytes(totalBytes), getProgressPercent(downloadedBytes, totalBytes) ?? 0);
     } else {
       return nls.localize("updateStatus.downloadUpdateStatus", "$(sync~spin) Downloading update...");
     }
@@ -201,7 +196,7 @@ let UpdateStatusBarEntryContribution = class UpdateStatusBarEntryContribution2 e
         this.appendProductInfo(container, state.update);
         const { downloadedBytes, totalBytes } = state;
         if (downloadedBytes !== void 0 && totalBytes !== void 0 && totalBytes > 0) {
-          const percentage = Math.round(downloadedBytes / totalBytes * 100);
+          const percentage = getProgressPercent(downloadedBytes, totalBytes) ?? 0;
           const progressContainer = dom.append(container, dom.$(".progress-container"));
           const progressBar = dom.append(progressContainer, dom.$(".progress-bar"));
           const progressFill = dom.append(progressBar, dom.$(".progress-fill"));
@@ -222,8 +217,8 @@ let UpdateStatusBarEntryContribution = class UpdateStatusBarEntryContribution2 e
             timeRemainingNode.textContent = `~${formatTimeRemaining(timeRemaining)} ${nls.localize("updateStatus.timeRemaining", "remaining")}`;
           }
         } else {
-          const waitMessage = dom.append(container, dom.$(".progress-details"));
-          waitMessage.textContent = nls.localize("updateStatus.downloadingPleaseWait", "Downloading, please wait...");
+          const message = dom.append(container, dom.$(".progress-details"));
+          message.textContent = nls.localize("updateStatus.downloadingPleaseWait", "Downloading, please wait...");
         }
         return container;
       }, "element")
@@ -237,9 +232,6 @@ let UpdateStatusBarEntryContribution = class UpdateStatusBarEntryContribution2 e
         this.appendHeader(container, nls.localize("updateStatus.updateReadyTitle", "Update is Ready to Install"), store);
         this.appendProductInfo(container, update);
         this.appendWhatsIncluded(container);
-        this.appendActionButton(container, nls.localize("updateStatus.installButton", "Install"), store, () => {
-          this.runCommandAndClose("update.install");
-        });
         return container;
       }, "element")
     };
@@ -252,22 +244,39 @@ let UpdateStatusBarEntryContribution = class UpdateStatusBarEntryContribution2 e
         this.appendHeader(container, nls.localize("updateStatus.updateInstalledTitle", "Update Installed"), store);
         this.appendProductInfo(container, update);
         this.appendWhatsIncluded(container);
-        this.appendActionButton(container, nls.localize("updateStatus.restartButton", "Restart"), store, () => {
-          this.runCommandAndClose("update.restart");
-        });
         return container;
       }, "element")
     };
   }
-  getUpdatingTooltip(update) {
+  getUpdatingText({ currentProgress, maxProgress }) {
+    const percentage = getProgressPercent(currentProgress, maxProgress);
+    if (percentage !== void 0) {
+      return nls.localize("updateStatus.installingUpdateProgressStatus", "$(sync~spin) Installing update: {0}%", percentage);
+    } else {
+      return nls.localize("updateStatus.installingUpdateStatus", "$(sync~spin) Installing update...");
+    }
+  }
+  getUpdatingTooltip(state) {
     return {
       element: /* @__PURE__ */ __name((token) => {
         const store = this.createTooltipDisposableStore(token);
         const container = dom.$(".update-status-tooltip");
         this.appendHeader(container, nls.localize("updateStatus.installingUpdateTitle", "Installing Update"), store);
-        this.appendProductInfo(container, update);
-        const message = dom.append(container, dom.$(".progress-details"));
-        message.textContent = nls.localize("updateStatus.installingPleaseWait", "Installing update, please wait...");
+        this.appendProductInfo(container, state.update);
+        const { currentProgress, maxProgress } = state;
+        const percentage = getProgressPercent(currentProgress, maxProgress);
+        if (percentage !== void 0) {
+          const progressContainer = dom.append(container, dom.$(".progress-container"));
+          const progressBar = dom.append(progressContainer, dom.$(".progress-bar"));
+          const progressFill = dom.append(progressBar, dom.$(".progress-fill"));
+          progressFill.style.width = `${percentage}%`;
+          const progressText = dom.append(progressContainer, dom.$(".progress-text"));
+          const percentageSpan = dom.append(progressText, dom.$("span"));
+          percentageSpan.textContent = `${percentage}%`;
+        } else {
+          const message = dom.append(container, dom.$(".progress-details"));
+          message.textContent = nls.localize("updateStatus.installingPleaseWait", "Installing update, please wait...");
+        }
         return container;
       }, "element")
     };
@@ -317,15 +326,17 @@ let UpdateStatusBarEntryContribution = class UpdateStatusBarEntryContribution2 e
     const productVersion = this.productService.version;
     if (productVersion) {
       const currentVersion = dom.append(details, dom.$(".product-version"));
-      currentVersion.textContent = nls.localize("updateStatus.currentVersionLabel", "Current Version: {0}", productVersion);
+      const currentCommitId = this.productService.commit?.substring(0, 7);
+      currentVersion.textContent = currentCommitId ? nls.localize("updateStatus.currentVersionLabelWithCommit", "Current Version: {0} ({1})", productVersion, currentCommitId) : nls.localize("updateStatus.currentVersionLabel", "Current Version: {0}", productVersion);
     }
     const version = update?.productVersion;
     if (version) {
       const latestVersion = dom.append(details, dom.$(".product-version"));
-      latestVersion.textContent = nls.localize("updateStatus.latestVersionLabel", "Latest Version: {0}", version);
+      const updateCommitId = update.version?.substring(0, 7);
+      latestVersion.textContent = updateCommitId ? nls.localize("updateStatus.latestVersionLabelWithCommit", "Latest Version: {0} ({1})", version, updateCommitId) : nls.localize("updateStatus.latestVersionLabel", "Latest Version: {0}", version);
     }
     const releaseDate = update?.timestamp ?? tryParseDate(this.productService.date);
-    if (releaseDate) {
+    if (typeof releaseDate === "number" && releaseDate > 0) {
       const releaseDateNode = dom.append(details, dom.$(".product-release-date"));
       releaseDateNode.textContent = nls.localize("updateStatus.releasedLabel", "Released {0}", formatDate(releaseDate));
     }
@@ -341,25 +352,6 @@ let UpdateStatusBarEntryContribution = class UpdateStatusBarEntryContribution2 e
     }
   }
   appendWhatsIncluded(container) {
-    const whatsIncluded = dom.append(container, dom.$(".whats-included"));
-    const sectionTitle = dom.append(whatsIncluded, dom.$(".section-title"));
-    sectionTitle.textContent = nls.localize("updateStatus.whatsIncludedTitle", "What's Included");
-    const list = dom.append(whatsIncluded, dom.$("ul"));
-    const items = [
-      nls.localize("updateStatus.featureItem", "New features and functionality"),
-      nls.localize("updateStatus.bugFixesItem", "Bug fixes and improvements"),
-      nls.localize("updateStatus.securityItem", "Security fixes and enhancements")
-    ];
-    for (const item of items) {
-      const li = dom.append(list, dom.$("li"));
-      li.textContent = item;
-    }
-  }
-  appendActionButton(container, label, store, onClick) {
-    const buttonContainer = dom.append(container, dom.$(".action-button-container"));
-    const button = store.add(new Button(buttonContainer, { ...defaultButtonStyles, secondary: true, hoverDelegate: nativeHoverDelegate }));
-    button.label = label;
-    store.add(button.onDidClick(onClick));
   }
 };
 UpdateStatusBarEntryContribution = UpdateStatusBarEntryContribution_1 = __decorate([
@@ -370,12 +362,20 @@ UpdateStatusBarEntryContribution = UpdateStatusBarEntryContribution_1 = __decora
   __param(4, IHoverService),
   __param(5, IConfigurationService)
 ], UpdateStatusBarEntryContribution);
+function getProgressPercent(current, max) {
+  if (current === void 0 || max === void 0 || max <= 0) {
+    return void 0;
+  } else {
+    return Math.max(Math.min(Math.round(current / max * 100), 100), 0);
+  }
+}
+__name(getProgressPercent, "getProgressPercent");
 function tryParseDate(date) {
-  try {
-    return date !== void 0 ? Date.parse(date) : void 0;
-  } catch {
+  if (date === void 0) {
     return void 0;
   }
+  const parsed = Date.parse(date);
+  return isNaN(parsed) ? void 0 : parsed;
 }
 __name(tryParseDate, "tryParseDate");
 function formatDate(timestamp) {
@@ -460,6 +460,7 @@ export {
   formatBytes,
   formatDate,
   formatTimeRemaining,
+  getProgressPercent,
   tryParseDate
 };
 //# sourceMappingURL=updateStatusBarEntry.js.map

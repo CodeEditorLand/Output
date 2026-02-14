@@ -18,7 +18,7 @@ export declare class UpdateChannelClient implements IUpdateService {
     set state(state: State);
     constructor(channel: IChannel);
     checkForUpdates(explicit: boolean): Promise<void>;
-    downloadUpdate(): Promise<void>;
+    downloadUpdate(explicit: boolean): Promise<void>;
     applyUpdate(): Promise<void>;
     quitAndInstall(): Promise<void>;
     isLatestVersion(): Promise<boolean | undefined>;

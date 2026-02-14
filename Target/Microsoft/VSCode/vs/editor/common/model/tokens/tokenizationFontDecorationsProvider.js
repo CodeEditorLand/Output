@@ -20,9 +20,9 @@ class TokenizationFontDecorationProvider extends Disposable {
     super();
     this.textModel = textModel;
     this.tokenizationTextModelPart = tokenizationTextModelPart;
-    this._onDidChangeLineHeight = new Emitter();
+    this._onDidChangeLineHeight = this._register(new Emitter());
     this.onDidChangeLineHeight = this._onDidChangeLineHeight.event;
-    this._onDidChangeFont = new Emitter();
+    this._onDidChangeFont = this._register(new Emitter());
     this.onDidChangeFont = this._onDidChangeFont.event;
     this._fontAnnotatedString = new AnnotatedString();
     this._register(this.tokenizationTextModelPart.onDidChangeFontTokens((fontChanges) => {

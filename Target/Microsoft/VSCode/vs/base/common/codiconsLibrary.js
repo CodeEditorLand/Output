@@ -644,7 +644,8 @@ const codiconsLibrary = {
   screenCut: register("screen-cut", 60543),
   ask: register("ask", 60544),
   openai: register("openai", 60545),
-  claude: register("claude", 60546)
+  claude: register("claude", 60546),
+  openInWindow: register("open-in-window", 60547)
 };
 export {
   codiconsLibrary

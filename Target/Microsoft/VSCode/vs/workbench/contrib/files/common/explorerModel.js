@@ -63,6 +63,7 @@ class ExplorerModel {
     return null;
   }
   dispose() {
+    this._onDidChangeRoots.dispose();
     dispose(this._listener);
   }
 }

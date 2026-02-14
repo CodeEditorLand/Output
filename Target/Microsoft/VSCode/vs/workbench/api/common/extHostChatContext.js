@@ -40,7 +40,7 @@ let ExtHostChatContext = class ExtHostChatContext2 extends Disposable {
       throw new Error("Workspace context provider not found");
     }
     const provider = entry.provider;
-    const result = await provider.provideChatContext(token) ?? [];
+    const result = await provider.provideWorkspaceChatContext?.(token) ?? await provider.provideChatContext?.(token) ?? [];
     return this._convertItems(handle, result);
   }
   // Explicit context provider methods
@@ -51,7 +51,7 @@ let ExtHostChatContext = class ExtHostChatContext2 extends Disposable {
       throw new Error("Explicit context provider not found");
     }
     const provider = entry.provider;
-    const result = await provider.provideChatContext(token) ?? [];
+    const result = await provider.provideExplicitChatContext?.(token) ?? await provider.provideChatContext?.(token) ?? [];
     return this._convertItems(handle, result);
   }
   async $resolveExplicitChatContext(handle, context, token) {
@@ -64,7 +64,7 @@ let ExtHostChatContext = class ExtHostChatContext2 extends Disposable {
     if (!extItem) {
       throw new Error("Chat context item not found");
     }
-    return this._doResolve(provider.resolveChatContext.bind(provider), context, extItem, token);
+    return this._doResolve((provider.resolveExplicitChatContext ?? provider.resolveChatContext)?.bind(provider), context, extItem, token);
   }
   // Resource context provider methods
   async $provideResourceChatContext(handle, options, token) {
@@ -73,7 +73,7 @@ let ExtHostChatContext = class ExtHostChatContext2 extends Disposable {
       throw new Error("Resource context provider not found");
     }
     const provider = entry.provider;
-    const result = await provider.provideChatContext({ resource: URI.revive(options.resource) }, token);
+    const result = await provider.provideResourceChatContext?.({ resource: URI.revive(options.resource) }, token) ?? await provider.provideChatContext?.({ resource: URI.revive(options.resource) }, token);
     if (!result) {
       return void 0;
     }
@@ -92,7 +92,7 @@ let ExtHostChatContext = class ExtHostChatContext2 extends Disposable {
       command: result.command ? { id: result.command.command } : void 0
     };
     if (options.withValue && !item.value) {
-      const resolved = await provider.resolveChatContext(result, token);
+      const resolved = await (provider.resolveResourceChatContext ?? provider.resolveChatContext)?.bind(provider)(result, token);
       item.value = resolved?.value;
       item.tooltip = resolved?.tooltip ? MarkdownString.from(resolved.tooltip) : item.tooltip;
     }
@@ -108,7 +108,7 @@ let ExtHostChatContext = class ExtHostChatContext2 extends Disposable {
     if (!extItem) {
       throw new Error("Chat context item not found");
     }
-    return this._doResolve(provider.resolveChatContext.bind(provider), context, extItem, token);
+    return this._doResolve((provider.resolveResourceChatContext ?? provider.resolveChatContext)?.bind(provider), context, extItem, token);
   }
   // Command execution
   async $executeChatContextItemCommand(itemHandle) {
@@ -177,21 +177,21 @@ let ExtHostChatContext = class ExtHostChatContext2 extends Disposable {
     if (provider.provideWorkspaceChatContext) {
       const workspaceProvider = {
         onDidChangeWorkspaceChatContext: provider.onDidChangeWorkspaceChatContext,
-        provideChatContext: /* @__PURE__ */ __name((token) => provider.provideWorkspaceChatContext(token), "provideChatContext")
+        provideWorkspaceChatContext: /* @__PURE__ */ __name((token) => provider.provideWorkspaceChatContext(token), "provideWorkspaceChatContext")
       };
       disposables.push(this.registerChatWorkspaceContextProvider(id, workspaceProvider));
     }
     if (provider.provideChatContextExplicit) {
       const explicitProvider = {
-        provideChatContext: /* @__PURE__ */ __name((token) => provider.provideChatContextExplicit(token), "provideChatContext"),
-        resolveChatContext: provider.resolveChatContext ? (context, token) => provider.resolveChatContext(context, token) : (context) => context
+        provideExplicitChatContext: /* @__PURE__ */ __name((token) => provider.provideChatContextExplicit(token), "provideExplicitChatContext"),
+        resolveExplicitChatContext: provider.resolveChatContext ? (context, token) => provider.resolveChatContext(context, token) : (context) => context
       };
       disposables.push(this.registerChatExplicitContextProvider(id, explicitProvider));
     }
     if (provider.provideChatContextForResource && selector) {
       const resourceProvider = {
-        provideChatContext: /* @__PURE__ */ __name((options, token) => provider.provideChatContextForResource(options, token), "provideChatContext"),
-        resolveChatContext: provider.resolveChatContext ? (context, token) => provider.resolveChatContext(context, token) : (context) => context
+        provideResourceChatContext: /* @__PURE__ */ __name((options, token) => provider.provideChatContextForResource(options, token), "provideResourceChatContext"),
+        resolveResourceChatContext: provider.resolveChatContext ? (context, token) => provider.resolveChatContext(context, token) : (context) => context
       };
       disposables.push(this.registerChatResourceContextProvider(selector, id, resourceProvider));
     }
@@ -263,7 +263,7 @@ let ExtHostChatContext = class ExtHostChatContext2 extends Disposable {
       return;
     }
     const provideWorkspaceContext = /* @__PURE__ */ __name(async () => {
-      const workspaceContexts = await provider.provideChatContext(CancellationToken.None);
+      const workspaceContexts = await provider.provideWorkspaceChatContext?.(CancellationToken.None) ?? await provider.provideChatContext?.(CancellationToken.None);
       const resolvedContexts = this._convertItems(handle, workspaceContexts ?? []);
       return this._proxy.$updateWorkspaceContextItems(handle, resolvedContexts);
     }, "provideWorkspaceContext");

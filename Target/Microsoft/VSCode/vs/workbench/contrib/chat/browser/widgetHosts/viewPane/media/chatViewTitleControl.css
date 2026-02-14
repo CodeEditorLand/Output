@@ -1,8 +1,15 @@
 .chat-viewpane {
   .chat-view-title-container {
     display: none;
-    align-items: center;
     cursor: pointer;
+    .chat-view-title-inner {
+      display: flex;
+      align-items: center;
+      max-width: 950px;
+      margin: 0 auto;
+      width: 100%;
+      box-sizing: border-box;
+    }
     .chat-view-title-navigation-toolbar {
       overflow: hidden;
       .chat-view-title-action-item {
@@ -32,29 +39,29 @@
     }
   }
   .chat-view-title-container.visible {
-    display: flex;
+    display: block;
   }
 }
 .chat-viewpane {
   &.chat-view-location-sidebar,
   &.chat-view-location-panel,
   &.chat-view-location-auxiliarybar {
-    .chat-view-title-container {
+    .chat-view-title-inner {
       padding: 0 12px 0 16px;
     }
   }
   &.activity-bar-location-other.chat-view-location-auxiliarybar {
-    .chat-view-title-container {
+    .chat-view-title-inner {
       padding: 0 8px 0 16px;
     }
   }
   &.has-sessions-control.sessions-control-orientation-sidebyside.chat-view-position-left {
-    .chat-view-title-container {
+    .chat-view-title-inner {
       padding: 0 8px;
     }
   }
   &.activity-bar-location-default.has-sessions-control.sessions-control-orientation-sidebyside.chat-view-position-right {
-    .chat-view-title-container {
+    .chat-view-title-inner {
       padding: 0 8px 0 16px;
     }
   }

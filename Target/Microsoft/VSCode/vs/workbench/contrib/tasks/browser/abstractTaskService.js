@@ -245,14 +245,14 @@ let AbstractTaskService = class AbstractTaskService2 extends Disposable {
     this._hostService = _hostService;
     this._tasksReconnected = false;
     this._taskSystemListeners = [];
-    this._onDidRegisterSupportedExecutions = new Emitter();
-    this._onDidRegisterAllSupportedExecutions = new Emitter();
-    this._onDidChangeTaskSystemInfo = new Emitter();
+    this._onDidRegisterSupportedExecutions = this._register(new Emitter());
+    this._onDidRegisterAllSupportedExecutions = this._register(new Emitter());
+    this._onDidChangeTaskSystemInfo = this._register(new Emitter());
     this._willRestart = false;
     this.onDidChangeTaskSystemInfo = this._onDidChangeTaskSystemInfo.event;
-    this._onDidReconnectToTasks = new Emitter();
+    this._onDidReconnectToTasks = this._register(new Emitter());
     this.onDidReconnectToTasks = this._onDidReconnectToTasks.event;
-    this._onDidChangeTaskConfig = new Emitter();
+    this._onDidChangeTaskConfig = this._register(new Emitter());
     this.onDidChangeTaskConfig = this._onDidChangeTaskConfig.event;
     this._onDidChangeTaskProviders = this._register(new Emitter());
     this.onDidChangeTaskProviders = this._onDidChangeTaskProviders.event;
@@ -845,7 +845,7 @@ let AbstractTaskService = class AbstractTaskService2 extends Disposable {
     const tasks = await this.getWorkspaceTasks();
     for (const [, workspaceTasks] of tasks) {
       if (workspaceTasks.configurations) {
-        for (const taskName in workspaceTasks.configurations.byIdentifier) {
+        for (const taskName of Object.keys(workspaceTasks.configurations.byIdentifier)) {
           const task = workspaceTasks.configurations.byIdentifier[taskName];
           if (predicate(task, workspaceTasks.workspaceFolder)) {
             result.push(task);
@@ -1146,7 +1146,7 @@ let AbstractTaskService = class AbstractTaskService2 extends Disposable {
             readTasksMap.set(taskKey, task);
           }
         });
-        for (const configuration in customized) {
+        for (const configuration of Object.keys(customized)) {
           const taskKey = customized[configuration].getKey();
           if (taskKey) {
             readTasksMap.set(taskKey, customized[configuration]);
@@ -1195,7 +1195,7 @@ let AbstractTaskService = class AbstractTaskService2 extends Disposable {
           version: "2.0.0",
           tasks: [customizations]
         }, 0, custom, customized, TaskConfig.TaskConfigSource.TasksJson, true);
-        for (const configuration in customized) {
+        for (const configuration of Object.keys(customized)) {
           key = customized[configuration].getKey();
         }
       }
@@ -1248,7 +1248,7 @@ let AbstractTaskService = class AbstractTaskService2 extends Disposable {
           version: "2.0.0",
           tasks: [customizations]
         }, 0, custom, customized, TaskConfig.TaskConfigSource.TasksJson, true);
-        for (const configuration in customized) {
+        for (const configuration of Object.keys(customized)) {
           key = customized[configuration].getKey();
         }
       }
@@ -1420,7 +1420,7 @@ let AbstractTaskService = class AbstractTaskService2 extends Disposable {
     let type;
     if (CustomTask.is(task)) {
       const configProperties = task._source.config.element;
-      type = configProperties.type;
+      type = configProperties.type ?? "";
     } else {
       type = task.getDefinition().type;
     }
@@ -1494,7 +1494,7 @@ let AbstractTaskService = class AbstractTaskService2 extends Disposable {
     let taskType;
     if (CustomTask.is(task)) {
       const configProperties = task._source.config.element;
-      taskType = configProperties.type;
+      taskType = configProperties.type ?? "";
     } else {
       taskType = task.getDefinition().type;
     }
@@ -2160,7 +2160,7 @@ let AbstractTaskService = class AbstractTaskService2 extends Disposable {
             if (error2 && Types.isString(error2.message)) {
               this._log(`Error: ${error2.message}
 `);
-              this._showOutput(error2.message);
+              this._showOutput(void 0, void 0, error2.message);
             } else {
               this._log("Unknown error received while collecting tasks from providers.");
               this._showOutput();
@@ -2687,7 +2687,7 @@ let AbstractTaskService = class AbstractTaskService2 extends Disposable {
       this._notificationService.error(nls.localize("TaskSystem.unknownError", "An error has occurred while running a task. See task log for details."));
     }
     if (showOutput) {
-      this._showOutput(void 0, void 0, err);
+      this._showOutput(void 0, void 0, Types.isString(err) ? err : void 0);
     }
   }
   _showDetail() {
@@ -2908,7 +2908,7 @@ let AbstractTaskService = class AbstractTaskService2 extends Disposable {
         }
       }
     }
-    const exactMatchTask = !taskName ? void 0 : tasks.find((t) => t.configurationProperties.identifier === taskName || t.getDefinition(true)?.configurationProperties?.identifier === taskName);
+    const exactMatchTask = !taskName ? void 0 : tasks.find((t) => t.configurationProperties.identifier === taskName);
     if (!exactMatchTask) {
       return this._doRunTaskCommand(tasks, type, taskName);
     }
@@ -3504,7 +3504,7 @@ let AbstractTaskService = class AbstractTaskService2 extends Disposable {
                 entry = task2;
               }
             }
-            const task = entry && "task" in entry ? entry.task : void 0;
+            const task = entry && Object.hasOwn(entry, "task") ? entry.task : void 0;
             if (task === void 0 || task === null) {
               return;
             }
@@ -3522,7 +3522,7 @@ let AbstractTaskService = class AbstractTaskService2 extends Disposable {
           this._quickInputService.pick(entries, {
             placeHolder: nls.localize("TaskService.pickDefaultBuildTask", "Select the task to be used as the default build task")
           }).then((entry) => {
-            const task = entry && "task" in entry ? entry.task : void 0;
+            const task = entry && Object.hasOwn(entry, "task") ? entry.task : void 0;
             if (task === void 0 || task === null) {
               return;
             }
@@ -3568,7 +3568,7 @@ let AbstractTaskService = class AbstractTaskService2 extends Disposable {
         }
         this._showIgnoredFoldersMessage().then(() => {
           this._showQuickPick(tasks, nls.localize("TaskService.pickDefaultTestTask", "Select the task to be used as the default test task"), void 0, true, false, selectedEntry).then((entry) => {
-            const task = entry ? entry.task : void 0;
+            const task = entry && Object.hasOwn(entry, "task") ? entry.task : void 0;
             if (!task) {
               return;
             }

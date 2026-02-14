@@ -19,7 +19,6 @@ import { IChatSlashCommandService } from '../participants/chatSlashCommands.js';
 import { IChatTransferService } from '../model/chatTransferService.js';
 import { ChatAgentLocation } from '../constants.js';
 import { IPromptsService } from '../promptSyntax/service/promptsService.js';
-import { IHooksExecutionService } from '../hooksExecutionService.js';
 export declare class ChatService extends Disposable implements IChatService {
     private readonly storageService;
     private readonly logService;
@@ -33,7 +32,6 @@ export declare class ChatService extends Disposable implements IChatService {
     private readonly chatSessionService;
     private readonly mcpService;
     private readonly promptsService;
-    private readonly hooksExecutionService;
     _serviceBrand: undefined;
     private readonly _sessionModels;
     private readonly _pendingRequests;
@@ -74,7 +72,7 @@ export declare class ChatService extends Disposable implements IChatService {
     waitForModelDisposals(): Promise<void>;
     get edits2Enabled(): boolean;
     private get isEmptyWindow();
-    constructor(storageService: IStorageService, logService: ILogService, extensionService: IExtensionService, instantiationService: IInstantiationService, workspaceContextService: IWorkspaceContextService, chatSlashCommandService: IChatSlashCommandService, chatAgentService: IChatAgentService, configurationService: IConfigurationService, chatTransferService: IChatTransferService, chatSessionService: IChatSessionsService, mcpService: IMcpService, promptsService: IPromptsService, hooksExecutionService: IHooksExecutionService);
+    constructor(storageService: IStorageService, logService: ILogService, extensionService: IExtensionService, instantiationService: IInstantiationService, workspaceContextService: IWorkspaceContextService, chatSlashCommandService: IChatSlashCommandService, chatAgentService: IChatAgentService, configurationService: IConfigurationService, chatTransferService: IChatTransferService, chatSessionService: IChatSessionsService, mcpService: IMcpService, promptsService: IPromptsService);
     get editingSessions(): import("../editing/chatEditingService.js").IChatEditingSession[];
     isEnabled(location: ChatAgentLocation): boolean;
     private migrateData;

@@ -21,6 +21,7 @@ import { registerSingleton } from "../../../../platform/instantiation/common/ext
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { distinct } from "../../../../base/common/arrays.js";
 import { AuxiliaryEditorPart } from "./auxiliaryEditorPart.js";
+import { ModalEditorPart } from "./modalEditorPart.js";
 import { MultiWindowParts } from "../../part.js";
 import { DeferredPromise } from "../../../../base/common/async.js";
 import { IStorageService } from "../../../../platform/storage/common/storage.js";
@@ -28,7 +29,7 @@ import { IThemeService } from "../../../../platform/theme/common/themeService.js
 import { IAuxiliaryWindowService } from "../../../services/auxiliaryWindow/browser/auxiliaryWindowService.js";
 import { generateUuid } from "../../../../base/common/uuid.js";
 import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { isHTMLElement } from "../../../../base/browser/dom.js";
+import { getActiveElement, isAncestor, isHTMLElement } from "../../../../base/browser/dom.js";
 import { ServiceCollection } from "../../../../platform/instantiation/common/serviceCollection.js";
 import { IEditorService } from "../../../services/editor/common/editorService.js";
 import { IStatusbarService } from "../../../services/statusbar/browser/statusbar.js";
@@ -106,13 +107,20 @@ let EditorParts = class EditorParts2 extends MultiWindowParts {
   }
   getScopedInstantiationService(part) {
     if (part === this.mainPart) {
-      if (!this.mapPartToInstantiationService.has(part.windowId)) {
-        this.instantiationService.invokeFunction((accessor) => {
+      let mainPartInstantiationService = this.mapPartToInstantiationService.get(part.windowId);
+      if (!mainPartInstantiationService) {
+        mainPartInstantiationService = this.instantiationService.invokeFunction((accessor) => {
           const editorService = accessor.get(IEditorService);
           const statusbarService = accessor.get(IStatusbarService);
-          this.mapPartToInstantiationService.set(part.windowId, this._register(this.mainPart.scopedInstantiationService.createChild(new ServiceCollection([IEditorService, editorService.createScoped(this.mainPart, this._store)], [IStatusbarService, statusbarService.createScoped(statusbarService, this._store)]))));
+          const mainPartInstantiationService2 = this._register(this.mainPart.scopedInstantiationService.createChild(new ServiceCollection([IEditorService, editorService.createScoped(this.mainPart, this._store)], [IStatusbarService, statusbarService.createScoped(statusbarService, this._store)])));
+          this.mapPartToInstantiationService.set(part.windowId, mainPartInstantiationService2);
+          return mainPartInstantiationService2;
         });
       }
+      return mainPartInstantiationService;
+    }
+    if (part === this.modalEditorPart && this.modalPartInstantiationService) {
+      return this.modalPartInstantiationService;
     }
     return this.mapPartToInstantiationService.get(part.windowId) ?? this.instantiationService;
   }
@@ -122,6 +130,23 @@ let EditorParts = class EditorParts2 extends MultiWindowParts {
     disposables.add(toDisposable(() => this.mapPartToInstantiationService.delete(part.windowId)));
     this._onDidAddGroup.fire(part.activeGroup);
     this._onDidCreateAuxiliaryEditorPart.fire(part);
+    return part;
+  }
+  get activeModalEditorPart() {
+    return this.modalEditorPart;
+  }
+  async createModalEditorPart() {
+    if (this.modalEditorPart) {
+      return this.modalEditorPart;
+    }
+    const { part, instantiationService, disposables } = await this.instantiationService.createInstance(ModalEditorPart, this).create();
+    this.modalEditorPart = part;
+    this.modalPartInstantiationService = instantiationService;
+    disposables.add(toDisposable(() => {
+      this.modalPartInstantiationService = void 0;
+      this.modalEditorPart = void 0;
+    }));
+    this._onDidAddGroup.fire(part.activeGroup);
     return part;
   }
   //#endregion
@@ -158,7 +183,7 @@ let EditorParts = class EditorParts2 extends MultiWindowParts {
     disposables.add(part.onDidAddGroup((group) => this._onDidAddGroup.fire(group)));
     disposables.add(part.onDidRemoveGroup((group) => this._onDidRemoveGroup.fire(group)));
     disposables.add(part.onDidMoveGroup((group) => this._onDidMoveGroup.fire(group)));
-    disposables.add(part.onDidActivateGroup((group) => this._onDidActivateGroup.fire(group)));
+    disposables.add(part.onDidActivateGroup((e) => this._onDidActivateGroup.fire(e)));
     disposables.add(part.onDidChangeGroupMaximized((maximized) => this._onDidChangeGroupMaximized.fire(maximized)));
     disposables.add(part.onDidChangeGroupIndex((group) => this._onDidChangeGroupIndex.fire(group)));
     disposables.add(part.onDidChangeGroupLocked((group) => this._onDidChangeGroupLocked.fire(group)));
@@ -174,6 +199,22 @@ let EditorParts = class EditorParts2 extends MultiWindowParts {
   }
   getGroupsLabel(index) {
     return localize("groupLabel", "Window {0}", index + 1);
+  }
+  //#endregion
+  //#region Helpers
+  getPartByDocument(document) {
+    if (this._parts.size > 1) {
+      const activeElement = getActiveElement();
+      for (const part of this._parts) {
+        if (part !== this.mainPart && part.element?.ownerDocument === document) {
+          const container = part.getContainer();
+          if (container && isAncestor(activeElement, container)) {
+            return part;
+          }
+        }
+      }
+    }
+    return super.getPartByDocument(document);
   }
   getPart(groupOrElement) {
     if (this._parts.size > 1) {
@@ -231,13 +272,10 @@ let EditorParts = class EditorParts2 extends MultiWindowParts {
   }
   createState() {
     return {
-      auxiliary: this.parts.filter((part) => part !== this.mainPart).map((part) => {
-        const auxiliaryWindow = this.auxiliaryWindowService.getWindow(part.windowId);
-        return {
-          state: part.createState(),
-          ...auxiliaryWindow?.createState()
-        };
-      }),
+      auxiliary: this.parts.map((part) => ({ part, auxiliaryWindow: this.auxiliaryWindowService.getWindow(part.windowId) })).filter(({ auxiliaryWindow }) => auxiliaryWindow !== void 0).map(({ part, auxiliaryWindow }) => ({
+        state: part.createState(),
+        ...auxiliaryWindow.createState()
+      })),
       mru: this.mostRecentActiveParts.map((part) => this.parts.indexOf(part))
     };
   }

@@ -12,6 +12,7 @@ var __param = function(paramIndex, decorator) {
   };
 };
 import * as dom from "../../../../../../base/browser/dom.js";
+import { trackFocus } from "../../../../../../base/browser/dom.js";
 import { Button } from "../../../../../../base/browser/ui/button/button.js";
 import { IconLabel } from "../../../../../../base/browser/ui/iconLabel/iconLabel.js";
 import { Codicon } from "../../../../../../base/common/codicons.js";
@@ -111,7 +112,11 @@ let ChatTodoListWidget = class ChatTodoListWidget2 extends Disposable {
     this.contextKeyService = contextKeyService;
     this._isExpanded = false;
     this._userManuallyExpanded = false;
+    this._inChatTodoListContextKey = ChatContextKeys.inChatTodoList.bindTo(contextKeyService);
     this.domNode = this.createChatTodoWidget();
+    const focusTracker = this._register(trackFocus(this.domNode));
+    this._register(focusTracker.onDidFocus(() => this._inChatTodoListContextKey.set(true)));
+    this._register(focusTracker.onDidBlur(() => this._inChatTodoListContextKey.set(false)));
     this._register(this.contextKeyService.onDidChangeContext((e) => {
       if (e.affectsSome(/* @__PURE__ */ new Set([ChatContextKeys.requestInProgress.key]))) {
         this.updateClearButtonState();
@@ -191,6 +196,22 @@ let ChatTodoListWidget = class ChatTodoListWidget2 extends Disposable {
     if (shouldClear) {
       this.clearAllTodos();
     }
+  }
+  hasTodos() {
+    return this.domNode.classList.contains("has-todos") && !!this._todoList && this._todoList.length > 0;
+  }
+  hasFocus() {
+    return dom.isAncestorOfActiveElement(this.todoListContainer);
+  }
+  focus() {
+    if (!this.hasTodos()) {
+      return false;
+    }
+    if (!this._isExpanded) {
+      this.toggleExpanded();
+    }
+    this._todoList?.domFocus();
+    return this.hasFocus();
   }
   updateTodoDisplay() {
     if (!this._currentSessionResource) {

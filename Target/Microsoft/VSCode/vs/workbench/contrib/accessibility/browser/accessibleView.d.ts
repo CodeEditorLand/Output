@@ -57,6 +57,7 @@ export declare class AccessibleView extends Disposable {
     private _currentProvider;
     private _currentContent;
     private _lastProvider;
+    private _lastProviderPosition;
     private _viewContainer;
     constructor(_openerService: IOpenerService, _instantiationService: IInstantiationService, _configurationService: IConfigurationService, _modelService: IModelService, _contextViewService: IContextViewService, _contextKeyService: IContextKeyService, _accessibilityService: IAccessibilityService, _keybindingService: IKeybindingService, _layoutService: ILayoutService, _menuService: IMenuService, _commandService: ICommandService, _codeBlockContextProviderService: IChatCodeBlockContextProviderService, _storageService: IStorageService, _quickInputService: IQuickInputService, _accessibilitySignalService: IAccessibilitySignalService);
     private _playDiffSignals;

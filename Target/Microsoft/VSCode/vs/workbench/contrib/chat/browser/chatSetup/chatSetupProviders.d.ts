@@ -3,6 +3,7 @@ import { Event } from '../../../../../base/common/event.js';
 import { Lazy } from '../../../../../base/common/lazy.js';
 import { Disposable, IDisposable } from '../../../../../base/common/lifecycle.js';
 import { URI } from '../../../../../base/common/uri.js';
+import { IContextKeyService } from '../../../../../platform/contextkey/common/contextkey.js';
 import { IInstantiationService } from '../../../../../platform/instantiation/common/instantiation.js';
 import { ILogService } from '../../../../../platform/log/common/log.js';
 import { ITelemetryService } from '../../../../../platform/telemetry/common/telemetry.js';
@@ -31,6 +32,7 @@ export declare class SetupAgent extends Disposable implements IChatAgentImplemen
     private readonly workspaceTrustManagementService;
     private readonly chatEntitlementService;
     private readonly viewsService;
+    private readonly contextKeyService;
     static registerDefaultAgents(instantiationService: IInstantiationService, location: ChatAgentLocation, mode: ChatModeKind, context: ChatEntitlementContext, controller: Lazy<ChatSetupController>): {
         agent: SetupAgent;
         disposable: IDisposable;
@@ -43,7 +45,7 @@ export declare class SetupAgent extends Disposable implements IChatAgentImplemen
     private readonly _onUnresolvableError;
     readonly onUnresolvableError: Event<void>;
     private readonly pendingForwardedRequests;
-    constructor(context: ChatEntitlementContext, controller: Lazy<ChatSetupController>, location: ChatAgentLocation, instantiationService: IInstantiationService, logService: ILogService, telemetryService: ITelemetryService, environmentService: IWorkbenchEnvironmentService, workspaceTrustManagementService: IWorkspaceTrustManagementService, chatEntitlementService: IChatEntitlementService, viewsService: IViewsService);
+    constructor(context: ChatEntitlementContext, controller: Lazy<ChatSetupController>, location: ChatAgentLocation, instantiationService: IInstantiationService, logService: ILogService, telemetryService: ITelemetryService, environmentService: IWorkbenchEnvironmentService, workspaceTrustManagementService: IWorkspaceTrustManagementService, chatEntitlementService: IChatEntitlementService, viewsService: IViewsService, contextKeyService: IContextKeyService);
     private registerCommands;
     invoke(request: IChatAgentRequest, progress: (parts: IChatProgress[]) => void): Promise<IChatAgentResult>;
     private doInvoke;
@@ -51,6 +53,7 @@ export declare class SetupAgent extends Disposable implements IChatAgentImplemen
     private forwardRequestToChat;
     private doForwardRequestToChat;
     private doForwardRequestToChatWhenReady;
+    private whenPanelAgentHasGuidance;
     private whenLanguageModelReady;
     private whenToolsModelReady;
     private whenAgentReady;

@@ -231,17 +231,33 @@
   background: var(--vscode-textBlockQuote-background);
   border-color: var(--vscode-textBlockQuote-border);
 }
+.interactive-item-container .value .rendered-markdown strong {
+  font-weight: 600;
+}
 .interactive-item-container .value .rendered-markdown table {
   width: 100%;
   text-align: left;
   margin-bottom: 16px;
+  border-radius: var(--vscode-cornerRadius-medium);
+  overflow: hidden;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid var(--vscode-chat-requestBorder);
 }
-.interactive-item-container .value .rendered-markdown table,
 .interactive-item-container .value .rendered-markdown table td,
 .interactive-item-container .value .rendered-markdown table th {
   border: 1px solid var(--vscode-chat-requestBorder);
-  border-collapse: collapse;
+  border-top: none;
+  border-left: none;
   padding: 4px 6px;
+}
+.interactive-item-container .value .rendered-markdown table td:last-child,
+.interactive-item-container .value .rendered-markdown table th:last-child {
+  border-right: none;
+}
+.interactive-item-container .value .rendered-markdown table tr:last-child td,
+.interactive-item-container .value .rendered-markdown table tr:last-child th {
+  border-bottom: none;
 }
 .interactive-item-container .value .rendered-markdown a,
 .interactive-item-container .value .interactive-session-followups,
@@ -493,6 +509,9 @@
 .interactive-item-container .value .rendered-markdown ol {
   padding-inline-start: 28px;
 }
+.interactive-item-container .value .rendered-markdown li {
+  margin: 4px 0;
+}
 .interactive-item-container .value .rendered-markdown ul .interactive-result-code-block {
   margin-left: -24px;
 }
@@ -638,7 +657,8 @@
 }
 .interactive-input-part:has(.chat-editing-session > .chat-editing-session-container) .chat-input-container,
 .interactive-input-part:has(.chat-todo-list-widget-container > .chat-todo-list-widget.has-todos) .chat-input-container,
-.interactive-input-part:has(.chat-input-widgets-container > .chat-status-widget:not([style*="display: none"])) .chat-input-container {
+.interactive-input-part:has(.chat-input-widgets-container > .chat-status-widget:not([style*="display: none"])) .chat-input-container,
+.interactive-input-part:has(.chat-getting-started-tip-container > .chat-tip-widget) .chat-input-container {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 }
@@ -987,13 +1007,13 @@
   min-width: 0;
 }
 .interactive-session .interactive-input-part > .chat-todo-list-widget-container .chat-todo-list-widget .monaco-scrollable-element .monaco-list-rows .monaco-list-row {
-  border-radius: 2px;
+  border-radius: var(--vscode-cornerRadius-small);
 }
 .interactive-session .interactive-input-part.compact .chat-input-container {
   display: flex;
   justify-content: space-between;
   padding-bottom: 0;
-  border-radius: 2px;
+  border-radius: var(--vscode-cornerRadius-small);
 }
 .interactive-session .interactive-input-and-side-toolbar {
   display: flex;
@@ -1671,6 +1691,10 @@
 .interactive-session .chat-editing-session-list.collapsed {
   display: none;
 }
+.interactive-session .chat-editing-session-list .monaco-tl-twistie:not(.collapsible) {
+  width: 0;
+  padding-right: 0;
+}
 .interactive-session .chat-summary-list .monaco-list .monaco-list-row {
   border-radius: 4px;
 }
@@ -1875,8 +1899,10 @@
   user-select: none;
   outline: none;
   border: none;
-  .codicon.codicon-file-media {
+  .codicon.codicon-file-media,
+  .codicon.codicon-warning {
     font-size: 12px;
+    margin-right: 2px;
   }
 }
 .chat-attached-context-attachment .attachment-additional-info {
@@ -2298,6 +2324,35 @@
   .request-hover {
     top: -17px !important;
   }
+}
+.interactive-item-container .chat-pending-drag-handle {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  opacity: 0;
+  transition: opacity 0.15s;
+  color: var(--vscode-descriptionForeground);
+  margin-top: -4px;
+}
+.interactive-item-container.pending-request:hover .chat-pending-drag-handle {
+  opacity: 1;
+}
+.interactive-item-container.chat-pending-dragging {
+  opacity: 0.4;
+}
+.chat-pending-insert-indicator {
+  position: absolute;
+  height: 2px;
+  background: var(--vscode-focusBorder);
+  pointer-events: none;
+  z-index: 100;
+  display: none;
 }
 .interactive-item-container .chat-request-status {
   color: var(--vscode-descriptionForeground);

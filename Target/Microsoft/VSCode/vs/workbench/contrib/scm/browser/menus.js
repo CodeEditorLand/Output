@@ -39,9 +39,9 @@ let SCMTitleMenu = class SCMTitleMenu2 {
   constructor(menuService, contextKeyService) {
     this._actions = [];
     this._secondaryActions = [];
-    this._onDidChangeTitle = new Emitter();
-    this.onDidChangeTitle = this._onDidChangeTitle.event;
     this.disposables = new DisposableStore();
+    this._onDidChangeTitle = this.disposables.add(new Emitter());
+    this.onDidChangeTitle = this._onDidChangeTitle.event;
     this.menu = menuService.createMenu(MenuId.SCMTitle, contextKeyService);
     this.disposables.add(this.menu);
     this.menu.onDidChange(this.updateTitleActions, this, this.disposables);

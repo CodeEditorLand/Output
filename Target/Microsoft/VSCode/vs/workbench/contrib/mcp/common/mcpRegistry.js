@@ -348,13 +348,13 @@ let McpRegistry = class McpRegistry2 extends Disposable {
       }
     }));
     return new Promise((resolve) => {
-      picker.onDidAccept(() => {
+      store.add(picker.onDidAccept(() => {
         resolve(picker.selectedItems.map((item) => item.definitonId));
         picker.hide();
-      });
-      picker.onDidHide(() => {
+      }));
+      store.add(picker.onDidHide(() => {
         resolve(void 0);
-      });
+      }));
       picker.show();
     }).finally(() => store.dispose());
   }

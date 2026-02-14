@@ -131,7 +131,7 @@ let GettingStartedPage = class GettingStartedPage2 extends EditorPane {
     this.stepDisposables = new DisposableStore();
     this.detailsPageDisposables = new DisposableStore();
     this.mediaDisposables = new DisposableStore();
-    this.buildSlideThrottle = new Throttler();
+    this.buildSlideThrottle = this._register(new Throttler());
     this.showFeaturedWalkthrough = true;
     this.currentMediaComponent = void 0;
     this.currentMediaType = void 0;
@@ -148,7 +148,6 @@ let GettingStartedPage = class GettingStartedPage2 extends EditorPane {
     inWelcomeContext.bindTo(this.contextService).set(true);
     this.gettingStartedCategories = this.gettingStartedService.getWalkthroughs();
     this._register(this.dispatchListeners);
-    this.buildSlideThrottle = new Throttler();
     const rerender = /* @__PURE__ */ __name(() => {
       this.gettingStartedCategories = this.gettingStartedService.getWalkthroughs();
       if (this.currentWalkthrough) {

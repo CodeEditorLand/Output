@@ -21,6 +21,7 @@ import { isWeb } from "../../../base/common/platform.js";
 import { isEqual } from "../../../base/common/resources.js";
 import { URI } from "../../../base/common/uri.js";
 import { localize } from "../../../nls.js";
+import { IMeteredConnectionService } from "../../meteredConnection/common/meteredConnection.js";
 import { IProductService } from "../../product/common/productService.js";
 import { IStorageService } from "../../storage/common/storage.js";
 import { ITelemetryService } from "../../telemetry/common/telemetry.js";
@@ -84,7 +85,7 @@ let UserDataAutoSyncService = class UserDataAutoSyncService2 extends Disposable 
       );
     }
   }
-  constructor(productService, userDataSyncStoreManagementService, userDataSyncStoreService, userDataSyncEnablementService, userDataSyncService, logService, userDataSyncAccountService, telemetryService, userDataSyncMachinesService, storageService) {
+  constructor(productService, userDataSyncStoreManagementService, userDataSyncStoreService, userDataSyncEnablementService, userDataSyncService, logService, userDataSyncAccountService, telemetryService, userDataSyncMachinesService, storageService, meteredConnectionService) {
     super();
     this.userDataSyncStoreManagementService = userDataSyncStoreManagementService;
     this.userDataSyncStoreService = userDataSyncStoreService;
@@ -95,6 +96,7 @@ let UserDataAutoSyncService = class UserDataAutoSyncService2 extends Disposable 
     this.telemetryService = telemetryService;
     this.userDataSyncMachinesService = userDataSyncMachinesService;
     this.storageService = storageService;
+    this.meteredConnectionService = meteredConnectionService;
     this.autoSync = this._register(new MutableDisposable());
     this.successiveFailures = 0;
     this.lastSyncTriggerTime = void 0;
@@ -132,6 +134,7 @@ let UserDataAutoSyncService = class UserDataAutoSyncService2 extends Disposable 
       this._register(userDataSyncService.onDidChangeLocal((source) => this.triggerSync([source])));
       this._register(Event.filter(this.userDataSyncEnablementService.onDidChangeResourceEnablement, ([, enabled]) => enabled)(() => this.triggerSync(["resourceEnablement"])));
       this._register(this.userDataSyncStoreManagementService.onDidChangeUserDataSyncStore(() => this.triggerSync(["userDataSyncStoreChanged"])));
+      this._register(meteredConnectionService.onDidChangeIsConnectionMetered(() => this.updateAutoSync()));
     }
   }
   updateAutoSync() {
@@ -173,6 +176,9 @@ let UserDataAutoSyncService = class UserDataAutoSyncService2 extends Disposable 
     }
     if (this.suspendUntilRestart) {
       return { enabled: false, message: "[AutoSync] Suspended until restart." };
+    }
+    if (this.meteredConnectionService.isConnectionMetered) {
+      return { enabled: false, message: "[AutoSync] Suspended because connection is metered." };
     }
     return { enabled: true };
   }
@@ -365,7 +371,8 @@ UserDataAutoSyncService = __decorate([
   __param(6, IUserDataSyncAccountService),
   __param(7, ITelemetryService),
   __param(8, IUserDataSyncMachinesService),
-  __param(9, IStorageService)
+  __param(9, IStorageService),
+  __param(10, IMeteredConnectionService)
 ], UserDataAutoSyncService);
 class AutoSync extends Disposable {
   static {

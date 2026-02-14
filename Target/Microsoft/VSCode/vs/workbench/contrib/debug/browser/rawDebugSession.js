@@ -21,7 +21,7 @@ import { formatPII, isUriString } from "../common/debugUtils.js";
 import { IExtensionHostDebugService } from "../../../../platform/debug/common/extensionHostDebug.js";
 import { URI } from "../../../../base/common/uri.js";
 import { IOpenerService } from "../../../../platform/opener/common/opener.js";
-import { dispose } from "../../../../base/common/lifecycle.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
 import { INotificationService, Severity } from "../../../../platform/notification/common/notification.js";
 import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
 import { Schemas } from "../../../../base/common/network.js";
@@ -45,31 +45,31 @@ let RawDebugSession = class RawDebugSession2 {
     this.firedAdapterExitEvent = false;
     this.startTime = 0;
     this.didReceiveStoppedEvent = false;
-    this._onDidInitialize = new Emitter();
-    this._onDidStop = new Emitter();
-    this._onDidContinued = new Emitter();
-    this._onDidTerminateDebugee = new Emitter();
-    this._onDidExitDebugee = new Emitter();
-    this._onDidThread = new Emitter();
-    this._onDidOutput = new Emitter();
-    this._onDidBreakpoint = new Emitter();
-    this._onDidLoadedSource = new Emitter();
-    this._onDidProgressStart = new Emitter();
-    this._onDidProgressUpdate = new Emitter();
-    this._onDidProgressEnd = new Emitter();
-    this._onDidInvalidated = new Emitter();
-    this._onDidInvalidateMemory = new Emitter();
-    this._onDidCustomEvent = new Emitter();
-    this._onDidEvent = new Emitter();
-    this._onDidExitAdapter = new Emitter();
+    this.toDispose = new DisposableStore();
+    this._onDidInitialize = this.toDispose.add(new Emitter());
+    this._onDidStop = this.toDispose.add(new Emitter());
+    this._onDidContinued = this.toDispose.add(new Emitter());
+    this._onDidTerminateDebugee = this.toDispose.add(new Emitter());
+    this._onDidExitDebugee = this.toDispose.add(new Emitter());
+    this._onDidThread = this.toDispose.add(new Emitter());
+    this._onDidOutput = this.toDispose.add(new Emitter());
+    this._onDidBreakpoint = this.toDispose.add(new Emitter());
+    this._onDidLoadedSource = this.toDispose.add(new Emitter());
+    this._onDidProgressStart = this.toDispose.add(new Emitter());
+    this._onDidProgressUpdate = this.toDispose.add(new Emitter());
+    this._onDidProgressEnd = this.toDispose.add(new Emitter());
+    this._onDidInvalidated = this.toDispose.add(new Emitter());
+    this._onDidInvalidateMemory = this.toDispose.add(new Emitter());
+    this._onDidCustomEvent = this.toDispose.add(new Emitter());
+    this._onDidEvent = this.toDispose.add(new Emitter());
+    this._onDidExitAdapter = this.toDispose.add(new Emitter());
     this.stoppedSinceLastStep = false;
-    this.toDispose = [];
     this.debugAdapter = debugAdapter;
     this._capabilities = /* @__PURE__ */ Object.create(null);
-    this.toDispose.push(this.debugAdapter.onError((err) => {
+    this.toDispose.add(this.debugAdapter.onError((err) => {
       this.shutdown(err);
     }));
-    this.toDispose.push(this.debugAdapter.onExit((code) => {
+    this.toDispose.add(this.debugAdapter.onExit((code) => {
       if (code !== 0) {
         this.shutdown(new Error(`exit code: ${code}`));
       } else {
@@ -695,7 +695,7 @@ let RawDebugSession = class RawDebugSession2 {
     });
   }
   dispose() {
-    dispose(this.toDispose);
+    this.toDispose.dispose();
   }
 };
 RawDebugSession = __decorate([

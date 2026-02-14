@@ -332,7 +332,12 @@ let SuggestModel = SuggestModel_1 = class SuggestModel2 {
         const lineTokens = model.tokenization.getLineTokens(pos.lineNumber);
         const tokenType = lineTokens.getStandardTokenType(lineTokens.findTokenIndexAtOffset(Math.max(pos.column - 1 - 1, 0)));
         if (QuickSuggestionsOptions.valueFor(config, tokenType) !== "on") {
-          return;
+          if (QuickSuggestionsOptions.valueFor(config, tokenType) !== "offWhenInlineCompletions" || this._languageFeaturesService.inlineCompletionsProvider.has(model) && this._editor.getOption(
+            71
+            /* EditorOption.inlineSuggest */
+          ).enabled) {
+            return;
+          }
         }
       }
       if (!canShowQuickSuggest(this._editor, this._contextKeyService, this._configurationService)) {

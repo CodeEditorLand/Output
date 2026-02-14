@@ -178,6 +178,9 @@ let WorkspaceChangeExtHostRelauncher = class WorkspaceChangeExtHostRelauncher2 e
       if (!!environmentService.extensionTestsLocationURI) {
         return;
       }
+      if (contextService.getWorkspace().isAgentSessionsWorkspace) {
+        return;
+      }
       if (environmentService.remoteAuthority) {
         hostService.reload();
       } else if (isNative) {

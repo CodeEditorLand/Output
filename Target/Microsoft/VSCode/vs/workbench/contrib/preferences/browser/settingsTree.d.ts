@@ -185,10 +185,16 @@ export declare class SettingTreeRenderers extends Disposable {
 }
 export declare class SettingsTreeFilter implements ITreeFilter<SettingsTreeElement> {
     private viewState;
+    private isFilteringGroups;
     private environmentService;
-    constructor(viewState: ISettingsEditorViewState, environmentService: IWorkbenchEnvironmentService);
+    constructor(viewState: ISettingsEditorViewState, isFilteringGroups: boolean, environmentService: IWorkbenchEnvironmentService);
     filter(element: SettingsTreeElement, parentVisibility: TreeVisibility): TreeFilterResult<void>;
     private settingContainedInGroup;
+    /**
+     * Checks if a group is related to the filtered category.
+     * A group is related if it's the category itself, a descendant of it, or an ancestor of it.
+     */
+    private groupIsRelatedToCategory;
 }
 export declare class NonCollapsibleObjectTreeModel<T> extends ObjectTreeModel<T> {
     isCollapsible(element: T): boolean;

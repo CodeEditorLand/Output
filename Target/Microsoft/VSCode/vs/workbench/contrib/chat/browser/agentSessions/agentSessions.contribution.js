@@ -8,7 +8,7 @@ import { Extensions as QuickAccessExtensions } from "../../../../../platform/qui
 import { ChatContextKeys } from "../../common/actions/chatContextKeys.js";
 import { AgentSessionsViewerOrientation, AgentSessionsViewerPosition } from "./agentSessions.js";
 import { IAgentSessionsService, AgentSessionsService } from "./agentSessionsService.js";
-import { LocalAgentsSessionsProvider } from "./localAgentSessionsProvider.js";
+import { LocalAgentsSessionsController } from "./localAgentSessionsController.js";
 import { registerWorkbenchContribution2 } from "../../../../common/contributions.js";
 import { MenuId, MenuRegistry, registerAction2 } from "../../../../../platform/actions/common/actions.js";
 import { ArchiveAgentSessionAction, ArchiveAgentSessionSectionAction, UnarchiveAgentSessionAction, OpenAgentSessionInEditorGroupAction, OpenAgentSessionInNewEditorGroupAction, OpenAgentSessionInNewWindowAction, ShowAgentSessionsSidebar, HideAgentSessionsSidebar, ToggleAgentSessionsSidebar, RefreshAgentSessionsViewerAction, FindAgentSessionInViewerAction, MarkAgentSessionUnreadAction, MarkAgentSessionReadAction, FocusAgentSessionsAction, SetAgentSessionsOrientationStackedAction, SetAgentSessionsOrientationSideBySideAction, PickAgentSessionAction, ArchiveAllAgentSessionsAction, MarkAllAgentSessionsReadAction, RenameAgentSessionAction, DeleteAgentSessionAction, DeleteAllLocalSessionsAction, MarkAgentSessionSectionReadAction, ToggleShowAgentSessionsAction, UnarchiveAgentSessionSectionAction } from "./agentSessionsActions.js";
@@ -117,8 +117,8 @@ Registry.as(QuickAccessExtensions.Quickaccess).registerQuickAccessProvider({
   }]
 });
 registerWorkbenchContribution2(
-  LocalAgentsSessionsProvider.ID,
-  LocalAgentsSessionsProvider,
+  LocalAgentsSessionsController.ID,
+  LocalAgentsSessionsController,
   3
   /* WorkbenchPhase.AfterRestored */
 );

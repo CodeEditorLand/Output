@@ -56,7 +56,6 @@ export declare class AgentSessionsWelcomePage extends EditorPane {
     private chatModelRef;
     private sessionsControl;
     private sessionsControlContainer;
-    private sessionsLoadingContainer;
     private readonly sessionsControlDisposables;
     private readonly contentDisposables;
     private contextService;
@@ -85,8 +84,6 @@ export declare class AgentSessionsWelcomePage extends EditorPane {
      */
     private applyPrefillData;
     private buildSessionsOrPrompts;
-    private buildLoadingSkeleton;
-    private hideLoadingSkeleton;
     private buildSessionsGrid;
     private buildWalkthroughs;
     private static readonly PRIVACY_NOTICE_DISMISSED_KEY;

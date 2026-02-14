@@ -30,5 +30,5 @@ export declare class ManageAutomaticTaskRunning extends Action2 {
     static readonly ID = "workbench.action.tasks.manageAutomaticRunning";
     static readonly LABEL: string;
     constructor();
-    run(accessor: ServicesAccessor): Promise<any>;
+    run(accessor: ServicesAccessor): Promise<void>;
 }

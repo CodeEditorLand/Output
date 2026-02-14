@@ -12,6 +12,7 @@ import { IInstantiationService } from '../../platform/instantiation/common/insta
 import { IColorTheme } from '../../platform/theme/common/themeService.js';
 import { IClipboardCopyEvent, IClipboardPasteEvent } from './controller/editContext/clipboardUtils.js';
 import { Event } from '../../base/common/event.js';
+import { IUserInteractionService } from '../../platform/userInteraction/browser/userInteractionService.js';
 export interface IContentWidgetData {
     widget: IContentWidget;
     position: IContentWidgetPosition | null;
@@ -26,6 +27,7 @@ export interface IGlyphMarginWidgetData {
 }
 export declare class View extends ViewEventHandler {
     private readonly _instantiationService;
+    private readonly _userInteractionService;
     private _widgetFocusTracker;
     private readonly _scrollbar;
     private readonly _context;
@@ -57,7 +59,7 @@ export declare class View extends ViewEventHandler {
     private _shouldRecomputeGlyphMarginLanes;
     private _renderAnimationFrame;
     private _ownerID;
-    constructor(editorContainer: HTMLElement, ownerID: string, commandDelegate: ICommandDelegate, configuration: IEditorConfiguration, colorTheme: IColorTheme, model: IViewModel, userInputEvents: ViewUserInputEvents, overflowWidgetsDomNode: HTMLElement | undefined, _instantiationService: IInstantiationService);
+    constructor(editorContainer: HTMLElement, ownerID: string, commandDelegate: ICommandDelegate, configuration: IEditorConfiguration, colorTheme: IColorTheme, model: IViewModel, userInputEvents: ViewUserInputEvents, overflowWidgetsDomNode: HTMLElement | undefined, _instantiationService: IInstantiationService, _userInteractionService: IUserInteractionService);
     private _instantiateEditContext;
     private _updateEditContext;
     private _connectEditContextClipboardEvents;

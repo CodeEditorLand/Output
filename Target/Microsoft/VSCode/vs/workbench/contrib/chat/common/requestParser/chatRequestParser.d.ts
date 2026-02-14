@@ -1,7 +1,7 @@
 import { URI } from '../../../../../base/common/uri.js';
 import { IChatVariablesService } from '../attachments/chatVariables.js';
 import { ChatAgentLocation, ChatModeKind } from '../constants.js';
-import { IChatAgentData, IChatAgentService } from '../participants/chatAgents.js';
+import { IChatAgentAttachmentCapabilities, IChatAgentData, IChatAgentService } from '../participants/chatAgents.js';
 import { IChatSlashCommandService } from '../participants/chatSlashCommands.js';
 import { IPromptsService } from '../promptSyntax/service/promptsService.js';
 import { IParsedChatRequest } from './chatParserTypes.js';
@@ -11,6 +11,7 @@ export interface IChatParserContext {
     mode?: ChatModeKind;
     /** Parse as this agent, even when it does not appear in the query text */
     forcedAgent?: IChatAgentData;
+    attachmentCapabilities?: IChatAgentAttachmentCapabilities;
 }
 export declare class ChatRequestParser {
     private readonly agentService;

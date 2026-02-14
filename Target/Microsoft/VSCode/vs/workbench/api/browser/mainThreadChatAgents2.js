@@ -127,6 +127,9 @@ let MainThreadChatAgents2 = class MainThreadChatAgents22 extends Disposable {
     this._register(this._chatService.onDidReceiveQuestionCarouselAnswer((e) => {
       this._proxy.$handleQuestionCarouselAnswer(e.requestId, e.resolveId, e.answers);
     }));
+    this._register(this._chatWidgetService.onDidChangeFocusedWidget((widget) => {
+      this._proxy.$acceptActiveChatSession(widget?.viewModel?.sessionResource);
+    }));
   }
   $unregisterAgent(handle) {
     this._agents.deleteAndDispose(handle);
@@ -166,6 +169,9 @@ let MainThreadChatAgents2 = class MainThreadChatAgents22 extends Disposable {
       setRequestTools: /* @__PURE__ */ __name((requestId, tools) => {
         this._proxy.$setRequestTools(requestId, tools);
       }, "setRequestTools"),
+      setYieldRequested: /* @__PURE__ */ __name((requestId) => {
+        this._proxy.$setYieldRequested(requestId);
+      }, "setYieldRequested"),
       provideFollowups: /* @__PURE__ */ __name(async (request, result, history, token) => {
         if (!this._agents.get(handle)?.hasFollowups) {
           return [];

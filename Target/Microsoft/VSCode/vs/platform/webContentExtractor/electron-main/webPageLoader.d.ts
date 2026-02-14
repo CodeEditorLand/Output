@@ -40,6 +40,22 @@ export declare class WebPageLoader extends Disposable {
      */
     private onBeforeSendHeaders;
     /**
+     * Checks response headers for download-triggering Content-Disposition.
+     * For text-based content types, replaces it with 'inline' so the content
+     * is rendered and can be extracted. For binary content, cancels the response.
+     */
+    private onHeadersReceived;
+    /**
+     * Returns whether the given MIME type represents text-based content
+     * that can be meaningfully rendered and extracted.
+     */
+    private static readonly TEXT_MIME_TYPE_RE;
+    private isTextMimeType;
+    /**
+     * Handles the 'will-download' event, blocking any downloads.
+     */
+    private onDownload;
+    /**
      * Handles the 'did-start-loading' event, enabling network tracking.
      */
     private onStartLoading;

@@ -26,7 +26,6 @@ export declare const enum ViewContainerLocation {
     Panel = 1,
     AuxiliaryBar = 2
 }
-export declare const ViewContainerLocations: ViewContainerLocation[];
 export declare function ViewContainerLocationToString(viewContainerLocation: ViewContainerLocation): "sidebar" | "panel" | "auxiliarybar";
 type OpenCommandActionDescriptor = {
     readonly id: string;
@@ -138,9 +137,9 @@ export interface IViewContainersRegistry {
      */
     getViewContainerLocation(container: ViewContainer): ViewContainerLocation;
     /**
-     * Return the default view container from the given location
+     * Return the default view containers from the given location
      */
-    getDefaultViewContainer(location: ViewContainerLocation): ViewContainer | undefined;
+    getDefaultViewContainers(location: ViewContainerLocation): ViewContainer[];
 }
 interface ViewOrderDelegate {
     getOrder(group?: string): number | undefined;
@@ -322,6 +321,7 @@ export interface IViewDescriptorService {
     getViewContainerByViewId(id: string): ViewContainer | null;
     getDefaultContainerById(id: string): ViewContainer | null;
     getViewLocationById(id: string): ViewContainerLocation | null;
+    canMoveViews(): boolean;
     readonly onDidChangeContainer: Event<{
         views: IViewDescriptor[];
         from: ViewContainer;

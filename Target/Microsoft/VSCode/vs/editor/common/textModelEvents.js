@@ -91,9 +91,10 @@ class ModelRawLineChanged {
   static {
     __name(this, "ModelRawLineChanged");
   }
-  constructor(lineNumber, detail, injectedText) {
+  constructor(lineNumber, lineNumberPostEdit, detail, injectedText) {
     this.changeType = 2;
     this.lineNumber = lineNumber;
+    this.lineNumberPostEdit = lineNumberPostEdit;
     this.detail = detail;
     this.injectedText = injectedText;
   }
@@ -132,11 +133,24 @@ class ModelRawLinesInserted {
   static {
     __name(this, "ModelRawLinesInserted");
   }
-  constructor(fromLineNumber, toLineNumber, detail, injectedTexts) {
+  /**
+   * `toLineNumber` - `fromLineNumber` + 1 denotes the number of lines that were inserted
+   */
+  get toLineNumber() {
+    return this.fromLineNumber + this.count - 1;
+  }
+  /**
+   * The actual end line number of the insertion in the updated buffer.
+   */
+  get toLineNumberPostEdit() {
+    return this.fromLineNumberPostEdit + this.count - 1;
+  }
+  constructor(fromLineNumber, fromLineNumberPostEdit, count, detail, injectedTexts) {
     this.changeType = 4;
     this.injectedTexts = injectedTexts;
     this.fromLineNumber = fromLineNumber;
-    this.toLineNumber = toLineNumber;
+    this.fromLineNumberPostEdit = fromLineNumberPostEdit;
+    this.count = count;
     this.detail = detail;
   }
 }

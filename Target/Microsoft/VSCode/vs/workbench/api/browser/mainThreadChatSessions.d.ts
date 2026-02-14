@@ -1,5 +1,4 @@
 import { CancellationToken } from '../../../base/common/cancellation.js';
-import { Event } from '../../../base/common/event.js';
 import { Disposable } from '../../../base/common/lifecycle.js';
 import { IObservable } from '../../../base/common/observable.js';
 import { URI, UriComponents } from '../../../base/common/uri.js';
@@ -8,14 +7,14 @@ import { ILogService } from '../../../platform/log/common/log.js';
 import { IAgentSessionsService } from '../../contrib/chat/browser/agentSessions/agentSessionsService.js';
 import { IChatWidgetService } from '../../contrib/chat/browser/chat.js';
 import { IChatContentInlineReference, IChatProgress, IChatService } from '../../contrib/chat/common/chatService/chatService.js';
-import { IChatSession, IChatSessionHistoryItem, IChatSessionProviderOptionItem, IChatSessionsService } from '../../contrib/chat/common/chatSessionsService.js';
+import { IChatSession, IChatSessionHistoryItem, IChatSessionItem, IChatSessionProviderOptionItem, IChatSessionsService } from '../../contrib/chat/common/chatSessionsService.js';
 import { IChatAgentRequest } from '../../contrib/chat/common/participants/chatAgents.js';
 import { IChatTodoListService } from '../../contrib/chat/common/tools/chatTodoListService.js';
 import { IEditorGroupsService } from '../../services/editor/common/editorGroupsService.js';
 import { IEditorService } from '../../services/editor/common/editorService.js';
 import { IExtHostContext } from '../../services/extensions/common/extHostCustomers.js';
 import { Dto } from '../../services/extensions/common/proxyIdentifier.js';
-import { ExtHostChatSessionsShape, IChatProgressDto, MainThreadChatSessionsShape } from '../common/extHost.protocol.js';
+import { ExtHostChatSessionsShape, IChatProgressDto, IChatSessionItemsChange, MainThreadChatSessionsShape } from '../common/extHost.protocol.js';
 export declare class ObservableChatSession extends Disposable implements IChatSession {
     readonly sessionResource: URI;
     readonly providerHandle: number;
@@ -25,7 +24,7 @@ export declare class ObservableChatSession extends Disposable implements IChatSe
     private readonly _progressObservable;
     private readonly _isCompleteObservable;
     private readonly _onWillDispose;
-    readonly onWillDispose: Event<void>;
+    readonly onWillDispose: import("../../../base/common/event.js").Event<void>;
     private readonly _pendingProgressChunks;
     private _isInitialized;
     private _interruptionWasCanceled;
@@ -66,7 +65,7 @@ export declare class MainThreadChatSessions extends Disposable implements MainTh
     private readonly _editorService;
     private readonly editorGroupService;
     private readonly _logService;
-    private readonly _itemProvidersRegistrations;
+    private readonly _itemControllerRegistrations;
     private readonly _contentProvidersRegistrations;
     private readonly _sessionTypeToHandle;
     private readonly _activeSessions;
@@ -74,17 +73,20 @@ export declare class MainThreadChatSessions extends Disposable implements MainTh
     private readonly _proxy;
     constructor(_extHostContext: IExtHostContext, _agentSessionsService: IAgentSessionsService, _chatSessionsService: IChatSessionsService, _chatService: IChatService, _chatWidgetService: IChatWidgetService, _chatTodoListService: IChatTodoListService, _dialogService: IDialogService, _editorService: IEditorService, editorGroupService: IEditorGroupsService, _logService: ILogService);
     private _getHandleForSessionType;
-    $registerChatSessionItemProvider(handle: number, chatSessionType: string): void;
+    $registerChatSessionItemController(handle: number, chatSessionType: string): void;
+    private getController;
     $onDidChangeChatSessionItems(handle: number): void;
+    private _resolveSessionItem;
+    $updateChatSessionItems(controllerHandle: number, change: IChatSessionItemsChange): Promise<void>;
+    $addOrUpdateChatSessionItem(controllerHandle: number, item: Dto<IChatSessionItem>): Promise<void>;
     $onDidChangeChatSessionOptions(handle: number, sessionResourceComponents: UriComponents, updates: ReadonlyArray<{
         optionId: string;
         value: string;
     }>): void;
     $onDidCommitChatSessionItem(handle: number, originalComponents: UriComponents, modifiedCompoennts: UriComponents): Promise<void>;
-    private _provideChatSessionItems;
     private handleSessionModelOverrides;
     private _provideChatSessionContent;
-    $unregisterChatSessionItemProvider(handle: number): void;
+    $unregisterChatSessionItemController(handle: number): void;
     $registerChatSessionContentProvider(handle: number, chatSessionScheme: string): void;
     $unregisterChatSessionContentProvider(handle: number): void;
     $handleProgressChunk(handle: number, sessionResource: UriComponents, requestId: string, chunks: (IChatProgressDto | [IChatProgressDto, number])[]): Promise<void>;

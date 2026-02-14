@@ -14,7 +14,7 @@ var __param = function(paramIndex, decorator) {
 import { Disposable } from "../../../../../../base/common/lifecycle.js";
 import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
 import { ILanguageModelToolsService } from "../languageModelToolsService.js";
-import { ConfirmationTool, ConfirmationToolData } from "./confirmationTool.js";
+import { ConfirmationTool, ConfirmationToolData, ConfirmationToolWithOptionsData } from "./confirmationTool.js";
 import { EditTool, EditToolData } from "./editFileTool.js";
 import { createManageTodoListToolData, ManageTodoListTool } from "./manageTodoListTool.js";
 import { RunSubagentTool } from "./runSubagentTool.js";
@@ -34,6 +34,7 @@ let BuiltinToolsContribution = class BuiltinToolsContribution2 extends Disposabl
     this._register(toolsService.registerTool(todoToolData, manageTodoListTool));
     const confirmationTool = instantiationService.createInstance(ConfirmationTool);
     this._register(toolsService.registerTool(ConfirmationToolData, confirmationTool));
+    this._register(toolsService.registerTool(ConfirmationToolWithOptionsData, confirmationTool));
     const runSubagentTool = this._register(instantiationService.createInstance(RunSubagentTool));
     let runSubagentRegistration;
     let toolSetRegistration;

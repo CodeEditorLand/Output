@@ -34,8 +34,16 @@ class ChatResponseAccessibleView {
       widget.focusResponseItem();
     }
     const verifiedWidget = widget;
-    const focusedItem = verifiedWidget.getFocus();
-    if (!focusedItem) {
+    let focusedItem = verifiedWidget.getFocus();
+    if (!focusedItem || !isResponseVM(focusedItem)) {
+      const responseItems = verifiedWidget.viewModel?.getItems().filter(isResponseVM);
+      const lastResponse = responseItems?.at(-1);
+      if (lastResponse) {
+        focusedItem = lastResponse;
+        verifiedWidget.focus(lastResponse);
+      }
+    }
+    if (!focusedItem || !isResponseVM(focusedItem)) {
       return;
     }
     return new ChatResponseAccessibleProvider(verifiedWidget, focusedItem, chatInputFocused);
@@ -81,6 +89,25 @@ function getToolSpecificDataDescription(toolSpecificData) {
       return localize("pullRequestInfo", "PR: {0} by {1}", toolSpecificData.title, toolSpecificData.author);
     case "input":
       return typeof toolSpecificData.rawInput === "string" ? toolSpecificData.rawInput : JSON.stringify(toolSpecificData.rawInput);
+    case "resources": {
+      const values = toolSpecificData.values;
+      if (values.length === 0) {
+        return "";
+      }
+      const paths = values.map((v) => {
+        if ("uri" in v && "range" in v) {
+          return `${v.uri.fsPath || v.uri.path}:${v.range.startLineNumber}`;
+        } else {
+          return v.fsPath || v.path;
+        }
+      }).join(", ");
+      return localize("resourcesList", "Resources: {0}", paths);
+    }
+    case "simpleToolInvocation": {
+      const inputText = toolSpecificData.input;
+      const outputText = toolSpecificData.output;
+      return localize("simpleToolInvocation", "Input: {0}, Output: {1}", inputText, outputText);
+    }
     default:
       return "";
   }

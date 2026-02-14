@@ -44,7 +44,7 @@ let ChatAgentService = class ChatAgentService2 extends Disposable {
     this.contextKeyService = contextKeyService;
     this.configurationService = configurationService;
     this._agents = /* @__PURE__ */ new Map();
-    this._onDidChangeAgents = new Emitter();
+    this._onDidChangeAgents = this._register(new Emitter());
     this.onDidChangeAgents = this._onDidChangeAgents.event;
     this._agentsContextKeys = /* @__PURE__ */ new Set();
     this._hasToolsAgent = false;
@@ -239,6 +239,13 @@ let ChatAgentService = class ChatAgentService2 extends Disposable {
     }
     data.impl.setRequestTools?.(requestId, tools);
   }
+  setYieldRequested(id, requestId) {
+    const data = this._agents.get(id);
+    if (!data?.impl) {
+      return;
+    }
+    data.impl.setYieldRequested?.(requestId);
+  }
   async getFollowups(id, request, result, history, token) {
     const data = this._agents.get(id);
     if (!data?.impl?.provideFollowups) {
@@ -366,6 +373,9 @@ class MergedChatAgent {
   }
   setRequestTools(requestId, tools) {
     this.impl.setRequestTools?.(requestId, tools);
+  }
+  setYieldRequested(requestId) {
+    this.impl.setYieldRequested?.(requestId);
   }
   async provideFollowups(request, result, history, token) {
     if (this.impl.provideFollowups) {

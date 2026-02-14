@@ -55,10 +55,10 @@ let WatchExpressionsView = class WatchExpressionsView2 extends ViewPane {
     this.menuService = menuService;
     this.logService = logService;
     this.needsRefresh = false;
-    this.watchExpressionsUpdatedScheduler = new RunOnceScheduler(() => {
+    this.watchExpressionsUpdatedScheduler = this._register(new RunOnceScheduler(() => {
       this.needsRefresh = false;
       this.tree.updateChildren();
-    }, 50);
+    }, 50));
     this.watchExpressionsExist = CONTEXT_WATCH_EXPRESSIONS_EXIST.bindTo(contextKeyService);
     this.watchExpressionsExist.set(this.debugService.getModel().getWatchExpressions().length > 0);
     this.expressionRenderer = instantiationService.createInstance(DebugExpressionRenderer);

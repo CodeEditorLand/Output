@@ -37,11 +37,14 @@ export interface IConfiguredTask {
     label?: string;
     type?: string;
     script?: string;
-    command?: string;
+    command?: string | {
+        name?: string;
+    };
     args?: string[];
     isBackground?: boolean;
     problemMatcher?: string[];
     group?: string;
+    hide?: boolean;
 }
 export declare function resolveDependencyTasks(parentTask: Task, workspaceFolder: string, configurationService: IConfigurationService, taskService: ITaskService): Promise<Task[] | undefined>;
 /**

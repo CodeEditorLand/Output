@@ -8,7 +8,6 @@ import { StandardKeyboardEvent } from "../../keyboardEvent.js";
 import { StandardMouseEvent } from "../../mouseEvent.js";
 import { ActionBar } from "../actionbar/actionbar.js";
 import { ActionViewItem, BaseActionViewItem } from "../actionbar/actionViewItems.js";
-import { layout } from "../contextview/contextview.js";
 import { DomScrollableElement } from "../scrollbar/scrollableElement.js";
 import { EmptySubmenuAction, Separator, SubmenuAction } from "../../../common/actions.js";
 import { RunOnceScheduler } from "../../../common/async.js";
@@ -19,6 +18,7 @@ import { stripIcons } from "../../../common/iconLabels.js";
 import { DisposableStore } from "../../../common/lifecycle.js";
 import { isLinux, isMacintosh } from "../../../common/platform.js";
 import * as strings from "../../../common/strings.js";
+import { layout } from "../../../common/layout.js";
 const MENU_MNEMONIC_REGEX = /\(&([^\s&])\)|(^|[^&])&([^\s&])/;
 const MENU_ESCAPED_MNEMONIC_REGEX = /(&amp;)?(&amp;)([^\s&])/g;
 var HorizontalDirection;
@@ -644,7 +644,7 @@ class SubmenuMenuActionViewItem extends BaseMenuActionViewItem {
   }
   calculateSubmenuMenuLayout(windowDimensions, submenu, entry, expandDirection) {
     const ret = { top: 0, left: 0 };
-    ret.left = layout(windowDimensions.width, submenu.width, { position: expandDirection.horizontal === HorizontalDirection.Right ? 0 : 1, offset: entry.left, size: entry.width });
+    ret.left = layout(windowDimensions.width, submenu.width, { position: expandDirection.horizontal === HorizontalDirection.Right ? 0 : 1, offset: entry.left, size: entry.width }).position;
     if (ret.left >= entry.left && ret.left < entry.left + entry.width) {
       if (entry.left + 10 + submenu.width <= windowDimensions.width) {
         ret.left = entry.left + 10;
@@ -652,7 +652,7 @@ class SubmenuMenuActionViewItem extends BaseMenuActionViewItem {
       entry.top += 10;
       entry.height = 0;
     }
-    ret.top = layout(windowDimensions.height, submenu.height, { position: 0, offset: entry.top, size: 0 });
+    ret.top = layout(windowDimensions.height, submenu.height, { position: 0, offset: entry.top, size: 0 }).position;
     if (ret.top + submenu.height === entry.top && ret.top + entry.height + submenu.height <= windowDimensions.height) {
       ret.top += entry.height;
     }

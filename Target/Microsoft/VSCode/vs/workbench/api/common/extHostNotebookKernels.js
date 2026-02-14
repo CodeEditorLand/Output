@@ -113,6 +113,7 @@ let ExtHostNotebookKernels = class ExtHostNotebookKernels2 {
     let _executeHandler = handler ?? _defaultExecutHandler;
     let _interruptHandler;
     let _variableProvider;
+    let _variableProviderDisposable;
     this._proxy.$addKernel(handle, data).catch((err) => {
       console.log(err);
       isDisposed = true;
@@ -192,9 +193,10 @@ let ExtHostNotebookKernels = class ExtHostNotebookKernels2 {
       },
       set variableProvider(value) {
         checkProposedApiEnabled(extension, "notebookVariableProvider");
+        _variableProviderDisposable?.dispose();
         _variableProvider = value;
         data.hasVariableProvider = !!value;
-        value?.onDidChangeVariables((e) => that._proxy.$variablesUpdated(e.uri));
+        _variableProviderDisposable = value?.onDidChangeVariables((e) => that._proxy.$variablesUpdated(e.uri));
         _update();
       },
       get variableProvider() {
@@ -228,6 +230,7 @@ let ExtHostNotebookKernels = class ExtHostNotebookKernels2 {
           this._kernelData.delete(handle);
           onDidChangeSelection.dispose();
           onDidReceiveMessage.dispose();
+          _variableProviderDisposable?.dispose();
           this._proxy.$removeKernel(handle);
         }
       }, "dispose"),

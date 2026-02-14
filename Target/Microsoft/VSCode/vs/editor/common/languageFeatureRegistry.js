@@ -3,7 +3,7 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
 import { Emitter } from "../../base/common/event.js";
 import { toDisposable } from "../../base/common/lifecycle.js";
 import { shouldSynchronizeModel } from "./model.js";
-import { score } from "./languageSelector.js";
+import { score, selectLanguageIds } from "./languageSelector.js";
 function isExclusive(selector) {
   if (typeof selector === "string") {
     return false;
@@ -82,6 +82,13 @@ class LanguageFeatureRegistry {
   }
   allNoModel() {
     return this._entries.map((entry) => entry.provider);
+  }
+  get registeredLanguageIds() {
+    const result = /* @__PURE__ */ new Set();
+    for (const entry of this._entries) {
+      selectLanguageIds(entry.selector, result);
+    }
+    return result;
   }
   ordered(model, recursive = false) {
     const result = [];

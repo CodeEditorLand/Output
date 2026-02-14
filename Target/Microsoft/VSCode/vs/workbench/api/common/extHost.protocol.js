@@ -177,6 +177,7 @@ const MainContext = {
   MainThreadStorage: createProxyIdentifier("MainThreadStorage"),
   MainThreadSpeech: createProxyIdentifier("MainThreadSpeechProvider"),
   MainThreadTelemetry: createProxyIdentifier("MainThreadTelemetry"),
+  MainThreadMeteredConnection: createProxyIdentifier("MainThreadMeteredConnection"),
   MainThreadTerminalService: createProxyIdentifier("MainThreadTerminalService"),
   MainThreadTerminalShellIntegration: createProxyIdentifier("MainThreadTerminalShellIntegration"),
   MainThreadWebviews: createProxyIdentifier("MainThreadWebviews"),
@@ -195,6 +196,7 @@ const MainContext = {
   MainThreadShare: createProxyIdentifier("MainThreadShare"),
   MainThreadTask: createProxyIdentifier("MainThreadTask"),
   MainThreadWindow: createProxyIdentifier("MainThreadWindow"),
+  MainThreadPower: createProxyIdentifier("MainThreadPower"),
   MainThreadLabelService: createProxyIdentifier("MainThreadLabelService"),
   MainThreadNotebook: createProxyIdentifier("MainThreadNotebook"),
   MainThreadNotebookDocuments: createProxyIdentifier("MainThreadNotebookDocumentsShape"),
@@ -214,7 +216,6 @@ const MainContext = {
   MainThreadChatStatus: createProxyIdentifier("MainThreadChatStatus"),
   MainThreadAiSettingsSearch: createProxyIdentifier("MainThreadAiSettingsSearch"),
   MainThreadDataChannels: createProxyIdentifier("MainThreadDataChannels"),
-  MainThreadHooks: createProxyIdentifier("MainThreadHooks"),
   MainThreadChatSessions: createProxyIdentifier("MainThreadChatSessions"),
   MainThreadChatOutputRenderer: createProxyIdentifier("MainThreadChatOutputRenderer"),
   MainThreadChatContext: createProxyIdentifier("MainThreadChatContext")
@@ -250,6 +251,7 @@ const ExtHostContext = {
   ExtHostTask: createProxyIdentifier("ExtHostTask"),
   ExtHostWorkspace: createProxyIdentifier("ExtHostWorkspace"),
   ExtHostWindow: createProxyIdentifier("ExtHostWindow"),
+  ExtHostPower: createProxyIdentifier("ExtHostPower"),
   ExtHostWebviews: createProxyIdentifier("ExtHostWebviews"),
   ExtHostWebviewPanels: createProxyIdentifier("ExtHostWebviewPanels"),
   ExtHostCustomEditors: createProxyIdentifier("ExtHostCustomEditors"),
@@ -289,9 +291,9 @@ const ExtHostContext = {
   ExtHostTimeline: createProxyIdentifier("ExtHostTimeline"),
   ExtHostTesting: createProxyIdentifier("ExtHostTesting"),
   ExtHostTelemetry: createProxyIdentifier("ExtHostTelemetry"),
+  ExtHostMeteredConnection: createProxyIdentifier("ExtHostMeteredConnection"),
   ExtHostLocalization: createProxyIdentifier("ExtHostLocalization"),
   ExtHostMcp: createProxyIdentifier("ExtHostMcp"),
-  ExtHostHooks: createProxyIdentifier("ExtHostHooks"),
   ExtHostDataChannels: createProxyIdentifier("ExtHostDataChannels"),
   ExtHostChatSessions: createProxyIdentifier("ExtHostChatSessions")
 };

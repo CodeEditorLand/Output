@@ -57,7 +57,7 @@ let UserSettingsRenderer = class UserSettingsRenderer2 extends Disposable {
     this.preferencesService = preferencesService;
     this.configurationService = configurationService;
     this.instantiationService = instantiationService;
-    this.modelChangeDelayer = new Delayer(200);
+    this.modelChangeDelayer = this._register(new Delayer(200));
     this.settingHighlighter = this._register(instantiationService.createInstance(SettingHighlighter, editor));
     this.editSettingActionRenderer = this._register(this.instantiationService.createInstance(EditSettingRenderer, this.editor, this.preferencesModel, this.settingHighlighter));
     this._register(this.editSettingActionRenderer.onUpdateSetting(({ key, value, source }) => this.updatePreference(key, value, source)));
@@ -159,7 +159,7 @@ let EditSettingRenderer = class EditSettingRenderer2 extends Disposable {
     this.onUpdateSetting = this._onUpdateSetting.event;
     this.editPreferenceWidgetForCursorPosition = this._register(this.instantiationService.createInstance(EditPreferenceWidget, editor));
     this.editPreferenceWidgetForMouseMove = this._register(this.instantiationService.createInstance(EditPreferenceWidget, editor));
-    this.toggleEditPreferencesForMouseMoveDelayer = new Delayer(75);
+    this.toggleEditPreferencesForMouseMoveDelayer = this._register(new Delayer(75));
     this._register(this.editPreferenceWidgetForCursorPosition.onClick((e) => this.onEditSettingClicked(this.editPreferenceWidgetForCursorPosition, e)));
     this._register(this.editPreferenceWidgetForMouseMove.onClick((e) => this.onEditSettingClicked(this.editPreferenceWidgetForMouseMove, e)));
     this._register(this.editor.onDidChangeCursorPosition((positionChangeEvent) => this.onPositionChanged(positionChangeEvent)));
@@ -444,7 +444,7 @@ let UnsupportedSettingsRenderer = class UnsupportedSettingsRenderer2 extends Dis
     this.uriIdentityService = uriIdentityService;
     this.userDataProfileService = userDataProfileService;
     this.userDataProfilesService = userDataProfilesService;
-    this.renderingDelayer = new Delayer(200);
+    this.renderingDelayer = this._register(new Delayer(200));
     this.codeActions = new ResourceMap((uri) => this.uriIdentityService.extUri.getComparisonKey(uri));
     this._register(this.editor.getModel().onDidChangeContent(() => this.delayedRender()));
     this._register(Event.filter(
@@ -754,7 +754,7 @@ let McpSettingsRenderer = class McpSettingsRenderer2 extends Disposable {
     this.settingsEditorModel = settingsEditorModel;
     this.markerService = markerService;
     this.uriIdentityService = uriIdentityService;
-    this.renderingDelayer = new Delayer(200);
+    this.renderingDelayer = this._register(new Delayer(200));
     this.codeActions = new ResourceMap((uri) => this.uriIdentityService.extUri.getComparisonKey(uri));
     this._register(this.editor.getModel().onDidChangeContent(() => this.delayedRender()));
     this._register(languageFeaturesService.codeActionProvider.register({ pattern: settingsEditorModel.uri.path }, this));
@@ -864,7 +864,7 @@ let WorkspaceConfigurationRenderer = class WorkspaceConfigurationRenderer2 exten
     this.workspaceSettingsEditorModel = workspaceSettingsEditorModel;
     this.workspaceContextService = workspaceContextService;
     this.markerService = markerService;
-    this.renderingDelayer = new Delayer(200);
+    this.renderingDelayer = this._register(new Delayer(200));
     this.decorations = this.editor.createDecorationsCollection();
     this._register(this.editor.getModel().onDidChangeContent(() => this.renderingDelayer.trigger(() => this.render())));
   }

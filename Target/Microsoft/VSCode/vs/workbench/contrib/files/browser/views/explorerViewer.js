@@ -1031,6 +1031,7 @@ let FilesFilter = class FilesFilter2 {
     this.toDispose = [];
     this.ignoreFileResourcesPerRoot = /* @__PURE__ */ new Map();
     this.ignoreTreesPerRoot = /* @__PURE__ */ new Map();
+    this.toDispose.push(this._onDidChange);
     this.toDispose.push(this.contextService.onDidChangeWorkspaceFolders(() => this.updateConfiguration()));
     this.toDispose.push(this.configurationService.onDidChangeConfiguration((e) => {
       if (e.affectsConfiguration("files.exclude") || e.affectsConfiguration("explorer.excludeGitIgnore")) {

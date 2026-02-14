@@ -40,7 +40,7 @@ import { SIDE_GROUP } from "../../../services/editor/common/editorService.js";
 import { IHostService } from "../../../services/host/browser/host.js";
 import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
 import { ServiceCollection } from "../../../../platform/instantiation/common/serviceCollection.js";
-import { EditorPartMaximizedEditorGroupContext, EditorPartMultipleEditorGroupsContext, IsAuxiliaryWindowContext } from "../../../common/contextkeys.js";
+import { EditorPartMaximizedEditorGroupContext, EditorPartMultipleEditorGroupsContext } from "../../../common/contextkeys.js";
 import { mainWindow } from "../../../../base/browser/window.js";
 class GridWidgetView {
   static {
@@ -299,9 +299,9 @@ let EditorPart = class EditorPart2 extends Part {
       }
     }
   }
-  activateGroup(group, preserveWindowOrder) {
+  activateGroup(group, preserveWindowOrder, reason) {
     const groupView = this.assertGroupView(group);
-    this.doSetGroupActive(groupView);
+    this.doSetGroupActive(groupView, reason);
     if (!preserveWindowOrder) {
       this.hostService.moveTop(getWindow(this.element));
     }
@@ -535,7 +535,7 @@ let EditorPart = class EditorPart2 extends Part {
     });
     return groupView;
   }
-  doSetGroupActive(group) {
+  doSetGroupActive(group, reason = 0) {
     if (this._activeGroup !== group) {
       const previousActiveGroup = this._activeGroup;
       this._activeGroup = group;
@@ -547,7 +547,7 @@ let EditorPart = class EditorPart2 extends Part {
       this.doRestoreGroup(group);
       this._onDidChangeActiveGroup.fire(group);
     }
-    this._onDidActivateGroup.fire(group);
+    this._onDidActivateGroup.fire({ group, reason });
   }
   doRestoreGroup(group) {
     if (!this.gridWidget) {
@@ -787,8 +787,6 @@ let EditorPart = class EditorPart2 extends Part {
     return this.container;
   }
   handleContextKeys() {
-    const isAuxiliaryWindowContext = IsAuxiliaryWindowContext.bindTo(this.scopedContextKeyService);
-    isAuxiliaryWindowContext.set(this.windowId !== mainWindow.vscodeWindowId);
     const multipleEditorGroupsContext = EditorPartMultipleEditorGroupsContext.bindTo(this.scopedContextKeyService);
     const maximizedEditorGroupContext = EditorPartMaximizedEditorGroupContext.bindTo(this.scopedContextKeyService);
     const updateContextKeys = /* @__PURE__ */ __name(() => {

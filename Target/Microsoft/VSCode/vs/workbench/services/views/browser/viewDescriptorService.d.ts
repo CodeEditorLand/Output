@@ -80,6 +80,7 @@ export declare class ViewDescriptorService extends Disposable implements IViewDe
     getViewContainerById(id: string): ViewContainer | null;
     getViewContainersByLocation(location: ViewContainerLocation): ViewContainer[];
     getDefaultViewContainer(location: ViewContainerLocation): ViewContainer | undefined;
+    canMoveViews(): boolean;
     moveViewContainerToLocation(viewContainer: ViewContainer, location: ViewContainerLocation, requestedIndex?: number, reason?: string): void;
     getViewContainerBadgeEnablementState(id: string): boolean;
     setViewContainerBadgeEnablementState(id: string, badgesEnabled: boolean): void;

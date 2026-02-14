@@ -31,12 +31,13 @@ import { IViewDescriptorService } from "../../../common/views.js";
 import { AbstractPaneCompositePart, CompositeBarPosition } from "../paneCompositePart.js";
 import { ActivityBarCompositeBar, ActivitybarPart } from "../activitybar/activitybarPart.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { Action2, IMenuService, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { Action2, IMenuService, MenuId, registerAction2 } from "../../../../platform/actions/common/actions.js";
 import { Separator } from "../../../../base/common/actions.js";
 import { ToggleActivityBarVisibilityActionId } from "../../actions/layoutActions.js";
 import { localize2 } from "../../../../nls.js";
 import { IHoverService } from "../../../../platform/hover/browser/hover.js";
 import { VisibleViewContainersTracker } from "../visibleViewContainersTracker.js";
+import { Extensions } from "../../panecomposite.js";
 let SidebarPart = class SidebarPart2 extends AbstractPaneCompositePart {
   static {
     __name(this, "SidebarPart");
@@ -63,14 +64,14 @@ let SidebarPart = class SidebarPart2 extends AbstractPaneCompositePart {
   }
   //#endregion
   constructor(notificationService, storageService, contextMenuService, layoutService, keybindingService, hoverService, instantiationService, themeService, viewDescriptorService, contextKeyService, extensionService, configurationService, menuService) {
-    super("workbench.parts.sidebar", { hasTitle: true, trailingSeparator: false, borderWidth: /* @__PURE__ */ __name(() => this.getColor(SIDE_BAR_BORDER) || this.getColor(contrastBorder) ? 1 : 0, "borderWidth") }, SidebarPart_1.activeViewletSettingsKey, ActiveViewletContext.bindTo(contextKeyService), SidebarFocusContext.bindTo(contextKeyService), "sideBar", "viewlet", SIDE_BAR_TITLE_FOREGROUND, SIDE_BAR_TITLE_BORDER, notificationService, storageService, contextMenuService, layoutService, keybindingService, hoverService, instantiationService, themeService, viewDescriptorService, contextKeyService, extensionService, menuService);
+    super("workbench.parts.sidebar", { hasTitle: true, trailingSeparator: false, borderWidth: /* @__PURE__ */ __name(() => this.getColor(SIDE_BAR_BORDER) || this.getColor(contrastBorder) ? 1 : 0, "borderWidth") }, SidebarPart_1.activeViewletSettingsKey, ActiveViewletContext.bindTo(contextKeyService), SidebarFocusContext.bindTo(contextKeyService), "sideBar", "viewlet", SIDE_BAR_TITLE_FOREGROUND, SIDE_BAR_TITLE_BORDER, 0, Extensions.Viewlets, MenuId.SidebarTitle, notificationService, storageService, contextMenuService, layoutService, keybindingService, hoverService, instantiationService, themeService, viewDescriptorService, contextKeyService, extensionService, menuService);
     this.configurationService = configurationService;
     this.minimumWidth = 170;
     this.maximumWidth = Number.POSITIVE_INFINITY;
     this.minimumHeight = 0;
     this.maximumHeight = Number.POSITIVE_INFINITY;
     this.priority = 1;
-    this.activityBarPart = this._register(this.instantiationService.createInstance(ActivitybarPart, this));
+    this.activityBarPart = this._register(this.instantiationService.createInstance(ActivitybarPart, this.location, this));
     this.visibleViewContainersTracker = this._register(instantiationService.createInstance(
       VisibleViewContainersTracker,
       0
@@ -151,7 +152,7 @@ let SidebarPart = class SidebarPart2 extends AbstractPaneCompositePart {
     return this.layoutService.getSideBarPosition() === 0 ? 0 : 1;
   }
   createCompositeBar() {
-    return this.instantiationService.createInstance(ActivityBarCompositeBar, this.getCompositeBarOptions(), this.partId, this, false);
+    return this.instantiationService.createInstance(ActivityBarCompositeBar, 0, this.getCompositeBarOptions(), this.partId, this, false);
   }
   getCompositeBarOptions() {
     return {

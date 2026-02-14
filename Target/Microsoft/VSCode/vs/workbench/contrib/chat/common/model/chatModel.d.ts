@@ -10,7 +10,7 @@ import { EditSuggestionId } from '../../../../../editor/common/textModelEditSour
 import { ILogService } from '../../../../../platform/log/common/log.js';
 import { ICellEditOperation } from '../../../notebook/common/notebookCommon.js';
 import { ChatRequestToolReferenceEntry, IChatRequestVariableEntry } from '../attachments/chatVariableEntries.js';
-import { ChatAgentVoteDirection, ChatAgentVoteDownReason, ChatRequestQueueKind, IChatAgentMarkdownContentWithVulnerability, IChatClearToPreviousToolInvocation, IChatCodeCitation, IChatCommandButton, IChatConfirmation, IChatContentInlineReference, IChatContentReference, IChatEditingSessionAction, IChatElicitationRequest, IChatElicitationRequestSerialized, IChatExtensionsContent, IChatFollowup, IChatLocationData, IChatMarkdownContent, IChatMcpServersStarting, IChatMcpServersStartingSerialized, IChatMultiDiffData, IChatMultiDiffDataSerialized, IChatNotebookEdit, IChatProgress, IChatProgressMessage, IChatPullRequestContent, IChatQuestionCarousel, IChatResponseCodeblockUriPart, IChatResponseProgressFileTreeData, IChatSendRequestOptions, IChatService, IChatSessionContext, IChatSessionTiming, IChatTask, IChatTaskSerialized, IChatTextEdit, IChatThinkingPart, IChatToolInvocation, IChatToolInvocationSerialized, IChatTreeData, IChatUndoStop, IChatUsage, IChatUsedContext, IChatWarningMessage, IChatWorkspaceEdit, ResponseModelState } from '../chatService/chatService.js';
+import { ChatAgentVoteDirection, ChatAgentVoteDownReason, ChatRequestQueueKind, IChatAgentMarkdownContentWithVulnerability, IChatClearToPreviousToolInvocation, IChatCodeCitation, IChatCommandButton, IChatConfirmation, IChatContentInlineReference, IChatContentReference, IChatDisabledClaudeHooksPart, IChatEditingSessionAction, IChatElicitationRequest, IChatElicitationRequestSerialized, IChatExternalToolInvocationUpdate, IChatExtensionsContent, IChatFollowup, IChatHookPart, IChatLocationData, IChatMarkdownContent, IChatMcpServersStarting, IChatMcpServersStartingSerialized, IChatMultiDiffData, IChatMultiDiffDataSerialized, IChatNotebookEdit, IChatProgress, IChatProgressMessage, IChatPullRequestContent, IChatQuestionCarousel, IChatResponseCodeblockUriPart, IChatResponseProgressFileTreeData, IChatSendRequestOptions, IChatService, IChatSessionContext, IChatSessionTiming, IChatTask, IChatTaskSerialized, IChatTextEdit, IChatThinkingPart, IChatToolInvocation, IChatToolInvocationSerialized, IChatTreeData, IChatUndoStop, IChatUsage, IChatUsedContext, IChatWarningMessage, IChatWorkspaceEdit, ResponseModelState } from '../chatService/chatService.js';
 import { ChatAgentLocation, ChatModeKind } from '../constants.js';
 import { IChatEditingService, IChatEditingSession } from '../editing/chatEditingService.js';
 import { ILanguageModelChatMetadata, ILanguageModelChatMetadataAndIdentifier } from '../languageModels.js';
@@ -118,12 +118,12 @@ export interface IChatNotebookEditGroup {
  * Progress kinds that are included in the history of a response.
  * Excludes "internal" types that are included in history.
  */
-export type IChatProgressHistoryResponseContent = IChatMarkdownContent | IChatAgentMarkdownContentWithVulnerability | IChatResponseCodeblockUriPart | IChatTreeData | IChatMultiDiffDataSerialized | IChatContentInlineReference | IChatProgressMessage | IChatCommandButton | IChatWarningMessage | IChatTask | IChatTaskSerialized | IChatTextEditGroup | IChatNotebookEditGroup | IChatConfirmation | IChatQuestionCarousel | IChatExtensionsContent | IChatThinkingPart | IChatPullRequestContent | IChatWorkspaceEdit;
+export type IChatProgressHistoryResponseContent = IChatMarkdownContent | IChatAgentMarkdownContentWithVulnerability | IChatResponseCodeblockUriPart | IChatTreeData | IChatMultiDiffDataSerialized | IChatContentInlineReference | IChatProgressMessage | IChatCommandButton | IChatWarningMessage | IChatTask | IChatTaskSerialized | IChatTextEditGroup | IChatNotebookEditGroup | IChatConfirmation | IChatQuestionCarousel | IChatExtensionsContent | IChatThinkingPart | IChatHookPart | IChatPullRequestContent | IChatWorkspaceEdit;
 /**
  * "Normal" progress kinds that are rendered as parts of the stream of content.
  */
-export type IChatProgressResponseContent = IChatProgressHistoryResponseContent | IChatToolInvocation | IChatToolInvocationSerialized | IChatMultiDiffData | IChatUndoStop | IChatElicitationRequest | IChatElicitationRequestSerialized | IChatClearToPreviousToolInvocation | IChatMcpServersStarting | IChatMcpServersStartingSerialized;
-export type IChatProgressResponseContentSerialized = Exclude<IChatProgressResponseContent, IChatToolInvocation | IChatElicitationRequest | IChatTask | IChatMultiDiffData | IChatMcpServersStarting>;
+export type IChatProgressResponseContent = IChatProgressHistoryResponseContent | IChatToolInvocation | IChatToolInvocationSerialized | IChatMultiDiffData | IChatUndoStop | IChatElicitationRequest | IChatElicitationRequestSerialized | IChatClearToPreviousToolInvocation | IChatMcpServersStarting | IChatMcpServersStartingSerialized | IChatDisabledClaudeHooksPart;
+export type IChatProgressResponseContentSerialized = Exclude<IChatProgressResponseContent, IChatToolInvocation | IChatElicitationRequest | IChatTask | IChatMultiDiffData | IChatMcpServersStarting | IChatDisabledClaudeHooksPart>;
 export declare function toChatHistoryContent(content: ReadonlyArray<IChatProgressResponseContent>): IChatProgressHistoryResponseContent[];
 export type IChatProgressRenderableResponseContent = Exclude<IChatProgressResponseContent, IChatContentInlineReference | IChatAgentMarkdownContentWithVulnerability | IChatResponseCodeblockUriPart>;
 export interface IResponse {
@@ -188,7 +188,7 @@ export interface IChatResponseModel {
     setVoteDownReason(reason: ChatAgentVoteDownReason | undefined): void;
     setUsage(usage: IChatUsage): void;
     setEditApplied(edit: IChatTextEditGroup, editCount: number): boolean;
-    updateContent(progress: IChatProgressResponseContent | IChatTextEdit | IChatNotebookEdit | IChatTask, quiet?: boolean): void;
+    updateContent(progress: IChatProgressResponseContent | IChatTextEdit | IChatNotebookEdit | IChatTask | IChatExternalToolInvocationUpdate, quiet?: boolean): void;
     /**
      * Adopts any partially-undo {@link response} as the {@link entireResponse}.
      * Only valid when {@link isComplete}. This is needed because otherwise an
@@ -299,10 +299,11 @@ export declare class Response extends AbstractResponse implements IDisposable {
     dispose(): void;
     clear(): void;
     clearToPreviousToolInvocation(message?: string): void;
-    updateContent(progress: IChatProgressResponseContent | IChatTextEdit | IChatNotebookEdit | IChatTask, quiet?: boolean): void;
+    updateContent(progress: IChatProgressResponseContent | IChatTextEdit | IChatNotebookEdit | IChatTask | IChatExternalToolInvocationUpdate, quiet?: boolean): void;
     addCitation(citation: IChatCodeCitation): void;
     private _mergeOrPushTextEditGroup;
     private _mergeOrPushNotebookEditGroup;
+    private _handleExternalToolInvocationUpdate;
     protected _updateRepr(quiet?: boolean): void;
 }
 export interface IChatResponseModelParameters {
@@ -404,7 +405,7 @@ export declare class ChatResponseModel extends Disposable implements IChatRespon
     /**
      * Apply a progress update to the actual response content.
      */
-    updateContent(responsePart: IChatProgressResponseContent | IChatTextEdit | IChatNotebookEdit, quiet?: boolean): void;
+    updateContent(responsePart: IChatProgressResponseContent | IChatTextEdit | IChatNotebookEdit | IChatExternalToolInvocationUpdate, quiet?: boolean): void;
     /**
      * Adds an undo stop at the current position in the stream.
      */
@@ -498,7 +499,7 @@ interface ISerializableChatResponseData {
     codeCitations?: ReadonlyArray<IChatCodeCitation>;
     timeSpentWaiting?: number;
 }
-export type SerializedChatResponsePart = IMarkdownString | IChatResponseProgressFileTreeData | IChatContentInlineReference | IChatAgentMarkdownContentWithVulnerability | IChatThinkingPart | IChatProgressResponseContentSerialized;
+export type SerializedChatResponsePart = IMarkdownString | IChatResponseProgressFileTreeData | IChatContentInlineReference | IChatAgentMarkdownContentWithVulnerability | IChatThinkingPart | IChatProgressResponseContentSerialized | IChatQuestionCarousel | IChatDisabledClaudeHooksPart;
 export interface ISerializableChatRequestData extends ISerializableChatResponseData {
     requestId: string;
     message: string | IParsedChatRequest;
@@ -865,7 +866,6 @@ export declare class ChatModel extends Disposable implements IChatModel {
         canUseTools: boolean;
         inputState?: ISerializableChatModelInputState;
         resource?: URI;
-        sessionId?: string;
         disableBackgroundKeepAlive?: boolean;
     }, logService: ILogService, chatAgentService: IChatAgentService, chatEditingService: IChatEditingService, chatService: IChatService);
     startEditingSession(isGlobalEditingSession?: boolean, transferFromSession?: IChatEditingSession): void;

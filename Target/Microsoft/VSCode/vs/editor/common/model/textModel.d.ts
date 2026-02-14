@@ -20,10 +20,11 @@ import { ILanguageConfigurationService } from '../languages/languageConfiguratio
 import * as model from '../model.js';
 import { IBracketPairsTextModelPart } from '../textModelBracketPairs.js';
 import { TextModelEditSource } from '../textModelEditSource.js';
-import { IModelContentChangedEvent, IModelDecorationsChangedEvent, IModelOptionsChangedEvent, InternalModelContentChangeEvent, ModelFontChangedEvent, ModelInjectedTextChangedEvent, ModelLineHeightChangedEvent } from '../textModelEvents.js';
+import { IModelContentChangedEvent, IModelDecorationsChangedEvent, IModelOptionsChangedEvent, ModelFontChangedEvent, ModelLineHeightChangedEvent } from '../textModelEvents.js';
 import { IGuidesTextModelPart } from '../textModelGuides.js';
 import { ITokenizationTextModelPart } from '../tokenizationTextModelPart.js';
 import { TokenArray } from '../tokens/lineTokens.js';
+import { IViewModel } from '../viewModel.js';
 export declare function createTextBufferFactory(text: string): model.ITextBufferFactory;
 interface ITextStream {
     on(event: 'data', callback: (data: string) => void): void;
@@ -60,14 +61,12 @@ export declare class TextModel extends Disposable implements model.ITextModel, I
     get onDidChangeOptions(): Event<IModelOptionsChangedEvent>;
     private readonly _onDidChangeAttached;
     get onDidChangeAttached(): Event<void>;
-    private readonly _onDidChangeInjectedText;
     private readonly _onDidChangeLineHeight;
     get onDidChangeLineHeight(): Event<ModelLineHeightChangedEvent>;
     private readonly _onDidChangeFont;
     get onDidChangeFont(): Event<ModelFontChangedEvent>;
     private readonly _eventEmitter;
     onDidChangeContent(listener: (e: IModelContentChangedEvent) => void): IDisposable;
-    onDidChangeContentOrInjectedText(listener: (e: InternalModelContentChangeEvent | ModelInjectedTextChangedEvent) => void): IDisposable;
     readonly id: string;
     readonly isForSimpleWidget: boolean;
     private readonly _associatedResource;
@@ -110,10 +109,13 @@ export declare class TextModel extends Disposable implements model.ITextModel, I
     private readonly _guidesTextModelPart;
     get guides(): IGuidesTextModelPart;
     private readonly _attachedViews;
+    private readonly _viewModels;
     constructor(source: string | model.ITextBufferFactory, languageIdOrSelection: string | ILanguageSelection, creationOptions: model.ITextModelCreationOptions, associatedResource: (URI | null) | undefined, _undoRedoService: IUndoRedoService, _languageService: ILanguageService, _languageConfigurationService: ILanguageConfigurationService, instantiationService: IInstantiationService);
     dispose(): void;
     _hasListeners(): boolean;
     private _assertNotDisposed;
+    registerViewModel(viewModel: IViewModel): void;
+    unregisterViewModel(viewModel: IViewModel): void;
     equalsTextBuffer(other: model.ITextBuffer): boolean;
     getTextBuffer(): model.ITextBuffer;
     private _emitContentChangedEvent;
@@ -216,6 +218,7 @@ export declare class TextModel extends Disposable implements model.ITextModel, I
     private handleBeforeFireDecorationsChangedEvent;
     private _fireOnDidChangeLineHeight;
     private _fireOnDidChangeFont;
+    private _onDidChangeContentOrInjectedText;
     changeDecorations<T>(callback: (changeAccessor: model.IModelDecorationsChangeAccessor) => T, ownerId?: number): T | null;
     private _changeDecorations;
     deltaDecorations(oldDecorations: string[], newDecorations: model.IModelDeltaDecoration[], ownerId?: number): string[];
@@ -231,6 +234,7 @@ export declare class TextModel extends Disposable implements model.ITextModel, I
     getOverviewRulerDecorations(ownerId?: number, filterOutValidation?: boolean, filterFontDecorations?: boolean): model.IModelDecoration[];
     getInjectedTextDecorations(ownerId?: number): model.IModelDecoration[];
     getCustomLineHeightsDecorations(ownerId?: number): model.IModelDecoration[];
+    getCustomLineHeightsDecorationsInRange(range: Range, ownerId?: number): model.IModelDecoration[];
     private _getInjectedTextInLine;
     getFontDecorationsInRange(range: IRange, ownerId?: number): model.IModelDecoration[];
     getAllDecorations(ownerId?: number, filterOutValidation?: boolean, filterFontDecorations?: boolean): model.IModelDecoration[];

@@ -38,6 +38,7 @@ export declare class QuickInputController extends Disposable {
     private previousFocusElement?;
     private viewState;
     private dndController;
+    private _cancelExitAnimation;
     private readonly inQuickInputContext;
     private readonly quickInputTypeContext;
     private readonly endOfQuickInputBoxContext;

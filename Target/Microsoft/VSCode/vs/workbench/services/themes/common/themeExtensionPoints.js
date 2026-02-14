@@ -175,6 +175,7 @@ class ThemeRegistry {
   dispose() {
     this.themesExtPoint.setHandler(() => {
     });
+    this.onDidChangeEmitter.dispose();
   }
   initialize() {
     this.themesExtPoint.setHandler((extensions, delta) => {

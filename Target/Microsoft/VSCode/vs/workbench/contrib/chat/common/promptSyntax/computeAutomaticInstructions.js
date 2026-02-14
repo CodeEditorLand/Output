@@ -25,13 +25,13 @@ import { IWorkspaceContextService } from "../../../../../platform/workspace/comm
 import { ChatRequestVariableSet, IChatRequestVariableEntry, isPromptFileVariableEntry, toPromptFileVariableEntry, toPromptTextVariableEntry, PromptFileVariableKind, toToolVariableEntry } from "../attachments/chatVariableEntries.js";
 import { ILanguageModelToolsService, VSCodeToolReference } from "../tools/languageModelToolsService.js";
 import { PromptsConfig } from "./config/config.js";
-import { isPromptOrInstructionsFile } from "./config/promptFileLocations.js";
+import { isInClaudeAgentsFolder, isInClaudeRulesFolder, isPromptOrInstructionsFile } from "./config/promptFileLocations.js";
 import { PromptsType } from "./promptTypes.js";
-import { IPromptsService } from "./service/promptsService.js";
+import { AgentFileType, IPromptsService } from "./service/promptsService.js";
 import { OffsetRange } from "../../../../../editor/common/core/ranges/offsetRange.js";
 import { ChatConfiguration, ChatModeKind } from "../constants.js";
 function newInstructionsCollectionEvent() {
-  return { applyingInstructionsCount: 0, referencedInstructionsCount: 0, agentInstructionsCount: 0, listedInstructionsCount: 0, totalInstructionsCount: 0 };
+  return { applyingInstructionsCount: 0, referencedInstructionsCount: 0, agentInstructionsCount: 0, listedInstructionsCount: 0, totalInstructionsCount: 0, claudeRulesCount: 0, claudeMdCount: 0, claudeAgentsCount: 0 };
 }
 __name(newInstructionsCollectionEvent, "newInstructionsCollectionEvent");
 let ComputeAutomaticInstructions = class ComputeAutomaticInstructions2 {
@@ -73,7 +73,7 @@ let ComputeAutomaticInstructions = class ComputeAutomaticInstructions2 {
     await this.addApplyingInstructions(instructionFiles, context, variables, telemetryEvent, token);
     await this._addReferencedInstructions(variables, telemetryEvent, token);
     await this._addAgentInstructions(variables, telemetryEvent, token);
-    const instructionsListVariable = await this._getInstructionsWithPatternsList(instructionFiles, variables, token);
+    const instructionsListVariable = await this._getInstructionsWithPatternsList(instructionFiles, variables, telemetryEvent, token);
     if (instructionsListVariable) {
       variables.add(instructionsListVariable);
       telemetryEvent.listedInstructionsCount++;
@@ -98,7 +98,10 @@ let ComputeAutomaticInstructions = class ComputeAutomaticInstructions2 {
         continue;
       }
       const applyTo = parsedFile.header?.applyTo;
-      if (!applyTo) {
+      const paths = parsedFile.header?.paths;
+      const isClaudeRules = isInClaudeRulesFolder(uri);
+      const pattern = isClaudeRules ? paths?.join(", ") ?? "**" : applyTo;
+      if (!pattern) {
         this._logService.trace(`[InstructionsContextComputer] No 'applyTo' found: ${uri}`);
         continue;
       }
@@ -106,14 +109,17 @@ let ComputeAutomaticInstructions = class ComputeAutomaticInstructions2 {
         this._logService.trace(`[InstructionsContextComputer] Skipping already processed instruction file: ${uri}`);
         continue;
       }
-      const match2 = this._matches(context.files, applyTo);
+      const match2 = this._matches(context.files, pattern);
       if (match2) {
         this._logService.trace(`[InstructionsContextComputer] Match for ${uri} with ${match2.pattern}${match2.file ? ` for file ${match2.file}` : ""}`);
-        const reason = !match2.file ? localize("instruction.file.reason.allFiles", "Automatically attached as pattern is **") : localize("instruction.file.reason.specificFile", "Automatically attached as pattern {0} matches {1}", applyTo, this._labelService.getUriLabel(match2.file, { relative: true }));
+        const reason = !match2.file ? localize("instruction.file.reason.allFiles", "Automatically attached as pattern is **") : localize("instruction.file.reason.specificFile", "Automatically attached as pattern {0} matches {1}", pattern, this._labelService.getUriLabel(match2.file, { relative: true }));
         variables.add(toPromptFileVariableEntry(uri, PromptFileVariableKind.Instruction, reason, true));
         telemetryEvent.applyingInstructionsCount++;
+        if (isClaudeRules) {
+          telemetryEvent.claudeRulesCount++;
+        }
       } else {
-        this._logService.trace(`[InstructionsContextComputer] No match for ${uri} with ${applyTo}`);
+        this._logService.trace(`[InstructionsContextComputer] No match for ${uri} with ${pattern}`);
       }
     }
   }
@@ -133,33 +139,47 @@ let ComputeAutomaticInstructions = class ComputeAutomaticInstructions2 {
     return { files, instructions };
   }
   async _addAgentInstructions(variables, telemetryEvent, token) {
-    const useCopilotInstructionsFiles = this._configurationService.getValue(PromptsConfig.USE_COPILOT_INSTRUCTION_FILES);
-    const useAgentMd = this._configurationService.getValue(PromptsConfig.USE_AGENT_MD);
-    if (!useCopilotInstructionsFiles && !useAgentMd) {
-      this._logService.trace(`[InstructionsContextComputer] No agent instructions files added (settings disabled).`);
-      return;
-    }
+    const logger = {
+      logInfo: /* @__PURE__ */ __name((message) => this._logService.trace(`[InstructionsContextComputer] ${message}`), "logInfo")
+    };
+    const allCandidates = await this._promptsService.listAgentInstructions(token, logger);
     const entries = new ChatRequestVariableSet();
-    if (useCopilotInstructionsFiles) {
-      const files = await this._promptsService.listCopilotInstructionsMDs(token);
-      for (const file of files) {
-        entries.add(toPromptFileVariableEntry(file, PromptFileVariableKind.Instruction, localize("instruction.file.reason.copilot", "Automatically attached as setting {0} is enabled", PromptsConfig.USE_COPILOT_INSTRUCTION_FILES), true));
-        telemetryEvent.agentInstructionsCount++;
-        this._logService.trace(`[InstructionsContextComputer] copilot-instruction.md files added: ${file.toString()}`);
+    const copilotEntries = new ChatRequestVariableSet();
+    for (const { uri, type } of allCandidates) {
+      const varEntry = toPromptFileVariableEntry(uri, PromptFileVariableKind.Instruction, void 0, true);
+      entries.add(varEntry);
+      if (type === AgentFileType.copilotInstructionsMd) {
+        copilotEntries.add(varEntry);
       }
-      await this._addReferencedInstructions(entries, telemetryEvent, token);
+      telemetryEvent.agentInstructionsCount++;
+      if (type === AgentFileType.claudeMd) {
+        telemetryEvent.claudeMdCount++;
+      }
+      logger.logInfo(`Agent instruction file added: ${uri.toString()}`);
     }
-    if (useAgentMd) {
-      const files = await this._promptsService.listAgentMDs(token, false);
-      for (const file of files) {
-        entries.add(toPromptFileVariableEntry(file, PromptFileVariableKind.Instruction, localize("instruction.file.reason.agentsmd", "Automatically attached as setting {0} is enabled", PromptsConfig.USE_AGENT_MD), true));
-        telemetryEvent.agentInstructionsCount++;
-        this._logService.trace(`[InstructionsContextComputer] AGENTS.md files added: ${file.toString()}`);
+    if (copilotEntries.length > 0) {
+      await this._addReferencedInstructions(copilotEntries, telemetryEvent, token);
+      for (const entry of copilotEntries.asArray()) {
+        variables.add(entry);
       }
     }
     for (const entry of entries.asArray()) {
       variables.add(entry);
     }
+  }
+  /**
+   * Combines the `applyTo` and `paths` attributes into a single comma-separated
+   * pattern string that can be matched by {@link _matches}.
+   * Used for the instructions list XML output where both should be shown.
+   */
+  _getApplyToPattern(applyTo, paths) {
+    if (applyTo) {
+      return applyTo;
+    }
+    if (paths && paths.length > 0) {
+      return paths.join(", ");
+    }
+    return void 0;
   }
   _matches(files, applyToPattern) {
     const patterns = splitGlobAware(applyToPattern, ",");
@@ -199,13 +219,13 @@ let ComputeAutomaticInstructions = class ComputeAutomaticInstructions2 {
     }
     return void 0;
   }
-  async _getInstructionsWithPatternsList(instructionFiles, _existingVariables, token) {
+  async _getInstructionsWithPatternsList(instructionFiles, _existingVariables, telemetryEvent, token) {
     const readTool = this._getTool("readFile");
     const runSubagentTool = this._getTool(VSCodeToolReference.runSubagent);
     const entries = [];
     if (readTool) {
       const searchNestedAgentMd = this._configurationService.getValue(PromptsConfig.USE_NESTED_AGENT_MD);
-      const agentsMdPromise = searchNestedAgentMd ? this._promptsService.findAgentMDsInWorkspace(token) : Promise.resolve([]);
+      const agentsMdPromise = searchNestedAgentMd ? this._promptsService.listNestedAgentMDs(token) : Promise.resolve([]);
       entries.push("<instructions>");
       entries.push("Here is a list of instruction files that contain rules for working with this codebase.");
       entries.push("These files are important for understanding the codebase structure, conventions, and best practices.");
@@ -218,13 +238,14 @@ let ComputeAutomaticInstructions = class ComputeAutomaticInstructions2 {
         if (parsedFile) {
           entries.push("<instruction>");
           if (parsedFile.header) {
-            const { description, applyTo } = parsedFile.header;
+            const { description, applyTo, paths } = parsedFile.header;
             if (description) {
               entries.push(`<description>${description}</description>`);
             }
             entries.push(`<file>${getFilePath(uri)}</file>`);
-            if (applyTo) {
-              entries.push(`<applyTo>${applyTo}</applyTo>`);
+            const applyToPattern = this._getApplyToPattern(applyTo, paths);
+            if (applyToPattern) {
+              entries.push(`<applyTo>${applyToPattern}</applyTo>`);
             }
           } else {
             entries.push(`<file>${getFilePath(uri)}</file>`);
@@ -234,7 +255,7 @@ let ComputeAutomaticInstructions = class ComputeAutomaticInstructions2 {
         }
       }
       const agentsMdFiles = await agentsMdPromise;
-      for (const uri of agentsMdFiles) {
+      for (const { uri } of agentsMdFiles) {
         const folderName = this._labelService.getUriLabel(dirname(uri), { relative: true });
         const description = folderName.trim().length === 0 ? localize("instruction.file.description.agentsmd.root", "Instructions for the workspace") : localize("instruction.file.description.agentsmd.folder", "Instructions for folder '{0}'", folderName);
         entries.push("<instruction>");
@@ -249,7 +270,8 @@ let ComputeAutomaticInstructions = class ComputeAutomaticInstructions2 {
         entries.push("</instructions>", "", "");
       }
       const agentSkills = await this._promptsService.findAgentSkills(token);
-      if (agentSkills && agentSkills.length > 0) {
+      const modelInvocableSkills = agentSkills?.filter((skill) => !skill.disableModelInvocation);
+      if (modelInvocableSkills && modelInvocableSkills.length > 0) {
         const useSkillAdherencePrompt = this._configurationService.getValue(PromptsConfig.USE_SKILL_ADHERENCE_PROMPT);
         entries.push("<skills>");
         if (useSkillAdherencePrompt) {
@@ -270,7 +292,7 @@ let ComputeAutomaticInstructions = class ComputeAutomaticInstructions2 {
           entries.push("Each skill comes with a description of the topic and a file path that contains the detailed instructions.");
           entries.push(`When a user asks you to perform a task that falls within the domain of a skill, use the ${readTool.variable} tool to acquire the full instructions from the file URI.`);
         }
-        for (const skill of agentSkills) {
+        for (const skill of modelInvocableSkills) {
           entries.push("<skill>");
           entries.push(`<name>${skill.name}</name>`);
           if (skill.description) {
@@ -285,7 +307,7 @@ let ComputeAutomaticInstructions = class ComputeAutomaticInstructions2 {
     if (runSubagentTool && this._configurationService.getValue(ChatConfiguration.SubagentToolCustomAgents)) {
       const canUseAgent = (() => {
         if (!this._enabledSubagents || this._enabledSubagents.includes("*")) {
-          return (agent) => agent.visibility.agentInvokable;
+          return (agent) => agent.visibility.agentInvocable;
         } else {
           const subagents = this._enabledSubagents;
           return (agent) => subagents.includes(agent.name);
@@ -308,6 +330,9 @@ let ComputeAutomaticInstructions = class ComputeAutomaticInstructions2 {
               entries.push(`<argumentHint>${agent.argumentHint}</argumentHint>`);
             }
             entries.push("</agent>");
+            if (isInClaudeAgentsFolder(agent.uri)) {
+              telemetryEvent.claudeAgentsCount++;
+            }
           }
         }
         entries.push("</agents>", "", "");

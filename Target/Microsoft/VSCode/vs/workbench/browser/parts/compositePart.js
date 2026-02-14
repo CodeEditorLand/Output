@@ -147,8 +147,9 @@ class CompositePart extends Part {
     }
     this.contentArea?.appendChild(compositeContainer);
     show(compositeContainer);
-    const toolBar = assertReturnsDefined(this.toolBar);
-    toolBar.actionRunner = composite.getActionRunner();
+    if (this.toolBar) {
+      this.toolBar.actionRunner = composite.getActionRunner();
+    }
     const descriptor = this.registry.getComposite(composite.getId());
     if (descriptor && descriptor.name !== composite.getTitle()) {
       this.updateTitle(composite.getId(), composite.getTitle());
@@ -159,11 +160,13 @@ class CompositePart extends Part {
       this.mapActionsBindingToComposite.set(composite.getId(), actionsBinding);
     }
     actionsBinding();
-    this.actionsListener.value = toolBar.actionRunner.onDidRun((e) => {
-      if (e.error && !isCancellationError(e.error)) {
-        this.notificationService.error(e.error);
-      }
-    });
+    if (this.toolBar) {
+      this.actionsListener.value = this.toolBar.actionRunner.onDidRun((e) => {
+        if (e.error && !isCancellationError(e.error)) {
+          this.notificationService.error(e.error);
+        }
+      });
+    }
     composite.setVisible(true);
     if (!this.activeComposite || composite.getId() !== this.activeComposite.getId()) {
       return;
@@ -198,17 +201,17 @@ class CompositePart extends Part {
     }
     const keybinding = this.keybindingService.lookupKeybinding(compositeId);
     this.titleLabel.updateTitle(compositeId, compositeTitle, keybinding?.getLabel() ?? void 0);
-    const toolBar = assertReturnsDefined(this.toolBar);
-    toolBar.setAriaLabel(localize("ariaCompositeToolbarLabel", "{0} actions", compositeTitle));
+    this.toolBar?.setAriaLabel(localize("ariaCompositeToolbarLabel", "{0} actions", compositeTitle));
   }
   collectCompositeActions(composite) {
     const menuIds = composite?.getMenuIds();
     const primaryActions = composite?.getActions().slice(0) || [];
     const secondaryActions = composite?.getSecondaryActions().slice(0) || [];
-    const toolBar = assertReturnsDefined(this.toolBar);
-    toolBar.context = this.actionsContextProvider();
+    if (this.toolBar) {
+      this.toolBar.context = this.actionsContextProvider();
+    }
     return () => {
-      toolBar.setActions(prepareActions(primaryActions), prepareActions(secondaryActions), menuIds);
+      this.toolBar?.setActions(prepareActions(primaryActions), prepareActions(secondaryActions), menuIds);
       this.titleArea?.classList.toggle("has-actions", primaryActions.length > 0 || secondaryActions.length > 0);
     };
   }
@@ -238,6 +241,9 @@ class CompositePart extends Part {
     return composite;
   }
   createTitleArea(parent) {
+    if (!this.options.hasTitle) {
+      return void 0;
+    }
     const titleArea = append(parent, $(".composite"));
     titleArea.classList.add("title");
     this.titleLabel = this.createTitleLabel(titleArea);
@@ -283,8 +289,7 @@ class CompositePart extends Part {
   }
   updateStyles() {
     super.updateStyles();
-    const titleLabel = assertReturnsDefined(this.titleLabel);
-    titleLabel.updateStyles();
+    this.titleLabel?.updateStyles();
   }
   actionViewItemProvider(action, options) {
     if (this.activeComposite) {

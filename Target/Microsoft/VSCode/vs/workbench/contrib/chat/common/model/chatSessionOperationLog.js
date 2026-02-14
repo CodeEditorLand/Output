@@ -38,6 +38,7 @@ const responsePartSchema = Adapt.v((obj) => obj.kind === "markdownContent" ? obj
       case "command":
       case "confirmation":
       case "extensions":
+      case "hook":
       case "inlineReference":
       case "markdownVuln":
       case "notebookEditGroup":
@@ -49,6 +50,7 @@ const responsePartSchema = Adapt.v((obj) => obj.kind === "markdownContent" ? obj
       case "warning":
       case "treeData":
       case "workspaceEdit":
+      case "disabledClaudeHooks":
         return a.kind === b.kind;
       default: {
         assertNever(a);

@@ -17,6 +17,9 @@ export type InstructionsCollectionEvent = {
     agentInstructionsCount: number;
     listedInstructionsCount: number;
     totalInstructionsCount: number;
+    claudeRulesCount: number;
+    claudeMdCount: number;
+    claudeAgentsCount: number;
 };
 export declare function newInstructionsCollectionEvent(): InstructionsCollectionEvent;
 export declare class ComputeAutomaticInstructions {
@@ -43,6 +46,12 @@ export declare class ComputeAutomaticInstructions {
     }, variables: ChatRequestVariableSet, telemetryEvent: InstructionsCollectionEvent, token: CancellationToken): Promise<void>;
     private _getContext;
     private _addAgentInstructions;
+    /**
+     * Combines the `applyTo` and `paths` attributes into a single comma-separated
+     * pattern string that can be matched by {@link _matches}.
+     * Used for the instructions list XML output where both should be shown.
+     */
+    private _getApplyToPattern;
     private _matches;
     private _getTool;
     private _getInstructionsWithPatternsList;

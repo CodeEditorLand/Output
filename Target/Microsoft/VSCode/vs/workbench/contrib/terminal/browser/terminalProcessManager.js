@@ -327,6 +327,7 @@ let TerminalProcessManager = class TerminalProcessManager2 extends Disposable {
     }
     this._processListeners = [
       newProcess.onProcessReady((e) => {
+        this._logService.debug("onProcessReady", e);
         this._processTraits = e;
         this.shellProcessId = e.pid;
         this._initialCwd = e.cwd;
@@ -334,6 +335,7 @@ let TerminalProcessManager = class TerminalProcessManager2 extends Disposable {
         this._onDidChangeProperty.fire({ type: "initialCwd", value: this._initialCwd });
         this._onProcessReady.fire(e);
         if (this._preLaunchInputQueue.length > 0 && this._process) {
+          this._logService.debug("sending prelaunch input queue", this._preLaunchInputQueue);
           newProcess.input(this._preLaunchInputQueue.join(""));
           this._preLaunchInputQueue.length = 0;
         }
@@ -536,6 +538,7 @@ ${measurements.map((e) => `${e.label}: ${e.latency.toFixed(2)}ms`).join("\n")}`)
         this._process.input(data);
       }
     } else {
+      this._logService.debug("queueing data in prelaunch input queue", data);
       this._preLaunchInputQueue.push(data);
     }
   }

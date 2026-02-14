@@ -11,7 +11,7 @@ var __param = function(paramIndex, decorator) {
     decorator(target, key, paramIndex);
   };
 };
-import { $, ModifierKeyEmitter, n } from "../../../../../../../base/browser/dom.js";
+import { $, n } from "../../../../../../../base/browser/dom.js";
 import { renderIcon } from "../../../../../../../base/browser/ui/iconLabel/iconLabels.js";
 import { KeybindingLabel, unthemedKeybindingLabelOptions } from "../../../../../../../base/browser/ui/keybindingLabel/keybindingLabel.js";
 import { Emitter } from "../../../../../../../base/common/event.js";
@@ -36,6 +36,7 @@ import { inlineSuggestCommitAlternativeActionId } from "../../../controller/comm
 import { InlineEditClickEvent } from "../inlineEditsViewInterface.js";
 import { getEditorBackgroundColor, getModifiedBorderColor, getOriginalBorderColor, INLINE_EDITS_BORDER_RADIUS, inlineEditIndicatorPrimaryBackground, inlineEditIndicatorPrimaryBorder, inlineEditIndicatorPrimaryForeground, modifiedChangedTextOverlayColor, observeColor, originalChangedTextOverlayColor } from "../theme.js";
 import { getEditorValidOverlayRect, mapOutFalsy, rectToProps } from "../utils/utils.js";
+import { IUserInteractionService } from "../../../../../../../platform/userInteraction/browser/userInteractionService.js";
 class WordReplacementsViewData {
   static {
     __name(this, "WordReplacementsViewData");
@@ -61,7 +62,7 @@ let InlineEditsWordReplacementView = class InlineEditsWordReplacementView2 exten
   static {
     this.MAX_LENGTH = 100;
   }
-  constructor(_editor, _viewData, _tabAction, _languageService, _themeService, _keybindingService, _hoverService) {
+  constructor(_editor, _viewData, _tabAction, _languageService, _themeService, _keybindingService, _hoverService, _userInteractionService) {
     super();
     this._editor = _editor;
     this._viewData = _viewData;
@@ -70,6 +71,7 @@ let InlineEditsWordReplacementView = class InlineEditsWordReplacementView2 exten
     this._themeService = _themeService;
     this._keybindingService = _keybindingService;
     this._hoverService = _hoverService;
+    this._userInteractionService = _userInteractionService;
     this._onDidClick = this._register(new Emitter());
     this.onDidClick = this._onDidClick.event;
     this._start = this._editor.observePosition(constObservable(this._viewData.edit.range.getStartPosition()), this._store);
@@ -77,7 +79,13 @@ let InlineEditsWordReplacementView = class InlineEditsWordReplacementView2 exten
     this._line = document.createElement("div");
     this._primaryElement = observableValue(this, null);
     this._secondaryElement = observableValue(this, null);
-    this.isHovered = this._primaryElement.map((e, reader) => e?.didMouseMoveDuringHover.read(reader) ?? false);
+    this.isHovered = derived(this, (reader) => {
+      const elem = this._primaryElement.read(reader);
+      if (!elem) {
+        return false;
+      }
+      return this._userInteractionService.createHoverTracker(elem.element, reader.store).read(reader);
+    });
     this._renderTextEffect = derived(this, (_reader) => {
       const tm = this._editor.model.get();
       const origLine = tm.getLineContent(this._viewData.edit.range.startLineNumber);
@@ -95,7 +103,7 @@ let InlineEditsWordReplacementView = class InlineEditsWordReplacementView2 exten
     });
     const modifiedLineHeight = this._editor.observeLineHeightForPosition(this._viewData.edit.range.getStartPosition());
     const altCount = observableFromPromise(this._viewData.alternativeAction?.count ?? new Promise((resolve) => resolve(void 0))).map((c) => c.value);
-    const altModifierActive = observableFromEvent(this, ModifierKeyEmitter.getInstance().event, () => ModifierKeyEmitter.getInstance().keyStatus.shiftKey);
+    const altModifierActive = derived(this, (reader) => this._userInteractionService.readModifierKeyStatus(this._editor.editor.getDomNode(), reader).shiftKey);
     this._layout = derived(this, (reader) => {
       this._renderTextEffect.read(reader);
       const widgetStart = this._start.read(reader);
@@ -361,7 +369,8 @@ InlineEditsWordReplacementView = __decorate([
   __param(3, ILanguageService),
   __param(4, IThemeService),
   __param(5, IKeybindingService),
-  __param(6, IHoverService)
+  __param(6, IHoverService),
+  __param(7, IUserInteractionService)
 ], InlineEditsWordReplacementView);
 function traverseParentsUntilId(element, ids) {
   let current = element;

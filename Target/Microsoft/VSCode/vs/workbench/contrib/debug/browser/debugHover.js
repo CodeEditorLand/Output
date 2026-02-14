@@ -122,6 +122,7 @@ let DebugHoverWidget = class DebugHoverWidget2 {
       }
     });
     this.toDispose.push(VisualizedVariableRenderer.rendererOnVisualizationRange(this.debugService.getViewModel(), this.tree));
+    this.toDispose.push(this.tree);
     this.valueContainer = $(".value");
     this.valueContainer.tabIndex = 0;
     this.valueContainer.setAttribute("role", "tooltip");

@@ -39,11 +39,12 @@ import { ICodeEditorService } from "../../../../editor/browser/services/codeEdit
 import { IEditorService } from "../../editor/common/editorService.js";
 import { EditorOpenSource } from "../../../../platform/editor/common/editor.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
+import { IRemoteAgentService } from "../../remote/common/remoteAgentService.js";
 let AbstractFileDialogService = class AbstractFileDialogService2 {
   static {
     __name(this, "AbstractFileDialogService");
   }
-  constructor(hostService, contextService, historyService, environmentService, instantiationService, configurationService, fileService, openerService, dialogService, languageService, workspacesService, labelService, pathService, commandService, editorService, codeEditorService, logService) {
+  constructor(hostService, contextService, historyService, environmentService, instantiationService, configurationService, fileService, openerService, dialogService, languageService, workspacesService, labelService, pathService, commandService, editorService, codeEditorService, logService, remoteAgentService) {
     this.hostService = hostService;
     this.contextService = contextService;
     this.historyService = historyService;
@@ -61,9 +62,14 @@ let AbstractFileDialogService = class AbstractFileDialogService2 {
     this.editorService = editorService;
     this.codeEditorService = codeEditorService;
     this.logService = logService;
+    this.remoteAgentService = remoteAgentService;
   }
   async defaultFilePath(schemeFilter = this.getSchemeFilterForWindow(), authorityFilter = this.getAuthorityFilterForWindow()) {
     let candidate = this.historyService.getLastActiveFile(schemeFilter, authorityFilter);
+    if (candidate && await this.isRemoteUserData(candidate)) {
+      this.logService.debug(`[FileDialogService] Skipping last active file as it is a remote user data resource: ${candidate}`);
+      candidate = void 0;
+    }
     if (!candidate) {
       candidate = this.historyService.getLastActiveWorkspaceRoot(schemeFilter, authorityFilter);
       if (candidate) {
@@ -83,6 +89,10 @@ let AbstractFileDialogService = class AbstractFileDialogService2 {
     let candidate = this.historyService.getLastActiveWorkspaceRoot(schemeFilter, authorityFilter);
     if (!candidate) {
       candidate = this.historyService.getLastActiveFile(schemeFilter, authorityFilter);
+      if (candidate && await this.isRemoteUserData(candidate)) {
+        this.logService.debug(`[FileDialogService] Skipping last active file as it is a remote user data resource: ${candidate}`);
+        candidate = void 0;
+      }
       if (candidate) {
         this.logService.debug(`[FileDialogService] Default folder path using parent of last active file: ${candidate}`);
       }
@@ -266,6 +276,24 @@ let AbstractFileDialogService = class AbstractFileDialogService2 {
   saveRemoteResource(options) {
     return this.getSimpleFileDialog().showSaveDialog(options);
   }
+  /**
+   * Checks whether the given resource is a remote user data file
+   * that should not be used as a default file dialog path candidate.
+   * This covers remote user data files such as settings.json, keybindings.json, etc.
+   */
+  async isRemoteUserData(resource) {
+    if (!this.environmentService.remoteAuthority) {
+      return false;
+    }
+    const remoteEnv = await this.remoteAgentService.getEnvironment();
+    if (remoteEnv) {
+      const remoteDataHome = resources.dirname(resources.dirname(remoteEnv.settingsPath));
+      if (!resources.isEqual(remoteDataHome, remoteDataHome.with({ path: "/" })) && resources.isEqualOrParent(resource, remoteDataHome)) {
+        return true;
+      }
+    }
+    return false;
+  }
   getSchemeFilterForWindow(defaultUriScheme) {
     return defaultUriScheme ?? this.pathService.defaultUriScheme;
   }
@@ -340,7 +368,8 @@ AbstractFileDialogService = __decorate([
   __param(13, ICommandService),
   __param(14, IEditorService),
   __param(15, ICodeEditorService),
-  __param(16, ILogService)
+  __param(16, ILogService),
+  __param(17, IRemoteAgentService)
 ], AbstractFileDialogService);
 export {
   AbstractFileDialogService

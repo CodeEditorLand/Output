@@ -9,8 +9,8 @@ export interface IChatContextUsagePromptTokenDetail {
     percentageOfPrompt: number;
 }
 export interface IChatContextUsageData {
-    promptTokens: number;
-    maxInputTokens: number;
+    usedTokens: number;
+    totalContextWindow: number;
     percentage: number;
     promptTokenDetails?: readonly IChatContextUsagePromptTokenDetail[];
 }

@@ -16,6 +16,7 @@ import { EditOperation } from "../../../../../editor/common/core/editOperation.j
 import { ILanguageModelToolsService } from "../../common/tools/languageModelToolsService.js";
 import { PromptHeaderAttributes } from "../../common/promptSyntax/promptFileParser.js";
 import { IPromptsService } from "../../common/promptSyntax/service/promptsService.js";
+import { formatArrayValue } from "../../common/promptSyntax/utils/promptEditHelper.js";
 let PromptFileRewriter = class PromptFileRewriter2 {
   static {
     __name(this, "PromptFileRewriter");
@@ -44,12 +45,13 @@ let PromptFileRewriter = class PromptFileRewriter2 {
       this.rewriteAttribute(model, "", toolsAttr.range);
       return;
     } else {
-      this.rewriteTools(model, newTools, toolsAttr.value.range);
+      this.rewriteTools(model, newTools, toolsAttr.value.range, toolsAttr.value.type === "string");
     }
   }
-  rewriteTools(model, newTools, range) {
+  rewriteTools(model, newTools, range, isString) {
     const newToolNames = this._languageModelToolsService.toFullReferenceNames(newTools);
-    const newValue = `[${newToolNames.map((s) => `'${s}'`).join(", ")}]`;
+    const newEntries = newToolNames.map((toolName) => formatArrayValue(toolName)).join(", ");
+    const newValue = isString ? newEntries : `[${newEntries}]`;
     this.rewriteAttribute(model, newValue, range);
   }
   rewriteAttribute(model, newValue, range) {

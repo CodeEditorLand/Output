@@ -38,6 +38,7 @@ import { IConfigurationService } from "../../../../platform/configuration/common
 import { getContextMenuActions } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
 import { IHoverService } from "../../../../platform/hover/browser/hover.js";
 import { VisibleViewContainersTracker } from "../visibleViewContainersTracker.js";
+import { Extensions } from "../../panecomposite.js";
 let AuxiliaryBarPart = class AuxiliaryBarPart2 extends AbstractPaneCompositePart {
   static {
     __name(this, "AuxiliaryBarPart");
@@ -76,7 +77,7 @@ let AuxiliaryBarPart = class AuxiliaryBarPart2 extends AbstractPaneCompositePart
       hasTitle: true,
       trailingSeparator: true,
       borderWidth: /* @__PURE__ */ __name(() => this.getColor(SIDE_BAR_BORDER) || this.getColor(contrastBorder) ? 1 : 0, "borderWidth")
-    }, AuxiliaryBarPart_1.activeViewSettingsKey, ActiveAuxiliaryContext.bindTo(contextKeyService), AuxiliaryBarFocusContext.bindTo(contextKeyService), "auxiliarybar", "auxiliarybar", void 0, SIDE_BAR_TITLE_BORDER, notificationService, storageService, contextMenuService, layoutService, keybindingService, hoverService, instantiationService, themeService, viewDescriptorService, contextKeyService, extensionService, menuService);
+    }, AuxiliaryBarPart_1.activeViewSettingsKey, ActiveAuxiliaryContext.bindTo(contextKeyService), AuxiliaryBarFocusContext.bindTo(contextKeyService), "auxiliarybar", "auxiliarybar", void 0, SIDE_BAR_TITLE_BORDER, 2, Extensions.Auxiliary, MenuId.AuxiliaryBarTitle, notificationService, storageService, contextMenuService, layoutService, keybindingService, hoverService, instantiationService, themeService, viewDescriptorService, contextKeyService, extensionService, menuService);
     this.commandService = commandService;
     this.configurationService = configurationService;
     this.minimumWidth = 170;

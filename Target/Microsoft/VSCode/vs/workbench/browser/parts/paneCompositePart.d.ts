@@ -4,10 +4,10 @@ import { IInstantiationService } from '../../../platform/instantiation/common/in
 import { IProgressIndicator } from '../../../platform/progress/common/progress.js';
 import { PaneComposite, PaneCompositeDescriptor } from '../panecomposite.js';
 import { IPaneComposite } from '../../common/panecomposite.js';
-import { IViewDescriptorService } from '../../common/views.js';
+import { IViewDescriptorService, ViewContainerLocation } from '../../common/views.js';
 import { DisposableStore } from '../../../base/common/lifecycle.js';
 import { IView } from '../../../base/browser/ui/grid/grid.js';
-import { IWorkbenchLayoutService, Parts } from '../../services/layout/browser/layoutService.js';
+import { IWorkbenchLayoutService, SINGLE_WINDOW_PARTS } from '../../services/layout/browser/layoutService.js';
 import { CompositePart, ICompositePartOptions, ICompositeTitleLabel } from './compositePart.js';
 import { IPaneCompositeBarOptions, PaneCompositeBar } from './paneCompositeBar.js';
 import { Dimension } from '../../../base/browser/dom.js';
@@ -18,7 +18,7 @@ import { IKeybindingService } from '../../../platform/keybinding/common/keybindi
 import { IThemeService } from '../../../platform/theme/common/themeService.js';
 import { IContextKey, IContextKeyService } from '../../../platform/contextkey/common/contextkey.js';
 import { IExtensionService } from '../../services/extensions/common/extensions.js';
-import { IMenuService } from '../../../platform/actions/common/actions.js';
+import { IMenuService, MenuId } from '../../../platform/actions/common/actions.js';
 import { SubmenuAction } from '../../../base/common/actions.js';
 import { Composite } from '../composite.js';
 import { IHoverService } from '../../../platform/hover/browser/hover.js';
@@ -28,7 +28,8 @@ export declare enum CompositeBarPosition {
     BOTTOM = 2
 }
 export interface IPaneCompositePart extends IView {
-    readonly partId: Parts.PANEL_PART | Parts.AUXILIARYBAR_PART | Parts.SIDEBAR_PART;
+    readonly partId: SINGLE_WINDOW_PARTS;
+    readonly registryId: string;
     readonly onDidPaneCompositeOpen: Event<IPaneComposite>;
     readonly onDidPaneCompositeClose: Event<IPaneComposite>;
     /**
@@ -73,9 +74,12 @@ export interface IPaneCompositePart extends IView {
     getPaneCompositeIds(): string[];
 }
 export declare abstract class AbstractPaneCompositePart extends CompositePart<PaneComposite> implements IPaneCompositePart {
-    readonly partId: Parts.PANEL_PART | Parts.AUXILIARYBAR_PART | Parts.SIDEBAR_PART;
+    readonly partId: SINGLE_WINDOW_PARTS;
     private readonly activePaneContextKey;
     private paneFocusContextKey;
+    protected readonly location: ViewContainerLocation;
+    readonly registryId: string;
+    private readonly globalActionsMenuId;
     private readonly viewDescriptorService;
     protected readonly contextKeyService: IContextKeyService;
     private readonly extensionService;
@@ -84,7 +88,6 @@ export declare abstract class AbstractPaneCompositePart extends CompositePart<Pa
     get snap(): boolean;
     get onDidPaneCompositeOpen(): Event<IPaneComposite>;
     readonly onDidPaneCompositeClose: Event<IPaneComposite>;
-    private readonly location;
     private titleContainer;
     private headerFooterCompositeBarContainer;
     protected readonly headerFooterCompositeBarDispoables: DisposableStore;
@@ -92,11 +95,11 @@ export declare abstract class AbstractPaneCompositePart extends CompositePart<Pa
     private readonly paneCompositeBar;
     private compositeBarPosition;
     private emptyPaneMessageElement;
-    private readonly globalActionsMenuId;
     private globalToolBar;
+    private globalLeftToolBar;
     private blockOpening;
     protected contentDimension: Dimension | undefined;
-    constructor(partId: Parts.PANEL_PART | Parts.AUXILIARYBAR_PART | Parts.SIDEBAR_PART, partOptions: ICompositePartOptions, activePaneCompositeSettingsKey: string, activePaneContextKey: IContextKey<string>, paneFocusContextKey: IContextKey<boolean>, nameForTelemetry: string, compositeCSSClass: string, titleForegroundColor: string | undefined, titleBorderColor: string | undefined, notificationService: INotificationService, storageService: IStorageService, contextMenuService: IContextMenuService, layoutService: IWorkbenchLayoutService, keybindingService: IKeybindingService, hoverService: IHoverService, instantiationService: IInstantiationService, themeService: IThemeService, viewDescriptorService: IViewDescriptorService, contextKeyService: IContextKeyService, extensionService: IExtensionService, menuService: IMenuService);
+    constructor(partId: SINGLE_WINDOW_PARTS, partOptions: ICompositePartOptions, activePaneCompositeSettingsKey: string, activePaneContextKey: IContextKey<string>, paneFocusContextKey: IContextKey<boolean>, nameForTelemetry: string, compositeCSSClass: string, titleForegroundColor: string | undefined, titleBorderColor: string | undefined, location: ViewContainerLocation, registryId: string, globalActionsMenuId: MenuId, notificationService: INotificationService, storageService: IStorageService, contextMenuService: IContextMenuService, layoutService: IWorkbenchLayoutService, keybindingService: IKeybindingService, hoverService: IHoverService, instantiationService: IInstantiationService, themeService: IThemeService, viewDescriptorService: IViewDescriptorService, contextKeyService: IContextKeyService, extensionService: IExtensionService, menuService: IMenuService);
     private registerListeners;
     private onDidOpen;
     private onDidClose;
@@ -104,7 +107,7 @@ export declare abstract class AbstractPaneCompositePart extends CompositePart<Pa
     protected hideActiveComposite(): Composite | undefined;
     create(parent: HTMLElement): void;
     private createEmptyPaneMessage;
-    protected createTitleArea(parent: HTMLElement): HTMLElement;
+    protected createTitleArea(parent: HTMLElement): HTMLElement | undefined;
     protected createTitleLabel(parent: HTMLElement): ICompositeTitleLabel;
     protected updateCompositeBar(updateCompositeBarOption?: boolean): void;
     protected createHeaderArea(): HTMLElement;
@@ -132,6 +135,11 @@ export declare abstract class AbstractPaneCompositePart extends CompositePart<Pa
     private onCompositeBarAreaContextMenu;
     private onCompositeBarContextMenu;
     protected getViewsSubmenuAction(): SubmenuAction | undefined;
+    /**
+     * Override in subclasses to provide a menu ID for a global toolbar on the left side
+     * of the composite bar / title area. Returns `undefined` by default (no left toolbar).
+     */
+    protected getGlobalLeftActionsMenuId(): MenuId | undefined;
     protected abstract shouldShowCompositeBar(): boolean;
     protected abstract getCompositeBarOptions(): IPaneCompositeBarOptions;
     protected abstract getCompositeBarPosition(): CompositeBarPosition;

@@ -518,7 +518,7 @@ class PredictionStats extends Disposable {
     this._stats = [];
     this._index = 0;
     this._addedAtTime = /* @__PURE__ */ new WeakMap();
-    this._changeEmitter = new Emitter();
+    this._changeEmitter = this._register(new Emitter());
     this.onChange = this._changeEmitter.event;
     this._register(timeline.onPredictionAdded((p) => this._addedAtTime.set(p, Date.now())));
     this._register(timeline.onPredictionSucceeded(this._pushStat.bind(this, true)));

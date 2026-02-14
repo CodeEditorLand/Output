@@ -80,6 +80,11 @@ export interface IHostService {
      */
     moveTop(targetWindow: Window): Promise<void>;
     /**
+     * Toggle dimming of window control overlays (e.g. when showing
+     * a modal dialog or modal editor part).
+     */
+    setWindowDimmed(targetWindow: Window, dimmed: boolean): Promise<void>;
+    /**
      * Get the location of the mouse cursor and its display bounds or `undefined` if unavailable.
      */
     getCursorScreenPoint(): Promise<{

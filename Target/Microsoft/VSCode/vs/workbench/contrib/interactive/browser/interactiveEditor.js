@@ -392,19 +392,19 @@ let InteractiveEditor = class InteractiveEditor2 extends EditorPane {
         this._updateInputHint();
       }
     }));
-    this._codeEditorWidget.onDidChangeModelDecorations(() => {
+    this._widgetDisposableStore.add(this._codeEditorWidget.onDidChangeModelDecorations(() => {
       if (this.isVisible()) {
         this._updateInputHint();
       }
-    });
+    }));
     this._widgetDisposableStore.add(this._codeEditorWidget.onDidChangeModel(() => {
       this._updateInputHint();
     }));
-    this._configurationService.onDidChangeConfiguration((e) => {
+    this._widgetDisposableStore.add(this._configurationService.onDidChangeConfiguration((e) => {
       if (e.affectsConfiguration(ReplEditorSettings.showExecutionHint)) {
         this._updateInputHint();
       }
-    });
+    }));
     const cursorAtBoundaryContext = INTERACTIVE_INPUT_CURSOR_BOUNDARY.bindTo(this._contextKeyService);
     if (input.resource && input.historyService.has(input.resource)) {
       cursorAtBoundaryContext.set("top");

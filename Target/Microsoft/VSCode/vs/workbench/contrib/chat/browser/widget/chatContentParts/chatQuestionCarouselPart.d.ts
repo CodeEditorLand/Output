@@ -1,17 +1,21 @@
 import { Event } from '../../../../../../base/common/event.js';
 import { Disposable } from '../../../../../../base/common/lifecycle.js';
+import { IAccessibilityService } from '../../../../../../platform/accessibility/common/accessibility.js';
 import { IChatQuestionCarousel } from '../../../common/chatService/chatService.js';
 import { IChatContentPart, IChatContentPartRenderContext } from './chatContentParts.js';
 import { IChatRendererContent } from '../../../common/model/chatViewModel.js';
 import { ChatTreeItem } from '../../chat.js';
+import { IHoverService } from '../../../../../../platform/hover/browser/hover.js';
 import './media/chatQuestionCarousel.css';
 export interface IChatQuestionCarouselOptions {
     onSubmit: (answers: Map<string, unknown> | undefined) => void;
     shouldAutoFocus?: boolean;
 }
 export declare class ChatQuestionCarouselPart extends Disposable implements IChatContentPart {
-    private readonly carousel;
+    readonly carousel: IChatQuestionCarousel;
     private readonly _options;
+    private readonly _hoverService;
+    private readonly _accessibilityService;
     readonly domNode: HTMLElement;
     private readonly _onDidChangeHeight;
     readonly onDidChangeHeight: Event<void>;
@@ -24,6 +28,7 @@ export declare class ChatQuestionCarouselPart extends Disposable implements ICha
     private _navigationButtons;
     private _prevButton;
     private _nextButton;
+    private readonly _nextButtonHover;
     private _skipAllButton;
     private _isSkipped;
     private readonly _textInputBoxes;
@@ -36,7 +41,7 @@ export declare class ChatQuestionCarouselPart extends Disposable implements ICha
      * that should be disposed when transitioning to summary view.
      */
     private readonly _interactiveUIStore;
-    constructor(carousel: IChatQuestionCarousel, context: IChatContentPartRenderContext, _options: IChatQuestionCarouselOptions);
+    constructor(carousel: IChatQuestionCarousel, context: IChatContentPartRenderContext, _options: IChatQuestionCarouselOptions, _hoverService: IHoverService, _accessibilityService: IAccessibilityService);
     /**
      * Saves the current question's answer to the answers map.
      */
@@ -51,6 +56,10 @@ export declare class ChatQuestionCarouselPart extends Disposable implements ICha
      * Either advances to the next question or submits.
      */
     private handleNext;
+    /**
+     * Focuses the container element and announces the question for screen reader users.
+     */
+    private _focusContainerAndAnnounce;
     /**
      * Hides the carousel UI and shows a summary of answers.
      */
@@ -78,6 +87,23 @@ export declare class ChatQuestionCarouselPart extends Disposable implements ICha
      * Gets the default answer for a specific question.
      */
     private getDefaultAnswerForQuestion;
+    /**
+     * Returns whether auto-focus should be enabled.
+     * Disabled when screen reader mode is active or when explicitly disabled via options.
+     */
+    private _shouldAutoFocus;
+    /**
+     * Updates the aria-label of the carousel container based on the current question.
+     */
+    private _updateAriaLabel;
+    /**
+     * Focuses the carousel container element.
+     */
+    focus(): void;
+    /**
+     * Returns whether the carousel container has focus.
+     */
+    hasFocus(): boolean;
     private renderCurrentQuestion;
     private renderInput;
     /**

@@ -618,9 +618,9 @@ class InputWithButton {
   }
   constructor() {
     this._buttonHoverContent = "";
-    this._onDidInputChange = new Emitter();
-    this.onDidInputChange = this._onDidInputChange.event;
     this._disposables = new DisposableStore();
+    this._onDidInputChange = this._disposables.add(new Emitter());
+    this.onDidInputChange = this._onDidInputChange.event;
   }
   get domNode() {
     if (!this._domNode) {

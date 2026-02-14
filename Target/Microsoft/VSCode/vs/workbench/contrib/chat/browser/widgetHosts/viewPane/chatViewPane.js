@@ -101,6 +101,7 @@ let ChatViewPane = class ChatViewPane2 extends ViewPane {
     );
     if (lifecycleService.startupKind !== 3 && this.configurationService.getValue(ChatConfiguration.RestoreLastPanelSession) === false) {
       this.viewState.sessionId = void 0;
+      this.viewState.sessionResource = void 0;
     }
     this.sessionsViewerVisible = false;
     this.sessionsViewerSidebarWidth = Math.max(ChatViewPane_1.SESSIONS_SIDEBAR_MIN_WIDTH, this.viewState.sessionsSidebarWidth ?? ChatViewPane_1.SESSIONS_SIDEBAR_DEFAULT_WIDTH);
@@ -244,6 +245,9 @@ let ChatViewPane = class ChatViewPane2 extends ViewPane {
   getTransferredOrPersistedSessionInfo() {
     if (this.chatService.transferredSessionResource) {
       return this.chatService.transferredSessionResource;
+    }
+    if (this.viewState.sessionResource) {
+      return this.viewState.sessionResource;
     }
     return this.viewState.sessionId ? LocalChatSessionUri.forSession(this.viewState.sessionId) : void 0;
   }
@@ -535,6 +539,7 @@ let ChatViewPane = class ChatViewPane2 extends ViewPane {
     if (model) {
       await this.updateWidgetLockState(model.sessionResource);
       this.viewState.sessionId = model.sessionId;
+      this.viewState.sessionResource = model.sessionResource;
     }
     this._widget.setModel(model);
     this.titleControl?.update(model);
@@ -697,10 +702,9 @@ let ChatViewPane = class ChatViewPane2 extends ViewPane {
       heightReduction = 0;
       widthReduction = this.sessionsContainer.offsetWidth;
     } else {
-      const sessionsHeight = availableSessionsHeight - 1;
-      this.sessionsControlContainer.style.height = `${sessionsHeight}px`;
+      this.sessionsControlContainer.style.height = `${availableSessionsHeight}px`;
       this.sessionsControlContainer.style.width = ``;
-      this.sessionsControl.layout(sessionsHeight, width);
+      this.sessionsControl.layout(availableSessionsHeight, width);
       heightReduction = this.sessionsContainer.offsetHeight;
       widthReduction = 0;
     }

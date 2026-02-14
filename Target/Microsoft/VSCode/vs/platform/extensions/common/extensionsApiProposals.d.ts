@@ -226,6 +226,12 @@ declare const _allApiProposals: {
     envIsAppPortable: {
         proposal: string;
     };
+    envIsConnectionMetered: {
+        proposal: string;
+    };
+    environmentPower: {
+        proposal: string;
+    };
     extensionAffinity: {
         proposal: string;
     };

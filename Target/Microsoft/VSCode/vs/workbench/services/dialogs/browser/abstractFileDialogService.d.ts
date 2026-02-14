@@ -17,6 +17,7 @@ import { ICommandService } from '../../../../platform/commands/common/commands.j
 import { ICodeEditorService } from '../../../../editor/browser/services/codeEditorService.js';
 import { IEditorService } from '../../editor/common/editorService.js';
 import { ILogService } from '../../../../platform/log/common/log.js';
+import { IRemoteAgentService } from '../../remote/common/remoteAgentService.js';
 export declare abstract class AbstractFileDialogService implements IFileDialogService {
     protected readonly hostService: IHostService;
     protected readonly contextService: IWorkspaceContextService;
@@ -35,8 +36,9 @@ export declare abstract class AbstractFileDialogService implements IFileDialogSe
     protected readonly editorService: IEditorService;
     protected readonly codeEditorService: ICodeEditorService;
     private readonly logService;
+    private readonly remoteAgentService;
     readonly _serviceBrand: undefined;
-    constructor(hostService: IHostService, contextService: IWorkspaceContextService, historyService: IHistoryService, environmentService: IWorkbenchEnvironmentService, instantiationService: IInstantiationService, configurationService: IConfigurationService, fileService: IFileService, openerService: IOpenerService, dialogService: IDialogService, languageService: ILanguageService, workspacesService: IWorkspacesService, labelService: ILabelService, pathService: IPathService, commandService: ICommandService, editorService: IEditorService, codeEditorService: ICodeEditorService, logService: ILogService);
+    constructor(hostService: IHostService, contextService: IWorkspaceContextService, historyService: IHistoryService, environmentService: IWorkbenchEnvironmentService, instantiationService: IInstantiationService, configurationService: IConfigurationService, fileService: IFileService, openerService: IOpenerService, dialogService: IDialogService, languageService: ILanguageService, workspacesService: IWorkspacesService, labelService: ILabelService, pathService: IPathService, commandService: ICommandService, editorService: IEditorService, codeEditorService: ICodeEditorService, logService: ILogService, remoteAgentService: IRemoteAgentService);
     defaultFilePath(schemeFilter?: string, authorityFilter?: string | undefined): Promise<URI>;
     defaultFolderPath(schemeFilter?: string, authorityFilter?: string | undefined): Promise<URI>;
     preferredHome(schemeFilter?: string): Promise<URI>;
@@ -56,6 +58,12 @@ export declare abstract class AbstractFileDialogService implements IFileDialogSe
     protected getSimpleFileDialog(): ISimpleFileDialog;
     private pickResource;
     private saveRemoteResource;
+    /**
+     * Checks whether the given resource is a remote user data file
+     * that should not be used as a default file dialog path candidate.
+     * This covers remote user data files such as settings.json, keybindings.json, etc.
+     */
+    private isRemoteUserData;
     private getSchemeFilterForWindow;
     private getAuthorityFilterForWindow;
     protected getFileSystemSchema(options: {

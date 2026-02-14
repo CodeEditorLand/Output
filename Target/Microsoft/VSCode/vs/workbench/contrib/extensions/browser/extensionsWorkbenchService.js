@@ -29,7 +29,7 @@ import { IConfigurationService } from "../../../../platform/configuration/common
 import { IHostService } from "../../../services/host/browser/host.js";
 import { URI } from "../../../../base/common/uri.js";
 import { AutoUpdateConfigurationKey, AutoCheckUpdatesConfigurationKey, HasOutdatedExtensionsContext, AutoRestartConfigurationKey, VIEWLET_ID } from "../common/extensions.js";
-import { IEditorService, SIDE_GROUP, ACTIVE_GROUP } from "../../../services/editor/common/editorService.js";
+import { ACTIVE_GROUP, IEditorService, SIDE_GROUP } from "../../../services/editor/common/editorService.js";
 import { IURLService } from "../../../../platform/url/common/url.js";
 import { ExtensionsInput } from "../common/extensionsInput.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
@@ -68,6 +68,7 @@ import { MarkdownString } from "../../../../base/common/htmlContent.js";
 import { getExtensionGalleryManifestResourceUri, IExtensionGalleryManifestService } from "../../../../platform/extensionManagement/common/extensionGalleryManifest.js";
 import { fromNow } from "../../../../base/common/date.js";
 import { IUserDataProfilesService } from "../../../../platform/userDataProfile/common/userDataProfile.js";
+import { IMeteredConnectionService } from "../../../../platform/meteredConnection/common/meteredConnection.js";
 let Extension = class Extension2 {
   static {
     __name(this, "Extension");
@@ -841,7 +842,7 @@ let ExtensionsWorkbenchService = class ExtensionsWorkbenchService2 extends Dispo
   get onReset() {
     return this._onReset.event;
   }
-  constructor(instantiationService, editorService, extensionManagementService, galleryService, extensionGalleryManifestService, configurationService, telemetryService, notificationService, urlService, extensionEnablementService, hostService, progressService, extensionManagementServerService, languageService, extensionsSyncManagementService, userDataAutoSyncService, productService, contextKeyService, extensionManifestPropertiesService, logService, extensionService, localeService, lifecycleService, fileService, userDataProfileService, userDataProfilesService, storageService, dialogService, userDataSyncEnablementService, updateService, uriIdentityService, workspaceContextService, viewsService, fileDialogService, quickInputService, allowedExtensionsService) {
+  constructor(instantiationService, editorService, extensionManagementService, galleryService, extensionGalleryManifestService, configurationService, telemetryService, notificationService, urlService, extensionEnablementService, hostService, progressService, extensionManagementServerService, languageService, extensionsSyncManagementService, userDataAutoSyncService, productService, contextKeyService, extensionManifestPropertiesService, logService, extensionService, localeService, lifecycleService, fileService, userDataProfileService, userDataProfilesService, storageService, dialogService, userDataSyncEnablementService, updateService, uriIdentityService, workspaceContextService, viewsService, fileDialogService, quickInputService, allowedExtensionsService, meteredConnectionService) {
     super();
     this.instantiationService = instantiationService;
     this.editorService = editorService;
@@ -877,14 +878,15 @@ let ExtensionsWorkbenchService = class ExtensionsWorkbenchService2 extends Dispo
     this.fileDialogService = fileDialogService;
     this.quickInputService = quickInputService;
     this.allowedExtensionsService = allowedExtensionsService;
+    this.meteredConnectionService = meteredConnectionService;
     this.localExtensions = null;
     this.remoteExtensions = null;
     this.webExtensions = null;
     this.extensionsServers = [];
     this._onChange = this._register(new Emitter());
-    this._onDidChangeExtensionsNotification = new Emitter();
+    this._onDidChangeExtensionsNotification = this._register(new Emitter());
     this.onDidChangeExtensionsNotification = this._onDidChangeExtensionsNotification.event;
-    this._onReset = new Emitter();
+    this._onReset = this._register(new Emitter());
     this.installing = [];
     this.tasksInProgress = [];
     this.autoRestartListenerDisposable = this._register(new MutableDisposable());
@@ -955,7 +957,7 @@ let ExtensionsWorkbenchService = class ExtensionsWorkbenchService2 extends Dispo
       }
     }));
     this._register(this.extensionEnablementService.onEnablementChanged((platformExtensions) => {
-      if (this.getAutoUpdateValue() === "onlyEnabledExtensions" && platformExtensions.some((e) => this.extensionEnablementService.isEnabled(e))) {
+      if (this.isAutoCheckUpdatesEnabled() && this.getAutoUpdateValue() === "onlyEnabledExtensions" && platformExtensions.some((e) => this.extensionEnablementService.isEnabled(e))) {
         this.checkForUpdates("Extension enablement changed");
       }
     }));
@@ -971,6 +973,14 @@ let ExtensionsWorkbenchService = class ExtensionsWorkbenchService2 extends Dispo
     this._register(this.allowedExtensionsService.onDidChangeAllowedExtensionsConfigValue(() => {
       if (this.isAutoCheckUpdatesEnabled()) {
         this.checkForUpdates("Allowed extensions changed");
+      }
+    }));
+    this._register(this.meteredConnectionService.onDidChangeIsConnectionMetered(() => {
+      if (this.isAutoCheckUpdatesEnabled()) {
+        this.checkForUpdates("Connection is no longer metered");
+      }
+      if (isWeb && !this.isAutoUpdateEnabled()) {
+        this.autoUpdateBuiltinExtensions();
       }
     }));
     this.hasOutdatedExtensionsContextKey.set(this.outdated.length > 0);
@@ -989,6 +999,9 @@ let ExtensionsWorkbenchService = class ExtensionsWorkbenchService2 extends Dispo
     }));
   }
   isAutoUpdateEnabled() {
+    if (this.meteredConnectionService.isConnectionMetered) {
+      return false;
+    }
     return this.getAutoUpdateValue() !== false;
   }
   getAutoUpdateValue() {
@@ -1744,6 +1757,9 @@ let ExtensionsWorkbenchService = class ExtensionsWorkbenchService2 extends Dispo
     }
   }
   isAutoCheckUpdatesEnabled() {
+    if (this.meteredConnectionService.isConnectionMetered) {
+      return false;
+    }
     return this.configurationService.getValue(AutoCheckUpdatesConfigurationKey);
   }
   eventuallyCheckForUpdates(immediate = false) {
@@ -1765,6 +1781,9 @@ let ExtensionsWorkbenchService = class ExtensionsWorkbenchService2 extends Dispo
     this.autoUpdateDelayer.trigger(() => this.autoUpdateExtensions()).then(void 0, (err) => null);
   }
   async autoUpdateBuiltinExtensions() {
+    if (this.meteredConnectionService.isConnectionMetered) {
+      return;
+    }
     await this.checkForUpdates(void 0, true);
     const toUpdate = this.outdated.filter((e) => e.isBuiltin);
     await Promises.settled(toUpdate.map((e) => this.install(e, e.local?.preRelease ? { installPreReleaseVersion: true } : void 0)));
@@ -1784,6 +1803,10 @@ let ExtensionsWorkbenchService = class ExtensionsWorkbenchService2 extends Dispo
     }
   }
   async autoUpdateExtensions() {
+    if (this.meteredConnectionService.isConnectionMetered) {
+      this.logService.trace("[Extensions]: Skipping auto-update because connection is metered");
+      return;
+    }
     const toUpdate = [];
     const disabledAutoUpdate = [];
     const consentRequired = [];
@@ -2843,7 +2866,8 @@ ExtensionsWorkbenchService = ExtensionsWorkbenchService_1 = __decorate([
   __param(32, IViewsService),
   __param(33, IFileDialogService),
   __param(34, IQuickInputService),
-  __param(35, IAllowedExtensionsService)
+  __param(35, IAllowedExtensionsService),
+  __param(36, IMeteredConnectionService)
 ], ExtensionsWorkbenchService);
 export {
   Extension,

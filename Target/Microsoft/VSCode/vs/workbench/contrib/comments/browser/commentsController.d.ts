@@ -1,3 +1,4 @@
+import { Disposable } from '../../../../base/common/lifecycle.js';
 import './media/review.css';
 import { ICodeEditor, IEditorMouseEvent } from '../../../../editor/browser/editorBrowser.js';
 import { ICodeEditorService } from '../../../../editor/browser/services/codeEditorService.js';
@@ -30,7 +31,7 @@ export declare function moveToNextCommentInThread(commentInfo: {
     thread: languages.CommentThread<IRange>;
 } | undefined;
 export declare function revealCommentThread(commentService: ICommentService, editorService: IEditorService, uriIdentityService: IUriIdentityService, commentThread: languages.CommentThread<IRange>, comment: languages.Comment | undefined, focusReply?: boolean, pinned?: boolean, preserveFocus?: boolean, sideBySide?: boolean): void;
-export declare class CommentController implements IEditorContribution {
+export declare class CommentController extends Disposable implements IEditorContribution {
     private readonly commentService;
     private readonly instantiationService;
     private readonly codeEditorService;
@@ -42,7 +43,6 @@ export declare class CommentController implements IEditorContribution {
     private readonly keybindingService;
     private readonly accessibilityService;
     private readonly notificationService;
-    private readonly globalToDispose;
     private readonly localToDispose;
     private editor;
     private _commentWidgets;

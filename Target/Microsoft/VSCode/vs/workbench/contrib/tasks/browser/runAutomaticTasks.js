@@ -178,9 +178,9 @@ let RunAutomaticTasks = class RunAutomaticTasks2 extends Disposable {
   }
   _showPrompt(notificationService, storageService, openerService, configurationService, taskNames, locations) {
     return new Promise((resolve) => {
-      notificationService.prompt(Severity.Info, nls.localize("tasks.run.allowAutomatic", "This workspace has tasks ({0}) defined ({1}) that run automatically when you open this workspace. Do you allow automatic tasks to run when you open this workspace?", taskNames.join(", "), Array.from(locations.keys()).join(", ")), [
+      notificationService.prompt(Severity.Info, nls.localize("tasks.run.allowAutomatic", "This workspace has tasks ({0}) defined ({1}) that can launch processes automatically when you open this workspace. Do you want to allow automatic tasks to run in all trusted workspaces?", taskNames.join(", "), Array.from(locations.keys()).join(", ")), [
         {
-          label: nls.localize("allow", "Allow and Run"),
+          label: nls.localize("allow", "Allow"),
           run: /* @__PURE__ */ __name(() => {
             resolve(true);
             configurationService.updateValue(

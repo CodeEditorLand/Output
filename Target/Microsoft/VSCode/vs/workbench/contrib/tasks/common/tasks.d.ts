@@ -241,7 +241,7 @@ export declare namespace TaskGroup {
     const Build: TaskGroup;
     const Rebuild: TaskGroup;
     const Test: TaskGroup;
-    function is(value: any): value is string;
+    function is(value: unknown): value is string;
     function from(value: string | TaskGroup | undefined): TaskGroup | undefined;
 }
 export interface TaskGroup {
@@ -266,7 +266,7 @@ export interface ITaskSourceConfigElement {
     workspace?: IWorkspace;
     file: string;
     index: number;
-    element: any;
+    element: unknown;
 }
 export interface ITaskConfig {
     label: string;
@@ -298,7 +298,7 @@ export interface IExtensionTaskSourceTransfer {
     __workspaceFolder: UriComponents;
     __definition: {
         type: string;
-        [name: string]: any;
+        [name: string]: unknown;
     };
 }
 export interface IInMemoryTaskSource extends IBaseTaskSource {
@@ -318,7 +318,7 @@ export type TaskSource = IWorkspaceTaskSource | IExtensionTaskSource | IInMemory
 export type FileBasedTaskSource = IWorkspaceTaskSource | IUserTaskSource | WorkspaceFileTaskSource;
 export interface ITaskIdentifier {
     type: string;
-    [name: string]: any;
+    [name: string]: unknown;
 }
 export interface KeyedTaskIdentifier extends ITaskIdentifier {
     _key: string;
@@ -429,7 +429,7 @@ export declare abstract class CommonTask {
     protected abstract getFolderId(): string | undefined;
     getCommonTaskId(): string;
     clone(): Task;
-    protected abstract fromObject(object: any): Task;
+    protected abstract fromObject(object: Record<string, unknown>): Task;
     getWorkspaceFolder(): IWorkspaceFolder | undefined;
     getWorkspaceFileName(): string | undefined;
     getTelemetryKind(): string;
@@ -461,7 +461,7 @@ export declare class CustomTask extends CommonTask {
     clone(): CustomTask;
     customizes(): KeyedTaskIdentifier | undefined;
     getDefinition(useSource?: boolean): KeyedTaskIdentifier;
-    static is(value: any): value is CustomTask;
+    static is(value: unknown): value is CustomTask;
     getMapKey(): string;
     protected getFolderId(): string | undefined;
     getCommonTaskId(): string;
@@ -472,7 +472,7 @@ export declare class CustomTask extends CommonTask {
     getWorkspaceFolder(): IWorkspaceFolder | undefined;
     getWorkspaceFileName(): string | undefined;
     getTelemetryKind(): string;
-    protected fromObject(object: CustomTask): CustomTask;
+    protected fromObject(object: Record<string, unknown>): CustomTask;
 }
 /**
  * After a contributed task has been parsed, but before
@@ -486,8 +486,8 @@ export declare class ConfiguringTask extends CommonTask {
     _source: FileBasedTaskSource;
     configures: KeyedTaskIdentifier;
     constructor(id: string, source: FileBasedTaskSource, label: string | undefined, type: string | undefined, configures: KeyedTaskIdentifier, runOptions: IRunOptions, configurationProperties: IConfigurationProperties);
-    static is(value: any): value is ConfiguringTask;
-    protected fromObject(object: any): Task;
+    static is(value: unknown): value is ConfiguringTask;
+    protected fromObject(object: Record<string, unknown>): Task;
     getDefinition(): KeyedTaskIdentifier;
     getWorkspaceFileName(): string | undefined;
     getWorkspaceFolder(): IWorkspaceFolder | undefined;
@@ -524,13 +524,13 @@ export declare class ContributedTask extends CommonTask {
     constructor(id: string, source: IExtensionTaskSource, label: string, type: string | undefined, defines: KeyedTaskIdentifier, command: ICommandConfiguration, hasDefinedMatchers: boolean, runOptions: IRunOptions, configurationProperties: IConfigurationProperties);
     clone(): ContributedTask;
     getDefinition(): KeyedTaskIdentifier;
-    static is(value: any): value is ContributedTask;
+    static is(value: unknown): value is ContributedTask;
     getMapKey(): string;
     protected getFolderId(): string | undefined;
     getKey(): string | undefined;
     getWorkspaceFolder(): IWorkspaceFolder | undefined;
     getTelemetryKind(): string;
-    protected fromObject(object: ContributedTask): ContributedTask;
+    protected fromObject(object: Record<string, unknown>): ContributedTask;
 }
 export declare class InMemoryTask extends CommonTask {
     /**
@@ -541,11 +541,11 @@ export declare class InMemoryTask extends CommonTask {
     type: 'inMemory';
     constructor(id: string, source: IInMemoryTaskSource, label: string, type: string, runOptions: IRunOptions, configurationProperties: IConfigurationProperties);
     clone(): InMemoryTask;
-    static is(value: any): value is InMemoryTask;
+    static is(value: unknown): value is InMemoryTask;
     getTelemetryKind(): string;
     getMapKey(): string;
     protected getFolderId(): undefined;
-    protected fromObject(object: InMemoryTask): InMemoryTask;
+    protected fromObject(object: Record<string, unknown>): InMemoryTask;
 }
 export type Task = CustomTask | ContributedTask | InMemoryTask;
 export interface ITaskExecution {

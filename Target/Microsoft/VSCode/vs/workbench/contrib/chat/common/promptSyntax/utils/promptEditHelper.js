@@ -12,7 +12,7 @@ function formatArrayValue(name, quotePreference) {
 }
 __name(formatArrayValue, "formatArrayValue");
 function getQuotePreference(arrayValue, model) {
-  const firstStringItem = arrayValue.items.find((item) => item.type === "string" && isSimpleNameRegex.test(item.value));
+  const firstStringItem = arrayValue.items.find((item) => item.type === "scalar" && isSimpleNameRegex.test(item.value));
   const firstChar = firstStringItem ? model.getValueInRange(firstStringItem.range).charAt(0) : void 0;
   if (firstChar === `'` || firstChar === `"`) {
     return firstChar;

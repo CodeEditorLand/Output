@@ -736,7 +736,7 @@ let EditorPart = class EditorPart2 extends Part {
   }
   createEditorDropTarget(container, delegate) {
     assertType(isHTMLElement(container));
-    return this.scopedInstantiationService.createInstance(EditorDropTarget, container, delegate);
+    return this.scopedInstantiationService.createInstance(EditorDropTarget, this, container, delegate);
   }
   //#region Part
   // TODO @sbatten @joao find something better to prevent editor taking over #79897

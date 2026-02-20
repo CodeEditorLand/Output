@@ -29,6 +29,7 @@ var DisablementReason;
   DisablementReason2[DisablementReason2["MissingConfiguration"] = 3] = "MissingConfiguration";
   DisablementReason2[DisablementReason2["InvalidConfiguration"] = 4] = "InvalidConfiguration";
   DisablementReason2[DisablementReason2["RunningAsAdmin"] = 5] = "RunningAsAdmin";
+  DisablementReason2[DisablementReason2["EmbeddedApp"] = 6] = "EmbeddedApp";
 })(DisablementReason || (DisablementReason = {}));
 const State = {
   Uninitialized: upcast({

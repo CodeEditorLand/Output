@@ -73,6 +73,7 @@ export declare class BrowserWorkbenchEnvironmentService implements IBrowserWorkb
     get skipReleaseNotes(): boolean;
     get skipWelcome(): boolean;
     get disableWorkspaceTrust(): boolean;
+    get isSessionsWindow(): boolean;
     get profile(): string | undefined;
     get editSessionId(): string | undefined;
     private payload;

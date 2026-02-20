@@ -625,6 +625,7 @@ class ChannelClient {
     }
     dispose(this.activeRequests.values());
     this.activeRequests.clear();
+    this._onDidInitialize.dispose();
   }
 }
 __decorate([

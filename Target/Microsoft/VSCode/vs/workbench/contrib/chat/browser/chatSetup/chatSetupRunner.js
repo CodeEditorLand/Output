@@ -35,6 +35,7 @@ import { IChatWidgetService } from "../chat.js";
 import { ChatSetupAnonymous, ChatSetupStrategy } from "./chatSetup.js";
 import { IDefaultAccountService } from "../../../../../platform/defaultAccount/common/defaultAccount.js";
 import { IHostService } from "../../../../services/host/browser/host.js";
+import { IWorkbenchAssignmentService } from "../../../../services/assignment/common/assignmentService.js";
 const defaultChat = {
   publicCodeMatchesUrl: product.defaultChatAgent?.publicCodeMatchesUrl ?? "",
   provider: product.defaultChatAgent?.provider ?? { default: { id: "", name: "" }, enterprise: { id: "", name: "" }, apple: { id: "", name: "" }, google: { id: "", name: "" } },
@@ -58,12 +59,12 @@ let ChatSetup = class ChatSetup2 {
     let instance = ChatSetup_1.instance;
     if (!instance) {
       instance = ChatSetup_1.instance = instantiationService.invokeFunction((accessor) => {
-        return new ChatSetup_1(context, controller, accessor.get(ITelemetryService), accessor.get(IWorkbenchLayoutService), accessor.get(IKeybindingService), accessor.get(IChatEntitlementService), accessor.get(ILogService), accessor.get(IChatWidgetService), accessor.get(IWorkspaceTrustRequestService), accessor.get(IMarkdownRendererService), accessor.get(IDefaultAccountService), accessor.get(IHostService));
+        return new ChatSetup_1(context, controller, accessor.get(ITelemetryService), accessor.get(IWorkbenchLayoutService), accessor.get(IKeybindingService), accessor.get(IChatEntitlementService), accessor.get(ILogService), accessor.get(IChatWidgetService), accessor.get(IWorkspaceTrustRequestService), accessor.get(IMarkdownRendererService), accessor.get(IDefaultAccountService), accessor.get(IHostService), accessor.get(IWorkbenchAssignmentService));
       });
     }
     return instance;
   }
-  constructor(context, controller, telemetryService, layoutService, keybindingService, chatEntitlementService, logService, widgetService, workspaceTrustRequestService, markdownRendererService, defaultAccountService, hostService) {
+  constructor(context, controller, telemetryService, layoutService, keybindingService, chatEntitlementService, logService, widgetService, workspaceTrustRequestService, markdownRendererService, defaultAccountService, hostService, experimentService) {
     this.context = context;
     this.controller = controller;
     this.telemetryService = telemetryService;
@@ -76,6 +77,7 @@ let ChatSetup = class ChatSetup2 {
     this.markdownRendererService = markdownRendererService;
     this.defaultAccountService = defaultAccountService;
     this.hostService = hostService;
+    this.experimentService = experimentService;
     this.pendingRun = void 0;
     this.skipDialogOnce = false;
   }
@@ -154,7 +156,8 @@ let ChatSetup = class ChatSetup2 {
   }
   async showDialog(options) {
     const disposables = new DisposableStore();
-    const buttons = this.getButtons(options);
+    const useCloseButton = await this.experimentService.getTreatment("chatSetupDialogCloseButton");
+    const buttons = this.getButtons(options, useCloseButton);
     const dialog = disposables.add(new Dialog(this.layoutService.activeContainer, this.getDialogTitle(options), buttons.map((button2) => button2[0]), createWorkbenchDialogOptions({
       type: "none",
       extraClasses: ["chat-setup-dialog"],
@@ -162,8 +165,8 @@ let ChatSetup = class ChatSetup2 {
       // workaround allowing us to render the message in large
       icon: Codicon.copilotLarge,
       alignment: DialogContentsAlignment.Vertical,
-      cancelId: buttons.length - 1,
-      disableCloseButton: true,
+      cancelId: useCloseButton ? buttons.length : buttons.length - 1,
+      disableCloseButton: !useCloseButton,
       renderFooter: /* @__PURE__ */ __name((footer) => footer.appendChild(this.createDialogFooter(disposables, options)), "renderFooter"),
       buttonOptions: buttons.map((button2) => button2[2])
     }, this.keybindingService, this.layoutService, this.hostService)));
@@ -171,7 +174,7 @@ let ChatSetup = class ChatSetup2 {
     disposables.dispose();
     return buttons[button]?.[1] ?? ChatSetupStrategy.Canceled;
   }
-  getButtons(options) {
+  getButtons(options, useCloseButton) {
     const styleButton = /* @__PURE__ */ __name((...classes) => ({ styleButton: /* @__PURE__ */ __name((button) => button.element.classList.add(...classes), "styleButton") }), "styleButton");
     let buttons;
     if (!options?.forceAnonymous && (this.context.state.entitlement === ChatEntitlement.Unknown || options?.forceSignInDialog)) {
@@ -199,7 +202,9 @@ let ChatSetup = class ChatSetup2 {
     } else {
       buttons = [[localize("setupAIButton", "Use AI Features"), ChatSetupStrategy.DefaultSetup, void 0]];
     }
-    buttons.push([localize("skipForNow", "Skip for now"), ChatSetupStrategy.Canceled, styleButton("link-button", "skip-button")]);
+    if (!useCloseButton) {
+      buttons.push([localize("skipForNow", "Skip for now"), ChatSetupStrategy.Canceled, styleButton("link-button", "skip-button")]);
+    }
     return buttons;
   }
   getDialogTitle(options) {
@@ -237,7 +242,8 @@ ChatSetup = ChatSetup_1 = __decorate([
   __param(8, IWorkspaceTrustRequestService),
   __param(9, IMarkdownRendererService),
   __param(10, IDefaultAccountService),
-  __param(11, IHostService)
+  __param(11, IHostService),
+  __param(12, IWorkbenchAssignmentService)
 ], ChatSetup);
 function refreshTokens(commandService) {
   commandService.executeCommand(defaultChat.completionsRefreshTokenCommand);

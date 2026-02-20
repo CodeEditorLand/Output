@@ -98,7 +98,7 @@ export declare class PtyHostService extends Disposable implements IPtyHostServic
     input(id: number, data: string): Promise<void>;
     sendSignal(id: number, signal: string): Promise<void>;
     processBinary(id: number, data: string): Promise<void>;
-    resize(id: number, cols: number, rows: number): Promise<void>;
+    resize(id: number, cols: number, rows: number, pixelWidth?: number, pixelHeight?: number): Promise<void>;
     clearBuffer(id: number): Promise<void>;
     acknowledgeDataEvent(id: number, charCount: number): Promise<void>;
     setUnicodeVersion(id: number, version: '6' | '11'): Promise<void>;

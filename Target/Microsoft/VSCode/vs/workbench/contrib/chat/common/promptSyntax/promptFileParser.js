@@ -6,6 +6,7 @@ import { splitLinesIncludeSeparators } from "../../../../../base/common/strings.
 import { URI } from "../../../../../base/common/uri.js";
 import { parse } from "../../../../../base/common/yaml.js";
 import { Range } from "../../../../../editor/common/core/range.js";
+import { PositionOffsetTransformer } from "../../../../../editor/common/core/text/positionToOffsetImpl.js";
 import { Target } from "./service/promptsService.js";
 class PromptFileParser {
   static {
@@ -97,19 +98,37 @@ class PromptHeader {
   get _parsedHeader() {
     if (this._parsed === void 0) {
       const yamlErrors = [];
-      const lines = this.linesWithEOL.slice(this.range.startLineNumber - 1, this.range.endLineNumber - 1).join("");
-      const node = parse(lines, yamlErrors);
+      const headerContent = this.linesWithEOL.slice(this.range.startLineNumber - 1, this.range.endLineNumber - 1).join("");
+      const node = parse(headerContent, yamlErrors);
+      const transformer = new PositionOffsetTransformer(headerContent);
+      const asRange = /* @__PURE__ */ __name(({ startOffset, endOffset }) => {
+        const startPos = transformer.getPosition(startOffset), endPos = transformer.getPosition(endOffset);
+        const headerDelta = this.range.startLineNumber - 1;
+        return new Range(startPos.lineNumber + headerDelta, startPos.column, endPos.lineNumber + headerDelta, endPos.column);
+      }, "asRange");
+      const asValue = /* @__PURE__ */ __name((node2) => {
+        switch (node2.type) {
+          case "scalar":
+            return { type: "scalar", value: node2.value, range: asRange(node2), format: node2.format };
+          case "sequence":
+            return { type: "sequence", items: node2.items.map((item) => asValue(item)), range: asRange(node2) };
+          case "map": {
+            const properties = node2.properties.map((property) => ({ key: asValue(property.key), value: asValue(property.value) }));
+            return { type: "map", properties, range: asRange(node2) };
+          }
+        }
+      }, "asValue");
       const attributes = [];
-      const errors = yamlErrors.map((err) => ({ message: err.message, range: this.asRange(err), code: err.code }));
+      const errors = yamlErrors.map((err) => ({ message: err.message, range: asRange(err), code: err.code }));
       if (node) {
-        if (node.type !== "object") {
+        if (node.type !== "map") {
           errors.push({ message: "Invalid header, expecting <key: value> pairs", range: this.range, code: "INVALID_YAML" });
         } else {
           for (const property of node.properties) {
             attributes.push({
               key: property.key.value,
-              range: this.asRange({ start: property.key.start, end: property.value.end }),
-              value: this.asValue(property.value)
+              range: asRange({ startOffset: property.key.startOffset, endOffset: property.value.endOffset }),
+              value: asValue(property.value)
             });
           }
         }
@@ -117,27 +136,6 @@ class PromptHeader {
       this._parsed = { node, attributes, errors };
     }
     return this._parsed;
-  }
-  asRange({ start, end }) {
-    return new Range(this.range.startLineNumber + start.line, start.character + 1, this.range.startLineNumber + end.line, end.character + 1);
-  }
-  asValue(node) {
-    switch (node.type) {
-      case "string":
-        return { type: "string", value: node.value, range: this.asRange(node) };
-      case "number":
-        return { type: "number", value: node.value, range: this.asRange(node) };
-      case "boolean":
-        return { type: "boolean", value: node.value, range: this.asRange(node) };
-      case "null":
-        return { type: "null", value: node.value, range: this.asRange(node) };
-      case "array":
-        return { type: "array", items: node.items.map((item) => this.asValue(item)), range: this.asRange(node) };
-      case "object": {
-        const properties = node.properties.map((property) => ({ key: this.asValue(property.key), value: this.asValue(property.value) }));
-        return { type: "object", properties, range: this.asRange(node) };
-      }
-    }
   }
   get attributes() {
     return this._parsedHeader.attributes;
@@ -150,7 +148,7 @@ class PromptHeader {
   }
   getStringAttribute(key) {
     const attribute = this._parsedHeader.attributes.find((attr) => attr.key === key);
-    if (attribute?.value.type === "string") {
+    if (attribute?.value.type === "scalar") {
       return attribute.value.value;
     }
     return void 0;
@@ -185,11 +183,7 @@ class PromptHeader {
     return this.getStringAttribute(PromptHeaderAttributes.target);
   }
   get infer() {
-    const attribute = this._parsedHeader.attributes.find((attr) => attr.key === PromptHeaderAttributes.infer);
-    if (attribute?.value.type === "boolean") {
-      return attribute.value.value;
-    }
-    return void 0;
+    return this.getBooleanAttribute(PromptHeaderAttributes.infer);
   }
   get tools() {
     const toolsAttribute = this._parsedHeader.attributes.find((attr) => attr.key === PromptHeaderAttributes.tools);
@@ -197,13 +191,13 @@ class PromptHeader {
       return void 0;
     }
     let value = toolsAttribute.value;
-    if (value.type === "string") {
+    if (value.type === "scalar") {
       value = parseCommaSeparatedList(value);
     }
-    if (value.type === "array") {
+    if (value.type === "sequence") {
       const tools = [];
       for (const item of value.items) {
-        if (item.type === "string" && item.value) {
+        if (item.type === "scalar" && item.value) {
           tools.push(item.value);
         }
       }
@@ -216,10 +210,10 @@ class PromptHeader {
     if (!handoffsAttribute) {
       return void 0;
     }
-    if (handoffsAttribute.value.type === "array") {
+    if (handoffsAttribute.value.type === "sequence") {
       const handoffs = [];
       for (const item of handoffsAttribute.value.items) {
-        if (item.type === "object") {
+        if (item.type === "map") {
           let agent;
           let label;
           let prompt;
@@ -227,17 +221,17 @@ class PromptHeader {
           let showContinueOn;
           let model;
           for (const prop of item.properties) {
-            if (prop.key.value === "agent" && prop.value.type === "string") {
+            if (prop.key.value === "agent" && prop.value.type === "scalar") {
               agent = prop.value.value;
-            } else if (prop.key.value === "label" && prop.value.type === "string") {
+            } else if (prop.key.value === "label" && prop.value.type === "scalar") {
               label = prop.value.value;
-            } else if (prop.key.value === "prompt" && prop.value.type === "string") {
+            } else if (prop.key.value === "prompt" && prop.value.type === "scalar") {
               prompt = prop.value.value;
-            } else if (prop.key.value === "send" && prop.value.type === "boolean") {
-              send = prop.value.value;
-            } else if (prop.key.value === "showContinueOn" && prop.value.type === "boolean") {
-              showContinueOn = prop.value.value;
-            } else if (prop.key.value === "model" && prop.value.type === "string") {
+            } else if (prop.key.value === "send" && prop.value.type === "scalar") {
+              send = parseBoolean(prop.value);
+            } else if (prop.key.value === "showContinueOn" && prop.value.type === "scalar") {
+              showContinueOn = parseBoolean(prop.value);
+            } else if (prop.key.value === "model" && prop.value.type === "scalar") {
               model = prop.value.value;
             }
           }
@@ -263,10 +257,10 @@ class PromptHeader {
     if (!attribute) {
       return void 0;
     }
-    if (attribute.value.type === "array") {
+    if (attribute.value.type === "sequence") {
       const result = [];
       for (const item of attribute.value.items) {
-        if (item.type === "string" && item.value) {
+        if (item.type === "scalar" && item.value) {
           result.push(item.value);
         }
       }
@@ -279,13 +273,13 @@ class PromptHeader {
     if (!attribute) {
       return void 0;
     }
-    if (attribute.value.type === "string") {
+    if (attribute.value.type === "scalar") {
       return [attribute.value.value];
     }
-    if (attribute.value.type === "array") {
+    if (attribute.value.type === "sequence") {
       const result = [];
       for (const item of attribute.value.items) {
-        if (item.type === "string") {
+        if (item.type === "scalar") {
           result.push(item.value);
         }
       }
@@ -304,12 +298,21 @@ class PromptHeader {
   }
   getBooleanAttribute(key) {
     const attribute = this._parsedHeader.attributes.find((attr) => attr.key === key);
-    if (attribute?.value.type === "boolean") {
-      return attribute.value.value;
+    if (attribute?.value.type === "scalar") {
+      return parseBoolean(attribute.value);
     }
     return void 0;
   }
 }
+function parseBoolean(stringValue) {
+  if (stringValue.value === "true") {
+    return true;
+  } else if (stringValue.value === "false") {
+    return false;
+  }
+  return void 0;
+}
+__name(parseBoolean, "parseBoolean");
 class PromptBody {
   static {
     __name(this, "PromptBody");
@@ -408,6 +411,7 @@ function parseCommaSeparatedList(stringValue) {
     const startPos = pos;
     let value = "";
     let endPos;
+    let quoteStyle;
     const char = input[pos];
     if (char === '"' || char === `'`) {
       const quote = char;
@@ -420,6 +424,7 @@ function parseCommaSeparatedList(stringValue) {
       if (pos < input.length) {
         pos++;
       }
+      quoteStyle = quote === '"' ? "double" : "single";
     } else {
       const startPos2 = pos;
       while (pos < input.length && input[pos] !== ",") {
@@ -428,8 +433,9 @@ function parseCommaSeparatedList(stringValue) {
       }
       value = value.trimEnd();
       endPos = startPos2 + value.length;
+      quoteStyle = "none";
     }
-    result.push({ type: "string", value, range: new Range(positionOffset.lineNumber, positionOffset.column + startPos, positionOffset.lineNumber, positionOffset.column + endPos) });
+    result.push({ type: "scalar", value, range: new Range(positionOffset.lineNumber, positionOffset.column + startPos, positionOffset.lineNumber, positionOffset.column + endPos), format: quoteStyle });
     while (pos < input.length && isWhitespace(input[pos])) {
       pos++;
     }
@@ -437,7 +443,7 @@ function parseCommaSeparatedList(stringValue) {
       pos++;
     }
   }
-  return { type: "array", items: result, range: stringValue.range };
+  return { type: "sequence", items: result, range: stringValue.range };
 }
 __name(parseCommaSeparatedList, "parseCommaSeparatedList");
 export {

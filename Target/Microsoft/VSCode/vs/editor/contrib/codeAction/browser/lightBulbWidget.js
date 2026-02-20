@@ -20,6 +20,7 @@ import { Disposable } from "../../../../base/common/lifecycle.js";
 import { autorun, derived, observableValue } from "../../../../base/common/observable.js";
 import { ThemeIcon } from "../../../../base/common/themables.js";
 import "./lightBulbWidget.css";
+import { ShowLightbulbIconMode } from "../../../common/config/editorOptions.js";
 import { GlyphMarginLane } from "../../../common/model.js";
 import { ModelDecorationOptions } from "../../../common/model/textModel.js";
 import { computeIndentLevel } from "../../../common/model/utils.js";
@@ -58,6 +59,41 @@ var LightBulbState;
   }
   LightBulbState2.Showing = Showing;
 })(LightBulbState || (LightBulbState = {}));
+function computeLightBulbInfo(actions, trigger, preferredKbLabel, quickFixKbLabel, forGutter = false) {
+  if (actions.validActions.length <= 0) {
+    return void 0;
+  }
+  let icon;
+  let autoRun = false;
+  if (actions.allAIFixes) {
+    icon = forGutter ? GUTTER_SPARKLE_FILLED_ICON : Codicon.sparkleFilled;
+    if (actions.validActions.length === 1) {
+      autoRun = true;
+    }
+  } else if (actions.hasAutoFix) {
+    if (actions.hasAIFix) {
+      icon = forGutter ? GUTTER_LIGHTBULB_AIFIX_AUTO_FIX_ICON : Codicon.lightbulbSparkleAutofix;
+    } else {
+      icon = forGutter ? GUTTER_LIGHTBULB_AUTO_FIX_ICON : Codicon.lightbulbAutofix;
+    }
+  } else if (actions.hasAIFix) {
+    icon = forGutter ? GUTTER_LIGHTBULB_AIFIX_ICON : Codicon.lightbulbSparkle;
+  } else {
+    icon = forGutter ? GUTTER_LIGHTBULB_ICON : Codicon.lightBulb;
+  }
+  let title;
+  if (autoRun) {
+    title = nls.localize("codeActionAutoRun", "Run: {0}", actions.validActions[0].action.title);
+  } else if (actions.hasAutoFix && preferredKbLabel) {
+    title = nls.localize("preferredcodeActionWithKb", "Show Code Actions. Preferred Quick Fix Available ({0})", preferredKbLabel);
+  } else if (!actions.hasAutoFix && quickFixKbLabel) {
+    title = nls.localize("codeActionWithKb", "Show Code Actions ({0})", quickFixKbLabel);
+  } else {
+    title = nls.localize("codeAction", "Show Code Actions");
+  }
+  return { actions, trigger, icon, autoRun, title, isGutter: forGutter };
+}
+__name(computeLightBulbInfo, "computeLightBulbInfo");
 let LightBulbWidget = class LightBulbWidget2 extends Disposable {
   static {
     __name(this, "LightBulbWidget");
@@ -86,41 +122,13 @@ let LightBulbWidget = class LightBulbWidget2 extends Disposable {
     if (state.type !== 1) {
       return void 0;
     }
-    const { actions, trigger } = state;
-    let icon;
-    let autoRun = false;
-    if (actions.allAIFixes) {
-      icon = forGutter ? GUTTER_SPARKLE_FILLED_ICON : Codicon.sparkleFilled;
-      if (actions.validActions.length === 1) {
-        autoRun = true;
-      }
-    } else if (actions.hasAutoFix) {
-      if (actions.hasAIFix) {
-        icon = forGutter ? GUTTER_LIGHTBULB_AIFIX_AUTO_FIX_ICON : Codicon.lightbulbSparkleAutofix;
-      } else {
-        icon = forGutter ? GUTTER_LIGHTBULB_AUTO_FIX_ICON : Codicon.lightbulbAutofix;
-      }
-    } else if (actions.hasAIFix) {
-      icon = forGutter ? GUTTER_LIGHTBULB_AIFIX_ICON : Codicon.lightbulbSparkle;
-    } else {
-      icon = forGutter ? GUTTER_LIGHTBULB_ICON : Codicon.lightBulb;
-    }
-    let title;
-    if (autoRun) {
-      title = nls.localize("codeActionAutoRun", "Run: {0}", actions.validActions[0].action.title);
-    } else if (actions.hasAutoFix && preferredKbLabel) {
-      title = nls.localize("preferredcodeActionWithKb", "Show Code Actions. Preferred Quick Fix Available ({0})", preferredKbLabel);
-    } else if (!actions.hasAutoFix && quickFixKbLabel) {
-      title = nls.localize("codeActionWithKb", "Show Code Actions ({0})", quickFixKbLabel);
-    } else {
-      title = nls.localize("codeAction", "Show Code Actions");
-    }
-    return { actions, trigger, icon, autoRun, title, isGutter: forGutter };
+    return computeLightBulbInfo(state.actions, state.trigger, preferredKbLabel, quickFixKbLabel, forGutter);
   }
   constructor(_editor, _keybindingService) {
     super();
     this._editor = _editor;
     this._keybindingService = _keybindingService;
+    this.onlyWithEmptySelection = false;
     this._onClick = this._register(new Emitter());
     this.onClick = this._onClick.event;
     this._state = observableValue(this, LightBulbState.Hidden);
@@ -249,16 +257,20 @@ let LightBulbWidget = class LightBulbWidget2 extends Disposable {
       this.gutterHide();
       return this.hide();
     }
+    if (this.onlyWithEmptySelection && !this._editor.getSelection()?.isEmpty()) {
+      this.gutterHide();
+      return this.hide();
+    }
     const hasTextFocus = this._editor.hasTextFocus();
     if (!hasTextFocus) {
       this.gutterHide();
       return this.hide();
     }
     const options = this._editor.getOptions();
-    if (!options.get(
+    if (options.get(
       73
       /* EditorOption.lightbulb */
-    ).enabled) {
+    ).enabled === ShowLightbulbIconMode.Off) {
       this.gutterHide();
       return this.hide();
     }
@@ -421,6 +433,7 @@ LightBulbWidget = LightBulbWidget_1 = __decorate([
   __param(1, IKeybindingService)
 ], LightBulbWidget);
 export {
-  LightBulbWidget
+  LightBulbWidget,
+  computeLightBulbInfo
 };
 //# sourceMappingURL=lightBulbWidget.js.map

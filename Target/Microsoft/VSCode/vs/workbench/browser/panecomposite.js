@@ -154,7 +154,8 @@ class PaneCompositeDescriptor extends CompositeDescriptor {
 const Extensions = {
   Viewlets: "workbench.contributions.viewlets",
   Panels: "workbench.contributions.panels",
-  Auxiliary: "workbench.contributions.auxiliary"
+  Auxiliary: "workbench.contributions.auxiliary",
+  ChatBar: "workbench.contributions.chatbar"
 };
 class PaneCompositeRegistry extends CompositeRegistry {
   static {
@@ -188,6 +189,7 @@ class PaneCompositeRegistry extends CompositeRegistry {
 Registry.add(Extensions.Viewlets, new PaneCompositeRegistry());
 Registry.add(Extensions.Panels, new PaneCompositeRegistry());
 Registry.add(Extensions.Auxiliary, new PaneCompositeRegistry());
+Registry.add(Extensions.ChatBar, new PaneCompositeRegistry());
 export {
   Extensions,
   PaneComposite,

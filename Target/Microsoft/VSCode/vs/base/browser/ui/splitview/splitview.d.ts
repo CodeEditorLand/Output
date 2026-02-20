@@ -1,31 +1,10 @@
 import { Orientation, Sash } from '../sash/sash.js';
-import { CancellationToken } from '../../../common/cancellation.js';
 import { Color } from '../../../common/color.js';
 import { Event } from '../../../common/event.js';
 import { Disposable, IDisposable } from '../../../common/lifecycle.js';
 import { ScrollbarVisibility, ScrollEvent } from '../../../common/scrollable.js';
-import { CubicBezierCurve } from '../motion/motion.js';
 import './splitview.css';
 export { Orientation } from '../sash/sash.js';
-/**
- * Options for animating a view visibility change in a {@link SplitView}.
- */
-export interface IViewVisibilityAnimationOptions {
-    /** Transition duration in milliseconds. */
-    readonly duration: number;
-    /** The easing curve applied to the animation. */
-    readonly easing: CubicBezierCurve;
-    /**
-     * Optional callback invoked when the animation finishes naturally.
-     * NOT called if the animation is cancelled via the {@link token}.
-     */
-    readonly onComplete?: () => void;
-    /**
-     * A cancellation token that allows the caller to stop the animation.
-     * When cancellation is requested the animation snaps to its final state.
-     */
-    readonly token: CancellationToken;
-}
 export interface ISplitViewStyles {
     readonly separatorBorder: Color;
 }
@@ -396,33 +375,10 @@ export declare class SplitView<TLayoutContext = undefined, TView extends IView<T
     /**
      * Set a {@link IView view}'s visibility.
      *
-     * When {@link animation} is provided and motion is not reduced, the
-     * visibility change is animated. Otherwise the change is applied
-     * instantly. Any in-flight animation is always cancelled first.
-     *
      * @param index The {@link IView view} index.
      * @param visible Whether the {@link IView view} should be visible.
-     * @param animation Optional animation options. When omitted (or when
-     *   the user prefers reduced motion) the change is instant.
      */
-    setViewVisible(index: number, visible: boolean, animation?: IViewVisibilityAnimationOptions): void;
-    /**
-     * Apply the visibility change to the model without animation.
-     */
-    private _setViewVisibleInstant;
-    /**
-     * Animate the visibility change using `requestAnimationFrame`.
-     *
-     * Interpolates all view sizes on each frame, which naturally cascades
-     * layout changes through nested splitviews in the grid hierarchy
-     * (e.g., the bottom panel resizing when the sidebar animates).
-     *
-     * The animation can be cancelled via {@link IViewVisibilityAnimationOptions.token}.
-     * {@link IViewVisibilityAnimationOptions.onComplete} is only called when the
-     * animation finishes naturally (not on cancellation).
-     */
-    private _setViewVisibleAnimated;
-    private _cleanupMotion;
+    setViewVisible(index: number, visible: boolean): void;
     /**
      * Returns the {@link IView view}'s size previously to being hidden.
      *

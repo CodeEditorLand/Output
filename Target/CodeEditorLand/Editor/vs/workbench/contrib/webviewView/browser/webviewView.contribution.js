@@ -1,1 +1,1 @@
-import{$WC as m}from"../../../../platform/instantiation/common/extensions.js";import{$I8b as o,$J8b as r}from"./webviewViewService.js";m(o,r,1);
+import{$oD as o}from"../../../../platform/instantiation/common/extensions.js";import{$I0b as m,$J0b as r}from"./webviewViewService.js";o(m,r,1);

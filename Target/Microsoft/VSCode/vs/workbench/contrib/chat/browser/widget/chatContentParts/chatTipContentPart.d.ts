@@ -8,7 +8,6 @@ import { IMarkdownRenderer } from '../../../../../../platform/markdown/browser/m
 import { IChatTip, IChatTipService } from '../../chatTipService.js';
 export declare class ChatTipContentPart extends Disposable {
     private readonly _renderer;
-    private readonly _getNextTip;
     private readonly _chatTipService;
     private readonly _contextMenuService;
     private readonly _menuService;
@@ -20,7 +19,7 @@ export declare class ChatTipContentPart extends Disposable {
     private readonly _renderedContent;
     private readonly _toolbar;
     private readonly _inChatTipContextKey;
-    constructor(tip: IChatTip, _renderer: IMarkdownRenderer, _getNextTip: () => IChatTip | undefined, _chatTipService: IChatTipService, _contextMenuService: IContextMenuService, _menuService: IMenuService, _contextKeyService: IContextKeyService, _instantiationService: IInstantiationService);
+    constructor(tip: IChatTip, _renderer: IMarkdownRenderer, _chatTipService: IChatTipService, _contextMenuService: IContextMenuService, _menuService: IMenuService, _contextKeyService: IContextKeyService, _instantiationService: IInstantiationService);
     hasFocus(): boolean;
     focus(): void;
     private _renderTip;

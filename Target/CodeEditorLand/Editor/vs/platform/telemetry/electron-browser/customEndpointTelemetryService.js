@@ -1,1 +1,1 @@
-import{$YPc as m}from"../../ipc/electron-browser/services.js";import{$rp as o}from"../common/telemetry.js";m(o,"customEndpointTelemetry");
+import{$oSc as o}from"../../ipc/electron-browser/services.js";import{$rp as m}from"../common/telemetry.js";o(m,"customEndpointTelemetry");

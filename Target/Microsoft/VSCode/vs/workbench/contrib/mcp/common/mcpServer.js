@@ -39,6 +39,7 @@ import { IEditorService } from "../../../services/editor/common/editorService.js
 import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
 import { IExtensionService } from "../../../services/extensions/common/extensions.js";
 import { IOutputService } from "../../../services/output/common/output.js";
+import { chatSessionResourceToId } from "../../chat/common/model/chatUri.js";
 import { mcpActivationEvent } from "./mcpConfiguration.js";
 import { McpDevModeServerAttache } from "./mcpDevMode.js";
 import { McpIcons, parseAndValidateMcpIcon } from "./mcpIcons.js";
@@ -805,8 +806,8 @@ let McpTool = class McpTool2 {
         }));
       }
       const meta = { progressToken };
-      if (context?.chatSessionId) {
-        meta["vscode.conversationId"] = context.chatSessionId;
+      if (context?.chatSessionResource) {
+        meta["vscode.conversationId"] = chatSessionResourceToId(context.chatSessionResource);
       }
       if (context?.chatRequestId) {
         meta["vscode.requestId"] = context.chatRequestId;

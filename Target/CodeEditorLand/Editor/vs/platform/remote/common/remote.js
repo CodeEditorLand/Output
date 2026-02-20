@@ -1,1 +1,1 @@
-const e="remote.defaultExtensionsIfInstalledLocally";export{e as $LGc};
+const e="remote.defaultExtensionsIfInstalledLocally";export{e as $0Ic};

@@ -127,6 +127,8 @@ export declare class ChatInputPart extends Disposable implements IHistoryNavigat
     private readonly _chatQuestionCarouselWidget;
     private readonly _chatQuestionCarouselDisposables;
     private _currentQuestionCarouselResponseId;
+    private _currentQuestionCarouselSessionResource;
+    private _hasQuestionCarouselContextKey;
     private readonly _chatEditingTodosDisposables;
     private _lastEditingSessionResource;
     private _onDidLoadInputState;
@@ -208,12 +210,14 @@ export declare class ChatInputPart extends Disposable implements IHistoryNavigat
     private editingSentRequestKey;
     private chatModeKindKey;
     private chatModeNameKey;
+    private chatModelIdKey;
     private withinEditSessionKey;
     private filePartOfEditSessionKey;
     private chatSessionHasOptions;
     private chatSessionOptionsValid;
     private agentSessionTypeKey;
     private chatSessionHasCustomAgentTarget;
+    private chatSessionHasTargetedModels;
     private modelWidget;
     private modeWidget;
     private sessionTargetWidget;
@@ -249,8 +253,10 @@ export declare class ChatInputPart extends Disposable implements IHistoryNavigat
     private _workingSetLinesAddedSpan;
     private _workingSetLinesRemovedSpan;
     private readonly _chatEditsActionsDisposables;
+    private readonly _chatEditsDisposables;
     private readonly _renderingChatEdits;
-    private readonly _chatEditsListWidget;
+    private _chatEditsListPool;
+    private _chatEditList;
     get selectedElements(): URI[];
     private _attemptedWorkingSetEntriesCount;
     /**
@@ -271,6 +277,7 @@ export declare class ChatInputPart extends Disposable implements IHistoryNavigat
     private _emptyInputState;
     private _chatSessionIsEmpty;
     private _pendingDelegationTarget;
+    private _currentSessionType;
     constructor(location: ChatAgentLocation, options: IChatInputPartOptions, styles: IChatInputStyles, inline: boolean, modelService: IModelService, instantiationService: IInstantiationService, contextKeyService: IContextKeyService, configurationService: IConfigurationService, keybindingService: IKeybindingService, accessibilityService: IAccessibilityService, languageModelsService: ILanguageModelsService, logService: ILogService, fileService: IFileService, editorService: IEditorService, themeService: IThemeService, textModelResolverService: ITextModelService, storageService: IStorageService, agentService: IChatAgentService, sharedWebExtracterService: ISharedWebContentExtractorService, experimentService: IWorkbenchAssignmentService, entitlementService: IChatEntitlementService, chatModeService: IChatModeService, toolService: ILanguageModelToolsService, chatService: IChatService, chatSessionsService: IChatSessionsService, chatContextService: IChatContextService, agentSessionsService: IAgentSessionsService, workspaceContextService: IWorkspaceContextService, layoutService: IWorkbenchLayoutService, viewDescriptorService: IViewDescriptorService);
     private setImplicitContextEnablement;
     setIsWithinEditSession(inInsideDiff: boolean, isFilePartOfEditSession: boolean): void;
@@ -313,6 +320,34 @@ export declare class ChatInputPart extends Disposable implements IHistoryNavigat
     private modelSupportedForDefaultAgent;
     private modelSupportedForInlineChat;
     private getModels;
+    /**
+     * Get the chat session type for the current session, if any.
+     * Uses the delegate or `getChatSessionFromInternalUri` to determine the session type.
+     */
+    private getCurrentSessionType;
+    /**
+     * Check if any registered models target the current session type.
+     * This is used to set the context key that controls model picker visibility.
+     */
+    private hasModelsTargetingSessionType;
+    /**
+     * Check if a model is valid for the current session's model pool.
+     * If the session has targeted models, the model must target this session type.
+     * If no models target this session, the model must not have a targetChatSessionType.
+     */
+    private isModelValidForCurrentSession;
+    /**
+     * Validate that the current model belongs to the current session's pool.
+     * Called when switching sessions to prevent cross-contamination.
+     */
+    private checkModelInSessionPool;
+    /**
+     * Pre-select the model in the model picker based on the `modelId` from the
+     * last request in the current session's history. This ensures that when a
+     * contributed chat session is reopened, the model picker shows the model
+     * that was last used - providing continuity.
+     */
+    private preselectModelFromSessionHistory;
     private setCurrentLanguageModelToDefault;
     /**
      * Get the current input state for history

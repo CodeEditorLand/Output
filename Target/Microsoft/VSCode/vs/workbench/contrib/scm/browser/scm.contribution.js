@@ -44,6 +44,7 @@ import { EditorContextKeys } from "../../../../editor/common/editorContextKeys.j
 import { SCMHistoryItemContextContribution } from "./scmHistoryChatContext.js";
 import { ChatContextKeys } from "../../chat/common/actions/chatContextKeys.js";
 import { CHAT_SETUP_SUPPORT_ANONYMOUS_ACTION_ID } from "../../chat/browser/actions/chatActions.js";
+import { SCMInputContextKeys } from "./scmInput.js";
 import product from "../../../../platform/product/common/product.js";
 ModesRegistry.registerLanguage({
   id: "scminput",
@@ -455,7 +456,7 @@ KeybindingsRegistry.registerCommandAndKeybindingRule({
 KeybindingsRegistry.registerCommandAndKeybindingRule({
   id: "scm.clearValidation",
   weight: 200,
-  when: ContextKeyExpr.and(ContextKeyExpr.has("scmRepository"), ContextKeys.SCMInputHasValidationMessage),
+  when: ContextKeyExpr.and(ContextKeyExpr.has("scmRepository"), SCMInputContextKeys.SCMInputHasValidationMessage),
   primary: 9,
   handler: /* @__PURE__ */ __name(async (accessor) => {
     const scmViewService = accessor.get(ISCMViewService);
@@ -465,7 +466,7 @@ KeybindingsRegistry.registerCommandAndKeybindingRule({
 KeybindingsRegistry.registerCommandAndKeybindingRule({
   id: "scm.clearInput",
   weight: 200,
-  when: ContextKeyExpr.and(ContextKeyExpr.has("scmRepository"), SuggestContext.Visible.toNegated(), InlineCompletionContextKeys.inlineSuggestionVisible.toNegated(), ContextKeys.SCMInputHasValidationMessage.toNegated(), EditorContextKeys.hasNonEmptySelection.toNegated()),
+  when: ContextKeyExpr.and(ContextKeyExpr.has("scmRepository"), SuggestContext.Visible.toNegated(), InlineCompletionContextKeys.inlineSuggestionVisible.toNegated(), SCMInputContextKeys.SCMInputHasValidationMessage.toNegated(), EditorContextKeys.hasNonEmptySelection.toNegated()),
   primary: 9,
   handler: /* @__PURE__ */ __name(async (accessor) => {
     const scmService = accessor.get(ISCMService);

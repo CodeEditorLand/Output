@@ -55,6 +55,7 @@ export declare const Extensions: {
     Viewlets: string;
     Panels: string;
     Auxiliary: string;
+    ChatBar: string;
 };
 export declare class PaneCompositeRegistry extends CompositeRegistry<PaneComposite> {
     /**

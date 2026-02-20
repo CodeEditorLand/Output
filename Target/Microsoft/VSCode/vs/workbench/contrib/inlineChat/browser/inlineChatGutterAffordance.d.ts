@@ -1,8 +1,11 @@
+import { Event } from '../../../../base/common/event.js';
 import { IObservable, ISettableObservable } from '../../../../base/common/observable.js';
 import { ObservableCodeEditor } from '../../../../editor/browser/observableCodeEditor.js';
 import { Selection } from '../../../../editor/common/core/selection.js';
 import { InlineEditsGutterIndicator } from '../../../../editor/contrib/inlineCompletions/browser/view/inlineEdits/components/gutterIndicatorView.js';
 import { IAccessibilityService } from '../../../../platform/accessibility/common/accessibility.js';
+import { IMenuService } from '../../../../platform/actions/common/actions.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
 import { HoverService } from '../../../../platform/hover/browser/hoverService.js';
 import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
 import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
@@ -11,12 +14,12 @@ import { IUserInteractionService } from '../../../../platform/userInteraction/br
 export declare class InlineChatGutterAffordance extends InlineEditsGutterIndicator {
     private readonly _myEditorObs;
     private readonly _hover;
-    private readonly _keybindingService;
+    private readonly _onDidRunAction;
+    readonly onDidRunAction: Event<string>;
     constructor(_myEditorObs: ObservableCodeEditor, selection: IObservable<Selection | undefined>, _hover: ISettableObservable<{
         rect: DOMRect;
         above: boolean;
         lineNumber: number;
-    } | undefined>, _keybindingService: IKeybindingService, hoverService: HoverService, instantiationService: IInstantiationService, accessibilityService: IAccessibilityService, themeService: IThemeService, userInteractionService: IUserInteractionService);
-    protected _showHover(): void;
+    } | undefined>, _keybindingService: IKeybindingService, hoverService: HoverService, instantiationService: IInstantiationService, accessibilityService: IAccessibilityService, themeService: IThemeService, userInteractionService: IUserInteractionService, menuService: IMenuService, contextKeyService: IContextKeyService);
     private _doShowHover;
 }

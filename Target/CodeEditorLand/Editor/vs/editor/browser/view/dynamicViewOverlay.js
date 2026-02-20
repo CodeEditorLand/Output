@@ -1,1 +1,1 @@
-import{$Tcb as e}from"../../common/viewEventHandler.js";class s extends e{}export{s as $Zgb};
+import{$mI as e}from"../../common/viewEventHandler.js";class r extends e{}export{r as $Ohb};

@@ -115,19 +115,16 @@ let InlineAnchorWidget = class InlineAnchorWidget2 extends Disposable {
     this.notebookDocumentService = notebookDocumentService;
     this.openerService = openerService;
     this.data = "uri" in inlineReference.inlineReference ? inlineReference.inlineReference : "name" in inlineReference.inlineReference ? { kind: "symbol", symbol: inlineReference.inlineReference } : { uri: inlineReference.inlineReference };
-    const contextKeyService = this._register(originalContextKeyService.createScoped(element));
-    this._chatResourceContext = chatAttachmentResourceContextKey.bindTo(contextKeyService);
     element.classList.add(InlineAnchorWidget_1.className, "show-file-icons");
     let iconText;
     let iconClasses;
     let location;
-    let updateContextKeys;
     if (this.data.kind === "symbol") {
       const symbol = this.data.symbol;
       location = this.data.symbol.location;
       iconText = [this.data.symbol.name];
       iconClasses = ["codicon", ...getIconClasses(modelService, languageService, void 0, void 0, SymbolKinds.toIcon(symbol.kind))];
-      this._store.add(instantiationService.invokeFunction((accessor) => hookUpSymbolAttachmentDragAndContextMenu(accessor, element, contextKeyService, { value: symbol.location, name: symbol.name, kind: symbol.kind }, MenuId.ChatInlineSymbolAnchorContext)));
+      this._store.add(instantiationService.invokeFunction((accessor) => hookUpSymbolAttachmentDragAndContextMenu(accessor, element, originalContextKeyService, { value: symbol.location, name: symbol.name, kind: symbol.kind }, MenuId.ChatInlineSymbolAnchorContext)));
     } else {
       location = this.data;
       const filePathLabel = this.metadata?.linkText ?? labelService.getUriBasenameLabel(location.uri);
@@ -150,23 +147,28 @@ let InlineAnchorWidget = class InlineAnchorWidget2 extends Disposable {
       this._register(themeService.onDidFileIconThemeChange(() => {
         refreshIconClasses();
       }));
-      const isFolderContext = ExplorerFolderContext.bindTo(contextKeyService);
+      let isDirectory = false;
       fileService.stat(location.uri).then((stat) => {
-        isFolderContext.set(stat.isDirectory);
+        isDirectory = stat.isDirectory;
         if (stat.isDirectory) {
           fileKind = FileKind.FOLDER;
           refreshIconClasses();
         }
       }).catch(() => {
       });
+      const contextKeyService = this._register(originalContextKeyService.createScoped(element));
+      chatAttachmentResourceContextKey.bindTo(contextKeyService).set(location.uri.toString());
+      const isFolderContext = ExplorerFolderContext.bindTo(contextKeyService);
+      let contextMenuInitialized = false;
       this._register(dom.addDisposableListener(element, dom.EventType.CONTEXT_MENU, async (domEvent) => {
         const event = new StandardMouseEvent(dom.getWindow(domEvent), domEvent);
         dom.EventHelper.stop(domEvent, true);
-        try {
-          await updateContextKeys?.();
-        } catch (e) {
-          console.error(e);
+        if (!contextMenuInitialized) {
+          contextMenuInitialized = true;
+          const resourceContextKey = new StaticResourceContextKey(contextKeyService, fileService, languageService, modelService);
+          resourceContextKey.set(location.uri);
         }
+        isFolderContext.set(isDirectory);
         if (this._store.isDisposed) {
           return;
         }
@@ -187,9 +189,6 @@ let InlineAnchorWidget = class InlineAnchorWidget2 extends Disposable {
         }
       }
     }
-    const resourceContextKey = new StaticResourceContextKey(contextKeyService, fileService, languageService, modelService);
-    resourceContextKey.set(location.uri);
-    this._chatResourceContext.set(location.uri.toString());
     const iconEl = dom.$("span.icon");
     iconEl.classList.add(...iconClasses);
     element.replaceChildren(iconEl, dom.$("span.icon-label", {}, ...iconText));

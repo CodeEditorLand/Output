@@ -117,7 +117,10 @@ class BaseConfigurationResolverService extends AbstractVariableResolverService {
   }
   async resolveWithInteractionReplace(folder, config, section, variables, target) {
     const parsed = ConfigurationResolverExpression.parse(config);
-    await this.resolveWithInteraction(folder, parsed, section, variables, target);
+    const resolved = await this.resolveWithInteraction(folder, parsed, section, variables, target);
+    if (resolved === void 0) {
+      return void 0;
+    }
     return parsed.toObject();
   }
   async resolveWithInteraction(folder, config, section, variableToCommandMap, target) {

@@ -69,7 +69,7 @@ let ChatViewTitleControl = class ChatViewTitleControl2 extends Disposable {
       }
       async run(accessor) {
         const instantiationService = accessor.get(IInstantiationService);
-        const agentSessionsPicker = instantiationService.createInstance(AgentSessionsPicker, that.titleLabel.value?.element);
+        const agentSessionsPicker = instantiationService.createInstance(AgentSessionsPicker, that.titleLabel.value?.element, void 0);
         await agentSessionsPicker.pickAgentSession();
       }
     }));

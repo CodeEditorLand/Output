@@ -208,6 +208,7 @@ let XtermTerminal = class XtermTerminal2 extends Disposable {
         kittyKeyboard: config.enableKittyKeyboardProtocol,
         win32InputMode: config.enableWin32InputMode
       },
+      allowTransparency: config.enableImages,
       windowOptions: {
         getWinSizePixels: true,
         getCellSizePixels: true,
@@ -476,6 +477,7 @@ let XtermTerminal = class XtermTerminal2 extends Disposable {
     this.raw.options.wordSeparator = config.wordSeparators;
     this.raw.options.ignoreBracketedPasteMode = config.ignoreBracketedPasteMode;
     this.raw.options.rescaleOverlappingGlyphs = config.rescaleOverlappingGlyphs;
+    this.raw.options.allowTransparency = config.enableImages;
     this.raw.options.vtExtensions = {
       kittyKeyboard: config.enableKittyKeyboardProtocol,
       win32InputMode: config.enableWin32InputMode

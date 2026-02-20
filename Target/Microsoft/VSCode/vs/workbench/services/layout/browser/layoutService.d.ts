@@ -13,6 +13,7 @@ export declare const enum Parts {
     SIDEBAR_PART = "workbench.parts.sidebar",
     PANEL_PART = "workbench.parts.panel",
     AUXILIARYBAR_PART = "workbench.parts.auxiliarybar",
+    CHATBAR_PART = "workbench.parts.chatbar",
     EDITOR_PART = "workbench.parts.editor",
     STATUSBAR_PART = "workbench.parts.statusbar"
 }

@@ -32,7 +32,7 @@ import { IURLService } from "../../../../platform/url/common/url.js";
 import { IUserDataProfilesService } from "../../../../platform/userDataProfile/common/userDataProfile.js";
 import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
 import { MCP_CONFIGURATION_KEY, WORKSPACE_STANDALONE_CONFIGURATIONS } from "../../../services/configuration/common/configuration.js";
-import { ACTIVE_GROUP, IEditorService } from "../../../services/editor/common/editorService.js";
+import { ACTIVE_GROUP, IEditorService, MODAL_GROUP } from "../../../services/editor/common/editorService.js";
 import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
 import { IWorkbenchMcpManagementService, REMOTE_USER_CONFIG_ID, USER_CONFIG_ID, WORKSPACE_CONFIG_ID, WORKSPACE_FOLDER_CONFIG_ID_PREFIX } from "../../../services/mcp/common/mcpWorkbenchManagementService.js";
 import { IRemoteAgentService } from "../../../services/remote/common/remoteAgentService.js";
@@ -619,7 +619,8 @@ let McpWorkbenchService = class McpWorkbenchService2 extends Disposable {
     await this.extensionsWorkbenchService.openSearch(`@mcp ${searchValue}`, preserveFoucs);
   }
   async open(extension, options) {
-    await this.editorService.openEditor(this.instantiationService.createInstance(McpServerEditorInput, extension), options, ACTIVE_GROUP);
+    const useModal = this.configurationService.getValue("extensions.allowOpenInModalEditor");
+    await this.editorService.openEditor(this.instantiationService.createInstance(McpServerEditorInput, extension), options, useModal ? MODAL_GROUP : ACTIVE_GROUP);
   }
   getInstallState(extension) {
     if (this.installing.some((i) => i.name === extension.name)) {

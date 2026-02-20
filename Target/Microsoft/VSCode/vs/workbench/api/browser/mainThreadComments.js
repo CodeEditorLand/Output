@@ -195,10 +195,13 @@ class MainThreadCommentThread {
   dispose() {
     this._isDisposed = true;
     this._onDidChangeCollapsibleState.dispose();
+    this._onDidChangeInitialCollapsibleState.dispose();
     this._onDidChangeComments.dispose();
     this._onDidChangeInput.dispose();
     this._onDidChangeLabel.dispose();
+    this._onDidChangeCanReply.dispose();
     this._onDidChangeState.dispose();
+    this._onDidChangeApplicability.dispose();
   }
   toJSON() {
     return {

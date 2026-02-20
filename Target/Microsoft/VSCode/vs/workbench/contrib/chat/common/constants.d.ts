@@ -5,7 +5,6 @@ export declare enum ChatConfiguration {
     AgentEnabled = "chat.agent.enabled",
     PlanAgentDefaultModel = "chat.planAgent.defaultModel",
     ExploreAgentDefaultModel = "chat.exploreAgent.defaultModel",
-    RequestQueueingEnabled = "chat.requestQueuing.enabled",
     RequestQueueingDefaultAction = "chat.requestQueuing.defaultAction",
     AgentStatusEnabled = "chat.agentsControl.enabled",
     EditorAssociations = "chat.editorAssociations",
@@ -35,12 +34,14 @@ export declare enum ChatConfiguration {
     ChatViewSessionsGrouping = "chat.viewSessions.grouping",
     ChatViewSessionsOrientation = "chat.viewSessions.orientation",
     ChatViewProgressBadgeEnabled = "chat.viewProgressBadge.enabled",
+    ChatContextUsageEnabled = "chat.contextUsage.enabled",
     SubagentToolCustomAgents = "chat.customAgentInSubagent.enabled",
     ShowCodeBlockProgressAnimation = "chat.agent.codeBlockProgress",
     RestoreLastPanelSession = "chat.restoreLastPanelSession",
     ExitAfterDelegation = "chat.exitAfterDelegation",
     AgentsControlClickBehavior = "chat.agentsControl.clickBehavior",
-    ExplainChangesEnabled = "chat.editing.explainChanges.enabled"
+    ExplainChangesEnabled = "chat.editing.explainChanges.enabled",
+    GrowthNotificationEnabled = "chat.growthNotification.enabled"
 }
 /**
  * The "kind" of agents for custom agents.
@@ -64,8 +65,7 @@ export declare enum CollapsedToolsDisplayMode {
 }
 export declare enum AgentsControlClickBehavior {
     Default = "default",
-    Cycle = "cycle",
-    Focus = "focus"
+    Cycle = "cycle"
 }
 export type RawChatParticipantLocation = 'panel' | 'terminal' | 'notebook' | 'editing-session';
 export declare enum ChatAgentLocation {

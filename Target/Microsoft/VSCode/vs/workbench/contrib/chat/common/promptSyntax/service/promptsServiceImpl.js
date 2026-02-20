@@ -412,10 +412,10 @@ let PromptsService = class PromptsService2 extends Disposable {
       let metadata;
       if (ast.header) {
         const advanced = ast.header.getAttribute(PromptHeaderAttributes.advancedOptions);
-        if (advanced && advanced.value.type === "object") {
+        if (advanced && advanced.value.type === "map") {
           metadata = {};
           for (const [key, value] of Object.entries(advanced.value)) {
-            if (["string", "number", "boolean"].includes(value.type)) {
+            if (value.type === "scalar") {
               metadata[key] = value;
             }
           }
@@ -808,8 +808,6 @@ let PromptsService = class PromptsService2 extends Disposable {
     this.logger.trace(`[PromptsService] Found ${hookFiles.length} hook file(s).`);
     const userHomeUri = await this.pathService.userHome();
     const userHome = userHomeUri.scheme === Schemas.file ? userHomeUri.fsPath : userHomeUri.path;
-    const workspaceFolder = this.workspaceService.getWorkspace().folders[0];
-    const workspaceRootUri = workspaceFolder?.uri;
     let hasDisabledClaudeHooks = false;
     const collectedHooks = {
       [HookType.SessionStart]: [],
@@ -821,10 +819,13 @@ let PromptsService = class PromptsService2 extends Disposable {
       [HookType.SubagentStop]: [],
       [HookType.Stop]: []
     };
+    const defaultFolder = this.workspaceService.getWorkspace().folders[0];
     for (const hookFile of hookFiles) {
       try {
         const content = await this.fileService.readFile(hookFile.uri);
         const json = parseJSONC(content.value.toString());
+        const hookWorkspaceFolder = this.workspaceService.getWorkspaceFolder(hookFile.uri) ?? defaultFolder;
+        const workspaceRootUri = hookWorkspaceFolder?.uri;
         const { format, hooks, disabledAllHooks } = parseHooksFromFile(hookFile.uri, json, workspaceRootUri, userHome);
         if (disabledAllHooks) {
           this.logger.trace(`[PromptsService] Skipping hook file with disableAllHooks: ${hookFile.uri}`);
@@ -1060,8 +1061,6 @@ let PromptsService = class PromptsService2 extends Disposable {
     const files = [];
     const userHomeUri = await this.pathService.userHome();
     const userHome = userHomeUri.scheme === Schemas.file ? userHomeUri.fsPath : userHomeUri.path;
-    const workspaceFolder = this.workspaceService.getWorkspace().folders[0];
-    const workspaceRootUri = workspaceFolder?.uri;
     const useClaudeHooks = this.configurationService.getValue(PromptsConfig.USE_CLAUDE_HOOKS);
     const hookFiles = await this.listPromptFiles(PromptsType.hook, token);
     for (const promptPath of hookFiles) {
@@ -1095,6 +1094,8 @@ let PromptsService = class PromptsService2 extends Disposable {
           });
           continue;
         }
+        const hookWorkspaceFolder = this.workspaceService.getWorkspaceFolder(uri) ?? this.workspaceService.getWorkspace().folders[0];
+        const workspaceRootUri = hookWorkspaceFolder?.uri;
         const { disabledAllHooks } = parseHooksFromFile(uri, json, workspaceRootUri, userHome);
         if (disabledAllHooks) {
           files.push({

@@ -448,6 +448,8 @@ class ExtHostSourceControlResourceGroup {
   dispose() {
     this._disposed = true;
     this._onDidDispose.fire();
+    this._onDidUpdateResourceStates.dispose();
+    this._onDidDispose.dispose();
   }
 }
 class ExtHostSourceControl {
@@ -729,6 +731,7 @@ class ExtHostSourceControl {
     this._artifactCommandsDisposables.dispose();
     this._groups.forEach((group) => group.dispose());
     this.#proxy.$unregisterSourceControl(this.handle);
+    this._onDidChangeSelection.dispose();
     this._onDidDispose.fire();
     this._onDidDispose.dispose();
   }

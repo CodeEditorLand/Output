@@ -42,8 +42,6 @@ import { AuxiliaryBarPart } from "./parts/auxiliarybar/auxiliaryBarPart.js";
 import { ITelemetryService } from "../../platform/telemetry/common/telemetry.js";
 import { IAuxiliaryWindowService } from "../services/auxiliaryWindow/browser/auxiliaryWindowService.js";
 import { mainWindow } from "../../base/browser/window.js";
-import { EASE_OUT, EASE_IN } from "../../base/browser/ui/motion/motion.js";
-import { CancellationToken } from "../../base/common/cancellation.js";
 var LayoutClasses;
 (function(LayoutClasses2) {
   LayoutClasses2["SIDEBAR_HIDDEN"] = "nosidebar";
@@ -1533,28 +1531,24 @@ class Layout extends Disposable {
       return;
     }
     this.stateModel.setRuntimeValue(LayoutStateKeys.SIDEBAR_HIDDEN, hidden);
-    if (!hidden) {
+    if (hidden) {
+      this.mainContainer.classList.add(LayoutClasses.SIDEBAR_HIDDEN);
+    } else {
       this.mainContainer.classList.remove(LayoutClasses.SIDEBAR_HIDDEN);
     }
-    this.workbenchGrid.setViewVisible(this.sideBarPartView, !hidden, createViewVisibilityAnimation(hidden, () => {
-      if (!hidden) {
-        return;
-      }
-      this.mainContainer.classList.add(LayoutClasses.SIDEBAR_HIDDEN);
-      if (this.paneCompositeService.getActivePaneComposite(
+    this.workbenchGrid.setViewVisible(this.sideBarPartView, !hidden);
+    if (hidden && this.paneCompositeService.getActivePaneComposite(
+      0
+      /* ViewContainerLocation.Sidebar */
+    )) {
+      this.paneCompositeService.hideActivePaneComposite(
         0
         /* ViewContainerLocation.Sidebar */
-      )) {
-        this.paneCompositeService.hideActivePaneComposite(
-          0
-          /* ViewContainerLocation.Sidebar */
-        );
-        if (!this.isAuxiliaryBarMaximized()) {
-          this.focusPanelOrEditor();
-        }
+      );
+      if (!this.isAuxiliaryBarMaximized()) {
+        this.focusPanelOrEditor();
       }
-    }));
-    if (!hidden && !this.paneCompositeService.getActivePaneComposite(
+    } else if (!hidden && !this.paneCompositeService.getActivePaneComposite(
       0
       /* ViewContainerLocation.Sidebar */
     )) {
@@ -1712,32 +1706,24 @@ class Layout extends Disposable {
     const isPanelMaximized = this.isPanelMaximized();
     this.stateModel.setRuntimeValue(LayoutStateKeys.PANEL_HIDDEN, hidden);
     const panelOpensMaximized = this.panelOpensMaximized();
+    if (hidden) {
+      this.mainContainer.classList.add(LayoutClasses.PANEL_HIDDEN);
+    } else {
+      this.mainContainer.classList.remove(LayoutClasses.PANEL_HIDDEN);
+    }
     if (hidden && isPanelMaximized) {
       this.toggleMaximizedPanel();
     }
-    if (!hidden) {
-      this.mainContainer.classList.remove(LayoutClasses.PANEL_HIDDEN);
-    }
-    this.workbenchGrid.setViewVisible(this.panelPartView, !hidden, createViewVisibilityAnimation(hidden, () => {
-      if (!hidden) {
-        return;
-      }
-      this.mainContainer.classList.add(LayoutClasses.PANEL_HIDDEN);
-      if (this.paneCompositeService.getActivePaneComposite(
-        1
-        /* ViewContainerLocation.Panel */
-      )) {
-        this.paneCompositeService.hideActivePaneComposite(
-          1
-          /* ViewContainerLocation.Panel */
-        );
-      }
-    }));
+    this.workbenchGrid.setViewVisible(this.panelPartView, !hidden);
     let focusEditor = false;
     if (hidden && this.paneCompositeService.getActivePaneComposite(
       1
       /* ViewContainerLocation.Panel */
     )) {
+      this.paneCompositeService.hideActivePaneComposite(
+        1
+        /* ViewContainerLocation.Panel */
+      );
       if (!isIOS && // do not auto focus on iOS (https://github.com/microsoft/vscode/issues/127832)
       !this.isAuxiliaryBarMaximized()) {
         focusEditor = true;
@@ -1894,26 +1880,22 @@ class Layout extends Disposable {
       return;
     }
     this.stateModel.setRuntimeValue(LayoutStateKeys.AUXILIARYBAR_HIDDEN, hidden);
-    if (!hidden) {
+    if (hidden) {
+      this.mainContainer.classList.add(LayoutClasses.AUXILIARYBAR_HIDDEN);
+    } else {
       this.mainContainer.classList.remove(LayoutClasses.AUXILIARYBAR_HIDDEN);
     }
-    this.workbenchGrid.setViewVisible(this.auxiliaryBarPartView, !hidden, createViewVisibilityAnimation(hidden, () => {
-      if (!hidden) {
-        return;
-      }
-      this.mainContainer.classList.add(LayoutClasses.AUXILIARYBAR_HIDDEN);
-      if (this.paneCompositeService.getActivePaneComposite(
+    this.workbenchGrid.setViewVisible(this.auxiliaryBarPartView, !hidden);
+    if (hidden && this.paneCompositeService.getActivePaneComposite(
+      2
+      /* ViewContainerLocation.AuxiliaryBar */
+    )) {
+      this.paneCompositeService.hideActivePaneComposite(
         2
         /* ViewContainerLocation.AuxiliaryBar */
-      )) {
-        this.paneCompositeService.hideActivePaneComposite(
-          2
-          /* ViewContainerLocation.AuxiliaryBar */
-        );
-        this.focusPanelOrEditor();
-      }
-    }));
-    if (!hidden && !this.paneCompositeService.getActivePaneComposite(
+      );
+      this.focusPanelOrEditor();
+    } else if (!hidden && !this.paneCompositeService.getActivePaneComposite(
       2
       /* ViewContainerLocation.AuxiliaryBar */
     )) {
@@ -2375,17 +2357,6 @@ function getZenModeConfiguration(configurationService) {
   return configurationService.getValue(WorkbenchLayoutSettings.ZEN_MODE_CONFIG);
 }
 __name(getZenModeConfiguration, "getZenModeConfiguration");
-const PANEL_OPEN_DURATION = 135;
-const PANEL_CLOSE_DURATION = 35;
-function createViewVisibilityAnimation(hidden, onComplete, token = CancellationToken.None) {
-  return {
-    duration: hidden ? PANEL_CLOSE_DURATION : PANEL_OPEN_DURATION,
-    easing: hidden ? EASE_IN : EASE_OUT,
-    token,
-    onComplete
-  };
-}
-__name(createViewVisibilityAnimation, "createViewVisibilityAnimation");
 class WorkbenchLayoutStateKey {
   static {
     __name(this, "WorkbenchLayoutStateKey");

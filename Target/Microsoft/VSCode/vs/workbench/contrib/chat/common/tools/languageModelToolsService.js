@@ -59,7 +59,7 @@ var ToolDataSource;
   ToolDataSource2.classify = classify;
 })(ToolDataSource || (ToolDataSource = {}));
 function isToolInvocationContext(obj) {
-  return typeof obj === "object" && typeof obj.sessionId === "string" && URI.isUri(obj.sessionResource);
+  return obj !== null && typeof obj === "object" && URI.isUri(obj.sessionResource);
 }
 __name(isToolInvocationContext, "isToolInvocationContext");
 function isToolResultInputOutputDetails(obj) {

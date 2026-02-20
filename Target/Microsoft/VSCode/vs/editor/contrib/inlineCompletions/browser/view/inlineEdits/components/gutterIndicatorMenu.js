@@ -56,11 +56,29 @@ let GutterIndicatorMenuContent = class GutterIndicatorMenuContent2 {
         isActive: activeElement.map((v) => v === options.id),
         onHoverChange: /* @__PURE__ */ __name((v) => activeElement.set(v ? options.id : void 0, void 0), "onHoverChange"),
         onAction: /* @__PURE__ */ __name(() => {
-          this._close(true);
-          return this._commandService.executeCommand(typeof options.commandId === "string" ? options.commandId : options.commandId.get(), ...options.commandArgs ?? []);
+          const commandId = typeof options.commandId === "string" ? options.commandId : options.commandId.get();
+          this._close(true, commandId);
+          return this._commandService.executeCommand(commandId, ...options.commandArgs ?? []);
         }, "onAction")
       };
     }, "createOptionArgs");
+    const extensionCommandGroups = this._data.extensionCommands.map((group) => group.map((c, idx) => option(createOptionArgs({
+      id: c.command.id + "_" + idx,
+      title: c.command.title,
+      icon: c.icon ?? Codicon.symbolEvent,
+      commandId: c.command.id,
+      commandArgs: c.command.arguments
+    }))));
+    const extensionCommandNodes = [];
+    for (const group of extensionCommandGroups) {
+      if (group.length > 0) {
+        extensionCommandNodes.push(separator());
+        extensionCommandNodes.push(...group);
+      }
+    }
+    if (this._data.extensionCommandsOnly) {
+      return hoverContent(extensionCommandNodes.slice(1));
+    }
     const title = header(this._data.displayName);
     const gotoAndAccept = option(createOptionArgs({
       id: "gotoAndAccept",
@@ -80,13 +98,6 @@ let GutterIndicatorMenuContent = class GutterIndicatorMenuContent2 {
       icon: this._data.alternativeAction.icon,
       commandId: inlineSuggestCommitAlternativeActionId
     })) : void 0;
-    const extensionCommands = this._data.extensionCommands.map((c, idx) => option(createOptionArgs({
-      id: c.command.id + "_" + idx,
-      title: c.command.title,
-      icon: c.icon ?? Codicon.symbolEvent,
-      commandId: c.command.id,
-      commandArgs: c.command.arguments
-    })));
     const showModelEnabled = false;
     const modelOptions = showModelEnabled ? this._data.modelInfo?.models.map((m) => option({
       title: m.name,
@@ -143,10 +154,9 @@ let GutterIndicatorMenuContent = class GutterIndicatorMenuContent2 {
       toggleCollapsedMode,
       modelOptions.length ? separator() : void 0,
       ...modelOptions,
-      extensionCommands.length ? separator() : void 0,
       snooze,
       settings,
-      ...extensionCommands,
+      ...extensionCommandNodes,
       actionBarFooter ? separator() : void 0,
       actionBarFooter
     ]);

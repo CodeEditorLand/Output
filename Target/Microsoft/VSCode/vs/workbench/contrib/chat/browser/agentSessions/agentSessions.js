@@ -27,7 +27,6 @@ function getAgentSessionProvider(sessionResource) {
     case AgentSessionProviders.Cloud:
     case AgentSessionProviders.Claude:
     case AgentSessionProviders.Codex:
-    case AgentSessionProviders.Growth:
       return type;
     default:
       return void 0;
@@ -82,10 +81,7 @@ function isFirstPartyAgentSessionProvider(provider) {
   }
 }
 __name(isFirstPartyAgentSessionProvider, "isFirstPartyAgentSessionProvider");
-function getAgentCanContinueIn(provider, contribution) {
-  if (contribution?.isReadOnly) {
-    return false;
-  }
+function getAgentCanContinueIn(provider) {
   switch (provider) {
     case AgentSessionProviders.Local:
     case AgentSessionProviders.Background:
@@ -111,7 +107,7 @@ function getAgentSessionProviderDescription(provider) {
     case AgentSessionProviders.Codex:
       return localize("chat.session.providerDescription.codex", "Opens a new Codex session in the editor. Codex sessions can be managed from the chat sessions view.");
     case AgentSessionProviders.Growth:
-      return localize("chat.session.providerDescription.growth", "Educational messages to help you learn Copilot features.");
+      return localize("chat.session.providerDescription.growth", "Learn about Copilot features.");
   }
 }
 __name(getAgentSessionProviderDescription, "getAgentSessionProviderDescription");

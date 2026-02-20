@@ -327,7 +327,8 @@ export declare enum EditorOption {
     inlineCompletionsAccessibilityVerbose = 169,
     effectiveEditContext = 170,
     scrollOnMiddleClick = 171,
-    effectiveAllowVariableFonts = 172
+    effectiveAllowVariableFonts = 172,
+    doubleClickSelectsBlock = 173
 }
 /**
  * End of line character preference.

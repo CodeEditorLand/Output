@@ -6,6 +6,7 @@ import { terminalChatAgentToolsConfiguration } from "../terminalContrib/chatAgen
 import { terminalCommandGuideConfiguration } from "../terminalContrib/commandGuide/common/terminalCommandGuideConfiguration.js";
 import { defaultTerminalFindCommandToSkipShell } from "../terminalContrib/find/common/terminal.find.js";
 import { defaultTerminalHistoryCommandsToSkipShell, terminalHistoryConfiguration } from "../terminalContrib/history/common/terminal.history.js";
+import { terminalOscNotificationsConfiguration } from "../terminalContrib/notification/common/terminalNotificationConfiguration.js";
 import { terminalStickyScrollConfiguration } from "../terminalContrib/stickyScroll/common/terminalStickyScrollConfiguration.js";
 import { defaultTerminalSuggestCommandsToSkipShell } from "../terminalContrib/suggest/common/terminal.suggest.js";
 import { terminalSuggestConfiguration } from "../terminalContrib/suggest/common/terminalSuggestConfiguration.js";
@@ -44,6 +45,7 @@ const terminalContribConfiguration = {
   ...terminalInitialHintConfiguration,
   ...terminalCommandGuideConfiguration,
   ...terminalHistoryConfiguration,
+  ...terminalOscNotificationsConfiguration,
   ...terminalStickyScrollConfiguration,
   ...terminalSuggestConfiguration,
   ...terminalTypeAheadConfiguration,

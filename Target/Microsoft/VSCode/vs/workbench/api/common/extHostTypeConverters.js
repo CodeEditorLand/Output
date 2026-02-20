@@ -3506,7 +3506,7 @@ var ChatAgentRequest;
       acceptedConfirmationData: request.acceptedConfirmationData,
       rejectedConfirmationData: request.rejectedConfirmationData,
       location2,
-      toolInvocationToken: Object.freeze({ sessionId, sessionResource: request.sessionResource }),
+      toolInvocationToken: Object.freeze({ sessionResource: request.sessionResource }),
       tools,
       model,
       editedFileEvents: request.editedFileEvents,

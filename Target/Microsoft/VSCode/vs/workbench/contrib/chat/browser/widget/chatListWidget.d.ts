@@ -274,15 +274,6 @@ export declare class ChatListWidget extends Disposable {
      */
     editorsInUse(): Iterable<CodeBlockPart>;
     /**
-     * Whether the active tip currently has focus.
-     */
-    hasTipFocus(): boolean;
-    /**
-     * Focus the active tip, if any.
-     * @returns Whether a tip was focused.
-     */
-    focusTip(): boolean;
-    /**
      * Get template data for a request ID.
      */
     getTemplateDataForRequestId(requestId: string | undefined): IChatListItemTemplate | undefined;

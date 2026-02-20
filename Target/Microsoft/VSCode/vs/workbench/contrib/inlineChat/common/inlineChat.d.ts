@@ -26,6 +26,7 @@ export declare const CTX_INLINE_CHAT_FOCUSED: RawContextKey<boolean>;
 export declare const CTX_INLINE_CHAT_EDITING: RawContextKey<boolean>;
 export declare const CTX_INLINE_CHAT_RESPONSE_FOCUSED: RawContextKey<boolean>;
 export declare const CTX_INLINE_CHAT_EMPTY: RawContextKey<boolean>;
+export declare const CTX_INLINE_CHAT_INPUT_HAS_TEXT: RawContextKey<boolean>;
 export declare const CTX_INLINE_CHAT_INNER_CURSOR_FIRST: RawContextKey<boolean>;
 export declare const CTX_INLINE_CHAT_INNER_CURSOR_LAST: RawContextKey<boolean>;
 export declare const CTX_INLINE_CHAT_OUTER_CURSOR_POSITION: RawContextKey<"" | "above" | "below">;

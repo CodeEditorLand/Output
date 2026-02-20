@@ -63,7 +63,7 @@ let AbstractPaneCompositePart = class AbstractPaneCompositePart2 extends Composi
   get onDidPaneCompositeOpen() {
     return Event.map(this.onDidCompositeOpen.event, (compositeEvent) => compositeEvent.composite);
   }
-  constructor(partId, partOptions, activePaneCompositeSettingsKey, activePaneContextKey, paneFocusContextKey, nameForTelemetry, compositeCSSClass, titleForegroundColor, titleBorderColor, location, registryId, globalActionsMenuId, notificationService, storageService, contextMenuService, layoutService, keybindingService, hoverService, instantiationService, themeService, viewDescriptorService, contextKeyService, extensionService, menuService) {
+  constructor(partId, partOptions, activePaneCompositeSettingsKey, activePaneContextKey, paneFocusContextKey, nameForTelemetry, compositeCSSClass, titleForegroundColor, titleBorderColor, location, registryId, globalActionsMenuId, globalLeftActionsMenuId, notificationService, storageService, contextMenuService, layoutService, keybindingService, hoverService, instantiationService, themeService, viewDescriptorService, contextKeyService, extensionService, menuService) {
     super(notificationService, storageService, contextMenuService, layoutService, keybindingService, hoverService, instantiationService, themeService, Registry.as(registryId), activePaneCompositeSettingsKey, viewDescriptorService.getDefaultViewContainer(location)?.id || "", nameForTelemetry, compositeCSSClass, titleForegroundColor, titleBorderColor, partId, partOptions);
     this.partId = partId;
     this.activePaneContextKey = activePaneContextKey;
@@ -71,6 +71,7 @@ let AbstractPaneCompositePart = class AbstractPaneCompositePart2 extends Composi
     this.location = location;
     this.registryId = registryId;
     this.globalActionsMenuId = globalActionsMenuId;
+    this.globalLeftActionsMenuId = globalLeftActionsMenuId;
     this.viewDescriptorService = viewDescriptorService;
     this.contextKeyService = contextKeyService;
     this.extensionService = extensionService;
@@ -213,10 +214,9 @@ let AbstractPaneCompositePart = class AbstractPaneCompositePart2 extends Composi
     this._register(addDisposableListener(titleArea, GestureEventType.Contextmenu, (e) => {
       this.onTitleAreaContextMenu(new StandardMouseEvent(getWindow(titleArea), e));
     }));
-    const globalLeftActionsMenuId = this.getGlobalLeftActionsMenuId();
-    if (globalLeftActionsMenuId) {
+    if (this.globalLeftActionsMenuId) {
       const globalLeftTitleActionsContainer = titleArea.appendChild($(".global-actions-left"));
-      this.globalLeftToolBar = this._register(this.instantiationService.createInstance(MenuWorkbenchToolBar, globalLeftTitleActionsContainer, globalLeftActionsMenuId, {
+      this.globalLeftToolBar = this._register(this.instantiationService.createInstance(MenuWorkbenchToolBar, globalLeftTitleActionsContainer, this.globalLeftActionsMenuId, {
         actionViewItemProvider: /* @__PURE__ */ __name((action, options) => this.actionViewItemProvider(action, options), "actionViewItemProvider"),
         orientation: 0,
         getKeyBinding: /* @__PURE__ */ __name((action) => this.keybindingService.lookupKeybinding(action.id), "getKeyBinding"),
@@ -497,27 +497,20 @@ let AbstractPaneCompositePart = class AbstractPaneCompositePart2 extends Composi
     }
     return void 0;
   }
-  /**
-   * Override in subclasses to provide a menu ID for a global toolbar on the left side
-   * of the composite bar / title area. Returns `undefined` by default (no left toolbar).
-   */
-  getGlobalLeftActionsMenuId() {
-    return void 0;
-  }
 };
 AbstractPaneCompositePart = AbstractPaneCompositePart_1 = __decorate([
-  __param(12, INotificationService),
-  __param(13, IStorageService),
-  __param(14, IContextMenuService),
-  __param(15, IWorkbenchLayoutService),
-  __param(16, IKeybindingService),
-  __param(17, IHoverService),
-  __param(18, IInstantiationService),
-  __param(19, IThemeService),
-  __param(20, IViewDescriptorService),
-  __param(21, IContextKeyService),
-  __param(22, IExtensionService),
-  __param(23, IMenuService)
+  __param(13, INotificationService),
+  __param(14, IStorageService),
+  __param(15, IContextMenuService),
+  __param(16, IWorkbenchLayoutService),
+  __param(17, IKeybindingService),
+  __param(18, IHoverService),
+  __param(19, IInstantiationService),
+  __param(20, IThemeService),
+  __param(21, IViewDescriptorService),
+  __param(22, IContextKeyService),
+  __param(23, IExtensionService),
+  __param(24, IMenuService)
 ], AbstractPaneCompositePart);
 export {
   AbstractPaneCompositePart,

@@ -1,3 +1,4 @@
+import { URI } from '../../../../../base/common/uri.js';
 import { ITelemetryService } from '../../../../../platform/telemetry/common/telemetry.js';
 import { IChatAgentData } from '../participants/chatAgents.js';
 import { ChatRequestModel } from '../model/chatModel.js';
@@ -116,7 +117,7 @@ export declare class ChatRequestTelemetry {
         agent: IChatAgentData;
         agentSlashCommandPart: ChatRequestAgentSubcommandPart | undefined;
         commandPart: ChatRequestSlashCommandPart | undefined;
-        sessionId: string;
+        sessionResource: URI;
         location: ChatAgentLocation;
         options: IChatSendRequestOptions | undefined;
         enableCommandDetection: boolean;

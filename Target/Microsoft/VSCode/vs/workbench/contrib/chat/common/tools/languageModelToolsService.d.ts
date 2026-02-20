@@ -137,8 +137,6 @@ export interface IToolInvocation {
     preToolUseResult?: IExternalPreToolUseHookResult;
 }
 export interface IToolInvocationContext {
-    /** @deprecated Use {@link sessionResource} instead */
-    readonly sessionId: string;
     readonly sessionResource: URI;
 }
 export declare function isToolInvocationContext(obj: any): obj is IToolInvocationContext;
@@ -146,8 +144,6 @@ export interface IToolInvocationPreparationContext {
     parameters: any;
     toolCallId: string;
     chatRequestId?: string;
-    /** @deprecated Use {@link chatSessionResource} instead */
-    chatSessionId?: string;
     chatSessionResource: URI | undefined;
     chatInteractionId?: string;
     modelId?: string;
@@ -251,8 +247,6 @@ export interface IToolInvocationStreamContext {
     toolCallId: string;
     rawInput: unknown;
     chatRequestId?: string;
-    /** @deprecated Use {@link chatSessionResource} instead */
-    chatSessionId?: string;
     chatSessionResource?: URI;
     chatInteractionId?: string;
 }

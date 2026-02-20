@@ -90,7 +90,7 @@ export declare class AgentSessionSectionRenderer implements ICompressibleTreeRen
     disposeTemplate(templateData: IAgentSessionSectionTemplate): void;
 }
 export declare class AgentSessionsListDelegate implements IListVirtualDelegate<AgentSessionListItem> {
-    static readonly ITEM_HEIGHT = 44;
+    static readonly ITEM_HEIGHT = 48;
     static readonly SECTION_HEIGHT = 26;
     getHeight(element: AgentSessionListItem): number;
     getTemplateId(element: AgentSessionListItem): string;

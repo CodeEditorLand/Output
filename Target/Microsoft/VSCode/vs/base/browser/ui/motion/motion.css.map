@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../../../../../../../Dependency/Microsoft/Dependency/Editor/out/vs/base/browser/ui/motion/motion.css"],
-  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\r\n *  Copyright (c) Microsoft Corporation. All rights reserved.\r\n *  Licensed under the MIT License. See License.txt in the project root for license information.\r\n *--------------------------------------------------------------------------------------------*/\r\n\r\n/* Utility class applied during panel animations to prevent content overflow */\r\n.monaco-split-view2 > .split-view-container > .split-view-view.motion-animating {\r\n\toverflow: hidden;\r\n}\r\n"],
-  "mappings": "AAMA,CAAC,mBAAmB,EAAE,CAAC,qBAAqB,EAAE,CAAC,eAAe,CAAC;AAC9D,YAAU;AACX;",
-  "names": []
-}

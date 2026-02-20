@@ -128,9 +128,6 @@ let SessionTypePickerActionItem = class SessionTypePickerActionItem2 extends Cha
     const agentSessionItems = [localSessionItem];
     const contributions = this.chatSessionsService.getAllChatSessionContributions();
     for (const contribution of contributions) {
-      if (contribution.isReadOnly) {
-        continue;
-      }
       const agentSessionType = getAgentSessionProvider(contribution.type);
       if (!agentSessionType) {
         continue;
@@ -163,7 +160,7 @@ let SessionTypePickerActionItem = class SessionTypePickerActionItem2 extends Cha
     const icon = getAgentSessionProviderIcon(currentType ?? AgentSessionProviders.Local);
     const labelElements = [];
     labelElements.push(...renderLabelWithIcons(`$(${icon.id})`));
-    if (currentType !== AgentSessionProviders.Local || !this.pickerOptions.onlyShowIconsForDefaultActions.get()) {
+    if (!this.pickerOptions.onlyShowIconsForDefaultActions.get()) {
       labelElements.push(dom.$("span.chat-input-picker-label", void 0, label));
     }
     labelElements.push(...renderLabelWithIcons(`$(chevron-down)`));

@@ -1,19 +1,14 @@
-import { IListRenderer } from '../../../../../../base/browser/ui/list/list.js';
 import { IListOptions } from '../../../../../../base/browser/ui/list/listWidget.js';
 import { Event } from '../../../../../../base/common/event.js';
 import { IMarkdownString } from '../../../../../../base/common/htmlContent.js';
-import { Disposable, DisposableStore, IDisposable } from '../../../../../../base/common/lifecycle.js';
-import { MenuWorkbenchToolBar } from '../../../../../../platform/actions/browser/toolbar.js';
+import { Disposable, IDisposable } from '../../../../../../base/common/lifecycle.js';
 import { IMenuService, MenuId } from '../../../../../../platform/actions/common/actions.js';
-import { IContextKeyService } from '../../../../../../platform/contextkey/common/contextkey.js';
 import { IContextMenuService } from '../../../../../../platform/contextview/browser/contextView.js';
 import { IInstantiationService } from '../../../../../../platform/instantiation/common/instantiation.js';
 import { ILabelService } from '../../../../../../platform/label/common/label.js';
 import { WorkbenchList } from '../../../../../../platform/list/browser/listService.js';
 import { IOpenerService } from '../../../../../../platform/opener/common/opener.js';
-import { IProductService } from '../../../../../../platform/product/common/productService.js';
 import { IThemeService } from '../../../../../../platform/theme/common/themeService.js';
-import { IResourceLabel, ResourceLabels } from '../../../../../browser/labels.js';
 import { ModifiedFileEntryState } from '../../../common/editing/chatEditingService.js';
 import { IChatContentReference, IChatWarningMessage } from '../../../common/chatService/chatService.js';
 import { IChatRendererContent } from '../../../common/model/chatViewModel.js';
@@ -65,30 +60,5 @@ export declare class CollapsibleListPool extends Disposable {
     private listFactory;
     get(): IDisposableReference<WorkbenchList<IChatCollapsibleListItem>>;
     clear(): void;
-}
-export interface ICollapsibleListTemplate {
-    readonly contextKeyService?: IContextKeyService;
-    readonly label: IResourceLabel;
-    readonly templateDisposables: DisposableStore;
-    toolbar: MenuWorkbenchToolBar | undefined;
-    actionBarContainer?: HTMLElement;
-    fileDiffsContainer?: HTMLElement;
-    addedSpan?: HTMLElement;
-    removedSpan?: HTMLElement;
-}
-export declare class CollapsibleListRenderer implements IListRenderer<IChatCollapsibleListItem, ICollapsibleListTemplate> {
-    private labels;
-    private menuId;
-    private readonly themeService;
-    private readonly productService;
-    private readonly instantiationService;
-    private readonly contextKeyService;
-    static TEMPLATE_ID: string;
-    readonly templateId: string;
-    constructor(labels: ResourceLabels, menuId: MenuId | undefined, themeService: IThemeService, productService: IProductService, instantiationService: IInstantiationService, contextKeyService: IContextKeyService);
-    renderTemplate(container: HTMLElement): ICollapsibleListTemplate;
-    private getReferenceIcon;
-    renderElement(data: IChatCollapsibleListItem, index: number, templateData: ICollapsibleListTemplate): void;
-    disposeTemplate(templateData: ICollapsibleListTemplate): void;
 }
 export {};

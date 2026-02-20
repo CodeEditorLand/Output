@@ -63,7 +63,7 @@ let PanelPart = class PanelPart2 extends AbstractPaneCompositePart {
     this.activePanelSettingsKey = "workbench.panelpart.activepanelid";
   }
   constructor(notificationService, storageService, contextMenuService, layoutService, keybindingService, hoverService, instantiationService, themeService, viewDescriptorService, contextKeyService, extensionService, commandService, menuService, configurationService) {
-    super("workbench.parts.panel", { hasTitle: true, trailingSeparator: true }, PanelPart_1.activePanelSettingsKey, ActivePanelContext.bindTo(contextKeyService), PanelFocusContext.bindTo(contextKeyService), "panel", "panel", void 0, PANEL_TITLE_BORDER, 1, Extensions.Panels, MenuId.PanelTitle, notificationService, storageService, contextMenuService, layoutService, keybindingService, hoverService, instantiationService, themeService, viewDescriptorService, contextKeyService, extensionService, menuService);
+    super("workbench.parts.panel", { hasTitle: true, trailingSeparator: true }, PanelPart_1.activePanelSettingsKey, ActivePanelContext.bindTo(contextKeyService), PanelFocusContext.bindTo(contextKeyService), "panel", "panel", void 0, PANEL_TITLE_BORDER, 1, Extensions.Panels, MenuId.PanelTitle, void 0, notificationService, storageService, contextMenuService, layoutService, keybindingService, hoverService, instantiationService, themeService, viewDescriptorService, contextKeyService, extensionService, menuService);
     this.commandService = commandService;
     this.configurationService = configurationService;
     this.minimumWidth = 300;

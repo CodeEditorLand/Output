@@ -17,7 +17,7 @@ import * as dom from "../../../../base/browser/dom.js";
 import { ActionBar } from "../../../../base/browser/ui/actionbar/actionbar.js";
 import { Emitter, Event } from "../../../../base/common/event.js";
 import { createMarkdownCommandLink, MarkdownString } from "../../../../base/common/htmlContent.js";
-import { combinedDisposable, Disposable, DisposableStore, dispose, isDisposable } from "../../../../base/common/lifecycle.js";
+import { combinedDisposable, Disposable, DisposableStore, dispose, isDisposable, MutableDisposable } from "../../../../base/common/lifecycle.js";
 import { DelayedPagedModel, PagedModel, IterativePagedModel } from "../../../../base/common/paging.js";
 import { localize, localize2 } from "../../../../nls.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
@@ -54,11 +54,13 @@ import { IMcpGalleryManifestService } from "../../../../platform/mcp/common/mcpG
 import { ProductQualityContext } from "../../../../platform/contextkey/common/contextkeys.js";
 import { SeverityIcon } from "../../../../base/browser/ui/severityIcon/severityIcon.js";
 import { IMarkdownRendererService } from "../../../../platform/markdown/browser/markdownRenderer.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { buildModalNavigationForPagedList } from "../../extensions/browser/extensionsViewer.js";
 let McpServersListView = class McpServersListView2 extends AbstractExtensionsListView {
   static {
     __name(this, "McpServersListView");
   }
-  constructor(mpcViewOptions, options, keybindingService, contextMenuService, instantiationService, themeService, hoverService, configurationService, contextKeyService, viewDescriptorService, openerService, dialogService, mcpWorkbenchService, mcpGalleryManifestService, layoutService, markdownRendererService) {
+  constructor(mpcViewOptions, options, keybindingService, contextMenuService, instantiationService, themeService, hoverService, configurationService, contextKeyService, viewDescriptorService, openerService, dialogService, mcpWorkbenchService, mcpGalleryManifestService, layoutService, markdownRendererService, logService) {
     super(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, hoverService);
     this.mpcViewOptions = mpcViewOptions;
     this.dialogService = dialogService;
@@ -66,10 +68,12 @@ let McpServersListView = class McpServersListView2 extends AbstractExtensionsLis
     this.mcpGalleryManifestService = mcpGalleryManifestService;
     this.layoutService = layoutService;
     this.markdownRendererService = markdownRendererService;
+    this.logService = logService;
     this.list = null;
     this.listContainer = null;
     this.welcomeContainer = null;
     this.contextMenuActionRunner = this._register(new ActionRunner());
+    this.modalNavigationDisposable = this._register(new MutableDisposable());
   }
   renderBody(container) {
     super.renderBody(container);
@@ -120,7 +124,10 @@ let McpServersListView = class McpServersListView2 extends AbstractExtensionsLis
       openOnSingleClick: true
     }));
     this._register(Event.debounce(Event.filter(this.list.onDidOpen, (e) => e.element !== null), (_, event) => event, 75, true)((options) => {
-      this.mcpWorkbenchService.open(options.element, options.editorOptions);
+      this.mcpWorkbenchService.open(options.element, {
+        ...options.editorOptions,
+        modal: options.sideBySide ? void 0 : buildModalNavigationForPagedList(options.element, () => this.list?.model, (serverA, serverB) => serverA.id === serverB.id, (server, modal) => this.mcpWorkbenchService.open(server, { pinned: false, modal }), this.modalNavigationDisposable, this.logService)
+      });
     }));
     this._register(this.list.onContextMenu((e) => this.onContextMenu(e), this));
     if (this.input) {
@@ -323,7 +330,8 @@ McpServersListView = __decorate([
   __param(12, IMcpWorkbenchService),
   __param(13, IMcpGalleryManifestService),
   __param(14, IWorkbenchLayoutService),
-  __param(15, IMarkdownRendererService)
+  __param(15, IMarkdownRendererService),
+  __param(16, ILogService)
 ], McpServersListView);
 let McpServerRenderer = class McpServerRenderer2 {
   static {

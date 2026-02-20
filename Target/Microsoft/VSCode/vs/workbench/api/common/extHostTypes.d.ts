@@ -1697,7 +1697,8 @@ export declare class ChatRequestTurn implements vscode.ChatRequestTurn2 {
     readonly toolReferences: vscode.ChatLanguageModelToolReference[];
     readonly editedFileEvents?: vscode.ChatRequestEditedFileEvent[] | undefined;
     readonly id?: string | undefined;
-    constructor(prompt: string, command: string | undefined, references: vscode.ChatPromptReference[], participant: string, toolReferences: vscode.ChatLanguageModelToolReference[], editedFileEvents?: vscode.ChatRequestEditedFileEvent[] | undefined, id?: string | undefined);
+    readonly modelId?: string | undefined;
+    constructor(prompt: string, command: string | undefined, references: vscode.ChatPromptReference[], participant: string, toolReferences: vscode.ChatLanguageModelToolReference[], editedFileEvents?: vscode.ChatRequestEditedFileEvent[] | undefined, id?: string | undefined, modelId?: string | undefined);
 }
 export declare class ChatResponseTurn implements vscode.ChatResponseTurn {
     readonly response: ReadonlyArray<ChatResponseMarkdownPart | ChatResponseFileTreePart | ChatResponseAnchorPart | ChatResponseCommandButtonPart>;

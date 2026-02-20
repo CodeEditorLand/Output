@@ -17,19 +17,20 @@ import { IContextMenuService } from "../../../../../platform/contextview/browser
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
 import { WorkbenchCompressibleAsyncDataTree } from "../../../../../platform/list/browser/listService.js";
 import { $, append, EventHelper } from "../../../../../base/browser/dom.js";
-import { isAgentSession, isAgentSessionSection } from "./agentSessionsModel.js";
+import { isAgentSession, isAgentSessionSection, isSessionInProgressStatus } from "./agentSessionsModel.js";
 import { AgentSessionRenderer, AgentSessionsAccessibilityProvider, AgentSessionsCompressionDelegate, AgentSessionsDataSource, AgentSessionsDragAndDrop, AgentSessionsIdentityProvider, AgentSessionsKeyboardNavigationLabelProvider, AgentSessionsListDelegate, AgentSessionSectionRenderer, AgentSessionsSorter } from "./agentSessionsViewer.js";
 import { IMenuService, MenuId } from "../../../../../platform/actions/common/actions.js";
 import { IChatSessionsService } from "../../common/chatSessionsService.js";
 import { ICommandService } from "../../../../../platform/commands/common/commands.js";
 import { ACTION_ID_NEW_CHAT } from "../actions/chatActions.js";
-import { Event } from "../../../../../base/common/event.js";
+import { Emitter, Event } from "../../../../../base/common/event.js";
 import { Disposable } from "../../../../../base/common/lifecycle.js";
 import { Throttler } from "../../../../../base/common/async.js";
 import { Separator } from "../../../../../base/common/actions.js";
 import { RenderIndentGuides, TreeFindMode } from "../../../../../base/browser/ui/tree/abstractTree.js";
 import { IAgentSessionsService } from "./agentSessionsService.js";
 import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
+import { getAgentSessionTime } from "./agentSessions.js";
 import { openSession } from "./agentSessionsOpener.js";
 import { IEditorService } from "../../../../services/editor/common/editorService.js";
 import { ChatEditorInput } from "../widgetHosts/editor/chatEditorInput.js";
@@ -55,6 +56,8 @@ let AgentSessionsControl = class AgentSessionsControl2 extends Disposable {
     this.editorService = editorService;
     this.sessionsListFindIsOpen = false;
     this.updateSessionsListThrottler = this._register(new Throttler());
+    this._onDidUpdate = this._register(new Emitter());
+    this.onDidUpdate = this._onDidUpdate.event;
     this.visible = true;
     this.focusedAgentSessionArchivedContextKey = ChatContextKeys.isArchivedAgentSession.bindTo(this.contextKeyService);
     this.focusedAgentSessionReadContextKey = ChatContextKeys.isReadAgentSession.bindTo(this.contextKeyService);
@@ -93,6 +96,20 @@ let AgentSessionsControl = class AgentSessionsControl2 extends Disposable {
         }
         if (element.section === "archived" && this.options.filter.getExcludes().archived) {
           return true;
+        }
+        if (this.options.collapseOlderSections?.()) {
+          const olderSections = [
+            "week",
+            "older",
+            "archived"
+            /* AgentSessionSection.Archived */
+          ];
+          if (olderSections.includes(element.section)) {
+            return true;
+          }
+          if (element.section === "yesterday" && this.hasTodaySessions()) {
+            return true;
+          }
         }
       }
       return false;
@@ -155,6 +172,10 @@ let AgentSessionsControl = class AgentSessionsControl2 extends Disposable {
       this.updateSectionCollapseStates();
     }));
   }
+  hasTodaySessions() {
+    const startOfToday = (/* @__PURE__ */ new Date()).setHours(0, 0, 0, 0);
+    return this.agentSessionsService.model.sessions.some((session) => !session.isArchived() && (isSessionInProgressStatus(session.status) || getAgentSessionTime(session.timing) >= startOfToday));
+  }
   async openAgentSession(e) {
     const element = e.element;
     if (!element || isAgentSessionSection(element)) {
@@ -165,9 +186,13 @@ let AgentSessionsControl = class AgentSessionsControl2 extends Disposable {
       source: this.options.source
     });
     const options = this.options.overrideSessionOpenOptions?.(e) ?? e;
-    const widget = await this.instantiationService.invokeFunction(openSession, element, options);
-    if (widget) {
-      this.options.notifySessionOpened?.(element.resource, widget);
+    if (this.options.overrideSessionOpen) {
+      await this.options.overrideSessionOpen(element.resource, options);
+    } else {
+      const widget = await this.instantiationService.invokeFunction(openSession, element, options);
+      if (widget) {
+        this.options.notifySessionOpened?.(element.resource, widget);
+      }
     }
   }
   async showContextMenu({ element, anchor, browserEvent }) {
@@ -249,7 +274,10 @@ let AgentSessionsControl = class AgentSessionsControl2 extends Disposable {
     return this.agentSessionsService.model.resolve(void 0);
   }
   async update() {
-    return this.updateSessionsListThrottler.queue(async () => this.sessionsList?.updateChildren());
+    return this.updateSessionsListThrottler.queue(async () => {
+      await this.sessionsList?.updateChildren();
+      this._onDidUpdate.fire();
+    });
   }
   setVisible(visible) {
     if (this.visible === visible) {

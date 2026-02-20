@@ -372,9 +372,9 @@ class Protocol extends Disposable {
   }
   constructor(socket) {
     super();
-    this._onMessage = new Emitter();
+    this._onMessage = this._register(new Emitter());
     this.onMessage = this._onMessage.event;
-    this._onDidDispose = new Emitter();
+    this._onDidDispose = this._register(new Emitter());
     this.onDidDispose = this._onDidDispose.event;
     this._socket = socket;
     this._socketWriter = this._register(new ProtocolWriter(this._socket));

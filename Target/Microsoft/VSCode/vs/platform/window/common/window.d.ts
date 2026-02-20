@@ -265,6 +265,7 @@ export interface INativeWindowConfiguration extends IWindowConfiguration, Native
         definition: PolicyDefinition;
         value: PolicyValue;
     }>;
+    isSessionsWindow?: boolean;
 }
 /**
  * According to Electron docs: `scale := 1.2 ^ level`.

@@ -497,12 +497,12 @@ ${measurements.map((e) => `${e.label}: ${e.latency.toFixed(2)}ms`).join("\n")}`)
     }
     return os;
   }
-  setDimensions(cols, rows, sync) {
+  setDimensions(cols, rows, sync, pixelWidth, pixelHeight) {
     if (sync) {
-      this._resize(cols, rows);
+      this._resize(cols, rows, pixelWidth, pixelHeight);
       return;
     }
-    return this.ptyProcessReady.then(() => this._resize(cols, rows));
+    return this.ptyProcessReady.then(() => this._resize(cols, rows, pixelWidth, pixelHeight));
   }
   async setUnicodeVersion(version) {
     return this._process?.setUnicodeVersion(version);
@@ -515,12 +515,12 @@ ${measurements.map((e) => `${e.label}: ${e.latency.toFixed(2)}ms`).join("\n")}`)
     }
     await this._terminalService.setNextCommandId(process.id, commandLine, commandId);
   }
-  _resize(cols, rows) {
+  _resize(cols, rows, pixelWidth, pixelHeight) {
     if (!this._process) {
       return;
     }
     try {
-      this._process.resize(cols, rows);
+      this._process.resize(cols, rows, pixelWidth, pixelHeight);
     } catch (error) {
       if (error.code !== "EPIPE" && error.code !== "ERR_IPC_CHANNEL_CLOSED") {
         throw error;

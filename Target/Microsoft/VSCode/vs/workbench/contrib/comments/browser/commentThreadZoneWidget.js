@@ -124,7 +124,7 @@ let ReviewZoneWidget = class ReviewZoneWidget2 extends ZoneWidget {
     this._onDidChangeExpandedState = new Emitter();
     this._globalToDispose = new DisposableStore();
     this._commentThreadDisposables = [];
-    this._contextKeyService = contextKeyService.createScoped(this.domNode);
+    this._contextKeyService = this._globalToDispose.add(contextKeyService.createScoped(this.domNode));
     this._scopedInstantiationService = this._globalToDispose.add(instantiationService.createChild(new ServiceCollection([IContextKeyService, this._contextKeyService])));
     const controller = this.commentService.getCommentController(this._uniqueOwner);
     if (controller) {

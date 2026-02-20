@@ -80,6 +80,7 @@ export declare abstract class AbstractPaneCompositePart extends CompositePart<Pa
     protected readonly location: ViewContainerLocation;
     readonly registryId: string;
     private readonly globalActionsMenuId;
+    private readonly globalLeftActionsMenuId;
     private readonly viewDescriptorService;
     protected readonly contextKeyService: IContextKeyService;
     private readonly extensionService;
@@ -99,7 +100,7 @@ export declare abstract class AbstractPaneCompositePart extends CompositePart<Pa
     private globalLeftToolBar;
     private blockOpening;
     protected contentDimension: Dimension | undefined;
-    constructor(partId: SINGLE_WINDOW_PARTS, partOptions: ICompositePartOptions, activePaneCompositeSettingsKey: string, activePaneContextKey: IContextKey<string>, paneFocusContextKey: IContextKey<boolean>, nameForTelemetry: string, compositeCSSClass: string, titleForegroundColor: string | undefined, titleBorderColor: string | undefined, location: ViewContainerLocation, registryId: string, globalActionsMenuId: MenuId, notificationService: INotificationService, storageService: IStorageService, contextMenuService: IContextMenuService, layoutService: IWorkbenchLayoutService, keybindingService: IKeybindingService, hoverService: IHoverService, instantiationService: IInstantiationService, themeService: IThemeService, viewDescriptorService: IViewDescriptorService, contextKeyService: IContextKeyService, extensionService: IExtensionService, menuService: IMenuService);
+    constructor(partId: SINGLE_WINDOW_PARTS, partOptions: ICompositePartOptions, activePaneCompositeSettingsKey: string, activePaneContextKey: IContextKey<string>, paneFocusContextKey: IContextKey<boolean>, nameForTelemetry: string, compositeCSSClass: string, titleForegroundColor: string | undefined, titleBorderColor: string | undefined, location: ViewContainerLocation, registryId: string, globalActionsMenuId: MenuId, globalLeftActionsMenuId: MenuId | undefined, notificationService: INotificationService, storageService: IStorageService, contextMenuService: IContextMenuService, layoutService: IWorkbenchLayoutService, keybindingService: IKeybindingService, hoverService: IHoverService, instantiationService: IInstantiationService, themeService: IThemeService, viewDescriptorService: IViewDescriptorService, contextKeyService: IContextKeyService, extensionService: IExtensionService, menuService: IMenuService);
     private registerListeners;
     private onDidOpen;
     private onDidClose;
@@ -135,11 +136,6 @@ export declare abstract class AbstractPaneCompositePart extends CompositePart<Pa
     private onCompositeBarAreaContextMenu;
     private onCompositeBarContextMenu;
     protected getViewsSubmenuAction(): SubmenuAction | undefined;
-    /**
-     * Override in subclasses to provide a menu ID for a global toolbar on the left side
-     * of the composite bar / title area. Returns `undefined` by default (no left toolbar).
-     */
-    protected getGlobalLeftActionsMenuId(): MenuId | undefined;
     protected abstract shouldShowCompositeBar(): boolean;
     protected abstract getCompositeBarOptions(): IPaneCompositeBarOptions;
     protected abstract getCompositeBarPosition(): CompositeBarPosition;

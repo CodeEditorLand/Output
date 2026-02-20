@@ -31,6 +31,7 @@ import { RemoteTerminalChannelClient, REMOTE_TERMINAL_CHANNEL_NAME } from "../co
 import { TERMINAL_CONFIG_SECTION } from "../common/terminal.js";
 import { IConfigurationResolverService } from "../../../services/configurationResolver/common/configurationResolver.js";
 import { IHistoryService } from "../../../services/history/common/history.js";
+import { getWorkspaceForTerminal } from "../common/terminalEnvironment.js";
 import { IRemoteAgentService } from "../../../services/remote/common/remoteAgentService.js";
 import { IStatusbarService } from "../../../services/statusbar/browser/statusbar.js";
 let RemoteTerminalBackendContribution = class RemoteTerminalBackendContribution2 {
@@ -193,7 +194,7 @@ let RemoteTerminalBackend = class RemoteTerminalBackend2 extends BaseTerminalBac
       tabActions: shellLaunchConfig.tabActions,
       shellIntegrationEnvironmentReporting: shellLaunchConfig.shellIntegrationEnvironmentReporting
     };
-    const activeWorkspaceRootUri = this._historyService.getLastActiveWorkspaceRoot();
+    const activeWorkspaceRootUri = getWorkspaceForTerminal(shellLaunchConfig.cwd, this._workspaceContextService, this._historyService)?.uri;
     const result = await this._remoteTerminalChannel.createProcess(shellLaunchConfigDto, configuration, activeWorkspaceRootUri, options, shouldPersist, cols, rows, unicodeVersion);
     const pty = this._instantiationService.createInstance(RemotePty, result.persistentTerminalId, shouldPersist, this._remoteTerminalChannel);
     this._ptys.set(result.persistentTerminalId, pty);

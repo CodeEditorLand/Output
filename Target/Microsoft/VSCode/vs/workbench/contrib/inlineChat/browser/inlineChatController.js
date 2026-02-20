@@ -95,6 +95,9 @@ let InlineChatController = class InlineChatController2 {
   get isActive() {
     return Boolean(this._currentSession.get());
   }
+  get inputWidget() {
+    return this._inputWidget;
+  }
   constructor(_editor, _instaService, _notebookEditorService, _inlineChatSessionService, codeEditorService, contextKeyService, _configurationService, _webContentExtractorService, _fileService, _chatAttachmentResolveService, _editorService, _markerDecorationsService, _languageModelService, _logService) {
     this._editor = _editor;
     this._instaService = _instaService;
@@ -114,7 +117,7 @@ let InlineChatController = class InlineChatController2 {
     const ctxInlineChatVisible = CTX_INLINE_CHAT_VISIBLE.bindTo(contextKeyService);
     const notebookAgentConfig = observableConfigValue("inlineChat.notebookAgent", false, this._configurationService);
     this._renderMode = observableConfigValue("inlineChat.renderMode", "zone", this._configurationService);
-    const overlayWidget = this._store.add(this._instaService.createInstance(InlineChatInputWidget, editorObs));
+    const overlayWidget = this._inputWidget = this._store.add(this._instaService.createInstance(InlineChatInputWidget, editorObs));
     const sessionOverlayWidget = this._store.add(this._instaService.createInstance(InlineChatSessionOverlayWidget, editorObs));
     this._gutterIndicator = this._store.add(this._instaService.createInstance(InlineChatAffordance, this._editor, overlayWidget));
     this._zone = new Lazy(() => {

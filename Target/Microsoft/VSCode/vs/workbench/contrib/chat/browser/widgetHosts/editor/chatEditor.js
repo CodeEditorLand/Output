@@ -11,12 +11,14 @@ var __param = function(paramIndex, decorator) {
     decorator(target, key, paramIndex);
   };
 };
+var ChatEditor_1;
 import * as dom from "../../../../../../base/browser/dom.js";
 import { renderIcon } from "../../../../../../base/browser/ui/iconLabel/iconLabels.js";
 import { raceCancellationError } from "../../../../../../base/common/async.js";
 import { Codicon } from "../../../../../../base/common/codicons.js";
 import { ThemeIcon } from "../../../../../../base/common/themables.js";
 import * as nls from "../../../../../../nls.js";
+import { ITextResourceConfigurationService } from "../../../../../../editor/common/services/textResourceConfiguration.js";
 import { IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
 import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
 import { ServiceCollection } from "../../../../../../platform/instantiation/common/serviceCollection.js";
@@ -24,8 +26,10 @@ import { IStorageService } from "../../../../../../platform/storage/common/stora
 import { ITelemetryService } from "../../../../../../platform/telemetry/common/telemetry.js";
 import { editorBackground, editorForeground, inputBackground } from "../../../../../../platform/theme/common/colorRegistry.js";
 import { IThemeService } from "../../../../../../platform/theme/common/themeService.js";
-import { EditorPane } from "../../../../../browser/parts/editor/editorPane.js";
+import { AbstractEditorWithViewState } from "../../../../../browser/parts/editor/editorWithViewState.js";
 import { EDITOR_DRAG_AND_DROP_BACKGROUND } from "../../../../../common/theme.js";
+import { IEditorGroupsService } from "../../../../../services/editor/common/editorGroupsService.js";
+import { IEditorService } from "../../../../../services/editor/common/editorService.js";
 import { ChatContextKeys } from "../../../common/actions/chatContextKeys.js";
 import { IChatService } from "../../../common/chatService/chatService.js";
 import { IChatSessionsService, localChatSessionType } from "../../../common/chatSessionsService.js";
@@ -33,9 +37,15 @@ import { ChatAgentLocation, ChatModeKind } from "../../../common/constants.js";
 import { clearChatEditor } from "../../actions/chatClear.js";
 import { ChatEditorInput } from "./chatEditorInput.js";
 import { ChatWidget } from "../../widget/chatWidget.js";
-let ChatEditor = class ChatEditor2 extends EditorPane {
+let ChatEditor = class ChatEditor2 extends AbstractEditorWithViewState {
   static {
     __name(this, "ChatEditor");
+  }
+  static {
+    ChatEditor_1 = this;
+  }
+  static {
+    this.VIEW_STATE_KEY = "chatEditorViewState";
   }
   get widget() {
     return this._widget;
@@ -43,9 +53,8 @@ let ChatEditor = class ChatEditor2 extends EditorPane {
   get scopedContextKeyService() {
     return this._scopedContextKeyService;
   }
-  constructor(group, telemetryService, themeService, instantiationService, storageService, chatSessionsService, contextKeyService, chatService) {
-    super(ChatEditorInput.EditorID, group, telemetryService, themeService, storageService);
-    this.instantiationService = instantiationService;
+  constructor(group, telemetryService, themeService, instantiationService, storageService, chatSessionsService, contextKeyService, chatService, textResourceConfigurationService, editorService, editorGroupService) {
+    super(ChatEditorInput.EditorID, group, ChatEditor_1.VIEW_STATE_KEY, telemetryService, instantiationService, storageService, textResourceConfigurationService, themeService, editorService, editorGroupService);
     this.chatSessionsService = chatSessionsService;
     this.contextKeyService = contextKeyService;
     this.chatService = chatService;
@@ -102,7 +111,6 @@ let ChatEditor = class ChatEditor2 extends EditorPane {
     this.widget?.focusInput();
   }
   clearInput() {
-    this.saveState();
     this.widget.setModel(void 0);
     super.clearInput();
   }
@@ -184,6 +192,10 @@ let ChatEditor = class ChatEditor2 extends EditorPane {
         editorModel.model.inputModel.setState(options.modelInputState);
       }
       this.updateModel(editorModel.model);
+      const viewState = this.loadEditorViewState(input, context);
+      if (viewState) {
+        this._widget.scrollTop = viewState.scrollTop;
+      }
       if (isContributedChatSession && options?.title?.preferred && input.sessionResource) {
         this.chatService.setChatSessionTitle(input.sessionResource, options.title.preferred);
       }
@@ -195,6 +207,18 @@ let ChatEditor = class ChatEditor2 extends EditorPane {
   updateModel(model) {
     this.widget.setModel(model);
   }
+  computeEditorViewState(_resource) {
+    if (!this._widget) {
+      return void 0;
+    }
+    return { scrollTop: this._widget.scrollTop };
+  }
+  tracksEditorViewState(input) {
+    return input instanceof ChatEditorInput;
+  }
+  toEditorViewStateResource(input) {
+    return input.sessionResource;
+  }
   layout(dimension, position) {
     this.dimension = dimension;
     if (this.widget) {
@@ -202,14 +226,17 @@ let ChatEditor = class ChatEditor2 extends EditorPane {
     }
   }
 };
-ChatEditor = __decorate([
+ChatEditor = ChatEditor_1 = __decorate([
   __param(1, ITelemetryService),
   __param(2, IThemeService),
   __param(3, IInstantiationService),
   __param(4, IStorageService),
   __param(5, IChatSessionsService),
   __param(6, IContextKeyService),
-  __param(7, IChatService)
+  __param(7, IChatService),
+  __param(8, ITextResourceConfigurationService),
+  __param(9, IEditorService),
+  __param(10, IEditorGroupsService)
 ], ChatEditor);
 export {
   ChatEditor

@@ -134,7 +134,7 @@ export declare class PredictionStats extends Disposable {
     constructor(timeline: PredictionTimeline);
     private _pushStat;
 }
-export declare class PredictionTimeline {
+export declare class PredictionTimeline extends Disposable {
     readonly terminal: Terminal;
     private readonly _style;
     /**

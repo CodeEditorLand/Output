@@ -346,6 +346,7 @@ var ChatRequestQueueKind;
 })(ChatRequestQueueKind || (ChatRequestQueueKind = {}));
 const IChatService = createDecorator("IChatService");
 const KEYWORD_ACTIVIATION_SETTING_ID = "accessibility.voice.keywordActivation";
+const ChatStopCancellationNoopEventName = "chat.stopCancellationNoop";
 export {
   ChatAgentVoteDirection,
   ChatAgentVoteDownReason,
@@ -357,6 +358,7 @@ export {
   ChatResponseClearToPreviousToolInvocationReason,
   ChatResponseReferencePartStatusKind,
   ChatSendResult,
+  ChatStopCancellationNoopEventName,
   ElicitationState,
   IChatService,
   IChatToolInvocation,

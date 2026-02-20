@@ -131,7 +131,7 @@ class PickAgentSessionAction extends Action2 {
   }
   async run(accessor) {
     const instantiationService = accessor.get(IInstantiationService);
-    const agentSessionsPicker = instantiationService.createInstance(AgentSessionsPicker, void 0);
+    const agentSessionsPicker = instantiationService.createInstance(AgentSessionsPicker, void 0, void 0);
     await agentSessionsPicker.pickAgentSession();
   }
 }

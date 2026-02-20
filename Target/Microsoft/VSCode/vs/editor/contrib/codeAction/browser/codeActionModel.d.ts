@@ -43,6 +43,8 @@ export declare class CodeActionModel extends Disposable {
     readonly onDidChangeState: import("../../../../base/common/event.js").Event<CodeActionsState.State>;
     private readonly codeActionsDisposable;
     private _disposed;
+    private _ignoreLightbulbOff;
+    set ignoreLightbulbOff(value: boolean);
     constructor(_editor: ICodeEditor, _registry: LanguageFeatureRegistry<CodeActionProvider>, _markerService: IMarkerService, contextKeyService: IContextKeyService, _progressService?: IEditorProgressService | undefined, _configurationService?: IConfigurationService | undefined);
     dispose(): void;
     private _settingEnabledNearbyQuickfixes;

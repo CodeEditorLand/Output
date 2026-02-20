@@ -1,7 +1,8 @@
 import { Color } from '../../../../base/common/color.js';
 import { Event } from '../../../../base/common/event.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
 import { IColorPresentation } from '../../../common/languages.js';
-export declare class ColorPickerModel {
+export declare class ColorPickerModel extends Disposable {
     private presentationIndex;
     readonly originalColor: Color;
     private _color;

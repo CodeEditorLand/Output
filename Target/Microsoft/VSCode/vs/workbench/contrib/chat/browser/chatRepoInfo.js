@@ -16,7 +16,8 @@ import { relativePath } from "../../../../base/common/resources.js";
 import { linesDiffComputers } from "../../../../editor/common/diff/linesDiffComputers.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { Extensions as ConfigurationExtensions } from "../../../../platform/configuration/common/configurationRegistry.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
+import { FileOperationError } from "../../../../platform/files/common/files.js";
+import { detectEncodingFromBuffer } from "../../../services/textfile/common/encoding.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
 import { Registry } from "../../../../platform/registry/common/platform.js";
 import { IChatEntitlementService } from "../../../services/chat/common/chatEntitlementService.js";
@@ -26,7 +27,7 @@ import { ChatConfiguration } from "../common/constants.js";
 import * as nls from "../../../../nls.js";
 const MAX_CHANGES = 100;
 const MAX_DIFFS_SIZE_BYTES = 900 * 1024;
-const MAX_SESSIONS_WITH_FULL_DIFFS = 5;
+const MAX_FILE_SIZE_BYTES = 1 * 1024 * 1024;
 const RemoteMatcher = /^\s*url\s*=\s*(.+\S)\s*$/mg;
 function getRawRemotes(text) {
   const remotes = [];
@@ -88,9 +89,16 @@ async function generateUnifiedDiff(fileService, relPath, originalUri, modifiedUr
     let modifiedContent = "";
     if (originalUri && changeType !== "added") {
       try {
-        const originalFile = await fileService.readFile(originalUri);
+        const originalFile = await fileService.readFile(originalUri, { limits: { size: MAX_FILE_SIZE_BYTES } });
+        const detected = detectEncodingFromBuffer({ buffer: originalFile.value, bytesRead: originalFile.value.byteLength });
+        if (detected.seemsBinary) {
+          return void 0;
+        }
         originalContent = originalFile.value.toString();
-      } catch {
+      } catch (e) {
+        if (e instanceof FileOperationError && e.fileOperationResult === 7) {
+          return void 0;
+        }
         if (changeType === "modified") {
           return void 0;
         }
@@ -98,9 +106,16 @@ async function generateUnifiedDiff(fileService, relPath, originalUri, modifiedUr
     }
     if (changeType !== "deleted") {
       try {
-        const modifiedFile = await fileService.readFile(modifiedUri);
+        const modifiedFile = await fileService.readFile(modifiedUri, { limits: { size: MAX_FILE_SIZE_BYTES } });
+        const detected = detectEncodingFromBuffer({ buffer: modifiedFile.value, bytesRead: modifiedFile.value.byteLength });
+        if (detected.seemsBinary) {
+          return void 0;
+        }
         modifiedContent = modifiedFile.value.toString();
-      } catch {
+      } catch (e) {
+        if (e instanceof FileOperationError && e.fileOperationResult === 7) {
+          return void 0;
+        }
         return void 0;
       }
     }
@@ -265,6 +280,63 @@ function computeDiffHunks(originalLines, modifiedLines, originalEndsWithNewline,
   return result;
 }
 __name(computeDiffHunks, "computeDiffHunks");
+function captureRepoMetadata(scmService) {
+  const repositories = [...scmService.repositories];
+  if (repositories.length === 0) {
+    return void 0;
+  }
+  const repository = repositories[0];
+  const rootUri = repository.provider.rootUri;
+  if (!rootUri) {
+    return void 0;
+  }
+  let localBranch;
+  let localHeadCommit;
+  let remoteTrackingBranch;
+  let remoteHeadCommit;
+  let remoteBaseBranch;
+  const historyProvider = repository.provider.historyProvider?.get();
+  if (historyProvider) {
+    const historyItemRef = historyProvider.historyItemRef.get();
+    localBranch = historyItemRef?.name;
+    localHeadCommit = historyItemRef?.revision;
+    const historyItemRemoteRef = historyProvider.historyItemRemoteRef.get();
+    if (historyItemRemoteRef) {
+      remoteTrackingBranch = historyItemRemoteRef.name;
+      remoteHeadCommit = historyItemRemoteRef.revision;
+    }
+    const historyItemBaseRef = historyProvider.historyItemBaseRef.get();
+    if (historyItemBaseRef) {
+      remoteBaseBranch = historyItemBaseRef.name;
+    }
+  }
+  let workspaceType;
+  let syncStatus;
+  if (remoteTrackingBranch || remoteHeadCommit || remoteBaseBranch) {
+    workspaceType = "remote-git";
+    if (!remoteTrackingBranch) {
+      syncStatus = "unpublished";
+    } else if (localHeadCommit && remoteHeadCommit && localHeadCommit === remoteHeadCommit) {
+      syncStatus = "synced";
+    } else {
+      syncStatus = "unpushed";
+    }
+  } else {
+    workspaceType = "local-git";
+    syncStatus = "local-only";
+  }
+  return {
+    workspaceType,
+    syncStatus,
+    localBranch,
+    remoteTrackingBranch,
+    remoteBaseBranch,
+    localHeadCommit,
+    remoteHeadCommit,
+    diffsStatus: "notCaptured"
+  };
+}
+__name(captureRepoMetadata, "captureRepoMetadata");
 async function captureRepoInfo(scmService, fileService) {
   const repositories = [...scmService.repositories];
   if (repositories.length === 0) {
@@ -425,12 +497,11 @@ let ChatRepoInfoContribution = class ChatRepoInfoContribution2 extends Disposabl
   static {
     this.ID = "workbench.contrib.chatRepoInfo";
   }
-  constructor(chatService, chatEntitlementService, scmService, fileService, logService, configurationService) {
+  constructor(chatService, chatEntitlementService, scmService, logService, configurationService) {
     super();
     this.chatService = chatService;
     this.chatEntitlementService = chatEntitlementService;
     this.scmService = scmService;
-    this.fileService = fileService;
     this.logService = logService;
     this.configurationService = configurationService;
     this._configurationRegistered = false;
@@ -438,12 +509,12 @@ let ChatRepoInfoContribution = class ChatRepoInfoContribution2 extends Disposabl
     this._register(this.chatEntitlementService.onDidChangeEntitlement(() => {
       this.registerConfigurationIfInternal();
     }));
-    this._register(this.chatService.onDidSubmitRequest(async ({ chatSessionResource }) => {
+    this._register(this.chatService.onDidSubmitRequest(({ chatSessionResource }) => {
       const model = this.chatService.getSession(chatSessionResource);
       if (!model) {
         return;
       }
-      await this.captureAndSetRepoData(model);
+      this.captureAndSetRepoMetadata(model);
     }));
   }
   registerConfigurationIfInternal() {
@@ -461,15 +532,19 @@ let ChatRepoInfoContribution = class ChatRepoInfoContribution2 extends Disposabl
       properties: {
         [ChatConfiguration.RepoInfoEnabled]: {
           type: "boolean",
-          description: nls.localize("chat.repoInfo.enabled", "Controls whether repository information (branch, commit, working tree diffs) is captured at the start of chat sessions for internal diagnostics."),
-          default: true
+          description: nls.localize("chat.repoInfo.enabled", "Controls whether lightweight repository metadata (branch, commit, remotes) is captured when a chat request is submitted for internal diagnostics."),
+          default: false
         }
       }
     });
     this._configurationRegistered = true;
     this.logService.debug("[ChatRepoInfo] Configuration registered for internal user");
   }
-  async captureAndSetRepoData(model) {
+  /**
+   * Captures lightweight metadata (branch, commit, remote refs) on first message.
+   * Synchronous, no file I/O. Reads only from SCM provider observables.
+   */
+  captureAndSetRepoMetadata(model) {
     if (!this.chatEntitlementService.isInternal) {
       return;
     }
@@ -480,46 +555,17 @@ let ChatRepoInfoContribution = class ChatRepoInfoContribution2 extends Disposabl
       return;
     }
     try {
-      const repoData = await captureRepoInfo(this.scmService, this.fileService);
-      if (repoData) {
-        model.setRepoData(repoData);
-        if (!repoData.localHeadCommit && repoData.workspaceType !== "plain-folder") {
-          this.logService.warn("[ChatRepoInfo] Captured repo data without commit hash - git history may not be ready");
+      const metadata = captureRepoMetadata(this.scmService);
+      if (metadata) {
+        model.setRepoData(metadata);
+        if (!metadata.localHeadCommit) {
+          this.logService.warn("[ChatRepoInfo] Captured repo metadata without commit hash - git history may not be ready");
         }
-        this.trimOldSessionDiffs();
       } else {
         this.logService.debug("[ChatRepoInfo] No SCM repository available for chat session");
       }
     } catch (error) {
-      this.logService.warn("[ChatRepoInfo] Failed to capture repo info:", error);
-    }
-  }
-  /**
-   * Trims diffs from older sessions, keeping full diffs only for the most recent sessions.
-   */
-  trimOldSessionDiffs() {
-    try {
-      const sessionsWithDiffs = [];
-      for (const model of this.chatService.chatModels.get()) {
-        if (model.repoData?.diffs && model.repoData.diffs.length > 0 && model.repoData.diffsStatus === "included") {
-          sessionsWithDiffs.push({ model, timestamp: model.timestamp });
-        }
-      }
-      sessionsWithDiffs.sort((a, b) => b.timestamp - a.timestamp);
-      for (let i = MAX_SESSIONS_WITH_FULL_DIFFS; i < sessionsWithDiffs.length; i++) {
-        const { model } = sessionsWithDiffs[i];
-        if (model.repoData) {
-          const trimmedRepoData = {
-            ...model.repoData,
-            diffs: void 0,
-            diffsStatus: "trimmedForStorage"
-          };
-          model.setRepoData(trimmedRepoData);
-          this.logService.trace(`[ChatRepoInfo] Trimmed diffs from older session: ${model.sessionResource.toString()}`);
-        }
-      }
-    } catch (error) {
-      this.logService.warn("[ChatRepoInfo] Failed to trim old session diffs:", error);
+      this.logService.warn("[ChatRepoInfo] Failed to capture repo metadata:", error);
     }
   }
 };
@@ -527,12 +573,12 @@ ChatRepoInfoContribution = __decorate([
   __param(0, IChatService),
   __param(1, IChatEntitlementService),
   __param(2, ISCMService),
-  __param(3, IFileService),
-  __param(4, ILogService),
-  __param(5, IConfigurationService)
+  __param(3, ILogService),
+  __param(4, IConfigurationService)
 ], ChatRepoInfoContribution);
 export {
   ChatRepoInfoContribution,
-  captureRepoInfo
+  captureRepoInfo,
+  captureRepoMetadata
 };
 //# sourceMappingURL=chatRepoInfo.js.map

@@ -53,6 +53,7 @@ const CONTEXT_BROWSER_CAN_GO_FORWARD = new RawContextKey("browserCanGoForward", 
 const CONTEXT_BROWSER_FOCUSED = new RawContextKey("browserFocused", true, localize("browser.editorFocused", "Whether the browser editor is focused"));
 const CONTEXT_BROWSER_STORAGE_SCOPE = new RawContextKey("browserStorageScope", "", localize("browser.storageScope", "The storage scope of the current browser view"));
 const CONTEXT_BROWSER_HAS_URL = new RawContextKey("browserHasUrl", false, localize("browser.hasUrl", "Whether the browser has a URL loaded"));
+const CONTEXT_BROWSER_HAS_ERROR = new RawContextKey("browserHasError", false, localize("browser.hasError", "Whether the browser has a load error"));
 const CONTEXT_BROWSER_DEVTOOLS_OPEN = new RawContextKey("browserDevToolsOpen", false, localize("browser.devToolsOpen", "Whether developer tools are open for the current browser view"));
 const CONTEXT_BROWSER_ELEMENT_SELECTION_ACTIVE = new RawContextKey("browserElementSelectionActive", false, localize("browser.elementSelectionActive", "Whether element selection is currently active"));
 const originalHtmlElementFocus = HTMLElement.prototype.focus;
@@ -150,6 +151,7 @@ let BrowserEditor = class BrowserEditor2 extends EditorPane {
     this._canGoForwardContext = CONTEXT_BROWSER_CAN_GO_FORWARD.bindTo(contextKeyService);
     this._storageScopeContext = CONTEXT_BROWSER_STORAGE_SCOPE.bindTo(contextKeyService);
     this._hasUrlContext = CONTEXT_BROWSER_HAS_URL.bindTo(contextKeyService);
+    this._hasErrorContext = CONTEXT_BROWSER_HAS_ERROR.bindTo(contextKeyService);
     this._devToolsOpenContext = CONTEXT_BROWSER_DEVTOOLS_OPEN.bindTo(contextKeyService);
     this._elementSelectionActiveContext = CONTEXT_BROWSER_ELEMENT_SELECTION_ACTIVE.bindTo(contextKeyService);
     CONTEXT_BROWSER_FOCUSED.bindTo(contextKeyService);
@@ -235,6 +237,11 @@ let BrowserEditor = class BrowserEditor2 extends EditorPane {
     this._inputDisposables.add(this._model.onDidNavigate((navEvent) => {
       this.group.pinEditor(this.input);
       this.updateNavigationState(navEvent);
+      if (navEvent.url) {
+        this.startConsoleSession();
+      } else {
+        this.stopConsoleSession();
+      }
     }));
     this._inputDisposables.add(this._model.onDidChangeLoadingState(() => {
       this.updateErrorDisplay();
@@ -351,6 +358,7 @@ let BrowserEditor = class BrowserEditor2 extends EditorPane {
       return;
     }
     const error = this._model.error;
+    this._hasErrorContext.set(!!error);
     if (error) {
       while (this._errorContainer.firstChild) {
         this._errorContainer.removeChild(this._errorContainer.firstChild);
@@ -515,6 +523,55 @@ let BrowserEditor = class BrowserEditor2 extends EditorPane {
       }
     }
   }
+  async addConsoleLogsToChat() {
+    const resourceUri = this.input?.resource;
+    if (!resourceUri) {
+      return;
+    }
+    const locator = { browserViewId: BrowserViewUri.getId(resourceUri) };
+    try {
+      const logs = await this.browserElementsService.getConsoleLogs(locator);
+      if (!logs) {
+        return;
+      }
+      const toAttach = [];
+      toAttach.push({
+        id: "console-logs-" + Date.now(),
+        name: localize("consoleLogs", "Console Logs"),
+        fullName: localize("consoleLogs", "Console Logs"),
+        value: logs,
+        kind: "element",
+        icon: ThemeIcon.fromId(Codicon.output.id)
+      });
+      const widget = await this.chatWidgetService.revealWidget() ?? this.chatWidgetService.lastFocusedWidget;
+      widget?.attachmentModel?.addContext(...toAttach);
+    } catch (error) {
+      this.logService.error("BrowserEditor.addConsoleLogsToChat: Failed to get console logs", error);
+    }
+  }
+  startConsoleSession() {
+    if (this._consoleSessionCts) {
+      return;
+    }
+    const resourceUri = this.input?.resource;
+    if (!resourceUri || !this._model?.url) {
+      return;
+    }
+    const cts = new CancellationTokenSource();
+    this._consoleSessionCts = cts;
+    const locator = { browserViewId: BrowserViewUri.getId(resourceUri) };
+    this.browserElementsService.startConsoleSession(cts.token, locator).catch((error) => {
+      if (!cts.token.isCancellationRequested) {
+        this.logService.error("BrowserEditor: Failed to start console session", error);
+      }
+    });
+  }
+  stopConsoleSession() {
+    if (this._consoleSessionCts) {
+      this._consoleSessionCts.dispose(true);
+      this._consoleSessionCts = void 0;
+    }
+  }
   /**
    * Update navigation state and context keys
    */
@@ -628,6 +685,7 @@ let BrowserEditor = class BrowserEditor2 extends EditorPane {
       this._elementSelectionCts.dispose(true);
       this._elementSelectionCts = void 0;
     }
+    this.stopConsoleSession();
     this.cancelScheduledScreenshot();
     this._findWidget.rawValue?.setModel(void 0);
     this._findWidget.rawValue?.hide();
@@ -636,6 +694,7 @@ let BrowserEditor = class BrowserEditor2 extends EditorPane {
     this._canGoBackContext.reset();
     this._canGoForwardContext.reset();
     this._hasUrlContext.reset();
+    this._hasErrorContext.reset();
     this._storageScopeContext.reset();
     this._devToolsOpenContext.reset();
     this._elementSelectionActiveContext.reset();
@@ -666,6 +725,7 @@ export {
   CONTEXT_BROWSER_FIND_WIDGET_FOCUSED,
   CONTEXT_BROWSER_FIND_WIDGET_VISIBLE,
   CONTEXT_BROWSER_FOCUSED,
+  CONTEXT_BROWSER_HAS_ERROR,
   CONTEXT_BROWSER_HAS_URL,
   CONTEXT_BROWSER_STORAGE_SCOPE
 };

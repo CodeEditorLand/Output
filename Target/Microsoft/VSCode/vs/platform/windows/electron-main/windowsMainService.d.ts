@@ -13,7 +13,7 @@ import { ILogService } from '../../log/common/log.js';
 import { IProtocolMainService } from '../../protocol/electron-main/protocol.js';
 import { IStateService } from '../../state/node/state.js';
 import { IOpenEmptyWindowOptions } from '../../window/common/window.js';
-import { IOpenConfiguration, IOpenEmptyConfiguration, IWindowsCountChangedEvent, IWindowsMainService } from './windows.js';
+import { IBaseOpenConfiguration, IOpenConfiguration, IOpenEmptyConfiguration, IWindowsCountChangedEvent, IWindowsMainService } from './windows.js';
 import { IWorkspacesHistoryMainService } from '../../workspaces/electron-main/workspacesHistoryMainService.js';
 import { IWorkspacesManagementMainService } from '../../workspaces/electron-main/workspacesManagementMainService.js';
 import { ICodeWindow } from '../../window/electron-main/window.js';
@@ -75,6 +75,7 @@ export declare class WindowsMainService extends Disposable implements IWindowsMa
     private registerListeners;
     openEmptyWindow(openConfig: IOpenEmptyConfiguration, options?: IOpenEmptyWindowOptions): Promise<ICodeWindow[]>;
     openExistingWindow(window: ICodeWindow, openConfig: IOpenConfiguration): void;
+    openSessionsWindow(openConfig: IBaseOpenConfiguration): Promise<ICodeWindow[]>;
     open(openConfig: IOpenConfiguration): Promise<ICodeWindow[]>;
     private handleWaitMarkerFile;
     private handleChatRequest;

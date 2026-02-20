@@ -150,7 +150,6 @@ class ExtHostLanguageModelTools {
     if (isProposedApiEnabled(item.extension, "chatParticipantPrivate")) {
       options.chatRequestId = dto.chatRequestId;
       options.chatInteractionId = dto.chatInteractionId;
-      options.chatSessionId = dto.context?.sessionId;
       options.chatSessionResource = URI.revive(dto.context?.sessionResource);
       options.subAgentInvocationId = dto.subAgentInvocationId;
     }
@@ -212,7 +211,6 @@ class ExtHostLanguageModelTools {
     const options = {
       rawInput: context.rawInput,
       chatRequestId: context.chatRequestId,
-      chatSessionId: context.chatSessionId,
       chatSessionResource: context.chatSessionResource,
       chatInteractionId: context.chatInteractionId
     };
@@ -232,7 +230,6 @@ class ExtHostLanguageModelTools {
     const options = {
       input: context.parameters,
       chatRequestId: context.chatRequestId,
-      chatSessionId: context.chatSessionId,
       chatSessionResource: context.chatSessionResource,
       chatInteractionId: context.chatInteractionId,
       forceConfirmationReason: context.forceConfirmationReason

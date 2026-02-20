@@ -16,6 +16,7 @@ export interface IModelPickerDelegate {
     readonly currentModel: IObservable<ILanguageModelChatMetadataAndIdentifier | undefined>;
     setModel(model: ILanguageModelChatMetadataAndIdentifier): void;
     getModels(): ILanguageModelChatMetadataAndIdentifier[];
+    canManageModels(): boolean;
 }
 /**
  * Action view item for selecting a language model in the chat interface.

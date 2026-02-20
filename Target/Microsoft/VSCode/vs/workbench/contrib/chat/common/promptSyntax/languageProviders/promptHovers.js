@@ -89,12 +89,12 @@ let PromptHoverProvider = class PromptHoverProvider2 {
   }
   getToolHover(node, position, baseMessage, target) {
     let value = node.value;
-    if (value.type === "string") {
+    if (value.type === "scalar") {
       value = parseCommaSeparatedList(value);
     }
-    if (value.type === "array") {
+    if (value.type === "sequence") {
       for (const toolName of value.items) {
-        if (toolName.type === "string" && toolName.range.containsPosition(position)) {
+        if (toolName.type === "scalar" && toolName.range.containsPosition(position)) {
           const description = this.getToolHoverByName(toolName.value, toolName.range, target);
           if (description) {
             return description;
@@ -166,14 +166,14 @@ let PromptHoverProvider = class PromptHoverProvider2 {
       }
       return void 0;
     }, "modelHoverContent");
-    if (node.value.type === "string") {
+    if (node.value.type === "scalar") {
       const hover = modelHoverContent(node.value.value);
       if (hover) {
         return hover;
       }
-    } else if (node.value.type === "array") {
+    } else if (node.value.type === "sequence") {
       for (const item of node.value.items) {
-        if (item.type === "string" && item.range.containsPosition(position)) {
+        if (item.type === "scalar" && item.range.containsPosition(position)) {
           const hover = modelHoverContent(item.value);
           if (hover) {
             return hover;
@@ -186,7 +186,7 @@ let PromptHoverProvider = class PromptHoverProvider2 {
   getAgentHover(agentAttribute, position, baseMessage) {
     const lines = [];
     const value = agentAttribute.value;
-    if (value.type === "string" && value.range.containsPosition(position)) {
+    if (value.type === "scalar" && value.range.containsPosition(position)) {
       const agent = this.chatModeService.findModeByName(value.value);
       if (agent) {
         const description = agent.description.get() || (isBuiltinChatMode(agent) ? localize("promptHeader.prompt.agent.builtInDesc", "Built-in agent") : localize("promptHeader.prompt.agent.customDesc", "Custom agent"));

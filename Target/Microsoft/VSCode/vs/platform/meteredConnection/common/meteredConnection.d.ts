@@ -9,7 +9,8 @@ export interface IMeteredConnectionService {
     readonly _serviceBrand: undefined;
     /**
      * Whether the current network connection is metered.
-     * Always returns `false` if the `network.respectMeteredConnections` setting is disabled.
+     * Always returns `false` if the `network.meteredConnection` setting is `off`.
+     * Always returns `true` if the `network.meteredConnection` setting is `on`.
      */
     readonly isConnectionMetered: boolean;
     /**
@@ -17,7 +18,8 @@ export interface IMeteredConnectionService {
      */
     readonly onDidChangeIsConnectionMetered: Event<boolean>;
 }
-export declare const METERED_CONNECTION_SETTING_KEY = "network.respectMeteredConnections";
+export declare const METERED_CONNECTION_SETTING_KEY = "network.meteredConnection";
+export type MeteredConnectionSettingValue = 'on' | 'off' | 'auto';
 /**
  * Network Information API
  * See https://developer.mozilla.org/en-US/docs/Web/API/Network_Information_API
@@ -48,7 +50,7 @@ export declare abstract class AbstractMeteredConnectionService extends Disposabl
     readonly onDidChangeIsConnectionMetered: Event<boolean>;
     private _isConnectionMetered;
     private _isBrowserConnectionMetered;
-    private _respectMeteredConnections;
+    private _meteredConnectionSetting;
     constructor(configurationService: IConfigurationService, isBrowserConnectionMetered: boolean);
     get isConnectionMetered(): boolean;
     protected get isBrowserConnectionMetered(): boolean;

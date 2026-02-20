@@ -23,11 +23,8 @@ export declare class UsagesTool extends Disposable implements IToolImpl {
     prepareToolInvocation(context: IToolInvocationPreparationContext, _token: CancellationToken): Promise<IPreparedToolInvocation | undefined>;
     invoke(invocation: IToolInvocation, _countTokens: CountTokensCallback, _progress: ToolProgress, token: CancellationToken): Promise<IToolResult>;
     private _getLinePreviews;
-    private _resolveUri;
-    private _findSymbolColumn;
     private _classifyReference;
     private _overlaps;
-    private _errorResult;
 }
 export declare class UsagesToolContribution extends Disposable implements IWorkbenchContribution {
     static readonly ID = "chat.usagesTool";

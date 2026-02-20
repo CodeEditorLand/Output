@@ -124,7 +124,7 @@ let PromptHeaderAutocompletion = class PromptHeaderAutocompletion2 {
     }
     if (promptType === PromptsType.prompt || promptType === PromptsType.agent) {
       if (attribute.key === PromptHeaderAttributes.model) {
-        if (attribute.value.type === "array") {
+        if (attribute.value.type === "sequence") {
           const getValues = /* @__PURE__ */ __name(async () => {
             if (target === Target.Claude) {
               return knownClaudeTools;
@@ -137,10 +137,10 @@ let PromptHeaderAutocompletion = class PromptHeaderAutocompletion2 {
       }
       if (attribute.key === PromptHeaderAttributes.tools || attribute.key === ClaudeHeaderAttributes.disallowedTools) {
         let value = attribute.value;
-        if (value.type === "string") {
+        if (value.type === "scalar") {
           value = parseCommaSeparatedList(value);
         }
-        if (value.type === "array") {
+        if (value.type === "sequence") {
           const getValues = /* @__PURE__ */ __name(async () => {
             if (target === Target.GitHubCopilot) {
               return knownGithubCopilotTools;
@@ -155,7 +155,7 @@ let PromptHeaderAutocompletion = class PromptHeaderAutocompletion2 {
       }
     }
     if (attribute.key === PromptHeaderAttributes.agents) {
-      if (attribute.value.type === "array") {
+      if (attribute.value.type === "sequence") {
         return this.provideArrayCompletions(model, position, attribute.value, async () => {
           return await this.promptsService.getCustomAgents(CancellationToken.None);
         });
@@ -274,7 +274,7 @@ let PromptHeaderAutocompletion = class PromptHeaderAutocompletion2 {
     const result = [];
     for (const model of this.languageModelsService.getLanguageModelIds()) {
       const metadata = this.languageModelsService.lookupLanguageModel(model);
-      if (metadata && metadata.isUserSelectable !== false) {
+      if (metadata && metadata.isUserSelectable !== false && !metadata.targetChatSessionType) {
         if (!agentModeOnly || ILanguageModelChatMetadata.suitableForAgentMode(metadata)) {
           result.push({
             name: ILanguageModelChatMetadata.asQualifiedName(metadata),
@@ -290,7 +290,7 @@ let PromptHeaderAutocompletion = class PromptHeaderAutocompletion2 {
       const suggestions = [];
       const entries = await getValues();
       const quotePreference = getQuotePreference(arrayValue, model);
-      const existingValues = new Set(arrayValue.items.filter((item) => item !== currentItem).filter((item) => item.type === "string").map((item) => item.value));
+      const existingValues = new Set(arrayValue.items.filter((item) => item !== currentItem).filter((item) => item.type === "scalar").map((item) => item.value));
       for (const entry of entries) {
         const entryName = entry.name;
         if (existingValues.has(entryName)) {

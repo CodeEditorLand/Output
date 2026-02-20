@@ -1,9 +1,12 @@
 import { CancellationToken } from '../../../../../base/common/cancellation.js';
 import { ResourceSet } from '../../../../../base/common/map.js';
+import { OperatingSystem } from '../../../../../base/common/platform.js';
+import { URI } from '../../../../../base/common/uri.js';
 import { IConfigurationService } from '../../../../../platform/configuration/common/configuration.js';
 import { IFileService } from '../../../../../platform/files/common/files.js';
 import { ILabelService } from '../../../../../platform/label/common/label.js';
 import { ILogService } from '../../../../../platform/log/common/log.js';
+import { IRemoteAgentService } from '../../../../services/remote/common/remoteAgentService.js';
 import { ITelemetryService } from '../../../../../platform/telemetry/common/telemetry.js';
 import { IWorkspaceContextService } from '../../../../../platform/workspace/common/workspace.js';
 import { ChatRequestVariableSet } from '../attachments/chatVariableEntries.js';
@@ -32,10 +35,11 @@ export declare class ComputeAutomaticInstructions {
     private readonly _configurationService;
     private readonly _workspaceService;
     private readonly _fileService;
+    private readonly _remoteAgentService;
     private readonly _telemetryService;
     private readonly _languageModelToolsService;
     private _parseResults;
-    constructor(_modeKind: ChatModeKind, _enabledTools: UserSelectedTools | undefined, _enabledSubagents: (readonly string[]) | undefined, _promptsService: IPromptsService, _logService: ILogService, _labelService: ILabelService, _configurationService: IConfigurationService, _workspaceService: IWorkspaceContextService, _fileService: IFileService, _telemetryService: ITelemetryService, _languageModelToolsService: ILanguageModelToolsService);
+    constructor(_modeKind: ChatModeKind, _enabledTools: UserSelectedTools | undefined, _enabledSubagents: (readonly string[]) | undefined, _promptsService: IPromptsService, _logService: ILogService, _labelService: ILabelService, _configurationService: IConfigurationService, _workspaceService: IWorkspaceContextService, _fileService: IFileService, _remoteAgentService: IRemoteAgentService, _telemetryService: ITelemetryService, _languageModelToolsService: ILanguageModelToolsService);
     private _parseInstructionsFile;
     collect(variables: ChatRequestVariableSet, token: CancellationToken): Promise<void>;
     private sendTelemetry;
@@ -57,3 +61,4 @@ export declare class ComputeAutomaticInstructions {
     private _getInstructionsWithPatternsList;
     private _addReferencedInstructions;
 }
+export declare function getFilePath(uri: URI, remoteOS: OperatingSystem | undefined): string;

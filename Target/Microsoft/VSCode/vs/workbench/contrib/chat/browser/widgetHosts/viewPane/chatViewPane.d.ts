@@ -30,6 +30,7 @@ import { IActivityService } from '../../../../../services/activity/common/activi
 import { IAgentSessionsService } from '../../agentSessions/agentSessionsService.js';
 import { IAgentSession } from '../../agentSessions/agentSessionsModel.js';
 import { IChatEntitlementService } from '../../../../../services/chat/common/chatEntitlementService.js';
+import { IWorkbenchEnvironmentService } from '../../../../../services/environment/common/environmentService.js';
 export declare class ChatViewPane extends ViewPane implements IViewWelcomeDelegate {
     private readonly storageService;
     private readonly chatService;
@@ -43,6 +44,7 @@ export declare class ChatViewPane extends ViewPane implements IViewWelcomeDelega
     private readonly chatEntitlementService;
     private readonly commandService;
     private readonly activityService;
+    private readonly workbenchEnvironmentService;
     private readonly memento;
     private readonly viewState;
     private viewPaneContainer;
@@ -53,7 +55,7 @@ export declare class ChatViewPane extends ViewPane implements IViewWelcomeDelega
     private restoringSession;
     private readonly modelRef;
     private readonly activityBadge;
-    constructor(options: IViewPaneOptions, keybindingService: IKeybindingService, contextMenuService: IContextMenuService, configurationService: IConfigurationService, contextKeyService: IContextKeyService, viewDescriptorService: IViewDescriptorService, instantiationService: IInstantiationService, openerService: IOpenerService, themeService: IThemeService, hoverService: IHoverService, storageService: IStorageService, chatService: IChatService, chatAgentService: IChatAgentService, logService: ILogService, layoutService: IWorkbenchLayoutService, chatSessionsService: IChatSessionsService, telemetryService: ITelemetryService, lifecycleService: ILifecycleService, progressService: IProgressService, agentSessionsService: IAgentSessionsService, chatEntitlementService: IChatEntitlementService, commandService: ICommandService, activityService: IActivityService);
+    constructor(options: IViewPaneOptions, keybindingService: IKeybindingService, contextMenuService: IContextMenuService, configurationService: IConfigurationService, contextKeyService: IContextKeyService, viewDescriptorService: IViewDescriptorService, instantiationService: IInstantiationService, openerService: IOpenerService, themeService: IThemeService, hoverService: IHoverService, storageService: IStorageService, chatService: IChatService, chatAgentService: IChatAgentService, logService: ILogService, layoutService: IWorkbenchLayoutService, chatSessionsService: IChatSessionsService, telemetryService: ITelemetryService, lifecycleService: ILifecycleService, progressService: IProgressService, agentSessionsService: IAgentSessionsService, chatEntitlementService: IChatEntitlementService, commandService: ICommandService, activityService: IActivityService, workbenchEnvironmentService: IWorkbenchEnvironmentService);
     private updateContextKeys;
     private getViewPositionAndLocation;
     private getSessionHoverPosition;
@@ -98,6 +100,7 @@ export declare class ChatViewPane extends ViewPane implements IViewWelcomeDelega
     private registerControlsListeners;
     private setupContextMenu;
     private applyModel;
+    private _applyModel;
     private showModel;
     private updateWidgetLockState;
     private clear;

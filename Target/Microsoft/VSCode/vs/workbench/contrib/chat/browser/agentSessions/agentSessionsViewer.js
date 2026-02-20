@@ -148,7 +148,8 @@ let AgentSessionRenderer = class AgentSessionRenderer2 extends Disposable {
     if (!hasDiff) {
       this.renderDescription(session, template, hasBadge);
     }
-    template.separator.classList.toggle("has-separator", hasBadge && !hasDiff);
+    const hasDescription = template.description.textContent !== "";
+    template.separator.classList.toggle("has-separator", hasBadge && hasDescription);
     this.renderStatus(session, template);
     this.renderHover(session, template);
   }
@@ -374,7 +375,7 @@ class AgentSessionsListDelegate {
     __name(this, "AgentSessionsListDelegate");
   }
   static {
-    this.ITEM_HEIGHT = 44;
+    this.ITEM_HEIGHT = 48;
   }
   static {
     this.SECTION_HEIGHT = 26;
@@ -553,28 +554,18 @@ function groupAgentSessionsByDate(sessions) {
       }
     }
   }
+  const sectionWithCount = /* @__PURE__ */ __name((section, sessions2) => ({
+    section,
+    label: localize("agentSessions.sectionWithCount", "{0} ({1})", AgentSessionSectionLabels[section], sessions2.length),
+    sessions: sessions2
+  }), "sectionWithCount");
   return /* @__PURE__ */ new Map([
-    ["inProgress", { section: "inProgress", label: AgentSessionSectionLabels[
-      "inProgress"
-      /* AgentSessionSection.InProgress */
-    ], sessions: inProgressSessions }],
-    ["today", { section: "today", label: AgentSessionSectionLabels[
-      "today"
-      /* AgentSessionSection.Today */
-    ], sessions: todaySessions }],
-    ["yesterday", { section: "yesterday", label: AgentSessionSectionLabels[
-      "yesterday"
-      /* AgentSessionSection.Yesterday */
-    ], sessions: yesterdaySessions }],
-    ["week", { section: "week", label: AgentSessionSectionLabels[
-      "week"
-      /* AgentSessionSection.Week */
-    ], sessions: weekSessions }],
-    ["older", { section: "older", label: AgentSessionSectionLabels[
-      "older"
-      /* AgentSessionSection.Older */
-    ], sessions: olderSessions }],
-    ["archived", { section: "archived", label: localize("agentSessions.archivedSectionWithCount", "Archived ({0})", archivedSessions.length), sessions: archivedSessions }]
+    ["inProgress", sectionWithCount("inProgress", inProgressSessions)],
+    ["today", sectionWithCount("today", todaySessions)],
+    ["yesterday", sectionWithCount("yesterday", yesterdaySessions)],
+    ["week", sectionWithCount("week", weekSessions)],
+    ["older", sectionWithCount("older", olderSessions)],
+    ["archived", sectionWithCount("archived", archivedSessions)]
   ]);
 }
 __name(groupAgentSessionsByDate, "groupAgentSessionsByDate");

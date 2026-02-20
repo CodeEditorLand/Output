@@ -2,7 +2,6 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 var Workbench_default = /* @__PURE__ */ __name((Prefix) => [
   // Examples - KEEP core ones like files, preferences, output, terminal UI
-  //
   // `${Prefix}/workbench/contrib/chat`,
   // `${Prefix}/workbench/contrib/notebook`,
   // `${Prefix}/workbench/contrib/replNotebook`,
@@ -12,10 +11,8 @@ var Workbench_default = /* @__PURE__ */ __name((Prefix) => [
   // `${Prefix}/workbench/contrib/comments`,
   // Keep if needed for basic diff view, remove if git ext handles all
   // `${Prefix}/workbench/contrib/scm`,
-  //
   // Keep common, maybe remove browser UI parts if needed
   // `${Prefix}/workbench/contrib/debug`,
-  //
   // `${Prefix}/workbench/contrib/callHierarchy`,
   // `${Prefix}/workbench/contrib/typeHierarchy`,
   // `${Prefix}/workbench/contrib/issue`,

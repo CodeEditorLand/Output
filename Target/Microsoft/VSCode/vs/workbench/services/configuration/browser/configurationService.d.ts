@@ -19,7 +19,6 @@ declare class Workspace extends BaseWorkspace {
     initialized: boolean;
 }
 export declare class WorkspaceService extends Disposable implements IWorkbenchConfigurationService, IWorkspaceContextService {
-    private readonly environmentService;
     private readonly userDataProfileService;
     private readonly userDataProfilesService;
     private readonly fileService;

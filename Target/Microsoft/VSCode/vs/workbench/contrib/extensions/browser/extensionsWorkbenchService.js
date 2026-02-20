@@ -29,7 +29,7 @@ import { IConfigurationService } from "../../../../platform/configuration/common
 import { IHostService } from "../../../services/host/browser/host.js";
 import { URI } from "../../../../base/common/uri.js";
 import { AutoUpdateConfigurationKey, AutoCheckUpdatesConfigurationKey, HasOutdatedExtensionsContext, AutoRestartConfigurationKey, VIEWLET_ID } from "../common/extensions.js";
-import { ACTIVE_GROUP, IEditorService, SIDE_GROUP } from "../../../services/editor/common/editorService.js";
+import { ACTIVE_GROUP, IEditorService, MODAL_GROUP, SIDE_GROUP } from "../../../services/editor/common/editorService.js";
 import { IURLService } from "../../../../platform/url/common/url.js";
 import { ExtensionsInput } from "../common/extensionsInput.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
@@ -1326,7 +1326,8 @@ let ExtensionsWorkbenchService = class ExtensionsWorkbenchService2 extends Dispo
     if (!extension) {
       throw new Error(`Extension not found. ${extension}`);
     }
-    await this.editorService.openEditor(this.instantiationService.createInstance(ExtensionsInput, extension), options, options?.sideByside ? SIDE_GROUP : ACTIVE_GROUP);
+    const useModal = this.configurationService.getValue("extensions.allowOpenInModalEditor");
+    await this.editorService.openEditor(this.instantiationService.createInstance(ExtensionsInput, extension), options, options?.sideByside ? SIDE_GROUP : useModal ? MODAL_GROUP : ACTIVE_GROUP);
   }
   async openSearch(searchValue, preserveFoucs) {
     const viewPaneContainer = (await this.viewsService.openViewContainer(VIEWLET_ID, true))?.getViewPaneContainer();

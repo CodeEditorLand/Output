@@ -1537,8 +1537,7 @@ let ChatModel = ChatModel_1 = class ChatModel2 extends Disposable {
       sessionId: this.sessionId,
       creationDate: this._timestamp,
       customTitle: this._customTitle,
-      inputState: this.inputModel.toJSON(),
-      repoData: this._repoData
+      inputState: this.inputModel.toJSON()
     };
   }
   dispose() {

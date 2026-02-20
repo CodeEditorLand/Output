@@ -535,7 +535,8 @@ let ExtHostChatSessions = class ExtHostChatSessions2 extends Disposable {
       prompt: turn.prompt,
       participant: turn.participant,
       command: turn.command,
-      variableData: variables.length > 0 ? { variables } : void 0
+      variableData: variables.length > 0 ? { variables } : void 0,
+      modelId: turn.modelId
     };
   }
   convertReferenceToVariable(ref) {

@@ -2,8 +2,10 @@ import './media/editordroptarget.css';
 import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
 import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
 import { IThemeService, Themable } from '../../../../platform/theme/common/themeService.js';
+import { IEditorGroupsView } from './editor.js';
 import { IEditorDropTargetDelegate, IEditorGroupsService } from '../../../services/editor/common/editorGroupsService.js';
 export declare class EditorDropTarget extends Themable {
+    private readonly groupsView;
     private readonly container;
     private readonly delegate;
     private readonly editorGroupService;
@@ -13,7 +15,7 @@ export declare class EditorDropTarget extends Themable {
     private counter;
     private readonly editorTransfer;
     private readonly groupTransfer;
-    constructor(container: HTMLElement, delegate: IEditorDropTargetDelegate, editorGroupService: IEditorGroupsService, themeService: IThemeService, configurationService: IConfigurationService, instantiationService: IInstantiationService);
+    constructor(groupsView: IEditorGroupsView, container: HTMLElement, delegate: IEditorDropTargetDelegate, editorGroupService: IEditorGroupsService, themeService: IThemeService, configurationService: IConfigurationService, instantiationService: IInstantiationService);
     private get overlay();
     private registerListeners;
     private onDragEnter;

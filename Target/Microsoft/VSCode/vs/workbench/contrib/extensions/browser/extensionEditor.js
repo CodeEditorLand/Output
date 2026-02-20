@@ -74,15 +74,13 @@ class NavBar extends Disposable {
   static {
     __name(this, "NavBar");
   }
-  get onChange() {
-    return this._onChange.event;
-  }
   get currentId() {
     return this._currentId;
   }
   constructor(container) {
     super();
     this._onChange = this._register(new Emitter());
+    this.onChange = this._onChange.event;
     this._currentId = null;
     const element = append(container, $(".navbar"));
     this.actions = [];
@@ -113,6 +111,10 @@ class NavBar extends Disposable {
     this._currentId = id;
     this._onChange.fire({ id, focus: !!focus });
     this.actions.forEach((a) => a.checked = a.id === id);
+  }
+  dispose() {
+    this.clear();
+    super.dispose();
   }
 }
 var WebviewIndex;

@@ -8,7 +8,7 @@ import { IModelService } from '../../../../../editor/common/services/model.js';
 import { MenuId } from '../../../../../platform/actions/common/actions.js';
 import { ICommandService } from '../../../../../platform/commands/common/commands.js';
 import { IConfigurationService } from '../../../../../platform/configuration/common/configuration.js';
-import { IContextKeyService, IScopedContextKeyService, RawContextKey } from '../../../../../platform/contextkey/common/contextkey.js';
+import { IContextKeyService, RawContextKey } from '../../../../../platform/contextkey/common/contextkey.js';
 import { IOpenEditorOptions } from '../../../../../platform/editor/browser/editor.js';
 import { IHoverService } from '../../../../../platform/hover/browser/hover.js';
 import { IInstantiationService, ServicesAccessor } from '../../../../../platform/instantiation/common/instantiation.js';
@@ -170,7 +170,7 @@ export declare class SCMHistoryItemChangeRangeAttachmentWidget extends AbstractC
     protected openResource(resource: URI, options: IOpenEditorOptions, isDirectory: false, range: IRange | undefined): Promise<void>;
 }
 export declare function hookUpResourceAttachmentDragAndContextMenu(accessor: ServicesAccessor, widget: HTMLElement, resource: URI): IDisposable;
-export declare function hookUpSymbolAttachmentDragAndContextMenu(accessor: ServicesAccessor, widget: HTMLElement, scopedContextKeyService: IScopedContextKeyService, attachment: {
+export declare function hookUpSymbolAttachmentDragAndContextMenu(accessor: ServicesAccessor, widget: HTMLElement, parentContextKeyService: IContextKeyService, attachment: {
     name: string;
     value: Location;
     kind: SymbolKind;

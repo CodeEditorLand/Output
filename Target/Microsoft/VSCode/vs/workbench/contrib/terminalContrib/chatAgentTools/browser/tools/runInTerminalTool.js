@@ -368,7 +368,7 @@ let RunInTerminalTool = class RunInTerminalTool2 extends Disposable {
   }
   async prepareToolInvocation(context, token) {
     const args = context.parameters;
-    const chatSessionResource = context.chatSessionResource ?? (context.chatSessionId ? LocalChatSessionUri.forSession(context.chatSessionId) : void 0);
+    const chatSessionResource = context.chatSessionResource;
     let instance;
     if (chatSessionResource) {
       const toolTerminal = this._sessionTerminalAssociations.get(chatSessionResource);
@@ -548,6 +548,9 @@ let RunInTerminalTool = class RunInTerminalTool2 extends Disposable {
     if (!toolSpecificData) {
       throw new Error("toolSpecificData must be provided for this tool");
     }
+    if (!invocation.context) {
+      throw new Error("Invocation context must be provided for this tool");
+    }
     const commandId = toolSpecificData.terminalCommandId;
     if (toolSpecificData.alternativeRecommendation) {
       return {
@@ -560,8 +563,7 @@ let RunInTerminalTool = class RunInTerminalTool2 extends Disposable {
     const args = invocation.parameters;
     this._logService.debug(`RunInTerminalTool: Invoking with options ${JSON.stringify(args)}`);
     let toolResultMessage;
-    const chatSessionResource = invocation.context?.sessionResource ?? LocalChatSessionUri.forSession(invocation.context?.sessionId ?? "no-chat-session");
-    const chatSessionId = chatSessionResourceToId(chatSessionResource);
+    const chatSessionResource = invocation.context.sessionResource;
     const command = toolSpecificData.commandLine.userEdited ?? toolSpecificData.commandLine.toolEdited ?? toolSpecificData.commandLine.original;
     const didUserEditCommand = toolSpecificData.commandLine.userEdited !== void 0 && toolSpecificData.commandLine.userEdited !== toolSpecificData.commandLine.original;
     const didToolEditCommand = !didUserEditCommand && toolSpecificData.commandLine.toolEdited !== void 0 && toolSpecificData.commandLine.toolEdited !== toolSpecificData.commandLine.original;
@@ -574,7 +576,7 @@ let RunInTerminalTool = class RunInTerminalTool2 extends Disposable {
     const termId = generateUuid();
     const terminalToolSessionId = toolSpecificData.terminalToolSessionId;
     const store = new DisposableStore();
-    this._logService.debug(`RunInTerminalTool: Creating ${args.isBackground ? "background" : "foreground"} terminal. termId=${termId}, chatSessionId=${chatSessionId}`);
+    this._logService.debug(`RunInTerminalTool: Creating ${args.isBackground ? "background" : "foreground"} terminal. termId=${termId}, chatSessionResource=${chatSessionResource}`);
     const toolTerminal = await this._initTerminal(chatSessionResource, termId, terminalToolSessionId, args.isBackground, token);
     this._handleTerminalVisibility(toolTerminal, chatSessionResource);
     const timingConnectMs = Date.now() - timingStart;
@@ -638,7 +640,7 @@ let RunInTerminalTool = class RunInTerminalTool2 extends Disposable {
     }
     let executionPromise;
     try {
-      const execution = this._instantiationService.createInstance(ActiveTerminalExecution, chatSessionId, termId, toolTerminal, commandDetection, args.isBackground);
+      const execution = this._instantiationService.createInstance(ActiveTerminalExecution, chatSessionResource, termId, toolTerminal, commandDetection, args.isBackground);
       if (toolTerminal.shellIntegrationQuality === "none") {
         toolResultMessage = "$(info) Enable [shell integration](https://code.visualstudio.com/docs/terminal/shell-integration) to improve command detection";
       }
@@ -1043,9 +1045,9 @@ let ActiveTerminalExecution = class ActiveTerminalExecution2 extends Disposable 
   get instance() {
     return this._toolTerminal.instance;
   }
-  constructor(sessionId, termId, toolTerminal, commandDetection, isBackground, _instantiationService) {
+  constructor(sessionResource, termId, toolTerminal, commandDetection, isBackground, _instantiationService) {
     super();
-    this.sessionId = sessionId;
+    this.sessionResource = sessionResource;
     this.termId = termId;
     this._instantiationService = _instantiationService;
     this._toolTerminal = toolTerminal;

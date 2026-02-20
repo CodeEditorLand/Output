@@ -36,7 +36,7 @@ let PromptHeaderDefinitionProvider = class PromptHeaderDefinitionProvider2 {
       return void 0;
     }
     const agentAttr = header.getAttribute(PromptHeaderAttributes.agent) ?? header.getAttribute(PromptHeaderAttributes.mode);
-    if (agentAttr && agentAttr.value.type === "string" && agentAttr.range.containsPosition(position)) {
+    if (agentAttr && agentAttr.value.type === "scalar" && agentAttr.range.containsPosition(position)) {
       const agent = this.chatModeService.findModeByName(agentAttr.value.value);
       if (agent && agent.uri) {
         return {

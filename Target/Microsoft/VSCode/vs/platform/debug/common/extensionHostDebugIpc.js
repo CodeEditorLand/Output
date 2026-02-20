@@ -2,15 +2,16 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Emitter } from "../../../base/common/event.js";
 import { Disposable } from "../../../base/common/lifecycle.js";
-class ExtensionHostDebugBroadcastChannel {
+class ExtensionHostDebugBroadcastChannel extends Disposable {
   static {
     __name(this, "ExtensionHostDebugBroadcastChannel");
   }
   constructor() {
-    this._onCloseEmitter = new Emitter();
-    this._onReloadEmitter = new Emitter();
-    this._onTerminateEmitter = new Emitter();
-    this._onAttachEmitter = new Emitter();
+    super(...arguments);
+    this._onCloseEmitter = this._register(new Emitter());
+    this._onReloadEmitter = this._register(new Emitter());
+    this._onTerminateEmitter = this._register(new Emitter());
+    this._onAttachEmitter = this._register(new Emitter());
   }
   static {
     this.ChannelName = "extensionhostdebugservice";

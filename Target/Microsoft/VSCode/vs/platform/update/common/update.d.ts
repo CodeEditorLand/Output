@@ -49,7 +49,8 @@ export declare const enum DisablementReason {
     ManuallyDisabled = 2,
     MissingConfiguration = 3,
     InvalidConfiguration = 4,
-    RunningAsAdmin = 5
+    RunningAsAdmin = 5,
+    EmbeddedApp = 6
 }
 export type Uninitialized = {
     type: StateType.Uninitialized;

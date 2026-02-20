@@ -1,6 +1,7 @@
 import { ButtonBar } from '../../../base/browser/ui/button/button.js';
 import { IAction } from '../../../base/common/actions.js';
 import { Event } from '../../../base/common/event.js';
+import { IMarkdownString } from '../../../base/common/htmlContent.js';
 import { DisposableStore } from '../../../base/common/lifecycle.js';
 import { IToolBarRenderOptions } from './toolbar.js';
 import { MenuId, IMenuService, IMenuActionOptions } from '../common/actions.js';
@@ -13,6 +14,8 @@ export type IButtonConfigProvider = (action: IAction, index: number) => {
     showIcon?: boolean;
     showLabel?: boolean;
     isSecondary?: boolean;
+    customLabel?: string | IMarkdownString;
+    customClass?: string;
 } | undefined;
 export interface IWorkbenchButtonBarOptions {
     telemetrySource?: string;

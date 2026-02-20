@@ -96,15 +96,15 @@ import { DefaultChatAttachmentWidget, ElementChatAttachmentWidget, FileAttachmen
 import { ChatImplicitContexts } from "../../attachments/chatImplicitContext.js";
 import { ImplicitContextAttachmentWidget } from "../../attachments/implicitContextAttachment.js";
 import { isIChatResourceViewContext, isIChatViewViewContext } from "../../chat.js";
-import { ChatEditingShowChangesAction, ChatEditsViewAsListActionId, ChatEditsViewAsTreeActionId, ViewAllSessionChangesAction, ViewPreviousEditsAction } from "../../chatEditing/chatEditingActions.js";
+import { ChatEditingShowChangesAction, ViewAllSessionChangesAction, ViewPreviousEditsAction } from "../../chatEditing/chatEditingActions.js";
 import { resizeImage } from "../../chatImageUtils.js";
 import { ChatSessionPickerActionItem } from "../../chatSessions/chatSessionPickerActionItem.js";
 import { SearchableOptionPickerActionItem } from "../../chatSessions/searchableOptionPickerActionItem.js";
 import { IChatContextService } from "../../contextContrib/chatContextService.js";
 import { ChatQuestionCarouselPart } from "../chatContentParts/chatQuestionCarouselPart.js";
+import { CollapsibleListPool } from "../chatContentParts/chatReferencesContentPart.js";
 import { ChatTodoListWidget } from "../chatContentParts/chatTodoListWidget.js";
 import { ChatDragAndDrop } from "../chatDragAndDrop.js";
-import { ChatEditsListWidget } from "./chatEditsTree.js";
 import { ChatFollowups } from "./chatFollowups.js";
 import { ChatInputPartWidgetController } from "./chatInputPartWidgets.js";
 import { ChatSelectedTools } from "./chatSelectedTools.js";
@@ -115,6 +115,7 @@ import { SessionTypePickerActionItem } from "./sessionTargetPickerActionItem.js"
 import { WorkspacePickerActionItem } from "./workspacePickerActionItem.js";
 import { ChatContextUsageWidget } from "../../widgetHosts/viewPane/chatContextUsageWidget.js";
 import { Target } from "../../../common/promptSyntax/service/promptsService.js";
+import { InlineCompletionsController } from "../../../../../../editor/contrib/inlineCompletions/browser/controller/inlineCompletionsController.js";
 const $ = dom.$;
 const INPUT_EDITOR_MAX_HEIGHT = 250;
 const CachedLanguageModelsKey = "chat.cachedLanguageModels.v2";
@@ -209,7 +210,15 @@ let ChatInputPart = class ChatInputPart2 extends Disposable {
     };
   }
   get selectedElements() {
-    return this._chatEditsListWidget.value?.selectedElements ?? [];
+    const edits = [];
+    const editsList = this._chatEditList?.object;
+    const selectedElements = editsList?.getSelectedElements() ?? [];
+    for (const element of selectedElements) {
+      if (element.kind === "reference" && URI.isUri(element.reference)) {
+        edits.push(element.reference);
+      }
+    }
+    return edits;
   }
   /**
    * The number of working set entries that the user actually wanted to attach.
@@ -298,11 +307,12 @@ let ChatInputPart = class ChatInputPart2 extends Disposable {
     this._workingSetLinesAddedSpan = new Lazy(() => dom.$(".working-set-lines-added"));
     this._workingSetLinesRemovedSpan = new Lazy(() => dom.$(".working-set-lines-removed"));
     this._chatEditsActionsDisposables = this._register(new DisposableStore());
+    this._chatEditsDisposables = this._register(new DisposableStore());
     this._renderingChatEdits = this._register(new MutableDisposable());
-    this._chatEditsListWidget = this._register(new MutableDisposable());
     this._attemptedWorkingSetEntriesCount = 0;
     this._chatSessionIsEmpty = false;
     this._pendingDelegationTarget = void 0;
+    this._currentSessionType = void 0;
     this._syncTextDebounced = this._register(new RunOnceScheduler(() => this._syncInputStateToModel(), 150));
     this._emptyInputState = this._register(emptyInputState(1, 0, this.storageService));
     this._contextResourceLabels = this._register(this.instantiationService.createInstance(ResourceLabels, { onDidChangeVisibility: this._onDidChangeVisibility.event }));
@@ -343,8 +353,10 @@ let ChatInputPart = class ChatInputPart2 extends Disposable {
     this.inputEditorHasText = ChatContextKeys.inputHasText.bindTo(contextKeyService);
     this.chatCursorAtTop = ChatContextKeys.inputCursorAtTop.bindTo(contextKeyService);
     this.inputEditorHasFocus = ChatContextKeys.inputHasFocus.bindTo(contextKeyService);
+    this._hasQuestionCarouselContextKey = ChatContextKeys.Editing.hasQuestionCarousel.bindTo(contextKeyService);
     this.chatModeKindKey = ChatContextKeys.chatModeKind.bindTo(contextKeyService);
     this.chatModeNameKey = ChatContextKeys.chatModeName.bindTo(contextKeyService);
+    this.chatModelIdKey = ChatContextKeys.chatModelId.bindTo(contextKeyService);
     this.withinEditSessionKey = ChatContextKeys.withinEditSessionDiff.bindTo(contextKeyService);
     this.filePartOfEditSessionKey = ChatContextKeys.filePartOfEditSession.bindTo(contextKeyService);
     this.chatSessionHasOptions = ChatContextKeys.chatSessionHasModels.bindTo(contextKeyService);
@@ -357,6 +369,7 @@ let ChatInputPart = class ChatInputPart2 extends Disposable {
       }
     }
     this.chatSessionHasCustomAgentTarget = ChatContextKeys.chatSessionHasCustomAgentTarget.bindTo(contextKeyService);
+    this.chatSessionHasTargetedModels = ChatContextKeys.chatSessionHasTargetedModels.bindTo(contextKeyService);
     this.history = this._register(this.instantiationService.createInstance(ChatHistoryNavigator, this.location));
     this._register(this.configurationService.onDidChangeConfiguration((e) => {
       const newOptions = {};
@@ -380,6 +393,10 @@ let ChatInputPart = class ChatInputPart2 extends Disposable {
       }
       this.inputEditor.updateOptions(newOptions);
     }));
+    this._chatEditsListPool = this._register(this.instantiationService.createInstance(CollapsibleListPool, this._onDidChangeVisibility.event, MenuId.ChatEditingWidgetModifiedFilesToolbar, {
+      verticalScrollMode: 3
+      /* ScrollbarVisibility.Visible */
+    }));
     this._hasFileAttachmentContextKey = ChatContextKeys.hasFileAttachments.bindTo(contextKeyService);
     this.initSelectedModel();
     this._register(this.languageModelsService.onDidChangeLanguageModels((vendor) => {
@@ -391,8 +408,7 @@ let ChatInputPart = class ChatInputPart2 extends Disposable {
         /* StorageTarget.MACHINE */
       );
       const selectedModel = this._currentLanguageModel ? this.getModels().find((m) => m.identifier === this._currentLanguageModel.get()?.identifier) : void 0;
-      const selectedModelNotAvailable = this._currentLanguageModel && !selectedModel?.metadata.isUserSelectable;
-      if (!this.currentLanguageModel || selectedModelNotAvailable) {
+      if (!this.currentLanguageModel || !selectedModel) {
         this.setCurrentLanguageModelToDefault();
       }
     }));
@@ -405,6 +421,7 @@ let ChatInputPart = class ChatInputPart2 extends Disposable {
     }));
     this._register(autorun((reader) => {
       const lm = this._currentLanguageModel.read(reader);
+      this.chatModelIdKey.set(lm?.metadata.id.toLowerCase() ?? "");
       if (lm?.metadata.name) {
         this.accessibilityService.alert(lm.metadata.name);
       }
@@ -443,9 +460,17 @@ let ChatInputPart = class ChatInputPart2 extends Disposable {
     this.filePartOfEditSessionKey.set(isFilePartOfEditSession);
   }
   getSelectedModelStorageKey() {
+    const sessionType = this._currentSessionType;
+    if (sessionType && this.hasModelsTargetingSessionType()) {
+      return `chat.currentLanguageModel.${this.location}.${sessionType}`;
+    }
     return `chat.currentLanguageModel.${this.location}`;
   }
   getSelectedModelIsDefaultStorageKey() {
+    const sessionType = this._currentSessionType;
+    if (sessionType && this.hasModelsTargetingSessionType()) {
+      return `chat.currentLanguageModel.${this.location}.${sessionType}.isDefault`;
+    }
     return `chat.currentLanguageModel.${this.location}.isDefault`;
   }
   initSelectedModel() {
@@ -644,7 +669,11 @@ let ChatInputPart = class ChatInputPart2 extends Disposable {
       if (state?.selectedModel) {
         const lm = this._currentLanguageModel.get();
         if (!lm || lm.identifier !== state.selectedModel.identifier) {
-          this.setCurrentLanguageModel(state.selectedModel);
+          if (this.isModelValidForCurrentSession(state.selectedModel)) {
+            this.setCurrentLanguageModel(state.selectedModel);
+          } else {
+            this.setCurrentLanguageModelToDefault();
+          }
         }
       }
       const currentAttachments = this._attachmentModel.attachments;
@@ -685,6 +714,7 @@ let ChatInputPart = class ChatInputPart2 extends Disposable {
   }
   setCurrentLanguageModel(model) {
     this._currentLanguageModel.set(model, void 0);
+    this.languageModelsService.recordModelUsage(model);
     if (this.cachedWidth) {
       this.layout(this.cachedWidth);
     }
@@ -706,7 +736,7 @@ let ChatInputPart = class ChatInputPart2 extends Disposable {
   }
   checkModelSupported() {
     const lm = this._currentLanguageModel.get();
-    if (lm && (!this.modelSupportedForDefaultAgent(lm) || !this.modelSupportedForInlineChat(lm))) {
+    if (lm && (!this.modelSupportedForDefaultAgent(lm) || !this.modelSupportedForInlineChat(lm) || !this.isModelValidForCurrentSession(lm))) {
       this.setCurrentLanguageModelToDefault();
     }
   }
@@ -758,11 +788,111 @@ let ChatInputPart = class ChatInputPart2 extends Disposable {
       );
     }
     models.sort((a, b) => a.metadata.name.localeCompare(b.metadata.name));
-    return models.filter((entry) => entry.metadata?.isUserSelectable && this.modelSupportedForDefaultAgent(entry) && this.modelSupportedForInlineChat(entry));
+    const sessionType = this.getCurrentSessionType();
+    if (sessionType) {
+      return models.filter((entry) => entry.metadata?.targetChatSessionType === sessionType && entry.metadata?.isUserSelectable);
+    }
+    return models.filter((entry) => !entry.metadata?.targetChatSessionType && entry.metadata?.isUserSelectable && this.modelSupportedForDefaultAgent(entry) && this.modelSupportedForInlineChat(entry));
+  }
+  /**
+   * Get the chat session type for the current session, if any.
+   * Uses the delegate or `getChatSessionFromInternalUri` to determine the session type.
+   */
+  getCurrentSessionType() {
+    const delegateSessionType = this.options.sessionTypePickerDelegate?.getActiveSessionProvider?.();
+    if (delegateSessionType) {
+      return delegateSessionType;
+    }
+    const sessionResource = this._widget?.viewModel?.model.sessionResource;
+    const ctx = sessionResource ? this.chatService.getChatSessionFromInternalUri(sessionResource) : void 0;
+    return ctx?.chatSessionType;
+  }
+  /**
+   * Check if any registered models target the current session type.
+   * This is used to set the context key that controls model picker visibility.
+   */
+  hasModelsTargetingSessionType() {
+    const sessionType = this.getCurrentSessionType();
+    if (!sessionType) {
+      return false;
+    }
+    return this.languageModelsService.getLanguageModelIds().some((modelId) => {
+      const metadata = this.languageModelsService.lookupLanguageModel(modelId);
+      return metadata?.targetChatSessionType === sessionType;
+    });
+  }
+  /**
+   * Check if a model is valid for the current session's model pool.
+   * If the session has targeted models, the model must target this session type.
+   * If no models target this session, the model must not have a targetChatSessionType.
+   */
+  isModelValidForCurrentSession(model) {
+    if (this.hasModelsTargetingSessionType()) {
+      return model.metadata.targetChatSessionType === this.getCurrentSessionType();
+    }
+    return !model.metadata.targetChatSessionType;
+  }
+  /**
+   * Validate that the current model belongs to the current session's pool.
+   * Called when switching sessions to prevent cross-contamination.
+   */
+  checkModelInSessionPool() {
+    const lm = this._currentLanguageModel.get();
+    if (lm && !this.isModelValidForCurrentSession(lm)) {
+      this.setCurrentLanguageModelToDefault();
+    }
+  }
+  /**
+   * Pre-select the model in the model picker based on the `modelId` from the
+   * last request in the current session's history. This ensures that when a
+   * contributed chat session is reopened, the model picker shows the model
+   * that was last used - providing continuity.
+   */
+  preselectModelFromSessionHistory() {
+    const sessionResource = this._widget?.viewModel?.model.sessionResource;
+    const ctx = sessionResource ? this.chatService.getChatSessionFromInternalUri(sessionResource) : void 0;
+    const requiresCustomModels = ctx && this.chatSessionsService.requiresCustomModelsForSessionType(ctx.chatSessionType);
+    if (!requiresCustomModels) {
+      return;
+    }
+    const requests = this._widget?.viewModel?.model.getRequests();
+    if (!requests || requests.length === 0) {
+      return;
+    }
+    let lastModelId;
+    for (let i = requests.length - 1; i >= 0; i--) {
+      if (requests[i].modelId) {
+        lastModelId = requests[i].modelId;
+        break;
+      }
+    }
+    if (!lastModelId) {
+      return;
+    }
+    const tryMatch = /* @__PURE__ */ __name(() => {
+      const models = this.getModels();
+      let match2 = models.find((m) => m.identifier === lastModelId);
+      if (!match2) {
+        match2 = models.find((m) => m.metadata.id === lastModelId);
+      }
+      return match2;
+    }, "tryMatch");
+    const match = tryMatch();
+    if (match) {
+      this.setCurrentLanguageModel(match);
+      return;
+    }
+    this._waitForPersistedLanguageModel.value = this.languageModelsService.onDidChangeLanguageModels(() => {
+      const found = tryMatch();
+      if (found) {
+        this._waitForPersistedLanguageModel.clear();
+        this.setCurrentLanguageModel(found);
+      }
+    });
   }
   setCurrentLanguageModelToDefault() {
     const allModels = this.getModels();
-    const defaultModel = allModels.find((m) => m.metadata.isDefaultForLocation[this.location]) || allModels.find((m) => m.metadata.isUserSelectable);
+    const defaultModel = allModels.find((m) => m.metadata.isDefaultForLocation[this.location]) || allModels[0];
     if (defaultModel) {
       this.setCurrentLanguageModel(defaultModel);
     }
@@ -1086,6 +1216,8 @@ let ChatInputPart = class ChatInputPart2 extends Disposable {
     const ctx = sessionResource ? this.chatService.getChatSessionFromInternalUri(sessionResource) : void 0;
     const customAgentTarget = ctx && this.chatSessionsService.getCustomAgentTargetForSessionType(ctx.chatSessionType);
     this.chatSessionHasCustomAgentTarget.set(customAgentTarget !== Target.Undefined);
+    const requiresCustomModels = ctx && this.chatSessionsService.requiresCustomModelsForSessionType(ctx.chatSessionType);
+    this.chatSessionHasTargetedModels.set(!!requiresCustomModels);
     if (customAgentTarget) {
       const agentOption = this.chatSessionsService.getSessionOption(ctx.chatSessionResource, agentOptionId);
       if (typeof agentOption !== "undefined") {
@@ -1321,13 +1453,22 @@ let ChatInputPart = class ChatInputPart2 extends Disposable {
         this.updateWidgetLockStateFromSessionType(initialSessionType);
       }
     }
-    this._register(widget.onDidChangeViewModel(() => {
+    this._register(widget.onDidChangeViewModel((e) => {
       this._pendingDelegationTarget = void 0;
       this.updateAgentSessionTypeContextKey();
       this.refreshChatSessionPickers();
       this.tryUpdateWidgetController();
       this.updateContextUsageWidget();
-      this.clearQuestionCarousel();
+      if (this._currentQuestionCarouselSessionResource && (!e.currentSessionResource || !isEqual(this._currentQuestionCarouselSessionResource, e.currentSessionResource))) {
+        this.clearQuestionCarousel();
+      }
+      const newSessionType = this.getCurrentSessionType();
+      if (newSessionType !== this._currentSessionType) {
+        this._currentSessionType = newSessionType;
+        this.initSelectedModel();
+      }
+      this.checkModelInSessionPool();
+      this.preselectModelFromSessionHistory();
     }));
     let elements;
     if (this.options.renderStyle === "compact") {
@@ -1451,7 +1592,7 @@ let ChatInputPart = class ChatInputPart2 extends Disposable {
     options.stickyScroll = { enabled: false };
     this._inputEditorElement = dom.append(editorContainer, $(chatInputEditorContainerSelector));
     const editorOptions = getSimpleCodeEditorWidgetOptions();
-    editorOptions.contributions?.push(...EditorExtensionsRegistry.getSomeEditorContributions([ContentHoverController.ID, GlyphHoverController.ID, DropIntoEditorController.ID, CopyPasteController.ID, LinkDetector.ID]));
+    editorOptions.contributions?.push(...EditorExtensionsRegistry.getSomeEditorContributions([ContentHoverController.ID, GlyphHoverController.ID, DropIntoEditorController.ID, CopyPasteController.ID, LinkDetector.ID, InlineCompletionsController.ID]));
     this._inputEditor = this._register(scopedInstantiationService.createInstance(CodeEditorWidget, this._inputEditorElement, options, editorOptions));
     SuggestController.get(this._inputEditor)?.forceRenderingAbove();
     options.overflowWidgetsDomNode?.classList.add("hideSuggestTextIcons");
@@ -1544,7 +1685,8 @@ let ChatInputPart = class ChatInputPart2 extends Disposable {
               this.setCurrentLanguageModel(model);
               this.renderAttachedContext();
             }, "setModel"),
-            getModels: /* @__PURE__ */ __name(() => this.getModels(), "getModels")
+            getModels: /* @__PURE__ */ __name(() => this.getModels(), "getModels"),
+            canManageModels: /* @__PURE__ */ __name(() => !this.getCurrentSessionType(), "canManageModels")
           };
           return this.modelWidget = this.instantiationService.createInstance(ModelPickerActionItem, action, void 0, itemDelegate, pickerOptions);
         } else if (action.id === OpenModePickerAction.ID && action instanceof MenuItemAction) {
@@ -1640,7 +1782,7 @@ let ChatInputPart = class ChatInputPart2 extends Disposable {
     }
     let inputModel = this.modelService.getModel(this.inputUri);
     if (!inputModel) {
-      inputModel = this.modelService.createModel("", null, this.inputUri, true);
+      inputModel = this.modelService.createModel("", null, this.inputUri, false);
     }
     this.textModelResolverService.createModelReference(this.inputUri).then((ref) => {
       if (this._store.isDisposed) {
@@ -1915,8 +2057,10 @@ let ChatInputPart = class ChatInputPart2 extends Disposable {
       this.clearQuestionCarousel();
     }
     this._currentQuestionCarouselResponseId = isResponseVM(context.element) ? context.element.requestId : void 0;
+    this._currentQuestionCarouselSessionResource = isResponseVM(context.element) ? context.element.sessionResource : void 0;
     const part = this._chatQuestionCarouselDisposables.add(this.instantiationService.createInstance(ChatQuestionCarouselPart, carousel, context, options));
     this._chatQuestionCarouselWidget.value = part;
+    this._hasQuestionCarouselContextKey?.set(true);
     dom.clearNode(this.chatQuestionCarouselContainer);
     dom.append(this.chatQuestionCarouselContainer, part.domNode);
     return part;
@@ -1928,6 +2072,8 @@ let ChatInputPart = class ChatInputPart2 extends Disposable {
     this._chatQuestionCarouselDisposables.clear();
     this._chatQuestionCarouselWidget.clear();
     this._currentQuestionCarouselResponseId = void 0;
+    this._currentQuestionCarouselSessionResource = void 0;
+    this._hasQuestionCarouselContextKey?.set(false);
     dom.clearNode(this.chatQuestionCarouselContainer);
   }
   get questionCarouselResponseId() {
@@ -2029,7 +2175,8 @@ let ChatInputPart = class ChatInputPart2 extends Disposable {
         this.renderChatEditingSessionWithEntries(reader.store, chatEditingSession, editSessionEntries, sessionFiles);
       } else {
         dom.clearNode(this.chatEditingSessionWidgetContainer);
-        this._chatEditsListWidget.value?.clear();
+        this._chatEditsDisposables.clear();
+        this._chatEditList = void 0;
       }
     });
   }
@@ -2092,7 +2239,7 @@ let ChatInputPart = class ChatInputPart2 extends Disposable {
         } : void 0,
         disableWhileRunning: isSessionMenu,
         buttonConfigProvider: /* @__PURE__ */ __name((action) => {
-          if (action.id === ChatEditingShowChangesAction.ID || action.id === ViewPreviousEditsAction.Id || action.id === ViewAllSessionChangesAction.ID || action.id === ChatEditsViewAsTreeActionId || action.id === ChatEditsViewAsListActionId) {
+          if (action.id === ChatEditingShowChangesAction.ID || action.id === ViewPreviousEditsAction.Id || action.id === ViewAllSessionChangesAction.ID) {
             return { showIcon: true, showLabel: false, isSecondary: true };
           }
           return void 0;
@@ -2131,53 +2278,62 @@ let ChatInputPart = class ChatInputPart2 extends Disposable {
       button.icon = collapsed ? Codicon.chevronRight : Codicon.chevronDown;
       workingSetContainer.classList.toggle("collapsed", collapsed);
     }));
-    if (!this._chatEditsListWidget.value || this._chatEditsListWidget.value.needsRebuild) {
-      if (!this._chatEditsListWidget.value) {
-        const widget = this.instantiationService.createInstance(ChatEditsListWidget, this._onDidChangeVisibility.event);
-        this._chatEditsListWidget.value = widget;
-        this._register(widget.onDidFocus(() => this._onDidFocus.fire()));
-        this._register(widget.onDidOpen(async (e) => {
-          const element = e.element;
-          if (!element || element.kind === "folder" || element.kind === "warning") {
-            return;
-          }
-          if (element.kind === "reference" && URI.isUri(element.reference)) {
-            const modifiedFileUri = element.reference;
-            const originalUri = element.options?.originalUri;
-            if (element.options?.isDeletion && originalUri) {
-              await this.editorService.openEditor({
-                resource: originalUri,
-                options: e.editorOptions
-              }, e.sideBySide ? SIDE_GROUP : ACTIVE_GROUP);
-              return;
-            }
-            if (originalUri) {
-              await this.editorService.openEditor({
-                original: { resource: originalUri },
-                modified: { resource: modifiedFileUri },
-                options: e.editorOptions
-              }, e.sideBySide ? SIDE_GROUP : ACTIVE_GROUP);
-              return;
-            }
-            const entry = widget.currentSession?.getEntry(modifiedFileUri);
-            const pane = await this.editorService.openEditor({
-              resource: modifiedFileUri,
+    if (!this._chatEditList) {
+      this._chatEditList = this._chatEditsListPool.get();
+      const list = this._chatEditList.object;
+      this._chatEditsDisposables.add(this._chatEditList);
+      this._chatEditsDisposables.add(list.onDidFocus(() => {
+        this._onDidFocus.fire();
+      }));
+      this._chatEditsDisposables.add(list.onDidOpen(async (e) => {
+        if (e.element?.kind === "reference" && URI.isUri(e.element.reference)) {
+          const modifiedFileUri = e.element.reference;
+          const originalUri = e.element.options?.originalUri;
+          if (e.element.options?.isDeletion && originalUri) {
+            await this.editorService.openEditor({
+              resource: originalUri,
+              // instead of modified, because modified will not exist
               options: e.editorOptions
             }, e.sideBySide ? SIDE_GROUP : ACTIVE_GROUP);
-            if (pane) {
-              entry?.getEditorIntegration(pane).reveal(true, e.editorOptions.preserveFocus);
-            }
+            return;
           }
-        }));
-      }
-      this._chatEditsListWidget.value.rebuild(workingSetContainer, chatEditingSession);
+          if (originalUri) {
+            await this.editorService.openEditor({
+              original: { resource: originalUri },
+              modified: { resource: modifiedFileUri },
+              options: e.editorOptions
+            }, e.sideBySide ? SIDE_GROUP : ACTIVE_GROUP);
+            return;
+          }
+          const entry = chatEditingSession?.getEntry(modifiedFileUri);
+          const pane = await this.editorService.openEditor({
+            resource: modifiedFileUri,
+            options: e.editorOptions
+          }, e.sideBySide ? SIDE_GROUP : ACTIVE_GROUP);
+          if (pane) {
+            entry?.getEditorIntegration(pane).reveal(true, e.editorOptions.preserveFocus);
+          }
+        }
+      }));
+      this._chatEditsDisposables.add(addDisposableListener(list.getHTMLElement(), "click", (e) => {
+        if (!this.hasFocus()) {
+          this._onDidFocus.fire();
+        }
+      }, true));
+      dom.append(workingSetContainer, list.getHTMLElement());
       dom.append(innerContainer, workingSetContainer);
     }
     store.add(autorun((reader) => {
       const editEntries = editSessionEntriesObs.read(reader);
       const sessionFileEntries = sessionEntriesObs.read(reader);
       const allEntries = editEntries.concat(sessionFileEntries);
-      this._chatEditsListWidget.value?.setEntries(allEntries);
+      const maxItemsShown = 6;
+      const itemsShown = Math.min(allEntries.length, maxItemsShown);
+      const height = itemsShown * 22;
+      const list = this._chatEditList.object;
+      list.layout(height);
+      list.getHTMLElement().style.height = `${height}px`;
+      list.splice(0, list.length, allEntries);
     }));
   }
   async renderFollowups(items, response) {

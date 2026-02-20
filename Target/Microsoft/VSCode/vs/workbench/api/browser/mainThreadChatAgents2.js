@@ -28,6 +28,7 @@ import { IInstantiationService } from "../../../platform/instantiation/common/in
 import { ILogService } from "../../../platform/log/common/log.js";
 import { IUriIdentityService } from "../../../platform/uriIdentity/common/uriIdentity.js";
 import { IChatWidgetService } from "../../contrib/chat/browser/chat.js";
+import { AgentSessionProviders, getAgentSessionProvider } from "../../contrib/chat/browser/agentSessions/agentSessions.js";
 import { AddDynamicVariableAction } from "../../contrib/chat/browser/attachments/chatDynamicVariables.js";
 import { IChatAgentService } from "../../contrib/chat/common/participants/chatAgents.js";
 import { IPromptsService } from "../../contrib/chat/common/promptSyntax/service/promptsService.js";
@@ -127,9 +128,15 @@ let MainThreadChatAgents2 = class MainThreadChatAgents22 extends Disposable {
     this._register(this._chatService.onDidReceiveQuestionCarouselAnswer((e) => {
       this._proxy.$handleQuestionCarouselAnswer(e.requestId, e.resolveId, e.answers);
     }));
-    this._register(this._chatWidgetService.onDidChangeFocusedWidget((widget) => {
-      this._proxy.$acceptActiveChatSession(widget?.viewModel?.sessionResource);
+    this._register(this._chatWidgetService.onDidChangeFocusedSession(() => {
+      this._acceptActiveChatSession(this._chatWidgetService.lastFocusedWidget);
     }));
+    this._acceptActiveChatSession(this._chatWidgetService.lastFocusedWidget);
+  }
+  _acceptActiveChatSession(widget) {
+    const sessionResource = widget?.viewModel?.sessionResource;
+    const isLocal = sessionResource && getAgentSessionProvider(sessionResource) === AgentSessionProviders.Local;
+    this._proxy.$acceptActiveChatSession(isLocal ? sessionResource : void 0);
   }
   $unregisterAgent(handle) {
     this._agents.deleteAndDispose(handle);
@@ -158,9 +165,21 @@ let MainThreadChatAgents2 = class MainThreadChatAgents22 extends Disposable {
         const chatSession = this._chatService.getSession(request.sessionResource);
         this._pendingProgress.set(request.requestId, { progress, chatSession });
         try {
+          const contributedSession = chatSession?.contributedChatSession;
+          let chatSessionContext;
+          if (contributedSession) {
+            chatSessionContext = {
+              chatSessionResource: contributedSession.chatSessionResource,
+              isUntitled: contributedSession.isUntitled,
+              initialSessionOptions: contributedSession.initialSessionOptions?.map((o) => ({
+                optionId: o.optionId,
+                value: typeof o.value === "string" ? o.value : o.value.id
+              }))
+            };
+          }
           return await this._proxy.$invokeAgent(handle, request, {
             history,
-            chatSessionContext: chatSession?.contributedChatSession
+            chatSessionContext
           }, token) ?? {};
         } finally {
           this._pendingProgress.delete(request.requestId);

@@ -566,6 +566,9 @@ class CapabilitiesColumnRenderer extends ModelsTableColumnRenderer {
   static {
     this.TEMPLATE_ID = "capabilities";
   }
+  dispose() {
+    this._onDidClickCapability.dispose();
+  }
   renderTemplate(container) {
     const disposables = new DisposableStore();
     const elementDisposables = new DisposableStore();
@@ -865,6 +868,7 @@ let ChatModelsWidget = class ChatModelsWidget2 extends Disposable {
     const capabilitiesColumnRenderer = this.instantiationService.createInstance(CapabilitiesColumnRenderer);
     const actionsColumnRenderer = this.instantiationService.createInstance(ActionsColumnRenderer, this.viewModel);
     const providerColumnRenderer = this.instantiationService.createInstance(ProviderColumnRenderer);
+    this.tableDisposables.add(capabilitiesColumnRenderer);
     this.tableDisposables.add(capabilitiesColumnRenderer.onDidClickCapability((capability) => {
       const currentQuery = this.searchWidget.getValue();
       const query = `@capability:${capability}`;

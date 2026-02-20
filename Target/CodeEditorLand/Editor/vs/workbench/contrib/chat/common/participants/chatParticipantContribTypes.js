@@ -1,1 +1,1 @@
-const o="copilot";export{o as $jW};
+const o="copilot";export{o as $KX};

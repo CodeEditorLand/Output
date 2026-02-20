@@ -44,6 +44,8 @@ let ChatWidgetService = class ChatWidgetService2 extends Disposable {
     this.onDidBackgroundSession = this._onDidBackgroundSession.event;
     this._onDidChangeFocusedWidget = this._register(new Emitter());
     this.onDidChangeFocusedWidget = this._onDidChangeFocusedWidget.event;
+    this._onDidChangeFocusedSession = this._register(new Emitter());
+    this.onDidChangeFocusedSession = this._onDidChangeFocusedSession.event;
   }
   get lastFocusedWidget() {
     return this._lastFocusedWidget;
@@ -175,6 +177,7 @@ let ChatWidgetService = class ChatWidgetService2 extends Disposable {
     }
     this._lastFocusedWidget = widget;
     this._onDidChangeFocusedWidget.fire(widget);
+    this._onDidChangeFocusedSession.fire();
   }
   register(newWidget) {
     if (this._widgets.some((widget) => widget === newWidget)) {
@@ -186,6 +189,9 @@ let ChatWidgetService = class ChatWidgetService2 extends Disposable {
       this.setLastFocusedWidget(newWidget);
     }
     return combinedDisposable(newWidget.onDidFocus(() => this.setLastFocusedWidget(newWidget)), newWidget.onDidChangeViewModel(({ previousSessionResource, currentSessionResource }) => {
+      if (this._lastFocusedWidget === newWidget && !isEqual(previousSessionResource, currentSessionResource)) {
+        this._onDidChangeFocusedSession.fire();
+      }
       if (!previousSessionResource || currentSessionResource && isEqual(previousSessionResource, currentSessionResource)) {
         return;
       }

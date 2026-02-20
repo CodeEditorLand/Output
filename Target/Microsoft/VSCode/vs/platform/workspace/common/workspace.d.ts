@@ -150,10 +150,6 @@ export interface IWorkspace {
      * the location of the workspace configuration
      */
     readonly configuration?: URI | null;
-    /**
-     * Whether this workspace is an agent sessions workspace.
-     */
-    readonly isAgentSessionsWorkspace?: boolean;
 }
 export declare function isWorkspace(thing: unknown): thing is IWorkspace;
 export interface IWorkspaceFolderData {
@@ -183,18 +179,16 @@ export declare class Workspace implements IWorkspace {
     private _transient;
     private _configuration;
     private ignorePathCasing;
-    private _isAgentSessionsWorkspace?;
     private foldersMap;
     private _folders;
     get folders(): WorkspaceFolder[];
     set folders(folders: WorkspaceFolder[]);
-    constructor(_id: string, folders: WorkspaceFolder[], _transient: boolean, _configuration: URI | null, ignorePathCasing: (key: URI) => boolean, _isAgentSessionsWorkspace?: boolean | undefined);
+    constructor(_id: string, folders: WorkspaceFolder[], _transient: boolean, _configuration: URI | null, ignorePathCasing: (key: URI) => boolean);
     update(workspace: Workspace): void;
     get id(): string;
     get transient(): boolean;
     get configuration(): URI | null;
     set configuration(configuration: URI | null);
-    get isAgentSessionsWorkspace(): boolean | undefined;
     getFolder(resource: URI): IWorkspaceFolder | null;
     private updateFoldersMap;
     toJSON(): IWorkspace;

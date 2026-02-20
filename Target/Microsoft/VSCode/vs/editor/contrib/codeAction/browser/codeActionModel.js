@@ -26,6 +26,7 @@ class CodeActionOracle extends Disposable {
     this._signalChange = _signalChange;
     this._delay = _delay;
     this._autoTriggerTimer = this._register(new TimeoutTimer());
+    this.ignoreLightbulbOff = false;
     this._register(this._markerService.onMarkerChanged((e) => this._onMarkerChanges(e)));
     this._register(this._editor.onDidChangeCursorPosition(() => this._tryAutoTrigger()));
   }
@@ -56,9 +57,9 @@ class CodeActionOracle extends Disposable {
       73
       /* EditorOption.lightbulb */
     ).enabled;
-    if (enabled === ShowLightbulbIconMode.Off) {
+    if (enabled === ShowLightbulbIconMode.Off && !this.ignoreLightbulbOff) {
       return void 0;
-    } else if (enabled === ShowLightbulbIconMode.On) {
+    } else if (enabled === ShowLightbulbIconMode.Off || enabled === ShowLightbulbIconMode.On) {
       return selection;
     } else if (enabled === ShowLightbulbIconMode.OnCode) {
       const isSelectionEmpty = selection.isEmpty();
@@ -134,6 +135,19 @@ class CodeActionModel extends Disposable {
   static {
     __name(this, "CodeActionModel");
   }
+  set ignoreLightbulbOff(value) {
+    if (this._ignoreLightbulbOff === value) {
+      return;
+    }
+    this._ignoreLightbulbOff = value;
+    const oracle = this._codeActionOracle.value;
+    if (oracle) {
+      oracle.ignoreLightbulbOff = value;
+      if (value) {
+        oracle.trigger({ type: 2, triggerAction: CodeActionTriggerSource.Default });
+      }
+    }
+  }
   constructor(_editor, _registry, _markerService, contextKeyService, _progressService, _configurationService) {
     super();
     this._editor = _editor;
@@ -147,6 +161,7 @@ class CodeActionModel extends Disposable {
     this.onDidChangeState = this._onDidChangeState.event;
     this.codeActionsDisposable = this._register(new MutableDisposable());
     this._disposed = false;
+    this._ignoreLightbulbOff = false;
     this._supportedCodeActions = SUPPORTED_CODE_ACTIONS.bindTo(contextKeyService);
     this._register(this._editor.onDidChangeModel(() => this._update()));
     this._register(this._editor.onDidChangeModelLanguage(() => this._update()));
@@ -186,7 +201,7 @@ class CodeActionModel extends Disposable {
     )) {
       const supportedActions = this._registry.all(model).flatMap((provider) => provider.providedCodeActionKinds ?? []);
       this._supportedCodeActions.set(supportedActions.join(" "));
-      this._codeActionOracle.value = new CodeActionOracle(this._editor, this._markerService, (trigger) => {
+      const oracle = new CodeActionOracle(this._editor, this._markerService, (trigger) => {
         if (!trigger) {
           this.setState(CodeActionsState.Empty);
           return;
@@ -302,6 +317,8 @@ class CodeActionModel extends Disposable {
           }, 500);
         }
       }, void 0);
+      oracle.ignoreLightbulbOff = this._ignoreLightbulbOff;
+      this._codeActionOracle.value = oracle;
       this._codeActionOracle.value.trigger({ type: 2, triggerAction: CodeActionTriggerSource.Default });
     } else {
       this._supportedCodeActions.reset();

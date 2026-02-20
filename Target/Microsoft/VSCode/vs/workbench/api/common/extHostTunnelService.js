@@ -67,7 +67,7 @@ let ExtHostTunnelService = class ExtHostTunnelService2 extends Disposable {
       return Promise.resolve(true);
     };
     this._extensionTunnels = /* @__PURE__ */ new Map();
-    this._onDidChangeTunnels = new Emitter();
+    this._onDidChangeTunnels = this._register(new Emitter());
     this.onDidChangeTunnels = this._onDidChangeTunnels.event;
     this._providerHandleCounter = 0;
     this._portAttributesProviders = /* @__PURE__ */ new Map();

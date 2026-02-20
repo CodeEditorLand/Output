@@ -10,6 +10,7 @@ import { IWindowsMainService } from '../../windows/electron-main/windows.js';
 import { IProductService } from '../../product/common/productService.js';
 export declare const IBrowserViewMainService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IBrowserViewMainService>;
 export interface IBrowserViewMainService extends IBrowserViewService, ICDPBrowserTarget {
+    readonly _serviceBrand: undefined;
     tryGetBrowserView(id: string): BrowserView | undefined;
 }
 export declare class BrowserViewMainService extends Disposable implements IBrowserViewMainService {

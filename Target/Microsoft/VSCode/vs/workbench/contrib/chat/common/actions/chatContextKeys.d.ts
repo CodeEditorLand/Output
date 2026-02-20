@@ -31,6 +31,7 @@ export declare namespace ChatContextKeys {
     const inChatTerminalToolOutput: RawContextKey<boolean>;
     const chatModeKind: RawContextKey<ChatModeKind>;
     const chatModeName: RawContextKey<string>;
+    const chatModelId: RawContextKey<string>;
     const supported: import("../../../../../platform/contextkey/common/contextkey.js").ContextKeyExpression | undefined;
     const enabled: RawContextKey<boolean>;
     /**
@@ -42,6 +43,12 @@ export declare namespace ChatContextKeys {
      * which means the mode picker should be shown with filtered custom agents.
      */
     const chatSessionHasCustomAgentTarget: RawContextKey<boolean>;
+    /**
+     * True when the current chat session has models that specifically target it
+     * via `targetChatSessionType`, which means the model picker should be shown
+     * even when the widget is locked to a coding agent.
+     */
+    const chatSessionHasTargetedModels: RawContextKey<boolean>;
     const agentSupportsAttachments: RawContextKey<boolean>;
     const withinEditSessionDiff: RawContextKey<boolean>;
     const filePartOfEditSession: RawContextKey<boolean>;
@@ -93,6 +100,7 @@ export declare namespace ChatContextKeys {
     const Editing: {
         hasToolConfirmation: RawContextKey<boolean>;
         hasElicitationRequest: RawContextKey<boolean>;
+        hasQuestionCarousel: RawContextKey<boolean>;
     };
     const Tools: {
         toolsCount: RawContextKey<number>;
@@ -112,7 +120,6 @@ export declare namespace ChatContextKeys {
     const isReadAgentSession: RawContextKey<boolean>;
     const hasMultipleAgentSessionsSelected: RawContextKey<boolean>;
     const hasAgentSessionChanges: RawContextKey<boolean>;
-    const chatEditsInTreeView: RawContextKey<boolean>;
     const isKatexMathElement: RawContextKey<boolean>;
     const contextUsageHasBeenOpened: RawContextKey<boolean>;
 }

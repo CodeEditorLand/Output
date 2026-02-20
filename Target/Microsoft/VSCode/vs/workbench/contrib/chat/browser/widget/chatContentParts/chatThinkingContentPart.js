@@ -22,6 +22,7 @@ import { MarkdownString } from "../../../../../../base/common/htmlContent.js";
 import { extractCodeblockUrisFromText } from "../../../common/widget/annotations.js";
 import { basename } from "../../../../../../base/common/resources.js";
 import { ChatCollapsibleContentPart } from "./chatCollapsibleContentPart.js";
+import { renderFileWidgets } from "./chatInlineAnchorWidget.js";
 import { localize } from "../../../../../../nls.js";
 import { Codicon } from "../../../../../../base/common/codicons.js";
 import { ThemeIcon } from "../../../../../../base/common/themables.js";
@@ -76,23 +77,23 @@ var WorkingMessageCategory;
   WorkingMessageCategory2["Tool"] = "tool";
 })(WorkingMessageCategory || (WorkingMessageCategory = {}));
 const thinkingMessages = [
-  localize("chat.thinking.thinking.1", "Thinking..."),
-  localize("chat.thinking.thinking.2", "Reasoning..."),
-  localize("chat.thinking.thinking.3", "Considering..."),
-  localize("chat.thinking.thinking.4", "Analyzing..."),
-  localize("chat.thinking.thinking.5", "Evaluating...")
+  localize("chat.thinking.thinking.1", "Thinking"),
+  localize("chat.thinking.thinking.2", "Reasoning"),
+  localize("chat.thinking.thinking.3", "Considering"),
+  localize("chat.thinking.thinking.4", "Analyzing"),
+  localize("chat.thinking.thinking.5", "Evaluating")
 ];
 const terminalMessages = [
-  localize("chat.thinking.terminal.1", "Executing..."),
-  localize("chat.thinking.terminal.2", "Running..."),
-  localize("chat.thinking.terminal.3", "Processing...")
+  localize("chat.thinking.terminal.1", "Executing"),
+  localize("chat.thinking.terminal.2", "Running"),
+  localize("chat.thinking.terminal.3", "Processing")
 ];
 const toolMessages = [
-  localize("chat.thinking.tool.1", "Processing..."),
-  localize("chat.thinking.tool.2", "Preparing..."),
-  localize("chat.thinking.tool.3", "Loading..."),
-  localize("chat.thinking.tool.4", "Analyzing..."),
-  localize("chat.thinking.tool.5", "Evaluating...")
+  localize("chat.thinking.tool.1", "Processing"),
+  localize("chat.thinking.tool.2", "Preparing"),
+  localize("chat.thinking.tool.3", "Loading"),
+  localize("chat.thinking.tool.4", "Analyzing"),
+  localize("chat.thinking.tool.5", "Evaluating")
 ];
 let ChatThinkingContentPart = class ChatThinkingContentPart2 extends ChatCollapsibleContentPart {
   static {
@@ -120,7 +121,7 @@ let ChatThinkingContentPart = class ChatThinkingContentPart2 extends ChatCollaps
   }
   constructor(content, context, chatContentMarkdownRenderer, streamingCompleted, instantiationService, configurationService, chatMarkdownAnchorService, languageModelsService, hoverService) {
     const initialText = extractTextFromPart(content);
-    const extractedTitle = extractTitleFromThinkingContent(initialText) ?? "Working...";
+    const extractedTitle = extractTitleFromThinkingContent(initialText) ?? "Working";
     super(extractedTitle, context, void 0, hoverService);
     this.chatContentMarkdownRenderer = chatContentMarkdownRenderer;
     this.streamingCompleted = streamingCompleted;
@@ -129,7 +130,7 @@ let ChatThinkingContentPart = class ChatThinkingContentPart2 extends ChatCollaps
     this.chatMarkdownAnchorService = chatMarkdownAnchorService;
     this.languageModelsService = languageModelsService;
     this._onDidChangeHeight = this._register(new Emitter());
-    this.defaultTitle = localize("chat.thinking.header", "Working...");
+    this.defaultTitle = localize("chat.thinking.header", "Working");
     this.fixedScrollingMode = false;
     this.autoScrollEnabled = true;
     this.extractedTitles = [];
@@ -137,6 +138,7 @@ let ChatThinkingContentPart = class ChatThinkingContentPart2 extends ChatCollaps
     this.appendedItemCount = 0;
     this.isActive = true;
     this.toolInvocations = [];
+    this.hookCount = 0;
     this.lazyItems = [];
     this.hasExpandedOnce = false;
     this.availableMessagesByCategory = /* @__PURE__ */ new Map();
@@ -166,6 +168,18 @@ let ChatThinkingContentPart = class ChatThinkingContentPart2 extends ChatCollaps
     }
     const node = this.domNode;
     node.classList.add("chat-thinking-box");
+    if (!this.streamingCompleted && !this.element.isComplete) {
+      if (!this.fixedScrollingMode) {
+        node.classList.add("chat-thinking-active");
+      }
+    }
+    if (!this.fixedScrollingMode && !this.streamingCompleted && !this.element.isComplete && this._collapseButton) {
+      const labelElement = this._collapseButton.labelElement;
+      labelElement.textContent = "";
+      this.titleShimmerSpan = $("span.chat-thinking-title-shimmer");
+      this.titleShimmerSpan.textContent = extractedTitle;
+      labelElement.appendChild(this.titleShimmerSpan);
+    }
     if (this.fixedScrollingMode) {
       node.classList.add("chat-thinking-fixed-mode");
       this.currentTitle = this.defaultTitle;
@@ -179,17 +193,22 @@ let ChatThinkingContentPart = class ChatThinkingContentPart2 extends ChatCollaps
           if (isExpanded) {
             this._collapseButton.icon = Codicon.chevronDown;
           } else {
-            this._collapseButton.icon = ThemeIcon.modify(Codicon.loading, "spin");
+            this._collapseButton.icon = Codicon.circleFilled;
           }
         }
       }
     }));
     this._register(autorun((r) => {
-      if (this._isExpanded.read(r) && !this.hasExpandedOnce && this.lazyItems.length > 0) {
+      const isExpanded = this._isExpanded.read(r);
+      if (isExpanded && !this.hasExpandedOnce && this.lazyItems.length > 0) {
         this.hasExpandedOnce = true;
         for (const item of this.lazyItems) {
           this.materializeLazyItem(item);
         }
+      }
+      if (isExpanded && !this.shouldAllowExpansion()) {
+        this.setExpanded(false);
+        return;
       }
       this._onDidChangeHeight.fire();
     }));
@@ -206,10 +225,13 @@ let ChatThinkingContentPart = class ChatThinkingContentPart2 extends ChatCollaps
         if (expanded) {
           this.setTitle(this.defaultTitle, true);
           this.currentTitle = this.defaultTitle;
-        } else if (this.lastExtractedTitle) {
-          const collapsedLabel = this.lastExtractedTitle ?? "";
-          this.setTitle(collapsedLabel);
-          this.currentTitle = collapsedLabel;
+        } else {
+          if (this.lastExtractedTitle) {
+            this.setTitle(this.lastExtractedTitle);
+          } else {
+            this.setTitle(this.defaultTitle, true);
+            this.currentTitle = this.defaultTitle;
+          }
         }
       }));
     }
@@ -231,7 +253,7 @@ let ChatThinkingContentPart = class ChatThinkingContentPart2 extends ChatCollaps
     }
     if (!this.streamingCompleted && !this.element.isComplete) {
       this.workingSpinnerElement = $(".chat-thinking-item.chat-thinking-spinner-item");
-      const spinnerIcon = createThinkingIcon(ThemeIcon.modify(Codicon.loading, "spin"));
+      const spinnerIcon = createThinkingIcon(Codicon.circleFilled);
       this.workingSpinnerElement.appendChild(spinnerIcon);
       this.workingSpinnerLabel = $("span.chat-thinking-spinner-label");
       this.workingSpinnerLabel.textContent = this.getRandomWorkingMessage(
@@ -408,13 +430,15 @@ let ChatThinkingContentPart = class ChatThinkingContentPart2 extends ChatCollaps
       super.setTitle(this.lastExtractedTitle ?? this.currentTitle);
     }
   }
-  updateDropdownClickability() {
-    if (!this.wrapper) {
-      return;
+  shouldAllowExpansion() {
+    if (this.toolInvocationCount > 0 || this.lazyItems.length > 0) {
+      return true;
     }
-    if (this.wrapper.children.length > 1 || this.toolInvocationCount > 0 || this.lazyItems.length > 0) {
-      this.setDropdownClickable(true);
-      return;
+    if (this.wrapper) {
+      const meaningfulChildren = Array.from(this.wrapper.children).filter((child) => child !== this.workingSpinnerElement).length;
+      if (meaningfulChildren > 1) {
+        return true;
+      }
     }
     const contentWithoutTitle = this.currentThinkingValue.trim();
     const titleToCompare = this.lastExtractedTitle ?? this.currentTitle;
@@ -422,8 +446,14 @@ let ChatThinkingContentPart = class ChatThinkingContentPart2 extends ChatCollaps
       return text.replace(/\*\*(.+?)\*\*/g, "$1").replace(/\*(.+?)\*/g, "$1").replace(/`(.+?)`/g, "$1").trim();
     }, "stripMarkdown");
     const strippedContent = stripMarkdown(contentWithoutTitle);
-    const shouldDisable = !strippedContent || strippedContent === titleToCompare;
-    this.setDropdownClickable(!shouldDisable);
+    return !(!strippedContent || strippedContent === titleToCompare);
+  }
+  updateDropdownClickability() {
+    const allowExpansion = this.shouldAllowExpansion();
+    if (!allowExpansion && this.isExpanded()) {
+      this.setExpanded(false);
+    }
+    this.setDropdownClickable(allowExpansion);
   }
   appendToWrapper(element) {
     if (!this.wrapper) {
@@ -485,6 +515,7 @@ let ChatThinkingContentPart = class ChatThinkingContentPart2 extends ChatCollaps
   }
   markAsInactive() {
     this.isActive = false;
+    this.domNode.classList.remove("chat-thinking-active");
     this.processPendingRemovals();
     if (this.workingSpinnerElement) {
       this.workingSpinnerElement.remove();
@@ -497,6 +528,7 @@ let ChatThinkingContentPart = class ChatThinkingContentPart2 extends ChatCollaps
     if (this.wrapper) {
       this.wrapper.classList.remove("chat-thinking-streaming");
     }
+    this.domNode.classList.remove("chat-thinking-active");
     this.streamingCompleted = true;
     if (this.mutationObserverDisposable) {
       this.mutationObserverDisposable.dispose();
@@ -592,13 +624,13 @@ let ChatThinkingContentPart = class ChatThinkingContentPart2 extends ChatCollaps
 			- For reasoning/thinking: "Considered", "Planned", "Analyzed", "Reviewed", "Evaluated"
 			- Choose the synonym that best fits the context
 
-			PRIORITY RULE - BLOCKED/DENIED CONTENT:
-			- If any item mentions being "blocked" (e.g. "Tried to use X, but was blocked"), it MUST be reflected in the title
-			- Blocked content takes priority over all other tool calls
-			- Use natural phrasing like "Tried to <action>, but was blocked" or "Attempted <tool> but was denied"
-			- If there are both blocked items AND normal tool calls, mention both: e.g. "Tried to run terminal but was blocked, edited file.ts"
+${this.hookCount > 0 ? `BLOCKED/DENIED CONTENT (hooks detected):
+			- Only mention "blocked" if the content explicitly includes hook results that blocked or warned about a tool (e.g. "Blocked terminal" or "Warning for read_file")
+			- If blocked items are present alongside normal tool calls, briefly note the block but do NOT let it dominate the summary: e.g. "Updated file.ts, blocked terminal"
 
-			RULES FOR TOOL CALLS:
+			` : `IMPORTANT: Do NOT use words like "blocked", "denied", or "tried" in the summary - there are no hooks or blocked items in this content. Just summarize normally.
+
+			`}RULES FOR TOOL CALLS:
 			1. If the SAME file was both edited AND read: Use a combined phrase like "Reviewed and updated <filename>"
 			2. If exactly ONE file was edited: Start with an edit synonym + "<filename>" (include actual filename)
 			3. If exactly ONE file was read: Start with a read synonym + "<filename>" (include actual filename)
@@ -637,13 +669,12 @@ let ChatThinkingContentPart = class ChatThinkingContentPart2 extends ChatCollaps
 			- "Edited Button.tsx, Edited Button.css, Edited index.ts" \u2192 "Modified 3 files"
 			- "Searched codebase for error handling" \u2192 "Looked up error handling"
 
-			EXAMPLES WITH BLOCKED CONTENT:
-			- "Tried to use Run in Terminal, but was blocked" \u2192 "Tried to run command, but was blocked"
-			- "Tried to use Run in Terminal, but was blocked, Edited config.ts" \u2192 "Tried to run command but was blocked, edited config.ts"
-			- "Tried to use Edit File, but was blocked, Tried to use Run in Terminal, but was blocked" \u2192 "Tried to use 2 tools, but was blocked"
-			- "Used Read File, but received a warning, Edited utils.ts" \u2192 "Read file with a warning, edited utils.ts"
+${this.hookCount > 0 ? `EXAMPLES WITH BLOCKED CONTENT (from hooks):
+			- "Blocked terminal, Edited config.ts" \u2192 "Edited config.ts, terminal was blocked"
+			- "Blocked terminal, Blocked read_file" \u2192 "Two tools were blocked by hooks"
+			- "Warning for read_file, Edited utils.ts" \u2192 "Edited utils.ts with a hook warning"
 
-			EXAMPLES WITH REASONING HEADERS (no tools):
+			` : ""}EXAMPLES WITH REASONING HEADERS (no tools):
 			- "Analyzing component architecture" \u2192 "Considered component architecture"
 			- "Planning refactor strategy" \u2192 "Planned refactor strategy"
 			- "Reviewing error handling approach, Considering edge cases" \u2192 "Analyzed error handling approach"
@@ -722,6 +753,7 @@ let ChatThinkingContentPart = class ChatThinkingContentPart2 extends ChatCollaps
     if (this.wrapper) {
       this.wrapper.classList.remove("chat-thinking-streaming");
     }
+    this.domNode.classList.remove("chat-thinking-active");
     this.streamingCompleted = true;
     if (this._collapseButton) {
       this._collapseButton.icon = Codicon.check;
@@ -760,7 +792,8 @@ let ChatThinkingContentPart = class ChatThinkingContentPart2 extends ChatCollaps
         lazy: new Lazy(factory),
         toolInvocationId,
         toolInvocationOrMarkdown,
-        originalParent
+        originalParent,
+        isHook: !toolInvocationOrMarkdown && !!toolInvocationId
       };
       this.lazyItems.push(item);
     }
@@ -775,9 +808,14 @@ let ChatThinkingContentPart = class ChatThinkingContentPart2 extends ChatCollaps
     if (index === -1) {
       return false;
     }
+    const removedItem = this.lazyItems[index];
     this.lazyItems.splice(index, 1);
     this.appendedItemCount--;
-    this.toolInvocationCount--;
+    if (removedItem.kind === "tool" && removedItem.isHook) {
+      this.hookCount = Math.max(0, this.hookCount - 1);
+    } else {
+      this.toolInvocationCount--;
+    }
     const toolInvocationsIndex = this.toolInvocations.findIndex((t) => (t.kind === "toolInvocation" || t.kind === "toolInvocationSerialized") && t.toolId === toolInvocationId);
     if (toolInvocationsIndex !== -1) {
       this.toolInvocations.splice(toolInvocationsIndex, 1);
@@ -820,7 +858,12 @@ let ChatThinkingContentPart = class ChatThinkingContentPart2 extends ChatCollaps
     if (!toolInvocationId) {
       return;
     }
-    this.toolInvocationCount++;
+    const isHook = !toolInvocationOrMarkdown;
+    if (isHook) {
+      this.hookCount++;
+    } else {
+      this.toolInvocationCount++;
+    }
     let toolCallLabel;
     const isToolInvocation = toolInvocationOrMarkdown && (toolInvocationOrMarkdown.kind === "toolInvocation" || toolInvocationOrMarkdown.kind === "toolInvocationSerialized");
     if (isToolInvocation && toolInvocationOrMarkdown.invocationMessage) {
@@ -1025,17 +1068,55 @@ let ChatThinkingContentPart = class ChatThinkingContentPart2 extends ChatCollaps
       return;
     }
     if (omitPrefix) {
-      this.setTitleWithWidgets(new MarkdownString(title), this.instantiationService, this.chatMarkdownAnchorService, this.chatContentMarkdownRenderer);
+      if (this._collapseButton) {
+        const labelElement2 = this._collapseButton.labelElement;
+        labelElement2.textContent = "";
+        const plainSpan = $("span");
+        plainSpan.textContent = title;
+        labelElement2.appendChild(plainSpan);
+        this._collapseButton.element.ariaLabel = title;
+      }
+      this.titleShimmerSpan = void 0;
+      this.titleDetailContainer = void 0;
+      if (this.titleDetailRendered) {
+        this.titleDetailRendered.dispose();
+        this.titleDetailRendered = void 0;
+      }
       this.currentTitle = title;
       return;
     }
-    const thinkingLabel = `Working: ${title}`;
     this.lastExtractedTitle = title;
+    const thinkingLabel = `Working: ${title}`;
     this.currentTitle = thinkingLabel;
-    this.setTitleWithWidgets(new MarkdownString(thinkingLabel), this.instantiationService, this.chatMarkdownAnchorService, this.chatContentMarkdownRenderer);
+    if (!this._collapseButton) {
+      return;
+    }
+    const labelElement = this._collapseButton.labelElement;
+    if (!this.titleShimmerSpan || !this.titleShimmerSpan.parentElement) {
+      labelElement.textContent = "";
+      this.titleShimmerSpan = $("span.chat-thinking-title-shimmer");
+      labelElement.appendChild(this.titleShimmerSpan);
+    }
+    this.titleShimmerSpan.textContent = "Working: ";
+    if (this.titleDetailRendered) {
+      this.titleDetailRendered.dispose();
+      this.titleDetailRendered = void 0;
+    }
+    const result = this.chatContentMarkdownRenderer.render(new MarkdownString(title));
+    result.element.classList.add("collapsible-title-content", "chat-thinking-title-detail");
+    renderFileWidgets(result.element, this.instantiationService, this.chatMarkdownAnchorService, this._store);
+    this.titleDetailRendered = result;
+    if (this.titleDetailContainer) {
+      this.titleDetailContainer.replaceWith(result.element);
+    } else {
+      labelElement.appendChild(result.element);
+    }
+    this.titleDetailContainer = result.element;
+    this._collapseButton.element.ariaLabel = thinkingLabel;
+    this._collapseButton.element.ariaExpanded = String(this.isExpanded());
   }
   hasSameContent(other, _followingContent, _element) {
-    if (other.kind === "toolInvocation" || other.kind === "toolInvocationSerialized" || other.kind === "markdownContent") {
+    if (other.kind === "toolInvocation" || other.kind === "toolInvocationSerialized" || other.kind === "markdownContent" || other.kind === "hook") {
       return true;
     }
     if (other.kind !== "thinking") {
@@ -1047,6 +1128,10 @@ let ChatThinkingContentPart = class ChatThinkingContentPart2 extends ChatCollaps
     if (this.markdownResult) {
       this.markdownResult.dispose();
       this.markdownResult = void 0;
+    }
+    if (this.titleDetailRendered) {
+      this.titleDetailRendered.dispose();
+      this.titleDetailRendered = void 0;
     }
     if (this.workingSpinnerElement) {
       this.workingSpinnerElement.remove();

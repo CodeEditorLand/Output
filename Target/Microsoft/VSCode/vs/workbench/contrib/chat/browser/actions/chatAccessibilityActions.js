@@ -3,6 +3,7 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
 import { alert } from "../../../../../base/browser/ui/aria/aria.js";
 import { localize } from "../../../../../nls.js";
 import { Action2, registerAction2 } from "../../../../../platform/actions/common/actions.js";
+import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
 import { IChatWidgetService } from "../chat.js";
 import { ChatContextKeys } from "../../common/actions/chatContextKeys.js";
 import { isResponseVM } from "../../common/model/chatViewModel.js";
@@ -22,7 +23,7 @@ class AnnounceChatConfirmationAction extends Action2 {
       keybinding: {
         weight: 200,
         primary: 2048 | 31 | 1024,
-        when: CONTEXT_ACCESSIBILITY_MODE_ENABLED
+        when: ContextKeyExpr.and(CONTEXT_ACCESSIBILITY_MODE_ENABLED, ChatContextKeys.Editing.hasQuestionCarousel.negate())
       }
     });
   }
@@ -47,7 +48,11 @@ class AnnounceChatConfirmationAction extends Action2 {
       }
     }
     if (firstConfirmationElement) {
-      firstConfirmationElement.focus();
+      if (firstConfirmationElement.contains(pendingWidget.domNode.ownerDocument.activeElement)) {
+        pendingWidget.focusInput();
+      } else {
+        firstConfirmationElement.focus();
+      }
     } else {
       alert(localize("noConfirmationRequired", "No chat confirmation required"));
     }

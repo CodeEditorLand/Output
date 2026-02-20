@@ -41,6 +41,7 @@ export declare class ChatThinkingContentPart extends ChatCollapsibleContentPart 
     private appendedItemCount;
     private isActive;
     private toolInvocations;
+    private hookCount;
     private singleItemInfo;
     private lazyItems;
     private hasExpandedOnce;
@@ -53,6 +54,9 @@ export declare class ChatThinkingContentPart extends ChatCollapsibleContentPart 
     private pendingScrollDisposable;
     private mutationObserverDisposable;
     private isUpdatingDimensions;
+    private titleShimmerSpan;
+    private titleDetailContainer;
+    private titleDetailRendered;
     private getRandomWorkingMessage;
     constructor(content: IChatThinkingPart, context: IChatContentPartRenderContext, chatContentMarkdownRenderer: IMarkdownRenderer, streamingCompleted: boolean, instantiationService: IInstantiationService, configurationService: IConfigurationService, chatMarkdownAnchorService: IChatMarkdownAnchorService, languageModelsService: ILanguageModelsService, hoverService: IHoverService);
     protected shouldInitEarly(): boolean;
@@ -67,6 +71,7 @@ export declare class ChatThinkingContentPart extends ChatCollapsibleContentPart 
     private updateScrollDimensionsForCompletion;
     private renderMarkdown;
     private setDropdownClickable;
+    private shouldAllowExpansion;
     private updateDropdownClickability;
     private appendToWrapper;
     resetId(): void;

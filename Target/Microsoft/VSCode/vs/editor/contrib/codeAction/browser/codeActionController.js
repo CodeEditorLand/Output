@@ -18,7 +18,8 @@ import { onUnexpectedError } from "../../../../base/common/errors.js";
 import { HierarchicalKind } from "../../../../base/common/hierarchicalKind.js";
 import { Lazy } from "../../../../base/common/lazy.js";
 import { Disposable, MutableDisposable } from "../../../../base/common/lifecycle.js";
-import { derived } from "../../../../base/common/observable.js";
+import { derivedOpts, observableValue } from "../../../../base/common/observable.js";
+import { Event } from "../../../../base/common/event.js";
 import { localize } from "../../../../nls.js";
 import { IActionWidgetService } from "../../../../platform/actionWidget/browser/actionWidget.js";
 import { ICommandService } from "../../../../platform/commands/common/commands.js";
@@ -35,11 +36,12 @@ import { ModelDecorationOptions } from "../../../common/model/textModel.js";
 import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
 import { MessageController } from "../../message/browser/messageController.js";
 import { CodeActionKind, CodeActionTriggerSource } from "../common/types.js";
-import { ApplyCodeActionReason, applyCodeAction } from "./codeAction.js";
+import { ApplyCodeActionReason, applyCodeAction, autoFixCommandId, quickFixCommandId } from "./codeAction.js";
 import { CodeActionKeybindingResolver } from "./codeActionKeybindingResolver.js";
 import { toMenuItems } from "./codeActionMenu.js";
 import { CodeActionModel } from "./codeActionModel.js";
-import { LightBulbWidget } from "./lightBulbWidget.js";
+import { computeLightBulbInfo, LightBulbWidget } from "./lightBulbWidget.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
 const DECORATION_CLASS_NAME = "quickfix-edit-highlight";
 let CodeActionController = class CodeActionController2 extends Disposable {
   static {
@@ -54,30 +56,54 @@ let CodeActionController = class CodeActionController2 extends Disposable {
   static get(editor) {
     return editor.getContribution(CodeActionController_1.ID);
   }
-  constructor(editor, markerService, contextKeyService, instantiationService, languageFeaturesService, progressService, _commandService, _configurationService, _actionWidgetService, _instantiationService, _progressService) {
+  set onlyLightBulbWithEmptySelection(value) {
+    const widget = this._lightBulbWidget.rawValue;
+    if (widget) {
+      widget.onlyWithEmptySelection = value;
+    }
+    this._onlyLightBulbWithEmptySelection = value;
+  }
+  constructor(editor, markerService, contextKeyService, instantiationService, languageFeaturesService, progressService, _commandService, _configurationService, _actionWidgetService, _instantiationService, _progressService, _keybindingService) {
     super();
     this._commandService = _commandService;
     this._configurationService = _configurationService;
     this._actionWidgetService = _actionWidgetService;
     this._instantiationService = _instantiationService;
     this._progressService = _progressService;
+    this._keybindingService = _keybindingService;
     this._activeCodeActions = this._register(new MutableDisposable());
     this._showDisabled = false;
     this._disposed = false;
-    this.lightBulbState = derived(this, (reader) => {
-      const widget = this._lightBulbWidget.rawValue;
-      if (!widget) {
-        return void 0;
+    this._onlyLightBulbWithEmptySelection = false;
+    this._lightBulbInfoObs = observableValue(this, void 0);
+    this._preferredKbLabel = observableValue(this, void 0);
+    this._quickFixKbLabel = observableValue(this, void 0);
+    this._hasLightBulbStateObservers = false;
+    this.lightBulbState = derivedOpts({
+      owner: this,
+      onLastObserverRemoved: /* @__PURE__ */ __name(() => {
+        this._hasLightBulbStateObservers = false;
+        this._model.ignoreLightbulbOff = false;
+      }, "onLastObserverRemoved")
+    }, (reader) => {
+      if (!this._hasLightBulbStateObservers) {
+        this._hasLightBulbStateObservers = true;
+        this._model.ignoreLightbulbOff = true;
       }
-      return widget.lightBulbInfo.read(reader);
+      return this._lightBulbInfoObs.read(reader);
     });
     this._editor = editor;
     this._model = this._register(new CodeActionModel(this._editor, languageFeaturesService.codeActionProvider, markerService, contextKeyService, progressService, _configurationService));
     this._register(this._model.onDidChangeState((newState) => this.update(newState)));
+    this._register(Event.runAndSubscribe(this._keybindingService.onDidUpdateKeybindings, () => {
+      this._preferredKbLabel.set(this._keybindingService.lookupKeybinding(autoFixCommandId)?.getLabel() ?? void 0, void 0);
+      this._quickFixKbLabel.set(this._keybindingService.lookupKeybinding(quickFixCommandId)?.getLabel() ?? void 0, void 0);
+    }));
     this._lightBulbWidget = new Lazy(() => {
       const widget = this._editor.getContribution(LightBulbWidget.ID);
       if (widget) {
         this._register(widget.onClick((e) => this.showCodeActionsFromLightbulb(e.actions, e)));
+        widget.onlyWithEmptySelection = this._onlyLightBulbWithEmptySelection;
       }
       return widget;
     });
@@ -137,6 +163,7 @@ let CodeActionController = class CodeActionController2 extends Disposable {
   async update(newState) {
     if (newState.type !== 1) {
       this.hideLightBulbWidget();
+      this._lightBulbInfoObs.set(void 0, void 0);
       return;
     }
     let actions;
@@ -154,6 +181,7 @@ let CodeActionController = class CodeActionController2 extends Disposable {
       return;
     }
     this._lightBulbWidget.value?.update(actions, newState.trigger, newState.position);
+    this._lightBulbInfoObs.set(computeLightBulbInfo(actions, newState.trigger, this._preferredKbLabel.get(), this._quickFixKbLabel.get()), void 0);
     if (newState.trigger.type === 1) {
       if (newState.trigger.filter?.include) {
         const validActionToApply = this.tryGetValidActionToApply(newState.trigger, actions);
@@ -356,7 +384,8 @@ CodeActionController = CodeActionController_1 = __decorate([
   __param(7, IConfigurationService),
   __param(8, IActionWidgetService),
   __param(9, IInstantiationService),
-  __param(10, IEditorProgressService)
+  __param(10, IEditorProgressService),
+  __param(11, IKeybindingService)
 ], CodeActionController);
 registerThemingParticipant((theme, collector) => {
   const addBackgroundColorRule = /* @__PURE__ */ __name((selector, color) => {

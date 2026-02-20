@@ -227,6 +227,7 @@ export declare class MenuId {
     static readonly MergeInputResultToolbar: MenuId;
     static readonly InlineSuggestionToolbar: MenuId;
     static readonly InlineEditToolbar: MenuId;
+    static readonly AgentFeedbackEditorContent: MenuId;
     static readonly ChatContext: MenuId;
     static readonly ChatCodeBlock: MenuId;
     static readonly ChatCompareBlock: MenuId;
@@ -262,10 +263,11 @@ export declare class MenuId {
     static readonly ChatToolOutputResourceContext: MenuId;
     static readonly ChatMultiDiffContext: MenuId;
     static readonly ChatConfirmationMenu: MenuId;
-    static readonly ChatEditorInlineGutter: MenuId;
+    static readonly ChatEditorInlineMenu: MenuId;
     static readonly ChatEditorInlineExecute: MenuId;
     static readonly ChatEditorInlineInputSide: MenuId;
     static readonly InlineChatEditorAffordance: MenuId;
+    static readonly InlineChatInput: MenuId;
     static readonly AccessibleView: MenuId;
     static readonly MultiDiffEditorContent: MenuId;
     static readonly MultiDiffEditorFileToolbar: MenuId;

@@ -119,6 +119,7 @@ export interface IChatEntitlementService {
     readonly onDidChangeAnonymous: Event<void>;
     readonly anonymous: boolean;
     readonly anonymousObs: IObservable<boolean>;
+    markAnonymousRateLimited(): void;
     update(token: CancellationToken): Promise<void>;
 }
 /**
@@ -175,6 +176,7 @@ export declare class ChatEntitlementService extends Disposable implements IChatE
     readonly onDidChangeAnonymous: Event<void>;
     readonly anonymousObs: IObservable<boolean>;
     get anonymous(): boolean;
+    markAnonymousRateLimited(): void;
     update(token: CancellationToken): Promise<void>;
 }
 interface IEntitlements {

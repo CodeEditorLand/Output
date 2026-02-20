@@ -33,6 +33,7 @@ import { assertNever } from "../../../../../../../base/common/assert.js";
 import { localize } from "../../../../../../../nls.js";
 import { asCssVariable } from "../../../../../../../platform/theme/common/colorUtils.js";
 import { IUserInteractionService } from "../../../../../../../platform/userInteraction/browser/userInteractionService.js";
+import { Emitter } from "../../../../../../../base/common/event.js";
 class InlineEditsGutterIndicatorData {
   static {
     __name(this, "InlineEditsGutterIndicatorData");
@@ -51,15 +52,17 @@ class InlineSuggestionGutterMenuData {
   }
   static fromInlineSuggestion(suggestion) {
     const alternativeAction = suggestion.action?.kind === "edit" ? suggestion.action.alternativeAction : void 0;
-    return new InlineSuggestionGutterMenuData(suggestion.gutterMenuLinkAction, suggestion.source.provider.displayName ?? localize("inlineSuggestion", "Inline Suggestion"), suggestion.source.inlineSuggestions.commands ?? [], alternativeAction, suggestion.source.provider.modelInfo, suggestion.source.provider.setModelId?.bind(suggestion.source.provider));
+    const commands = suggestion.source.inlineSuggestions.commands ?? [];
+    return new InlineSuggestionGutterMenuData(suggestion.gutterMenuLinkAction, suggestion.source.provider.displayName ?? localize("inlineSuggestion", "Inline Suggestion"), commands.length > 0 ? [commands] : [], alternativeAction, suggestion.source.provider.modelInfo, suggestion.source.provider.setModelId?.bind(suggestion.source.provider));
   }
-  constructor(action, displayName, extensionCommands, alternativeAction, modelInfo, setModelId) {
+  constructor(action, displayName, extensionCommands, alternativeAction, modelInfo, setModelId, extensionCommandsOnly = false) {
     this.action = action;
     this.displayName = displayName;
     this.extensionCommands = extensionCommands;
     this.alternativeAction = alternativeAction;
     this.modelInfo = modelInfo;
     this.setModelId = setModelId;
+    this.extensionCommandsOnly = extensionCommandsOnly;
   }
 }
 class SimpleInlineSuggestModel {
@@ -93,6 +96,8 @@ let InlineEditsGutterIndicator = class InlineEditsGutterIndicator2 extends Dispo
     this._accessibilityService = _accessibilityService;
     this._themeService = _themeService;
     this._userInteractionService = _userInteractionService;
+    this._onDidCloseWithCommand = this._register(new Emitter());
+    this.onDidCloseWithCommand = this._onDidCloseWithCommand.event;
     this._modifierPressed = derived(this, (reader) => this._userInteractionService.readModifierKeyStatus(this._editorObs.editor.getDomNode(), reader).shiftKey);
     this._gutterIndicatorStyles = derived(this, (reader) => {
       let v = this._tabAction.read(reader);
@@ -387,7 +392,8 @@ let InlineEditsGutterIndicator = class InlineEditsGutterIndicator2 extends Dispo
             marginRight: layout.map((l) => l.pillRect.width - l.iconRect.width - (l.lineNumberRect?.width ?? 0)),
             width: layout.map((l) => l.iconRect.width),
             position: "relative",
-            right: layout.map((l) => l.iconDirection === "top" ? "1px" : "0")
+            right: layout.map((l) => l.iconDirection === "top" ? "1px" : "0"),
+            color: this._data.map((d) => d?.customization?.icon?.color ? asCssVariable(d.customization.icon.color.id) : void 0)
           }
         }, [
           layout.map((l, reader) => withStyles(renderIcon(l.icon.read(reader)), { fontSize: toPx(Math.min(l.iconRect.width - CODICON_PADDING_PX, CODICON_SIZE_PX)) }))
@@ -458,9 +464,12 @@ let InlineEditsGutterIndicator = class InlineEditsGutterIndicator2 extends Dispo
       throw new BugIndicatingError("Gutter indicator data not available");
     }
     const disposableStore = new DisposableStore();
-    const content = disposableStore.add(this._instantiationService.createInstance(GutterIndicatorMenuContent, this._editorObs, data.gutterMenuData, (focusEditor) => {
+    const content = disposableStore.add(this._instantiationService.createInstance(GutterIndicatorMenuContent, this._editorObs, data.gutterMenuData, (focusEditor, commandId) => {
       if (focusEditor) {
         this._editorObs.editor.focus();
+      }
+      if (commandId) {
+        this._onDidCloseWithCommand.fire(commandId);
       }
       h?.dispose();
     }).toDisposableLiveElement());

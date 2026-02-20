@@ -1,6 +1,7 @@
 import { Event } from '../../../../../../base/common/event.js';
 import { Disposable } from '../../../../../../base/common/lifecycle.js';
 import { IAccessibilityService } from '../../../../../../platform/accessibility/common/accessibility.js';
+import { IMarkdownRendererService } from '../../../../../../platform/markdown/browser/markdownRenderer.js';
 import { IChatQuestionCarousel } from '../../../common/chatService/chatService.js';
 import { IChatContentPart, IChatContentPartRenderContext } from './chatContentParts.js';
 import { IChatRendererContent } from '../../../common/model/chatViewModel.js';
@@ -14,6 +15,7 @@ export interface IChatQuestionCarouselOptions {
 export declare class ChatQuestionCarouselPart extends Disposable implements IChatContentPart {
     readonly carousel: IChatQuestionCarousel;
     private readonly _options;
+    private readonly _markdownRendererService;
     private readonly _hoverService;
     private readonly _accessibilityService;
     readonly domNode: HTMLElement;
@@ -36,12 +38,13 @@ export declare class ChatQuestionCarouselPart extends Disposable implements ICha
     private readonly _multiSelectCheckboxes;
     private readonly _freeformTextareas;
     private readonly _inputBoxes;
+    private readonly _questionRenderStore;
     /**
      * Disposable store for interactive UI components (header, nav buttons, etc.)
      * that should be disposed when transitioning to summary view.
      */
     private readonly _interactiveUIStore;
-    constructor(carousel: IChatQuestionCarousel, context: IChatContentPartRenderContext, _options: IChatQuestionCarouselOptions, _hoverService: IHoverService, _accessibilityService: IAccessibilityService);
+    constructor(carousel: IChatQuestionCarousel, context: IChatContentPartRenderContext, _options: IChatQuestionCarouselOptions, _markdownRendererService: IMarkdownRendererService, _hoverService: IHoverService, _accessibilityService: IAccessibilityService);
     /**
      * Saves the current question's answer to the answers map.
      */
@@ -127,6 +130,7 @@ export declare class ChatQuestionCarouselPart extends Disposable implements ICha
      * Formats an answer for display in the summary.
      */
     private formatAnswerForSummary;
+    private getQuestionText;
     hasSameContent(other: IChatRendererContent, _followingContent: IChatRendererContent[], element: ChatTreeItem): boolean;
     addDisposable(disposable: {
         dispose(): void;

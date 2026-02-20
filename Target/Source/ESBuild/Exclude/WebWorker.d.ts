@@ -1,3 +1,3 @@
-declare const _default: (Prefix: string) => string[];
+declare const _default: (_Prefix: string) => never[];
 export default _default;
 //# sourceMappingURL=WebWorker.d.ts.map

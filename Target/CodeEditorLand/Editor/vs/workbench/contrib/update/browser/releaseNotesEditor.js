@@ -1,11 +1,11 @@
-import"./media/releasenoteseditor.css";import{CancellationToken as N}from"../../../../base/common/cancellation.js";import{$mb as z}from"../../../../base/common/errors.js";import{$nk as k}from"../../../../base/common/htmlContent.js";import{$Mab as E}from"../../../../base/common/keybindingParser.js";import{$Yf as L}from"../../../../base/common/strings.js";import{URI as w}from"../../../../base/common/uri.js";import{$ln as R}from"../../../../base/common/uuid.js";import{$YF as C}from"../../../../editor/common/languages.js";import{$SK as Z}from"../../../../editor/common/languages/supports/tokenization.js";import{$ZF as D}from"../../../../editor/common/languages/language.js";import*as y from"../../../../nls.js";import{$Kl as G}from"../../../../platform/environment/common/environment.js";import{$fy as P}from"../../../../platform/keybinding/common/keybinding.js";import{$EP as S}from"../../../../platform/opener/common/opener.js";import{$Vn as j}from"../../../../platform/product/common/productService.js";import{$3o as W,$Vo as B}from"../../../../platform/request/common/request.js";import{$5rc as Y,$6rc as O}from"../../markdown/browser/markdownDocumentRenderer.js";import{$S5b as A}from"../../webviewPanel/browser/webviewWorkbenchService.js";import{$xL as U}from"../../../services/editor/common/editorGroupsService.js";import{$CL as J,$BL as V}from"../../../services/editor/common/editorService.js";import{$NR as K}from"../../../services/extensions/common/extensions.js";import{$nv as T,$lv as Q}from"../../../../platform/telemetry/common/telemetryUtils.js";import{$0l as F}from"../../../../platform/configuration/common/configuration.js";import{$Ed as X,$Dd as q}from"../../../../base/common/lifecycle.js";import{$IHc as _}from"../../markdown/browser/markdownSettingRenderer.js";import{$Mj as ee}from"../../../../platform/instantiation/common/instantiation.js";import{Schemas as f}from"../../../../base/common/network.js";import{$Mdb as te}from"../../../../editor/browser/services/codeEditorService.js";import{$Hh as oe}from"../../../../base/common/resources.js";import{$yHb as ne}from"../../webview/common/webview.js";var $=function(h,e,t,o){var a=arguments.length,n=a<3?e:o===null?o=Object.getOwnPropertyDescriptor(e,t):o,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(h,e,t,o);else for(var s=h.length-1;s>=0;s--)(i=h[s])&&(n=(a<3?i(n):a>3?i(e,t,n):i(e,t))||n);return a>3&&n&&Object.defineProperty(e,t,n),n},d=function(h,e){return function(t,o){e(t,o,h)}};let H=class extends X{constructor(e,t,o,a,n,i,s,g,p,b,r,u,x){super(),this.g=e,this.h=t,this.j=o,this.m=a,this.n=n,this.q=i,this.r=s,this.s=g,this.t=p,this.u=b,this.w=r,this.z=u,this.C=x,this.b=new Map,this.c=void 0,this.D(C.onDidChange(()=>this.F())),this.D(i.onDidChangeConfiguration(v=>this.M(v))),this.D(b.onDidChangeActiveWebviewEditor(v=>this.N(v))),this.a=this.C.createInstance(_)}async F(){if(!this.c||!this.f)return;const e=await this.L(this.f);this.c&&this.c.webview.setHtml(e)}async G(e){if(e){const t=this.t.getActiveCodeEditor()?.getModel()?.uri;if(t)return oe(t)}return w.parse("https://code.visualstudio.com/raw")}async show(e,t){const o=await this.H(e,t),a=await this.G(t);this.f={text:o,base:a};const n=await this.L(this.f),i=y.localize(14625,null,e),s=this.r.activeEditorPane;if(this.c)this.c.setWebviewTitle(i),this.c.webview.setHtml(n),this.u.revealWebview(this.c,s?s.group:this.s.activeGroup,!1);else{this.c=this.u.openWebview({title:i,options:{tryRestoreScrollPosition:!0,enableFindWidget:!0,disableServiceWorker:!t},contentOptions:{localResourceRoots:t?[a]:[],allowScripts:!0},extension:void 0},"releaseNotes",i,void 0,{group:J,preserveFocus:!1});const g=new q;g.add(this.c.webview.onDidClickLink(p=>this.I(w.parse(p)))),g.add(this.c.webview.onMessage(p=>{if(p.message.type==="showReleaseNotes")this.q.updateValue("update.showReleaseNotes",p.message.value);else if(p.message.type==="clickSetting"){const b=this.c?.webview.container.offsetLeft+p.message.value.x,r=this.c?.webview.container.offsetTop+p.message.value.y;this.a.updateSetting(w.parse(p.message.value.uri),b,r)}})),g.add(this.c.onWillDispose(()=>{g.dispose(),this.c=void 0})),this.c.webview.setHtml(n)}return!0}async H(e,t){const o=/^(\d+\.\d+)\./.exec(e);if(!o)throw new Error("not found");const i=`https://code.visualstudio.com/raw/v${o[1].replace(/\./g,"_")}.md`,s=y.localize(14626,null),g=r=>L(r).replace(/\\/g,"\\\\"),p=r=>{const u=(m,c)=>{const l=this.h.lookupKeybinding(c);return l&&l.getLabel()||s},x=(m,c)=>{const l=E.parseKeybinding(c);if(!l)return s;const I=this.h.resolveKeybinding(l);return I.length===0?s:I[0].getLabel()||s},v=(m,c)=>{const l=u(m,c);return l&&`<code title="${c}">${g(l)}</code>`},M=(m,c)=>{const l=x(m,c);return l&&`<code title="${c}">${g(l)}</code>`};return r.replace(/`kb\(([a-z.\d\-]+)\)`/gi,v).replace(/`kbstyle\(([^\)]+)\)`/gi,M).replace(/kb\(([a-z.\d\-]+)\)/gi,(m,c)=>k(u(m,c))).replace(/kbstyle\(([^\)]+)\)/gi,(m,c)=>k(x(m,c)))},b=async()=>{let r;try{if(t){const u=this.t.getActiveCodeEditor()?.getModel()?.getValue();r=u?u.substring(u.indexOf("#")):void 0}else r=await W(await this.n.request({url:i},N.None))}catch{throw new Error("Failed to fetch release notes")}if(!r||!/^#\s/.test(r)&&!t)throw new Error("Invalid release notes");return p(r)};return t?b():(this.b.has(e)||this.b.set(e,(async()=>{try{return await b()}catch(r){throw this.b.delete(e),r}})()),this.b.get(e))}async I(e){e.scheme===f.codeSetting||this.J(e,"ReleaseNotes").then(t=>this.m.open(t,{allowCommands:["workbench.action.openSettings","summarize.release.notes"]})).then(void 0,z)}async J(e,t,o="1"){return Q(this.z,this.g)&&T(this.q)===3&&e.scheme==="https"&&e.authority==="code.visualstudio.com"?e.with({query:`${e.query?e.query+"&":""}utm_source=VsCode&utm_medium=${encodeURIComponent(t)}&utm_content=${encodeURIComponent(o)}`}):e}async L(e){const t=R(),o=await ie(e.text,this.w,this.j,this.a),a=C.getColorMap(),n=a?Z(a):"",i=!!this.q.getValue("update.showReleaseNotes");return`<!DOCTYPE html>
+import"./media/releasenoteseditor.css";import{CancellationToken as A}from"../../../../base/common/cancellation.js";import{$mb as N}from"../../../../base/common/errors.js";import{$nk as C}from"../../../../base/common/htmlContent.js";import{$dcb as z}from"../../../../base/common/keybindingParser.js";import{$Yf as S}from"../../../../base/common/strings.js";import{URI as I}from"../../../../base/common/uri.js";import{$ln as H}from"../../../../base/common/uuid.js";import{$rG as M}from"../../../../editor/common/languages.js";import{$$L as L}from"../../../../editor/common/languages/supports/tokenization.js";import{$sG as R}from"../../../../editor/common/languages/language.js";import*as v from"../../../../nls.js";import{$Kl as B}from"../../../../platform/environment/common/environment.js";import{$vy as Z}from"../../../../platform/keybinding/common/keybinding.js";import{$NQ as D}from"../../../../platform/opener/common/opener.js";import{$Vn as G}from"../../../../platform/product/common/productService.js";import{$3o as j,$Vo as P}from"../../../../platform/request/common/request.js";import{$iuc as W,$juc as J}from"../../markdown/browser/markdownDocumentRenderer.js";import{$Q7b as Y}from"../../webviewPanel/browser/webviewWorkbenchService.js";import{$EM as O}from"../../../services/editor/common/editorGroupsService.js";import{$JM as U,$IM as V}from"../../../services/editor/common/editorService.js";import{$0S as T}from"../../../services/extensions/common/extensions.js";import{$ov as K,$mv as Q}from"../../../../platform/telemetry/common/telemetryUtils.js";import{$0l as X}from"../../../../platform/configuration/common/configuration.js";import{$Ed as F,$Dd as q}from"../../../../base/common/lifecycle.js";import{$8Jc as _}from"../../markdown/browser/markdownSettingRenderer.js";import{$Mj as ee}from"../../../../platform/instantiation/common/instantiation.js";import{Schemas as f}from"../../../../base/common/network.js";import{$Beb as te}from"../../../../editor/browser/services/codeEditorService.js";import{$Hh as oe}from"../../../../base/common/resources.js";import{$sIb as ne}from"../../webview/common/webview.js";import{$3y as ie}from"../../../../platform/update/common/update.js";import{$uo as ae}from"../../../../platform/commands/common/commands.js";var $=function(m,e,t,o){var c=arguments.length,n=c<3?e:o===null?o=Object.getOwnPropertyDescriptor(e,t):o,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(m,e,t,o);else for(var i=m.length-1;i>=0;i--)(a=m[i])&&(n=(c<3?a(n):c>3?a(e,t,n):a(e,t))||n);return c>3&&n&&Object.defineProperty(e,t,n),n},d=function(m,e){return function(t,o){e(t,o,m)}};let E=class extends F{constructor(e,t,o,c,n,a,i,u,s,b,r,g,x,w,y){super(),this.g=e,this.h=t,this.j=o,this.m=c,this.n=n,this.q=a,this.r=i,this.s=u,this.t=s,this.u=b,this.w=r,this.z=g,this.C=x,this.F=w,this.G=y,this.b=new Map,this.c=void 0,this.D(M.onDidChange(()=>this.H())),this.D(a.onDidChangeConfiguration(l=>this.Q(l))),this.D(b.onDidChangeActiveWebviewEditor(l=>this.R(l))),this.D(this.F.onStateChange(()=>this.P())),this.a=this.C.createInstance(_)}async H(){if(!this.c||!this.f)return;const e=await this.N(this.f);this.c&&this.c.webview.setHtml(e)}async I(e){if(e){const t=this.t.getActiveCodeEditor()?.getModel()?.uri;if(t)return oe(t)}return I.parse("https://code.visualstudio.com/raw")}async show(e,t){const o=await this.J(e,t),c=await this.I(t);this.f={text:o,base:c};const n=await this.N(this.f),a=v.localize(15503,null,e),i=this.r.activeEditorPane;if(this.c)this.c.setWebviewTitle(a),this.c.webview.setHtml(n),this.u.revealWebview(this.c,i?i.group:this.s.activeGroup,!1);else{this.c=this.u.openWebview({title:a,options:{tryRestoreScrollPosition:!0,enableFindWidget:!0,disableServiceWorker:!t},contentOptions:{localResourceRoots:t?[c]:[],allowScripts:!0},extension:void 0},"releaseNotes",a,void 0,{group:U,preserveFocus:!1});const u=new q;u.add(this.c.webview.onDidClickLink(s=>this.L(I.parse(s)))),u.add(this.c.webview.onMessage(s=>{if(s.message.type==="showReleaseNotes")this.q.updateValue("update.showReleaseNotes",s.message.value);else if(s.message.type==="updateAction")s.message.commandId&&this.G.executeCommand(s.message.commandId);else if(s.message.type==="clickSetting"){const b=this.c?.webview.container.offsetLeft+s.message.value.x,r=this.c?.webview.container.offsetTop+s.message.value.y;this.a.updateSetting(I.parse(s.message.value.uri),b,r)}})),u.add(this.c.onWillDispose(()=>{u.dispose(),this.c=void 0})),this.c.webview.setHtml(n)}return!0}async J(e,t){const o=/^(\d+\.\d+)\./.exec(e);if(!o)throw new Error("not found");const a=`https://code.visualstudio.com/raw/v${o[1].replace(/\./g,"_")}.md`,i=v.localize(15504,null),u=r=>S(r).replace(/\\/g,"\\\\"),s=r=>{const g=(l,p)=>{const h=this.h.lookupKeybinding(p);return h&&h.getLabel()||i},x=(l,p)=>{const h=z.parseKeybinding(p);if(!h)return i;const k=this.h.resolveKeybinding(h);return k.length===0?i:k[0].getLabel()||i},w=(l,p)=>{const h=g(l,p);return h&&`<code title="${p}">${u(h)}</code>`},y=(l,p)=>{const h=x(l,p);return h&&`<code title="${p}">${u(h)}</code>`};return r.replace(/`kb\(([a-z.\d\-]+)\)`/gi,w).replace(/`kbstyle\(([^\)]+)\)`/gi,y).replace(/kb\(([a-z.\d\-]+)\)/gi,(l,p)=>C(g(l,p))).replace(/kbstyle\(([^\)]+)\)/gi,(l,p)=>C(x(l,p)))},b=async()=>{let r;try{if(t){const g=this.t.getActiveCodeEditor()?.getModel()?.getValue();r=g?g.substring(g.indexOf("#")):void 0}else r=await j(await this.n.request({url:a},A.None))}catch{throw new Error("Failed to fetch release notes")}if(!r||!/^#\s/.test(r)&&!t)throw new Error("Invalid release notes");return s(r)};return t?b():(this.b.has(e)||this.b.set(e,(async()=>{try{return await b()}catch(r){throw this.b.delete(e),r}})()),this.b.get(e))}async L(e){e.scheme===f.codeSetting||this.M(e,"ReleaseNotes").then(t=>this.m.open(t,{allowCommands:["workbench.action.openSettings","summarize.release.notes"]})).then(void 0,N)}async M(e,t,o="1"){return Q(this.z,this.g)&&K(this.q)===3&&e.scheme==="https"&&e.authority==="code.visualstudio.com"?e.with({query:`${e.query?e.query+"&":""}utm_source=VsCode&utm_medium=${encodeURIComponent(t)}&utm_content=${encodeURIComponent(o)}`}):e}async N(e){const t=H(),o=await se(e.text,this.w,this.j,this.a),c=M.getColorMap(),n=c?L(c):"",a=!!this.q.getValue("update.showReleaseNotes"),i=this.O();return`<!DOCTYPE html>
 		<html>
 			<head>
 				<base href="${ne(e.base).toString(!0)}/" >
 				<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
 				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src https: data:; media-src https:; style-src 'nonce-${t}' https://code.visualstudio.com; script-src 'nonce-${t}';">
 				<style nonce="${t}">
-					${Y}
+					${W}
 					${n}
 
 					/* codesetting */
@@ -257,6 +257,82 @@ import"./media/releasenoteseditor.css";import{CancellationToken as N}from"../../
 							margin-left: 0;
 						}
 					}
+
+					/* Update action button */
+					#update-action-btn {
+						position: fixed;
+						right: 25px;
+						top: 25px;
+						background-color: var(--vscode-button-background);
+						color: var(--vscode-button-foreground);
+						border: 1px solid var(--vscode-button-border, transparent);
+						border-radius: 50%;
+						width: 40px;
+						height: 40px;
+						padding: 0;
+						cursor: pointer;
+						font-size: var(--vscode-font-size);
+						font-family: var(--vscode-font-family);
+						white-space: nowrap;
+						box-shadow: 0 2px 8px var(--vscode-widget-shadow);
+						z-index: 100;
+						overflow: hidden;
+						display: flex;
+						align-items: center;
+						justify-content: center;
+					}
+
+					#update-action-btn .icon {
+						flex-shrink: 0;
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						width: 16px;
+						height: 16px;
+					}
+
+					#update-action-btn .icon svg {
+						width: 16px;
+						height: 16px;
+						display: block;
+					}
+
+					#update-action-btn .label {
+						overflow: hidden;
+						max-width: 0;
+						opacity: 0;
+						margin-left: 0;
+					}
+
+					#update-action-btn:hover,
+					#update-action-btn.expanded {
+						background-color: var(--vscode-button-hoverBackground);
+						box-shadow: 0 2px 8px var(--vscode-widget-shadow);
+						width: auto;
+						height: auto;
+						max-height: 40px;
+						border-radius: var(--vscode-cornerRadius-small);
+						padding: 6px 10px;
+						line-height: 16px;
+					}
+
+					#update-action-btn:hover .label,
+					#update-action-btn.expanded .label {
+						max-width: 200px;
+						opacity: 1;
+						margin-left: 6px;
+					}
+
+					#update-action-btn.expanded {
+						background-color: var(--vscode-button-background);
+						box-shadow: 0 2px 8px var(--vscode-widget-shadow);
+					}
+
+					body.vscode-high-contrast #update-action-btn {
+						border-width: 2px;
+						border-style: solid;
+						box-shadow: none;
+					}
 				</style>
 			</head>
 			<body>
@@ -270,12 +346,12 @@ import"./media/releasenoteseditor.css";import{CancellationToken as N}from"../../
 					const input = document.createElement('input');
 					input.type = 'checkbox';
 					input.id = 'showReleaseNotes';
-					input.checked = ${i};
+					input.checked = ${a};
 					container.appendChild(input);
 
 					const label = document.createElement('label');
 					label.htmlFor = 'showReleaseNotes';
-					label.textContent = '${y.localize(14627,null)}';
+					label.textContent = '${v.localize(15505,null)}';
 					container.appendChild(label);
 
 					const beforeElement = document.querySelector("body > h1")?.nextElementSibling;
@@ -288,6 +364,15 @@ import"./media/releasenoteseditor.css";import{CancellationToken as N}from"../../
 					window.addEventListener('message', event => {
 						if (event.data.type === 'showReleaseNotes') {
 							input.checked = event.data.value;
+						} else if (event.data.type === 'updateAction') {
+							if (event.data.label) {
+								updateActionBtn.querySelector('.label').textContent = event.data.label;
+								updateActionBtn.dataset.commandId = event.data.commandId;
+								updateActionBtn.setAttribute('aria-label', event.data.label);
+								updateActionBtn.style.display = 'flex';
+							} else {
+								updateActionBtn.style.display = 'none';
+							}
 						}
 					});
 
@@ -310,6 +395,49 @@ import"./media/releasenoteseditor.css";import{CancellationToken as N}from"../../
 					input.addEventListener('change', event => {
 						vscode.postMessage({ type: 'showReleaseNotes', value: input.checked }, '*');
 					});
+
+					// Update action button
+					const updateActionBtn = document.createElement('button');
+					updateActionBtn.id = 'update-action-btn';
+
+					// Arrow-circle-down SVG icon
+					const iconSpan = document.createElement('span');
+					iconSpan.className = 'icon';
+					iconSpan.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1v9.5M4.5 7.5L8 11l3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 13h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
+					updateActionBtn.appendChild(iconSpan);
+
+					const labelSpan = document.createElement('span');
+					labelSpan.className = 'label';
+					updateActionBtn.appendChild(labelSpan);
+
+					const initialAction = ${JSON.stringify(i??null)};
+					if (initialAction) {
+						labelSpan.textContent = initialAction.label;
+						updateActionBtn.dataset.commandId = initialAction.commandId;
+						updateActionBtn.setAttribute('aria-label', initialAction.label);
+						updateActionBtn.style.display = 'flex';
+					} else {
+						updateActionBtn.style.display = 'none';
+					}
+
+					document.body.appendChild(updateActionBtn);
+
+					updateActionBtn.addEventListener('click', () => {
+						if (updateActionBtn.dataset.commandId) {
+							vscode.postMessage({ type: 'updateAction', commandId: updateActionBtn.dataset.commandId });
+						}
+					});
+
+					// Expand button when at top of page
+					function updateExpandedState() {
+						if (window.scrollY <= 100) {
+							updateActionBtn.classList.add('expanded');
+						} else {
+							updateActionBtn.classList.remove('expanded');
+						}
+					}
+					updateExpandedState();
+					window.addEventListener('scroll', updateExpandedState);
 				<\/script>
 			</body>
-		</html>`}M(e){e.affectsConfiguration("update.showReleaseNotes")&&this.O()}N(e){e&&e===this.c&&this.O()}O(){this.c&&this.c.webview.postMessage({type:"showReleaseNotes",value:this.q.getValue("update.showReleaseNotes")})}};H=$([d(0,G),d(1,P),d(2,D),d(3,S),d(4,B),d(5,F),d(6,V),d(7,U),d(8,te),d(9,A),d(10,K),d(11,j),d(12,ee)],H);async function ie(h,e,t,o){return h=h.toString().replace(/<!--\s*TOC\s*/gi,"").replace(/\s*Navigation End\s*-->/gi,""),O(h,e,t,{sanitizerConfig:{allowRelativeMediaPaths:!0,allowedLinkProtocols:{override:[f.http,f.https,f.command,f.codeSetting]},allowedTags:{augment:["nav","svg","path"]},allowedAttributes:{augment:["aria-role","viewBox","fill","xmlns","d"]}},markedExtensions:[{renderer:{html:o.getHtmlRenderer(),codespan:o.getCodeSpanRenderer()}}]})}export{H as $JHc,ie as $KHc};
+		</html>`}O(){switch(this.F.state.type){case"available for download":return{label:v.localize(15506,null),commandId:"update.downloadNow"};case"downloaded":return{label:v.localize(15507,null),commandId:"update.install"};case"ready":return{label:v.localize(15508,null),commandId:"update.restart"};default:return}}P(){if(this.c){const e=this.O();this.c.webview.postMessage({type:"updateAction",label:e?.label??"",commandId:e?.commandId??""})}}Q(e){e.affectsConfiguration("update.showReleaseNotes")&&this.S()}R(e){e&&e===this.c&&this.S()}S(){this.c&&this.c.webview.postMessage({type:"showReleaseNotes",value:this.q.getValue("update.showReleaseNotes")})}};E=$([d(0,B),d(1,Z),d(2,R),d(3,D),d(4,P),d(5,X),d(6,V),d(7,O),d(8,te),d(9,Y),d(10,T),d(11,G),d(12,ee),d(13,ie),d(14,ae)],E);async function se(m,e,t,o){return m=m.toString().replace(/<!--\s*TOC\s*/gi,"").replace(/\s*Navigation End\s*-->/gi,""),J(m,e,t,{sanitizerConfig:{allowRelativeMediaPaths:!0,allowedLinkProtocols:{override:[f.http,f.https,f.command,f.codeSetting]},allowedTags:{augment:["nav","svg","path"]},allowedAttributes:{augment:["aria-role","viewBox","fill","xmlns","d"]}},markedExtensions:[{renderer:{html:o.getHtmlRenderer(),codespan:o.getCodeSpanRenderer()}}]})}export{se as $0Jc,E as $9Jc};

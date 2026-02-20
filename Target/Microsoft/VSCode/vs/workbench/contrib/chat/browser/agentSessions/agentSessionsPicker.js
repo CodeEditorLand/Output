@@ -62,8 +62,9 @@ let AgentSessionsPicker = class AgentSessionsPicker2 {
   static {
     __name(this, "AgentSessionsPicker");
   }
-  constructor(anchor, agentSessionsService, quickInputService, instantiationService, commandService) {
+  constructor(anchor, options, agentSessionsService, quickInputService, instantiationService, commandService) {
     this.anchor = anchor;
+    this.options = options;
     this.agentSessionsService = agentSessionsService;
     this.quickInputService = quickInputService;
     this.instantiationService = instantiationService;
@@ -81,13 +82,18 @@ let AgentSessionsPicker = class AgentSessionsPicker2 {
     disposables.add(picker.onDidAccept((e) => {
       const pick = picker.selectedItems[0];
       if (pick) {
-        this.instantiationService.invokeFunction(openSession, pick.session, {
+        const openOptions = {
           sideBySide: e.inBackground,
           editorOptions: {
             preserveFocus: e.inBackground,
             pinned: e.inBackground
           }
-        });
+        };
+        if (this.options?.overrideSessionOpen) {
+          this.options.overrideSessionOpen(pick.session, openOptions);
+        } else {
+          this.instantiationService.invokeFunction(openSession, pick.session, openOptions);
+        }
       }
       if (!e.inBackground) {
         picker.hide();
@@ -143,10 +149,10 @@ let AgentSessionsPicker = class AgentSessionsPicker2 {
   }
 };
 AgentSessionsPicker = __decorate([
-  __param(1, IAgentSessionsService),
-  __param(2, IQuickInputService),
-  __param(3, IInstantiationService),
-  __param(4, ICommandService)
+  __param(2, IAgentSessionsService),
+  __param(3, IQuickInputService),
+  __param(4, IInstantiationService),
+  __param(5, ICommandService)
 ], AgentSessionsPicker);
 export {
   AgentSessionsPicker,

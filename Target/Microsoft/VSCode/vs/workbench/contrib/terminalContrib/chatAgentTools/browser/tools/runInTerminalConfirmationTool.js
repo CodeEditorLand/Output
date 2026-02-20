@@ -1,7 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Codicon } from "../../../../../../base/common/codicons.js";
-import { URI } from "../../../../../../base/common/uri.js";
 import { localize } from "../../../../../../nls.js";
 import { ToolDataSource, ToolInvocationPresentation } from "../../../../chat/common/tools/languageModelToolsService.js";
 import { RunInTerminalTool } from "./runInTerminalTool.js";
@@ -56,14 +55,6 @@ class ConfirmTerminalCommandTool extends RunInTerminalTool {
     __name(this, "ConfirmTerminalCommandTool");
   }
   async prepareToolInvocation(context, token) {
-    try {
-      const sessionUri = context.chatSessionId ? URI.parse(context.chatSessionId) : void 0;
-      const sessionId = sessionUri ? this._chatService.getSession(sessionUri)?.sessionId : void 0;
-      if (sessionId) {
-        context.chatSessionId = sessionId;
-      }
-    } catch {
-    }
     const preparedInvocation = await super.prepareToolInvocation(context, token);
     if (preparedInvocation) {
       preparedInvocation.presentation = ToolInvocationPresentation.HiddenAfterComplete;

@@ -58,7 +58,7 @@ let ChatToolStreamingSubPart = class ChatToolStreamingSubPart2 extends BaseChatT
         kind: "progressMessage",
         content
       };
-      const part = reader.store.add(this.instantiationService.createInstance(ChatProgressContentPart, progressMessage, this.renderer, this.context, void 0, true, this.getIcon(), toolInvocation));
+      const part = reader.store.add(this.instantiationService.createInstance(ChatProgressContentPart, progressMessage, this.renderer, this.context, void 0, true, this.getIcon(), toolInvocation, false));
       dom.reset(container, part.domNode);
     }));
     return container;

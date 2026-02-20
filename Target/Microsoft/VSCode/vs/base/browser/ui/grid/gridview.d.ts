@@ -1,5 +1,5 @@
 import { IBoundarySashes, Orientation, Sash } from '../sash/sash.js';
-import { DistributeSizing, ISplitViewStyles, IView as ISplitView, IViewVisibilityAnimationOptions, LayoutPriority, Sizing, AutoSizing } from '../splitview/splitview.js';
+import { DistributeSizing, ISplitViewStyles, IView as ISplitView, LayoutPriority, Sizing, AutoSizing } from '../splitview/splitview.js';
 import { Event } from '../../../common/event.js';
 import { IDisposable } from '../../../common/lifecycle.js';
 import './gridview.css';
@@ -237,7 +237,7 @@ declare class BranchNode implements ISplitView<ILayoutContext>, IDisposable {
     distributeViewSizes(recursive?: boolean): void;
     getChildSize(index: number): number;
     isChildVisible(index: number): boolean;
-    setChildVisible(index: number, visible: boolean, animation?: IViewVisibilityAnimationOptions): void;
+    setChildVisible(index: number, visible: boolean): void;
     getChildCachedVisibleSize(index: number): number | undefined;
     private updateBoundarySashes;
     private onDidChildrenChange;
@@ -552,7 +552,7 @@ export declare class GridView implements IDisposable {
      *
      * @param location The {@link GridLocation location} of the view.
      */
-    setViewVisible(location: GridLocation, visible: boolean, animation?: IViewVisibilityAnimationOptions): void;
+    setViewVisible(location: GridLocation, visible: boolean): void;
     /**
      * Returns a descriptor for the entire grid.
      */

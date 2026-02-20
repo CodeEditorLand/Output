@@ -118,9 +118,10 @@ let ModelPickerActionItem = class ModelPickerActionItem2 extends ChatInputPicker
       run: /* @__PURE__ */ __name(() => {
       }, "run")
     };
+    const baseActionBarActionProvider = getModelPickerActionBarActionProvider(commandService, chatEntitlementService, productService);
     const modelPickerActionWidgetOptions = {
       actionProvider: modelDelegateToWidgetActionsProvider(delegate, telemetryService, pickerOptions),
-      actionBarActionProvider: getModelPickerActionBarActionProvider(commandService, chatEntitlementService, productService),
+      actionBarActionProvider: { getActions: /* @__PURE__ */ __name(() => delegate.canManageModels() ? baseActionBarActionProvider.getActions() : [], "getActions") },
       reporter: { id: "ChatModelPicker", name: "ChatModelPicker", includeOptions: true }
     };
     super(actionWithLabel, widgetOptions ?? modelPickerActionWidgetOptions, pickerOptions, actionWidgetService, keybindingService, contextKeyService, telemetryService);

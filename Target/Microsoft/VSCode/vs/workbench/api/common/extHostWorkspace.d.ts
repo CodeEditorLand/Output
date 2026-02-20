@@ -52,7 +52,6 @@ export declare class ExtHostWorkspace implements ExtHostWorkspaceShape, IExtHost
     waitForInitializeCall(): Promise<boolean>;
     get workspace(): Workspace | undefined;
     get name(): string | undefined;
-    get isAgentSessionsWorkspace(): boolean;
     get workspaceFile(): vscode.Uri | undefined;
     private get _actualWorkspace();
     getWorkspaceFolders(): vscode.WorkspaceFolder[] | undefined;

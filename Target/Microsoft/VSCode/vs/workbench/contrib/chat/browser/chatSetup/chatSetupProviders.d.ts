@@ -21,6 +21,7 @@ import { IRange, Range } from '../../../../../editor/common/core/range.js';
 import { Selection } from '../../../../../editor/common/core/selection.js';
 import { IMarker, IMarkerService } from '../../../../../platform/markers/common/markers.js';
 import { ChatSetupController } from './chatSetupController.js';
+import { IOutputService } from '../../../../services/output/common/output.js';
 export declare class SetupAgent extends Disposable implements IChatAgentImplementation {
     private readonly context;
     private readonly controller;
@@ -33,6 +34,7 @@ export declare class SetupAgent extends Disposable implements IChatAgentImplemen
     private readonly chatEntitlementService;
     private readonly viewsService;
     private readonly contextKeyService;
+    private readonly outputService;
     static registerDefaultAgents(instantiationService: IInstantiationService, location: ChatAgentLocation, mode: ChatModeKind, context: ChatEntitlementContext, controller: Lazy<ChatSetupController>): {
         agent: SetupAgent;
         disposable: IDisposable;
@@ -42,10 +44,11 @@ export declare class SetupAgent extends Disposable implements IChatAgentImplemen
     private static readonly SETUP_NEEDED_MESSAGE;
     private static readonly TRUST_NEEDED_MESSAGE;
     private static readonly CHAT_RETRY_COMMAND_ID;
+    private static readonly CHAT_SHOW_OUTPUT_COMMAND_ID;
     private readonly _onUnresolvableError;
     readonly onUnresolvableError: Event<void>;
     private readonly pendingForwardedRequests;
-    constructor(context: ChatEntitlementContext, controller: Lazy<ChatSetupController>, location: ChatAgentLocation, instantiationService: IInstantiationService, logService: ILogService, telemetryService: ITelemetryService, environmentService: IWorkbenchEnvironmentService, workspaceTrustManagementService: IWorkspaceTrustManagementService, chatEntitlementService: IChatEntitlementService, viewsService: IViewsService, contextKeyService: IContextKeyService);
+    constructor(context: ChatEntitlementContext, controller: Lazy<ChatSetupController>, location: ChatAgentLocation, instantiationService: IInstantiationService, logService: ILogService, telemetryService: ITelemetryService, environmentService: IWorkbenchEnvironmentService, workspaceTrustManagementService: IWorkspaceTrustManagementService, chatEntitlementService: IChatEntitlementService, viewsService: IViewsService, contextKeyService: IContextKeyService, outputService: IOutputService);
     private registerCommands;
     invoke(request: IChatAgentRequest, progress: (parts: IChatProgress[]) => void): Promise<IChatAgentResult>;
     private doInvoke;

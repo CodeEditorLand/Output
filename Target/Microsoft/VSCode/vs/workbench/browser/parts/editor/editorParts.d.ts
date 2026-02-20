@@ -11,6 +11,7 @@ import { IThemeService } from '../../../../platform/theme/common/themeService.js
 import { IAuxiliaryWindowOpenOptions, IAuxiliaryWindowService } from '../../../services/auxiliaryWindow/browser/auxiliaryWindowService.js';
 import { ContextKeyValue, IContextKey, IContextKeyService, RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
 import { DeepPartial } from '../../../../base/common/types.js';
+import { IModalEditorPartOptions } from '../../../../platform/editor/common/editor.js';
 interface IEditorPartsUIState {
     readonly auxiliary: IAuxiliaryEditorPartState[];
     readonly mru: number[];
@@ -40,7 +41,7 @@ export declare class EditorParts extends MultiWindowParts<EditorPart, IEditorPar
     createAuxiliaryEditorPart(options?: IAuxiliaryEditorPartOpenOptions): Promise<IAuxiliaryEditorPart>;
     private modalEditorPart;
     get activeModalEditorPart(): IModalEditorPart | undefined;
-    createModalEditorPart(): Promise<IModalEditorPart>;
+    createModalEditorPart(options?: IModalEditorPartOptions): Promise<IModalEditorPart>;
     registerPart(part: EditorPart): IDisposable;
     protected unregisterPart(part: EditorPart): void;
     private registerEditorPartListeners;

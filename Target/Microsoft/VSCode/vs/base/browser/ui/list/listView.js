@@ -203,6 +203,7 @@ class ListView {
       this.scrollableElementWidthDelayer.cancel();
       this.scrollableElement.setScrollDimensions({ width: this.renderWidth, scrollWidth: this.renderWidth });
       this.rowsContainer.style.width = "";
+      this.domNode.style.removeProperty("--list-scroll-right-offset");
     }
   }
   constructor(container, virtualDelegate, renderers, options = DefaultOptions) {
@@ -221,8 +222,8 @@ class ListView {
     this.onDragLeaveTimeout = Disposable.None;
     this.currentSelectionDisposable = Disposable.None;
     this.disposables = new DisposableStore();
-    this._onDidChangeContentHeight = new Emitter();
-    this._onDidChangeContentWidth = new Emitter();
+    this._onDidChangeContentHeight = this.disposables.add(new Emitter());
+    this._onDidChangeContentWidth = this.disposables.add(new Emitter());
     this.onDidChangeContentHeight = Event.latch(this._onDidChangeContentHeight.event, void 0, this.disposables);
     this.onDidChangeContentWidth = Event.latch(this._onDidChangeContentWidth.event, void 0, this.disposables);
     this._horizontalScrolling = false;
@@ -622,6 +623,10 @@ class ListView {
       this.scrollableElement.setScrollDimensions({
         width: typeof width === "number" ? width : getContentWidth(this.domNode)
       });
+      const scrollPos = this.scrollableElement.getScrollPosition();
+      const scrollDims = this.scrollableElement.getScrollDimensions();
+      const rightOffset = Math.max(0, scrollDims.scrollWidth - scrollPos.scrollLeft - this.renderWidth);
+      this.domNode.style.setProperty("--list-scroll-right-offset", `${Math.max(rightOffset - 12, 0)}px`);
     }
   }
   // Render
@@ -653,6 +658,8 @@ class ListView {
     this.rowsContainer.style.top = `-${renderTop}px`;
     if (this.horizontalScrolling && scrollWidth !== void 0) {
       this.rowsContainer.style.width = `${Math.max(scrollWidth, this.renderWidth)}px`;
+      const rightOffset = Math.max(0, scrollWidth - (renderLeft ?? 0) - this.renderWidth);
+      this.domNode.style.setProperty("--list-scroll-right-offset", `${Math.max(rightOffset - 12, 0)}px`);
     }
     this.lastRenderTop = renderTop;
     this.lastRenderHeight = renderHeight;

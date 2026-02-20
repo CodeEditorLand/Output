@@ -6,6 +6,7 @@ import { URI } from '../../../../base/common/uri.js';
 import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
 import { ExtensionIdentifier } from '../../../../platform/extensions/common/extensions.js';
 import { IWorkbenchLayoutService } from '../../../services/layout/browser/layoutService.js';
+import { IEditorGroupsService } from '../../../services/editor/common/editorGroupsService.js';
 import { IOverlayWebview, IWebviewService, WebviewContentOptions, WebviewExtensionDescription, WebviewInitInfo, WebviewMessageReceivedEvent, WebviewOptions } from './webview.js';
 /**
  * Webview that is absolutely positioned over another element and that can creates and destroys an underlying webview as needed.
@@ -14,6 +15,7 @@ export declare class OverlayWebview extends Disposable implements IOverlayWebvie
     private readonly _layoutService;
     private readonly _webviewService;
     private readonly _baseContextKeyService;
+    private readonly _editorGroupsService;
     private _isFirstLoad;
     private readonly _firstLoadPendingMessages;
     private readonly _webview;
@@ -35,15 +37,15 @@ export declare class OverlayWebview extends Disposable implements IOverlayWebvie
     readonly providedViewType?: string;
     origin: string;
     private _container;
-    constructor(initInfo: WebviewInitInfo, _layoutService: IWorkbenchLayoutService, _webviewService: IWebviewService, _baseContextKeyService: IContextKeyService);
+    constructor(initInfo: WebviewInitInfo, _layoutService: IWorkbenchLayoutService, _webviewService: IWebviewService, _baseContextKeyService: IContextKeyService, _editorGroupsService: IEditorGroupsService);
     get isFocused(): boolean;
     private _isDisposed;
     private readonly _onDidDispose;
     readonly onDidDispose: import("../../../../base/common/event.js").Event<void>;
     dispose(): void;
     get container(): HTMLElement;
-    claim(owner: any, targetWindow: CodeWindow, scopedContextKeyService: IContextKeyService | undefined): void;
-    release(owner: any): void;
+    claim(owner: unknown, targetWindow: CodeWindow, scopedContextKeyService: IContextKeyService | undefined): void;
+    release(owner: unknown): void;
     layoutWebviewOverElement(element: HTMLElement, dimension?: Dimension, clippingContainer?: HTMLElement): void;
     private doLayoutWebviewOverElement;
     private _show;
@@ -86,7 +88,7 @@ export declare class OverlayWebview extends Disposable implements IOverlayWebvie
         readonly width: number;
         readonly height: number;
     } | undefined, void>;
-    postMessage(message: any, transfer?: readonly ArrayBuffer[]): Promise<boolean>;
+    postMessage(message: unknown, transfer?: readonly ArrayBuffer[]): Promise<boolean>;
     focus(): void;
     reload(): void;
     selectAll(): void;

@@ -103,7 +103,7 @@ export declare class PtyService extends Disposable implements IPtyService {
     input(id: number, data: string): Promise<void>;
     sendSignal(id: number, signal: string): Promise<void>;
     processBinary(id: number, data: string): Promise<void>;
-    resize(id: number, cols: number, rows: number): Promise<void>;
+    resize(id: number, cols: number, rows: number, pixelWidth?: number, pixelHeight?: number): Promise<void>;
     getInitialCwd(id: number): Promise<string>;
     getCwd(id: number): Promise<string>;
     acknowledgeDataEvent(id: number, charCount: number): Promise<void>;

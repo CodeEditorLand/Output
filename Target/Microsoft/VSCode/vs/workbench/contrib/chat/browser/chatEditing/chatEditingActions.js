@@ -18,7 +18,6 @@ import { IConfigurationService } from "../../../../../platform/configuration/com
 import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
 import { IDialogService } from "../../../../../platform/dialogs/common/dialogs.js";
 import { EditorActivation } from "../../../../../platform/editor/common/editor.js";
-import { IStorageService } from "../../../../../platform/storage/common/storage.js";
 import { IEditorService } from "../../../../services/editor/common/editorService.js";
 import { IAgentSessionsService } from "../agentSessions/agentSessionsService.js";
 import { isChatViewTitleActionContext } from "../../common/actions/chatActions.js";
@@ -812,90 +811,10 @@ CommandsRegistry.registerCommand("_chat.editSessions.accept", async (accessor, r
     await editingSession.accept(...uris);
   }
 });
-const CHAT_EDITS_VIEW_MODE_STORAGE_KEY = "chat.editsViewMode";
-const ChatEditsViewAsTreeActionId = "chatEditing.viewAsTree";
-const ChatEditsViewAsListActionId = "chatEditing.viewAsList";
-registerAction2(class ChatEditsViewAsTreeAction extends Action2 {
-  static {
-    __name(this, "ChatEditsViewAsTreeAction");
-  }
-  constructor() {
-    super({
-      id: ChatEditsViewAsTreeActionId,
-      title: localize2("chatEditing.viewAsTree", "View as Tree"),
-      icon: Codicon.listFlat,
-      category: CHAT_CATEGORY,
-      menu: [
-        {
-          id: MenuId.ChatEditingWidgetToolbar,
-          group: "navigation",
-          order: 5,
-          when: ContextKeyExpr.and(hasAppliedChatEditsContextKey, ChatContextKeys.chatEditsInTreeView.negate())
-        },
-        {
-          id: MenuId.ChatEditingSessionChangesToolbar,
-          group: "navigation",
-          order: 5,
-          when: ContextKeyExpr.and(ChatContextKeys.hasAgentSessionChanges, ChatContextKeys.chatEditsInTreeView.negate())
-        }
-      ]
-    });
-  }
-  run(accessor) {
-    const storageService = accessor.get(IStorageService);
-    storageService.store(
-      CHAT_EDITS_VIEW_MODE_STORAGE_KEY,
-      "tree",
-      0,
-      0
-      /* StorageTarget.USER */
-    );
-  }
-});
-registerAction2(class ChatEditsViewAsListAction extends Action2 {
-  static {
-    __name(this, "ChatEditsViewAsListAction");
-  }
-  constructor() {
-    super({
-      id: ChatEditsViewAsListActionId,
-      title: localize2("chatEditing.viewAsList", "View as List"),
-      icon: Codicon.listTree,
-      category: CHAT_CATEGORY,
-      menu: [
-        {
-          id: MenuId.ChatEditingWidgetToolbar,
-          group: "navigation",
-          order: 5,
-          when: ContextKeyExpr.and(hasAppliedChatEditsContextKey, ChatContextKeys.chatEditsInTreeView)
-        },
-        {
-          id: MenuId.ChatEditingSessionChangesToolbar,
-          group: "navigation",
-          order: 5,
-          when: ContextKeyExpr.and(ChatContextKeys.hasAgentSessionChanges, ChatContextKeys.chatEditsInTreeView)
-        }
-      ]
-    });
-  }
-  run(accessor) {
-    const storageService = accessor.get(IStorageService);
-    storageService.store(
-      CHAT_EDITS_VIEW_MODE_STORAGE_KEY,
-      "list",
-      0,
-      0
-      /* StorageTarget.USER */
-    );
-  }
-});
 export {
-  CHAT_EDITS_VIEW_MODE_STORAGE_KEY,
   ChatEditingAcceptAllAction,
   ChatEditingDiscardAllAction,
   ChatEditingShowChangesAction,
-  ChatEditsViewAsListActionId,
-  ChatEditsViewAsTreeActionId,
   EditingSessionAction,
   ToggleExplanationWidgetAction,
   ViewAllSessionChangesAction,

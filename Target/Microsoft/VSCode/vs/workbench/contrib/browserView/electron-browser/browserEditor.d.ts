@@ -23,6 +23,7 @@ export declare const CONTEXT_BROWSER_CAN_GO_FORWARD: RawContextKey<boolean>;
 export declare const CONTEXT_BROWSER_FOCUSED: RawContextKey<boolean>;
 export declare const CONTEXT_BROWSER_STORAGE_SCOPE: RawContextKey<string>;
 export declare const CONTEXT_BROWSER_HAS_URL: RawContextKey<boolean>;
+export declare const CONTEXT_BROWSER_HAS_ERROR: RawContextKey<boolean>;
 export declare const CONTEXT_BROWSER_DEVTOOLS_OPEN: RawContextKey<boolean>;
 export declare const CONTEXT_BROWSER_ELEMENT_SELECTION_ACTIVE: RawContextKey<boolean>;
 export { CONTEXT_BROWSER_FIND_WIDGET_FOCUSED, CONTEXT_BROWSER_FIND_WIDGET_VISIBLE };
@@ -53,12 +54,14 @@ export declare class BrowserEditor extends EditorPane {
     private _canGoForwardContext;
     private _storageScopeContext;
     private _hasUrlContext;
+    private _hasErrorContext;
     private _devToolsOpenContext;
     private _elementSelectionActiveContext;
     private _model;
     private readonly _inputDisposables;
     private overlayManager;
     private _elementSelectionCts;
+    private _consoleSessionCts;
     private _screenshotTimeout;
     constructor(group: IEditorGroup, telemetryService: ITelemetryService, themeService: IThemeService, storageService: IStorageService, keybindingService: IKeybindingService, logService: ILogService, instantiationService: IInstantiationService, contextKeyService: IContextKeyService, editorService: IEditorService, browserElementsService: IBrowserElementsService, chatWidgetService: IChatWidgetService, configurationService: IConfigurationService);
     protected createEditor(parent: HTMLElement): void;
@@ -101,6 +104,9 @@ export declare class BrowserEditor extends EditorPane {
      * Start element selection in the browser view, wait for a user selection, and add it to chat.
      */
     addElementToChat(): Promise<void>;
+    addConsoleLogsToChat(): Promise<void>;
+    private startConsoleSession;
+    private stopConsoleSession;
     /**
      * Update navigation state and context keys
      */

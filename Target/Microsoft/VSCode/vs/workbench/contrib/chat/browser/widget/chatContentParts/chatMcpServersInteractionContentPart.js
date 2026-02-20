@@ -121,7 +121,9 @@ let ChatMcpServersInteractionContentPart = class ChatMcpServersInteractionConten
         // forceShowMessage
         void 0,
         // icon
-        void 0
+        void 0,
+        // toolInvocation
+        false
       ));
       this.domNode.appendChild(this.workingProgressPart.domNode);
     }

@@ -96,7 +96,7 @@ let ChatSuggestNextWidget = class ChatSuggestNextWidget2 extends Disposable {
         return false;
       }
       const provider = getAgentSessionProvider(c.type);
-      return provider !== void 0 && getAgentCanContinueIn(provider, c);
+      return provider !== void 0 && getAgentCanContinueIn(provider);
     });
     if (showContinueOn && availableContributions.length > 0) {
       button.classList.add("chat-suggest-next-has-dropdown");

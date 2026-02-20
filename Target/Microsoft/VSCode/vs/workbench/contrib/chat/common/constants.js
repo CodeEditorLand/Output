@@ -9,7 +9,6 @@ var ChatConfiguration;
   ChatConfiguration2["AgentEnabled"] = "chat.agent.enabled";
   ChatConfiguration2["PlanAgentDefaultModel"] = "chat.planAgent.defaultModel";
   ChatConfiguration2["ExploreAgentDefaultModel"] = "chat.exploreAgent.defaultModel";
-  ChatConfiguration2["RequestQueueingEnabled"] = "chat.requestQueuing.enabled";
   ChatConfiguration2["RequestQueueingDefaultAction"] = "chat.requestQueuing.defaultAction";
   ChatConfiguration2["AgentStatusEnabled"] = "chat.agentsControl.enabled";
   ChatConfiguration2["EditorAssociations"] = "chat.editorAssociations";
@@ -39,12 +38,14 @@ var ChatConfiguration;
   ChatConfiguration2["ChatViewSessionsGrouping"] = "chat.viewSessions.grouping";
   ChatConfiguration2["ChatViewSessionsOrientation"] = "chat.viewSessions.orientation";
   ChatConfiguration2["ChatViewProgressBadgeEnabled"] = "chat.viewProgressBadge.enabled";
+  ChatConfiguration2["ChatContextUsageEnabled"] = "chat.contextUsage.enabled";
   ChatConfiguration2["SubagentToolCustomAgents"] = "chat.customAgentInSubagent.enabled";
   ChatConfiguration2["ShowCodeBlockProgressAnimation"] = "chat.agent.codeBlockProgress";
   ChatConfiguration2["RestoreLastPanelSession"] = "chat.restoreLastPanelSession";
   ChatConfiguration2["ExitAfterDelegation"] = "chat.exitAfterDelegation";
   ChatConfiguration2["AgentsControlClickBehavior"] = "chat.agentsControl.clickBehavior";
   ChatConfiguration2["ExplainChangesEnabled"] = "chat.editing.explainChanges.enabled";
+  ChatConfiguration2["GrowthNotificationEnabled"] = "chat.growthNotification.enabled";
 })(ChatConfiguration || (ChatConfiguration = {}));
 var ChatModeKind;
 (function(ChatModeKind2) {
@@ -83,7 +84,6 @@ var AgentsControlClickBehavior;
 (function(AgentsControlClickBehavior2) {
   AgentsControlClickBehavior2["Default"] = "default";
   AgentsControlClickBehavior2["Cycle"] = "cycle";
-  AgentsControlClickBehavior2["Focus"] = "focus";
 })(AgentsControlClickBehavior || (AgentsControlClickBehavior = {}));
 var ChatAgentLocation;
 (function(ChatAgentLocation2) {

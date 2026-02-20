@@ -1156,8 +1156,8 @@ let ExtensionBackedInlineCompletionsProvider = class ExtensionBackedInlineComple
     this._languageFeaturesService = _languageFeaturesService;
     this._aiEditTelemetryService = _aiEditTelemetryService;
     this._instantiationService = _instantiationService;
-    this._onDidChangeEmitter = new Emitter();
-    this._onDidChangeModelInfoEmitter = new Emitter();
+    this._onDidChangeEmitter = this._register(new Emitter());
+    this._onDidChangeModelInfoEmitter = this._register(new Emitter());
     this.setModelId = this._supportsSetModelId ? async (modelId) => {
       await this._proxy.$handleInlineCompletionSetCurrentModelId(this.handle, modelId);
     } : void 0;

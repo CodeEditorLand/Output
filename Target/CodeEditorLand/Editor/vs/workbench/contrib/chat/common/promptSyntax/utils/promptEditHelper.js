@@ -1,0 +1,1 @@
+const i=/^[\w\/\.-]+$/;function c(t,e){switch(e){case"'":return`'${t}'`;case'"':return`"${t}"`}return i.test(t)?t:`'${t}'`}function u(t,e){const n=t.items.find(s=>s.type==="scalar"&&i.test(s.value)),r=n?e.getValueInRange(n.range).charAt(0):void 0;return r==="'"||r==='"'?r:""}export{c as $MRb,u as $NRb};

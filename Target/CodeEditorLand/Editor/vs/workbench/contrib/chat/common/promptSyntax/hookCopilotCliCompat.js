@@ -1,0 +1,1 @@
+import{HookType as e}from"./hookSchema.js";const r={sessionStart:e.SessionStart,userPromptSubmitted:e.UserPromptSubmit,preToolUse:e.PreToolUse,postToolUse:e.PostToolUse};let t;function s(){if(!t){t=new Map;for(const[o,p]of Object.entries(r))t.set(p,o)}return t}function n(o){return r[o]}function l(o){return s().get(o)}export{r as $1oc,n as $2oc,l as $3oc};

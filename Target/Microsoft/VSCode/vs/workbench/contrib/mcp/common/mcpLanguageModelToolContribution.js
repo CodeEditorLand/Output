@@ -208,7 +208,7 @@ let McpToolImplementation = class McpToolImplementation2 {
     const result = {
       content: []
     };
-    const callResult = await this._tool.callWithProgress(invocation.parameters, progress, { chatRequestId: invocation.chatRequestId, chatSessionId: invocation.context?.sessionId }, token);
+    const callResult = await this._tool.callWithProgress(invocation.parameters, progress, { chatRequestId: invocation.chatRequestId, chatSessionResource: void 0 }, token);
     const details = {
       input: JSON.stringify(invocation.parameters, void 0, 2),
       output: [],

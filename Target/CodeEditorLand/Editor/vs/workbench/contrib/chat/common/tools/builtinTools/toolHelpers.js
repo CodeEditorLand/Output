@@ -1,1 +1,1 @@
-function n(t){return{content:[{kind:"text",value:t}]}}export{n as $a3b};
+function t(n){return{content:[{kind:"text",value:n}]}}export{t as $n4b};

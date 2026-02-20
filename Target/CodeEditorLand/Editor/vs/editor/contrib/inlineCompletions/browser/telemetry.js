@@ -1,1 +1,1 @@
-function o(i,n){i.publicLog2("inlineCompletion.endOfLife",n)}export{o as $pob};
+function e(i,n){i.publicLog2("inlineCompletion.endOfLife",n)}export{e as $ipb};

@@ -31,7 +31,7 @@ const DirtyWorkingCopiesContext = new RawContextKey("dirtyWorkingCopies", false,
 const RemoteNameContext = new RawContextKey("remoteName", "", localize("remoteName", "The name of the remote the window is connected to or an empty string if not connected to any remote"));
 const VirtualWorkspaceContext = new RawContextKey("virtualWorkspace", "", localize("virtualWorkspace", "The scheme of the current workspace is from a virtual file system or an empty string."));
 const TemporaryWorkspaceContext = new RawContextKey("temporaryWorkspace", false, localize("temporaryWorkspace", "The scheme of the current workspace is from a temporary file system."));
-const IsAgentSessionsWorkspaceContext = new RawContextKey("isAgentSessionsWorkspace", false, localize("isAgentSessionsWorkspace", "Whether the current workspace is the agent sessions workspace."));
+const IsSessionsWindowContext = new RawContextKey("isSessionsWindow", false, localize("isSessionsWindow", "Whether the current window is a sessions window."));
 const HasWebFileSystemAccess = new RawContextKey("hasWebFileSystemAccess", false, true);
 const EmbedderIdentifierContext = new RawContextKey("embedderIdentifier", void 0, localize("embedderIdentifier", "The identifier of the embedder according to the product service, if one is defined"));
 const InAutomationContext = new RawContextKey("inAutomation", false, localize("inAutomation", "Whether VS Code is running under automation/smoke test"));
@@ -69,6 +69,7 @@ const EditorPartSingleEditorGroupsContext = EditorPartMultipleEditorGroupsContex
 const EditorPartMaximizedEditorGroupContext = new RawContextKey("editorPartMaximizedEditorGroup", false, localize("editorPartEditorGroupMaximized", "Editor Part has a maximized group"));
 const EditorPartModalContext = new RawContextKey("editorPartModal", false, localize("editorPartModal", "Whether focus is in a modal editor part"));
 const EditorPartModalMaximizedContext = new RawContextKey("editorPartModalMaximized", false, localize("editorPartModalMaximized", "Whether the modal editor part is maximized"));
+const EditorPartModalNavigationContext = new RawContextKey("editorPartModalNavigation", false, localize("editorPartModalNavigation", "Whether the modal editor part has navigation context"));
 const EditorsVisibleContext = new RawContextKey("editorIsOpen", false, localize("editorIsOpen", "Whether an editor is open"));
 const InEditorZenModeContext = new RawContextKey("inZenMode", false, localize("inZenMode", "Whether Zen mode is enabled"));
 const IsMainEditorCenteredLayoutContext = new RawContextKey("isCenteredLayout", false, localize("isMainEditorCenteredLayout", "Whether centered layout is enabled for the main editor"));
@@ -297,6 +298,7 @@ export {
   EditorPartMaximizedEditorGroupContext,
   EditorPartModalContext,
   EditorPartModalMaximizedContext,
+  EditorPartModalNavigationContext,
   EditorPartMultipleEditorGroupsContext,
   EditorPartSingleEditorGroupsContext,
   EditorTabsVisibleContext,
@@ -308,12 +310,12 @@ export {
   HasWebFileSystemAccess,
   InAutomationContext,
   InEditorZenModeContext,
-  IsAgentSessionsWorkspaceContext,
   IsAuxiliaryWindowContext,
   IsAuxiliaryWindowFocusedContext,
   IsCompactTitleBarContext,
   IsMainEditorCenteredLayoutContext,
   IsMainWindowFullscreenContext,
+  IsSessionsWindowContext,
   IsWindowAlwaysOnTopContext,
   MainEditorAreaVisibleContext,
   MultipleEditorGroupsContext,

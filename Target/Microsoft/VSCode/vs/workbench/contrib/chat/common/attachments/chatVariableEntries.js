@@ -132,6 +132,10 @@ function isDebugVariableEntry(obj) {
   return obj.kind === "debugVariable";
 }
 __name(isDebugVariableEntry, "isDebugVariableEntry");
+function isAgentFeedbackVariableEntry(obj) {
+  return obj.kind === "agentFeedback";
+}
+__name(isAgentFeedbackVariableEntry, "isAgentFeedbackVariableEntry");
 function isPasteVariableEntry(obj) {
   return obj.kind === "paste";
 }
@@ -298,6 +302,7 @@ export {
   IDiagnosticVariableEntryFilterData,
   OmittedState,
   PromptFileVariableKind,
+  isAgentFeedbackVariableEntry,
   isChatRequestFileEntry,
   isChatRequestVariableEntry,
   isDebugVariableEntry,

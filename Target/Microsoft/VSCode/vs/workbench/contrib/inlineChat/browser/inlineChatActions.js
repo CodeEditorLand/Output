@@ -7,7 +7,7 @@ import { EmbeddedDiffEditorWidget } from "../../../../editor/browser/widget/diff
 import { EmbeddedCodeEditorWidget } from "../../../../editor/browser/widget/codeEditor/embeddedCodeEditorWidget.js";
 import { EditorContextKeys } from "../../../../editor/common/editorContextKeys.js";
 import { InlineChatController, InlineChatRunOptions } from "./inlineChatController.js";
-import { ACTION_ACCEPT_CHANGES, CTX_INLINE_CHAT_FOCUSED, CTX_INLINE_CHAT_VISIBLE, CTX_INLINE_CHAT_OUTER_CURSOR_POSITION, CTX_INLINE_CHAT_POSSIBLE, ACTION_START, CTX_INLINE_CHAT_V2_ENABLED, CTX_INLINE_CHAT_V1_ENABLED, CTX_HOVER_MODE } from "../common/inlineChat.js";
+import { ACTION_ACCEPT_CHANGES, CTX_INLINE_CHAT_FOCUSED, CTX_INLINE_CHAT_VISIBLE, CTX_INLINE_CHAT_OUTER_CURSOR_POSITION, CTX_INLINE_CHAT_POSSIBLE, ACTION_START, CTX_INLINE_CHAT_V2_ENABLED, CTX_INLINE_CHAT_V1_ENABLED, CTX_HOVER_MODE, CTX_INLINE_CHAT_INPUT_HAS_TEXT } from "../common/inlineChat.js";
 import { ctxHasEditorModification, ctxHasRequestInProgress } from "../../chat/browser/chatEditing/chatEditingEditorContextKeys.js";
 import { localize, localize2 } from "../../../../nls.js";
 import { Action2, MenuId } from "../../../../platform/actions/common/actions.js";
@@ -57,15 +57,6 @@ class StartSessionAction extends Action2 {
         id: MenuId.ChatTitleBarMenu,
         group: "a_open",
         order: 3
-      }, {
-        id: MenuId.ChatEditorInlineGutter,
-        group: "1_chat",
-        order: 1
-      }, {
-        id: MenuId.InlineChatEditorAffordance,
-        group: "1_chat",
-        order: 1,
-        when: EditorContextKeys.hasNonEmptySelection
       }]
     });
   }
@@ -290,12 +281,38 @@ class UndoAndCloseSessionAction2 extends KeepOrUndoSessionAction {
     });
   }
 }
+class SubmitInlineChatInputAction extends AbstractInlineChatAction {
+  static {
+    __name(this, "SubmitInlineChatInputAction");
+  }
+  constructor() {
+    super({
+      id: "inlineChat.submitInput",
+      title: localize2("submitInput", "Send"),
+      icon: Codicon.send,
+      precondition: CTX_INLINE_CHAT_INPUT_HAS_TEXT,
+      menu: [{
+        id: MenuId.InlineChatInput,
+        group: "0_main",
+        order: 1
+      }]
+    });
+  }
+  runInlineChatCommand(_accessor, ctrl, _editor, ..._args) {
+    const value = ctrl.inputWidget.value;
+    if (value) {
+      ctrl.inputWidget.hide();
+      ctrl.run({ message: value, autoSend: true });
+    }
+  }
+}
 export {
   AbstractInlineChatAction,
   FocusInlineChat,
   KeepSessionAction2,
   START_INLINE_CHAT,
   StartSessionAction,
+  SubmitInlineChatInputAction,
   UndoAndCloseSessionAction2,
   UndoSessionAction2,
   setHoldForSpeech

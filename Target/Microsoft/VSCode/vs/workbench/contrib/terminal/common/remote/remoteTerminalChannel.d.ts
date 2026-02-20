@@ -116,7 +116,7 @@ export declare class RemoteTerminalChannelClient implements IPtyHostController {
     setUnicodeVersion(id: number, version: '6' | '11'): Promise<void>;
     setNextCommandId(id: number, commandLine: string, commandId: string): Promise<void>;
     shutdown(id: number, immediate: boolean): Promise<void>;
-    resize(id: number, cols: number, rows: number): Promise<void>;
+    resize(id: number, cols: number, rows: number, pixelWidth?: number, pixelHeight?: number): Promise<void>;
     clearBuffer(id: number): Promise<void>;
     getInitialCwd(id: number): Promise<string>;
     getCwd(id: number): Promise<string>;

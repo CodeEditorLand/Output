@@ -1,1 +1,1 @@
-import{$Nj as o}from"../../../../platform/instantiation/common/instantiation.js";const r=o("IFileDecorationsService");export{r as $cQb};
+import{$Nj as o}from"../../../../platform/instantiation/common/instantiation.js";const r=o("IFileDecorationsService");export{r as $7Rb};

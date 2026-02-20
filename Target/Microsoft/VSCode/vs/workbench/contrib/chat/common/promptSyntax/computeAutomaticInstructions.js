@@ -20,6 +20,7 @@ import { IConfigurationService } from "../../../../../platform/configuration/com
 import { IFileService } from "../../../../../platform/files/common/files.js";
 import { ILabelService } from "../../../../../platform/label/common/label.js";
 import { ILogService } from "../../../../../platform/log/common/log.js";
+import { IRemoteAgentService } from "../../../../services/remote/common/remoteAgentService.js";
 import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
 import { IWorkspaceContextService } from "../../../../../platform/workspace/common/workspace.js";
 import { ChatRequestVariableSet, IChatRequestVariableEntry, isPromptFileVariableEntry, toPromptFileVariableEntry, toPromptTextVariableEntry, PromptFileVariableKind, toToolVariableEntry } from "../attachments/chatVariableEntries.js";
@@ -38,7 +39,7 @@ let ComputeAutomaticInstructions = class ComputeAutomaticInstructions2 {
   static {
     __name(this, "ComputeAutomaticInstructions");
   }
-  constructor(_modeKind, _enabledTools, _enabledSubagents, _promptsService, _logService, _labelService, _configurationService, _workspaceService, _fileService, _telemetryService, _languageModelToolsService) {
+  constructor(_modeKind, _enabledTools, _enabledSubagents, _promptsService, _logService, _labelService, _configurationService, _workspaceService, _fileService, _remoteAgentService, _telemetryService, _languageModelToolsService) {
     this._modeKind = _modeKind;
     this._enabledTools = _enabledTools;
     this._enabledSubagents = _enabledSubagents;
@@ -48,6 +49,7 @@ let ComputeAutomaticInstructions = class ComputeAutomaticInstructions2 {
     this._configurationService = _configurationService;
     this._workspaceService = _workspaceService;
     this._fileService = _fileService;
+    this._remoteAgentService = _remoteAgentService;
     this._telemetryService = _telemetryService;
     this._languageModelToolsService = _languageModelToolsService;
     this._parseResults = new ResourceMap();
@@ -222,6 +224,9 @@ let ComputeAutomaticInstructions = class ComputeAutomaticInstructions2 {
   async _getInstructionsWithPatternsList(instructionFiles, _existingVariables, telemetryEvent, token) {
     const readTool = this._getTool("readFile");
     const runSubagentTool = this._getTool(VSCodeToolReference.runSubagent);
+    const remoteEnv = await this._remoteAgentService.getEnvironment();
+    const remoteOS = remoteEnv?.os;
+    const filePath = /* @__PURE__ */ __name((uri) => getFilePath(uri, remoteOS), "filePath");
     const entries = [];
     if (readTool) {
       const searchNestedAgentMd = this._configurationService.getValue(PromptsConfig.USE_NESTED_AGENT_MD);
@@ -242,13 +247,13 @@ let ComputeAutomaticInstructions = class ComputeAutomaticInstructions2 {
             if (description) {
               entries.push(`<description>${description}</description>`);
             }
-            entries.push(`<file>${getFilePath(uri)}</file>`);
+            entries.push(`<file>${filePath(uri)}</file>`);
             const applyToPattern = this._getApplyToPattern(applyTo, paths);
             if (applyToPattern) {
               entries.push(`<applyTo>${applyToPattern}</applyTo>`);
             }
           } else {
-            entries.push(`<file>${getFilePath(uri)}</file>`);
+            entries.push(`<file>${filePath(uri)}</file>`);
           }
           entries.push("</instruction>");
           hasContent = true;
@@ -260,7 +265,7 @@ let ComputeAutomaticInstructions = class ComputeAutomaticInstructions2 {
         const description = folderName.trim().length === 0 ? localize("instruction.file.description.agentsmd.root", "Instructions for the workspace") : localize("instruction.file.description.agentsmd.folder", "Instructions for folder '{0}'", folderName);
         entries.push("<instruction>");
         entries.push(`<description>${description}</description>`);
-        entries.push(`<file>${getFilePath(uri)}</file>`);
+        entries.push(`<file>${filePath(uri)}</file>`);
         entries.push("</instruction>");
         hasContent = true;
       }
@@ -298,7 +303,7 @@ let ComputeAutomaticInstructions = class ComputeAutomaticInstructions2 {
           if (skill.description) {
             entries.push(`<description>${skill.description}</description>`);
           }
-          entries.push(`<file>${getFilePath(skill.uri)}</file>`);
+          entries.push(`<file>${filePath(skill.uri)}</file>`);
           entries.push("</skill>");
         }
         entries.push("</skills>", "", "");
@@ -412,18 +417,27 @@ ComputeAutomaticInstructions = __decorate([
   __param(6, IConfigurationService),
   __param(7, IWorkspaceContextService),
   __param(8, IFileService),
-  __param(9, ITelemetryService),
-  __param(10, ILanguageModelToolsService)
+  __param(9, IRemoteAgentService),
+  __param(10, ITelemetryService),
+  __param(11, ILanguageModelToolsService)
 ], ComputeAutomaticInstructions);
-function getFilePath(uri) {
+function getFilePath(uri, remoteOS) {
   if (uri.scheme === Schemas.file || uri.scheme === Schemas.vscodeRemote) {
-    return uri.fsPath;
+    const fsPath = uri.fsPath;
+    if (remoteOS !== void 0) {
+      if (remoteOS === 1) {
+        return fsPath.replace(/\//g, "\\");
+      }
+      return fsPath.replace(/\\/g, "/");
+    }
+    return fsPath;
   }
   return uri.toString();
 }
 __name(getFilePath, "getFilePath");
 export {
   ComputeAutomaticInstructions,
+  getFilePath,
   newInstructionsCollectionEvent
 };
 //# sourceMappingURL=computeAutomaticInstructions.js.map

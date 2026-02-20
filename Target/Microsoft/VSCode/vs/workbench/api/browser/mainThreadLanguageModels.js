@@ -167,9 +167,11 @@ let MainThreadLanguageModels = class MainThreadLanguageModels2 {
     }
     const accountLabel = auth.accountLabel ?? localize("languageModelsAccountId", "Language Models");
     const disposables = new DisposableStore();
-    this._authenticationService.registerAuthenticationProvider(authProviderId, new LanguageModelAccessAuthProvider(authProviderId, auth.providerLabel, accountLabel));
+    const provider = new LanguageModelAccessAuthProvider(authProviderId, auth.providerLabel, accountLabel);
+    this._authenticationService.registerAuthenticationProvider(authProviderId, provider);
     disposables.add(toDisposable(() => {
       this._authenticationService.unregisterAuthenticationProvider(authProviderId);
+      provider.dispose();
     }));
     disposables.add(this._authenticationAccessService.onDidChangeExtensionSessionAccess(async (e) => {
       const allowedExtensions = this._authenticationAccessService.readAllowedExtensions(authProviderId, accountLabel);
@@ -255,6 +257,9 @@ class LanguageModelAccessAuthProvider {
       accessToken: "fake-access-token",
       scopes
     };
+  }
+  dispose() {
+    this._onDidChangeSessions.dispose();
   }
 }
 export {

@@ -356,6 +356,10 @@ let LanguageModelToolsService = class LanguageModelToolsService2 extends Disposa
     if (dto.context?.sessionResource) {
       model = this._chatService.getSession(dto.context.sessionResource);
       request = model?.getRequests().at(-1);
+      if (request?.response?.isCanceled || request?.response?.isComplete) {
+        this._logService.debug(`[LanguageModelToolsService#invokeTool] Ignoring tool ${dto.toolId} for cancelled/complete request ${request.id}`);
+        throw new CancellationError();
+      }
     }
     let pendingToolCallKey;
     let toolInvocation;
@@ -541,7 +545,7 @@ let LanguageModelToolsService = class LanguageModelToolsService2 extends Disposa
       const result = isCancellationError(err) ? "userCancelled" : "error";
       this._telemetryService.publicLog2("languageModelToolInvoked", {
         result,
-        chatSessionId: dto.context?.sessionId,
+        chatSessionId: dto.context?.sessionResource ? chatSessionResourceToId(dto.context.sessionResource) : void 0,
         toolId: tool.data.id,
         toolExtensionId: tool.data.source.type === "extension" ? tool.data.source.extensionId.value : void 0,
         toolSourceKind: tool.data.source.type,
@@ -643,7 +647,6 @@ ${msgText}`),
         parameters: dto.parameters,
         toolCallId: dto.callId,
         chatRequestId: dto.chatRequestId,
-        chatSessionId: dto.context?.sessionId,
         chatSessionResource: dto.context?.sessionResource,
         chatInteractionId: dto.chatInteractionId,
         modelId: dto.modelId,

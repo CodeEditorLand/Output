@@ -92,7 +92,8 @@ let ChatToolProgressSubPart = class ChatToolProgressSubPart2 extends BaseChatToo
     if (shouldAnnounce) {
       this.provideScreenReaderStatus(content);
     }
-    return this.instantiationService.createInstance(ChatProgressContentPart, progressMessage, this.renderer, this.context, void 0, true, this.getIcon(), this.toolInvocation);
+    const isAskQuestionsTool = this.toolInvocation.toolId === "copilot_askQuestions";
+    return this.instantiationService.createInstance(ChatProgressContentPart, progressMessage, this.renderer, this.context, void 0, true, this.getIcon(), this.toolInvocation, isAskQuestionsTool ? void 0 : false);
   }
   getAnnouncementKey(kind) {
     return `${kind}:${this.toolInvocation.toolCallId}`;

@@ -5,7 +5,7 @@ import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextke
 import { Action2, registerAction2, MenuId } from "../../../../platform/actions/common/actions.js";
 import { ACTIVE_GROUP, IEditorService, SIDE_GROUP } from "../../../services/editor/common/editorService.js";
 import { Codicon } from "../../../../base/common/codicons.js";
-import { BrowserEditor, CONTEXT_BROWSER_CAN_GO_BACK, CONTEXT_BROWSER_CAN_GO_FORWARD, CONTEXT_BROWSER_DEVTOOLS_OPEN, CONTEXT_BROWSER_FOCUSED, CONTEXT_BROWSER_HAS_URL, CONTEXT_BROWSER_STORAGE_SCOPE, CONTEXT_BROWSER_ELEMENT_SELECTION_ACTIVE, CONTEXT_BROWSER_FIND_WIDGET_FOCUSED, CONTEXT_BROWSER_FIND_WIDGET_VISIBLE } from "./browserEditor.js";
+import { BrowserEditor, CONTEXT_BROWSER_CAN_GO_BACK, CONTEXT_BROWSER_CAN_GO_FORWARD, CONTEXT_BROWSER_DEVTOOLS_OPEN, CONTEXT_BROWSER_FOCUSED, CONTEXT_BROWSER_HAS_ERROR, CONTEXT_BROWSER_HAS_URL, CONTEXT_BROWSER_STORAGE_SCOPE, CONTEXT_BROWSER_ELEMENT_SELECTION_ACTIVE, CONTEXT_BROWSER_FIND_WIDGET_FOCUSED, CONTEXT_BROWSER_FIND_WIDGET_VISIBLE } from "./browserEditor.js";
 import { BrowserViewUri } from "../../../../platform/browserView/common/browserViewUri.js";
 import { IBrowserViewWorkbenchService } from "../common/browserView.js";
 import { BrowserViewStorageScope } from "../../../../platform/browserView/common/browserView.js";
@@ -38,7 +38,10 @@ class OpenIntegratedBrowserAction extends Action2 {
     const resource = BrowserViewUri.forUrl(options.url);
     const group = options.openToSide ? SIDE_GROUP : ACTIVE_GROUP;
     logBrowserOpen(telemetryService, options.url ? "commandWithUrl" : "commandWithoutUrl");
-    await editorService.openEditor({ resource }, group);
+    const editorPane = await editorService.openEditor({ resource }, group);
+    if (options.openToSide && editorPane?.group) {
+      editorPane.group.lock(true);
+    }
   }
 }
 class NewTabAction extends Action2 {
@@ -237,7 +240,7 @@ class AddElementToChatAction extends Action2 {
       category: BrowserCategory,
       icon: Codicon.inspect,
       f1: true,
-      precondition: ContextKeyExpr.and(BROWSER_EDITOR_ACTIVE, enabled),
+      precondition: ContextKeyExpr.and(BROWSER_EDITOR_ACTIVE, CONTEXT_BROWSER_HAS_URL, CONTEXT_BROWSER_HAS_ERROR.negate(), enabled),
       toggled: CONTEXT_BROWSER_ELEMENT_SELECTION_ACTIVE,
       menu: {
         id: MenuId.BrowserActionsToolbar,
@@ -263,6 +266,36 @@ class AddElementToChatAction extends Action2 {
     }
   }
 }
+class AddConsoleLogsToChatAction extends Action2 {
+  static {
+    __name(this, "AddConsoleLogsToChatAction");
+  }
+  static {
+    this.ID = "workbench.action.browser.addConsoleLogsToChat";
+  }
+  constructor() {
+    const enabled = ContextKeyExpr.and(ChatContextKeys.enabled, ContextKeyExpr.equals("config.chat.sendElementsToChat.enabled", true));
+    super({
+      id: AddConsoleLogsToChatAction.ID,
+      title: localize2("browser.addConsoleLogsToChatAction", "Add Console Logs to Chat"),
+      category: BrowserCategory,
+      icon: Codicon.output,
+      f1: true,
+      precondition: ContextKeyExpr.and(BROWSER_EDITOR_ACTIVE, CONTEXT_BROWSER_HAS_URL, CONTEXT_BROWSER_HAS_ERROR.negate(), enabled),
+      menu: {
+        id: MenuId.BrowserActionsToolbar,
+        group: "actions",
+        order: 2,
+        when: enabled
+      }
+    });
+  }
+  async run(accessor, browserEditor = accessor.get(IEditorService).activeEditorPane) {
+    if (browserEditor instanceof BrowserEditor) {
+      await browserEditor.addConsoleLogsToChat();
+    }
+  }
+}
 class ToggleDevToolsAction extends Action2 {
   static {
     __name(this, "ToggleDevToolsAction");
@@ -277,12 +310,12 @@ class ToggleDevToolsAction extends Action2 {
       category: BrowserCategory,
       icon: Codicon.terminal,
       f1: true,
-      precondition: ContextKeyExpr.and(BROWSER_EDITOR_ACTIVE, CONTEXT_BROWSER_HAS_URL),
+      precondition: ContextKeyExpr.and(BROWSER_EDITOR_ACTIVE, CONTEXT_BROWSER_HAS_URL, CONTEXT_BROWSER_HAS_ERROR.negate()),
       toggled: ContextKeyExpr.equals(CONTEXT_BROWSER_DEVTOOLS_OPEN.key, true),
       menu: {
         id: MenuId.BrowserActionsToolbar,
         group: "actions",
-        order: 2
+        order: 3
       },
       keybinding: {
         weight: 200,
@@ -311,7 +344,8 @@ class OpenInExternalBrowserAction extends Action2 {
       category: BrowserCategory,
       icon: Codicon.linkExternal,
       f1: true,
-      precondition: BROWSER_EDITOR_ACTIVE,
+      // Note: We do allow opening in an external browser even if there is an error page shown
+      precondition: ContextKeyExpr.and(BROWSER_EDITOR_ACTIVE, CONTEXT_BROWSER_HAS_URL),
       menu: {
         id: MenuId.BrowserActionsToolbar,
         group: ActionGroupPage,
@@ -451,7 +485,7 @@ class ShowBrowserFindAction extends Action2 {
       title: localize2("browser.showFindAction", "Find in Page"),
       category: BrowserCategory,
       f1: true,
-      precondition: BROWSER_EDITOR_ACTIVE,
+      precondition: ContextKeyExpr.and(BROWSER_EDITOR_ACTIVE, CONTEXT_BROWSER_HAS_URL, CONTEXT_BROWSER_HAS_ERROR.negate()),
       menu: {
         id: MenuId.BrowserActionsToolbar,
         group: ActionGroupPage,
@@ -579,6 +613,7 @@ registerAction2(GoForwardAction);
 registerAction2(ReloadAction);
 registerAction2(FocusUrlInputAction);
 registerAction2(AddElementToChatAction);
+registerAction2(AddConsoleLogsToChatAction);
 registerAction2(ToggleDevToolsAction);
 registerAction2(OpenInExternalBrowserAction);
 registerAction2(ClearGlobalBrowserStorageAction);

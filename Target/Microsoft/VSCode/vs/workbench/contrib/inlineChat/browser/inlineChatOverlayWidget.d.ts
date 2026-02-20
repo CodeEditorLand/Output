@@ -7,6 +7,7 @@ import { IModelService } from '../../../../editor/common/services/model.js';
 import { IMenuService } from '../../../../platform/actions/common/actions.js';
 import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
 import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { ICommandService } from '../../../../platform/commands/common/commands.js';
 import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
 import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
 import { IInlineChatSession2 } from './inlineChatSessionService.js';
@@ -15,22 +16,24 @@ import { IInlineChatSession2 } from './inlineChatSessionService.js';
  */
 export declare class InlineChatInputWidget extends Disposable {
     private readonly _editorObs;
-    private readonly _keybindingService;
-    private readonly _menuService;
     private readonly _contextKeyService;
+    private readonly _commandService;
+    private readonly _menuService;
     private readonly _domNode;
+    private readonly _container;
     private readonly _inputContainer;
-    private readonly _actionBar;
+    private readonly _toolbarContainer;
     private readonly _input;
     private readonly _position;
     readonly position: IObservable<IOverlayWidgetPosition | null>;
     private readonly _showStore;
     private readonly _stickyScrollHeight;
-    private _inlineStartAction;
+    private readonly _layoutData;
     private _anchorLineNumber;
     private _anchorLeft;
     private _anchorAbove;
-    constructor(_editorObs: ObservableCodeEditor, _keybindingService: IKeybindingService, _menuService: IMenuService, _contextKeyService: IContextKeyService, instantiationService: IInstantiationService, modelService: IModelService, configurationService: IConfigurationService);
+    constructor(_editorObs: ObservableCodeEditor, _contextKeyService: IContextKeyService, _commandService: ICommandService, _menuService: IMenuService, instantiationService: IInstantiationService, modelService: IModelService, configurationService: IConfigurationService);
+    get value(): string;
     /**
      * Show the widget at the specified line.
      * @param lineNumber The line number to anchor the widget to
@@ -42,9 +45,7 @@ export declare class InlineChatInputWidget extends Disposable {
     /**
      * Hide the widget (removes from editor but does not dispose).
      */
-    private _hide;
-    private _refreshActions;
-    private _updateInputHeight;
+    hide(): void;
 }
 /**
  * Overlay widget that displays progress messages during inline chat requests.

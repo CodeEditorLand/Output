@@ -11,7 +11,7 @@ var __param = function(paramIndex, decorator) {
     decorator(target, key, paramIndex);
   };
 };
-import { getWindowById } from "../../../../base/browser/dom.js";
+import { getWindowById, isHTMLElement } from "../../../../base/browser/dom.js";
 import { FastDomNode } from "../../../../base/browser/fastDomNode.js";
 import { Emitter } from "../../../../base/common/event.js";
 import { Disposable, DisposableStore, MutableDisposable } from "../../../../base/common/lifecycle.js";
@@ -19,6 +19,7 @@ import { autorun, observableValue } from "../../../../base/common/observable.js"
 import { generateUuid } from "../../../../base/common/uuid.js";
 import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
 import { IWorkbenchLayoutService } from "../../../services/layout/browser/layoutService.js";
+import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
 import { IWebviewService, KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_ENABLED, KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_VISIBLE } from "./webview.js";
 let OverlayWebview = class OverlayWebview2 extends Disposable {
   static {
@@ -27,11 +28,12 @@ let OverlayWebview = class OverlayWebview2 extends Disposable {
   get window() {
     return getWindowById(this._windowId, true).window;
   }
-  constructor(initInfo, _layoutService, _webviewService, _baseContextKeyService) {
+  constructor(initInfo, _layoutService, _webviewService, _baseContextKeyService, _editorGroupsService) {
     super();
     this._layoutService = _layoutService;
     this._webviewService = _webviewService;
     this._baseContextKeyService = _baseContextKeyService;
+    this._editorGroupsService = _editorGroupsService;
     this._isFirstLoad = true;
     this._firstLoadPendingMessages = /* @__PURE__ */ new Set();
     this._webview = this._register(new MutableDisposable());
@@ -96,7 +98,14 @@ let OverlayWebview = class OverlayWebview2 extends Disposable {
       node.style.overflow = "hidden";
       this._container = new FastDomNode(node);
       this._container.setVisibility("hidden");
-      this._layoutService.getContainer(this.window).appendChild(node);
+      const modalEditorContainer = this._editorGroupsService.activeModalEditorPart?.modalElement;
+      let root;
+      if (isHTMLElement(modalEditorContainer)) {
+        root = modalEditorContainer;
+      } else {
+        root = this._layoutService.getContainer(this.window);
+      }
+      root.appendChild(node);
     }
     return this._container.domNode;
   }
@@ -359,7 +368,8 @@ let OverlayWebview = class OverlayWebview2 extends Disposable {
 OverlayWebview = __decorate([
   __param(1, IWorkbenchLayoutService),
   __param(2, IWebviewService),
-  __param(3, IContextKeyService)
+  __param(3, IContextKeyService),
+  __param(4, IEditorGroupsService)
 ], OverlayWebview);
 function computeClippingRect(frameRect, clipper) {
   const rootRect = clipper.getBoundingClientRect();

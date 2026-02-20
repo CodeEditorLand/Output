@@ -85,7 +85,6 @@ let ChatMarkdownContentPart = class ChatMarkdownContentPart2 extends Disposable 
     this.mathLayoutParticipants = /* @__PURE__ */ new Set();
     const element = context.element;
     const inUndoStop = findLast(context.content, (e) => e.kind === "undoStop", context.contentIndex)?.id;
-    const orderedDisposablesList = [];
     let globalCodeBlockIndexStart = codeBlockStartIndex;
     let thisPartCodeBlockIndexStart = 0;
     this.domNode = $("div.chat-markdown-part");
@@ -99,10 +98,20 @@ let ChatMarkdownContentPart = class ChatMarkdownContentPart2 extends Disposable 
       }
     }
     const enableMath = configurationService.getValue(ChatConfiguration.EnableMath);
+    const renderStore = this._register(new MutableDisposable());
     const doRenderMarkdown = /* @__PURE__ */ __name(() => {
       if (this._store.isDisposed) {
         return;
       }
+      const store = new DisposableStore();
+      renderStore.value = store;
+      dom.clearNode(this.domNode);
+      this.allRefs.length = 0;
+      this._codeblocks.length = 0;
+      this.mathLayoutParticipants.clear();
+      globalCodeBlockIndexStart = codeBlockStartIndex;
+      thisPartCodeBlockIndexStart = 0;
+      const orderedDisposablesList = [];
       const markedExtensions = enableMath ? coalesce([MarkedKatexSupport.getExtension(dom.getWindow(context.container), {
         throwOnError: false
       })]) : [];
@@ -110,7 +119,7 @@ let ChatMarkdownContentPart = class ChatMarkdownContentPart2 extends Disposable 
         gfm: true,
         breaks: true
       };
-      const result = this._register(renderer.render(markdown.content, {
+      const result = store.add(renderer.render(markdown.content, {
         sanitizerConfig: MarkedKatexSupport.getSanitizerOptions({
           allowedTags: allowedChatMarkdownHtmlTags,
           allowedAttributes: allowedMarkdownHtmlAttributes
@@ -151,7 +160,7 @@ let ChatMarkdownContentPart = class ChatMarkdownContentPart2 extends Disposable 
             }
           }
           if (languageId === "vscode-extensions") {
-            const chatExtensions = this._register(instantiationService.createInstance(ChatExtensionsContentPart, { kind: "extensions", extensions: text.split(",") }));
+            const chatExtensions = store.add(instantiationService.createInstance(ChatExtensionsContentPart, { kind: "extensions", extensions: text.split(",") }));
             return chatExtensions.domNode;
           }
           const globalIndex = globalCodeBlockIndexStart++;
@@ -164,7 +173,13 @@ let ChatMarkdownContentPart = class ChatMarkdownContentPart2 extends Disposable 
             try {
               const parsedBody = parseLocalFileData(text);
               range = parsedBody.range && Range.lift(parsedBody.range);
-              textModel = this.textModelService.createModelReference(parsedBody.uri).then((ref) => ref.object.textEditorModel);
+              const modelRefPromise = this.textModelService.createModelReference(parsedBody.uri);
+              textModel = modelRefPromise.then((ref) => {
+                if (!store.isDisposed) {
+                  store.add(ref);
+                }
+                return ref.object.textEditorModel;
+              });
             } catch (e) {
               return $("div");
             }
@@ -268,11 +283,11 @@ let ChatMarkdownContentPart = class ChatMarkdownContentPart2 extends Disposable 
         }));
       }
       const markdownDecorationsRenderer = instantiationService.createInstance(ChatMarkdownDecorationsRenderer);
-      this._register(markdownDecorationsRenderer.walkTreeAndAnnotateReferenceLinks(markdown, result.element));
+      store.add(markdownDecorationsRenderer.walkTreeAndAnnotateReferenceLinks(markdown, result.element));
       const layoutParticipants = new Lazy(() => {
         const observer = new ResizeObserver(() => this.mathLayoutParticipants.forEach((layout) => layout()));
         observer.observe(this.domNode);
-        this._register(toDisposable(() => observer.disconnect()));
+        store.add(toDisposable(() => observer.disconnect()));
         return this.mathLayoutParticipants;
       });
       for (const katexBlock of this.domNode.querySelectorAll(".katex-display")) {
@@ -290,16 +305,15 @@ let ChatMarkdownContentPart = class ChatMarkdownContentPart2 extends Disposable 
         });
         scrollable.scanDomNode();
       }
-      orderedDisposablesList.reverse().forEach((d) => this._register(d));
+      orderedDisposablesList.reverse().forEach((d) => store.add(d));
     }, "doRenderMarkdown");
+    doRenderMarkdown();
     if (enableMath && !MarkedKatexSupport.getExtension(dom.getWindow(context.container))) {
-      MarkedKatexSupport.loadExtension(dom.getWindow(context.container)).catch((e) => {
-        console.error("Failed to load MarkedKatexSupport extension:", e);
-      }).finally(() => {
+      MarkedKatexSupport.loadExtension(dom.getWindow(context.container)).then(() => {
         doRenderMarkdown();
+      }).catch((e) => {
+        console.error("Failed to load MarkedKatexSupport extension:", e);
       });
-    } else {
-      doRenderMarkdown();
     }
   }
   renderCodeBlockPill(sessionResource, requestId, inUndoStop, codemapperUri) {

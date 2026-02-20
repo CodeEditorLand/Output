@@ -29,6 +29,7 @@ import { IEditorGroupsService } from "../../../services/editor/common/editorGrou
 import { IEditorService } from "../../../services/editor/common/editorService.js";
 import { IHostService } from "../../../services/host/browser/host.js";
 import { IWorkbenchLayoutService } from "../../../services/layout/browser/layoutService.js";
+import { isHTMLElement } from "../../../../base/browser/dom.js";
 const CONTEXT_ACTIVE_WEBVIEW_PANEL_ID = new RawContextKey("activeWebviewPanelId", "", {
   type: "string",
   description: nls.localize("context.activeWebviewId", "The viewType of the currently active webview panel.")
@@ -164,12 +165,18 @@ let WebviewEditor = class WebviewEditor2 extends EditorPane {
     if (!this._element?.isConnected) {
       return;
     }
-    const rootContainer = this._workbenchLayoutService.getContainer(
-      this.window,
-      "workbench.parts.editor"
-      /* Parts.EDITOR_PART */
-    );
-    webview.layoutWebviewOverElement(this._element.parentElement, dimension, rootContainer);
+    const modalEditorContainer = this._editorGroupsService.activeModalEditorPart?.modalElement;
+    let clippingContainer;
+    if (isHTMLElement(modalEditorContainer)) {
+      clippingContainer = modalEditorContainer;
+    } else {
+      clippingContainer = this._workbenchLayoutService.getContainer(
+        this.window,
+        "workbench.parts.editor"
+        /* Parts.EDITOR_PART */
+      );
+    }
+    webview.layoutWebviewOverElement(this._element.parentElement, dimension, clippingContainer);
   }
   trackFocus(webview) {
     const store = new DisposableStore();

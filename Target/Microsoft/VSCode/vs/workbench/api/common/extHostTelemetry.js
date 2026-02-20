@@ -264,6 +264,7 @@ class ExtHostTelemetryLogger {
     } else {
       this._sender = void 0;
     }
+    this._onDidChangeEnableStates.dispose();
   }
 }
 function isNewAppInstall(firstSessionDate) {

@@ -21,6 +21,7 @@ import { IChatRequestVariableEntry } from '../../chat/common/attachments/chatVar
 import { ILanguageModelChatSelector, ILanguageModelsService } from '../../chat/common/languageModels.js';
 import { INotebookEditorService } from '../../notebook/browser/services/notebookEditorService.js';
 import { ICellEditOperation } from '../../notebook/common/notebookCommon.js';
+import { InlineChatInputWidget } from './inlineChatOverlayWidget.js';
 import { IInlineChatSessionService } from './inlineChatSessionService.js';
 import { EditorBasedInlineChatWidget } from './inlineChatWidget.js';
 export declare abstract class InlineChatRunOptions {
@@ -59,9 +60,11 @@ export declare class InlineChatController implements IEditorContribution {
     private readonly _renderMode;
     private readonly _zone;
     private readonly _gutterIndicator;
+    private readonly _inputWidget;
     private readonly _currentSession;
     get widget(): EditorBasedInlineChatWidget;
     get isActive(): boolean;
+    get inputWidget(): InlineChatInputWidget;
     constructor(_editor: ICodeEditor, _instaService: IInstantiationService, _notebookEditorService: INotebookEditorService, _inlineChatSessionService: IInlineChatSessionService, codeEditorService: ICodeEditorService, contextKeyService: IContextKeyService, _configurationService: IConfigurationService, _webContentExtractorService: ISharedWebContentExtractorService, _fileService: IFileService, _chatAttachmentResolveService: IChatAttachmentResolveService, _editorService: IEditorService, _markerDecorationsService: IMarkerDecorationsService, _languageModelService: ILanguageModelsService, _logService: ILogService);
     dispose(): void;
     getWidgetPosition(): Position | undefined;

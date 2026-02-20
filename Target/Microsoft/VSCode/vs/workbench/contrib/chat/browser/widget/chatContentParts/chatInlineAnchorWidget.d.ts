@@ -40,7 +40,6 @@ export declare class InlineAnchorWidget extends Disposable {
     private readonly notebookDocumentService;
     private readonly openerService;
     static readonly className = "chat-inline-anchor-widget";
-    private readonly _chatResourceContext;
     readonly data: ContentRefData;
     constructor(element: HTMLAnchorElement | HTMLElement, inlineReference: IChatContentInlineReference, metadata: InlineAnchorWidgetMetadata | undefined, configurationService: IConfigurationService, originalContextKeyService: IContextKeyService, contextMenuService: IContextMenuService, fileService: IFileService, hoverService: IHoverService, instantiationService: IInstantiationService, labelService: ILabelService, languageService: ILanguageService, menuService: IMenuService, modelService: IModelService, telemetryService: ITelemetryService, themeService: IThemeService, notebookDocumentService: INotebookDocumentService, openerService: IOpenerService);
     getHTMLElement(): HTMLElement;

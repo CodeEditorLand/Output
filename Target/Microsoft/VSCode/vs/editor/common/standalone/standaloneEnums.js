@@ -267,6 +267,7 @@ var EditorOption;
   EditorOption2[EditorOption2["effectiveEditContext"] = 170] = "effectiveEditContext";
   EditorOption2[EditorOption2["scrollOnMiddleClick"] = 171] = "scrollOnMiddleClick";
   EditorOption2[EditorOption2["effectiveAllowVariableFonts"] = 172] = "effectiveAllowVariableFonts";
+  EditorOption2[EditorOption2["doubleClickSelectsBlock"] = 173] = "doubleClickSelectsBlock";
 })(EditorOption || (EditorOption = {}));
 var EndOfLinePreference;
 (function(EndOfLinePreference2) {

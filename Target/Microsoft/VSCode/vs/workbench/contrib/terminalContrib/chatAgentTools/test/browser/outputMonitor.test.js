@@ -294,7 +294,7 @@ suite("OutputMonitor", () => {
   });
 });
 function createTestContext(id) {
-  return { sessionId: id, sessionResource: LocalChatSessionUri.forSession(id) };
+  return { sessionResource: LocalChatSessionUri.forSession(id) };
 }
 __name(createTestContext, "createTestContext");
 //# sourceMappingURL=outputMonitor.test.js.map

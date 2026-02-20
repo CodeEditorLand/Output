@@ -27,7 +27,7 @@ export declare class Debugger implements IDebugger, IDebuggerMetadata {
     merge(otherDebuggerContribution: IDebuggerContribution, extensionDescription: IExtensionDescription): void;
     startDebugging(configuration: IConfig, parentSessionId: string): Promise<boolean>;
     createDebugAdapter(session: IDebugSession): Promise<IDebugAdapter>;
-    substituteVariables(folder: IWorkspaceFolder | undefined, config: IConfig): Promise<IConfig>;
+    substituteVariables(folder: IWorkspaceFolder | undefined, config: IConfig): Promise<IConfig | undefined>;
     runInTerminal(args: DebugProtocol.RunInTerminalRequestArguments, sessionId: string): Promise<number | undefined>;
     get label(): string;
     get type(): string;

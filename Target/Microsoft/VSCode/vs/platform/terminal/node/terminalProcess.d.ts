@@ -64,7 +64,7 @@ export declare class TerminalProcess extends Disposable implements ITerminalChil
     processBinary(data: string): Promise<void>;
     refreshProperty<T extends ProcessPropertyType>(type: T): Promise<IProcessPropertyMap[T]>;
     updateProperty<T extends ProcessPropertyType>(type: T, value: IProcessPropertyMap[T]): Promise<void>;
-    resize(cols: number, rows: number): void;
+    resize(cols: number, rows: number, pixelWidth?: number, pixelHeight?: number): void;
     clearBuffer(): void;
     acknowledgeDataEvent(charCount: number): void;
     clearUnacknowledgedChars(): void;

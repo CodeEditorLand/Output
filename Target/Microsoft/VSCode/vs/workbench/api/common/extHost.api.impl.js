@@ -1013,7 +1013,7 @@ function createApiFactoryAndRegisterActors(accessor) {
       },
       get isAgentSessionsWorkspace() {
         checkProposedApiEnabled(extension, "agentSessionsWorkspace");
-        return extHostWorkspace.isAgentSessionsWorkspace;
+        return !!initData.environment.isSessionsWindow;
       },
       updateWorkspaceFolders: /* @__PURE__ */ __name((index, deleteCount, ...workspaceFoldersToAdd) => {
         return extHostWorkspace.updateWorkspaceFolders(extension, index, deleteCount || 0, ...workspaceFoldersToAdd);

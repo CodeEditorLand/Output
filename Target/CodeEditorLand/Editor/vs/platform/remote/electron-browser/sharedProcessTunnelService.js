@@ -1,1 +1,1 @@
-import{$YPc as m}from"../../ipc/electron-browser/services.js";import{$uQc as o,$vQc as r}from"../common/sharedProcessTunnelService.js";m(o,r);
+import{$oSc as o}from"../../ipc/electron-browser/services.js";import{$WSc as m,$XSc as r}from"../common/sharedProcessTunnelService.js";o(m,r);

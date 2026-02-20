@@ -7,6 +7,7 @@ import { AgentSessionListItem, IAgentSessionsFilter, IAgentSessionsSorterOptions
 import { IMenuService } from '../../../../../platform/actions/common/actions.js';
 import { IChatSessionsService } from '../../common/chatSessionsService.js';
 import { ICommandService } from '../../../../../platform/commands/common/commands.js';
+import { Event } from '../../../../../base/common/event.js';
 import { Disposable } from '../../../../../base/common/lifecycle.js';
 import { IAgentSessionsService } from './agentSessionsService.js';
 import { ITelemetryService } from '../../../../../platform/telemetry/common/telemetry.js';
@@ -24,7 +25,9 @@ export interface IAgentSessionsControlOptions extends IAgentSessionsSorterOption
     readonly source: string;
     getHoverPosition(): HoverPosition;
     trackActiveEditorSession(): boolean;
+    collapseOlderSections?(): boolean;
     overrideSessionOpenOptions?(openEvent: IOpenEvent<AgentSessionListItem | undefined>): ISessionOpenOptions;
+    overrideSessionOpen?(resource: URI, openOptions?: ISessionOpenOptions): Promise<void>;
     notifySessionOpened?(resource: URI, widget: IChatWidget): void;
 }
 export declare class AgentSessionsControl extends Disposable implements IAgentSessionsControl {
@@ -44,6 +47,8 @@ export declare class AgentSessionsControl extends Disposable implements IAgentSe
     private sessionsList;
     private sessionsListFindIsOpen;
     private readonly updateSessionsListThrottler;
+    private readonly _onDidUpdate;
+    readonly onDidUpdate: Event<void>;
     private visible;
     private focusedAgentSessionArchivedContextKey;
     private focusedAgentSessionReadContextKey;
@@ -53,6 +58,7 @@ export declare class AgentSessionsControl extends Disposable implements IAgentSe
     private registerListeners;
     private revealAndFocusActiveEditorSession;
     private createList;
+    private hasTodaySessions;
     private openAgentSession;
     private showContextMenu;
     private showAgentSessionSectionContextMenu;

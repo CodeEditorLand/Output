@@ -772,7 +772,7 @@ let AccessibleView = class AccessibleView2 extends Disposable {
     ].join("\n");
   }
   _navigationHint() {
-    return localize("accessibleViewNextPreviousHint", "Show the next item{0} or previous item{1}.", `<keybinding:${"editor.action.accessibleViewNext"}`, `<keybinding:${"editor.action.accessibleViewPrevious"}>`);
+    return localize("accessibleViewNextPreviousHint", "Show the next item{0} or previous item{1}.", `<keybinding:${"editor.action.accessibleViewNext"}>`, `<keybinding:${"editor.action.accessibleViewPrevious"}>`);
   }
   _disableVerbosityHint(provider) {
     if (provider.options.type === "help" && this._verbosityEnabled()) {

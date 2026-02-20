@@ -402,7 +402,9 @@ let DropdownWithDefaultActionViewItem = class DropdownWithDefaultActionViewItem2
   set actionRunner(actionRunner) {
     super.actionRunner = actionRunner;
     this._defaultAction.actionRunner = actionRunner;
-    this._dropdown.actionRunner = actionRunner;
+    if (!this._options?.togglePrimaryAction) {
+      this._dropdown.actionRunner = actionRunner;
+    }
     if (this._primaryActionListener.value) {
       this.registerTogglePrimaryActionListener();
     }

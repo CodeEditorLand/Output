@@ -46,12 +46,14 @@ import { IPreferencesService } from "../../../../services/preferences/common/pre
 import { IExtensionsWorkbenchService } from "../../../extensions/common/extensions.js";
 import { ChatContextKeys } from "../../common/actions/chatContextKeys.js";
 import { IChatModeService } from "../../common/chatModes.js";
+import { IChatSessionsService } from "../../common/chatSessionsService.js";
 import { ChatAgentLocation, ChatConfiguration, ChatModeKind } from "../../common/constants.js";
 import { CHAT_CATEGORY, CHAT_SETUP_ACTION_ID, CHAT_SETUP_SUPPORT_ANONYMOUS_ACTION_ID } from "../actions/chatActions.js";
 import { ChatViewContainerId, IChatWidgetService } from "../chat.js";
 import { chatViewsWelcomeRegistry } from "../viewsWelcome/chatViewsWelcome.js";
 import { ChatSetupAnonymous } from "./chatSetup.js";
 import { ChatSetupController } from "./chatSetupController.js";
+import { GrowthSessionController, registerGrowthSession } from "./chatSetupGrowthSession.js";
 import { AICodeActionsHelper, AINewSymbolNamesProvider, ChatCodeActionsProvider, SetupAgent } from "./chatSetupProviders.js";
 import { ChatSetup } from "./chatSetupRunner.js";
 const defaultChat = {
@@ -68,7 +70,7 @@ let ChatSetupContribution = class ChatSetupContribution2 extends Disposable {
   static {
     this.ID = "workbench.contrib.chatSetup";
   }
-  constructor(instantiationService, chatEntitlementService, logService, contextKeyService, extensionEnablementService, extensionsWorkbenchService, extensionService, environmentService) {
+  constructor(instantiationService, chatEntitlementService, logService, contextKeyService, extensionEnablementService, extensionsWorkbenchService, extensionService, environmentService, chatSessionsService, configurationService) {
     super();
     this.instantiationService = instantiationService;
     this.logService = logService;
@@ -77,6 +79,8 @@ let ChatSetupContribution = class ChatSetupContribution2 extends Disposable {
     this.extensionsWorkbenchService = extensionsWorkbenchService;
     this.extensionService = extensionService;
     this.environmentService = environmentService;
+    this.chatSessionsService = chatSessionsService;
+    this.configurationService = configurationService;
     const context = chatEntitlementService.context?.value;
     const requests = chatEntitlementService.requests?.value;
     if (!context || !requests) {
@@ -84,6 +88,7 @@ let ChatSetupContribution = class ChatSetupContribution2 extends Disposable {
     }
     const controller = new Lazy(() => this._register(this.instantiationService.createInstance(ChatSetupController, context, requests)));
     this.registerSetupAgents(context, controller);
+    this.registerGrowthSession(chatEntitlementService);
     this.registerActions(context, requests, controller);
     this.registerUrlLinkHandler();
     this.checkExtensionInstallation(context);
@@ -146,6 +151,30 @@ let ChatSetupContribution = class ChatSetupContribution2 extends Disposable {
       }
     }, "updateRegistration");
     this._register(Event.runAndSubscribe(context.onDidChange, () => updateRegistration()));
+  }
+  registerGrowthSession(chatEntitlementService) {
+    const growthSessionDisposables = markAsSingleton(new MutableDisposable());
+    const updateGrowthSession = /* @__PURE__ */ __name(() => {
+      const experimentEnabled = this.configurationService.getValue(ChatConfiguration.GrowthNotificationEnabled) === true;
+      const shouldShow = experimentEnabled && !chatEntitlementService.sentiment.installed;
+      if (shouldShow && !growthSessionDisposables.value) {
+        const disposables = new DisposableStore();
+        const controller = disposables.add(this.instantiationService.createInstance(GrowthSessionController));
+        if (!controller.isDismissed) {
+          disposables.add(registerGrowthSession(this.chatSessionsService, controller));
+          disposables.add(controller.onDidDismiss(() => {
+            growthSessionDisposables.clear();
+          }));
+          growthSessionDisposables.value = disposables;
+        } else {
+          disposables.dispose();
+        }
+      } else if (!shouldShow) {
+        growthSessionDisposables.clear();
+      }
+    }, "updateGrowthSession");
+    this._register(chatEntitlementService.onDidChangeSentiment(() => updateGrowthSession()));
+    updateGrowthSession();
   }
   registerActions(context, requests, controller) {
     class ChatSetupTriggerAction extends Action2 {
@@ -470,7 +499,9 @@ ChatSetupContribution = __decorate([
   __param(4, IWorkbenchExtensionEnablementService),
   __param(5, IExtensionsWorkbenchService),
   __param(6, IExtensionService),
-  __param(7, IEnvironmentService)
+  __param(7, IEnvironmentService),
+  __param(8, IChatSessionsService),
+  __param(9, IConfigurationService)
 ], ChatSetupContribution);
 let ChatSetupExtensionUrlHandler = class ChatSetupExtensionUrlHandler2 {
   static {

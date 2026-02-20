@@ -13,6 +13,7 @@ import { IModalEditorPart } from '../../../services/editor/common/editorGroupsSe
 import { IEditorService } from '../../../services/editor/common/editorService.js';
 import { IHostService } from '../../../services/host/browser/host.js';
 import { IWorkbenchLayoutService } from '../../../services/layout/browser/layoutService.js';
+import { IModalEditorNavigation, IModalEditorPartOptions } from '../../../../platform/editor/common/editor.js';
 export interface ICreateModalEditorPartResult {
     readonly part: ModalEditorPartImpl;
     readonly instantiationService: IInstantiationService;
@@ -26,22 +27,28 @@ export declare class ModalEditorPart {
     private readonly keybindingService;
     private readonly hostService;
     constructor(editorPartsView: IEditorPartsView, instantiationService: IInstantiationService, editorService: IEditorService, layoutService: IWorkbenchLayoutService, keybindingService: IKeybindingService, hostService: IHostService);
-    create(): Promise<ICreateModalEditorPartResult>;
+    create(options?: IModalEditorPartOptions): Promise<ICreateModalEditorPartResult>;
 }
 declare class ModalEditorPartImpl extends EditorPart implements IModalEditorPart {
+    readonly modalElement: HTMLElement;
     private static COUNTER;
     private readonly _onWillClose;
     readonly onWillClose: Event<void>;
     private readonly _onDidChangeMaximized;
     readonly onDidChangeMaximized: Event<boolean>;
+    private readonly _onDidChangeNavigation;
+    readonly onDidChangeNavigation: Event<IModalEditorNavigation | undefined>;
     private _maximized;
     get maximized(): boolean;
+    private _navigation;
+    get navigation(): IModalEditorNavigation | undefined;
     private readonly optionsDisposable;
     private previousMainWindowActiveElement;
-    constructor(windowId: number, editorPartsView: IEditorPartsView, groupsLabel: string, instantiationService: IInstantiationService, themeService: IThemeService, configurationService: IConfigurationService, storageService: IStorageService, layoutService: IWorkbenchLayoutService, hostService: IHostService, contextKeyService: IContextKeyService);
+    constructor(windowId: number, editorPartsView: IEditorPartsView, modalElement: HTMLElement, options: IModalEditorPartOptions | undefined, instantiationService: IInstantiationService, themeService: IThemeService, configurationService: IConfigurationService, storageService: IStorageService, layoutService: IWorkbenchLayoutService, hostService: IHostService, contextKeyService: IContextKeyService);
     create(parent: HTMLElement, options?: object): void;
     private enforceModalPartOptions;
     notifyActiveEditorChanged(): void;
+    updateOptions(options?: IModalEditorPartOptions): void;
     toggleMaximized(): void;
     protected handleContextKeys(): void;
     removeGroup(group: number | IEditorGroupView, preserveFocus?: boolean): void;
@@ -52,5 +59,6 @@ declare class ModalEditorPartImpl extends EditorPart implements IModalEditorPart
     }): boolean;
     private doClose;
     private mergeGroupsToMainPart;
+    dispose(): void;
 }
 export {};

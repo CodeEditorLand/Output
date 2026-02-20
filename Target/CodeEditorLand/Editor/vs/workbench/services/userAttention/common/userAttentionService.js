@@ -1,1 +1,1 @@
-import{$Nj as t}from"../../../../platform/instantiation/common/instantiation.js";const o=t("userAttentionService");export{o as $xcc};
+import{$Nj as e}from"../../../../platform/instantiation/common/instantiation.js";const o=e("userAttentionService");export{o as $Bec};

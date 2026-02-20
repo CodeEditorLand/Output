@@ -77,6 +77,7 @@ let UpdateStatusBarEntryContribution = class UpdateStatusBarEntryContribution2 e
       this.statusBarEntryAccessor.clear();
       return;
     }
+    const productIcon = this.productService.quality === "insider" ? "$(vscode-insiders)" : "$(vscode)";
     switch (state.type) {
       case "uninitialized":
       case "idle":
@@ -94,9 +95,10 @@ let UpdateStatusBarEntryContribution = class UpdateStatusBarEntryContribution2 e
         break;
       case "available for download":
         this.updateStatusBarEntry({
+          kind: "prominent",
           name: UpdateStatusBarEntryContribution_1.NAME,
-          text: nls.localize("updateStatus.updateAvailableStatus", "$(cloud-download) Update is available. Click here to download."),
-          ariaLabel: nls.localize("updateStatus.updateAvailableAria", "Update available. Click here to download."),
+          text: nls.localize("updateStatus.updateAvailableStatus", "{0} Update available, click to download.", productIcon),
+          ariaLabel: nls.localize("updateStatus.updateAvailableAria", "Update available, click to download."),
           tooltip: this.getAvailableTooltip(state.update),
           command: "update.downloadNow"
         });
@@ -112,9 +114,10 @@ let UpdateStatusBarEntryContribution = class UpdateStatusBarEntryContribution2 e
         break;
       case "downloaded":
         this.updateStatusBarEntry({
+          kind: "prominent",
           name: UpdateStatusBarEntryContribution_1.NAME,
-          text: nls.localize("updateStatus.updateReadyStatus", "$(package) Downloaded update. Click here to install."),
-          ariaLabel: nls.localize("updateStatus.updateReadyAria", "Downloaded update. Click here to install."),
+          text: nls.localize("updateStatus.updateReadyStatus", "{0} Update downloaded, click to install.", productIcon),
+          ariaLabel: nls.localize("updateStatus.updateReadyAria", "Update downloaded, click to install."),
           tooltip: this.getReadyToInstallTooltip(state.update),
           command: "update.install"
         });
@@ -128,15 +131,17 @@ let UpdateStatusBarEntryContribution = class UpdateStatusBarEntryContribution2 e
           command: ShowTooltipCommand
         });
         break;
-      case "ready":
+      case "ready": {
         this.updateStatusBarEntry({
+          kind: "prominent",
           name: UpdateStatusBarEntryContribution_1.NAME,
-          text: nls.localize("updateStatus.restartToUpdateStatus", "$(debug-restart) Update is ready. Click here to restart."),
-          ariaLabel: nls.localize("updateStatus.restartToUpdateAria", "Update is ready. Click here to restart."),
+          text: nls.localize("updateStatus.restartToUpdateStatus", "{0} Update is ready, click to restart.", productIcon),
+          ariaLabel: nls.localize("updateStatus.restartToUpdateAria", "Update is ready, click to restart."),
           tooltip: this.getRestartToUpdateTooltip(state.update),
           command: "update.restart"
         });
         break;
+      }
       case "overwriting":
         this.updateStatusBarEntry({
           name: UpdateStatusBarEntryContribution_1.NAME,

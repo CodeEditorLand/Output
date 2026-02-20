@@ -95,7 +95,6 @@ export declare const ContextKeys: {
     SCMCurrentHistoryItemRefInFilter: RawContextKey<boolean>;
     RepositoryCount: RawContextKey<number>;
     RepositoryVisibilityCount: RawContextKey<number>;
-    SCMInputHasValidationMessage: RawContextKey<boolean>;
     RepositoryVisibility(repository: ISCMRepository): RawContextKey<boolean>;
 };
 export declare class SCMViewPane extends ViewPane {
@@ -106,7 +105,7 @@ export declare class SCMViewPane extends ViewPane {
     private readonly scmViewService;
     private readonly storageService;
     private readonly uriIdentityService;
-    private _onDidLayout;
+    private readonly _onDidLayout;
     private layoutCache;
     private treeScrollTop;
     private treeContainer;

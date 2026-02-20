@@ -75,7 +75,7 @@ class ExtHostWorkspaceImpl extends Workspace {
     if (!data) {
       return { workspace: null, added: [], removed: [] };
     }
-    const { id, name, folders, configuration, transient, isUntitled, isAgentSessionsWorkspace } = data;
+    const { id, name, folders, configuration, transient, isUntitled } = data;
     const newWorkspaceFolders = [];
     const oldWorkspace = previousConfirmedWorkspace;
     if (previousConfirmedWorkspace) {
@@ -94,7 +94,7 @@ class ExtHostWorkspaceImpl extends Workspace {
       newWorkspaceFolders.push(...folders.map(({ uri, name: name2, index }) => ({ uri: URI.revive(uri), name: name2, index })));
     }
     newWorkspaceFolders.sort((f1, f2) => f1.index < f2.index ? -1 : 1);
-    const workspace = new ExtHostWorkspaceImpl(id, name, newWorkspaceFolders, !!transient, configuration ? URI.revive(configuration) : null, !!isUntitled, !!isAgentSessionsWorkspace, (uri) => ignorePathCasing(uri, extHostFileSystemInfo));
+    const workspace = new ExtHostWorkspaceImpl(id, name, newWorkspaceFolders, !!transient, configuration ? URI.revive(configuration) : null, !!isUntitled, (uri) => ignorePathCasing(uri, extHostFileSystemInfo));
     const { added, removed } = delta(oldWorkspace ? oldWorkspace.workspaceFolders : [], workspace.workspaceFolders, compareWorkspaceFolderByUri, extHostFileSystemInfo);
     return { workspace, added, removed };
   }
@@ -107,8 +107,8 @@ class ExtHostWorkspaceImpl extends Workspace {
     }
     return void 0;
   }
-  constructor(id, _name, folders, transient, configuration, _isUntitled, isAgentSessionsWorkspace, ignorePathCasing2) {
-    super(id, folders.map((f) => new WorkspaceFolder(f)), transient, configuration, ignorePathCasing2, isAgentSessionsWorkspace);
+  constructor(id, _name, folders, transient, configuration, _isUntitled, ignorePathCasing2) {
+    super(id, folders.map((f) => new WorkspaceFolder(f)), transient, configuration, ignorePathCasing2);
     this._name = _name;
     this._isUntitled = _isUntitled;
     this._workspaceFolders = [];
@@ -162,7 +162,7 @@ let ExtHostWorkspace = class ExtHostWorkspace2 {
     this._proxy = extHostRpc.getProxy(MainContext.MainThreadWorkspace);
     this._messageService = extHostRpc.getProxy(MainContext.MainThreadMessageService);
     const data = initData.workspace;
-    this._confirmedWorkspace = data ? new ExtHostWorkspaceImpl(data.id, data.name, [], !!data.transient, data.configuration ? URI.revive(data.configuration) : null, !!data.isUntitled, !!data.isAgentSessionsWorkspace, (uri) => ignorePathCasing(uri, extHostFileSystemInfo)) : void 0;
+    this._confirmedWorkspace = data ? new ExtHostWorkspaceImpl(data.id, data.name, [], !!data.transient, data.configuration ? URI.revive(data.configuration) : null, !!data.isUntitled, (uri) => ignorePathCasing(uri, extHostFileSystemInfo)) : void 0;
   }
   $initializeWorkspace(data, trusted) {
     this._trusted = trusted;
@@ -178,9 +178,6 @@ let ExtHostWorkspace = class ExtHostWorkspace2 {
   }
   get name() {
     return this._actualWorkspace ? this._actualWorkspace.name : void 0;
-  }
-  get isAgentSessionsWorkspace() {
-    return this._actualWorkspace?.isAgentSessionsWorkspace ?? false;
   }
   get workspaceFile() {
     if (this._actualWorkspace) {

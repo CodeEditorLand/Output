@@ -1,1 +1,1 @@
-import{$WPc as o}from"../../../../platform/ipc/electron-browser/services.js";import{$ox as m,$px as r}from"../../../../platform/extensions/common/extensionHostStarter.js";o(m,r);
+import{$mSc as m}from"../../../../platform/ipc/electron-browser/services.js";import{$Ex as o,$Fx as r}from"../../../../platform/extensions/common/extensionHostStarter.js";m(o,r);

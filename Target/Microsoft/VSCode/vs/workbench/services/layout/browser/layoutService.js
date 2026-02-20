@@ -15,6 +15,7 @@ var Parts;
   Parts2["SIDEBAR_PART"] = "workbench.parts.sidebar";
   Parts2["PANEL_PART"] = "workbench.parts.panel";
   Parts2["AUXILIARYBAR_PART"] = "workbench.parts.auxiliarybar";
+  Parts2["CHATBAR_PART"] = "workbench.parts.chatbar";
   Parts2["EDITOR_PART"] = "workbench.parts.editor";
   Parts2["STATUSBAR_PART"] = "workbench.parts.statusbar";
 })(Parts || (Parts = {}));

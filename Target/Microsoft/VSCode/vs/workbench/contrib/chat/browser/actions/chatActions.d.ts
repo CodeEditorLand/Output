@@ -3,6 +3,7 @@ import { IRange } from '../../../../../editor/common/core/range.js';
 import { Action2, ICommandPaletteOptions, MenuId } from '../../../../../platform/actions/common/actions.js';
 import { IDialogService } from '../../../../../platform/dialogs/common/dialogs.js';
 import { ServicesAccessor } from '../../../../../platform/instantiation/common/instantiation.js';
+import { IViewsService } from '../../../../services/views/common/viewsService.js';
 import { IChatAgentResult } from '../../common/participants/chatAgents.js';
 import { IChatModel } from '../../common/model/chatModel.js';
 import { IChatMode } from '../../common/chatModes.js';
@@ -10,6 +11,7 @@ import { IChatRequestViewModel, IChatResponseViewModel } from '../../common/mode
 import { ChatModeKind } from '../../common/constants.js';
 import { ILanguageModelChatSelector } from '../../common/languageModels.js';
 import { IToolData, IToolSet } from '../../common/tools/languageModelToolsService.js';
+import { IChatWidget } from '../chat.js';
 export declare const CHAT_CATEGORY: import("../../../../../nls.js").ILocalizedString;
 export declare const ACTION_ID_NEW_CHAT = "workbench.action.chat.newChat";
 export declare const ACTION_ID_NEW_EDIT_SESSION = "workbench.action.chat.newEditSession";
@@ -17,6 +19,11 @@ export declare const ACTION_ID_OPEN_CHAT = "workbench.action.openChat";
 export declare const CHAT_OPEN_ACTION_ID = "workbench.action.chat.open";
 export declare const CHAT_SETUP_ACTION_ID = "workbench.action.chat.triggerSetup";
 export declare const CHAT_SETUP_SUPPORT_ANONYMOUS_ACTION_ID = "workbench.action.chat.triggerSetupSupportAnonymousAction";
+export declare const GENERATE_INSTRUCTIONS_COMMAND_ID = "workbench.action.chat.generateInstructions";
+export declare const GENERATE_INSTRUCTION_COMMAND_ID = "workbench.action.chat.generateInstruction";
+export declare const GENERATE_PROMPT_COMMAND_ID = "workbench.action.chat.generatePrompt";
+export declare const GENERATE_SKILL_COMMAND_ID = "workbench.action.chat.generateSkill";
+export declare const GENERATE_AGENT_COMMAND_ID = "workbench.action.chat.generateAgent";
 export interface IChatViewOpenOptions {
     /**
      * The query for chat.
@@ -197,4 +204,10 @@ export interface IClearEditingSessionConfirmationOptions {
     messageOverride?: string;
     isArchiveAction?: boolean;
 }
+/**
+ * Clears the current chat session and starts a new one, preserving
+ * the session type (e.g. Claude, Cloud, Background) for non-local sessions
+ * in the sidebar.
+ */
+export declare function clearChatSessionPreservingType(widget: IChatWidget, viewsService: IViewsService, sessionType?: string): Promise<void>;
 export {};

@@ -5,6 +5,7 @@ import { IModelService } from '../../../../editor/common/services/model.js';
 import { ProblemMatcher, IProblemMatch, ApplyToKind } from './problemMatcher.js';
 import { IMarkerService, IMarkerData, MarkerSeverity, IMarker } from '../../../../platform/markers/common/markers.js';
 import { IFileService } from '../../../../platform/files/common/files.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
 export declare const enum ProblemCollectorEventKind {
     BackgroundProcessingBegins = "backgroundProcessingBegins",
     BackgroundProcessingEnds = "backgroundProcessingEnds"
@@ -19,6 +20,7 @@ export declare abstract class AbstractProblemCollector extends Disposable implem
     readonly problemMatchers: ProblemMatcher[];
     protected markerService: IMarkerService;
     protected modelService: IModelService;
+    protected readonly logService?: ILogService | undefined;
     private matchers;
     private activeMatcher;
     protected _numberOfMatches: number;
@@ -39,7 +41,7 @@ export declare abstract class AbstractProblemCollector extends Disposable implem
     readonly onDidFindErrors: Event<IMarker[]>;
     protected readonly _onDidRequestInvalidateLastMarker: Emitter<void>;
     readonly onDidRequestInvalidateLastMarker: Event<void>;
-    constructor(problemMatchers: ProblemMatcher[], markerService: IMarkerService, modelService: IModelService, fileService?: IFileService);
+    constructor(problemMatchers: ProblemMatcher[], markerService: IMarkerService, modelService: IModelService, fileService?: IFileService, logService?: ILogService | undefined);
     get onDidStateChange(): Event<IProblemCollectorEvent>;
     processLine(line: string): void;
     protected abstract processLineInternal(line: string): Promise<void>;
@@ -75,7 +77,7 @@ export declare class StartStopProblemCollector extends AbstractProblemCollector 
     private currentOwner;
     private currentResource;
     private _hasStarted;
-    constructor(problemMatchers: ProblemMatcher[], markerService: IMarkerService, modelService: IModelService, _strategy?: ProblemHandlingStrategy, fileService?: IFileService);
+    constructor(problemMatchers: ProblemMatcher[], markerService: IMarkerService, modelService: IModelService, _strategy?: ProblemHandlingStrategy, fileService?: IFileService, logService?: ILogService);
     protected processLineInternal(line: string): Promise<void>;
 }
 export declare class WatchingProblemCollector extends AbstractProblemCollector implements IProblemMatcher {
@@ -85,7 +87,7 @@ export declare class WatchingProblemCollector extends AbstractProblemCollector i
     private currentResource;
     private lines;
     beginPatterns: RegExp[];
-    constructor(problemMatchers: ProblemMatcher[], markerService: IMarkerService, modelService: IModelService, fileService?: IFileService);
+    constructor(problemMatchers: ProblemMatcher[], markerService: IMarkerService, modelService: IModelService, fileService?: IFileService, logService?: ILogService);
     aboutToStart(): void;
     protected processLineInternal(line: string): Promise<void>;
     forceDelivery(): void;

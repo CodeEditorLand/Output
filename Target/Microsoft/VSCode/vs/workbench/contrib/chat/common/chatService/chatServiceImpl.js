@@ -25,6 +25,7 @@ import { autorun, derived, observableValue } from "../../../../../base/common/ob
 import { isEqual } from "../../../../../base/common/resources.js";
 import { StopWatch } from "../../../../../base/common/stopwatch.js";
 import { isDefined } from "../../../../../base/common/types.js";
+import { URI } from "../../../../../base/common/uri.js";
 import { generateUuid } from "../../../../../base/common/uuid.js";
 import { OffsetRange } from "../../../../../editor/common/core/ranges/offsetRange.js";
 import { localize } from "../../../../../nls.js";
@@ -33,8 +34,10 @@ import { IInstantiationService } from "../../../../../platform/instantiation/com
 import { ILogService } from "../../../../../platform/log/common/log.js";
 import { Progress } from "../../../../../platform/progress/common/progress.js";
 import { IStorageService } from "../../../../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
 import { IWorkspaceContextService } from "../../../../../platform/workspace/common/workspace.js";
 import { IExtensionService } from "../../../../services/extensions/common/extensions.js";
+import { IChatEntitlementService } from "../../../../services/chat/common/chatEntitlementService.js";
 import { IMcpService } from "../../../mcp/common/mcpTypes.js";
 import { awaitStatsForSession } from "../chat.js";
 import { IChatAgentService } from "../participants/chatAgents.js";
@@ -43,7 +46,7 @@ import { ChatModel, ChatRequestModel, normalizeSerializableChatData, toChatHisto
 import { ChatModelStore } from "../model/chatModelStore.js";
 import { chatAgentLeader, ChatRequestAgentPart, ChatRequestAgentSubcommandPart, ChatRequestSlashCommandPart, ChatRequestTextPart, chatSubcommandLeader, getPromptText } from "../requestParser/chatParserTypes.js";
 import { ChatRequestParser } from "../requestParser/chatRequestParser.js";
-import { ChatMcpServersStarting } from "./chatService.js";
+import { ChatMcpServersStarting, ChatStopCancellationNoopEventName } from "./chatService.js";
 import { ChatRequestTelemetry, ChatServiceTelemetry } from "./chatServiceTelemetry.js";
 import { IChatSessionsService } from "../chatSessionsService.js";
 import { ChatSessionStore } from "../model/chatSessionStore.js";
@@ -113,10 +116,11 @@ let ChatService = class ChatService2 extends Disposable {
     const workspace = this.workspaceContextService.getWorkspace();
     return !workspace.configuration && workspace.folders.length === 0;
   }
-  constructor(storageService, logService, extensionService, instantiationService, workspaceContextService, chatSlashCommandService, chatAgentService, configurationService, chatTransferService, chatSessionService, mcpService, promptsService) {
+  constructor(storageService, logService, telemetryService, extensionService, instantiationService, workspaceContextService, chatSlashCommandService, chatAgentService, configurationService, chatTransferService, chatSessionService, mcpService, promptsService, chatEntitlementService) {
     super();
     this.storageService = storageService;
     this.logService = logService;
+    this.telemetryService = telemetryService;
     this.extensionService = extensionService;
     this.instantiationService = instantiationService;
     this.workspaceContextService = workspaceContextService;
@@ -127,6 +131,7 @@ let ChatService = class ChatService2 extends Disposable {
     this.chatSessionService = chatSessionService;
     this.mcpService = mcpService;
     this.promptsService = promptsService;
+    this.chatEntitlementService = chatEntitlementService;
     this._pendingRequests = this._register(new DisposableResourceMap());
     this._queuedRequestDeferreds = /* @__PURE__ */ new Map();
     this._saveModelsEnabled = true;
@@ -287,7 +292,14 @@ let ChatService = class ChatService2 extends Disposable {
       if (!session.hasPendingEdits) {
         return;
       }
-      const sessionResource = LocalChatSessionUri.forSession(session.sessionId);
+      let sessionResource;
+      if (session.sessionId.includes(":")) {
+        try {
+          sessionResource = URI.parse(session.sessionId, true);
+        } catch {
+        }
+      }
+      sessionResource ??= LocalChatSessionUri.forSession(session.sessionId);
       const sessionRef = await this.getOrRestoreSession(sessionResource);
       if (sessionRef?.object.editingSession) {
         await chatEditingSessionIsReady(sessionRef.object.editingSession);
@@ -521,7 +533,7 @@ let ChatService = class ChatService2 extends Disposable {
           // attachments
           false,
           // Do not treat as requests completed, else edit pills won't show.
-          void 0,
+          message.modelId,
           void 0,
           message.id
         );
@@ -644,17 +656,13 @@ let ChatService = class ChatService2 extends Disposable {
       throw new Error(`Unknown session: ${sessionResource}`);
     }
     const hasPendingRequest = this._pendingRequests.has(sessionResource);
-    const hasPendingQueue = model.getPendingRequests().length > 0;
     if (options?.queue) {
-      return this.queuePendingRequest(model, sessionResource, request, options);
+      const queued = this.queuePendingRequest(model, sessionResource, request, options);
+      this.processPendingRequests(sessionResource);
+      return queued;
     } else if (hasPendingRequest) {
       this.trace("sendRequest", `Session ${sessionResource} already has a pending request`);
       return { kind: "rejected", reason: "Request already in progress" };
-    }
-    if (options?.queue && hasPendingQueue) {
-      const queued = this.queuePendingRequest(model, sessionResource, request, options);
-      this.processNextPendingRequest(model);
-      return queued;
     }
     const requests = model.getRequests();
     for (let i = requests.length - 1; i >= 0; i -= 1) {
@@ -693,6 +701,11 @@ let ChatService = class ChatService2 extends Disposable {
       parserContext = { selectedAgent: agent, mode: options.modeInfo?.kind };
       const commandPart = options.slashCommand ? ` ${chatSubcommandLeader}${options.slashCommand}` : "";
       request = `${chatAgentLeader}${agent.name}${commandPart} ${request}`;
+    } else if (options?.agentIdSilent && !parserContext?.forcedAgent) {
+      const silentAgent = this.chatAgentService.getAgent(options.agentIdSilent);
+      if (silentAgent) {
+        parserContext = { ...parserContext, forcedAgent: silentAgent };
+      }
     }
     const parsedRequest = this.instantiationService.createInstance(ChatRequestParser).parseChatRequest(sessionResource, request, location, parserContext);
     return parsedRequest;
@@ -714,7 +727,7 @@ let ChatService = class ChatService2 extends Disposable {
       agent: agentPart?.agent ?? defaultAgent,
       agentSlashCommandPart,
       commandPart,
-      sessionId: model.sessionId,
+      sessionResource: model.sessionResource,
       location: model.initialLocation,
       options,
       enableCommandDetection
@@ -935,6 +948,9 @@ let ChatService = class ChatService2 extends Disposable {
           model.setResponse(request, rawResult);
           completeResponseCreated();
           this.trace("sendRequest", `Provider returned response for session ${model.sessionResource}`);
+          if (rawResult.errorDetails?.isRateLimited) {
+            this.chatEntitlementService.markAnonymousRateLimited();
+          }
           shouldProcessPending = !rawResult.errorDetails && !token.isCancellationRequested;
           request.response?.complete();
           if (agentOrCommandFollowups) {
@@ -967,9 +983,12 @@ let ChatService = class ChatService2 extends Disposable {
     }, "sendRequestInternal");
     let shouldProcessPending = false;
     const rawResponsePromise = sendRequestInternal();
-    this._pendingRequests.set(model.sessionResource, this.instantiationService.createInstance(CancellableRequest, source, void 0));
+    const cancellableRequest = this.instantiationService.createInstance(CancellableRequest, source, void 0);
+    this._pendingRequests.set(model.sessionResource, cancellableRequest);
     rawResponsePromise.finally(() => {
-      this._pendingRequests.deleteAndDispose(model.sessionResource);
+      if (this._pendingRequests.get(model.sessionResource) === cancellableRequest) {
+        this._pendingRequests.deleteAndDispose(model.sessionResource);
+      }
       if (shouldProcessPending) {
         this.processNextPendingRequest(model);
       }
@@ -1140,7 +1159,21 @@ let ChatService = class ChatService2 extends Disposable {
   }
   cancelCurrentRequestForSession(sessionResource) {
     this.trace("cancelCurrentRequestForSession", `session: ${sessionResource}`);
-    this._pendingRequests.get(sessionResource)?.cancel();
+    const pendingRequest = this._pendingRequests.get(sessionResource);
+    if (!pendingRequest) {
+      const model = this._sessionModels.get(sessionResource);
+      const requestInProgress = model?.requestInProgress.get();
+      const pendingRequestsCount = model?.getPendingRequests().length ?? 0;
+      this.telemetryService.publicLog2(ChatStopCancellationNoopEventName, {
+        source: "chatService",
+        reason: "noPendingRequest",
+        requestInProgress: requestInProgress === void 0 ? "unknown" : requestInProgress ? "true" : "false",
+        pendingRequests: pendingRequestsCount
+      });
+      this.info("cancelCurrentRequestForSession", `No pending request was found for session ${sessionResource}. requestInProgress=${requestInProgress ?? "unknown"}, pendingRequests=${pendingRequestsCount}`);
+      return;
+    }
+    pendingRequest.cancel();
     this._pendingRequests.deleteAndDispose(sessionResource);
   }
   setYieldRequested(sessionResource) {
@@ -1215,16 +1248,18 @@ let ChatService = class ChatService2 extends Disposable {
 ChatService = __decorate([
   __param(0, IStorageService),
   __param(1, ILogService),
-  __param(2, IExtensionService),
-  __param(3, IInstantiationService),
-  __param(4, IWorkspaceContextService),
-  __param(5, IChatSlashCommandService),
-  __param(6, IChatAgentService),
-  __param(7, IConfigurationService),
-  __param(8, IChatTransferService),
-  __param(9, IChatSessionsService),
-  __param(10, IMcpService),
-  __param(11, IPromptsService)
+  __param(2, ITelemetryService),
+  __param(3, IExtensionService),
+  __param(4, IInstantiationService),
+  __param(5, IWorkspaceContextService),
+  __param(6, IChatSlashCommandService),
+  __param(7, IChatAgentService),
+  __param(8, IConfigurationService),
+  __param(9, IChatTransferService),
+  __param(10, IChatSessionsService),
+  __param(11, IMcpService),
+  __param(12, IPromptsService),
+  __param(13, IChatEntitlementService)
 ], ChatService);
 export {
   ChatService

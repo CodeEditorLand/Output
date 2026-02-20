@@ -521,12 +521,10 @@ class Grid extends Disposable {
    * Set the visibility state of a {@link IView view}.
    *
    * @param view The {@link IView view}.
-   * @param visible Whether the view should be visible.
-   * @param animation Optional animation options.
    */
-  setViewVisible(view, visible, animation) {
+  setViewVisible(view, visible) {
     const location = this.getViewLocation(view);
-    this.gridview.setViewVisible(location, visible, animation);
+    this.gridview.setViewVisible(location, visible);
   }
   /**
    * Returns a descriptor for the entire grid.

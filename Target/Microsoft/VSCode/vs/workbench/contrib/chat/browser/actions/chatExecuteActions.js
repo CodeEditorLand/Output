@@ -13,11 +13,13 @@ import { IConfigurationService } from "../../../../../platform/configuration/com
 import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
 import { IDialogService } from "../../../../../platform/dialogs/common/dialogs.js";
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../../platform/log/common/log.js";
 import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
+import { IViewsService } from "../../../../services/views/common/viewsService.js";
 import { ChatContextKeys } from "../../common/actions/chatContextKeys.js";
 import { IChatModeService } from "../../common/chatModes.js";
 import { chatVariableLeader } from "../../common/requestParser/chatParserTypes.js";
-import { IChatService } from "../../common/chatService/chatService.js";
+import { ChatStopCancellationNoopEventName, IChatService } from "../../common/chatService/chatService.js";
 import { ChatAgentLocation, ChatConfiguration, ChatModeKind } from "../../common/constants.js";
 import { ILanguageModelToolsService } from "../../common/tools/languageModelToolsService.js";
 import { PromptsStorage } from "../../common/promptSyntax/service/promptsService.js";
@@ -27,7 +29,7 @@ import { IChatWidgetService } from "../chat.js";
 import { getAgentSessionProvider, AgentSessionProviders } from "../agentSessions/agentSessions.js";
 import { getEditingSessionContext } from "../chatEditing/chatEditingActions.js";
 import { ctxHasEditorModification, ctxHasRequestInProgress, ctxIsGlobalEditingSession } from "../chatEditing/chatEditingEditorContextKeys.js";
-import { ACTION_ID_NEW_CHAT, CHAT_CATEGORY, handleCurrentEditingSession, handleModeSwitch } from "./chatActions.js";
+import { ACTION_ID_NEW_CHAT, CHAT_CATEGORY, clearChatSessionPreservingType, handleCurrentEditingSession, handleModeSwitch } from "./chatActions.js";
 import { CreateRemoteAgentJobAction } from "./chatContinueInAction.js";
 class SubmitAction extends Action2 {
   static {
@@ -126,7 +128,7 @@ class SubmitAction extends Action2 {
   }
 }
 const requestInProgressOrPendingToolCall = ContextKeyExpr.or(ChatContextKeys.requestInProgress, ChatContextKeys.Editing.hasToolConfirmation);
-const whenNotInProgress = ContextKeyExpr.and(ChatContextKeys.requestInProgress.negate(), ChatContextKeys.Editing.hasToolConfirmation.negate());
+const whenNotInProgress = ChatContextKeys.requestInProgress.negate();
 class ChatSubmitAction extends SubmitAction {
   static {
     __name(this, "ChatSubmitAction");
@@ -142,11 +144,11 @@ class ChatSubmitAction extends SubmitAction {
       title: localize2("interactive.submit.label", "Send"),
       f1: false,
       category: CHAT_CATEGORY,
-      icon: Codicon.send,
+      icon: Codicon.arrowUp,
       precondition,
       toggled: {
         condition: ChatContextKeys.lockedToCodingAgent,
-        icon: Codicon.send,
+        icon: Codicon.arrowUp,
         tooltip: localize("sendToAgent", "Send to Agent")
       },
       keybinding: {
@@ -309,10 +311,10 @@ class OpenModelPickerAction extends Action2 {
         order: 3,
         group: "navigation",
         when: ContextKeyExpr.and(
-          ChatContextKeys.lockedToCodingAgent.negate(),
+          ContextKeyExpr.or(ChatContextKeys.lockedToCodingAgent.negate(), ChatContextKeys.chatSessionHasTargetedModels),
           ContextKeyExpr.or(ContextKeyExpr.equals(ChatContextKeys.location.key, ChatAgentLocation.Chat), ContextKeyExpr.equals(ChatContextKeys.location.key, ChatAgentLocation.EditorInline), ContextKeyExpr.equals(ChatContextKeys.location.key, ChatAgentLocation.Notebook), ContextKeyExpr.equals(ChatContextKeys.location.key, ChatAgentLocation.Terminal)),
           // Hide in welcome view when session type is not local
-          ContextKeyExpr.or(ChatContextKeys.inAgentSessionsWelcome.negate(), ChatContextKeys.agentSessionType.isEqualTo(AgentSessionProviders.Local))
+          ContextKeyExpr.or(ChatContextKeys.inAgentSessionsWelcome.negate(), ChatContextKeys.chatSessionHasTargetedModels, ChatContextKeys.agentSessionType.isEqualTo(AgentSessionProviders.Local))
         )
       }
     });
@@ -545,7 +547,7 @@ class ChatEditingSessionSubmitAction extends SubmitAction {
       title: localize2("edits.submit.label", "Send"),
       f1: false,
       category: CHAT_CATEGORY,
-      icon: Codicon.send,
+      icon: Codicon.arrowUp,
       precondition,
       menu: [
         {
@@ -659,6 +661,7 @@ class SendToNewChatAction extends Action2 {
   async run(accessor, ...args) {
     const context = args[0];
     const widgetService = accessor.get(IChatWidgetService);
+    const viewsService = accessor.get(IViewsService);
     const dialogService = accessor.get(IDialogService);
     const chatService = accessor.get(IChatService);
     const widget = context?.widget ?? widgetService.lastFocusedWidget;
@@ -675,7 +678,7 @@ class SendToNewChatAction extends Action2 {
       }
     }
     widget.setInput("");
-    await widget.clear();
+    await clearChatSessionPreservingType(widget, viewsService);
     widget.acceptInput(inputBeforeClear, { storeToHistory: true });
   }
 }
@@ -722,13 +725,30 @@ class CancelAction extends Action2 {
   run(accessor, ...args) {
     const context = args[0];
     const widgetService = accessor.get(IChatWidgetService);
+    const logService = accessor.get(ILogService);
+    const telemetryService = accessor.get(ITelemetryService);
     const widget = context?.widget ?? widgetService.lastFocusedWidget;
     if (!widget) {
+      telemetryService.publicLog2(ChatStopCancellationNoopEventName, {
+        source: "cancelAction",
+        reason: "noWidget",
+        requestInProgress: "unknown",
+        pendingRequests: 0
+      });
+      logService.info("ChatCancelAction#run: No focused chat widget was found");
       return;
     }
     const chatService = accessor.get(IChatService);
     if (widget.viewModel) {
       chatService.cancelCurrentRequestForSession(widget.viewModel.sessionResource);
+    } else {
+      telemetryService.publicLog2(ChatStopCancellationNoopEventName, {
+        source: "cancelAction",
+        reason: "noViewModel",
+        requestInProgress: "unknown",
+        pendingRequests: 0
+      });
+      logService.info("ChatCancelAction#run: Canceled chat widget has no view model");
     }
   }
 }

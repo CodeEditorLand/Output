@@ -14,6 +14,7 @@ import { IChatMode, IChatModeService } from '../../../common/chatModes.js';
 import { Target } from '../../../common/promptSyntax/service/promptsService.js';
 import { ChatInputPickerActionViewItem, IChatInputPickerOptions } from './chatInputPickerActionItem.js';
 import { IOpenerService } from '../../../../../../platform/opener/common/opener.js';
+import { IWorkbenchAssignmentService } from '../../../../../services/assignment/common/assignmentService.js';
 export interface IModePickerDelegate {
     readonly currentMode: IObservable<IChatMode>;
     readonly sessionResource: () => URI | undefined;
@@ -28,7 +29,7 @@ export declare class ModePickerActionItem extends ChatInputPickerActionViewItem 
     private readonly contextKeyService;
     private readonly menuService;
     private readonly _productService;
-    constructor(action: MenuItemAction, delegate: IModePickerDelegate, pickerOptions: IChatInputPickerOptions, actionWidgetService: IActionWidgetService, chatAgentService: IChatAgentService, keybindingService: IKeybindingService, configurationService: IConfigurationService, contextKeyService: IContextKeyService, chatModeService: IChatModeService, menuService: IMenuService, commandService: ICommandService, _productService: IProductService, telemetryService: ITelemetryService, openerService: IOpenerService);
+    constructor(action: MenuItemAction, delegate: IModePickerDelegate, pickerOptions: IChatInputPickerOptions, actionWidgetService: IActionWidgetService, chatAgentService: IChatAgentService, keybindingService: IKeybindingService, configurationService: IConfigurationService, contextKeyService: IContextKeyService, chatModeService: IChatModeService, menuService: IMenuService, commandService: ICommandService, _productService: IProductService, telemetryService: ITelemetryService, openerService: IOpenerService, assignmentService: IWorkbenchAssignmentService);
     private getModePickerActionBarActions;
     protected renderLabel(element: HTMLElement): IDisposable | null;
 }

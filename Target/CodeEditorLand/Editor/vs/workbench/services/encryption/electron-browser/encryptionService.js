@@ -1,1 +1,1 @@
-import{$WPc as o}from"../../../../platform/ipc/electron-browser/services.js";import{$Mn as r}from"../../../../platform/encryption/common/encryptionService.js";o(r,"encryption");
+import{$mSc as m}from"../../../../platform/ipc/electron-browser/services.js";import{$Mn as o}from"../../../../platform/encryption/common/encryptionService.js";m(o,"encryption");

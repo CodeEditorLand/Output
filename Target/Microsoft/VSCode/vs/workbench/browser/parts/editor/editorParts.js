@@ -135,11 +135,12 @@ let EditorParts = class EditorParts2 extends MultiWindowParts {
   get activeModalEditorPart() {
     return this.modalEditorPart;
   }
-  async createModalEditorPart() {
+  async createModalEditorPart(options) {
     if (this.modalEditorPart) {
+      this.modalEditorPart.updateOptions(options);
       return this.modalEditorPart;
     }
-    const { part, instantiationService, disposables } = await this.instantiationService.createInstance(ModalEditorPart, this).create();
+    const { part, instantiationService, disposables } = await this.instantiationService.createInstance(ModalEditorPart, this).create(options);
     this.modalEditorPart = part;
     this.modalPartInstantiationService = instantiationService;
     disposables.add(toDisposable(() => {

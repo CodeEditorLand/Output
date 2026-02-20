@@ -1,1 +1,1 @@
-import"./floatingMenu.css";import{$1db as m}from"../../../browser/editorExtensions.js";import{$oyb as o}from"./floatingMenu.js";m(o.ID,o,1);
+import"./floatingMenu.css";import{$Peb as o}from"../../../browser/editorExtensions.js";import{$izb as m}from"./floatingMenu.js";o(m.ID,m,1);

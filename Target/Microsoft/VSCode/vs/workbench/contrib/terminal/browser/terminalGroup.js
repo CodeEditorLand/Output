@@ -491,6 +491,8 @@ let TerminalGroup = class TerminalGroup2 extends Disposable {
         return this._layoutService.getSideBarPosition();
       case 2:
         return this._layoutService.getSideBarPosition() === 0 ? 1 : 0;
+      default:
+        return this._panelPosition;
     }
   }
   _getOrientation() {

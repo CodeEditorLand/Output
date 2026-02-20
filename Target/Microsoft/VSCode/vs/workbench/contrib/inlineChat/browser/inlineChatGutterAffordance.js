@@ -12,27 +12,49 @@ var __param = function(paramIndex, decorator) {
   };
 };
 import { Codicon } from "../../../../base/common/codicons.js";
-import { autorun, constObservable, derived, observableValue } from "../../../../base/common/observable.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { autorun, constObservable, derived, observableFromEvent, observableValue } from "../../../../base/common/observable.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
 import { LineRange } from "../../../../editor/common/core/ranges/lineRange.js";
+import { CodeActionController } from "../../../../editor/contrib/codeAction/browser/codeActionController.js";
 import { InlineEditsGutterIndicator, InlineEditsGutterIndicatorData, InlineSuggestionGutterMenuData, SimpleInlineSuggestModel } from "../../../../editor/contrib/inlineCompletions/browser/view/inlineEdits/components/gutterIndicatorView.js";
 import { InlineEditTabAction } from "../../../../editor/contrib/inlineCompletions/browser/view/inlineEdits/inlineEditsViewInterface.js";
-import { localize } from "../../../../nls.js";
 import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
+import { IMenuService, MenuId, MenuItemAction } from "../../../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
 import { IHoverService } from "../../../../platform/hover/browser/hover.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
 import { IThemeService } from "../../../../platform/theme/common/themeService.js";
 import { IUserInteractionService } from "../../../../platform/userInteraction/browser/userInteractionService.js";
-import { ACTION_START } from "../common/inlineChat.js";
 let InlineChatGutterAffordance = class InlineChatGutterAffordance2 extends InlineEditsGutterIndicator {
   static {
     __name(this, "InlineChatGutterAffordance");
   }
-  constructor(_myEditorObs, selection, _hover, _keybindingService, hoverService, instantiationService, accessibilityService, themeService, userInteractionService) {
+  constructor(_myEditorObs, selection, _hover, _keybindingService, hoverService, instantiationService, accessibilityService, themeService, userInteractionService, menuService, contextKeyService) {
+    const menu = menuService.createMenu(MenuId.InlineChatEditorAffordance, contextKeyService);
+    const menuObs = observableFromEvent(menu.onDidChange, () => menu.getActions({ renderShortTitle: false }));
+    const codeActionController = CodeActionController.get(_myEditorObs.editor);
+    const lightBulbObs = codeActionController?.lightBulbState;
     const data = derived((r) => {
       const value = selection.read(r);
       if (!value) {
         return void 0;
+      }
+      const commandGroups = [];
+      for (const [, groupActions] of menuObs.read(r)) {
+        const group = [];
+        for (const action of groupActions) {
+          if (action instanceof MenuItemAction) {
+            group.push({
+              command: { id: action.item.id, title: action.label },
+              icon: ThemeIcon.isThemeIcon(action.item.icon) ? action.item.icon : void 0
+            });
+          }
+        }
+        if (group.length > 0) {
+          commandGroups.push(group);
+        }
       }
       const cursorPosition = value.getPosition();
       const lineRange = new LineRange(cursorPosition.lineNumber, cursorPosition.lineNumber + 1);
@@ -41,14 +63,18 @@ let InlineChatGutterAffordance = class InlineChatGutterAffordance2 extends Inlin
         // action
         "",
         // displayName
-        [],
+        commandGroups,
         // extensionCommands
         void 0,
         // alternativeAction
         void 0,
         // modelInfo
-        void 0
+        void 0,
+        // setModelId
+        true
       );
+      const lightBulbInfo = lightBulbObs?.read(r);
+      const icon = lightBulbInfo ? lightBulbInfo.icon : Codicon.sparkle;
       return new InlineEditsGutterIndicatorData(
         gutterMenuData,
         lineRange,
@@ -56,27 +82,21 @@ let InlineChatGutterAffordance = class InlineChatGutterAffordance2 extends Inlin
         }, () => this._doShowHover()),
         void 0,
         // altAction
-        {
-          icon: Codicon.sparkle
-        }
+        { icon }
       );
     });
     const focusIsInMenu = observableValue({}, false);
     super(_myEditorObs, data, constObservable(InlineEditTabAction.Inactive), constObservable(0), constObservable(false), focusIsInMenu, hoverService, instantiationService, accessibilityService, themeService, userInteractionService);
     this._myEditorObs = _myEditorObs;
     this._hover = _hover;
-    this._keybindingService = _keybindingService;
+    this._onDidRunAction = this._store.add(new Emitter());
+    this.onDidRunAction = this._onDidRunAction.event;
+    this._store.add(menu);
     this._store.add(autorun((r) => {
       const element = _hover.read(r);
       this._hoverVisible.set(!!element, void 0);
     }));
-  }
-  _showHover() {
-    this._hoverService.showInstantHover({
-      target: this._iconRef.element,
-      content: this._keybindingService.appendKeybinding(localize("inlineChatGutterHover", "Inline Chat"), ACTION_START)
-      // appearance: { showPointer: true }
-    });
+    this._store.add(this.onDidCloseWithCommand((commandId) => this._onDidRunAction.fire(commandId)));
   }
   _doShowHover() {
     if (this._hoverVisible.get()) {
@@ -99,7 +119,9 @@ InlineChatGutterAffordance = __decorate([
   __param(5, IInstantiationService),
   __param(6, IAccessibilityService),
   __param(7, IThemeService),
-  __param(8, IUserInteractionService)
+  __param(8, IUserInteractionService),
+  __param(9, IMenuService),
+  __param(10, IContextKeyService)
 ], InlineChatGutterAffordance);
 export {
   InlineChatGutterAffordance

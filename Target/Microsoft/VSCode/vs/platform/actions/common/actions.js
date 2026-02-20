@@ -574,6 +574,9 @@ class MenuId {
     this.InlineEditToolbar = new MenuId("InlineEditToolbar");
   }
   static {
+    this.AgentFeedbackEditorContent = new MenuId("AgentFeedbackEditorContent");
+  }
+  static {
     this.ChatContext = new MenuId("ChatContext");
   }
   static {
@@ -679,7 +682,7 @@ class MenuId {
     this.ChatConfirmationMenu = new MenuId("ChatConfirmationMenu");
   }
   static {
-    this.ChatEditorInlineGutter = new MenuId("ChatEditorInlineGutter");
+    this.ChatEditorInlineMenu = new MenuId("ChatEditorInlineGutter");
   }
   static {
     this.ChatEditorInlineExecute = new MenuId("ChatEditorInputExecute");
@@ -689,6 +692,9 @@ class MenuId {
   }
   static {
     this.InlineChatEditorAffordance = new MenuId("InlineChatEditorAffordance");
+  }
+  static {
+    this.InlineChatInput = new MenuId("InlineChatInput");
   }
   static {
     this.AccessibleView = new MenuId("AccessibleView");

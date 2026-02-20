@@ -94,7 +94,8 @@ class ObservableChatSession extends Disposable {
             participant: turn.participant,
             command: turn.command,
             variableData: variables ? { variables } : void 0,
-            id: turn.id
+            id: turn.id,
+            modelId: turn.modelId
           };
         }
         return {

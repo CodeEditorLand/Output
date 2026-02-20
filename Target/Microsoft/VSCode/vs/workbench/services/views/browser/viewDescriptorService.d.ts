@@ -8,6 +8,7 @@ import { ITelemetryService } from '../../../../platform/telemetry/common/telemet
 import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
 import { ViewContainerModel } from '../common/viewContainerModel.js';
 import { ILoggerService } from '../../../../platform/log/common/log.js';
+import { IWorkbenchEnvironmentService } from '../../environment/common/environmentService.js';
 export declare class ViewDescriptorService extends Disposable implements IViewDescriptorService {
     private readonly instantiationService;
     private readonly contextKeyService;
@@ -60,7 +61,8 @@ export declare class ViewDescriptorService extends Disposable implements IViewDe
     }>;
     get viewContainers(): ReadonlyArray<ViewContainer>;
     private readonly logger;
-    constructor(instantiationService: IInstantiationService, contextKeyService: IContextKeyService, storageService: IStorageService, extensionService: IExtensionService, telemetryService: ITelemetryService, loggerService: ILoggerService);
+    private readonly isSessionsWindow;
+    constructor(instantiationService: IInstantiationService, contextKeyService: IContextKeyService, storageService: IStorageService, extensionService: IExtensionService, telemetryService: ITelemetryService, loggerService: ILoggerService, environmentService: IWorkbenchEnvironmentService);
     private migrateToViewsCustomizationsStorage;
     private registerGroupedViews;
     private deregisterGroupedViews;
@@ -75,10 +77,13 @@ export declare class ViewDescriptorService extends Disposable implements IViewDe
     getViewContainerByViewId(viewId: string): ViewContainer | null;
     getViewContainerLocation(viewContainer: ViewContainer): ViewContainerLocation;
     getDefaultViewContainerLocation(viewContainer: ViewContainer): ViewContainerLocation;
+    private getEffectiveViewContainerLocation;
     getDefaultContainerById(viewId: string): ViewContainer | null;
     getViewContainerModel(container: ViewContainer): ViewContainerModel;
     getViewContainerById(id: string): ViewContainer | null;
     getViewContainersByLocation(location: ViewContainerLocation): ViewContainer[];
+    private isViewContainerVisible;
+    private isViewVisible;
     getDefaultViewContainer(location: ViewContainerLocation): ViewContainer | undefined;
     canMoveViews(): boolean;
     moveViewContainerToLocation(viewContainer: ViewContainer, location: ViewContainerLocation, requestedIndex?: number, reason?: string): void;

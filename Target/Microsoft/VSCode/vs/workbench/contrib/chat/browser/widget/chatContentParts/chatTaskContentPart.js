@@ -32,7 +32,7 @@ let ChatTaskContentPart = class ChatTaskContentPart2 extends Disposable {
       const isSettled = task.kind === "progressTask" ? task.isSettled() : true;
       this.isSettled = isSettled;
       const showSpinner = !isSettled && !context.element.isComplete;
-      const progressPart = this._register(instantiationService.createInstance(ChatProgressContentPart, task, chatContentMarkdownRenderer, context, showSpinner, true, void 0, void 0));
+      const progressPart = this._register(instantiationService.createInstance(ChatProgressContentPart, task, chatContentMarkdownRenderer, context, showSpinner, true, void 0, void 0, void 0));
       this.domNode = progressPart.domNode;
     }
   }

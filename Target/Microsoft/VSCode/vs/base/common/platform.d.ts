@@ -19,6 +19,7 @@ export interface INodeProcess {
         chrome?: string;
     };
     type?: string;
+    isEmbeddedApp?: boolean;
     cwd: () => string;
 }
 export declare const enum Platform {

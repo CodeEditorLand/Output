@@ -151,7 +151,10 @@ class ExtHostTreeViews extends Disposable {
       }, "reveal"),
       dispose: /* @__PURE__ */ __name(async () => {
         await registerPromise;
-        this._treeViews.delete(viewId);
+        if (this._treeViews.get(viewId) === treeView) {
+          this._treeViews.delete(viewId);
+          this._proxy.$disposeTree(viewId);
+        }
         treeView.dispose();
       }, "dispose")
     };
@@ -958,7 +961,6 @@ class ExtHostTreeView extends Disposable {
     super.dispose();
     this._refreshCancellationSource.dispose();
     this._clearAll();
-    this._proxy.$disposeTree(this._viewId);
   }
 }
 export {

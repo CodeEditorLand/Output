@@ -29,11 +29,11 @@ let ExtHostTerminalShellIntegration = class ExtHostTerminalShellIntegration2 ext
     super();
     this._extHostTerminalService = _extHostTerminalService;
     this._activeShellIntegrations = /* @__PURE__ */ new Map();
-    this._onDidChangeTerminalShellIntegration = new Emitter();
+    this._onDidChangeTerminalShellIntegration = this._register(new Emitter());
     this.onDidChangeTerminalShellIntegration = this._onDidChangeTerminalShellIntegration.event;
-    this._onDidStartTerminalShellExecution = new Emitter();
+    this._onDidStartTerminalShellExecution = this._register(new Emitter());
     this.onDidStartTerminalShellExecution = this._onDidStartTerminalShellExecution.event;
-    this._onDidEndTerminalShellExecution = new Emitter();
+    this._onDidEndTerminalShellExecution = this._register(new Emitter());
     this.onDidEndTerminalShellExecution = this._onDidEndTerminalShellExecution.event;
     this._proxy = extHostRpc.getProxy(MainContext.MainThreadTerminalShellIntegration);
     this._register(toDisposable(() => {

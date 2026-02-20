@@ -12,7 +12,7 @@ export declare class GutterIndicatorMenuContent {
     private readonly _keybindingService;
     private readonly _commandService;
     private readonly _inlineEditsShowCollapsed;
-    constructor(_editorObs: ObservableCodeEditor, _data: InlineSuggestionGutterMenuData, _close: (focusEditor: boolean) => void, _contextKeyService: IContextKeyService, _keybindingService: IKeybindingService, _commandService: ICommandService);
+    constructor(_editorObs: ObservableCodeEditor, _data: InlineSuggestionGutterMenuData, _close: (focusEditor: boolean, commandId?: string) => void, _contextKeyService: IContextKeyService, _keybindingService: IKeybindingService, _commandService: ICommandService);
     toDisposableLiveElement(): LiveElement;
     private _createHoverContent;
     private _getKeybinding;

@@ -498,7 +498,7 @@ class NotebookCellExecutionTask extends Disposable {
     this._cell = _cell;
     this._proxy = _proxy;
     this._handle = NotebookCellExecutionTask.HANDLE++;
-    this._onDidChangeState = new Emitter();
+    this._onDidChangeState = this._register(new Emitter());
     this.onDidChangeState = this._onDidChangeState.event;
     this._state = NotebookCellExecutionTaskState.Init;
     this._tokenSource = this._register(new CancellationTokenSource());
@@ -677,7 +677,7 @@ class NotebookExecutionTask extends Disposable {
     this._notebook = _notebook;
     this._proxy = _proxy;
     this._handle = NotebookExecutionTask.HANDLE++;
-    this._onDidChangeState = new Emitter();
+    this._onDidChangeState = this._register(new Emitter());
     this.onDidChangeState = this._onDidChangeState.event;
     this._state = NotebookExecutionTaskState.Init;
     this._tokenSource = this._register(new CancellationTokenSource());

@@ -41,7 +41,7 @@ let ChatQueuePickerActionItem = class ChatQueuePickerActionItem2 extends BaseAct
     this.commandService = commandService;
     this.configurationService = configurationService;
     const isSteerDefault = this._isSteerDefault();
-    this._primaryActionAction = this._register(new Action("chat.queuePickerPrimary", isSteerDefault ? localize("chat.steerWithMessage", "Steer with Message") : localize("chat.queueMessage", "Add to Queue"), ThemeIcon.asClassName(Codicon.send), !!contextKeyService.getContextKeyValue(ChatContextKeys.inputHasText.key), () => this._runDefaultAction()));
+    this._primaryActionAction = this._register(new Action("chat.queuePickerPrimary", isSteerDefault ? localize("chat.steerWithMessage", "Steer with Message") : localize("chat.queueMessage", "Add to Queue"), ThemeIcon.asClassName(Codicon.arrowUp), !!contextKeyService.getContextKeyValue(ChatContextKeys.inputHasText.key), () => this._runDefaultAction()));
     this._primaryAction = this._register(new ActionViewItem(void 0, this._primaryActionAction, { icon: true, label: false }));
     this._register(contextKeyService.onDidChangeContext((e) => {
       this._primaryActionAction.enabled = !!contextKeyService.getContextKeyValue(ChatContextKeys.inputHasText.key);
@@ -148,7 +148,7 @@ let ChatQueuePickerActionItem = class ChatQueuePickerActionItem2 extends BaseAct
       label: localize("chat.sendImmediately", "Stop and Send"),
       tooltip: "",
       enabled: true,
-      icon: Codicon.send,
+      icon: Codicon.arrowUp,
       class: void 0,
       hover: {
         content: localize("chat.sendImmediately.hover", "Cancel the current request and send this message immediately.")

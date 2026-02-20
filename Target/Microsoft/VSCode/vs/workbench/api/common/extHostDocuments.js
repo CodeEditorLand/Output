@@ -14,17 +14,17 @@ class ExtHostDocuments {
     __name(this, "ExtHostDocuments");
   }
   constructor(mainContext, documentsAndEditors) {
-    this._onDidAddDocument = new Emitter();
-    this._onDidRemoveDocument = new Emitter();
-    this._onDidChangeDocument = new Emitter();
-    this._onDidChangeDocumentWithReason = new Emitter();
-    this._onDidSaveDocument = new Emitter();
+    this._toDispose = new DisposableStore();
+    this._onDidAddDocument = this._toDispose.add(new Emitter());
+    this._onDidRemoveDocument = this._toDispose.add(new Emitter());
+    this._onDidChangeDocument = this._toDispose.add(new Emitter());
+    this._onDidChangeDocumentWithReason = this._toDispose.add(new Emitter());
+    this._onDidSaveDocument = this._toDispose.add(new Emitter());
     this.onDidAddDocument = this._onDidAddDocument.event;
     this.onDidRemoveDocument = this._onDidRemoveDocument.event;
     this.onDidChangeDocument = this._onDidChangeDocument.event;
     this.onDidChangeDocumentWithReason = this._onDidChangeDocumentWithReason.event;
     this.onDidSaveDocument = this._onDidSaveDocument.event;
-    this._toDispose = new DisposableStore();
     this._documentLoader = /* @__PURE__ */ new Map();
     this._proxy = mainContext.getProxy(MainContext.MainThreadDocuments);
     this._documentsAndEditors = documentsAndEditors;

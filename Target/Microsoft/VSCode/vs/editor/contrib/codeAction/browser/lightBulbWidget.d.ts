@@ -15,10 +15,12 @@ export interface LightBulbInfo {
     readonly title: string;
     readonly isGutter: boolean;
 }
+export declare function computeLightBulbInfo(actions: CodeActionSet, trigger: CodeActionTrigger, preferredKbLabel: string | undefined, quickFixKbLabel: string | undefined, forGutter?: boolean): LightBulbInfo | undefined;
 export declare class LightBulbWidget extends Disposable implements IContentWidget {
     private readonly _editor;
     private readonly _keybindingService;
     private _gutterDecorationID;
+    onlyWithEmptySelection: boolean;
     private static readonly GUTTER_DECORATION;
     static readonly ID = "editor.contrib.lightbulbWidget";
     private static readonly _posPref;

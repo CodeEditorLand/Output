@@ -544,6 +544,11 @@ export interface IEditorOptions {
      */
     formatOnPaste?: boolean;
     /**
+     * Controls whether double-clicking next to a bracket or quote selects the content inside.
+     * Defaults to true.
+     */
+    doubleClickSelectsBlock?: boolean;
+    /**
      * Controls if the editor should allow to move selections via drag and drop.
      * Defaults to false.
      */
@@ -2388,7 +2393,8 @@ export declare const enum EditorOption {
     inlineCompletionsAccessibilityVerbose = 169,
     effectiveEditContext = 170,
     scrollOnMiddleClick = 171,
-    effectiveAllowVariableFonts = 172
+    effectiveAllowVariableFonts = 172,
+    doubleClickSelectsBlock = 173
 }
 export declare const EditorOptions: {
     acceptSuggestionOnCommitCharacter: IEditorOption<EditorOption.acceptSuggestionOnCommitCharacter, boolean>;
@@ -2436,6 +2442,7 @@ export declare const EditorOptions: {
     disableLayerHinting: IEditorOption<EditorOption.disableLayerHinting, boolean>;
     disableMonospaceOptimizations: IEditorOption<EditorOption.disableMonospaceOptimizations, boolean>;
     domReadOnly: IEditorOption<EditorOption.domReadOnly, boolean>;
+    doubleClickSelectsBlock: IEditorOption<EditorOption.doubleClickSelectsBlock, boolean>;
     dragAndDrop: IEditorOption<EditorOption.dragAndDrop, boolean>;
     emptySelectionClipboard: IEditorOption<EditorOption.emptySelectionClipboard, boolean>;
     dropIntoEditor: IEditorOption<EditorOption.dropIntoEditor, Readonly<Required<IDropIntoEditorOptions>>>;

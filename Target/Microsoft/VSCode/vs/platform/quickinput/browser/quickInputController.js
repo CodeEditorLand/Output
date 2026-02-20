@@ -46,7 +46,6 @@ import { TriStateCheckbox, createToggleActionViewItemProvider } from "../../../b
 import { defaultCheckboxStyles } from "../../theme/browser/defaultStyles.js";
 import { QuickInputTreeController } from "./tree/quickInputTreeController.js";
 import { QuickTree } from "./tree/quickTree.js";
-import { isMotionReduced } from "../../../base/browser/ui/motion/motion.js";
 import { layout2d } from "../../../base/common/layout.js";
 import { getAnchorRect } from "../../../base/browser/ui/contextview/contextview.js";
 const $ = dom.$;
@@ -604,23 +603,12 @@ let QuickInputController = class QuickInputController2 extends Disposable {
     ui.inputBox.actions = void 0;
     const backKeybindingLabel = this.options.backKeybindingLabel();
     backButton.tooltip = backKeybindingLabel ? localize("quickInput.backWithKeybinding", "Back ({0})", backKeybindingLabel) : localize("quickInput.back", "Back");
-    const wasVisible = ui.container.style.display !== "none";
     ui.container.style.display = "";
-    this._cancelExitAnimation?.();
-    this._cancelExitAnimation = void 0;
     this.updateLayout();
     this.dndController?.setEnabled(!controller.anchor);
     this.dndController?.layoutContainer();
     ui.inputBox.setFocus();
     this.quickInputTypeContext.set(controller.type);
-    if (!wasVisible && !isMotionReduced(ui.container)) {
-      ui.container.classList.add("animating-entrance");
-      const onAnimationEnd = /* @__PURE__ */ __name(() => {
-        ui.container.classList.remove("animating-entrance");
-        ui.container.removeEventListener("animationend", onAnimationEnd);
-      }, "onAnimationEnd");
-      ui.container.addEventListener("animationend", onAnimationEnd);
-    }
   }
   isVisible() {
     return !!this.ui && this.ui.container.style.display !== "none";
@@ -682,22 +670,7 @@ let QuickInputController = class QuickInputController2 extends Disposable {
     this.controller = null;
     this.onHideEmitter.fire();
     if (container) {
-      if (!isMotionReduced(container)) {
-        container.classList.add("animating-exit");
-        const cleanupAnimation = /* @__PURE__ */ __name(() => {
-          container.classList.remove("animating-exit");
-          container.removeEventListener("animationend", onAnimationEnd);
-          this._cancelExitAnimation = void 0;
-        }, "cleanupAnimation");
-        const onAnimationEnd = /* @__PURE__ */ __name(() => {
-          container.style.display = "none";
-          cleanupAnimation();
-        }, "onAnimationEnd");
-        this._cancelExitAnimation = cleanupAnimation;
-        container.addEventListener("animationend", onAnimationEnd);
-      } else {
-        container.style.display = "none";
-      }
+      container.style.display = "none";
     }
     if (!focusChanged) {
       let currentElement = this.previousFocusElement;

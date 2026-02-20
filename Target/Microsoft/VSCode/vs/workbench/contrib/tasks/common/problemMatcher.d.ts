@@ -7,6 +7,7 @@ import { IMarkerData } from '../../../../platform/markers/common/markers.js';
 import { ExtensionMessageCollector } from '../../../services/extensions/common/extensionsRegistry.js';
 import { Event } from '../../../../base/common/event.js';
 import { IFileService } from '../../../../platform/files/common/files.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
 export declare enum FileLocationKind {
     Default = 0,
     Relative = 1,
@@ -96,7 +97,7 @@ export interface ILineMatcher {
     next(line: string): IProblemMatch | null;
     handle(lines: string[], start?: number): IHandleResult;
 }
-export declare function createLineMatcher(matcher: ProblemMatcher, fileService?: IFileService): ILineMatcher;
+export declare function createLineMatcher(matcher: ProblemMatcher, fileService?: IFileService, logService?: ILogService): ILineMatcher;
 export declare namespace Config {
     interface IProblemPattern {
         /**

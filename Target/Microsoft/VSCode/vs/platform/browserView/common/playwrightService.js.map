@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../../../../../Dependency/Microsoft/Dependency/Editor/src/vs/platform/browserView/common/playwrightService.ts"],
+  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\r\n *  Copyright (c) Microsoft Corporation. All rights reserved.\r\n *  Licensed under the MIT License. See License.txt in the project root for license information.\r\n *--------------------------------------------------------------------------------------------*/\r\n\r\nimport { createDecorator } from '../../instantiation/common/instantiation.js';\r\n\r\nexport const IPlaywrightService = createDecorator<IPlaywrightService>('playwrightService');\r\n\r\n/**\r\n * A service for using Playwright to connect to and automate the integrated browser.\r\n */\r\nexport interface IPlaywrightService {\r\n\treadonly _serviceBrand: undefined;\r\n\r\n\t// TODO@kycutler: define a more specific API.\r\n\tinitialize(): Promise<void>;\r\n}\r\n"],
+  "mappings": "AAKA,SAAS,uBAAuB;AAEzB,MAAM,qBAAqB,gBAAoC,mBAAmB;",
+  "names": []
+}

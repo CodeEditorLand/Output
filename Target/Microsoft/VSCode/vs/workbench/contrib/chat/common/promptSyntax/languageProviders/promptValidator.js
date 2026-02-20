@@ -71,7 +71,7 @@ let PromptValidator = class PromptValidator2 {
       return;
     }
     const nameAttribute = promptAST.header?.attributes.find((attr) => attr.key === PromptHeaderAttributes.name);
-    if (!nameAttribute || nameAttribute.value.type !== "string") {
+    if (!nameAttribute || nameAttribute.value.type !== "scalar") {
       return;
     }
     const skillName = nameAttribute.value.value.trim();
@@ -233,7 +233,7 @@ let PromptValidator = class PromptValidator2 {
     if (!nameAttribute) {
       return;
     }
-    if (nameAttribute.value.type !== "string") {
+    if (nameAttribute.value.type !== "scalar") {
       report(toMarker(localize("promptValidator.nameMustBeString", "The 'name' attribute must be a string."), nameAttribute.range, MarkerSeverity.Error));
       return;
     }
@@ -247,7 +247,7 @@ let PromptValidator = class PromptValidator2 {
     if (!descriptionAttribute) {
       return;
     }
-    if (descriptionAttribute.value.type !== "string") {
+    if (descriptionAttribute.value.type !== "scalar") {
       report(toMarker(localize("promptValidator.descriptionMustBeString", "The 'description' attribute must be a string."), descriptionAttribute.range, MarkerSeverity.Error));
       return;
     }
@@ -261,7 +261,7 @@ let PromptValidator = class PromptValidator2 {
     if (!argumentHintAttribute) {
       return;
     }
-    if (argumentHintAttribute.value.type !== "string") {
+    if (argumentHintAttribute.value.type !== "scalar") {
       report(toMarker(localize("promptValidator.argumentHintMustBeString", "The 'argument-hint' attribute must be a string."), argumentHintAttribute.range, MarkerSeverity.Error));
       return;
     }
@@ -275,25 +275,25 @@ let PromptValidator = class PromptValidator2 {
     if (!attribute) {
       return;
     }
-    if (attribute.value.type !== "string" && attribute.value.type !== "array") {
+    if (attribute.value.type !== "scalar" && attribute.value.type !== "sequence") {
       report(toMarker(localize("promptValidator.modelMustBeStringOrArray", "The 'model' attribute must be a string or an array of strings."), attribute.value.range, MarkerSeverity.Error));
       return;
     }
     const modelNames = [];
-    if (attribute.value.type === "string") {
+    if (attribute.value.type === "scalar") {
       const modelName = attribute.value.value.trim();
       if (modelName.length === 0) {
         report(toMarker(localize("promptValidator.modelMustBeNonEmpty", "The 'model' attribute must be a non-empty string."), attribute.value.range, MarkerSeverity.Error));
         return;
       }
       modelNames.push([modelName, attribute.value.range]);
-    } else if (attribute.value.type === "array") {
+    } else if (attribute.value.type === "sequence") {
       if (attribute.value.items.length === 0) {
         report(toMarker(localize("promptValidator.modelArrayMustNotBeEmpty", "The 'model' array must not be empty."), attribute.value.range, MarkerSeverity.Error));
         return;
       }
       for (const item of attribute.value.items) {
-        if (item.type !== "string") {
+        if (item.type !== "scalar") {
           report(toMarker(localize("promptValidator.modelArrayMustContainStrings", "The 'model' array must contain only strings."), item.range, MarkerSeverity.Error));
           return;
         }
@@ -327,7 +327,7 @@ let PromptValidator = class PromptValidator2 {
         if (!attribute) {
           continue;
         }
-        if (attribute.value.type !== "string") {
+        if (attribute.value.type !== "scalar") {
           report(toMarker(localize("promptValidator.claude.attributeMustBeString", "The '{0}' attribute must be a string.", claudeAttributeName), attribute.value.range, MarkerSeverity.Error));
           continue;
         } else {
@@ -361,7 +361,7 @@ let PromptValidator = class PromptValidator2 {
     if (!attribute) {
       return void 0;
     }
-    if (attribute.value.type !== "string") {
+    if (attribute.value.type !== "scalar") {
       report(toMarker(localize("promptValidator.attributeMustBeString", "The '{0}' attribute must be a string.", attribute.key), attribute.value.range, MarkerSeverity.Error));
       return void 0;
     }
@@ -394,10 +394,10 @@ let PromptValidator = class PromptValidator2 {
       report(toMarker(localize("promptValidator.toolsOnlyInAgent", "The 'tools' attribute is only supported when using agents. Attribute will be ignored."), attribute.range, MarkerSeverity.Warning));
     }
     let value = attribute.value;
-    if (value.type === "string") {
+    if (value.type === "scalar") {
       value = parseCommaSeparatedList(value);
     }
-    if (value.type !== "array") {
+    if (value.type !== "sequence") {
       report(toMarker(localize("promptValidator.toolsMustBeArrayOrMap", "The 'tools' attribute must be an array or a comma separated string."), attribute.value.range, MarkerSeverity.Error));
       return;
     }
@@ -411,7 +411,7 @@ let PromptValidator = class PromptValidator2 {
       const available = new Set(this.languageModelToolsService.getFullReferenceNames());
       const deprecatedNames = this.languageModelToolsService.getDeprecatedFullReferenceNames();
       for (const item of valueItem.items) {
-        if (item.type !== "string") {
+        if (item.type !== "scalar") {
           report(toMarker(localize("promptValidator.eachToolMustBeString", "Each tool name in the 'tools' attribute must be a string."), item.range, MarkerSeverity.Error));
         } else if (item.value) {
           if (!available.has(item.value)) {
@@ -437,7 +437,7 @@ let PromptValidator = class PromptValidator2 {
     if (!attribute) {
       return;
     }
-    if (attribute.value.type !== "string") {
+    if (attribute.value.type !== "scalar") {
       report(toMarker(localize("promptValidator.applyToMustBeString", "The 'applyTo' attribute must be a string."), attribute.value.range, MarkerSeverity.Error));
       return;
     }
@@ -464,12 +464,12 @@ let PromptValidator = class PromptValidator2 {
     if (!attribute) {
       return;
     }
-    if (attribute.value.type !== "array") {
+    if (attribute.value.type !== "sequence") {
       report(toMarker(localize("promptValidator.pathsMustBeArray", "The 'paths' attribute must be an array of glob patterns."), attribute.value.range, MarkerSeverity.Error));
       return;
     }
     for (const item of attribute.value.items) {
-      if (item.type !== "string") {
+      if (item.type !== "scalar") {
         report(toMarker(localize("promptValidator.eachPathMustBeString", "Each entry in the 'paths' attribute must be a string."), item.range, MarkerSeverity.Error));
         continue;
       }
@@ -493,7 +493,7 @@ let PromptValidator = class PromptValidator2 {
     if (!attribute) {
       return;
     }
-    if (attribute.value.type !== "array" && attribute.value.type !== "string") {
+    if (attribute.value.type !== "sequence" && attribute.value.type !== "scalar") {
       report(toMarker(localize("promptValidator.excludeAgentMustBeArray", "The 'excludeAgent' attribute must be an string or array."), attribute.value.range, MarkerSeverity.Error));
       return;
     }
@@ -503,12 +503,12 @@ let PromptValidator = class PromptValidator2 {
     if (!attribute) {
       return;
     }
-    if (attribute.value.type !== "array") {
+    if (attribute.value.type !== "sequence") {
       report(toMarker(localize("promptValidator.handoffsMustBeArray", "The 'handoffs' attribute must be an array."), attribute.value.range, MarkerSeverity.Error));
       return;
     }
     for (const item of attribute.value.items) {
-      if (item.type !== "object") {
+      if (item.type !== "map") {
         report(toMarker(localize("promptValidator.eachHandoffMustBeObject", "Each handoff in the 'handoffs' attribute must be an object with 'label', 'agent', 'prompt' and optional 'send'."), item.range, MarkerSeverity.Error));
         continue;
       }
@@ -516,34 +516,34 @@ let PromptValidator = class PromptValidator2 {
       for (const prop of item.properties) {
         switch (prop.key.value) {
           case "label":
-            if (prop.value.type !== "string" || prop.value.value.trim().length === 0) {
+            if (prop.value.type !== "scalar" || prop.value.value.trim().length === 0) {
               report(toMarker(localize("promptValidator.handoffLabelMustBeNonEmptyString", "The 'label' property in a handoff must be a non-empty string."), prop.value.range, MarkerSeverity.Error));
             }
             break;
           case "agent":
-            if (prop.value.type !== "string" || prop.value.value.trim().length === 0) {
+            if (prop.value.type !== "scalar" || prop.value.value.trim().length === 0) {
               report(toMarker(localize("promptValidator.handoffAgentMustBeNonEmptyString", "The 'agent' property in a handoff must be a non-empty string."), prop.value.range, MarkerSeverity.Error));
             } else {
               this.validateAgentValue(prop.value, report);
             }
             break;
           case "prompt":
-            if (prop.value.type !== "string") {
+            if (prop.value.type !== "scalar") {
               report(toMarker(localize("promptValidator.handoffPromptMustBeString", "The 'prompt' property in a handoff must be a string."), prop.value.range, MarkerSeverity.Error));
             }
             break;
           case "send":
-            if (prop.value.type !== "boolean") {
+            if (!isTrueOrFalse(prop.value)) {
               report(toMarker(localize("promptValidator.handoffSendMustBeBoolean", "The 'send' property in a handoff must be a boolean."), prop.value.range, MarkerSeverity.Error));
             }
             break;
           case "showContinueOn":
-            if (prop.value.type !== "boolean") {
+            if (!isTrueOrFalse(prop.value)) {
               report(toMarker(localize("promptValidator.handoffShowContinueOnMustBeBoolean", "The 'showContinueOn' property in a handoff must be a boolean."), prop.value.range, MarkerSeverity.Error));
             }
             break;
           case "model":
-            if (prop.value.type !== "string") {
+            if (prop.value.type !== "scalar") {
               report(toMarker(localize("promptValidator.handoffModelMustBeString", "The 'model' property in a handoff must be a string."), prop.value.range, MarkerSeverity.Error));
             }
             break;
@@ -569,7 +569,7 @@ let PromptValidator = class PromptValidator2 {
     if (!attribute) {
       return;
     }
-    if (attribute.value.type !== "string") {
+    if (attribute.value.type !== "scalar") {
       report(toMarker(localize("promptValidator.targetMustBeString", "The 'target' attribute must be a string."), attribute.value.range, MarkerSeverity.Error));
       return;
     }
@@ -588,8 +588,8 @@ let PromptValidator = class PromptValidator2 {
     if (!attribute) {
       return;
     }
-    if (attribute.value.type !== "boolean") {
-      report(toMarker(localize("promptValidator.userInvocableMustBeBoolean", "The 'user-invocable' attribute must be a boolean."), attribute.value.range, MarkerSeverity.Error));
+    if (!isTrueOrFalse(attribute.value)) {
+      report(toMarker(localize("promptValidator.userInvocableMustBeBoolean", "The 'user-invocable' attribute must be 'true' or 'false'."), attribute.value.range, MarkerSeverity.Error));
       return;
     }
   }
@@ -605,8 +605,8 @@ let PromptValidator = class PromptValidator2 {
     if (!attribute) {
       return;
     }
-    if (attribute.value.type !== "boolean") {
-      report(toMarker(localize("promptValidator.disableModelInvocationMustBeBoolean", "The 'disable-model-invocation' attribute must be a boolean."), attribute.value.range, MarkerSeverity.Error));
+    if (!isTrueOrFalse(attribute.value)) {
+      report(toMarker(localize("promptValidator.disableModelInvocationMustBeBoolean", "The 'disable-model-invocation' attribute must be 'true' or 'false'."), attribute.value.range, MarkerSeverity.Error));
       return;
     }
   }
@@ -615,7 +615,7 @@ let PromptValidator = class PromptValidator2 {
     if (!attribute) {
       return;
     }
-    if (attribute.value.type !== "array") {
+    if (attribute.value.type !== "sequence") {
       report(toMarker(localize("promptValidator.agentsMustBeArray", "The 'agents' attribute must be an array."), attribute.value.range, MarkerSeverity.Error));
       return;
     }
@@ -624,7 +624,7 @@ let PromptValidator = class PromptValidator2 {
     availableAgentNames.add(ChatMode.Agent.name.get());
     const agentNames = [];
     for (const item of attribute.value.items) {
-      if (item.type !== "string") {
+      if (item.type !== "scalar") {
         report(toMarker(localize("promptValidator.eachAgentMustBeString", "Each agent name in the 'agents' attribute must be a string."), item.range, MarkerSeverity.Error));
       } else if (item.value) {
         agentNames.push(item.value);
@@ -649,6 +649,13 @@ PromptValidator = __decorate([
   __param(4, ILabelService),
   __param(5, IPromptsService)
 ], PromptValidator);
+function isTrueOrFalse(value) {
+  if (value.type === "scalar") {
+    return (value.value === "true" || value.value === "false") && value.format === "none";
+  }
+  return false;
+}
+__name(isTrueOrFalse, "isTrueOrFalse");
 const allAttributeNames = {
   [PromptsType.prompt]: [PromptHeaderAttributes.name, PromptHeaderAttributes.description, PromptHeaderAttributes.model, PromptHeaderAttributes.tools, PromptHeaderAttributes.mode, PromptHeaderAttributes.agent, PromptHeaderAttributes.argumentHint],
   [PromptsType.instructions]: [PromptHeaderAttributes.name, PromptHeaderAttributes.description, PromptHeaderAttributes.applyTo, PromptHeaderAttributes.excludeAgent],
@@ -818,33 +825,33 @@ function mapClaudeTools(claudeToolNames) {
 __name(mapClaudeTools, "mapClaudeTools");
 const claudeAgentAttributes = {
   "name": {
-    type: "string",
+    type: "scalar",
     description: localize("attribute.name", "Unique identifier using lowercase letters and hyphens (required)")
   },
   "description": {
-    type: "string",
+    type: "scalar",
     description: localize("attribute.description", "When to delegate to this subagent (required)")
   },
   "tools": {
-    type: "array",
+    type: "sequence",
     description: localize("attribute.tools", "Array of tools the subagent can use. Inherits all tools if omitted"),
     defaults: ["Read, Edit, Bash"],
     items: knownClaudeTools
   },
   "disallowedTools": {
-    type: "array",
+    type: "sequence",
     description: localize("attribute.disallowedTools", "Tools to deny, removed from inherited or specified list"),
     defaults: ["Write, Edit, Bash"],
     items: knownClaudeTools
   },
   "model": {
-    type: "string",
+    type: "scalar",
     description: localize("attribute.model", "Model to use: sonnet, opus, haiku, or inherit. Defaults to inherit."),
     defaults: ["sonnet", "opus", "haiku", "inherit"],
     enums: knownClaudeModels
   },
   "permissionMode": {
-    type: "string",
+    type: "scalar",
     description: localize("attribute.permissionMode", "Permission mode: default, acceptEdits, dontAsk, bypassPermissions, or plan."),
     defaults: ["default", "acceptEdits", "dontAsk", "bypassPermissions", "plan"],
     enums: [
@@ -857,11 +864,11 @@ const claudeAgentAttributes = {
     ]
   },
   "skills": {
-    type: "array",
+    type: "sequence",
     description: localize("attribute.skills", "Skills to load into the subagent's context at startup.")
   },
   "mcpServers": {
-    type: "array",
+    type: "sequence",
     description: localize("attribute.mcpServers", "MCP servers available to this subagent.")
   },
   "hooks": {
@@ -869,7 +876,7 @@ const claudeAgentAttributes = {
     description: localize("attribute.hooks", "Lifecycle hooks scoped to this subagent.")
   },
   "memory": {
-    type: "string",
+    type: "scalar",
     description: localize("attribute.memory", "Persistent memory scope: user, project, or local. Enables cross-session learning."),
     defaults: ["user", "project", "local"],
     enums: [
@@ -881,11 +888,11 @@ const claudeAgentAttributes = {
 };
 const claudeRulesAttributes = {
   "description": {
-    type: "string",
+    type: "scalar",
     description: localize("attribute.rules.description", "A description of what this rule covers, used to provide context about when it applies.")
   },
   "paths": {
-    type: "array",
+    type: "sequence",
     description: localize("attribute.rules.paths", "Array of glob patterns that describe for which files the rule applies. Based on these patterns, the file is automatically included in the prompt when the context contains a file that matches.\nExample: `['src/**/*.ts', 'test/**']`")
   }
 };

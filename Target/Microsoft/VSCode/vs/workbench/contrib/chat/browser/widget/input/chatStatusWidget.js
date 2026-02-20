@@ -46,8 +46,7 @@ let ChatStatusWidget = class ChatStatusWidget2 extends Disposable {
   initializeIfEnabled() {
     const entitlement = this.chatEntitlementService.entitlement;
     const isAnonymous = this.chatEntitlementService.anonymous;
-    const enabledSku = this.configurationService.getValue("chat.statusWidget.sku");
-    if (isAnonymous && enabledSku === "anonymous") {
+    if (isAnonymous && this.configurationService.getValue("chat.statusWidget.anonymous")) {
       this.createWidgetContent("anonymous");
     } else if (entitlement === ChatEntitlement.Free) {
       this.createWidgetContent("free");
@@ -70,7 +69,7 @@ let ChatStatusWidget = class ChatStatusWidget2 extends Disposable {
     }));
     this.actionButton.element.classList.add("chat-status-button");
     if (enabledSku === "anonymous") {
-      const message = localize("chat.anonymousRateLimited.message", "You've reached the limit for chat messages. Try Copilot Pro for free.");
+      const message = localize("chat.anonymousRateLimited.message", "You've reached the limit for chat messages. Sign in to use Copilot Free.");
       const buttonLabel = localize("chat.anonymousRateLimited.signIn", "Sign In");
       this.messageElement.textContent = message;
       this.actionButton.label = buttonLabel;

@@ -206,14 +206,14 @@ const extensionPoint = ExtensionsRegistry.registerExtensionPoint({
           type: "boolean",
           default: false
         },
-        isReadOnly: {
-          description: localize("chatSessionsExtPoint.isReadOnly", "Whether this session type is for read-only agents that do not support interactive chat. This flag is incompatible with 'canDelegate'."),
-          type: "boolean",
-          default: false
-        },
         customAgentTarget: {
           description: localize("chatSessionsExtPoint.customAgentTarget", "When set, the chat session will show a filtered mode picker that prefers custom agents whose target property matches this value. Custom agents without a target property are still shown in all session types. This enables the use of standard agent/mode with contributed sessions."),
           type: "string"
+        },
+        requiresCustomModels: {
+          description: localize("chatSessionsExtPoint.requiresCustomModels", "When set, the chat session will show a filtered model picker that prefers custom models. This enables the use of standard model picker with contributed sessions."),
+          type: "boolean",
+          default: false
         }
       },
       required: ["type", "name", "displayName", "description"]
@@ -601,7 +601,7 @@ let ChatSessionsService = class ChatSessionsService2 extends Disposable {
   _enableContribution(contribution, ext) {
     const disposableStore = new DisposableStore();
     this._contributionDisposables.set(contribution.type, disposableStore);
-    if (contribution.isReadOnly || contribution.canDelegate) {
+    if (contribution.canDelegate) {
       disposableStore.add(this._registerAgent(contribution, ext));
       disposableStore.add(this._registerCommands(contribution));
     }
@@ -861,12 +861,20 @@ let ChatSessionsService = class ChatSessionsService2 extends Disposable {
     return description ? renderAsPlaintext(description, { useLinkFormatter: true }) : "";
   }
   async getOrCreateChatSession(sessionResource, token) {
-    const existingSessionData = this._sessions.get(sessionResource);
-    if (existingSessionData) {
-      return existingSessionData.session;
+    {
+      const existingSessionData = this._sessions.get(sessionResource);
+      if (existingSessionData) {
+        return existingSessionData.session;
+      }
     }
     if (!await raceCancellationError(this.canResolveChatSession(sessionResource), token)) {
       throw Error(`Can not find provider for ${sessionResource}`);
+    }
+    {
+      const existingSessionData = this._sessions.get(sessionResource);
+      if (existingSessionData) {
+        return existingSessionData.session;
+      }
     }
     const resolvedType = this._resolveToPrimaryType(sessionResource.scheme) || sessionResource.scheme;
     const provider = this._contentProviders.get(resolvedType);
@@ -874,11 +882,19 @@ let ChatSessionsService = class ChatSessionsService2 extends Disposable {
       throw Error(`Can not find provider for ${sessionResource}`);
     }
     const session = await raceCancellationError(provider.provideChatSessionContent(sessionResource, token), token);
+    {
+      const existingSessionData = this._sessions.get(sessionResource);
+      if (existingSessionData) {
+        session.dispose();
+        return existingSessionData.session;
+      }
+    }
     const sessionData = new ContributedChatSessionData(session, sessionResource.scheme, sessionResource, session.options, (resource) => {
       sessionData.dispose();
       this._sessions.delete(resource);
     });
     this._sessions.set(sessionResource, sessionData);
+    this._onDidChangeSessionOptions.fire(sessionResource);
     return session;
   }
   hasAnySessionOptions(sessionResource) {
@@ -972,6 +988,10 @@ let ChatSessionsService = class ChatSessionsService2 extends Disposable {
   getCustomAgentTargetForSessionType(chatSessionType) {
     const contribution = this._contributions.get(chatSessionType)?.contribution;
     return contribution?.customAgentTarget ?? Target.Undefined;
+  }
+  requiresCustomModelsForSessionType(chatSessionType) {
+    const contribution = this._contributions.get(chatSessionType)?.contribution;
+    return !!contribution?.requiresCustomModels;
   }
   getContentProviderSchemes() {
     return Array.from(this._contentProviders.keys());

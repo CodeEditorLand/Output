@@ -69,5 +69,6 @@ export declare class NativeWorkbenchEnvironmentService extends AbstractNativeEnv
     get filesToDiff(): IPath[] | undefined;
     get filesToMerge(): IPath[] | undefined;
     get filesToWait(): IPathsToWaitFor | undefined;
+    get isSessionsWindow(): boolean;
     constructor(configuration: INativeWindowConfiguration, productService: IProductService);
 }

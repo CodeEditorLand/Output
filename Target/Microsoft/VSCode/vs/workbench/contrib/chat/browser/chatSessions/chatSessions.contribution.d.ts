@@ -142,6 +142,7 @@ export declare class ChatSessionsService extends Disposable implements IChatSess
      * When set, the mode picker should show filtered custom agents matching this target.
      */
     getCustomAgentTargetForSessionType(chatSessionType: string): Target;
+    requiresCustomModelsForSessionType(chatSessionType: string): boolean;
     getContentProviderSchemes(): string[];
 }
 export declare enum ChatSessionPosition {

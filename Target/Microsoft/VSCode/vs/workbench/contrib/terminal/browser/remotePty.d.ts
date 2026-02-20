@@ -14,7 +14,7 @@ export declare class RemotePty extends BasePty implements ITerminalChildProcess 
     input(data: string): void;
     sendSignal(signal: string): void;
     processBinary(e: string): Promise<void>;
-    resize(cols: number, rows: number): void;
+    resize(cols: number, rows: number, pixelWidth?: number, pixelHeight?: number): void;
     clearBuffer(): Promise<void>;
     freePortKillProcess(port: string): Promise<{
         port: string;

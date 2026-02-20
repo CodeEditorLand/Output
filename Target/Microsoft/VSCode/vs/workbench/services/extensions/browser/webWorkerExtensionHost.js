@@ -284,14 +284,14 @@ let WebWorkerExtensionHost = class WebWorkerExtensionHost2 extends Disposable {
         extensionTestsLocationURI: this._environmentService.extensionTestsLocationURI,
         globalStorageHome: this._userDataProfilesService.defaultProfile.globalStorageHome,
         workspaceStorageHome: this._environmentService.workspaceStorageHome,
-        extensionLogLevel: this._defaultLogLevelsService.defaultLogLevels.extensions
+        extensionLogLevel: this._defaultLogLevelsService.defaultLogLevels.extensions,
+        isSessionsWindow: this._environmentService.isSessionsWindow
       },
       workspace: this._contextService.getWorkbenchState() === 1 ? void 0 : {
         configuration: workspace.configuration || void 0,
         id: workspace.id,
         name: this._labelService.getWorkspaceLabel(workspace),
-        transient: workspace.transient,
-        isAgentSessionsWorkspace: workspace.isAgentSessionsWorkspace
+        transient: workspace.transient
       },
       consoleForward: {
         includeStack: false,

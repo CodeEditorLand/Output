@@ -136,6 +136,9 @@ let TerminalInstance = class TerminalInstance2 extends Disposable {
   set waitOnExit(value) {
     this._shellLaunchConfig.waitOnExit = value;
   }
+  get isVisible() {
+    return this._isVisible;
+  }
   get targetRef() {
     return this._targetRef;
   }
@@ -1723,7 +1726,11 @@ let TerminalInstance = class TerminalInstance2 extends Disposable {
     this._resizeDebouncer.resize(cols, rows, immediate ?? false);
   }
   async _updatePtyDimensions(rawXterm) {
-    await this._processManager.setDimensions(rawXterm.cols, rawXterm.rows);
+    const pixelWidth = rawXterm.dimensions?.css.canvas.width;
+    const pixelHeight = rawXterm.dimensions?.css.canvas.height;
+    const roundedPixelWidth = pixelWidth ? Math.round(pixelWidth) : void 0;
+    const roundedPixelHeight = pixelHeight ? Math.round(pixelHeight) : void 0;
+    await this._processManager.setDimensions(rawXterm.cols, rawXterm.rows, void 0, roundedPixelWidth, roundedPixelHeight);
   }
   setShellType(shellType) {
     if (this._shellType === shellType) {

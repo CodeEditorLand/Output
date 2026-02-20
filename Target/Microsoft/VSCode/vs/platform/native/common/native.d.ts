@@ -106,6 +106,7 @@ export interface ICommonNativeHostService {
     getNativeWindowHandle(windowId: number): Promise<VSBuffer | undefined>;
     openWindow(options?: IOpenEmptyWindowOptions): Promise<void>;
     openWindow(toOpen: IWindowOpenable[], options?: IOpenWindowOptions): Promise<void>;
+    openSessionsWindow(): Promise<void>;
     isFullScreen(options?: INativeHostOptions): Promise<boolean>;
     toggleFullScreen(options?: INativeHostOptions): Promise<void>;
     getCursorScreenPoint(): Promise<{

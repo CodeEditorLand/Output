@@ -143,7 +143,7 @@ let DropOverlay = class DropOverlay2 extends Themable {
             }
           }
         }
-        let splitOnDragAndDrop = !!this.editorGroupService.partOptions.splitOnDragAndDrop;
+        let splitOnDragAndDrop = !!this.groupView.groupsView.partOptions.splitOnDragAndDrop;
         if (this.isToggleSplitOperation(e)) {
           splitOnDragAndDrop = !splitOnDragAndDrop;
         }
@@ -238,7 +238,7 @@ let DropOverlay = class DropOverlay2 extends Themable {
         if (sourceGroup) {
           const copyEditor = this.isCopyOperation(event, firstDraggedEditor);
           let targetGroup = void 0;
-          if (this.editorGroupService.partOptions.closeEmptyGroups && sourceGroup.count === 1 && typeof splitDirection === "number" && !copyEditor) {
+          if (this.groupView.groupsView.partOptions.closeEmptyGroups && sourceGroup.count === 1 && typeof splitDirection === "number" && !copyEditor) {
             targetGroup = this.editorGroupService.moveGroup(sourceGroup, this.groupView, splitDirection);
           } else {
             targetGroup = ensureTargetGroup();
@@ -290,7 +290,7 @@ let DropOverlay = class DropOverlay2 extends Themable {
     return e.altKey && !isMacintosh || e.shiftKey && isMacintosh;
   }
   positionOverlay(mousePosX, mousePosY, isDraggingGroup, enableSplitting) {
-    const preferSplitVertically = this.editorGroupService.partOptions.openSideBySideDirection === "right";
+    const preferSplitVertically = this.groupView.groupsView.partOptions.openSideBySideDirection === "right";
     const editorControlWidth = this.groupView.element.clientWidth;
     const editorControlHeight = this.groupView.element.clientHeight - this.getOverlayOffsetHeight();
     let edgeWidthThresholdFactor;
@@ -380,7 +380,7 @@ let DropOverlay = class DropOverlay2 extends Themable {
     overlay.style.height = options.height;
   }
   getOverlayOffsetHeight() {
-    if (!this.groupView.isEmpty && this.editorGroupService.partOptions.showTabs === "multiple") {
+    if (!this.groupView.isEmpty && this.groupView.groupsView.partOptions.showTabs === "multiple") {
       return this.groupView.titleHeight.offset;
     }
     return 0;
@@ -419,8 +419,9 @@ let EditorDropTarget = class EditorDropTarget2 extends Themable {
   static {
     __name(this, "EditorDropTarget");
   }
-  constructor(container, delegate, editorGroupService, themeService, configurationService, instantiationService) {
+  constructor(groupsView, container, delegate, editorGroupService, themeService, configurationService, instantiationService) {
     super(themeService);
+    this.groupsView = groupsView;
     this.container = container;
     this.delegate = delegate;
     this.editorGroupService = editorGroupService;
@@ -456,6 +457,12 @@ let EditorDropTarget = class EditorDropTarget2 extends Themable {
         event.dataTransfer.dropEffect = "none";
         return;
       }
+    }
+    if (!this.groupsView.partOptions.allowDropIntoGroup) {
+      if (event.dataTransfer) {
+        event.dataTransfer.dropEffect = "none";
+      }
+      return;
     }
     this.updateContainer(true);
     const target = event.target;
@@ -501,10 +508,10 @@ let EditorDropTarget = class EditorDropTarget2 extends Themable {
   }
 };
 EditorDropTarget = __decorate([
-  __param(2, IEditorGroupsService),
-  __param(3, IThemeService),
-  __param(4, IConfigurationService),
-  __param(5, IInstantiationService)
+  __param(3, IEditorGroupsService),
+  __param(4, IThemeService),
+  __param(5, IConfigurationService),
+  __param(6, IInstantiationService)
 ], EditorDropTarget);
 export {
   EditorDropTarget

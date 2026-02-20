@@ -49,6 +49,7 @@ function registerSkillActions() {
 }
 __name(registerSkillActions, "registerSkillActions");
 export {
+  CONFIGURE_SKILLS_ACTION_ID,
   registerSkillActions
 };
 //# sourceMappingURL=skillActions.js.map

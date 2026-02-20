@@ -25,6 +25,7 @@ import { ICommandService } from "../../../../../../platform/commands/common/comm
 import { getCleanPromptName } from "../../../common/promptSyntax/config/promptFileLocations.js";
 import { PromptsType, INSTRUCTIONS_DOCUMENTATION_URL, AGENT_DOCUMENTATION_URL, PROMPT_DOCUMENTATION_URL, SKILL_DOCUMENTATION_URL, HOOK_DOCUMENTATION_URL } from "../../../common/promptSyntax/promptTypes.js";
 import { NEW_PROMPT_COMMAND_ID, NEW_INSTRUCTIONS_COMMAND_ID, NEW_AGENT_COMMAND_ID, NEW_SKILL_COMMAND_ID } from "../newPromptFileActions.js";
+import { GENERATE_INSTRUCTIONS_COMMAND_ID, GENERATE_INSTRUCTION_COMMAND_ID, GENERATE_PROMPT_COMMAND_ID, GENERATE_SKILL_COMMAND_ID, GENERATE_AGENT_COMMAND_ID } from "../../actions/chatActions.js";
 import { IQuickInputService } from "../../../../../../platform/quickinput/common/quickInput.js";
 import { askForPromptFileName } from "./askForPromptName.js";
 import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
@@ -98,13 +99,21 @@ const NEW_INSTRUCTIONS_FILE_OPTION = {
   buttons: [newHelpButton(PromptsType.instructions)],
   commandId: NEW_INSTRUCTIONS_COMMAND_ID
 };
-const UPDATE_INSTRUCTIONS_OPTION = {
+const GENERATE_WORKSPACE_INSTRUCTIONS_OPTION = {
   type: "item",
-  label: `$(refresh) ${localize("commands.update-instructions.select-dialog.label", "Generate agent instructions...")}`,
+  label: `$(sparkle) ${localize("commands.generate-workspace-instructions.select-dialog.label", "Generate workspace instructions with agent...")}`,
   pickable: false,
   alwaysShow: true,
   buttons: [newHelpButton(PromptsType.instructions)],
-  commandId: "workbench.action.chat.generateInstructions"
+  commandId: GENERATE_INSTRUCTIONS_COMMAND_ID
+};
+const GENERATE_INSTRUCTION_OPTION = {
+  type: "item",
+  label: `$(sparkle) ${localize("commands.generate-instruction.select-dialog.label", "Generate on-demand instruction with agent...")}`,
+  pickable: false,
+  alwaysShow: true,
+  buttons: [newHelpButton(PromptsType.instructions)],
+  commandId: GENERATE_INSTRUCTION_COMMAND_ID
 };
 const NEW_AGENT_FILE_OPTION = {
   type: "item",
@@ -121,6 +130,30 @@ const NEW_SKILL_FILE_OPTION = {
   alwaysShow: true,
   buttons: [newHelpButton(PromptsType.skill)],
   commandId: NEW_SKILL_COMMAND_ID
+};
+const GENERATE_PROMPT_OPTION = {
+  type: "item",
+  label: `$(sparkle) ${localize("commands.generate-prompt.select-dialog.label", "Generate prompt with agent...")}`,
+  pickable: false,
+  alwaysShow: true,
+  buttons: [newHelpButton(PromptsType.prompt)],
+  commandId: GENERATE_PROMPT_COMMAND_ID
+};
+const GENERATE_SKILL_OPTION = {
+  type: "item",
+  label: `$(sparkle) ${localize("commands.generate-skill.select-dialog.label", "Generate skill with agent...")}`,
+  pickable: false,
+  alwaysShow: true,
+  buttons: [newHelpButton(PromptsType.skill)],
+  commandId: GENERATE_SKILL_COMMAND_ID
+};
+const GENERATE_AGENT_OPTION = {
+  type: "item",
+  label: `$(sparkle) ${localize("commands.generate-agent.select-dialog.label", "Generate agent with agent...")}`,
+  pickable: false,
+  alwaysShow: true,
+  buttons: [newHelpButton(PromptsType.agent)],
+  commandId: GENERATE_AGENT_COMMAND_ID
 };
 const EDIT_BUTTON = {
   tooltip: localize("open", "Open in Editor"),
@@ -144,8 +177,8 @@ const MAKE_VISIBLE_BUTTON = {
   alwaysVisible: true
 };
 const MAKE_INVISIBLE_BUTTON = {
-  tooltip: localize("makeInvisible", "Hide from agent picker"),
-  iconClass: ThemeIcon.asClassName(Codicon.eyeClosed)
+  tooltip: localize("makeInvisible", "Shown in chat view agent picker. Click to hide."),
+  iconClass: ThemeIcon.asClassName(Codicon.eye)
 };
 let PromptFilePickers = class PromptFilePickers2 {
   static {
@@ -317,13 +350,13 @@ let PromptFilePickers = class PromptFilePickers2 {
   _getNewItems(type) {
     switch (type) {
       case PromptsType.prompt:
-        return [NEW_PROMPT_FILE_OPTION];
+        return [NEW_PROMPT_FILE_OPTION, GENERATE_PROMPT_OPTION];
       case PromptsType.instructions:
-        return [NEW_INSTRUCTIONS_FILE_OPTION, UPDATE_INSTRUCTIONS_OPTION];
+        return [NEW_INSTRUCTIONS_FILE_OPTION, GENERATE_INSTRUCTION_OPTION, GENERATE_WORKSPACE_INSTRUCTIONS_OPTION];
       case PromptsType.agent:
-        return [NEW_AGENT_FILE_OPTION];
+        return [NEW_AGENT_FILE_OPTION, GENERATE_AGENT_OPTION];
       case PromptsType.skill:
-        return [NEW_SKILL_FILE_OPTION];
+        return [NEW_SKILL_FILE_OPTION, GENERATE_SKILL_OPTION];
       default:
         throw new Error(`Unknown prompt type '${type}'.`);
     }

@@ -77,7 +77,7 @@ let AuxiliaryBarPart = class AuxiliaryBarPart2 extends AbstractPaneCompositePart
       hasTitle: true,
       trailingSeparator: true,
       borderWidth: /* @__PURE__ */ __name(() => this.getColor(SIDE_BAR_BORDER) || this.getColor(contrastBorder) ? 1 : 0, "borderWidth")
-    }, AuxiliaryBarPart_1.activeViewSettingsKey, ActiveAuxiliaryContext.bindTo(contextKeyService), AuxiliaryBarFocusContext.bindTo(contextKeyService), "auxiliarybar", "auxiliarybar", void 0, SIDE_BAR_TITLE_BORDER, 2, Extensions.Auxiliary, MenuId.AuxiliaryBarTitle, notificationService, storageService, contextMenuService, layoutService, keybindingService, hoverService, instantiationService, themeService, viewDescriptorService, contextKeyService, extensionService, menuService);
+    }, AuxiliaryBarPart_1.activeViewSettingsKey, ActiveAuxiliaryContext.bindTo(contextKeyService), AuxiliaryBarFocusContext.bindTo(contextKeyService), "auxiliarybar", "auxiliarybar", void 0, SIDE_BAR_TITLE_BORDER, 2, Extensions.Auxiliary, MenuId.AuxiliaryBarTitle, void 0, notificationService, storageService, contextMenuService, layoutService, keybindingService, hoverService, instantiationService, themeService, viewDescriptorService, contextKeyService, extensionService, menuService);
     this.commandService = commandService;
     this.configurationService = configurationService;
     this.minimumWidth = 170;
@@ -115,7 +115,7 @@ let AuxiliaryBarPart = class AuxiliaryBarPart2 extends AbstractPaneCompositePart
       "workbench.activityBar.autoHide"
       /* LayoutSettings.ACTIVITY_BAR_AUTO_HIDE */
     );
-    if (autoHide && this.configuration.position !== "hidden") {
+    if (autoHide && (this.configuration.position === "top" || this.configuration.position === "bottom")) {
       const visibleBefore = e.before > 1;
       const visibleAfter = e.after > 1;
       if (visibleBefore !== visibleAfter) {
@@ -223,14 +223,16 @@ let AuxiliaryBarPart = class AuxiliaryBarPart2 extends AbstractPaneCompositePart
     if (this.configuration.position === "hidden") {
       return false;
     }
-    const autoHide = this.configurationService.getValue(
-      "workbench.activityBar.autoHide"
-      /* LayoutSettings.ACTIVITY_BAR_AUTO_HIDE */
-    );
-    if (autoHide) {
-      const visibleCount = this.visibleViewContainersTracker.visibleCount;
-      if (visibleCount <= 1) {
-        return false;
+    if (this.configuration.position === "top" || this.configuration.position === "bottom") {
+      const autoHide = this.configurationService.getValue(
+        "workbench.activityBar.autoHide"
+        /* LayoutSettings.ACTIVITY_BAR_AUTO_HIDE */
+      );
+      if (autoHide) {
+        const visibleCount = this.visibleViewContainersTracker.visibleCount;
+        if (visibleCount <= 1) {
+          return false;
+        }
       }
     }
     return true;

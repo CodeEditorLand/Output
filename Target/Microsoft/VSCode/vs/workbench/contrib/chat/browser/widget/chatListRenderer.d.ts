@@ -29,7 +29,6 @@ import { ChatAgentHover } from './chatAgentHover.js';
 import { IChatContentPart, IChatContentPartRenderContext } from './chatContentParts/chatContentParts.js';
 import { ChatEditorOptions } from './chatOptions.js';
 import { CodeBlockPart } from './chatContentParts/codeBlockPart.js';
-import { IChatTipService } from '../chatTipService.js';
 import { IAccessibilityService } from '../../../../../platform/accessibility/common/accessibility.js';
 import { ChatPendingDragController } from './chatPendingDragAndDrop.js';
 export interface IChatListItemTemplate {
@@ -91,7 +90,6 @@ export declare class ChatListItemRenderer extends Disposable implements ITreeRen
     private readonly chatWidgetService;
     private readonly chatEntitlementService;
     private readonly chatService;
-    private readonly chatTipService;
     private readonly hostService;
     private readonly accessibilitySignalService;
     private readonly accessibilityService;
@@ -105,7 +103,6 @@ export declare class ChatListItemRenderer extends Disposable implements ITreeRen
     private readonly pendingQuestionCarousels;
     private readonly _autoRepliedQuestionCarousels;
     private readonly _autoReply;
-    private _activeTipPart;
     private readonly _notifiedQuestionCarousels;
     private readonly _questionCarouselToast;
     private readonly chatContentMarkdownRenderer;
@@ -147,14 +144,12 @@ export declare class ChatListItemRenderer extends Disposable implements ITreeRen
      * by screen readers
      */
     private readonly _announcedToolProgressKeys;
-    constructor(editorOptions: ChatEditorOptions, rendererOptions: IChatListItemRendererOptions, delegate: IChatRendererDelegate, codeBlockModelCollection: CodeBlockModelCollection, overflowWidgetsDomNode: HTMLElement | undefined, viewModel: IChatViewModel | undefined, instantiationService: IInstantiationService, configService: IConfigurationService, logService: ILogService, contextKeyService: IContextKeyService, themeService: IThemeService, commandService: ICommandService, hoverService: IHoverService, chatWidgetService: IChatWidgetService, chatEntitlementService: IChatEntitlementService, chatService: IChatService, chatTipService: IChatTipService, hostService: IHostService, accessibilitySignalService: IAccessibilitySignalService, accessibilityService: IAccessibilityService);
+    constructor(editorOptions: ChatEditorOptions, rendererOptions: IChatListItemRendererOptions, delegate: IChatRendererDelegate, codeBlockModelCollection: CodeBlockModelCollection, overflowWidgetsDomNode: HTMLElement | undefined, viewModel: IChatViewModel | undefined, instantiationService: IInstantiationService, configService: IConfigurationService, logService: ILogService, contextKeyService: IContextKeyService, themeService: IThemeService, commandService: ICommandService, hoverService: IHoverService, chatWidgetService: IChatWidgetService, chatEntitlementService: IChatEntitlementService, chatService: IChatService, hostService: IHostService, accessibilitySignalService: IAccessibilitySignalService, accessibilityService: IAccessibilityService);
     private _pendingDragController;
     set pendingDragController(controller: ChatPendingDragController);
     updateOptions(options: IChatListItemRendererOptions): void;
     get templateId(): string;
     editorsInUse(): Iterable<CodeBlockPart>;
-    hasTipFocus(): boolean;
-    focusTip(): boolean;
     private traceLayout;
     /**
      * Compute a rate to render at in words/s.
@@ -197,6 +192,7 @@ export declare class ChatListItemRenderer extends Disposable implements ITreeRen
     private shouldShowFileChangesSummary;
     private getDataForProgressiveRender;
     private diff;
+    private isRenderedPartInsideThinking;
     private hasCodeblockUri;
     private isCodeblockComplete;
     private shouldPinPart;

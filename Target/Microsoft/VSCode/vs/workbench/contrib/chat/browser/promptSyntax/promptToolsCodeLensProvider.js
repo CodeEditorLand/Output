@@ -67,20 +67,20 @@ let PromptToolsCodeLensProvider = class PromptToolsCodeLensProvider2 extends Dis
       return void 0;
     }
     let value = toolsAttr.value;
-    if (value.type === "string") {
+    if (value.type === "scalar") {
       value = parseCommaSeparatedList(value);
     }
-    if (value.type !== "array") {
+    if (value.type !== "sequence") {
       return void 0;
     }
     const items = value.items;
-    const selectedTools = items.filter((item) => item.type === "string").map((item) => item.value);
+    const selectedTools = items.filter((item) => item.type === "scalar").map((item) => item.value);
     const codeLens = {
       range: toolsAttr.range.collapseToStart(),
       command: {
         title: localize("configure-tools.capitalized.ellipsis", "Configure Tools..."),
         id: this.cmdId,
-        arguments: [model, toolsAttr.range, toolsAttr.value.type === "string", selectedTools, target]
+        arguments: [model, toolsAttr.range, toolsAttr.value.type === "scalar", selectedTools, target]
       }
     };
     return { lenses: [codeLens] };

@@ -3059,7 +3059,7 @@ class ChatRequestTurn {
   static {
     __name(this, "ChatRequestTurn");
   }
-  constructor(prompt, command, references, participant, toolReferences, editedFileEvents, id) {
+  constructor(prompt, command, references, participant, toolReferences, editedFileEvents, id, modelId) {
     this.prompt = prompt;
     this.command = command;
     this.references = references;
@@ -3067,6 +3067,7 @@ class ChatRequestTurn {
     this.toolReferences = toolReferences;
     this.editedFileEvents = editedFileEvents;
     this.id = id;
+    this.modelId = modelId;
   }
 }
 class ChatResponseTurn {

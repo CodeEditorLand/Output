@@ -9,7 +9,6 @@ import { KeybindingsRegistry } from "../../../../../platform/keybinding/common/k
 import { ChatViewId, IChatWidgetService } from "../../../chat/browser/chat.js";
 import { ChatContextKeys } from "../../../chat/common/actions/chatContextKeys.js";
 import { IChatService } from "../../../chat/common/chatService/chatService.js";
-import { LocalChatSessionUri } from "../../../chat/common/model/chatUri.js";
 import { ChatAgentLocation, ChatConfiguration } from "../../../chat/common/constants.js";
 import { isDetachedTerminalInstance, ITerminalChatService, ITerminalEditorService, ITerminalGroupService, ITerminalService } from "../../../terminal/browser/terminal.js";
 import { registerActiveXtermAction } from "../../../terminal/browser/terminalActions.js";
@@ -322,10 +321,11 @@ registerAction2(class ShowChatTerminalsAction extends Action2 {
         2
         /* TerminalCapability.CommandDetection */
       )?.commands.at(-1)?.command;
-      const chatSessionId = terminalChatService.getChatSessionIdForInstance(instance);
+      const chatSessionResource = terminalChatService.getChatSessionResourceForInstance(instance);
       let chatSessionTitle;
-      if (chatSessionId) {
-        chatSessionTitle = chatService.getSessionTitle(LocalChatSessionUri.forSession(chatSessionId));
+      if (chatSessionResource) {
+        const liveTitle = chatService.getSession(chatSessionResource)?.title;
+        chatSessionTitle = liveTitle ?? chatService.getSessionTitle(chatSessionResource);
       }
       const description = chatSessionTitle;
       let detail;
@@ -400,7 +400,6 @@ KeybindingsRegistry.registerCommandAndKeybindingRule({
   id: "workbench.action.terminal.chat.focusMostRecentChatTerminal",
   weight: 200,
   when: ChatContextKeys.inChatSession,
-  primary: 2048 | 1024 | 512 | 50,
   handler: /* @__PURE__ */ __name(async (accessor) => {
     const terminalChatService = accessor.get(ITerminalChatService);
     const part = terminalChatService.getMostRecentProgressPart();

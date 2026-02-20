@@ -53,8 +53,6 @@ export declare class PromptHeader {
     private _parsed;
     constructor(range: Range, uri: URI, linesWithEOL: string[]);
     private get _parsedHeader();
-    private asRange;
-    private asValue;
     get attributes(): IHeaderAttribute[];
     getAttribute(key: string): IHeaderAttribute | undefined;
     get errors(): ParseError[];
@@ -95,40 +93,26 @@ export interface IHeaderAttribute {
     readonly key: string;
     readonly value: IValue;
 }
-export interface IStringValue {
-    readonly type: 'string';
+export interface IScalarValue {
+    readonly type: 'scalar';
     readonly value: string;
     readonly range: Range;
+    readonly format: 'single' | 'double' | 'none' | 'literal' | 'folded';
 }
-export interface INumberValue {
-    readonly type: 'number';
-    readonly value: number;
-    readonly range: Range;
-}
-export interface INullValue {
-    readonly type: 'null';
-    readonly value: null;
-    readonly range: Range;
-}
-export interface IBooleanValue {
-    readonly type: 'boolean';
-    readonly value: boolean;
-    readonly range: Range;
-}
-export interface IArrayValue {
-    readonly type: 'array';
+export interface ISequenceValue {
+    readonly type: 'sequence';
     readonly items: readonly IValue[];
     readonly range: Range;
 }
-export interface IObjectValue {
-    readonly type: 'object';
+export interface IMapValue {
+    readonly type: 'map';
     readonly properties: {
-        key: IStringValue;
+        key: IScalarValue;
         value: IValue;
     }[];
     readonly range: Range;
 }
-export type IValue = IStringValue | INumberValue | IBooleanValue | IArrayValue | IObjectValue | INullValue;
+export type IValue = IScalarValue | ISequenceValue | IMapValue;
 export declare class PromptBody {
     readonly range: Range;
     private readonly linesWithEOL;
@@ -157,6 +141,6 @@ export interface IBodyVariableReference {
  * Values can be unquoted or quoted (single or double quotes).
  *
  * @param input A string containing comma-separated values
- * @returns An IArrayValue containing the parsed values and their ranges
+ * @returns An ISequenceValue containing the parsed values and their ranges
  */
-export declare function parseCommaSeparatedList(stringValue: IStringValue): IArrayValue;
+export declare function parseCommaSeparatedList(stringValue: IScalarValue): ISequenceValue;

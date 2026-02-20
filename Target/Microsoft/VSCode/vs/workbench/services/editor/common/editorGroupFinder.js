@@ -62,13 +62,9 @@ function doFindGroup(input, preferredGroup, editorGroupService, configurationSer
     }
     group = candidateGroup;
   } else if (preferredGroup === AUX_WINDOW_GROUP) {
-    group = editorGroupService.createAuxiliaryEditorPart({
-      bounds: options?.auxiliary?.bounds,
-      compact: options?.auxiliary?.compact,
-      alwaysOnTop: options?.auxiliary?.alwaysOnTop
-    }).then((group2) => group2.activeGroup);
+    group = editorGroupService.createAuxiliaryEditorPart(options?.auxiliary).then((group2) => group2.activeGroup);
   } else if (preferredGroup === MODAL_GROUP && configurationService.getValue("workbench.editor.allowOpenInModalEditor")) {
-    group = editorGroupService.createModalEditorPart().then((part) => part.activeGroup);
+    group = editorGroupService.createModalEditorPart(options?.modal).then((part) => part.activeGroup);
   } else if (!options || typeof options.index !== "number") {
     const groupsByLastActive = editorGroupService.getGroups(
       1

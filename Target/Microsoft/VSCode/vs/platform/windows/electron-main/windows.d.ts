@@ -30,6 +30,7 @@ export interface IWindowsMainService {
     openEmptyWindow(openConfig: IOpenEmptyConfiguration, options?: IOpenEmptyWindowOptions): Promise<ICodeWindow[]>;
     openExtensionDevelopmentHostWindow(extensionDevelopmentPath: string[], openConfig: IOpenConfiguration): Promise<ICodeWindow[]>;
     openExistingWindow(window: ICodeWindow, openConfig: IOpenConfiguration): void;
+    openSessionsWindow(openConfig: IBaseOpenConfiguration): Promise<ICodeWindow[]>;
     sendToFocused(channel: string, ...args: unknown[]): void;
     sendToOpeningWindow(channel: string, ...args: unknown[]): void;
     sendToAll(channel: string, payload?: unknown, windowIdsToIgnore?: number[]): void;

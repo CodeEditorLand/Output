@@ -36,6 +36,7 @@ import { AccessibilitySignal, IAccessibilitySignalService } from "../../../../..
 import { editorSelectionBackground } from "../../../../../platform/theme/common/colorRegistry.js";
 import { ChatAgentLocation } from "../../common/constants.js";
 import { pendingRewriteMinimap } from "./chatEditingModifiedFileEntry.js";
+import { chatSessionResourceToId } from "../../common/model/chatUri.js";
 let ChatEditingTextModelChangeService = class ChatEditingTextModelChangeService2 extends Disposable {
   static {
     __name(this, "ChatEditingTextModelChangeService");
@@ -225,7 +226,7 @@ let ChatEditingTextModelChangeService = class ChatEditingTextModelChangeService2
     if (!responseModel) {
       return EditSources.unknown({ name: "editSessionUndoRedo" });
     }
-    const sessionId = responseModel.session.sessionId;
+    const sessionId = chatSessionResourceToId(responseModel.session.sessionResource);
     const request = responseModel.session.getRequests().at(-1);
     const languageId = this.modifiedModel.getLanguageId();
     const agent = responseModel.agent;

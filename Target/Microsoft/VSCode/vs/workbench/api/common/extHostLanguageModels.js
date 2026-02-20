@@ -198,6 +198,7 @@ let ExtHostLanguageModels = class ExtHostLanguageModels2 {
           isDefaultForLocation,
           isUserSelectable: m.isUserSelectable,
           statusIcon: m.statusIcon,
+          targetChatSessionType: m.targetChatSessionType,
           modelPickerCategory: m.category ?? DEFAULT_MODEL_PICKER_CATEGORY,
           capabilities: m.capabilities ? {
             vision: m.capabilities.imageInput,

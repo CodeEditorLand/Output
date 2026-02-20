@@ -68,14 +68,14 @@ let RemotePty = class RemotePty2 extends BasePty {
   processBinary(e) {
     return this._remoteTerminalChannel.processBinary(this.id, e);
   }
-  resize(cols, rows) {
+  resize(cols, rows, pixelWidth, pixelHeight) {
     if (this._inReplay || this._lastDimensions.cols === cols && this._lastDimensions.rows === rows) {
       return;
     }
     this._startBarrier.wait().then((_) => {
       this._lastDimensions.cols = cols;
       this._lastDimensions.rows = rows;
-      this._remoteTerminalChannel.resize(this.id, cols, rows);
+      this._remoteTerminalChannel.resize(this.id, cols, rows, pixelWidth, pixelHeight);
     });
   }
   async clearBuffer() {

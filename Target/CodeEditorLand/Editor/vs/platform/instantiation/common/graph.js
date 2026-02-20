@@ -2,4 +2,4 @@ class r{constructor(o,t){this.key=o,this.data=t,this.incoming=new Map,this.outgo
 	(-> incoming)[${[...e.incoming.keys()].join(", ")}]
 	(outgoing ->)[${[...e.outgoing.keys()].join(",")}]
 `);return o.join(`
-`)}findCycleSlow(){for(const[o,t]of this.a){const e=new Set([o]),n=this.c(t,e);if(n)return n}}c(o,t){for(const[e,n]of o.outgoing){if(t.has(e))return[...t,e].join(" -> ");t.add(e);const i=this.c(n,t);if(i)return i;t.delete(e)}}}export{r as $$B,u as $_B};
+`)}findCycleSlow(){for(const[o,t]of this.a){const e=new Set([o]),n=this.c(t,e);if(n)return n}}c(o,t){for(const[e,n]of o.outgoing){if(t.has(e))return[...t,e].join(" -> ");t.add(e);const i=this.c(n,t);if(i)return i;t.delete(e)}}}export{r as $CC,u as $DC};

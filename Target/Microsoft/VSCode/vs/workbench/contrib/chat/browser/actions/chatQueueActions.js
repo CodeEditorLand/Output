@@ -7,13 +7,10 @@ import { Action2, MenuId, MenuRegistry, registerAction2 } from "../../../../../p
 import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
 import { ChatContextKeys } from "../../common/actions/chatContextKeys.js";
 import { IChatService } from "../../common/chatService/chatService.js";
-import { ChatConfiguration } from "../../common/constants.js";
 import { isRequestVM } from "../../common/model/chatViewModel.js";
 import { IChatWidgetService } from "../chat.js";
 import { CHAT_CATEGORY } from "./chatActions.js";
-const queueingEnabledCondition = ContextKeyExpr.equals(`config.${ChatConfiguration.RequestQueueingEnabled}`, true);
-const requestInProgressOrPendingToolCall = ContextKeyExpr.or(ChatContextKeys.requestInProgress, ChatContextKeys.Editing.hasToolConfirmation);
-const queuingActionsPresent = ContextKeyExpr.and(queueingEnabledCondition, ContextKeyExpr.or(requestInProgressOrPendingToolCall, ChatContextKeys.editingRequestType.isEqualTo(
+const queuingActionsPresent = ContextKeyExpr.and(ContextKeyExpr.or(ChatContextKeys.requestInProgress, ChatContextKeys.editingRequestType.isEqualTo(
   "qs"
   /* ChatContextKeys.EditingRequestType.QueueOrSteer */
 )), ChatContextKeys.editingRequestType.notEqualsTo(
@@ -120,7 +117,7 @@ class ChatRemovePendingRequestAction extends Action2 {
         id: MenuId.ChatMessageTitle,
         group: "navigation",
         order: 4,
-        when: ContextKeyExpr.and(queueingEnabledCondition, ChatContextKeys.isRequest, ChatContextKeys.isPendingRequest)
+        when: ContextKeyExpr.and(ChatContextKeys.isRequest, ChatContextKeys.isPendingRequest)
       }]
     });
   }
@@ -155,7 +152,7 @@ class ChatSendPendingImmediatelyAction extends Action2 {
         id: MenuId.ChatMessageTitle,
         group: "navigation",
         order: 3,
-        when: ContextKeyExpr.and(queueingEnabledCondition, ChatContextKeys.isRequest, ChatContextKeys.isPendingRequest)
+        when: ContextKeyExpr.and(ChatContextKeys.isRequest, ChatContextKeys.isPendingRequest)
       }]
     });
   }
@@ -204,7 +201,7 @@ class ChatRemoveAllPendingRequestsAction extends Action2 {
         id: MenuId.ChatContext,
         group: "navigation",
         order: 3,
-        when: ContextKeyExpr.and(queueingEnabledCondition, ChatContextKeys.hasPendingRequests)
+        when: ChatContextKeys.hasPendingRequests
       }]
     });
   }

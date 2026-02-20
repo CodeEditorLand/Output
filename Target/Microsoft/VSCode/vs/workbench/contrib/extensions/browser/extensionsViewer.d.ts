@@ -1,9 +1,10 @@
-import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IDisposable, Disposable, MutableDisposable } from '../../../../base/common/lifecycle.js';
 import { IExtensionsWorkbenchService, IExtension, IExtensionsViewState } from '../common/extensions.js';
 import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
 import { IListService, IWorkbenchPagedListOptions, WorkbenchAsyncDataTree, WorkbenchPagedList } from '../../../../platform/list/browser/listService.js';
 import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
 import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { IModalEditorPartOptions } from '../../../../platform/editor/common/editor.js';
 import { Delegate } from './extensionsList.js';
 import { IListStyles } from '../../../../base/browser/ui/list/listWidget.js';
 import { IStyleOverride } from '../../../../platform/theme/browser/defaultStyles.js';
@@ -12,14 +13,17 @@ import { IWorkbenchLayoutService } from '../../../services/layout/browser/layout
 import { IContextMenuService } from '../../../../platform/contextview/browser/contextView.js';
 import { INotificationService } from '../../../../platform/notification/common/notification.js';
 import { IPagedModel } from '../../../../base/common/paging.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
 export declare class ExtensionsList extends Disposable {
     private readonly extensionsWorkbenchService;
     private readonly contextMenuService;
     private readonly contextKeyService;
     private readonly instantiationService;
+    private readonly logService;
     readonly list: WorkbenchPagedList<IExtension>;
     private readonly contextMenuActionRunner;
-    constructor(parent: HTMLElement, viewId: string, options: Partial<IWorkbenchPagedListOptions<IExtension>>, extensionsViewState: IExtensionsViewState, extensionsWorkbenchService: IExtensionsWorkbenchService, viewDescriptorService: IViewDescriptorService, layoutService: IWorkbenchLayoutService, notificationService: INotificationService, contextMenuService: IContextMenuService, contextKeyService: IContextKeyService, instantiationService: IInstantiationService);
+    private readonly modalNavigationDisposable;
+    constructor(parent: HTMLElement, viewId: string, options: Partial<IWorkbenchPagedListOptions<IExtension>>, extensionsViewState: IExtensionsViewState, extensionsWorkbenchService: IExtensionsWorkbenchService, viewDescriptorService: IViewDescriptorService, layoutService: IWorkbenchLayoutService, notificationService: INotificationService, contextMenuService: IContextMenuService, contextKeyService: IContextKeyService, instantiationService: IInstantiationService, logService: ILogService);
     setModel(model: IPagedModel<IExtension>): void;
     layout(height?: number, width?: number): void;
     private openExtension;
@@ -55,4 +59,8 @@ export declare class ExtensionData implements IExtensionData {
     getChildren(): Promise<IExtensionData[] | null>;
 }
 export declare function getExtensions(extensions: string[], extensionsWorkbenchService: IExtensionsWorkbenchService): Promise<IExtension[]>;
+/**
+ * Builds modal navigation options for navigating items in a paged list model.
+ */
+export declare function buildModalNavigationForPagedList<T>(openedItem: T, getModel: () => IPagedModel<T> | undefined, isSame: (a: T, b: T) => boolean, openItem: (item: T, modal: IModalEditorPartOptions) => void, cancellationStore: MutableDisposable<IDisposable>, logService: ILogService): IModalEditorPartOptions | undefined;
 export {};

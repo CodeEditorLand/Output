@@ -335,13 +335,13 @@ class BranchNode {
     index = validateIndex(index, this.children.length);
     return this.splitview.isViewVisible(index);
   }
-  setChildVisible(index, visible, animation) {
+  setChildVisible(index, visible) {
     index = validateIndex(index, this.children.length);
     if (this.splitview.isViewVisible(index) === visible) {
       return;
     }
     const wereAllChildrenHidden = this.splitview.contentSize === 0;
-    this.splitview.setViewVisible(index, visible, animation);
+    this.splitview.setViewVisible(index, visible);
     const areAllChildrenHidden = this.splitview.contentSize === 0;
     if (visible && wereAllChildrenHidden || !visible && areAllChildrenHidden) {
       this._onDidVisibilityChange.fire(visible);
@@ -433,6 +433,7 @@ class BranchNode {
       child.dispose();
     }
     this._onDidChange.dispose();
+    this._onDidScroll.dispose();
     this._onDidSashReset.dispose();
     this._onDidVisibilityChange.dispose();
     this.childrenVisibilityChangeDisposable.dispose();
@@ -582,6 +583,7 @@ class LeafNode {
     this.view.setVisible?.(visible);
   }
   dispose() {
+    this._onDidSetLinkedNode.dispose();
     this.disposables.dispose();
   }
 }
@@ -1109,7 +1111,7 @@ class GridView {
    *
    * @param location The {@link GridLocation location} of the view.
    */
-  setViewVisible(location, visible, animation) {
+  setViewVisible(location, visible) {
     if (this.hasMaximizedView()) {
       this.exitMaximizedView();
       return;
@@ -1119,7 +1121,7 @@ class GridView {
     if (!(parent instanceof BranchNode)) {
       throw new Error("Invalid from location");
     }
-    parent.setChildVisible(index, visible, animation);
+    parent.setChildVisible(index, visible);
   }
   getView(location) {
     const node = location ? this.getNode(location)[1] : this._root;
@@ -1233,6 +1235,7 @@ class GridView {
     }
   }
   dispose() {
+    this._onDidChangeViewMaximized.dispose();
     this.onDidSashResetRelay.dispose();
     this.root.dispose();
     this.element.remove();

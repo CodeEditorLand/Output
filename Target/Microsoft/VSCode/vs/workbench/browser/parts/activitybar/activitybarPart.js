@@ -398,9 +398,24 @@ let ActivityBarCompositeBar = class ActivityBarCompositeBar2 extends PaneComposi
     const activityBarPositionMenu = this.menuService.getMenuActions(MenuId.ActivityBarPositionMenu, this.contextKeyService, { shouldForwardArgs: true, renderShortTitle: true });
     const positionActions = getContextMenuActions(activityBarPositionMenu).secondary;
     const actions = [
-      new SubmenuAction("workbench.action.panel.position", localize("activity bar position", "Activity Bar Position"), positionActions),
-      toAction({ id: ToggleSidebarPositionAction.ID, label: ToggleSidebarPositionAction.getLabel(this.layoutService), run: /* @__PURE__ */ __name(() => this.instantiationService.invokeFunction((accessor) => new ToggleSidebarPositionAction().run(accessor)), "run") })
+      new SubmenuAction("workbench.action.activityBar.position", localize("activity bar position", "Activity Bar Position"), positionActions)
     ];
+    const activityBarPosition = this.configurationService.getValue(
+      "workbench.activityBar.location"
+      /* LayoutSettings.ACTIVITY_BAR_LOCATION */
+    );
+    if (activityBarPosition === "default") {
+      const isCompact = this.configurationService.getValue(
+        "workbench.activityBar.compact"
+        /* LayoutSettings.ACTIVITY_BAR_COMPACT */
+      ) ?? false;
+      const sizeActions = [
+        toAction({ id: "workbench.action.activityBar.size.default", label: localize("activityBarSizeDefault", "Default"), checked: !isCompact, run: /* @__PURE__ */ __name(() => this.configurationService.updateValue("workbench.activityBar.compact", false), "run") }),
+        toAction({ id: "workbench.action.activityBar.size.compact", label: localize("activityBarSizeCompact", "Compact"), checked: isCompact, run: /* @__PURE__ */ __name(() => this.configurationService.updateValue("workbench.activityBar.compact", true), "run") })
+      ];
+      actions.push(new SubmenuAction("workbench.action.activityBar.size", localize("activity bar size", "Activity Bar Size"), sizeActions));
+    }
+    actions.push(toAction({ id: ToggleSidebarPositionAction.ID, label: ToggleSidebarPositionAction.getLabel(this.layoutService), run: /* @__PURE__ */ __name(() => this.instantiationService.invokeFunction((accessor) => new ToggleSidebarPositionAction().run(accessor)), "run") }));
     if (this.part === "workbench.parts.sidebar") {
       actions.push(toAction({ id: ToggleSidebarVisibilityAction.ID, label: ToggleSidebarVisibilityAction.LABEL, run: /* @__PURE__ */ __name(() => this.instantiationService.invokeFunction((accessor) => new ToggleSidebarVisibilityAction().run(accessor)), "run") }));
     }

@@ -415,6 +415,7 @@ class MainThreadSCMProvider {
       const artifactProvider = new MainThreadSCMArtifactProvider(this.proxy, this.handle);
       this._artifactProvider.set(artifactProvider, void 0);
     } else if (features.hasArtifactProvider === false && this.artifactProvider.get()) {
+      this._artifactProvider.get()?.dispose();
       this._artifactProvider.set(void 0, void 0);
     }
     if (features.hasHistoryProvider && !this.historyProvider.get()) {
@@ -519,6 +520,9 @@ class MainThreadSCMProvider {
     };
   }
   dispose() {
+    this._onDidChangeResourceGroups.dispose();
+    this._onDidChangeResources.dispose();
+    this._artifactProvider.get()?.dispose();
     this._stagedQuickDiff?.dispose();
     this._quickDiff?.dispose();
   }

@@ -15,6 +15,7 @@ var ChatEditorInput_1;
 import { CancellationToken } from "../../../../../../base/common/cancellation.js";
 import { Codicon } from "../../../../../../base/common/codicons.js";
 import { Disposable, MutableDisposable } from "../../../../../../base/common/lifecycle.js";
+import { revive } from "../../../../../../base/common/marshalling.js";
 import { Schemas } from "../../../../../../base/common/network.js";
 import { isEqual } from "../../../../../../base/common/resources.js";
 import { truncate } from "../../../../../../base/common/strings.js";
@@ -284,7 +285,7 @@ class ChatEditorInputSerializer {
   }
   deserialize(instantiationService, serializedEditor) {
     try {
-      const parsed = JSON.parse(serializedEditor);
+      const parsed = revive(JSON.parse(serializedEditor));
       if (parsed.sessionResource) {
         const sessionResource = URI.revive(parsed.sessionResource);
         return instantiationService.createInstance(ChatEditorInput, sessionResource, parsed.options);

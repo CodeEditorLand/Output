@@ -26,7 +26,6 @@ import { IQuickInputService } from "../../../../platform/quickinput/common/quick
 import { ChatElicitationRequestPart } from "../../chat/common/model/chatProgressTypes/chatElicitationRequestPart.js";
 import { ChatModel } from "../../chat/common/model/chatModel.js";
 import { IChatService } from "../../chat/common/chatService/chatService.js";
-import { LocalChatSessionUri } from "../../chat/common/model/chatUri.js";
 import { McpConnectionState, MpcResponseError } from "../common/mcpTypes.js";
 import { mcpServerToSourceData } from "../common/mcpTypesUtils.js";
 import { MCP } from "../common/modelContextProtocol.js";
@@ -87,7 +86,7 @@ let McpElicitationService = class McpElicitationService2 {
   async _elicitForm(server, context, elicitation, token) {
     const store = new DisposableStore();
     const value = await new Promise((resolve) => {
-      const chatModel = context?.chatSessionId && this._chatService.getSession(LocalChatSessionUri.forSession(context.chatSessionId));
+      const chatModel = context?.chatSessionResource && this._chatService.getSession(context.chatSessionResource);
       if (chatModel instanceof ChatModel) {
         const request = chatModel.getRequests().at(-1);
         if (request) {
@@ -143,7 +142,7 @@ let McpElicitationService = class McpElicitationService2 {
     }).finally(() => promiseStore.dispose());
     const store = new DisposableStore();
     const value = await new Promise((resolve) => {
-      const chatModel = context?.chatSessionId && this._chatService.getSession(LocalChatSessionUri.forSession(context.chatSessionId));
+      const chatModel = context?.chatSessionResource && this._chatService.getSession(context.chatSessionResource);
       if (chatModel instanceof ChatModel) {
         const request = chatModel.getRequests().at(-1);
         if (request) {

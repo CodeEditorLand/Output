@@ -8,6 +8,18 @@ let pkgObj = { BUILD_INSERT_PACKAGE_CONFIGURATION: "BUILD_INSERT_PACKAGE_CONFIGU
 if (pkgObj["BUILD_INSERT_PACKAGE_CONFIGURATION"]) {
   pkgObj = require2("../package.json");
 }
+if (process.isEmbeddedApp) {
+  try {
+    const productSubObj = require2("../product.sub.json");
+    productObj = Object.assign(productObj, productSubObj);
+  } catch (error) {
+  }
+  try {
+    const pkgSubObj = require2("../package.sub.json");
+    pkgObj = Object.assign(pkgObj, pkgSubObj);
+  } catch (error) {
+  }
+}
 let productOverridesObj = {};
 if (process.env["VSCODE_DEV"]) {
   try {

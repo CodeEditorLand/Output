@@ -1,9 +1,9 @@
 import "./inlineChatDefaultModel.js";
 import { registerEditorContribution } from "../../../../editor/browser/editorExtensions.js";
-import { MenuRegistry, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { MenuId, MenuRegistry, registerAction2 } from "../../../../platform/actions/common/actions.js";
 import { InlineChatController } from "./inlineChatController.js";
 import * as InlineChatActions from "./inlineChatActions.js";
-import { CTX_INLINE_CHAT_EDITING, CTX_INLINE_CHAT_V1_ENABLED, CTX_INLINE_CHAT_REQUEST_IN_PROGRESS, MENU_INLINE_CHAT_WIDGET_STATUS } from "../common/inlineChat.js";
+import { CTX_INLINE_CHAT_EDITING, CTX_INLINE_CHAT_V1_ENABLED, CTX_INLINE_CHAT_REQUEST_IN_PROGRESS, MENU_INLINE_CHAT_WIDGET_STATUS, ACTION_START } from "../common/inlineChat.js";
 import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
 import { Registry } from "../../../../platform/registry/common/platform.js";
 import { InlineChatNotebookContribution } from "./inlineChatNotebook.js";
@@ -16,6 +16,8 @@ import { localize } from "../../../../nls.js";
 import { ChatContextKeys } from "../../chat/common/actions/chatContextKeys.js";
 import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
 import { InlineChatAccessibilityHelp } from "./inlineChatAccessibilityHelp.js";
+import { EditorContextKeys } from "../../../../editor/common/editorContextKeys.js";
+import { Codicon } from "../../../../base/common/codicons.js";
 registerEditorContribution(
   InlineChatController.ID,
   InlineChatController,
@@ -62,8 +64,20 @@ const cancelActionMenuItem = {
   when: ContextKeyExpr.and(CTX_INLINE_CHAT_REQUEST_IN_PROGRESS)
 };
 MenuRegistry.appendMenuItem(MENU_INLINE_CHAT_WIDGET_STATUS, cancelActionMenuItem);
+MenuRegistry.appendMenuItem(MenuId.InlineChatEditorAffordance, {
+  group: "0_chat",
+  order: 1,
+  command: {
+    id: ACTION_START,
+    title: localize("editCode", "Ask for Edits"),
+    shortTitle: localize("editCodeShort", "Ask for Edits"),
+    icon: Codicon.sparkle
+  },
+  when: EditorContextKeys.hasNonEmptySelection
+});
 registerAction2(InlineChatActions.StartSessionAction);
 registerAction2(InlineChatActions.FocusInlineChat);
+registerAction2(InlineChatActions.SubmitInlineChatInputAction);
 const workbenchContributionsRegistry = Registry.as(WorkbenchExtensions.Workbench);
 workbenchContributionsRegistry.registerWorkbenchContribution(
   InlineChatNotebookContribution,

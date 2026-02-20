@@ -15,6 +15,7 @@ import { ILanguageFeaturesService } from '../../../common/services/languageFeatu
 import { CodeActionAutoApply, CodeActionFilter, CodeActionItem, CodeActionSet, CodeActionTrigger, CodeActionTriggerSource } from '../common/types.js';
 import { ApplyCodeActionReason } from './codeAction.js';
 import { LightBulbInfo } from './lightBulbWidget.js';
+import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
 interface IActionShowOptions {
     readonly includeDisabledActions?: boolean;
     readonly fromLightbulb?: boolean;
@@ -25,6 +26,7 @@ export declare class CodeActionController extends Disposable implements IEditorC
     private readonly _actionWidgetService;
     private readonly _instantiationService;
     private readonly _progressService;
+    private readonly _keybindingService;
     static readonly ID = "editor.contrib.codeActionController";
     static get(editor: ICodeEditor): CodeActionController | null;
     private readonly _editor;
@@ -34,8 +36,14 @@ export declare class CodeActionController extends Disposable implements IEditorC
     private _showDisabled;
     private readonly _resolver;
     private _disposed;
+    set onlyLightBulbWithEmptySelection(value: boolean);
+    private _onlyLightBulbWithEmptySelection;
+    private readonly _lightBulbInfoObs;
+    private readonly _preferredKbLabel;
+    private readonly _quickFixKbLabel;
+    private _hasLightBulbStateObservers;
     readonly lightBulbState: IObservable<LightBulbInfo | undefined>;
-    constructor(editor: ICodeEditor, markerService: IMarkerService, contextKeyService: IContextKeyService, instantiationService: IInstantiationService, languageFeaturesService: ILanguageFeaturesService, progressService: IEditorProgressService, _commandService: ICommandService, _configurationService: IConfigurationService, _actionWidgetService: IActionWidgetService, _instantiationService: IInstantiationService, _progressService: IEditorProgressService);
+    constructor(editor: ICodeEditor, markerService: IMarkerService, contextKeyService: IContextKeyService, instantiationService: IInstantiationService, languageFeaturesService: ILanguageFeaturesService, progressService: IEditorProgressService, _commandService: ICommandService, _configurationService: IConfigurationService, _actionWidgetService: IActionWidgetService, _instantiationService: IInstantiationService, _progressService: IEditorProgressService, _keybindingService: IKeybindingService);
     dispose(): void;
     private showCodeActionsFromLightbulb;
     showCodeActions(_trigger: CodeActionTrigger, actions: CodeActionSet, at: IAnchor | IPosition): Promise<void>;

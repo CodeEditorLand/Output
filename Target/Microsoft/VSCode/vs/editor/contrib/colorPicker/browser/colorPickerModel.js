@@ -1,7 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Emitter } from "../../../../base/common/event.js";
-class ColorPickerModel {
+import { Disposable } from "../../../../base/common/lifecycle.js";
+class ColorPickerModel extends Disposable {
   static {
     __name(this, "ColorPickerModel");
   }
@@ -29,12 +30,13 @@ class ColorPickerModel {
     this._onDidChangePresentation.fire(this.presentation);
   }
   constructor(color, availableColorPresentations, presentationIndex) {
+    super();
     this.presentationIndex = presentationIndex;
-    this._onColorFlushed = new Emitter();
+    this._onColorFlushed = this._register(new Emitter());
     this.onColorFlushed = this._onColorFlushed.event;
-    this._onDidChangeColor = new Emitter();
+    this._onDidChangeColor = this._register(new Emitter());
     this.onDidChangeColor = this._onDidChangeColor.event;
-    this._onDidChangePresentation = new Emitter();
+    this._onDidChangePresentation = this._register(new Emitter());
     this.onDidChangePresentation = this._onDidChangePresentation.event;
     this.originalColor = color;
     this._color = color;

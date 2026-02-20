@@ -15,7 +15,7 @@ import { $, append } from "../../../../../../base/browser/dom.js";
 import { alert } from "../../../../../../base/browser/ui/aria/aria.js";
 import { Codicon } from "../../../../../../base/common/codicons.js";
 import { MarkdownString } from "../../../../../../base/common/htmlContent.js";
-import { Disposable, MutableDisposable } from "../../../../../../base/common/lifecycle.js";
+import { Disposable, DisposableStore, MutableDisposable } from "../../../../../../base/common/lifecycle.js";
 import { ThemeIcon } from "../../../../../../base/common/themables.js";
 import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
 import { localize } from "../../../../../../nls.js";
@@ -31,7 +31,7 @@ let ChatProgressContentPart = class ChatProgressContentPart2 extends Disposable 
   static {
     __name(this, "ChatProgressContentPart");
   }
-  constructor(progress, chatContentMarkdownRenderer, context, forceShowSpinner, forceShowMessage, icon, toolInvocation, instantiationService, chatMarkdownAnchorService, configurationService) {
+  constructor(progress, chatContentMarkdownRenderer, context, forceShowSpinner, forceShowMessage, icon, toolInvocation, shimmer, instantiationService, chatMarkdownAnchorService, configurationService) {
     super();
     this.chatContentMarkdownRenderer = chatContentMarkdownRenderer;
     this.toolInvocation = toolInvocation;
@@ -39,6 +39,7 @@ let ChatProgressContentPart = class ChatProgressContentPart2 extends Disposable 
     this.chatMarkdownAnchorService = chatMarkdownAnchorService;
     this.configurationService = configurationService;
     this.renderedMessage = this._register(new MutableDisposable());
+    this._fileWidgetStore = this._register(new DisposableStore());
     this.currentContent = progress.content;
     const followingContent = context.content.slice(context.contentIndex + 1);
     this.showSpinner = forceShowSpinner ?? shouldShowSpinner(followingContent, context.element);
@@ -53,13 +54,18 @@ let ChatProgressContentPart = class ChatProgressContentPart2 extends Disposable 
     )) {
       alert(progress.content.value);
     }
-    const codicon = icon ? icon : this.showSpinner ? ThemeIcon.modify(Codicon.loading, "spin") : Codicon.check;
+    const isLoadingIcon = icon && ThemeIcon.isEqual(icon, ThemeIcon.modify(Codicon.loading, "spin"));
+    const useShimmer = shimmer ?? ((!icon || isLoadingIcon) && this.showSpinner);
+    const codicon = useShimmer ? Codicon.check : icon ?? (this.showSpinner ? ThemeIcon.modify(Codicon.loading, "spin") : Codicon.check);
     const result = this.chatContentMarkdownRenderer.render(progress.content);
     result.element.classList.add("progress-step");
-    renderFileWidgets(result.element, this.instantiationService, this.chatMarkdownAnchorService, this._store);
+    renderFileWidgets(result.element, this.instantiationService, this.chatMarkdownAnchorService, this._fileWidgetStore);
     const tooltip = this.createApprovalMessage();
     const progressPart = this._register(instantiationService.createInstance(ChatProgressSubPart, result.element, codicon, tooltip));
     this.domNode = progressPart.domNode;
+    if (useShimmer) {
+      this.domNode.classList.add("shimmer-progress");
+    }
     this.renderedMessage.value = result;
   }
   updateMessage(content) {
@@ -68,7 +74,8 @@ let ChatProgressContentPart = class ChatProgressContentPart2 extends Disposable 
     }
     const result = this._register(this.chatContentMarkdownRenderer.render(content));
     result.element.classList.add("progress-step");
-    renderFileWidgets(result.element, this.instantiationService, this.chatMarkdownAnchorService, this._store);
+    this._fileWidgetStore.clear();
+    renderFileWidgets(result.element, this.instantiationService, this.chatMarkdownAnchorService, this._fileWidgetStore);
     if (this.renderedMessage.value) {
       this.renderedMessage.value.element.replaceWith(result.element);
     } else {
@@ -91,9 +98,9 @@ let ChatProgressContentPart = class ChatProgressContentPart2 extends Disposable 
   }
 };
 ChatProgressContentPart = __decorate([
-  __param(7, IInstantiationService),
-  __param(8, IChatMarkdownAnchorService),
-  __param(9, IConfigurationService)
+  __param(8, IInstantiationService),
+  __param(9, IChatMarkdownAnchorService),
+  __param(10, IConfigurationService)
 ], ChatProgressContentPart);
 function shouldShowSpinner(followingContent, element) {
   return isResponseVM(element) && !element.isComplete && followingContent.length === 0;
@@ -129,10 +136,9 @@ let ChatWorkingProgressContentPart = class ChatWorkingProgressContentPart2 exten
   constructor(_workingProgress, chatContentMarkdownRenderer, context, instantiationService, chatMarkdownAnchorService, configurationService, languageModelToolsService) {
     const progressMessage = {
       kind: "progressMessage",
-      content: new MarkdownString().appendText(localize("workingMessage", "Working..."))
+      content: new MarkdownString().appendText(localize("workingMessage", "Working"))
     };
-    super(progressMessage, chatContentMarkdownRenderer, context, void 0, void 0, void 0, void 0, instantiationService, chatMarkdownAnchorService, configurationService);
-    this.domNode.classList.add("working-progress");
+    super(progressMessage, chatContentMarkdownRenderer, context, void 0, void 0, void 0, void 0, true, instantiationService, chatMarkdownAnchorService, configurationService);
     this._register(languageModelToolsService.onDidPrepareToolCallBecomeUnresponsive((e) => {
       if (isEqual(context.element.sessionResource, e.sessionResource)) {
         this.updateMessage(new MarkdownString(localize("toolCallUnresponsive", "Waiting for tool '{0}' to respond...", e.toolData.displayName)));

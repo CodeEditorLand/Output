@@ -19,13 +19,17 @@ import { ICommandService } from "../../../../platform/commands/common/commands.j
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { IChatAgentService } from "../common/participants/chatAgents.js";
 import { IChatSlashCommandService } from "../common/participants/chatSlashCommands.js";
+import { IChatService } from "../common/chatService/chatService.js";
 import { ChatAgentLocation, ChatModeKind } from "../common/constants.js";
 import { ACTION_ID_NEW_CHAT } from "./actions/chatActions.js";
-import { ChatSubmitAction, OpenModelPickerAction } from "./actions/chatExecuteActions.js";
+import { ChatSubmitAction, OpenModePickerAction, OpenModelPickerAction } from "./actions/chatExecuteActions.js";
 import { ConfigureToolsAction } from "./actions/chatToolActions.js";
 import { IAgentSessionsService } from "./agentSessions/agentSessionsService.js";
 import { IChatWidgetService } from "./chat.js";
+import { CONFIGURE_INSTRUCTIONS_ACTION_ID } from "./promptSyntax/attachInstructionsAction.js";
 import { showConfigureHooksQuickPick } from "./promptSyntax/hookActions.js";
+import { CONFIGURE_PROMPTS_ACTION_ID } from "./promptSyntax/runPromptAction.js";
+import { CONFIGURE_SKILLS_ACTION_ID } from "./promptSyntax/skillActions.js";
 import { agentSlashCommandToMarkdown, agentToMarkdown } from "./widget/chatContentParts/chatMarkdownDecorationsRenderer.js";
 let ChatSlashCommandsContribution = class ChatSlashCommandsContribution2 extends Disposable {
   static {
@@ -34,7 +38,7 @@ let ChatSlashCommandsContribution = class ChatSlashCommandsContribution2 extends
   static {
     this.ID = "workbench.contrib.chatSlashCommands";
   }
-  constructor(slashCommandService, commandService, chatAgentService, chatWidgetService, instantiationService, agentSessionsService) {
+  constructor(slashCommandService, commandService, chatAgentService, chatWidgetService, instantiationService, agentSessionsService, chatService) {
     super();
     this._store.add(slashCommandService.registerSlashCommand({
       command: "clear",
@@ -94,7 +98,7 @@ let ChatSlashCommandsContribution = class ChatSlashCommandsContribution2 extends
       silent: true,
       locations: [ChatAgentLocation.Chat]
     }, async () => {
-      await commandService.executeCommand("workbench.action.chat.configure.customagents");
+      await commandService.executeCommand(OpenModePickerAction.ID);
     }));
     this._store.add(slashCommandService.registerSlashCommand({
       command: "skills",
@@ -104,7 +108,7 @@ let ChatSlashCommandsContribution = class ChatSlashCommandsContribution2 extends
       silent: true,
       locations: [ChatAgentLocation.Chat]
     }, async () => {
-      await commandService.executeCommand("workbench.action.chat.configure.skills");
+      await commandService.executeCommand(CONFIGURE_SKILLS_ACTION_ID);
     }));
     this._store.add(slashCommandService.registerSlashCommand({
       command: "instructions",
@@ -114,7 +118,7 @@ let ChatSlashCommandsContribution = class ChatSlashCommandsContribution2 extends
       silent: true,
       locations: [ChatAgentLocation.Chat]
     }, async () => {
-      await commandService.executeCommand("workbench.action.chat.configure.instructions");
+      await commandService.executeCommand(CONFIGURE_INSTRUCTIONS_ACTION_ID);
     }));
     this._store.add(slashCommandService.registerSlashCommand({
       command: "prompts",
@@ -124,7 +128,20 @@ let ChatSlashCommandsContribution = class ChatSlashCommandsContribution2 extends
       silent: true,
       locations: [ChatAgentLocation.Chat]
     }, async () => {
-      await commandService.executeCommand("workbench.action.chat.configure.prompts");
+      await commandService.executeCommand(CONFIGURE_PROMPTS_ACTION_ID);
+    }));
+    this._store.add(slashCommandService.registerSlashCommand({
+      command: "rename",
+      detail: nls.localize("rename", "Rename this chat"),
+      sortText: "z2_rename",
+      executeImmediately: false,
+      silent: true,
+      locations: [ChatAgentLocation.Chat]
+    }, async (prompt, _progress, _history, _location, sessionResource) => {
+      const title = prompt.trim();
+      if (title) {
+        chatService.setChatSessionTitle(sessionResource, title);
+      }
     }));
     this._store.add(slashCommandService.registerSlashCommand({
       command: "help",
@@ -173,7 +190,8 @@ ChatSlashCommandsContribution = __decorate([
   __param(2, IChatAgentService),
   __param(3, IChatWidgetService),
   __param(4, IInstantiationService),
-  __param(5, IAgentSessionsService)
+  __param(5, IAgentSessionsService),
+  __param(6, IChatService)
 ], ChatSlashCommandsContribution);
 export {
   ChatSlashCommandsContribution

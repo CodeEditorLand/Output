@@ -28,6 +28,7 @@ import { ILogService, LogLevel } from "../../../../../platform/log/common/log.js
 import { IProductService } from "../../../../../platform/product/common/productService.js";
 import { Registry } from "../../../../../platform/registry/common/platform.js";
 import { IStorageService } from "../../../../../platform/storage/common/storage.js";
+import { IWorkspaceContextService } from "../../../../../platform/workspace/common/workspace.js";
 import { IChatEntitlementService } from "../../../../services/chat/common/chatEntitlementService.js";
 import { ILifecycleService } from "../../../../services/lifecycle/common/lifecycle.js";
 import { Extensions, IOutputService } from "../../../../services/output/common/output.js";
@@ -253,7 +254,7 @@ let AgentSessionsModel = class AgentSessionsModel2 extends Disposable {
   get sessions() {
     return Array.from(this._sessions.values());
   }
-  constructor(chatSessionsService, lifecycleService, instantiationService, storageService, productService, chatWidgetService) {
+  constructor(chatSessionsService, lifecycleService, instantiationService, storageService, productService, chatWidgetService, workspaceContextService) {
     super();
     this.chatSessionsService = chatSessionsService;
     this.lifecycleService = lifecycleService;
@@ -261,6 +262,7 @@ let AgentSessionsModel = class AgentSessionsModel2 extends Disposable {
     this.storageService = storageService;
     this.productService = productService;
     this.chatWidgetService = chatWidgetService;
+    this.workspaceContextService = workspaceContextService;
     this._onWillResolve = this._register(new Emitter());
     this.onWillResolve = this._onWillResolve.event;
     this._onDidResolve = this._register(new Emitter());
@@ -291,6 +293,7 @@ let AgentSessionsModel = class AgentSessionsModel2 extends Disposable {
     this._register(this.chatSessionsService.onDidChangeItemsProviders(({ chatSessionType }) => this.resolve(chatSessionType)));
     this._register(this.chatSessionsService.onDidChangeAvailability(() => this.resolve(void 0)));
     this._register(this.chatSessionsService.onDidChangeSessionItems(({ chatSessionType }) => this.updateItems([chatSessionType], CancellationToken.None)));
+    this._register(this.workspaceContextService.onDidChangeWorkspaceFolders(() => this.resolve(void 0)));
     this._register(this.storageService.onWillSaveState(() => {
       this.cache.saveCachedSessions(Array.from(this._sessions.values()));
       this.cache.saveSessionStates(this.sessionStates);
@@ -478,7 +481,8 @@ AgentSessionsModel = AgentSessionsModel_1 = __decorate([
   __param(2, IInstantiationService),
   __param(3, IStorageService),
   __param(4, IProductService),
-  __param(5, IChatWidgetService)
+  __param(5, IChatWidgetService),
+  __param(6, IWorkspaceContextService)
 ], AgentSessionsModel);
 let AgentSessionsCache = class AgentSessionsCache2 {
   static {

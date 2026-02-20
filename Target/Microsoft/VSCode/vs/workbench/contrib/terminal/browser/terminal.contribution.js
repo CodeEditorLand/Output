@@ -140,7 +140,9 @@ const VIEW_CONTAINER = Registry.as(ViewContainerExtensions.ViewContainersRegistr
   ctorDescriptor: new SyncDescriptor(ViewPaneContainer, [TERMINAL_VIEW_ID, { mergeViewWithContainerWhenSingleView: true }]),
   storageId: TERMINAL_VIEW_ID,
   hideIfEmpty: true,
-  order: 3
+  order: 3,
+  windowVisibility: 3
+  /* WindowVisibility.Both */
 }, 1, { doNotRegisterOpenCommand: true, isDefault: true });
 Registry.as(ViewContainerExtensions.ViewsRegistry).registerViews([{
   id: TERMINAL_VIEW_ID,
@@ -149,6 +151,7 @@ Registry.as(ViewContainerExtensions.ViewsRegistry).registerViews([{
   canToggleVisibility: true,
   canMoveView: true,
   ctorDescriptor: new SyncDescriptor(TerminalViewPane),
+  windowVisibility: 3,
   openCommandActionDescriptor: {
     id: "workbench.action.terminal.toggleTerminal",
     mnemonicTitle: nls.localize({ key: "miToggleIntegratedTerminal", comment: ["&& denotes a mnemonic"] }, "&&Terminal"),

@@ -17,6 +17,7 @@ import { ITelemetryService } from "../../../../../platform/telemetry/common/tele
 import { ChatAgentVoteDirection, ChatCopyKind } from "./chatService.js";
 import { isImageVariableEntry } from "../attachments/chatVariableEntries.js";
 import { ILanguageModelsService } from "../languageModels.js";
+import { chatSessionResourceToId } from "../model/chatUri.js";
 let ChatServiceTelemetry = class ChatServiceTelemetry2 {
   static {
     __name(this, "ChatServiceTelemetry");
@@ -127,7 +128,7 @@ let ChatRequestTelemetry = class ChatRequestTelemetry2 {
       agent: detectedAgent?.id ?? this.opts.agent.id,
       agentExtensionId: detectedAgent?.extensionId.value ?? this.opts.agent.extensionId.value,
       slashCommand: this.opts.agentSlashCommandPart ? this.opts.agentSlashCommandPart.command.name : this.opts.commandPart?.slashCommand.command,
-      chatSessionId: this.opts.sessionId,
+      chatSessionId: chatSessionResourceToId(this.opts.sessionResource),
       enableCommandDetection: this.opts.enableCommandDetection,
       isParticipantDetected: !!detectedAgent,
       location: this.opts.location,

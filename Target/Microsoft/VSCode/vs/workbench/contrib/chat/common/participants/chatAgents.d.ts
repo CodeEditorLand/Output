@@ -9,15 +9,12 @@ import { Command } from '../../../../../editor/common/languages.js';
 import { IConfigurationService } from '../../../../../platform/configuration/common/configuration.js';
 import { IContextKeyService } from '../../../../../platform/contextkey/common/contextkey.js';
 import { ExtensionIdentifier } from '../../../../../platform/extensions/common/extensions.js';
-import { ILogService } from '../../../../../platform/log/common/log.js';
-import { IProductService } from '../../../../../platform/product/common/productService.js';
-import { IRequestService } from '../../../../../platform/request/common/request.js';
-import { IStorageService } from '../../../../../platform/storage/common/storage.js';
 import { IChatAgentEditedFileEvent, IChatProgressHistoryResponseContent, IChatRequestModeInstructions, IChatRequestVariableData, ISerializableChatAgentData } from '../model/chatModel.js';
 import { IChatRequestHooks } from '../promptSyntax/hookSchema.js';
 import { IRawChatCommandContribution } from './chatParticipantContribTypes.js';
 import { IChatFollowup, IChatLocationData, IChatProgress, IChatResponseErrorDetails, IChatTaskDto } from '../chatService/chatService.js';
 import { ChatAgentLocation, ChatModeKind } from '../constants.js';
+import { ILanguageModelsService } from '../languageModels.js';
 export interface IChatAgentHistoryEntry {
     request: IChatAgentRequest;
     response: ReadonlyArray<IChatProgressHistoryResponseContent | IChatTaskDto>;
@@ -322,23 +319,14 @@ export interface IChatAgentNameService {
     getAgentNameRestriction(chatAgentData: IChatAgentData): boolean;
 }
 export declare class ChatAgentNameService implements IChatAgentNameService {
-    private readonly requestService;
-    private readonly logService;
-    private readonly storageService;
-    private static readonly StorageKey;
+    private readonly languageModelsService;
     _serviceBrand: undefined;
-    private readonly url;
-    private registry;
-    private disposed;
-    constructor(productService: IProductService, requestService: IRequestService, logService: ILogService, storageService: IStorageService);
-    private refresh;
-    private update;
+    constructor(languageModelsService: ILanguageModelsService);
     /**
      * Returns true if the agent is allowed to use this name
      */
     getAgentNameRestriction(chatAgentData: IChatAgentData): boolean;
     private checkAgentNameRestriction;
-    dispose(): void;
 }
 export declare function getFullyQualifiedId(chatAgentData: IChatAgentData): string;
 /**

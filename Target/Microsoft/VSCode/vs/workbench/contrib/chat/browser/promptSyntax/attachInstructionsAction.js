@@ -115,6 +115,8 @@ ChatInstructionsPickerPick = __decorate([
   __param(0, IPromptsService)
 ], ChatInstructionsPickerPick);
 export {
+  ATTACH_INSTRUCTIONS_ACTION_ID,
+  CONFIGURE_INSTRUCTIONS_ACTION_ID,
   ChatInstructionsPickerPick,
   registerAttachPromptActions
 };

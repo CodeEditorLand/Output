@@ -1,0 +1,3 @@
+import{$Vp as f,$3p as l}from"../../../../platform/theme/common/colorRegistry.js";import{$scc as $,$Ccc as d,$ycc as u}from"../../../../platform/theme/common/sizeRegistry.js";function R(c,t,n,a){const r=new Set,i={addRule:o=>{r.has(o)||r.add(o)}};if(i.addRule(`${t} { forced-color-adjust: none; }`),n&&a)for(const o of n)o(c,i,a);const e=[];for(const o of l().getColors()){const s=c.getColor(o.id,!0);s&&e.push(`${f(o.id)}: ${s.toString()};`)}for(const o of d().getSizes()){const s=d().resolveDefaultSize(o.id,c);s&&e.push(`${$(o.id)}: ${u(s)};`)}return i.addRule(`${t} { ${e.join(`
+`)} }`),new p([...r].join(`
+`))}class p{constructor(t){this.code=t}}export{R as $Pcc,p as $Qcc};

@@ -654,7 +654,7 @@ class FindWidget extends Disposable {
       h(".monaco-tree-type-filter-actionbar@actionbar")
     ]);
     this.toggles = [];
-    this._onDidDisable = new Emitter();
+    this._onDidDisable = this._register(new Emitter());
     this.onDidDisable = this._onDidDisable.event;
     container.appendChild(this.elements.root);
     this._register(toDisposable(() => this.elements.root.remove()));
@@ -1100,7 +1100,7 @@ class StickyScrollController extends Disposable {
   }
   update() {
     const firstVisibleNode = this.getNodeAtHeight(this.paddingTop);
-    if (!firstVisibleNode || this.tree.scrollTop <= this.paddingTop) {
+    if (!firstVisibleNode || this.tree.scrollTop <= this.paddingTop || this.view.renderHeight === 0) {
       this._widget.setState(void 0);
       return;
     }
@@ -1463,9 +1463,9 @@ class StickyScrollFocus extends Disposable {
     this.view = view;
     this.focusedIndex = -1;
     this.elements = [];
-    this._onDidChangeHasFocus = new Emitter();
+    this._onDidChangeHasFocus = this._register(new Emitter());
     this.onDidChangeHasFocus = this._onDidChangeHasFocus.event;
-    this._onContextMenu = new Emitter();
+    this._onContextMenu = this._register(new Emitter());
     this.onContextMenu = this._onContextMenu.event;
     this._domHasFocus = false;
     this._register(addDisposableListener(this.container, "focus", () => this.onFocus()));

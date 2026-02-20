@@ -140,6 +140,7 @@ export declare class ChatWidget extends Disposable implements IChatWidget {
     private welcomeMessageContainer;
     private readonly welcomePart;
     private readonly _gettingStartedTipPart;
+    private _gettingStartedTipPartRef;
     private readonly chatSuggestNextWidget;
     private bodyDimension;
     private visibleChangeCount;
@@ -190,6 +191,8 @@ export declare class ChatWidget extends Disposable implements IChatWidget {
     private get inlineInputPart();
     get inputEditor(): ICodeEditor;
     get contentHeight(): number;
+    get scrollTop(): number;
+    set scrollTop(value: number);
     get attachmentModel(): ChatAttachmentModel;
     render(parent: HTMLElement): void;
     focusInput(): void;

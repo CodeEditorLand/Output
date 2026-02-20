@@ -531,7 +531,7 @@ class PredictionStats extends Disposable {
     this._changeEmitter.fire();
   }
 }
-class PredictionTimeline {
+class PredictionTimeline extends Disposable {
   static {
     __name(this, "PredictionTimeline");
   }
@@ -545,16 +545,17 @@ class PredictionTimeline {
     return this._expected.length;
   }
   constructor(terminal, _style) {
+    super();
     this.terminal = terminal;
     this._style = _style;
     this._expected = [];
     this._currentGen = 0;
     this._showPredictions = false;
-    this._addedEmitter = new Emitter();
+    this._addedEmitter = this._register(new Emitter());
     this.onPredictionAdded = this._addedEmitter.event;
-    this._failedEmitter = new Emitter();
+    this._failedEmitter = this._register(new Emitter());
     this.onPredictionFailed = this._failedEmitter.event;
-    this._succeededEmitter = new Emitter();
+    this._succeededEmitter = this._register(new Emitter());
     this.onPredictionSucceeded = this._succeededEmitter.event;
   }
   setShowPredictions(show) {
@@ -1000,7 +1001,7 @@ let TypeAheadAddon = class TypeAheadAddon2 extends Disposable {
   }
   activate(terminal) {
     const style = this._typeaheadStyle = this._register(new TypeAheadStyle(this._configurationService.getValue(TERMINAL_CONFIG_SECTION).localEchoStyle, terminal));
-    const timeline = this._timeline = new PredictionTimeline(terminal, this._typeaheadStyle);
+    const timeline = this._timeline = this._register(new PredictionTimeline(terminal, this._typeaheadStyle));
     const stats = this.stats = this._register(new PredictionStats(this._timeline));
     timeline.setShowPredictions(this._typeaheadThreshold === 0);
     this._register(terminal.onData((e) => this._onUserData(e)));

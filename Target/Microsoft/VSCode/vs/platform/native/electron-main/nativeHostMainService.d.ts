@@ -92,6 +92,7 @@ export declare class NativeHostMainService extends Disposable implements INative
     openWindow(windowId: number | undefined, toOpen: IWindowOpenable[], options?: IOpenWindowOptions): Promise<void>;
     private doOpenWindow;
     private doOpenEmptyWindow;
+    openSessionsWindow(windowId: number | undefined): Promise<void>;
     isFullScreen(windowId: number | undefined, options?: INativeHostOptions): Promise<boolean>;
     toggleFullScreen(windowId: number | undefined, options?: INativeHostOptions): Promise<void>;
     getCursorScreenPoint(windowId: number | undefined): Promise<{

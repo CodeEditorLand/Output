@@ -45,7 +45,7 @@ let TerminalLink = class TerminalLink2 extends Disposable {
     this._configurationService = _configurationService;
     this._tooltipScheduler = this._register(new MutableDisposable());
     this._hoverListeners = this._register(new MutableDisposable());
-    this._onInvalidated = new Emitter();
+    this._onInvalidated = this._register(new Emitter());
     this.decorations = {
       pointerCursor: false,
       underline: this._isHighConfidenceLink

@@ -1,6 +1,7 @@
 import { ICommandService } from '../../../../../platform/commands/common/commands.js';
 import { IInstantiationService } from '../../../../../platform/instantiation/common/instantiation.js';
 import { IQuickInputButton, IQuickInputService } from '../../../../../platform/quickinput/common/quickInput.js';
+import { ISessionOpenOptions } from './agentSessionsOpener.js';
 import { IAgentSession } from './agentSessionsModel.js';
 import { IAgentSessionsService } from './agentSessionsService.js';
 export declare const archiveButton: IQuickInputButton;
@@ -9,14 +10,18 @@ export declare const renameButton: IQuickInputButton;
 export declare const deleteButton: IQuickInputButton;
 export declare function getSessionDescription(session: IAgentSession): string;
 export declare function getSessionButtons(session: IAgentSession): IQuickInputButton[];
+export interface IAgentSessionsPickerOptions {
+    overrideSessionOpen?(session: IAgentSession, openOptions?: ISessionOpenOptions): Promise<void>;
+}
 export declare class AgentSessionsPicker {
     private readonly anchor;
+    private readonly options;
     private readonly agentSessionsService;
     private readonly quickInputService;
     private readonly instantiationService;
     private readonly commandService;
     private readonly sorter;
-    constructor(anchor: HTMLElement | undefined, agentSessionsService: IAgentSessionsService, quickInputService: IQuickInputService, instantiationService: IInstantiationService, commandService: ICommandService);
+    constructor(anchor: HTMLElement | undefined, options: IAgentSessionsPickerOptions | undefined, agentSessionsService: IAgentSessionsService, quickInputService: IQuickInputService, instantiationService: IInstantiationService, commandService: ICommandService);
     pickAgentSession(): Promise<void>;
     private createPickerItems;
     private toPickItem;

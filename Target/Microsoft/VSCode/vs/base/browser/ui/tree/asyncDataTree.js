@@ -1077,6 +1077,8 @@ class AsyncDataTree {
     return { focus, selection, expanded, scrollTop: this.scrollTop };
   }
   dispose() {
+    this._onDidRender.dispose();
+    this._onDidChangeNodeSlowState.dispose();
     this.disposables.dispose();
     this.tree.dispose();
   }

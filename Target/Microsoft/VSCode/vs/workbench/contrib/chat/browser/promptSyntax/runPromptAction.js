@@ -206,6 +206,7 @@ function registerRunPromptActions() {
 }
 __name(registerRunPromptActions, "registerRunPromptActions");
 export {
+  CONFIGURE_PROMPTS_ACTION_ID,
   registerRunPromptActions
 };
 //# sourceMappingURL=runPromptAction.js.map

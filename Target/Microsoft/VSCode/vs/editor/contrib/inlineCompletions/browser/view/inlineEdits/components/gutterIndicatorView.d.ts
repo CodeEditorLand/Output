@@ -13,6 +13,7 @@ import { InlineCompletionsModel } from '../../../model/inlineCompletionsModel.js
 import { InlineSuggestAlternativeAction } from '../../../model/InlineSuggestAlternativeAction.js';
 import { ThemeIcon } from '../../../../../../../base/common/themables.js';
 import { IUserInteractionService } from '../../../../../../../platform/userInteraction/browser/userInteractionService.js';
+import { Event } from '../../../../../../../base/common/event.js';
 /**
  * Customization options for the gutter indicator appearance and behavior.
  */
@@ -31,12 +32,13 @@ export declare class InlineEditsGutterIndicatorData {
 export declare class InlineSuggestionGutterMenuData {
     readonly action: Command | undefined;
     readonly displayName: string;
-    readonly extensionCommands: InlineCompletionCommand[];
+    readonly extensionCommands: InlineCompletionCommand[][];
     readonly alternativeAction: InlineSuggestAlternativeAction | undefined;
     readonly modelInfo: IInlineCompletionModelInfo | undefined;
     readonly setModelId: ((modelId: string) => Promise<void>) | undefined;
+    readonly extensionCommandsOnly: boolean;
     static fromInlineSuggestion(suggestion: InlineSuggestionItem): InlineSuggestionGutterMenuData;
-    constructor(action: Command | undefined, displayName: string, extensionCommands: InlineCompletionCommand[], alternativeAction: InlineSuggestAlternativeAction | undefined, modelInfo: IInlineCompletionModelInfo | undefined, setModelId: ((modelId: string) => Promise<void>) | undefined);
+    constructor(action: Command | undefined, displayName: string, extensionCommands: InlineCompletionCommand[][], alternativeAction: InlineSuggestAlternativeAction | undefined, modelInfo: IInlineCompletionModelInfo | undefined, setModelId: ((modelId: string) => Promise<void>) | undefined, extensionCommandsOnly?: boolean);
 }
 export declare class SimpleInlineSuggestModel {
     readonly accept: () => void;
@@ -56,6 +58,8 @@ export declare class InlineEditsGutterIndicator extends Disposable {
     private readonly _accessibilityService;
     private readonly _themeService;
     private readonly _userInteractionService;
+    private readonly _onDidCloseWithCommand;
+    readonly onDidCloseWithCommand: Event<string>;
     constructor(_editorObs: ObservableCodeEditor, _data: IObservable<InlineEditsGutterIndicatorData | undefined>, _tabAction: IObservable<InlineEditTabAction>, _verticalOffset: IObservable<number>, _isHoveringOverInlineEdit: IObservable<boolean>, _focusIsInMenu: ISettableObservable<boolean>, _hoverService: HoverService, _instantiationService: IInstantiationService, _accessibilityService: IAccessibilityService, _themeService: IThemeService, _userInteractionService: IUserInteractionService);
     private readonly _isHoveredOverInlineEditDebounced;
     private readonly _modifierPressed;

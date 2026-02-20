@@ -93,7 +93,6 @@ import { ChatTaskContentPart } from "./chatContentParts/chatTaskContentPart.js";
 import { ChatTextEditContentPart } from "./chatContentParts/chatTextEditContentPart.js";
 import { ChatThinkingContentPart } from "./chatContentParts/chatThinkingContentPart.js";
 import { ChatSubagentContentPart } from "./chatContentParts/chatSubagentContentPart.js";
-import { ChatTipContentPart } from "./chatContentParts/chatTipContentPart.js";
 import { ChatTreeContentPart, TreePool } from "./chatContentParts/chatTreeContentPart.js";
 import { ChatWorkspaceEditContentPart } from "./chatContentParts/chatWorkspaceEditContentPart.js";
 import { ChatToolInvocationPart } from "./chatContentParts/toolInvocationParts/chatToolInvocationPart.js";
@@ -101,7 +100,6 @@ import { ChatMarkdownDecorationsRenderer } from "./chatContentParts/chatMarkdown
 import { ChatCodeBlockContentProvider } from "./chatContentParts/codeBlockPart.js";
 import { autorun, observableValue } from "../../../../../base/common/observable.js";
 import { isEqual } from "../../../../../base/common/resources.js";
-import { IChatTipService } from "../chatTipService.js";
 import { IAccessibilityService } from "../../../../../platform/accessibility/common/accessibility.js";
 import { ChatHookContentPart } from "./chatContentParts/chatHookContentPart.js";
 import { HookType } from "../../common/promptSyntax/hookSchema.js";
@@ -120,7 +118,7 @@ let ChatListItemRenderer = class ChatListItemRenderer2 extends Disposable {
   static {
     this.ID = "item";
   }
-  constructor(editorOptions, rendererOptions, delegate, codeBlockModelCollection, overflowWidgetsDomNode, viewModel, instantiationService, configService, logService, contextKeyService, themeService, commandService, hoverService, chatWidgetService, chatEntitlementService, chatService, chatTipService, hostService, accessibilitySignalService, accessibilityService) {
+  constructor(editorOptions, rendererOptions, delegate, codeBlockModelCollection, overflowWidgetsDomNode, viewModel, instantiationService, configService, logService, contextKeyService, themeService, commandService, hoverService, chatWidgetService, chatEntitlementService, chatService, hostService, accessibilitySignalService, accessibilityService) {
     super();
     this.rendererOptions = rendererOptions;
     this.delegate = delegate;
@@ -136,7 +134,6 @@ let ChatListItemRenderer = class ChatListItemRenderer2 extends Disposable {
     this.chatWidgetService = chatWidgetService;
     this.chatEntitlementService = chatEntitlementService;
     this.chatService = chatService;
-    this.chatTipService = chatTipService;
     this.hostService = hostService;
     this.accessibilitySignalService = accessibilitySignalService;
     this.accessibilityService = accessibilityService;
@@ -199,16 +196,6 @@ let ChatListItemRenderer = class ChatListItemRenderer2 extends Disposable {
   }
   editorsInUse() {
     return Iterable.concat(this._editorPool.inUse(), this._toolEditorPool.inUse());
-  }
-  hasTipFocus() {
-    return this._activeTipPart?.hasFocus() ?? false;
-  }
-  focusTip() {
-    if (!this._activeTipPart) {
-      return false;
-    }
-    this._activeTipPart.focus();
-    return true;
   }
   traceLayout(method, message) {
     if (forceVerboseLayoutTracing) {
@@ -355,8 +342,7 @@ let ChatListItemRenderer = class ChatListItemRenderer2 extends Disposable {
     }
     this.hoverHidden(requestHover);
     const checkpointContainer = dom.append(rowContainer, $(".checkpoint-container"));
-    const codiconContainer = dom.append(checkpointContainer, $(".codicon-container"));
-    dom.append(codiconContainer, $("span.codicon.codicon-bookmark"));
+    dom.append(checkpointContainer, $(".checkpoint-line-left"));
     const checkpointToolbar = templateDisposables.add(scopedInstantiationService.createInstance(MenuWorkbenchToolBar, checkpointContainer, MenuId.ChatMessageCheckpoint, {
       actionViewItemProvider: /* @__PURE__ */ __name((action, options) => {
         if (action instanceof MenuItemAction) {
@@ -372,7 +358,7 @@ let ChatListItemRenderer = class ChatListItemRenderer2 extends Disposable {
         shouldInlineSubmenu: /* @__PURE__ */ __name((submenu) => submenu.actions.length <= 1, "shouldInlineSubmenu")
       }
     }));
-    dom.append(checkpointContainer, $(".checkpoint-divider"));
+    dom.append(checkpointContainer, $(".checkpoint-line-right"));
     const user = dom.append(header, $(".user"));
     const avatarContainer = dom.append(user, $(".avatar-container"));
     const username = dom.append(user, $("h3.username"));
@@ -400,10 +386,12 @@ let ChatListItemRenderer = class ChatListItemRenderer2 extends Disposable {
     const footerDetailsContainer = dom.append(footerToolbar.getElement(), $(".chat-footer-details"));
     footerDetailsContainer.tabIndex = 0;
     const checkpointRestoreContainer = dom.append(rowContainer, $(".checkpoint-restore-container"));
-    const codiconRestoreContainer = dom.append(checkpointRestoreContainer, $(".codicon-container"));
-    dom.append(codiconRestoreContainer, $("span.codicon.codicon-bookmark"));
+    dom.append(checkpointRestoreContainer, $(".checkpoint-line-left"));
     const label = dom.append(checkpointRestoreContainer, $("span.checkpoint-label-text"));
     label.textContent = localize("checkpointRestore", "Checkpoint Restored");
+    const dot = dom.append(checkpointRestoreContainer, $("span.checkpoint-dot-separator"));
+    dot.textContent = "\xB7";
+    dot.setAttribute("aria-hidden", "true");
     const checkpointRestoreToolbar = templateDisposables.add(scopedInstantiationService.createInstance(MenuWorkbenchToolBar, checkpointRestoreContainer, MenuId.ChatMessageRestoreCheckpoint, {
       actionViewItemProvider: /* @__PURE__ */ __name((action, options) => {
         if (action instanceof MenuItemAction) {
@@ -419,7 +407,7 @@ let ChatListItemRenderer = class ChatListItemRenderer2 extends Disposable {
         shouldInlineSubmenu: /* @__PURE__ */ __name((submenu) => submenu.actions.length <= 1, "shouldInlineSubmenu")
       }
     }));
-    dom.append(checkpointRestoreContainer, $(".checkpoint-divider"));
+    dom.append(checkpointRestoreContainer, $(".checkpoint-line-right"));
     const agentHover = templateDisposables.add(this.instantiationService.createInstance(ChatAgentHover));
     const hoverContent = /* @__PURE__ */ __name(() => {
       if (isResponseVM(template.currentElement) && template.currentElement.agent && !template.currentElement.agent.isDefault) {
@@ -838,26 +826,6 @@ let ChatListItemRenderer = class ChatListItemRenderer2 extends Disposable {
     }
     dom.clearNode(templateData.value);
     const parts = [];
-    const tip = this.chatTipService.getNextTip(element.id, element.timestamp, this.contextKeyService);
-    if (tip) {
-      const tipPart = this.instantiationService.createInstance(ChatTipContentPart, tip, this.chatContentMarkdownRenderer, () => this.chatTipService.getNextTip(element.id, element.timestamp, this.contextKeyService));
-      templateData.value.appendChild(tipPart.domNode);
-      this._activeTipPart = tipPart;
-      templateData.elementDisposables.add(tipPart);
-      templateData.elementDisposables.add(tipPart.onDidHide(() => {
-        tipPart.domNode.remove();
-        if (this._activeTipPart === tipPart) {
-          this._activeTipPart = void 0;
-        }
-      }));
-      templateData.elementDisposables.add({
-        dispose: /* @__PURE__ */ __name(() => {
-          if (this._activeTipPart === tipPart) {
-            this._activeTipPart = void 0;
-          }
-        }, "dispose")
-      });
-    }
     let inlineSlashCommandRendered = false;
     content.forEach((data, contentIndex) => {
       const context = {
@@ -946,8 +914,10 @@ let ChatListItemRenderer = class ChatListItemRenderer2 extends Disposable {
   renderChatContentDiff(partsToRender, contentForThisTurn, element, elementIndex, templateData) {
     const renderedParts = templateData.renderedParts ?? [];
     templateData.renderedParts = renderedParts;
+    const lastMarkdownIndex = partsToRender.findLastIndex((part) => part?.kind === "markdownContent");
     partsToRender.forEach((partToRender, contentIndex) => {
       const alreadyRenderedPart = templateData.renderedParts?.[contentIndex];
+      const isFinalAnswerPart = partToRender?.kind === "markdownContent" && contentIndex === lastMarkdownIndex && element.isComplete;
       if (!partToRender) {
         if (!templateData.renderedPartsMounted) {
           alreadyRenderedPart?.onDidRemount?.();
@@ -961,7 +931,7 @@ let ChatListItemRenderer = class ChatListItemRenderer2 extends Disposable {
           }
           renderedParts[contentIndex] = alreadyRenderedPart;
           return;
-        } else if (alreadyRenderedPart instanceof ChatThinkingContentPart && this.shouldPinPart(partToRender, element)) {
+        } else if (alreadyRenderedPart instanceof ChatThinkingContentPart && this.shouldPinPart(partToRender, element) && !isFinalAnswerPart) {
           renderedParts[contentIndex] = alreadyRenderedPart;
           return;
         }
@@ -987,7 +957,7 @@ let ChatListItemRenderer = class ChatListItemRenderer2 extends Disposable {
         }
       };
       const lastThinking = this.getLastThinkingPart(renderedParts);
-      if (lastThinking && (partToRender.kind === "toolInvocation" || partToRender.kind === "toolInvocationSerialized" || partToRender.kind === "markdownContent" || partToRender.kind === "textEditGroup" || partToRender.kind === "hook") && this.shouldPinPart(partToRender, element)) {
+      if (lastThinking && (partToRender.kind === "toolInvocation" || partToRender.kind === "toolInvocationSerialized" || partToRender.kind === "markdownContent" || partToRender.kind === "textEditGroup" || partToRender.kind === "hook") && this.shouldPinPart(partToRender, element) && !isFinalAnswerPart) {
         const newPart2 = this.renderChatContentPart(partToRender, templateData, context);
         if (newPart2) {
           renderedParts[contentIndex] = newPart2;
@@ -1107,9 +1077,16 @@ let ChatListItemRenderer = class ChatListItemRenderer2 extends Disposable {
   }
   diff(renderedParts, contentToRender, element) {
     const diff = [];
+    const elementIsComplete = isResponseVM(element) && element.isComplete;
+    const lastMarkdownContentIndex = contentToRender.findLastIndex((part) => part.kind === "markdownContent");
     for (let i = 0; i < contentToRender.length; i++) {
       const content = contentToRender[i];
       const renderedPart = renderedParts[i];
+      const isFinalAnswerPart = content.kind === "markdownContent" && i === lastMarkdownContentIndex && elementIsComplete;
+      if (isFinalAnswerPart && this.isRenderedPartInsideThinking(renderedPart)) {
+        diff.push(content);
+        continue;
+      }
       if (!renderedPart || !renderedPart.hasSameContent(content, contentToRender.slice(i + 1), element)) {
         diff.push(content);
       } else {
@@ -1117,6 +1094,12 @@ let ChatListItemRenderer = class ChatListItemRenderer2 extends Disposable {
       }
     }
     return diff;
+  }
+  isRenderedPartInsideThinking(renderedPart) {
+    if (!renderedPart?.domNode) {
+      return false;
+    }
+    return !!dom.findParentWithClass(renderedPart.domNode, "chat-thinking-box");
   }
   hasCodeblockUri(part) {
     if (part.kind !== "markdownContent") {
@@ -1305,7 +1288,7 @@ let ChatListItemRenderer = class ChatListItemRenderer2 extends Disposable {
       } else if (content.kind === "multiDiffData") {
         return this.renderMultiDiffData(content, templateData, context);
       } else if (content.kind === "progressMessage") {
-        return this.instantiationService.createInstance(ChatProgressContentPart, content, this.chatContentMarkdownRenderer, context, void 0, void 0, void 0, void 0);
+        return this.instantiationService.createInstance(ChatProgressContentPart, content, this.chatContentMarkdownRenderer, context, void 0, void 0, void 0, void 0, content.shimmer);
       } else if (content.kind === "working") {
         return this.instantiationService.createInstance(ChatWorkingProgressContentPart, content, this.chatContentMarkdownRenderer, context);
       } else if (content.kind === "progressTask" || content.kind === "progressTaskSerialized") {
@@ -1633,6 +1616,12 @@ let ChatListItemRenderer = class ChatListItemRenderer2 extends Disposable {
     const responseIsComplete = isResponseVM(context.element) && context.element.isComplete;
     const inputPartHasCarousel = widget?.input.questionCarousel !== void 0;
     if (carousel.isUsed || responseIsComplete) {
+      if (responseIsComplete && !carousel.isUsed && isResponseVM(context.element) && carousel.resolveId && carousel.data === void 0) {
+        carousel.data = {};
+        carousel.isUsed = true;
+        this.chatService.notifyQuestionCarouselAnswer(context.element.requestId, carousel.resolveId, void 0);
+        this.pendingQuestionCarousels.get(context.element.sessionResource)?.clear();
+      }
       if (responseIsComplete && inputPartHasCarousel && responseId) {
         widget?.input.clearQuestionCarousel(responseId);
       }
@@ -1809,7 +1798,9 @@ let ChatListItemRenderer = class ChatListItemRenderer2 extends Disposable {
   }
   renderMarkdown(markdown, templateData, context) {
     const element = context.element;
-    const isFinalAnswerPart = isResponseVM(element) && element.isComplete && context.contentIndex === context.content.length - 1;
+    const isFinalRenderPass = isResponseVM(element) && element.isComplete && !element.renderData;
+    const lastPinnedPartIndex = isFinalRenderPass ? context.content.findLastIndex((c) => c.kind === "thinking" || c.kind === "toolInvocation" || c.kind === "toolInvocationSerialized") : -1;
+    const isFinalAnswerPart = isFinalRenderPass && context.contentIndex > lastPinnedPartIndex;
     if (!this.hasCodeblockUri(markdown) || isFinalAnswerPart) {
       this.finalizeCurrentThinkingPart(context, templateData);
     }
@@ -1965,10 +1956,9 @@ ChatListItemRenderer = ChatListItemRenderer_1 = __decorate([
   __param(13, IChatWidgetService),
   __param(14, IChatEntitlementService),
   __param(15, IChatService),
-  __param(16, IChatTipService),
-  __param(17, IHostService),
-  __param(18, IAccessibilitySignalService),
-  __param(19, IAccessibilityService)
+  __param(16, IHostService),
+  __param(17, IAccessibilitySignalService),
+  __param(18, IAccessibilityService)
 ], ChatListItemRenderer);
 class ChatListDelegate extends CachedListVirtualDelegate {
   static {

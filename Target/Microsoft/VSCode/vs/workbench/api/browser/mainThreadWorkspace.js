@@ -123,8 +123,7 @@ let MainThreadWorkspace = class MainThreadWorkspace2 {
       folders: workspace.folders,
       id: workspace.id,
       name: this._labelService.getWorkspaceLabel(workspace),
-      transient: workspace.transient,
-      isAgentSessionsWorkspace: workspace.isAgentSessionsWorkspace
+      transient: workspace.transient
     };
   }
   // --- search ---

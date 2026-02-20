@@ -24,9 +24,10 @@ export declare namespace Extensions {
 export declare const enum ViewContainerLocation {
     Sidebar = 0,
     Panel = 1,
-    AuxiliaryBar = 2
+    AuxiliaryBar = 2,
+    ChatBar = 3
 }
-export declare function ViewContainerLocationToString(viewContainerLocation: ViewContainerLocation): "sidebar" | "panel" | "auxiliarybar";
+export declare function ViewContainerLocationToString(viewContainerLocation: ViewContainerLocation): "sidebar" | "panel" | "auxiliarybar" | "chatbar";
 type OpenCommandActionDescriptor = {
     readonly id: string;
     readonly title?: ILocalizedString | string;
@@ -36,6 +37,23 @@ type OpenCommandActionDescriptor = {
         when?: ContextKeyExpression;
     };
 };
+/**
+ * Specifies in which window a view or view container should be visible.
+ */
+export declare const enum WindowVisibility {
+    /**
+     * Visible only in the editor window
+     */
+    Editor = 1,
+    /**
+     * Visible only in sessions window
+     */
+    Sessions = 2,
+    /**
+     * Visible in both editor and sessions windows
+     */
+    Both = 3
+}
 /**
  * View Container Contexts
  */
@@ -83,6 +101,11 @@ export interface IViewContainerDescriptor {
     readonly alwaysUseContainerInfo?: boolean;
     readonly viewOrderDelegate?: ViewOrderDelegate;
     readonly rejectAddedViews?: boolean;
+    /**
+     * Specifies in which window this view container should be visible.
+     * Defaults to WindowVisibility.Editor
+     */
+    readonly windowVisibility?: WindowVisibility;
     requestedIndex?: number;
 }
 export interface IViewContainersRegistry {
@@ -171,6 +194,11 @@ export interface IViewDescriptor {
     readonly virtualWorkspace?: string;
     readonly openCommandActionDescriptor?: OpenCommandActionDescriptor;
     readonly accessibilityHelpContent?: MarkdownString;
+    /**
+     * Specifies in which window this view should be visible.
+     * Defaults to WindowVisibility.Workbench (main workbench only).
+     */
+    readonly windowVisibility?: WindowVisibility;
 }
 export interface ICustomViewDescriptor extends IViewDescriptor {
     readonly extensionId: ExtensionIdentifier;

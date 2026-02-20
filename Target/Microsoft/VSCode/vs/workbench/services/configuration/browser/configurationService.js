@@ -72,7 +72,6 @@ class WorkspaceService extends Disposable {
   }
   constructor({ remoteAuthority, configurationCache }, environmentService, userDataProfileService, userDataProfilesService, fileService, remoteAgentService, uriIdentityService, logService, policyService) {
     super();
-    this.environmentService = environmentService;
     this.userDataProfileService = userDataProfileService;
     this.userDataProfilesService = userDataProfilesService;
     this.fileService = fileService;
@@ -414,8 +413,7 @@ class WorkspaceService extends Disposable {
     const workspaceConfigPath = workspaceIdentifier.configPath;
     const workspaceFolders = toWorkspaceFolders(this.workspaceConfiguration.getFolders(), workspaceConfigPath, this.uriIdentityService.extUri);
     const workspaceId = workspaceIdentifier.id;
-    const isAgentSessionsWorkspace = this.uriIdentityService.extUri.isEqual(workspaceConfigPath, this.environmentService.agentSessionsWorkspace);
-    const workspace = new Workspace(workspaceId, workspaceFolders, this.workspaceConfiguration.isTransient(), workspaceConfigPath, (uri) => this.uriIdentityService.extUri.ignorePathCasing(uri), isAgentSessionsWorkspace);
+    const workspace = new Workspace(workspaceId, workspaceFolders, this.workspaceConfiguration.isTransient(), workspaceConfigPath, (uri) => this.uriIdentityService.extUri.ignorePathCasing(uri));
     workspace.initialized = this.workspaceConfiguration.initialized;
     return workspace;
   }

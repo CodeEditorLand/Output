@@ -2,7 +2,7 @@ import { Event } from '../../../base/common/event.js';
 import { Disposable } from '../../../base/common/lifecycle.js';
 import { IChannel, IServerChannel } from '../../../base/parts/ipc/common/ipc.js';
 import { IAttachSessionEvent, ICloseSessionEvent, IExtensionHostDebugService, IOpenExtensionWindowResult, IReloadSessionEvent, ITerminateSessionEvent } from './extensionHostDebug.js';
-export declare class ExtensionHostDebugBroadcastChannel<TContext> implements IServerChannel<TContext> {
+export declare class ExtensionHostDebugBroadcastChannel<TContext> extends Disposable implements IServerChannel<TContext> {
     static readonly ChannelName = "extensionhostdebugservice";
     private readonly _onCloseEmitter;
     private readonly _onReloadEmitter;

@@ -1,25 +1,19 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Codicon } from "../../../../../base/common/codicons.js";
-import { URI } from "../../../../../base/common/uri.js";
-import { generateUuid } from "../../../../../base/common/uuid.js";
 import { localize, localize2 } from "../../../../../nls.js";
 import { IAccessibilityService } from "../../../../../platform/accessibility/common/accessibility.js";
 import { Action2, MenuId, MenuRegistry, registerAction2 } from "../../../../../platform/actions/common/actions.js";
 import { CommandsRegistry } from "../../../../../platform/commands/common/commands.js";
 import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
 import { IDialogService } from "../../../../../platform/dialogs/common/dialogs.js";
-import { ActiveEditorContext } from "../../../../common/contextkeys.js";
 import { IViewsService } from "../../../../services/views/common/viewsService.js";
 import { ChatContextKeys } from "../../common/actions/chatContextKeys.js";
 import { IChatService } from "../../common/chatService/chatService.js";
-import { localChatSessionType } from "../../common/chatSessionsService.js";
 import { ChatAgentLocation, ChatConfiguration, ChatModeKind } from "../../common/constants.js";
-import { getChatSessionType, LocalChatSessionUri } from "../../common/model/chatUri.js";
-import { ChatViewId, IChatWidgetService, isIChatViewViewContext } from "../chat.js";
+import { ChatViewId, IChatWidgetService } from "../chat.js";
 import { EditingSessionAction, getEditingSessionContext } from "../chatEditing/chatEditingActions.js";
-import { ChatEditorInput } from "../widgetHosts/editor/chatEditorInput.js";
-import { ACTION_ID_NEW_CHAT, ACTION_ID_NEW_EDIT_SESSION, CHAT_CATEGORY, handleCurrentEditingSession } from "./chatActions.js";
+import { ACTION_ID_NEW_CHAT, ACTION_ID_NEW_EDIT_SESSION, CHAT_CATEGORY, clearChatSessionPreservingType, handleCurrentEditingSession } from "./chatActions.js";
 import { clearChatEditor } from "./chatClear.js";
 import { AgentSessionProviders, AgentSessionsViewerOrientation } from "../agentSessions/agentSessions.js";
 import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
@@ -87,12 +81,6 @@ function registerNewChatActions() {
           {
             id: MenuId.ChatNewMenu,
             group: "1_open",
-            order: 1
-          },
-          {
-            id: MenuId.CompactWindowEditorTitle,
-            group: "navigation",
-            when: ActiveEditorContext.isEqualTo(ChatEditorInput.EditorID),
             order: 1
           }
         ],
@@ -242,17 +230,6 @@ function registerNewChatActions() {
   });
 }
 __name(registerNewChatActions, "registerNewChatActions");
-function getResourceForNewChatSession(sessionType) {
-  const isRemoteSession = sessionType !== localChatSessionType;
-  if (isRemoteSession) {
-    return URI.from({
-      scheme: sessionType,
-      path: `/untitled-${generateUuid()}`
-    });
-  }
-  return LocalChatSessionUri.forSession(generateUuid());
-}
-__name(getResourceForNewChatSession, "getResourceForNewChatSession");
 async function runNewChatAction(accessor, context, executeCommandContext, sessionType) {
   const accessibilityService = accessor.get(IAccessibilityService);
   const viewsService = accessor.get(IViewsService);
@@ -267,15 +244,7 @@ async function runNewChatAction(accessor, context, executeCommandContext, sessio
     return;
   }
   await editingSession?.stop();
-  const currentResource = widget.viewModel?.model.sessionResource;
-  const newSessionType = sessionType ?? (currentResource ? getChatSessionType(currentResource) : localChatSessionType);
-  if (isIChatViewViewContext(widget.viewContext) && newSessionType !== localChatSessionType) {
-    const newResource = getResourceForNewChatSession(newSessionType);
-    const view = await viewsService.openView(ChatViewId);
-    await view.loadSession(newResource);
-  } else {
-    await widget.clear();
-  }
+  await clearChatSessionPreservingType(widget, viewsService, sessionType);
   widget.attachmentModel.clear(true);
   widget.focusInput();
   accessibilityService.alert(localize("newChat", "New chat"));

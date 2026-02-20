@@ -24,11 +24,12 @@ class AbstractProblemCollector extends Disposable {
   static {
     __name(this, "AbstractProblemCollector");
   }
-  constructor(problemMatchers, markerService, modelService, fileService) {
+  constructor(problemMatchers, markerService, modelService, fileService, logService) {
     super();
     this.problemMatchers = problemMatchers;
     this.markerService = markerService;
     this.modelService = modelService;
+    this.logService = logService;
     this.modelListeners = new DisposableStore();
     this._onDidFindFirstMatch = this._register(new Emitter());
     this.onDidFindFirstMatch = this._onDidFindFirstMatch.event;
@@ -38,7 +39,7 @@ class AbstractProblemCollector extends Disposable {
     this.onDidRequestInvalidateLastMarker = this._onDidRequestInvalidateLastMarker.event;
     this.matchers = /* @__PURE__ */ Object.create(null);
     this.bufferLength = 1;
-    problemMatchers.map((elem) => createLineMatcher(elem, fileService)).forEach((matcher) => {
+    problemMatchers.map((elem) => createLineMatcher(elem, fileService, logService)).forEach((matcher) => {
       const length = matcher.matchLength;
       if (length > this.bufferLength) {
         this.bufferLength = length;
@@ -291,8 +292,8 @@ class StartStopProblemCollector extends AbstractProblemCollector {
   static {
     __name(this, "StartStopProblemCollector");
   }
-  constructor(problemMatchers, markerService, modelService, _strategy = 0, fileService) {
-    super(problemMatchers, markerService, modelService, fileService);
+  constructor(problemMatchers, markerService, modelService, _strategy = 0, fileService, logService) {
+    super(problemMatchers, markerService, modelService, fileService, logService);
     this._hasStarted = false;
     const ownerSet = /* @__PURE__ */ Object.create(null);
     problemMatchers.forEach((description) => ownerSet[description.owner] = true);
@@ -334,8 +335,8 @@ class WatchingProblemCollector extends AbstractProblemCollector {
   static {
     __name(this, "WatchingProblemCollector");
   }
-  constructor(problemMatchers, markerService, modelService, fileService) {
-    super(problemMatchers, markerService, modelService, fileService);
+  constructor(problemMatchers, markerService, modelService, fileService, logService) {
+    super(problemMatchers, markerService, modelService, fileService, logService);
     this.lines = [];
     this.beginPatterns = [];
     this.resetCurrentResource();
@@ -417,7 +418,12 @@ class WatchingProblemCollector extends AbstractProblemCollector {
   async tryBegin(line) {
     let result = false;
     for (const background of this.backgroundPatterns) {
+      const start = Date.now();
       const matches = background.begin.regexp.exec(line);
+      const elapsed = Date.now() - start;
+      if (elapsed > 5) {
+        this.logService?.trace(`ProblemMatcher: slow begin regexp took ${elapsed}ms to execute`, background.begin.regexp.source);
+      }
       if (matches) {
         if (this._activeBackgroundMatchers.has(background.key)) {
           continue;
@@ -448,7 +454,12 @@ class WatchingProblemCollector extends AbstractProblemCollector {
   tryFinish(line) {
     let result = false;
     for (const background of this.backgroundPatterns) {
+      const start = Date.now();
       const matches = background.end.regexp.exec(line);
+      const elapsed = Date.now() - start;
+      if (elapsed > 5) {
+        this.logService?.trace(`ProblemMatcher: slow end regexp took ${elapsed}ms to execute`, background.end.regexp.source);
+      }
       if (matches) {
         if (this._numberOfMatches > 0) {
           this._onDidFindErrors.fire(this.markerService.read({ owner: background.matcher.owner }));

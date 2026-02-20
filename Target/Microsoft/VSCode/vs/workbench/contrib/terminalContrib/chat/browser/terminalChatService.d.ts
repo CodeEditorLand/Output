@@ -53,7 +53,6 @@ export declare class TerminalChatService extends Disposable implements ITerminal
     getToolSessionIdForInstance(instance: ITerminalInstance): string | undefined;
     registerTerminalInstanceWithChatSession(chatSessionResource: URI, instance: ITerminalInstance): void;
     getChatSessionResourceForInstance(instance: ITerminalInstance): URI | undefined;
-    getChatSessionIdForInstance(instance: ITerminalInstance): string | undefined;
     isBackgroundTerminal(terminalToolSessionId?: string): boolean;
     registerProgressPart(part: IChatTerminalToolProgressPart): IDisposable;
     setFocusedProgressPart(part: IChatTerminalToolProgressPart): void;

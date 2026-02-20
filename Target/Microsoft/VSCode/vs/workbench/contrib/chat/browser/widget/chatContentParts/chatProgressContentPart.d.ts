@@ -21,10 +21,11 @@ export declare class ChatProgressContentPart extends Disposable implements IChat
     private readonly showSpinner;
     private readonly isHidden;
     private readonly renderedMessage;
+    private readonly _fileWidgetStore;
     private currentContent;
     constructor(progress: IChatProgressMessage | IChatTask | IChatTaskSerialized | {
         content: IMarkdownString;
-    }, chatContentMarkdownRenderer: IMarkdownRenderer, context: IChatContentPartRenderContext, forceShowSpinner: boolean | undefined, forceShowMessage: boolean | undefined, icon: ThemeIcon | undefined, toolInvocation: IChatToolInvocation | IChatToolInvocationSerialized | undefined, instantiationService: IInstantiationService, chatMarkdownAnchorService: IChatMarkdownAnchorService, configurationService: IConfigurationService);
+    }, chatContentMarkdownRenderer: IMarkdownRenderer, context: IChatContentPartRenderContext, forceShowSpinner: boolean | undefined, forceShowMessage: boolean | undefined, icon: ThemeIcon | undefined, toolInvocation: IChatToolInvocation | IChatToolInvocationSerialized | undefined, shimmer: boolean | undefined, instantiationService: IInstantiationService, chatMarkdownAnchorService: IChatMarkdownAnchorService, configurationService: IConfigurationService);
     updateMessage(content: MarkdownString): void;
     hasSameContent(other: IChatRendererContent, followingContent: IChatRendererContent[], element: ChatTreeItem): boolean;
     private createApprovalMessage;

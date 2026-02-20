@@ -36,10 +36,12 @@ var ChatContextKeys;
   ChatContextKeys2.inChatTerminalToolOutput = new RawContextKey("inChatTerminalToolOutput", false, { type: "boolean", description: localize("inChatTerminalToolOutput", "True when focus is in the chat terminal output region.") });
   ChatContextKeys2.chatModeKind = new RawContextKey("chatAgentKind", ChatModeKind.Ask, { type: "string", description: localize("agentKind", "The 'kind' of the current agent.") });
   ChatContextKeys2.chatModeName = new RawContextKey("chatModeName", "", { type: "string", description: localize("chatModeName", "The name of the current chat mode (e.g. 'Plan' for custom modes).") });
+  ChatContextKeys2.chatModelId = new RawContextKey("chatModelId", "", { type: "string", description: localize("chatModelId", "The short id of the currently selected chat model (for example 'gpt-4.1').") });
   ChatContextKeys2.supported = ContextKeyExpr.or(IsWebContext.negate(), RemoteNameContext.notEqualsTo(""), ContextKeyExpr.has("config.chat.experimental.serverlessWebEnabled"));
   ChatContextKeys2.enabled = new RawContextKey("chatIsEnabled", false, { type: "boolean", description: localize("chatIsEnabled", "True when chat is enabled because a default chat participant is activated with an implementation.") });
   ChatContextKeys2.lockedToCodingAgent = new RawContextKey("lockedToCodingAgent", false, { type: "boolean", description: localize("lockedToCodingAgent", "True when the chat widget is locked to the coding agent session.") });
   ChatContextKeys2.chatSessionHasCustomAgentTarget = new RawContextKey("chatSessionHasCustomAgentTarget", false, { type: "boolean", description: localize("chatSessionHasCustomAgentTarget", "True when the chat session has a customAgentTarget defined to filter modes.") });
+  ChatContextKeys2.chatSessionHasTargetedModels = new RawContextKey("chatSessionHasTargetedModels", false, { type: "boolean", description: localize("chatSessionHasTargetedModels", "True when the chat session has language models that target it via targetChatSessionType.") });
   ChatContextKeys2.agentSupportsAttachments = new RawContextKey("agentSupportsAttachments", false, { type: "boolean", description: localize("agentSupportsAttachments", "True when the chat agent supports attachments.") });
   ChatContextKeys2.withinEditSessionDiff = new RawContextKey("withinEditSessionDiff", false, { type: "boolean", description: localize("withinEditSessionDiff", "True when the chat widget dispatches to the edit session chat.") });
   ChatContextKeys2.filePartOfEditSession = new RawContextKey("filePartOfEditSession", false, { type: "boolean", description: localize("filePartOfEditSession", "True when the chat widget is within a file with an edit session.") });
@@ -71,7 +73,8 @@ var ChatContextKeys;
   ChatContextKeys2.completionsQuotaExceeded = ChatEntitlementContextKeys.completionsQuotaExceeded;
   ChatContextKeys2.Editing = {
     hasToolConfirmation: new RawContextKey("chatHasToolConfirmation", false, { type: "boolean", description: localize("chatEditingHasToolConfirmation", "True when a tool confirmation is present.") }),
-    hasElicitationRequest: new RawContextKey("chatHasElicitationRequest", false, { type: "boolean", description: localize("chatEditingHasElicitationRequest", "True when a chat elicitation request is pending.") })
+    hasElicitationRequest: new RawContextKey("chatHasElicitationRequest", false, { type: "boolean", description: localize("chatEditingHasElicitationRequest", "True when a chat elicitation request is pending.") }),
+    hasQuestionCarousel: new RawContextKey("chatHasQuestionCarousel", false, { type: "boolean", description: localize("chatEditingHasQuestionCarousel", "True when a question carousel is rendered in the chat input.") })
   };
   ChatContextKeys2.Tools = {
     toolsCount: new RawContextKey("toolsCount", 0, { type: "number", description: localize("toolsCount", "The count of tools available in the chat.") })
@@ -91,7 +94,6 @@ var ChatContextKeys;
   ChatContextKeys2.isReadAgentSession = new RawContextKey("agentSessionIsRead", false, { type: "boolean", description: localize("agentSessionIsRead", "True when the agent session item is read.") });
   ChatContextKeys2.hasMultipleAgentSessionsSelected = new RawContextKey("agentSessionHasMultipleSelected", false, { type: "boolean", description: localize("agentSessionHasMultipleSelected", "True when multiple agent sessions are selected.") });
   ChatContextKeys2.hasAgentSessionChanges = new RawContextKey("agentSessionHasChanges", false, { type: "boolean", description: localize("agentSessionHasChanges", "True when the current agent session item has changes.") });
-  ChatContextKeys2.chatEditsInTreeView = new RawContextKey("chatEditsInTreeView", false, { type: "boolean", description: localize("chatEditsInTreeView", "True when the chat edits working set is displayed as a tree.") });
   ChatContextKeys2.isKatexMathElement = new RawContextKey("chatIsKatexMathElement", false, { type: "boolean", description: localize("chatIsKatexMathElement", "True when focusing a KaTeX math element.") });
   ChatContextKeys2.contextUsageHasBeenOpened = new RawContextKey("chatContextUsageHasBeenOpened", false, { type: "boolean", description: localize("chatContextUsageHasBeenOpened", "True when the user has opened the context window usage details.") });
 })(ChatContextKeys || (ChatContextKeys = {}));

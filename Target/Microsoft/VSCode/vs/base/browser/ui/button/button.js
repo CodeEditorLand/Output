@@ -36,6 +36,13 @@ const buttonSanitizerConfig = Object.freeze({
     override: ["class"]
   }
 });
+const buttonMarkdownRenderOptions = Object.freeze({
+  sanitizerConfig: {
+    allowedAttributes: {
+      override: ["class"]
+    }
+  }
+});
 class Button extends Disposable {
   static {
     __name(this, "Button");
@@ -188,7 +195,7 @@ class Button extends Disposable {
     this._element.classList.add("monaco-text-button");
     const labelElement = this.options.supportShortLabel ? this._labelElement : this._element;
     if (isMarkdownString(value)) {
-      const rendered = renderMarkdown(value, void 0, document.createElement("span"));
+      const rendered = renderMarkdown(value, buttonMarkdownRenderOptions, document.createElement("span"));
       rendered.dispose();
       const root = rendered.element.querySelector("p")?.innerHTML;
       if (root) {
@@ -516,7 +523,7 @@ class ButtonWithIcon extends Button {
     }
     this._element.classList.add("monaco-text-button");
     if (isMarkdownString(value)) {
-      const rendered = renderMarkdown(value, void 0, document.createElement("span"));
+      const rendered = renderMarkdown(value, buttonMarkdownRenderOptions, document.createElement("span"));
       rendered.dispose();
       const root = rendered.element.querySelector("p")?.innerHTML;
       if (root) {

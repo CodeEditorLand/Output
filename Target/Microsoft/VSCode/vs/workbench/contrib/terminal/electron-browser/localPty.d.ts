@@ -13,7 +13,7 @@ export declare class LocalPty extends BasePty implements ITerminalChildProcess {
     processBinary(data: string): Promise<void>;
     input(data: string): void;
     sendSignal(signal: string): void;
-    resize(cols: number, rows: number): void;
+    resize(cols: number, rows: number, pixelWidth?: number, pixelHeight?: number): void;
     clearBuffer(): Promise<void>;
     freePortKillProcess(port: string): Promise<{
         port: string;

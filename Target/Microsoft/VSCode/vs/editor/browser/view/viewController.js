@@ -112,12 +112,16 @@ class ViewController {
       }
     }
     const lineTokens = tokens.getLineTokens(lineNumber);
-    const index = lineTokens.findTokenIndexAtOffset(column - 1);
-    if (lineTokens.getStandardTokenType(index) !== 2) {
-      return void 0;
+    let startIndex = lineTokens.findTokenIndexAtOffset(column - 1);
+    let endIndex = startIndex;
+    while (startIndex > 0 && lineTokens.getStandardTokenType(startIndex - 1) === 2) {
+      startIndex--;
     }
-    const tokenStart = lineTokens.getStartOffset(index);
-    const tokenEnd = lineTokens.getEndOffset(index);
+    while (endIndex + 1 < lineTokens.getCount() && lineTokens.getStandardTokenType(endIndex + 1) === 2) {
+      endIndex++;
+    }
+    const tokenStart = lineTokens.getStartOffset(startIndex);
+    const tokenEnd = lineTokens.getEndOffset(endIndex);
     if (column !== tokenStart + 2 && column !== tokenEnd) {
       return void 0;
     }
@@ -192,9 +196,15 @@ class ViewController {
           if (data.inSelectionMode) {
             this._wordSelectDrag(data.position, data.revealType);
           } else {
-            const model = this.viewModel.model;
-            const modelPos = this._convertViewToModelPosition(data.position);
-            const selection = ViewController._trySelectBracketContent(model, modelPos) || ViewController._trySelectStringContent(model, modelPos);
+            let selection;
+            if (options.get(
+              173
+              /* EditorOption.doubleClickSelectsBlock */
+            )) {
+              const model = this.viewModel.model;
+              const modelPos = this._convertViewToModelPosition(data.position);
+              selection = ViewController._trySelectBracketContent(model, modelPos) || ViewController._trySelectStringContent(model, modelPos);
+            }
             if (selection) {
               this._select(selection);
             } else {

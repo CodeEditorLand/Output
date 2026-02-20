@@ -7,6 +7,7 @@ import { URI } from '../../../../../base/common/uri.js';
 import { IInstantiationService } from '../../../../../platform/instantiation/common/instantiation.js';
 import { IProductService } from '../../../../../platform/product/common/productService.js';
 import { IStorageService } from '../../../../../platform/storage/common/storage.js';
+import { IWorkspaceContextService } from '../../../../../platform/workspace/common/workspace.js';
 import { ILifecycleService } from '../../../../services/lifecycle/common/lifecycle.js';
 import { ChatSessionStatus as AgentSessionStatus, IChatSessionItem, IChatSessionsService } from '../../common/chatSessionsService.js';
 import { IChatWidgetService } from '../chat.js';
@@ -83,6 +84,7 @@ export declare class AgentSessionsModel extends Disposable implements IAgentSess
     private readonly storageService;
     private readonly productService;
     private readonly chatWidgetService;
+    private readonly workspaceContextService;
     private readonly _onWillResolve;
     readonly onWillResolve: Event<void>;
     private readonly _onDidResolve;
@@ -99,7 +101,7 @@ export declare class AgentSessionsModel extends Disposable implements IAgentSess
     private readonly providersToResolve;
     private readonly cache;
     private readonly logger;
-    constructor(chatSessionsService: IChatSessionsService, lifecycleService: ILifecycleService, instantiationService: IInstantiationService, storageService: IStorageService, productService: IProductService, chatWidgetService: IChatWidgetService);
+    constructor(chatSessionsService: IChatSessionsService, lifecycleService: ILifecycleService, instantiationService: IInstantiationService, storageService: IStorageService, productService: IProductService, chatWidgetService: IChatWidgetService, workspaceContextService: IWorkspaceContextService);
     private registerListeners;
     getSession(resource: URI): IAgentSession | undefined;
     resolve(provider: string | string[] | undefined): Promise<void>;

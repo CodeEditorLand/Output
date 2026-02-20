@@ -18,7 +18,6 @@ import { escapeRegExpCharacters } from "../../../../../base/common/strings.js";
 import { Disposable } from "../../../../../base/common/lifecycle.js";
 import { ResourceSet } from "../../../../../base/common/map.js";
 import { ThemeIcon } from "../../../../../base/common/themables.js";
-import { URI } from "../../../../../base/common/uri.js";
 import { relativePath } from "../../../../../base/common/resources.js";
 import { Position } from "../../../../../editor/common/core/position.js";
 import { Range } from "../../../../../editor/common/core/range.js";
@@ -27,11 +26,13 @@ import { ILanguageFeaturesService } from "../../../../../editor/common/services/
 import { ITextModelService } from "../../../../../editor/common/services/resolverService.js";
 import { getDefinitionsAtPosition, getImplementationsAtPosition, getReferencesAtPosition } from "../../../../../editor/contrib/gotoSymbol/browser/goToSymbol.js";
 import { localize } from "../../../../../nls.js";
+import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
 import { IWorkspaceContextService } from "../../../../../platform/workspace/common/workspace.js";
 import { ISearchService, resultIsMatch } from "../../../../services/search/common/search.js";
 import { ILanguageModelToolsService, ToolDataSource } from "../../common/tools/languageModelToolsService.js";
 import { createToolSimpleTextResult } from "../../common/tools/builtinTools/toolHelpers.js";
+import { errorResult, findLineNumber, findSymbolColumn, resolveToolUri } from "./toolHelpers.js";
 const UsagesToolId = "vscode_listCodeUsages";
 const BaseModelDescription = `Find all usages (references, definitions, and implementations) of a code symbol across the workspace. This tool locates where a symbol is referenced, defined, or implemented.
 
@@ -82,6 +83,7 @@ Currently supported for: ${sorted.join(", ")}.`;
       userDescription: localize("tool.usages.userDescription", "Find references, definitions, and implementations of a symbol"),
       modelDescription,
       source: ToolDataSource.Internal,
+      when: ContextKeyExpr.has("config.chat.tools.usagesTool.enabled"),
       inputSchema: {
         type: "object",
         properties: {
@@ -114,27 +116,24 @@ Currently supported for: ${sorted.join(", ")}.`;
   }
   async invoke(invocation, _countTokens, _progress, token) {
     const input = invocation.parameters;
-    const uri = this._resolveUri(input);
+    const uri = resolveToolUri(input, this._workspaceContextService);
     if (!uri) {
-      return this._errorResult('Provide either "uri" (a full URI) or "filePath" (a workspace-relative path) to identify the file.');
+      return errorResult('Provide either "uri" (a full URI) or "filePath" (a workspace-relative path) to identify the file.');
     }
     const ref = await this._textModelService.createModelReference(uri);
     try {
       const model = ref.object.textEditorModel;
       if (!this._languageFeaturesService.referenceProvider.has(model)) {
-        return this._errorResult(`No reference provider available for this file's language. The usages tool may not support this language.`);
+        return errorResult(`No reference provider available for this file's language. The usages tool may not support this language.`);
       }
-      const parts = input.lineContent.trim().split(/\s+/);
-      const lineContent = parts.map(escapeRegExpCharacters).join("\\s+");
-      const matches = model.findMatches(lineContent, false, true, false, null, false, 1);
-      if (matches.length === 0) {
-        return this._errorResult(`Could not find line content "${input.lineContent}" in ${uri.toString()}. Provide the exact text from the line where the symbol appears.`);
+      const lineNumber = findLineNumber(model, input.lineContent);
+      if (lineNumber === void 0) {
+        return errorResult(`Could not find line content "${input.lineContent}" in ${uri.toString()}. Provide the exact text from the line where the symbol appears.`);
       }
-      const lineNumber = matches[0].range.startLineNumber;
       const lineText = model.getLineContent(lineNumber);
-      const column = this._findSymbolColumn(lineText, input.symbol);
+      const column = findSymbolColumn(lineText, input.symbol);
       if (column === void 0) {
-        return this._errorResult(`Could not find symbol "${input.symbol}" in the matched line. Ensure the symbol name is correct and appears in the provided line content.`);
+        return errorResult(`Could not find symbol "${input.symbol}" in the matched line. Ensure the symbol name is correct and appears in the provided line content.`);
       }
       const position = new Position(lineNumber, column);
       const [definitions, references, implementations] = await Promise.all([
@@ -240,29 +239,6 @@ Currently supported for: ${sorted.join(", ")}.`;
     }
     return previews;
   }
-  _resolveUri(input) {
-    if (input.uri) {
-      return URI.parse(input.uri);
-    }
-    if (input.filePath) {
-      const folders = this._workspaceContextService.getWorkspace().folders;
-      if (folders.length === 1) {
-        return folders[0].toResource(input.filePath);
-      }
-      for (const folder of folders) {
-        return folder.toResource(input.filePath);
-      }
-    }
-    return void 0;
-  }
-  _findSymbolColumn(lineText, symbol) {
-    const pattern = new RegExp(`\\b${escapeRegExpCharacters(symbol)}\\b`);
-    const match = pattern.exec(lineText);
-    if (match) {
-      return match.index + 1;
-    }
-    return void 0;
-  }
   _classifyReference(ref, definitions, implementations) {
     if (definitions.some((d) => this._overlaps(ref, d))) {
       return "definition";
@@ -277,11 +253,6 @@ Currently supported for: ${sorted.join(", ")}.`;
       return false;
     }
     return Range.areIntersectingOrTouching(a.range, b.range);
-  }
-  _errorResult(message) {
-    const result = createToolSimpleTextResult(message);
-    result.toolResultMessage = new MarkdownString(message);
-    return result;
   }
 };
 UsagesTool = __decorate([

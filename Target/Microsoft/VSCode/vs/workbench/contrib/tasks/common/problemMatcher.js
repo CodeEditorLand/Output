@@ -176,12 +176,12 @@ async function searchForFileLocation(filename, fsProvider, args) {
   return void 0;
 }
 __name(searchForFileLocation, "searchForFileLocation");
-function createLineMatcher(matcher, fileService) {
+function createLineMatcher(matcher, fileService, logService) {
   const pattern = matcher.pattern;
   if (Array.isArray(pattern)) {
-    return new MultiLineMatcher(matcher, fileService);
+    return new MultiLineMatcher(matcher, fileService, logService);
   } else {
-    return new SingleLineMatcher(matcher, fileService);
+    return new SingleLineMatcher(matcher, fileService, logService);
   }
 }
 __name(createLineMatcher, "createLineMatcher");
@@ -190,15 +190,25 @@ class AbstractLineMatcher {
   static {
     __name(this, "AbstractLineMatcher");
   }
-  constructor(matcher, fileService) {
+  constructor(matcher, fileService, logService) {
     this.matcher = matcher;
     this.fileService = fileService;
+    this.logService = logService;
   }
   handle(lines, start = 0) {
     return { match: null, continue: false };
   }
   next(line) {
     return null;
+  }
+  regexpExec(regexp, line) {
+    const start = Date.now();
+    const result = regexp.exec(line);
+    const elapsed = Date.now() - start;
+    if (elapsed > 5) {
+      this.logService?.trace(`ProblemMatcher: slow regexp took ${elapsed}ms to execute`, regexp.source);
+    }
+    return result;
   }
   fillProblemData(data, pattern, matches) {
     if (data) {
@@ -341,8 +351,8 @@ class SingleLineMatcher extends AbstractLineMatcher {
   static {
     __name(this, "SingleLineMatcher");
   }
-  constructor(matcher, fileService) {
-    super(matcher, fileService);
+  constructor(matcher, fileService, logService) {
+    super(matcher, fileService, logService);
     this.pattern = matcher.pattern;
   }
   get matchLength() {
@@ -354,7 +364,7 @@ class SingleLineMatcher extends AbstractLineMatcher {
     if (this.pattern.kind !== void 0) {
       data.kind = this.pattern.kind;
     }
-    const matches = this.pattern.regexp.exec(lines[start]);
+    const matches = this.regexpExec(this.pattern.regexp, lines[start]);
     if (matches) {
       this.fillProblemData(data, this.pattern, matches);
       if (data.kind === ProblemLocationKind.Location && !data.location && !data.line && data.file) {
@@ -375,8 +385,8 @@ class MultiLineMatcher extends AbstractLineMatcher {
   static {
     __name(this, "MultiLineMatcher");
   }
-  constructor(matcher, fileService) {
-    super(matcher, fileService);
+  constructor(matcher, fileService, logService) {
+    super(matcher, fileService, logService);
     this.patterns = matcher.pattern;
   }
   get matchLength() {
@@ -389,7 +399,7 @@ class MultiLineMatcher extends AbstractLineMatcher {
     data.kind = this.patterns[0].kind;
     for (let i = 0; i < this.patterns.length; i++) {
       const pattern = this.patterns[i];
-      const matches = pattern.regexp.exec(lines[i + start]);
+      const matches = this.regexpExec(pattern.regexp, lines[i + start]);
       if (!matches) {
         return { match: null, continue: false };
       } else {
@@ -409,7 +419,7 @@ class MultiLineMatcher extends AbstractLineMatcher {
   next(line) {
     const pattern = this.patterns[this.patterns.length - 1];
     Assert.ok(pattern.loop === true && this.data !== null);
-    const matches = pattern.regexp.exec(line);
+    const matches = this.regexpExec(pattern.regexp, line);
     if (!matches) {
       this.data = void 0;
       return null;

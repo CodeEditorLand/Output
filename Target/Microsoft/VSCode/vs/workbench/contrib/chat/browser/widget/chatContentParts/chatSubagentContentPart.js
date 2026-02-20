@@ -20,16 +20,16 @@ import { Lazy } from "../../../../../../base/common/lazy.js";
 import { MutableDisposable } from "../../../../../../base/common/lifecycle.js";
 import { autorun } from "../../../../../../base/common/observable.js";
 import { rcut } from "../../../../../../base/common/strings.js";
-import { ThemeIcon } from "../../../../../../base/common/themables.js";
 import { localize } from "../../../../../../nls.js";
 import { IHoverService } from "../../../../../../platform/hover/browser/hover.js";
 import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
 import { ChatCollapsibleContentPart } from "./chatCollapsibleContentPart.js";
 import { ChatCollapsibleMarkdownContentPart } from "./chatCollapsibleMarkdownContentPart.js";
+import { renderFileWidgets } from "./chatInlineAnchorWidget.js";
 import { IChatMarkdownAnchorService } from "./chatMarkdownAnchorService.js";
 import { createThinkingIcon, getToolInvocationIcon } from "./chatThinkingContentPart.js";
-import "./media/chatSubagentContent.css";
 import { ChatToolInvocationPart } from "./toolInvocationParts/chatToolInvocationPart.js";
+import "./media/chatSubagentContent.css";
 const MAX_TITLE_LENGTH = 100;
 let ChatSubagentContentPart = ChatSubagentContentPart_1 = class ChatSubagentContentPart2 extends ChatCollapsibleContentPart {
   static {
@@ -101,14 +101,24 @@ let ChatSubagentContentPart = ChatSubagentContentPart_1 = class ChatSubagentCont
     this.isInitiallyComplete = this.element.isComplete;
     const node = this.domNode;
     node.classList.add("chat-thinking-box", "chat-thinking-fixed-mode", "chat-subagent-part");
+    if (!this.element.isComplete) {
+      node.classList.add("chat-thinking-active");
+    }
+    if (!this.element.isComplete && this._collapseButton) {
+      const labelElement = this._collapseButton.labelElement;
+      labelElement.textContent = "";
+      this.titleShimmerSpan = $("span.chat-thinking-title-shimmer");
+      this.titleShimmerSpan.textContent = initialTitle;
+      labelElement.appendChild(this.titleShimmerSpan);
+    }
     if (this._collapseButton && !this.element.isComplete) {
-      this._collapseButton.icon = ThemeIcon.modify(Codicon.loading, "spin");
+      this._collapseButton.icon = Codicon.circleFilled;
     }
     this._register(autorun((r) => {
       this.expanded.read(r);
       if (this._collapseButton) {
         if (!this.element.isComplete && this.isActive) {
-          this._collapseButton.icon = ThemeIcon.modify(Codicon.loading, "spin");
+          this._collapseButton.icon = Codicon.circleFilled;
         } else {
           this._collapseButton.icon = Codicon.check;
         }
@@ -200,6 +210,7 @@ let ChatSubagentContentPart = ChatSubagentContentPart_1 = class ChatSubagentCont
   }
   markAsInactive() {
     this.isActive = false;
+    this.domNode.classList.remove("chat-thinking-active");
     if (this._collapseButton) {
       this._collapseButton.icon = Codicon.check;
     }
@@ -214,11 +225,42 @@ let ChatSubagentContentPart = ChatSubagentContentPart_1 = class ChatSubagentCont
   }
   updateTitle() {
     const prefix = this.agentName || localize("chat.subagent.prefix", "Subagent");
-    let finalLabel = `${prefix}: ${this.description}`;
-    if (this.currentRunningToolMessage && this.isActive) {
-      finalLabel += ` \u2014 ${this.currentRunningToolMessage}`;
+    const shimmerText = `${prefix}: ${this.description}`;
+    const toolCallText = this.currentRunningToolMessage && this.isActive ? ` \u2014 ${this.currentRunningToolMessage}` : ``;
+    if (!this._collapseButton) {
+      return;
     }
-    this.setTitleWithWidgets(new MarkdownString(finalLabel), this.instantiationService, this.chatMarkdownAnchorService, this.chatContentMarkdownRenderer);
+    const labelElement = this._collapseButton.labelElement;
+    if (!this.titleShimmerSpan || !this.titleShimmerSpan.parentElement) {
+      labelElement.textContent = "";
+      this.titleShimmerSpan = $("span.chat-thinking-title-shimmer");
+      labelElement.appendChild(this.titleShimmerSpan);
+    }
+    this.titleShimmerSpan.textContent = shimmerText;
+    if (this.titleDetailRendered) {
+      this.titleDetailRendered.dispose();
+      this.titleDetailRendered = void 0;
+    }
+    if (!toolCallText) {
+      if (this.titleDetailContainer) {
+        this.titleDetailContainer.remove();
+        this.titleDetailContainer = void 0;
+      }
+    } else {
+      const result = this.chatContentMarkdownRenderer.render(new MarkdownString(toolCallText));
+      result.element.classList.add("collapsible-title-content", "chat-thinking-title-detail");
+      renderFileWidgets(result.element, this.instantiationService, this.chatMarkdownAnchorService, this._store);
+      this.titleDetailRendered = result;
+      if (this.titleDetailContainer) {
+        this.titleDetailContainer.replaceWith(result.element);
+      } else {
+        labelElement.appendChild(result.element);
+      }
+      this.titleDetailContainer = result.element;
+    }
+    const fullLabel = `${shimmerText}${toolCallText}`;
+    this._collapseButton.element.ariaLabel = fullLabel;
+    this._collapseButton.element.ariaExpanded = String(this.isExpanded());
   }
   updateHover() {
     if (!this.modelName || !this._collapseButton) {
@@ -394,6 +436,9 @@ let ChatSubagentContentPart = ChatSubagentContentPart_1 = class ChatSubagentCont
    * Appends a hook item (blocked/warning) to the subagent content part.
    */
   appendHookItem(factory, hookPart) {
+    const hookMessage = hookPart.stopReason ? hookPart.toolDisplayName ? localize("hook.subagent.blocked", "Blocked {0}", hookPart.toolDisplayName) : localize("hook.subagent.blockedGeneric", "Blocked by hook") : hookPart.toolDisplayName ? localize("hook.subagent.warning", "Warning for {0}", hookPart.toolDisplayName) : localize("hook.subagent.warningGeneric", "Hook warning");
+    this.currentRunningToolMessage = hookMessage;
+    this.updateTitle();
     if (this.isExpanded() || this.hasExpandedOnce) {
       const result = factory();
       this.appendHookItemToDOM(result.domNode, hookPart);

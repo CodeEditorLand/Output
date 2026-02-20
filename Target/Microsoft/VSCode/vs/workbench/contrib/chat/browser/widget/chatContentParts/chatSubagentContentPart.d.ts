@@ -48,6 +48,9 @@ export declare class ChatSubagentContentPart extends ChatCollapsibleContentPart 
     private toolsWaitingForConfirmation;
     private userManuallyExpanded;
     private autoExpandedForConfirmation;
+    private titleShimmerSpan;
+    private titleDetailContainer;
+    private titleDetailRendered;
     /**
      * Check if a tool invocation is the parent subagent tool (the tool that spawns a subagent).
      * A parent subagent tool has subagent toolSpecificData but no subAgentInvocationId.

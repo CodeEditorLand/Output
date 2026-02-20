@@ -36,18 +36,7 @@ export interface IChatTipService {
      */
     readonly onDidDisableTips: Event<void>;
     /**
-     * Gets a tip to show for a request, or undefined if a tip has already been shown this session.
-     * Only one tip is shown per conversation session (resets when switching conversations).
-     * Tips are suppressed if a welcome tip was already shown in this session.
-     * Tips are only shown for requests created after the current session started.
-     * @param requestId The unique ID of the request (used for stable rerenders).
-     * @param requestTimestamp The timestamp when the request was created.
-     * @param contextKeyService The context key service to evaluate tip eligibility.
-     */
-    getNextTip(requestId: string, requestTimestamp: number, contextKeyService: IContextKeyService): IChatTip | undefined;
-    /**
      * Gets a tip to show on the welcome/getting-started view.
-     * Unlike {@link getNextTip}, this does not require a request and skips request-timestamp checks.
      * Returns the same tip on repeated calls for stable rerenders.
      */
     getWelcomeTip(contextKeyService: IContextKeyService): IChatTip | undefined;
@@ -58,7 +47,7 @@ export interface IChatTipService {
     resetSession(): void;
     /**
      * Dismisses the current tip and allows a new one to be picked for the same request.
-     * The dismissed tip will not be shown again in this profile.
+     * The dismissed tip will not be shown again for this user on this application installation.
      */
     dismissTip(): void;
     /**
@@ -72,14 +61,16 @@ export interface IChatTipService {
     disableTips(): Promise<void>;
     /**
      * Navigates to the next tip in the catalog without permanently dismissing the current one.
-     * @param contextKeyService The context key service to evaluate tip eligibility.
      */
-    navigateToNextTip(contextKeyService: IContextKeyService): IChatTip | undefined;
+    navigateToNextTip(): IChatTip | undefined;
     /**
      * Navigates to the previous tip in the catalog without permanently dismissing the current one.
-     * @param contextKeyService The context key service to evaluate tip eligibility.
      */
-    navigateToPreviousTip(contextKeyService: IContextKeyService): IChatTip | undefined;
+    navigateToPreviousTip(): IChatTip | undefined;
+    /**
+     * Clears all dismissed tips so they can be shown again.
+     */
+    clearDismissedTips(): void;
 }
 export interface ITipDefinition {
     readonly id: string;
@@ -93,6 +84,11 @@ export interface ITipDefinition {
      * Command IDs that are allowed to be executed from this tip's markdown.
      */
     readonly enabledCommands?: string[];
+    /**
+     * Chat model IDs for which this tip is eligible.
+     * Compared against the lowercased `chatModelId` context key.
+     */
+    readonly onlyWhenModelIds?: readonly string[];
     /**
      * Command IDs that, if ever executed in this workspace, make this tip ineligible.
      * The tip won't be shown if the user has already performed the action it suggests.
@@ -121,8 +117,8 @@ export interface ITipDefinition {
     };
 }
 /**
- * Tracks workspace-level signals that determine whether certain tips should be
- * excluded. Persists state to workspace storage and disposes listeners once all
+ * Tracks user-level signals that determine whether certain tips should be
+ * excluded. Persists state to application storage and disposes listeners once all
  * signals of interest have been observed.
  */
 export declare class TipEligibilityTracker extends Disposable {
@@ -163,6 +159,7 @@ export declare class TipEligibilityTracker extends Disposable {
     isExcluded(tip: ITipDefinition): boolean;
     private _checkForPromptFiles;
     private _persistSet;
+    private _readApplicationWithProfileFallback;
 }
 export declare class ChatTipService extends Disposable implements IChatTipService {
     private readonly _productService;
@@ -179,17 +176,6 @@ export declare class ChatTipService extends Disposable implements IChatTipServic
     private readonly _onDidDisableTips;
     readonly onDidDisableTips: Event<void>;
     /**
-     * Timestamp when the current session started.
-     * Used to only show tips for requests created after this time.
-     * Resets on each {@link resetSession} call.
-     */
-    private _sessionStartedAt;
-    /**
-     * Whether a chatResponse tip has already been shown in this conversation
-     * session. Only one response tip is shown per session.
-     */
-    private _hasShownRequestTip;
-    /**
      * The request ID that was assigned a tip (for stable rerenders).
      */
     private _tipRequestId;
@@ -197,23 +183,33 @@ export declare class ChatTipService extends Disposable implements IChatTipServic
      * The tip that was shown (for stable rerenders).
      */
     private _shownTip;
+    /**
+     * The scoped context key service from the chat widget, stored when
+     * {@link getWelcomeTip} is first called so that navigation methods
+     * can evaluate when-clause eligibility against the correct context.
+     */
+    private _contextKeyService;
     private static readonly _DISMISSED_TIP_KEY;
     private static readonly _LAST_TIP_ID_KEY;
     private readonly _tracker;
     constructor(_productService: IProductService, _configurationService: IConfigurationService, _storageService: IStorageService, instantiationService: IInstantiationService, _logService: ILogService);
     resetSession(): void;
     dismissTip(): void;
+    clearDismissedTips(): void;
     private _getDismissedTipIds;
     hideTip(): void;
     disableTips(): Promise<void>;
-    getNextTip(requestId: string, requestTimestamp: number, contextKeyService: IContextKeyService): IChatTip | undefined;
     getWelcomeTip(contextKeyService: IContextKeyService): IChatTip | undefined;
+    private _findNextEligibleTip;
     private _pickTip;
-    navigateToNextTip(contextKeyService: IContextKeyService): IChatTip | undefined;
-    navigateToPreviousTip(contextKeyService: IContextKeyService): IChatTip | undefined;
+    navigateToNextTip(): IChatTip | undefined;
+    navigateToPreviousTip(): IChatTip | undefined;
     private _navigateTip;
     private _isEligible;
+    private _getCurrentChatModelId;
     private _isChatLocation;
+    private _isChatQuotaExceeded;
     private _isCopilotEnabled;
     private _createTip;
+    private _readApplicationWithProfileFallback;
 }

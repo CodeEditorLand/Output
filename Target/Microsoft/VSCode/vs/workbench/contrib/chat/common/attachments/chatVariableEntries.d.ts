@@ -191,7 +191,17 @@ export interface IDebugVariableEntry extends IBaseChatRequestVariableEntry {
     readonly expression: string;
     readonly type?: string;
 }
-export type IChatRequestVariableEntry = IGenericChatRequestVariableEntry | IChatRequestImplicitVariableEntry | IChatRequestPasteVariableEntry | ISymbolVariableEntry | ICommandResultVariableEntry | IDiagnosticVariableEntry | IImageVariableEntry | IChatRequestToolEntry | IChatRequestToolSetEntry | IChatRequestDirectoryEntry | IChatRequestFileEntry | INotebookOutputVariableEntry | IElementVariableEntry | IPromptFileVariableEntry | IPromptTextVariableEntry | ISCMHistoryItemVariableEntry | ISCMHistoryItemChangeVariableEntry | ISCMHistoryItemChangeRangeVariableEntry | ITerminalVariableEntry | IChatRequestStringVariableEntry | IChatRequestWorkspaceVariableEntry | IDebugVariableEntry;
+export interface IAgentFeedbackVariableEntry extends IBaseChatRequestVariableEntry {
+    readonly kind: 'agentFeedback';
+    readonly sessionResource: URI;
+    readonly feedbackItems: ReadonlyArray<{
+        readonly id: string;
+        readonly text: string;
+        readonly resourceUri: URI;
+        readonly range: IRange;
+    }>;
+}
+export type IChatRequestVariableEntry = IGenericChatRequestVariableEntry | IChatRequestImplicitVariableEntry | IChatRequestPasteVariableEntry | ISymbolVariableEntry | ICommandResultVariableEntry | IDiagnosticVariableEntry | IImageVariableEntry | IChatRequestToolEntry | IChatRequestToolSetEntry | IChatRequestDirectoryEntry | IChatRequestFileEntry | INotebookOutputVariableEntry | IElementVariableEntry | IPromptFileVariableEntry | IPromptTextVariableEntry | ISCMHistoryItemVariableEntry | ISCMHistoryItemChangeVariableEntry | ISCMHistoryItemChangeRangeVariableEntry | ITerminalVariableEntry | IChatRequestStringVariableEntry | IChatRequestWorkspaceVariableEntry | IDebugVariableEntry | IAgentFeedbackVariableEntry;
 export declare namespace IChatRequestVariableEntry {
     /**
      * Returns URI of the passed variant entry. Return undefined if not found.
@@ -204,6 +214,7 @@ export declare function isImplicitVariableEntry(obj: IChatRequestVariableEntry):
 export declare function isStringVariableEntry(obj: IChatRequestVariableEntry): obj is IChatRequestStringVariableEntry;
 export declare function isTerminalVariableEntry(obj: IChatRequestVariableEntry): obj is ITerminalVariableEntry;
 export declare function isDebugVariableEntry(obj: IChatRequestVariableEntry): obj is IDebugVariableEntry;
+export declare function isAgentFeedbackVariableEntry(obj: IChatRequestVariableEntry): obj is IAgentFeedbackVariableEntry;
 export declare function isPasteVariableEntry(obj: IChatRequestVariableEntry): obj is IChatRequestPasteVariableEntry;
 export declare function isWorkspaceVariableEntry(obj: IChatRequestVariableEntry): obj is IChatRequestWorkspaceVariableEntry;
 export declare function isImageVariableEntry(obj: IChatRequestVariableEntry): obj is IImageVariableEntry;

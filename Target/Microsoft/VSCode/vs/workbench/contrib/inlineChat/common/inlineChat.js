@@ -112,6 +112,7 @@ const CTX_INLINE_CHAT_FOCUSED = new RawContextKey("inlineChatFocused", false, lo
 const CTX_INLINE_CHAT_EDITING = new RawContextKey("inlineChatEditing", true, localize("inlineChatEditing", "Whether the user is currently editing or generating code in the inline chat"));
 const CTX_INLINE_CHAT_RESPONSE_FOCUSED = new RawContextKey("inlineChatResponseFocused", false, localize("inlineChatResponseFocused", "Whether the interactive widget's response is focused"));
 const CTX_INLINE_CHAT_EMPTY = new RawContextKey("inlineChatEmpty", false, localize("inlineChatEmpty", "Whether the interactive editor input is empty"));
+const CTX_INLINE_CHAT_INPUT_HAS_TEXT = new RawContextKey("inlineChatInputHasText", false, localize("inlineChatInputHasText", "Whether the inline chat input widget has text"));
 const CTX_INLINE_CHAT_INNER_CURSOR_FIRST = new RawContextKey("inlineChatInnerCursorFirst", false, localize("inlineChatInnerCursorFirst", "Whether the cursor of the iteractive editor input is on the first line"));
 const CTX_INLINE_CHAT_INNER_CURSOR_LAST = new RawContextKey("inlineChatInnerCursorLast", false, localize("inlineChatInnerCursorLast", "Whether the cursor of the iteractive editor input is on the last line"));
 const CTX_INLINE_CHAT_OUTER_CURSOR_POSITION = new RawContextKey("inlineChatOuterCursorPosition", "", localize("inlineChatOuterCursorPosition", "Whether the cursor of the outer editor is above or below the interactive editor input"));
@@ -167,6 +168,7 @@ export {
   CTX_INLINE_CHAT_HAS_STASHED_SESSION,
   CTX_INLINE_CHAT_INNER_CURSOR_FIRST,
   CTX_INLINE_CHAT_INNER_CURSOR_LAST,
+  CTX_INLINE_CHAT_INPUT_HAS_TEXT,
   CTX_INLINE_CHAT_OUTER_CURSOR_POSITION,
   CTX_INLINE_CHAT_POSSIBLE,
   CTX_INLINE_CHAT_REQUEST_IN_PROGRESS,

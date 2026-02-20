@@ -16,6 +16,7 @@ import { createInstantHoverDelegate } from "../../../base/browser/ui/hover/hover
 import { ActionRunner, SubmenuAction } from "../../../base/common/actions.js";
 import { Codicon } from "../../../base/common/codicons.js";
 import { Emitter } from "../../../base/common/event.js";
+import { isMarkdownString, MarkdownString } from "../../../base/common/htmlContent.js";
 import { DisposableStore } from "../../../base/common/lifecycle.js";
 import { ThemeIcon } from "../../../base/common/themables.js";
 import { localize } from "../../../nls.js";
@@ -92,8 +93,13 @@ let WorkbenchButtonBar = class WorkbenchButtonBar2 extends ButtonBar {
       btn.checked = action.checked ?? false;
       btn.element.classList.add("default-colors");
       const showLabel = conifgProvider(action, i)?.showLabel ?? true;
+      const customClass = conifgProvider(action, i)?.customClass;
+      const customLabel = conifgProvider(action, i)?.customLabel;
+      if (customClass) {
+        btn.element.classList.add(customClass);
+      }
       if (showLabel) {
-        btn.label = action.label;
+        btn.label = customLabel ?? action.label;
       } else {
         btn.element.classList.add("monaco-text-button");
       }
@@ -102,7 +108,12 @@ let WorkbenchButtonBar = class WorkbenchButtonBar2 extends ButtonBar {
           if (!showLabel) {
             btn.icon = action.item.icon;
           } else {
-            btn.label = `$(${action.item.icon.id}) ${action.label}`;
+            const labelValue = customLabel ?? action.label;
+            btn.label = isMarkdownString(labelValue) ? new MarkdownString(`$(${action.item.icon.id}) ${labelValue.value}`, {
+              isTrusted: labelValue.isTrusted,
+              supportThemeIcons: true,
+              supportHtml: labelValue.supportHtml
+            }) : `$(${action.item.icon.id}) ${labelValue}`;
           }
         } else if (action.class) {
           btn.element.classList.add(...action.class.split(" "));

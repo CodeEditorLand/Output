@@ -317,6 +317,13 @@ let ChatEntitlementService = class ChatEntitlementService2 extends Disposable {
     return isAnonymous(this.configurationService, this.entitlement, this.sentiment);
   }
   //#endregion
+  markAnonymousRateLimited() {
+    if (!this.anonymous) {
+      return;
+    }
+    this.chatQuotaExceededContextKey.set(true);
+    this._onDidChangeQuotaExceeded.fire();
+  }
   async update(token) {
     await this.requests?.value.forceResolveEntitlement(token);
   }

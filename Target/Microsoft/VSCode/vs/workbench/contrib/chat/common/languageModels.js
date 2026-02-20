@@ -12,22 +12,25 @@ var __param = function(paramIndex, decorator) {
   };
 };
 var LanguageModelsService_1;
-import { SequencerByKey } from "../../../../base/common/async.js";
+import { SequencerByKey, timeout } from "../../../../base/common/async.js";
 import { CancellationToken } from "../../../../base/common/cancellation.js";
 import { CancellationError, getErrorMessage, isCancellationError } from "../../../../base/common/errors.js";
 import { Emitter } from "../../../../base/common/event.js";
 import { hash } from "../../../../base/common/hash.js";
 import { Iterable } from "../../../../base/common/iterator.js";
 import { DisposableStore, toDisposable } from "../../../../base/common/lifecycle.js";
+import { observableValue } from "../../../../base/common/observable.js";
 import { equals } from "../../../../base/common/objects.js";
 import Severity from "../../../../base/common/severity.js";
 import { format, isFalsyOrWhitespace } from "../../../../base/common/strings.js";
-import { isString } from "../../../../base/common/types.js";
+import { isObject, isString } from "../../../../base/common/types.js";
 import { generateUuid } from "../../../../base/common/uuid.js";
 import { localize } from "../../../../nls.js";
 import { ContextKeyExpr, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { asJson, IRequestService } from "../../../../platform/request/common/request.js";
 import { IQuickInputService, QuickInputHideReason } from "../../../../platform/quickinput/common/quickInput.js";
 import { ISecretStorageService } from "../../../../platform/secrets/common/secrets.js";
 import { IStorageService } from "../../../../platform/storage/common/storage.js";
@@ -197,6 +200,9 @@ const languageModelChatProviderExtensionPoint = ExtensionsRegistry.registerExten
   }, "activationEventsGenerator")
 });
 const CHAT_MODEL_PICKER_PREFERENCES_STORAGE_KEY = "chatModelPickerPreferences";
+const CHAT_MODEL_RECENTLY_USED_STORAGE_KEY = "chatModelRecentlyUsed";
+const CHAT_PARTICIPANT_NAME_REGISTRY_STORAGE_KEY = "chat.participantNameRegistry";
+const CHAT_CURATED_MODELS_STORAGE_KEY = "chat.curatedModels";
 let LanguageModelsService = class LanguageModelsService2 {
   static {
     __name(this, "LanguageModelsService");
@@ -210,7 +216,7 @@ let LanguageModelsService = class LanguageModelsService2 {
   static {
     this.SECRET_INPUT = "${input:{0}}";
   }
-  constructor(_extensionService, _logService, _storageService, _contextKeyService, _languageModelsConfigurationService, _quickInputService, _secretStorageService) {
+  constructor(_extensionService, _logService, _storageService, _contextKeyService, _languageModelsConfigurationService, _quickInputService, _secretStorageService, _productService, _requestService) {
     this._extensionService = _extensionService;
     this._logService = _logService;
     this._storageService = _storageService;
@@ -218,6 +224,8 @@ let LanguageModelsService = class LanguageModelsService2 {
     this._languageModelsConfigurationService = _languageModelsConfigurationService;
     this._quickInputService = _quickInputService;
     this._secretStorageService = _secretStorageService;
+    this._productService = _productService;
+    this._requestService = _requestService;
     this._store = new DisposableStore();
     this._providers = /* @__PURE__ */ new Map();
     this._vendors = /* @__PURE__ */ new Map();
@@ -229,8 +237,15 @@ let LanguageModelsService = class LanguageModelsService2 {
     this._modelPickerUserPreferences = {};
     this._onLanguageModelChange = this._store.add(new Emitter());
     this.onDidChangeLanguageModels = this._onLanguageModelChange.event;
+    this._recentlyUsedModelIds = [];
+    this._curatedModels = { free: [], paid: [] };
+    this._chatControlDisposed = false;
+    this._restrictedChatParticipants = observableValue(this, /* @__PURE__ */ Object.create(null));
+    this.restrictedChatParticipants = this._restrictedChatParticipants;
     this._hasUserSelectableModels = ChatContextKeys.languageModelsAreUserSelectable.bindTo(_contextKeyService);
     this._modelPickerUserPreferences = this._readModelPickerPreferences();
+    this._recentlyUsedModelIds = this._readRecentlyUsedModels();
+    this._initChatControlData();
     this._store.add(this._storageService.onDidChangeValue(0, CHAT_MODEL_PICKER_PREFERENCES_STORAGE_KEY, this._store)(() => this._onDidChangeModelPickerPreferences()));
     this._store.add(this.onDidChangeLanguageModels(() => this._hasUserSelectableModels.set(this._modelCache.size > 0 && Array.from(this._modelCache.values()).some((model) => model.isUserSelectable))));
     this._store.add(this._languageModelsConfigurationService.onDidChangeLanguageModelGroups((changedGroups) => this._onDidChangeLanguageModelGroups(changedGroups)));
@@ -918,7 +933,135 @@ let LanguageModelsService = class LanguageModelsService2 {
     this._saveModelPickerPreferences();
     await this.addLanguageModelsProviderGroup(name, vendor, configuration);
   }
+  //#region Recently used models
+  _readRecentlyUsedModels() {
+    return this._storageService.getObject(CHAT_MODEL_RECENTLY_USED_STORAGE_KEY, 0, []);
+  }
+  _saveRecentlyUsedModels() {
+    this._storageService.store(
+      CHAT_MODEL_RECENTLY_USED_STORAGE_KEY,
+      this._recentlyUsedModelIds,
+      0,
+      0
+      /* StorageTarget.USER */
+    );
+  }
+  getRecentlyUsedModelIds() {
+    return this._recentlyUsedModelIds.filter((id) => this._modelCache.has(id)).slice(0, 5);
+  }
+  recordModelUsage(model) {
+    if (model.metadata.id === "auto" && this._vendors.get(model.metadata.vendor)?.isDefault) {
+      return;
+    }
+    const index = this._recentlyUsedModelIds.indexOf(model.identifier);
+    if (index !== -1) {
+      this._recentlyUsedModelIds.splice(index, 1);
+    }
+    this._recentlyUsedModelIds.unshift(model.identifier);
+    if (this._recentlyUsedModelIds.length > 20) {
+      this._recentlyUsedModelIds.length = 20;
+    }
+    this._saveRecentlyUsedModels();
+  }
+  //#endregion
+  //#region Curated models
+  getCuratedModels() {
+    return this._curatedModels;
+  }
+  _setCuratedModels(free, paid) {
+    const toPublic = /* @__PURE__ */ __name((m) => ({ id: m.id, isNew: m.isNew, minVSCodeVersion: m.minVSCodeVersion }), "toPublic");
+    this._curatedModels = { free: [], paid: [] };
+    const newIds = /* @__PURE__ */ new Set();
+    for (const model of free) {
+      this._curatedModels.free.push(toPublic(model));
+      if (model.isNew) {
+        newIds.add(model.id);
+      }
+    }
+    for (const model of paid) {
+      this._curatedModels.paid.push(toPublic(model));
+      if (model.isNew) {
+        newIds.add(model.id);
+      }
+    }
+  }
+  //#region Chat control data
+  _initChatControlData() {
+    this._chatControlUrl = this._productService.chatParticipantRegistry;
+    if (!this._chatControlUrl) {
+      return;
+    }
+    const raw = this._storageService.get(
+      CHAT_PARTICIPANT_NAME_REGISTRY_STORAGE_KEY,
+      -1
+      /* StorageScope.APPLICATION */
+    );
+    try {
+      this._restrictedChatParticipants.set(JSON.parse(raw ?? "{}"), void 0);
+    } catch (err) {
+      this._storageService.remove(
+        CHAT_PARTICIPANT_NAME_REGISTRY_STORAGE_KEY,
+        -1
+        /* StorageScope.APPLICATION */
+      );
+    }
+    const rawCurated = this._storageService.get(
+      CHAT_CURATED_MODELS_STORAGE_KEY,
+      -1
+      /* StorageScope.APPLICATION */
+    );
+    try {
+      const curated = JSON.parse(rawCurated ?? "{}");
+      if (isObject(curated) && Array.isArray(curated.free) && Array.isArray(curated.paid)) {
+        this._setCuratedModels(curated.free, curated.paid);
+      }
+    } catch (err) {
+      this._storageService.remove(
+        CHAT_CURATED_MODELS_STORAGE_KEY,
+        -1
+        /* StorageScope.APPLICATION */
+      );
+    }
+    this._refreshChatControlData();
+  }
+  _refreshChatControlData() {
+    if (this._chatControlDisposed) {
+      return;
+    }
+    this._fetchChatControlData().catch((err) => this._logService.warn("Failed to fetch chat control data", err)).then(() => timeout(5 * 60 * 1e3)).then(() => this._refreshChatControlData());
+  }
+  async _fetchChatControlData() {
+    const context = await this._requestService.request({ type: "GET", url: this._chatControlUrl }, CancellationToken.None);
+    if (context.res.statusCode !== 200) {
+      throw new Error("Could not get chat control data.");
+    }
+    const result = await asJson(context);
+    if (!result || result.version !== 1) {
+      throw new Error("Unexpected chat control response.");
+    }
+    const registry = result.restrictedChatParticipants;
+    this._restrictedChatParticipants.set(registry, void 0);
+    this._storageService.store(
+      CHAT_PARTICIPANT_NAME_REGISTRY_STORAGE_KEY,
+      JSON.stringify(registry),
+      -1,
+      1
+      /* StorageTarget.MACHINE */
+    );
+    if (result.curatedModels) {
+      this._setCuratedModels(result.curatedModels?.free ?? [], result.curatedModels?.paid ?? []);
+      this._storageService.store(
+        CHAT_CURATED_MODELS_STORAGE_KEY,
+        JSON.stringify(result.curatedModels),
+        -1,
+        1
+        /* StorageTarget.MACHINE */
+      );
+    }
+  }
+  //#endregion
   dispose() {
+    this._chatControlDisposed = true;
     this._store.dispose();
     this._providers.clear();
   }
@@ -930,7 +1073,9 @@ LanguageModelsService = LanguageModelsService_1 = __decorate([
   __param(3, IContextKeyService),
   __param(4, ILanguageModelsConfigurationService),
   __param(5, IQuickInputService),
-  __param(6, ISecretStorageService)
+  __param(6, ISecretStorageService),
+  __param(7, IProductService),
+  __param(8, IRequestService)
 ], LanguageModelsService);
 export {
   ChatImageMimeType,

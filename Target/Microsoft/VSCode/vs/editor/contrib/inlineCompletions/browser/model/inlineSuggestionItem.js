@@ -17,6 +17,7 @@ import { computeEditKind } from "./editKind.js";
 import { inlineCompletionIsVisible } from "./inlineCompletionIsVisible.js";
 import { InlineSuggestData } from "./provideInlineCompletions.js";
 import { InlineSuggestAlternativeAction } from "./InlineSuggestAlternativeAction.js";
+import { TextModelValueReference } from "./textModelValueReference.js";
 var InlineSuggestionItem;
 (function(InlineSuggestionItem2) {
   function create(data, textModel, shouldDiffEdit = true) {
@@ -378,6 +379,7 @@ class InlineEditItem extends InlineSuggestionItemBase {
     let lastChangePartOfInlineEdit = false;
     let inlineEditModelVersion = this._inlineEditModelVersion;
     let newAction;
+    const updatedTarget = TextModelValueReference.snapshot(textModel);
     if (this.action?.kind === "edit") {
       edits = edits.map((innerEdit) => innerEdit.applyTextModelChanges(textModelChanges));
       if (edits.some((edit) => edit.edit === void 0)) {
@@ -403,7 +405,7 @@ class InlineEditItem extends InlineSuggestionItemBase {
         snippetInfo: this.snippetInfo,
         stringEdit: newEdit,
         alternativeAction: this.action.alternativeAction,
-        target: this.originalTextRef
+        target: updatedTarget
       };
     } else if (this.action?.kind === "jumpTo") {
       const jumpToOffset = this.action.offset;
@@ -416,7 +418,7 @@ class InlineEditItem extends InlineSuggestionItemBase {
         kind: "jumpTo",
         position: newJumpToPosition,
         offset: newJumpToOffset,
-        target: this.originalTextRef
+        target: updatedTarget
       };
     } else {
       newAction = void 0;
@@ -428,7 +430,7 @@ class InlineEditItem extends InlineSuggestionItemBase {
         return void 0;
       }
     }
-    return new InlineEditItem(newAction, this._data, this.identity, edits, newDisplayLocation, lastChangePartOfInlineEdit, inlineEditModelVersion, this.originalTextRef);
+    return new InlineEditItem(newAction, this._data, this.identity, edits, newDisplayLocation, lastChangePartOfInlineEdit, inlineEditModelVersion, updatedTarget);
   }
   computeEditKind(model) {
     const edit = this.action?.kind === "edit" ? this.action.stringEdit : void 0;

@@ -1,7 +1,6 @@
 import { URI } from '../../../../../base/common/uri.js';
 import { ThemeIcon } from '../../../../../base/common/themables.js';
 import { IChatSessionTiming } from '../../common/chatService/chatService.js';
-import { IChatSessionsExtensionPoint } from '../../common/chatSessionsService.js';
 export declare enum AgentSessionProviders {
     Local = "local",
     Background = "copilotcli",
@@ -20,7 +19,7 @@ export declare const backgroundAgentDisplayName: import("../../../../../base/com
 export declare function getAgentSessionProviderName(provider: AgentSessionProviders): string;
 export declare function getAgentSessionProviderIcon(provider: AgentSessionProviders): ThemeIcon;
 export declare function isFirstPartyAgentSessionProvider(provider: AgentSessionProviders): boolean;
-export declare function getAgentCanContinueIn(provider: AgentSessionProviders, contribution?: IChatSessionsExtensionPoint): boolean;
+export declare function getAgentCanContinueIn(provider: AgentSessionProviders): boolean;
 export declare function getAgentSessionProviderDescription(provider: AgentSessionProviders): string;
 export declare enum AgentSessionsViewerOrientation {
     Stacked = 1,

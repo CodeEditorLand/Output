@@ -12,7 +12,7 @@ var __param = function(paramIndex, decorator) {
   };
 };
 var SetupAgent_1, AINewSymbolNamesProvider_1, ChatCodeActionsProvider_1;
-import { timeout } from "../../../../../base/common/async.js";
+import { raceTimeout, timeout } from "../../../../../base/common/async.js";
 import { Codicon } from "../../../../../base/common/codicons.js";
 import { toErrorMessage } from "../../../../../base/common/errorMessage.js";
 import { Emitter, Event } from "../../../../../base/common/event.js";
@@ -48,14 +48,16 @@ import { IMarkerService, MarkerSeverity } from "../../../../../platform/markers/
 import { ChatSetupAnonymous, ChatSetupStep } from "./chatSetup.js";
 import { ChatSetup } from "./chatSetupRunner.js";
 import { chatViewsWelcomeRegistry } from "../viewsWelcome/chatViewsWelcome.js";
-import { CommandsRegistry } from "../../../../../platform/commands/common/commands.js";
+import { CommandsRegistry, ICommandService } from "../../../../../platform/commands/common/commands.js";
 import { IDefaultAccountService } from "../../../../../platform/defaultAccount/common/defaultAccount.js";
 import { IHostService } from "../../../../services/host/browser/host.js";
+import { IOutputService } from "../../../../services/output/common/output.js";
 const defaultChat = {
   extensionId: product.defaultChatAgent?.extensionId ?? "",
   chatExtensionId: product.defaultChatAgent?.chatExtensionId ?? "",
   provider: product.defaultChatAgent?.provider ?? { default: { id: "", name: "" }, enterprise: { id: "", name: "" }, apple: { id: "", name: "" }, google: { id: "", name: "" } },
-  outputChannelId: product.defaultChatAgent?.chatExtensionOutputId ?? ""
+  outputChannelId: product.defaultChatAgent?.chatExtensionOutputId ?? "",
+  outputExtensionStateCommand: product.defaultChatAgent?.chatExtensionOutputExtensionStateCommand ?? ""
 };
 const ToolsAgentContextKey = ContextKeyExpr.and(
   ContextKeyExpr.equals(`config.${ChatConfiguration.AgentEnabled}`, true),
@@ -163,7 +165,10 @@ let SetupAgent = class SetupAgent2 extends Disposable {
   static {
     this.CHAT_RETRY_COMMAND_ID = "workbench.action.chat.retrySetup";
   }
-  constructor(context, controller, location, instantiationService, logService, telemetryService, environmentService, workspaceTrustManagementService, chatEntitlementService, viewsService, contextKeyService) {
+  static {
+    this.CHAT_SHOW_OUTPUT_COMMAND_ID = "workbench.action.chat.showOutput";
+  }
+  constructor(context, controller, location, instantiationService, logService, telemetryService, environmentService, workspaceTrustManagementService, chatEntitlementService, viewsService, contextKeyService, outputService) {
     super();
     this.context = context;
     this.controller = controller;
@@ -176,6 +181,7 @@ let SetupAgent = class SetupAgent2 extends Disposable {
     this.chatEntitlementService = chatEntitlementService;
     this.viewsService = viewsService;
     this.contextKeyService = contextKeyService;
+    this.outputService = outputService;
     this._onUnresolvableError = this._register(new Emitter());
     this.onUnresolvableError = this._onUnresolvableError.event;
     this.pendingForwardedRequests = new ResourceMap();
@@ -188,6 +194,17 @@ let SetupAgent = class SetupAgent2 extends Disposable {
       const widget = chatWidgetService.getWidgetBySessionResource(sessionResource);
       await widget?.clear();
       hostService.reload();
+    }));
+    this._register(CommandsRegistry.registerCommand(SetupAgent_1.CHAT_SHOW_OUTPUT_COMMAND_ID, async (accessor) => {
+      const commandService = accessor.get(ICommandService);
+      if (defaultChat.outputExtensionStateCommand) {
+        raceTimeout(commandService.executeCommand(defaultChat.outputExtensionStateCommand), 5e3, () => this.logService.info("[chat setup] Timed out executing extension state command")).then(void 0, (error) => {
+          this.logService.info("[chat setup] Failed to execute extension state command", error);
+        });
+      }
+      if (defaultChat.outputChannelId) {
+        await commandService.executeCommand(`workbench.action.output.show.${defaultChat.outputChannelId}`);
+      }
     }));
   }
   async invoke(request, progress) {
@@ -220,7 +237,8 @@ let SetupAgent = class SetupAgent2 extends Disposable {
     }
     progress({
       kind: "progressMessage",
-      content: new MarkdownString(localize("waitingChat", "Getting chat ready..."))
+      content: new MarkdownString(localize("waitingChat", "Getting chat ready")),
+      shimmer: true
     });
     await this.forwardRequestToChat(requestModel, progress, chatService, languageModelsService, chatAgentService, chatWidgetService, languageModelToolsService);
     return {};
@@ -272,7 +290,8 @@ let SetupAgent = class SetupAgent2 extends Disposable {
       const timeoutHandle = setTimeout(() => {
         progress({
           kind: "progressMessage",
-          content: new MarkdownString(localize("waitingChat2", "Chat is almost ready..."))
+          content: new MarkdownString(localize("waitingChat2", "Chat is almost ready")),
+          shimmer: true
         });
       }, 1e4);
       const disposables = new DisposableStore();
@@ -360,14 +379,24 @@ let SetupAgent = class SetupAgent2 extends Disposable {
             kind: "warning",
             content: new MarkdownString(warningMessage)
           });
-          progress({
-            kind: "command",
-            command: {
-              id: SetupAgent_1.CHAT_RETRY_COMMAND_ID,
-              title: localize("retryChat", "Restart"),
-              arguments: [requestModel.session.sessionResource]
-            }
-          });
+          if (defaultChat.outputChannelId && this.outputService.getChannelDescriptor(defaultChat.outputChannelId)) {
+            progress({
+              kind: "command",
+              command: {
+                id: SetupAgent_1.CHAT_SHOW_OUTPUT_COMMAND_ID,
+                title: localize("showCopilotChatDetails", "Show Details")
+              }
+            });
+          } else {
+            progress({
+              kind: "command",
+              command: {
+                id: SetupAgent_1.CHAT_RETRY_COMMAND_ID,
+                title: localize("retryChat", "Restart"),
+                arguments: [requestModel.session.sessionResource]
+              }
+            });
+          }
           this._onUnresolvableError.fire();
           return;
         }
@@ -468,13 +497,15 @@ let SetupAgent = class SetupAgent2 extends Disposable {
         case ChatSetupStep.SigningIn:
           progress({
             kind: "progressMessage",
-            content: new MarkdownString(localize("setupChatSignIn2", "Signing in to {0}...", defaultAccountService.getDefaultAccountAuthenticationProvider().name))
+            content: new MarkdownString(localize("setupChatSignIn2", "Signing in to {0}", defaultAccountService.getDefaultAccountAuthenticationProvider().name)),
+            shimmer: true
           });
           break;
         case ChatSetupStep.Installing:
           progress({
             kind: "progressMessage",
-            content: new MarkdownString(localize("installingChat", "Getting chat ready..."))
+            content: new MarkdownString(localize("installingChat", "Getting chat ready")),
+            shimmer: true
           });
           break;
       }
@@ -594,7 +625,8 @@ SetupAgent = SetupAgent_1 = __decorate([
   __param(7, IWorkspaceTrustManagementService),
   __param(8, IChatEntitlementService),
   __param(9, IViewsService),
-  __param(10, IContextKeyService)
+  __param(10, IContextKeyService),
+  __param(11, IOutputService)
 ], SetupAgent);
 class SetupTool {
   static {

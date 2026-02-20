@@ -12,12 +12,15 @@ var __param = function(paramIndex, decorator) {
   };
 };
 import * as dom from "../../../../../../base/browser/dom.js";
+import { renderAsPlaintext } from "../../../../../../base/browser/markdownRenderer.js";
 import { StandardKeyboardEvent } from "../../../../../../base/browser/keyboardEvent.js";
 import { Emitter } from "../../../../../../base/common/event.js";
+import { MarkdownString, isMarkdownString } from "../../../../../../base/common/htmlContent.js";
 import { Disposable, DisposableStore, MutableDisposable } from "../../../../../../base/common/lifecycle.js";
 import { hasKey } from "../../../../../../base/common/types.js";
 import { localize } from "../../../../../../nls.js";
 import { IAccessibilityService } from "../../../../../../platform/accessibility/common/accessibility.js";
+import { IMarkdownRendererService } from "../../../../../../platform/markdown/browser/markdownRenderer.js";
 import { defaultButtonStyles, defaultCheckboxStyles, defaultInputBoxStyles } from "../../../../../../platform/theme/browser/defaultStyles.js";
 import { Button } from "../../../../../../base/browser/ui/button/button.js";
 import { InputBox } from "../../../../../../base/browser/ui/inputbox/inputBox.js";
@@ -30,10 +33,11 @@ let ChatQuestionCarouselPart = class ChatQuestionCarouselPart2 extends Disposabl
   static {
     __name(this, "ChatQuestionCarouselPart");
   }
-  constructor(carousel, context, _options, _hoverService, _accessibilityService) {
+  constructor(carousel, context, _options, _markdownRendererService, _hoverService, _accessibilityService) {
     super();
     this.carousel = carousel;
     this._options = _options;
+    this._markdownRendererService = _markdownRendererService;
     this._hoverService = _hoverService;
     this._accessibilityService = _accessibilityService;
     this._onDidChangeHeight = this._register(new Emitter());
@@ -47,6 +51,7 @@ let ChatQuestionCarouselPart = class ChatQuestionCarouselPart2 extends Disposabl
     this._multiSelectCheckboxes = /* @__PURE__ */ new Map();
     this._freeformTextareas = /* @__PURE__ */ new Map();
     this._inputBoxes = this._register(new DisposableStore());
+    this._questionRenderStore = this._register(new MutableDisposable());
     this._interactiveUIStore = this._register(new MutableDisposable());
     this.domNode = dom.$(".chat-question-carousel-container");
     this.domNode.tabIndex = 0;
@@ -170,7 +175,7 @@ let ChatQuestionCarouselPart = class ChatQuestionCarouselPart2 extends Disposabl
     const question = this.carousel.questions[this._currentIndex];
     if (question) {
       const questionText = question.message ?? question.title;
-      const messageContent = typeof questionText === "string" ? questionText : questionText.value;
+      const messageContent = this.getQuestionText(questionText);
       const questionCount = this.carousel.questions.length;
       const alertMessage = questionCount === 1 ? messageContent : localize("chat.questionCarousel.questionAlertMulti", "Question {0} of {1}: {2}", this._currentIndex + 1, questionCount, messageContent);
       this._accessibilityService.alert(alertMessage);
@@ -193,6 +198,7 @@ let ChatQuestionCarouselPart = class ChatQuestionCarouselPart2 extends Disposabl
    */
   clearInteractiveResources() {
     this._interactiveUIStore.clear();
+    this._questionRenderStore.clear();
     this._inputBoxes.clear();
     this._textInputBoxes.clear();
     this._singleSelectItems.clear();
@@ -296,7 +302,7 @@ let ChatQuestionCarouselPart = class ChatQuestionCarouselPart2 extends Disposabl
       return;
     }
     const questionText = question.message ?? question.title;
-    const messageContent = typeof questionText === "string" ? questionText : questionText.value;
+    const messageContent = this.getQuestionText(questionText);
     const questionCount = this.carousel.questions.length;
     if (questionCount === 1) {
       this.domNode.setAttribute("aria-label", localize("chat.questionCarousel.singleQuestionLabel", "Chat question: {0}", messageContent));
@@ -320,6 +326,8 @@ let ChatQuestionCarouselPart = class ChatQuestionCarouselPart2 extends Disposabl
     if (!this._questionContainer || !this._prevButton || !this._nextButton) {
       return;
     }
+    const questionRenderStore = new DisposableStore();
+    this._questionRenderStore.value = questionRenderStore;
     this._inputBoxes.clear();
     this._textInputBoxes.clear();
     this._singleSelectItems.clear();
@@ -334,18 +342,23 @@ let ChatQuestionCarouselPart = class ChatQuestionCarouselPart2 extends Disposabl
     const questionText = question.message ?? question.title;
     if (questionText) {
       const title = dom.$(".chat-question-title");
-      const messageContent = typeof questionText === "string" ? questionText : questionText.value;
+      const messageContent = this.getQuestionText(questionText);
       title.setAttribute("aria-label", messageContent);
-      const parenMatch = messageContent.match(/^(.+?)\s*(\([^)]+\))\s*$/);
-      if (parenMatch) {
-        const mainTitle = dom.$("span.chat-question-title-main");
-        mainTitle.textContent = parenMatch[1];
-        title.appendChild(mainTitle);
-        const subtitle = dom.$("span.chat-question-title-subtitle");
-        subtitle.textContent = " " + parenMatch[2];
-        title.appendChild(subtitle);
+      if (isMarkdownString(questionText)) {
+        const renderedTitle = questionRenderStore.add(this._markdownRendererService.render(MarkdownString.lift(questionText)));
+        title.appendChild(renderedTitle.element);
       } else {
-        title.textContent = messageContent;
+        const parenMatch = messageContent.match(/^(.+?)\s*(\([^)]+\))\s*$/);
+        if (parenMatch) {
+          const mainTitle = dom.$("span.chat-question-title-main");
+          mainTitle.textContent = parenMatch[1];
+          title.appendChild(mainTitle);
+          const subtitle = dom.$("span.chat-question-title-subtitle");
+          subtitle.textContent = " " + parenMatch[2];
+          title.appendChild(subtitle);
+        } else {
+          title.textContent = messageContent;
+        }
       }
       headerRow.appendChild(title);
     }
@@ -810,7 +823,9 @@ let ChatQuestionCarouselPart = class ChatQuestionCarouselPart2 extends Disposabl
    */
   renderSummary() {
     if (this._answers.size === 0) {
-      this.renderSkippedMessage();
+      if (this.carousel.isUsed) {
+        this.renderSkippedMessage();
+      }
       return;
     }
     const summaryContainer = dom.$(".chat-question-carousel-summary");
@@ -881,6 +896,12 @@ let ChatQuestionCarouselPart = class ChatQuestionCarouselPart2 extends Disposabl
         return String(answer);
     }
   }
+  getQuestionText(questionText) {
+    if (typeof questionText === "string") {
+      return questionText;
+    }
+    return renderAsPlaintext(questionText);
+  }
   hasSameContent(other, _followingContent, element) {
     if (!this._isSkipped && !this.carousel.isUsed && isResponseVM(element) && element.isComplete) {
       return false;
@@ -892,8 +913,9 @@ let ChatQuestionCarouselPart = class ChatQuestionCarouselPart2 extends Disposabl
   }
 };
 ChatQuestionCarouselPart = __decorate([
-  __param(3, IHoverService),
-  __param(4, IAccessibilityService)
+  __param(3, IMarkdownRendererService),
+  __param(4, IHoverService),
+  __param(5, IAccessibilityService)
 ], ChatQuestionCarouselPart);
 export {
   ChatQuestionCarouselPart

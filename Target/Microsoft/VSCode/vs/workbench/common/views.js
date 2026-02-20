@@ -22,6 +22,7 @@ var ViewContainerLocation;
   ViewContainerLocation2[ViewContainerLocation2["Sidebar"] = 0] = "Sidebar";
   ViewContainerLocation2[ViewContainerLocation2["Panel"] = 1] = "Panel";
   ViewContainerLocation2[ViewContainerLocation2["AuxiliaryBar"] = 2] = "AuxiliaryBar";
+  ViewContainerLocation2[ViewContainerLocation2["ChatBar"] = 3] = "ChatBar";
 })(ViewContainerLocation || (ViewContainerLocation = {}));
 function ViewContainerLocationToString(viewContainerLocation) {
   switch (viewContainerLocation) {
@@ -31,9 +32,17 @@ function ViewContainerLocationToString(viewContainerLocation) {
       return "panel";
     case 2:
       return "auxiliarybar";
+    case 3:
+      return "chatbar";
   }
 }
 __name(ViewContainerLocationToString, "ViewContainerLocationToString");
+var WindowVisibility;
+(function(WindowVisibility2) {
+  WindowVisibility2[WindowVisibility2["Editor"] = 1] = "Editor";
+  WindowVisibility2[WindowVisibility2["Sessions"] = 2] = "Sessions";
+  WindowVisibility2[WindowVisibility2["Both"] = 3] = "Both";
+})(WindowVisibility || (WindowVisibility = {}));
 class ViewContainersRegistryImpl extends Disposable {
   static {
     __name(this, "ViewContainersRegistryImpl");
@@ -320,6 +329,7 @@ export {
   ViewContainerLocationToString,
   ViewContentGroups,
   ViewVisibilityState,
+  WindowVisibility,
   defaultViewIcon
 };
 //# sourceMappingURL=views.js.map

@@ -22,11 +22,13 @@ export declare class NativeBrowserElementsMainService extends Disposable impleme
     _serviceBrand: undefined;
     constructor(windowsMainService: IWindowsMainService, auxiliaryWindowsMainService: IAuxiliaryWindowsMainService, browserViewMainService: IBrowserViewMainService);
     get windowId(): never;
+    getConsoleLogs(windowId: number | undefined, locator: IBrowserTargetLocator): Promise<string | undefined>;
+    startConsoleSession(windowId: number | undefined, token: CancellationToken, locator: IBrowserTargetLocator, cancelAndDetachId?: number): Promise<void>;
     /**
      * Find the webview target that matches the given locator.
      * Checks either webviewId or browserViewId depending on what's provided.
      */
-    findWebviewTarget(debuggers: Electron.Debugger, locator: IBrowserTargetLocator): Promise<string | undefined>;
+    private findWebviewTarget;
     waitForWebviewTargets(debuggers: Electron.Debugger, locator: IBrowserTargetLocator): Promise<string | undefined>;
     startDebugSession(windowId: number | undefined, token: CancellationToken, locator: IBrowserTargetLocator, cancelAndDetachId?: number): Promise<void>;
     finishOverlay(debuggers: Electron.Debugger, sessionId: string | undefined): Promise<void>;

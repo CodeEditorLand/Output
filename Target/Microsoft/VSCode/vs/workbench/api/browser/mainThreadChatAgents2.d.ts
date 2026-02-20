@@ -56,6 +56,7 @@ export declare class MainThreadChatAgents2 extends Disposable implements MainThr
     private readonly _activeTasks;
     private readonly _unresolvedAnchors;
     constructor(extHostContext: IExtHostContext, _chatAgentService: IChatAgentService, _chatSessionService: IChatSessionsService, _chatService: IChatService, _languageFeaturesService: ILanguageFeaturesService, _chatWidgetService: IChatWidgetService, _instantiationService: IInstantiationService, _logService: ILogService, _extensionService: IExtensionService, _uriIdentityService: IUriIdentityService, _promptsService: IPromptsService, _languageModelToolsService: ILanguageModelToolsService);
+    private _acceptActiveChatSession;
     $unregisterAgent(handle: number): void;
     $transferActiveChatSession(toWorkspace: UriComponents): Promise<void>;
     $registerAgent(handle: number, extension: ExtensionIdentifier, id: string, metadata: IExtensionChatAgentMetadata, dynamicProps: IDynamicChatAgentProps | undefined): Promise<void>;

@@ -124,16 +124,7 @@ let ChatEditingExplanationModelManager = class ChatEditingExplanationModelManage
     });
     const totalChanges = fileChanges.reduce((sum, f) => sum + f.changes.length, 0);
     try {
-      let models = await this._languageModelsService.selectLanguageModels({ vendor: "copilot", family: "claude-3.5-sonnet" });
-      if (!models.length) {
-        models = await this._languageModelsService.selectLanguageModels({ vendor: "copilot", family: "gpt-4o" });
-      }
-      if (!models.length) {
-        models = await this._languageModelsService.selectLanguageModels({ vendor: "copilot", family: "gpt-4" });
-      }
-      if (!models.length) {
-        models = await this._languageModelsService.selectLanguageModels({ vendor: "copilot" });
-      }
+      const models = await this._languageModelsService.selectLanguageModels({ vendor: "copilot", id: "copilot-fast" });
       if (!models.length) {
         for (const fileData of fileChanges) {
           this._updateUriStatePartial(fileData.uri, {

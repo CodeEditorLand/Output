@@ -6,6 +6,7 @@ import { ExtHostDocumentsAndEditors } from './extHostDocumentsAndEditors.js';
 import type * as vscode from 'vscode';
 import { ISerializedModelContentChangedEvent } from '../../../editor/common/textModelEvents.js';
 export declare class ExtHostDocuments implements ExtHostDocumentsShape {
+    private readonly _toDispose;
     private readonly _onDidAddDocument;
     private readonly _onDidRemoveDocument;
     private readonly _onDidChangeDocument;
@@ -16,7 +17,6 @@ export declare class ExtHostDocuments implements ExtHostDocumentsShape {
     readonly onDidChangeDocument: Event<vscode.TextDocumentChangeEvent>;
     readonly onDidChangeDocumentWithReason: Event<vscode.TextDocumentChangeEvent>;
     readonly onDidSaveDocument: Event<vscode.TextDocument>;
-    private readonly _toDispose;
     private _proxy;
     private _documentsAndEditors;
     private _documentLoader;

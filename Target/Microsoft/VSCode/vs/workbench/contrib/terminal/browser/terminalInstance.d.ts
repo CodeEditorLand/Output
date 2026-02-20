@@ -86,7 +86,6 @@ export declare class TerminalInstance extends Disposable implements ITerminalIns
     private _latestXtermParseData;
     private _isExiting;
     private _hadFocusOnExit;
-    private _isVisible;
     private _exitCode;
     private _exitReason;
     private _skipTerminalCommands;
@@ -144,6 +143,8 @@ export declare class TerminalInstance extends Disposable implements ITerminalIns
     disableLayout: boolean;
     get waitOnExit(): ITerminalInstance['waitOnExit'];
     set waitOnExit(value: ITerminalInstance['waitOnExit']);
+    private _isVisible;
+    get isVisible(): boolean;
     private _targetRef;
     get targetRef(): IReference<TerminalLocation | undefined>;
     get target(): TerminalLocation | undefined;

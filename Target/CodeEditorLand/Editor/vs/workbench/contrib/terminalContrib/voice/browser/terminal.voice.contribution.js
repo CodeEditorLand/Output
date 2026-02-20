@@ -1,1 +1,1 @@
-import{$tGc as m}from"./terminalVoiceActions.js";m();
+import{$RIc as m}from"./terminalVoiceActions.js";m();

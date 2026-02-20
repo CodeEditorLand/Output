@@ -14,7 +14,7 @@ var __param = function(paramIndex, decorator) {
 var ExtensionRenderer_1;
 import * as dom from "../../../../base/browser/dom.js";
 import { localize } from "../../../../nls.js";
-import { dispose, Disposable, DisposableStore, toDisposable, isDisposable } from "../../../../base/common/lifecycle.js";
+import { dispose, Disposable, DisposableStore, toDisposable, isDisposable, MutableDisposable } from "../../../../base/common/lifecycle.js";
 import { Action, ActionRunner, Separator } from "../../../../base/common/actions.js";
 import { IExtensionsWorkbenchService } from "../common/extensions.js";
 import { Event } from "../../../../base/common/event.js";
@@ -23,7 +23,7 @@ import { IListService, WorkbenchAsyncDataTree, WorkbenchPagedList } from "../../
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
 import { registerThemingParticipant } from "../../../../platform/theme/common/themeService.js";
-import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { CancellationToken, CancellationTokenSource } from "../../../../base/common/cancellation.js";
 import { isNonEmptyArray } from "../../../../base/common/arrays.js";
 import { Delegate, Renderer } from "./extensionsList.js";
 import { listFocusForeground, listFocusBackground, foreground, editorBackground } from "../../../../platform/theme/common/colorRegistry.js";
@@ -38,6 +38,8 @@ import { INotificationService } from "../../../../platform/notification/common/n
 import { getLocationBasedViewColors } from "../../../browser/parts/views/viewPane.js";
 import { DelayedPagedModel } from "../../../../base/common/paging.js";
 import { ExtensionIconWidget } from "./extensionsWidgets.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { isCancellationError } from "../../../../base/common/errors.js";
 function getAriaLabelForExtension(extension) {
   if (!extension) {
     return "";
@@ -52,13 +54,15 @@ let ExtensionsList = class ExtensionsList2 extends Disposable {
   static {
     __name(this, "ExtensionsList");
   }
-  constructor(parent, viewId, options, extensionsViewState, extensionsWorkbenchService, viewDescriptorService, layoutService, notificationService, contextMenuService, contextKeyService, instantiationService) {
+  constructor(parent, viewId, options, extensionsViewState, extensionsWorkbenchService, viewDescriptorService, layoutService, notificationService, contextMenuService, contextKeyService, instantiationService, logService) {
     super();
     this.extensionsWorkbenchService = extensionsWorkbenchService;
     this.contextMenuService = contextMenuService;
     this.contextKeyService = contextKeyService;
     this.instantiationService = instantiationService;
+    this.logService = logService;
     this.contextMenuActionRunner = this._register(new ActionRunner());
+    this.modalNavigationDisposable = this._register(new MutableDisposable());
     this._register(this.contextMenuActionRunner.onDidRun(({ error }) => error && notificationService.error(error)));
     const delegate = new Delegate();
     const renderer = instantiationService.createInstance(Renderer, extensionsViewState, {
@@ -105,7 +109,10 @@ let ExtensionsList = class ExtensionsList2 extends Disposable {
   }
   openExtension(extension, options) {
     extension = this.extensionsWorkbenchService.local.filter((e) => areSameExtensions(e.identifier, extension.identifier))[0] || extension;
-    this.extensionsWorkbenchService.open(extension, options);
+    this.extensionsWorkbenchService.open(extension, {
+      ...options,
+      modal: options.sideByside ? void 0 : buildModalNavigationForPagedList(extension, () => this.list.model, (extA, extB) => areSameExtensions(extA.identifier, extB.identifier), (ext, modal) => this.extensionsWorkbenchService.open(ext, { pinned: false, modal }), this.modalNavigationDisposable, this.logService)
+    });
   }
   async onContextMenu(e) {
     if (e.element) {
@@ -151,7 +158,8 @@ ExtensionsList = __decorate([
   __param(7, INotificationService),
   __param(8, IContextMenuService),
   __param(9, IContextKeyService),
-  __param(10, IInstantiationService)
+  __param(10, IInstantiationService),
+  __param(11, ILogService)
 ], ExtensionsList);
 let ExtensionsGridView = class ExtensionsGridView2 extends Disposable {
   static {
@@ -406,6 +414,56 @@ async function getExtensions(extensions, extensionsWorkbenchService) {
   return result;
 }
 __name(getExtensions, "getExtensions");
+function buildModalNavigationForPagedList(openedItem, getModel, isSame, openItem, cancellationStore, logService) {
+  const model = getModel();
+  if (!model) {
+    return void 0;
+  }
+  const total = model.length;
+  if (total <= 1) {
+    return void 0;
+  }
+  let current = -1;
+  for (let i = 0; i < total; i++) {
+    if (model.isResolved(i) && isSame(model.get(i), openedItem)) {
+      current = i;
+      break;
+    }
+  }
+  if (current === -1) {
+    return void 0;
+  }
+  const openAtIndex = /* @__PURE__ */ __name((index, item) => {
+    const currentTotal = getModel()?.length ?? 0;
+    openItem(item, { navigation: { total: currentTotal, current: index, navigate } });
+  }, "openAtIndex");
+  let cts;
+  const navigate = /* @__PURE__ */ __name((index) => {
+    cts?.cancel();
+    cts = cancellationStore.value = new CancellationTokenSource();
+    const token = cts.token;
+    const currentModel = getModel();
+    if (!currentModel || index < 0 || index >= currentModel.length) {
+      return;
+    }
+    if (currentModel.isResolved(index)) {
+      openAtIndex(index, currentModel.get(index));
+    } else {
+      currentModel.resolve(index, token).then((item) => {
+        if (token.isCancellationRequested) {
+          return;
+        }
+        openAtIndex(index, item);
+      }, (error) => {
+        if (!isCancellationError(error)) {
+          logService.error(`Error while resolving item at index ${index} for modal navigation`, error);
+        }
+      });
+    }
+  }, "navigate");
+  return { navigation: { total, current, navigate } };
+}
+__name(buildModalNavigationForPagedList, "buildModalNavigationForPagedList");
 registerThemingParticipant((theme, collector) => {
   const focusBackground = theme.getColor(listFocusBackground);
   if (focusBackground) {
@@ -429,6 +487,7 @@ export {
   ExtensionsGridView,
   ExtensionsList,
   ExtensionsTree,
+  buildModalNavigationForPagedList,
   getExtensions
 };
 //# sourceMappingURL=extensionsViewer.js.map

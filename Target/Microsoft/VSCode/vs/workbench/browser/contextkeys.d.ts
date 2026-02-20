@@ -6,7 +6,6 @@ import { IWorkbenchEnvironmentService } from '../services/environment/common/env
 import { IWorkspaceContextService } from '../../platform/workspace/common/workspace.js';
 import { IWorkbenchLayoutService } from '../services/layout/browser/layoutService.js';
 import { IWorkingCopyService } from '../services/workingCopy/common/workingCopyService.js';
-import { IPaneCompositePartService } from '../services/panecomposite/browser/panecomposite.js';
 import { IProductService } from '../../platform/product/common/productService.js';
 import { IEditorService } from '../services/editor/common/editorService.js';
 export declare class WorkbenchContextKeysHandler extends Disposable {
@@ -18,7 +17,6 @@ export declare class WorkbenchContextKeysHandler extends Disposable {
     private readonly editorGroupService;
     private readonly editorService;
     private readonly layoutService;
-    private readonly paneCompositeService;
     private readonly workingCopyService;
     private dirtyWorkingCopiesContext;
     private activeEditorGroupEmpty;
@@ -35,7 +33,7 @@ export declare class WorkbenchContextKeysHandler extends Disposable {
     private emptyWorkspaceSupportContext;
     private virtualWorkspaceContext;
     private temporaryWorkspaceContext;
-    private isAgentSessionsWorkspaceContext;
+    private isSessionsWindowContext;
     private inAutomationContext;
     private inZenModeContext;
     private isMainWindowFullscreenContext;
@@ -52,7 +50,7 @@ export declare class WorkbenchContextKeysHandler extends Disposable {
     private editorTabsVisibleContext;
     private titleAreaVisibleContext;
     private titleBarStyleContext;
-    constructor(contextKeyService: IContextKeyService, contextService: IWorkspaceContextService, configurationService: IConfigurationService, environmentService: IWorkbenchEnvironmentService, productService: IProductService, editorGroupService: IEditorGroupsService, editorService: IEditorService, layoutService: IWorkbenchLayoutService, paneCompositeService: IPaneCompositePartService, workingCopyService: IWorkingCopyService);
+    constructor(contextKeyService: IContextKeyService, contextService: IWorkspaceContextService, configurationService: IConfigurationService, environmentService: IWorkbenchEnvironmentService, productService: IProductService, editorGroupService: IEditorGroupsService, editorService: IEditorService, layoutService: IWorkbenchLayoutService, workingCopyService: IWorkingCopyService);
     private registerListeners;
     private updateVisiblePanesContextKeys;
     private updateActiveEditorGroupContextKeys;
@@ -62,7 +60,6 @@ export declare class WorkbenchContextKeysHandler extends Disposable {
     private updateWorkspaceFolderCountContextKey;
     private updateSplitEditorsVerticallyContext;
     private getWorkbenchStateString;
-    private updateSideBarContextKeys;
     private updateTitleBarContextKeys;
     private updateWorkspaceContextKeys;
 }

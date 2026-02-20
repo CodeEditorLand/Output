@@ -16,11 +16,13 @@ import "./media/chat.css";
 import "./media/chatAgentHover.css";
 import "./media/chatViewWelcome.css";
 import * as dom from "../../../../../base/browser/dom.js";
+import { status } from "../../../../../base/browser/ui/aria/aria.js";
 import { disposableTimeout, timeout } from "../../../../../base/common/async.js";
 import { CancellationToken } from "../../../../../base/common/cancellation.js";
 import { Codicon } from "../../../../../base/common/codicons.js";
 import { toErrorMessage } from "../../../../../base/common/errorMessage.js";
 import { Emitter, Event } from "../../../../../base/common/event.js";
+import { hash } from "../../../../../base/common/hash.js";
 import { MarkdownString } from "../../../../../base/common/htmlContent.js";
 import { Iterable } from "../../../../../base/common/iterator.js";
 import { Disposable, DisposableStore, MutableDisposable, thenIfNotDisposed } from "../../../../../base/common/lifecycle.js";
@@ -70,7 +72,7 @@ import { ChatConfiguration, ChatModeKind } from "../../common/constants.js";
 import { ILanguageModelToolsService, isToolSet } from "../../common/tools/languageModelToolsService.js";
 import { ComputeAutomaticInstructions } from "../../common/promptSyntax/computeAutomaticInstructions.js";
 import { PromptsConfig } from "../../common/promptSyntax/config/config.js";
-import { IPromptsService } from "../../common/promptSyntax/service/promptsService.js";
+import { IPromptsService, PromptsStorage } from "../../common/promptSyntax/service/promptsService.js";
 import { handleModeSwitch } from "../actions/chatActions.js";
 import { IChatAccessibilityService, IChatWidgetService, isIChatResourceViewContext, isIChatViewViewContext } from "../chat.js";
 import { IChatAttachmentResolveService } from "../attachments/chatAttachmentResolveService.js";
@@ -260,6 +262,21 @@ let ChatWidget = class ChatWidget2 extends Disposable {
     this.agentInInput = ChatContextKeys.inputHasAgent.bindTo(contextKeyService);
     this.requestInProgress = ChatContextKeys.requestInProgress.bindTo(contextKeyService);
     this._register(this.chatEntitlementService.onDidChangeAnonymous(() => this.renderWelcomeViewContentIfNeeded()));
+    this._register(this.configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration("chat.tips.enabled")) {
+        if (!this.configurationService.getValue("chat.tips.enabled")) {
+          if (this.inputPart) {
+            this._gettingStartedTipPartRef = void 0;
+            this._gettingStartedTipPart.clear();
+            const tipContainer = this.inputPart.gettingStartedTipContainerElement;
+            dom.clearNode(tipContainer);
+            dom.setVisibility(false, tipContainer);
+          }
+        } else {
+          this.updateChatViewVisibility();
+        }
+      }
+    }));
     this._register(bindContextKey(decidedChatEditingResourceContextKey, contextKeyService, (reader) => {
       const currentSession = this._editingSession.read(reader);
       if (!currentSession) {
@@ -426,6 +443,12 @@ let ChatWidget = class ChatWidget2 extends Disposable {
   get contentHeight() {
     return this.input.height.get() + this.listWidget.contentHeight + this.chatSuggestNextWidget.height;
   }
+  get scrollTop() {
+    return this.listWidget.scrollTop;
+  }
+  set scrollTop(value) {
+    this.listWidget.scrollTop = value;
+  }
   get attachmentModel() {
     return this.input.attachmentModel;
   }
@@ -457,6 +480,9 @@ let ChatWidget = class ChatWidget2 extends Disposable {
     }
     this.renderWelcomeViewContentIfNeeded();
     this.createList(this.listContainer, { editable: !isInlineChat(this) && !isQuickChat(this), ...this.viewOptions.rendererOptions, renderStyle });
+    this._register(dom.addDisposableListener(parent, dom.EventType.MOUSE_WHEEL, (e) => {
+      this.listWidget.delegateScrollFromMouseWheelEvent(e);
+    }));
     this._register(autorun((reader) => {
       const fontFamily = this.chatLayoutService.fontFamily.read(reader);
       const fontSize = this.chatLayoutService.fontSize.read(reader);
@@ -540,11 +566,15 @@ let ChatWidget = class ChatWidget2 extends Disposable {
     return this.input.focusQuestionCarousel();
   }
   toggleTipFocus() {
-    if (this.listWidget.hasTipFocus()) {
+    if (this._gettingStartedTipPartRef?.hasFocus()) {
       this.focusInput();
       return true;
     }
-    return this.listWidget.focusTip();
+    if (!this._gettingStartedTipPartRef) {
+      return false;
+    }
+    this._gettingStartedTipPartRef.focus();
+    return true;
   }
   hasInputFocus() {
     return this.input.hasFocus();
@@ -629,6 +659,7 @@ let ChatWidget = class ChatWidget2 extends Disposable {
         if (numItems === 0) {
           this.renderGettingStartedTipIfNeeded();
         } else {
+          this._gettingStartedTipPartRef = void 0;
           this._gettingStartedTipPart.clear();
           dom.clearNode(tipContainer);
           dom.setVisibility(false, tipContainer);
@@ -697,12 +728,15 @@ let ChatWidget = class ChatWidget2 extends Disposable {
     }
     const store = new DisposableStore();
     const renderer = this.instantiationService.createInstance(ChatContentMarkdownRenderer);
-    const tipPart = store.add(this.instantiationService.createInstance(ChatTipContentPart, tip, renderer, () => this.chatTipService.getWelcomeTip(this.contextKeyService)));
+    const tipPart = store.add(this.instantiationService.createInstance(ChatTipContentPart, tip, renderer));
     tipContainer.appendChild(tipPart.domNode);
+    this._gettingStartedTipPartRef = tipPart;
     store.add(tipPart.onDidHide(() => {
       tipPart.domNode.remove();
+      this._gettingStartedTipPartRef = void 0;
       this._gettingStartedTipPart.clear();
       dom.setVisibility(false, tipContainer);
+      this.focusInput();
     }));
     this._gettingStartedTipPart.value = store;
     dom.setVisibility(true, tipContainer);
@@ -1390,6 +1424,22 @@ let ChatWidget = class ChatWidget2 extends Disposable {
       this.renderFollowups();
       this.renderChatSuggestNextWidget();
     }));
+    let previousModelIdentifier;
+    this._register(autorun((reader) => {
+      const modelIdentifier = this.inputPart.selectedLanguageModel.read(reader)?.identifier;
+      if (previousModelIdentifier === void 0) {
+        previousModelIdentifier = modelIdentifier;
+        return;
+      }
+      if (previousModelIdentifier === modelIdentifier) {
+        return;
+      }
+      previousModelIdentifier = modelIdentifier;
+      if (!this._gettingStartedTipPartRef) {
+        return;
+      }
+      this.chatTipService.getWelcomeTip(this.contextKeyService);
+    }));
     this._register(autorun((r) => {
       const toolSetIds = /* @__PURE__ */ new Set();
       const toolIds = /* @__PURE__ */ new Set();
@@ -1435,17 +1485,7 @@ let ChatWidget = class ChatWidget2 extends Disposable {
     this.chatSuggestNextWidget.hide();
     this.chatTipService.resetSession();
     this._codeBlockModelCollection.clear();
-    this.container.setAttribute("data-session-id", model.sessionId);
     this.viewModel = this.instantiationService.createInstance(ChatViewModel, model, this._codeBlockModelCollection, void 0);
-    for (const request of model.getRequests()) {
-      if (request.response) {
-        for (const part of request.response.entireResponse.value) {
-          if (part.kind === "questionCarousel" && !part.isUsed) {
-            part.isUsed = true;
-          }
-        }
-      }
-    }
     this.inputPart.setInputModel(model.inputModel, model.getRequests().length === 0);
     this.listWidget.setViewModel(this.viewModel);
     if (this._lockedAgent) {
@@ -1481,12 +1521,22 @@ let ChatWidget = class ChatWidget2 extends Disposable {
       this.onDidChangeItems();
     }));
     this._sessionIsEmptyContextKey.set(model.getRequests().length === 0);
-    const updatePendingRequestKeys = /* @__PURE__ */ __name(() => {
-      const pendingCount = model.getPendingRequests().length;
+    let lastSteeringCount = 0;
+    const updatePendingRequestKeys = /* @__PURE__ */ __name((announceSteering) => {
+      const pendingRequests = model.getPendingRequests();
+      const pendingCount = pendingRequests.length;
       this._hasPendingRequestsContextKey.set(pendingCount > 0);
+      const steeringCount = pendingRequests.filter(
+        (pending) => pending.kind === "steering"
+        /* ChatRequestQueueKind.Steering */
+      ).length;
+      if (announceSteering && steeringCount > 0 && lastSteeringCount === 0) {
+        status(localize("chat.pendingRequests.steeringQueued", "Steering"));
+      }
+      lastSteeringCount = steeringCount;
     }, "updatePendingRequestKeys");
-    updatePendingRequestKeys();
-    this.viewModelDisposables.add(model.onDidChangePendingRequests(() => updatePendingRequestKeys()));
+    updatePendingRequestKeys(false);
+    this.viewModelDisposables.add(model.onDidChangePendingRequests(() => updatePendingRequestKeys(true)));
     this.refreshParsedInput();
     this.viewModelDisposables.add(model.onDidChange((e) => {
       if (e.kind === "setAgent") {
@@ -1622,6 +1672,17 @@ let ChatWidget = class ChatWidget2 extends Disposable {
     const toolReferences = this.toolsService.toToolReferences(refs);
     requestInput.attachedContext.insertFirst(toPromptFileVariableEntry(parseResult.uri, PromptFileVariableKind.PromptFile, void 0, true, toolReferences));
     requestInput.input = this.parsedInput.parts.filter((part) => !(part instanceof ChatRequestSlashPromptPart)).map((part) => part.text).join("").trim();
+    const promptPath = slashCommand.promptPath;
+    const promptRunEvent = {
+      storage: promptPath.storage
+    };
+    if (promptPath.storage === PromptsStorage.extension) {
+      promptRunEvent.extensionId = promptPath.extension.identifier.value;
+      promptRunEvent.promptName = slashCommand.name;
+    } else {
+      promptRunEvent.promptNameHash = hash(slashCommand.name).toString(16);
+    }
+    this.telemetryService.publicLog2("chat.promptRun", promptRunEvent);
     const input = requestInput.input.trim();
     requestInput.input = `Follow instructions in [${basename(parseResult.uri)}](${parseResult.uri.toString()}).`;
     if (input) {
@@ -1678,6 +1739,10 @@ ${input}`;
     }
     const model = this.viewModel.model;
     const requestInProgress = model.requestInProgress.get();
+    if (model.requestNeedsInput.get() && !model.getPendingRequests().length) {
+      this.chatService.cancelCurrentRequestForSession(this.viewModel.sessionResource);
+      options.queue ??= "queued";
+    }
     if (requestInProgress) {
       options.queue ??= "queued";
     }

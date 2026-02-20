@@ -18,6 +18,7 @@ import { AbstractExtensionsListView } from '../../extensions/browser/extensionsV
 import { IWorkbenchLayoutService } from '../../../services/layout/browser/layoutService.js';
 import { IMcpGalleryManifestService } from '../../../../platform/mcp/common/mcpGalleryManifest.js';
 import { IMarkdownRendererService } from '../../../../platform/markdown/browser/markdownRenderer.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
 export interface McpServerListViewOptions {
     showWelcome?: boolean;
 }
@@ -28,13 +29,15 @@ export declare class McpServersListView extends AbstractExtensionsListView<IWork
     protected readonly mcpGalleryManifestService: IMcpGalleryManifestService;
     private readonly layoutService;
     protected readonly markdownRendererService: IMarkdownRendererService;
+    private readonly logService;
     private list;
     private listContainer;
     private welcomeContainer;
     private bodyTemplate;
     private readonly contextMenuActionRunner;
+    private readonly modalNavigationDisposable;
     private input;
-    constructor(mpcViewOptions: McpServerListViewOptions, options: IViewletViewOptions, keybindingService: IKeybindingService, contextMenuService: IContextMenuService, instantiationService: IInstantiationService, themeService: IThemeService, hoverService: IHoverService, configurationService: IConfigurationService, contextKeyService: IContextKeyService, viewDescriptorService: IViewDescriptorService, openerService: IOpenerService, dialogService: IDialogService, mcpWorkbenchService: IMcpWorkbenchService, mcpGalleryManifestService: IMcpGalleryManifestService, layoutService: IWorkbenchLayoutService, markdownRendererService: IMarkdownRendererService);
+    constructor(mpcViewOptions: McpServerListViewOptions, options: IViewletViewOptions, keybindingService: IKeybindingService, contextMenuService: IContextMenuService, instantiationService: IInstantiationService, themeService: IThemeService, hoverService: IHoverService, configurationService: IConfigurationService, contextKeyService: IContextKeyService, viewDescriptorService: IViewDescriptorService, openerService: IOpenerService, dialogService: IDialogService, mcpWorkbenchService: IMcpWorkbenchService, mcpGalleryManifestService: IMcpGalleryManifestService, layoutService: IWorkbenchLayoutService, markdownRendererService: IMarkdownRendererService, logService: ILogService);
     protected renderBody(container: HTMLElement): void;
     private onContextMenu;
     protected layoutBody(height: number, width: number): void;

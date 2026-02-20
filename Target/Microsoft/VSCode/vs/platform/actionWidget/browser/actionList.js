@@ -199,8 +199,8 @@ let ActionList = class ActionList2 extends Disposable {
     this._keybindingService = _keybindingService;
     this._layoutService = _layoutService;
     this._hoverService = _hoverService;
-    this._actionLineHeight = 28;
-    this._headerLineHeight = 28;
+    this._actionLineHeight = 24;
+    this._headerLineHeight = 24;
     this._separatorLineHeight = 8;
     this.cts = this._register(new CancellationTokenSource());
     this._hover = this._register(new MutableDisposable());
@@ -312,7 +312,6 @@ let ActionList = class ActionList2 extends Disposable {
     if (focused.length > 0) {
       this._list.reveal(focused[0]);
     }
-    this._list.domFocus();
   }
   focusNext() {
     this._list.focusNext(1, true, void 0, this.focusCondition);
@@ -320,7 +319,6 @@ let ActionList = class ActionList2 extends Disposable {
     if (focused.length > 0) {
       this._list.reveal(focused[0]);
     }
-    this._list.domFocus();
   }
   acceptSelected(preview) {
     const focused = this._list.getFocus();
@@ -347,7 +345,6 @@ let ActionList = class ActionList2 extends Disposable {
     }
   }
   onFocus() {
-    this._list.domFocus();
     const focused = this._list.getFocus();
     if (focused.length === 0) {
       return;

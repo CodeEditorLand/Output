@@ -4,7 +4,7 @@ import { Emitter } from "../../../base/common/event.js";
 import { Disposable } from "../../../base/common/lifecycle.js";
 import { createDecorator } from "../../instantiation/common/instantiation.js";
 const IMeteredConnectionService = createDecorator("meteredConnectionService");
-const METERED_CONNECTION_SETTING_KEY = "network.respectMeteredConnections";
+const METERED_CONNECTION_SETTING_KEY = "network.meteredConnection";
 function getIsBrowserConnectionMetered() {
   const connection = navigator.connection;
   if (!connection) {
@@ -26,13 +26,13 @@ class AbstractMeteredConnectionService extends Disposable {
     this._onDidChangeIsConnectionMetered = this._register(new Emitter());
     this.onDidChangeIsConnectionMetered = this._onDidChangeIsConnectionMetered.event;
     this._isBrowserConnectionMetered = isBrowserConnectionMetered;
-    this._respectMeteredConnections = configurationService.getValue(METERED_CONNECTION_SETTING_KEY);
-    this._isConnectionMetered = this._respectMeteredConnections && this._isBrowserConnectionMetered;
+    this._meteredConnectionSetting = configurationService.getValue(METERED_CONNECTION_SETTING_KEY);
+    this._isConnectionMetered = this._meteredConnectionSetting === "on" || this._meteredConnectionSetting !== "off" && this._isBrowserConnectionMetered;
     this._register(configurationService.onDidChangeConfiguration((e) => {
       if (e.affectsConfiguration(METERED_CONNECTION_SETTING_KEY)) {
         const value = configurationService.getValue(METERED_CONNECTION_SETTING_KEY);
-        if (value !== this._respectMeteredConnections) {
-          this._respectMeteredConnections = value;
+        if (value !== this._meteredConnectionSetting) {
+          this._meteredConnectionSetting = value;
           this.onUpdated();
         }
       }
@@ -54,7 +54,7 @@ class AbstractMeteredConnectionService extends Disposable {
     this.onUpdated();
   }
   onUpdated() {
-    const value = this._respectMeteredConnections && this._isBrowserConnectionMetered;
+    const value = this._meteredConnectionSetting === "on" || this._meteredConnectionSetting !== "off" && this._isBrowserConnectionMetered;
     if (value !== this._isConnectionMetered) {
       this._isConnectionMetered = value;
       this.onChangeIsConnectionMetered();

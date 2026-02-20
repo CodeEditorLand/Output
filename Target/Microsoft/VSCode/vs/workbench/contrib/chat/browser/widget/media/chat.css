@@ -636,12 +636,12 @@
   font-size: 12px;
   margin-right: 3px;
 }
-.interactive-session .chat-input-container {
+.monaco-workbench .interactive-session .chat-input-container {
   box-sizing: border-box;
   cursor: text;
   background-color: var(--vscode-input-background);
   border: 1px solid var(--vscode-input-border, transparent);
-  border-radius: 4px;
+  border-radius: var(--vscode-cornerRadius-large);
   padding: 0 6px 6px 6px;
   width: 100%;
   position: relative;
@@ -667,13 +667,13 @@
   width: 100%;
   position: relative;
 }
-.interactive-session .chat-editing-session .chat-editing-session-container {
+.monaco-workbench .interactive-session .chat-editing-session .chat-editing-session-container {
   padding: 4px 3px 4px 3px;
   box-sizing: border-box;
   background-color: var(--vscode-editor-background);
   border: 1px solid var(--vscode-input-border, transparent);
   border-bottom: none;
-  border-radius: 4px 4px 0 0;
+  border-radius: var(--vscode-cornerRadius-large) var(--vscode-cornerRadius-large) 0 0;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -750,7 +750,7 @@
     border-radius: 2px;
     border: none;
     background-color: unset;
-    color: var(--vscode-foreground);
+    color: var(--vscode-descriptionForeground);
   }
   .monaco-button:focus-visible {
     outline-offset: -1px !important;
@@ -878,8 +878,7 @@
   border: 1px solid var(--vscode-input-border, transparent);
   background-color: var(--vscode-editor-background);
   border-bottom: none;
-  border-top-left-radius: 4px;
-  border-top-right-radius: 4px;
+  border-radius: var(--vscode-cornerRadius-large) var(--vscode-cornerRadius-large) 0 0;
   flex-direction: column;
   gap: 2px;
   overflow: hidden;
@@ -1048,6 +1047,9 @@
 .interactive-session .chat-editor-container .monaco-editor .cursors-layer {
   padding-left: 4px;
 }
+.interactive-session .chat-editor-container .monaco-editor .view-lines {
+  padding-left: 4px;
+}
 .interactive-session .chat-input-toolbars {
   display: flex;
 }
@@ -1075,12 +1077,23 @@
     .action-label {
       min-width: 0px;
       overflow: hidden;
+      position: relative;
       .chat-input-picker-label {
         overflow: hidden;
         text-overflow: ellipsis;
       }
-      .codicon-warning {
-        color: var(--vscode-problemsWarningIcon-foreground);
+      .model-picker-badge {
+        display: inline-flex;
+        align-items: center;
+        margin-left: 4px;
+        flex-shrink: 0;
+        font-size: 12px;
+        .codicon.codicon-info {
+          color: var(--vscode-problemsInfoIcon-foreground) !important;
+        }
+        .codicon.codicon-warning {
+          color: var(--vscode-problemsWarningIcon-foreground) !important;
+        }
       }
       span + .chat-input-picker-label {
         margin-left: 2px;
@@ -1099,15 +1112,26 @@
     }
   }
 }
+.action-widget .monaco-list-row.action.manage-models-link {
+  color: var(--vscode-textLink-foreground) !important;
+}
+.action-widget .monaco-list-row.action.manage-models-link .codicon {
+  color: var(--vscode-textLink-foreground) !important;
+}
+.action-widget .monaco-list-row.action.manage-models-link:hover,
+.action-widget .monaco-list-row.action.manage-models-link.focused {
+  color: var(--vscode-textLink-activeForeground) !important;
+}
 .interactive-session .chat-input-toolbar .chat-input-picker-item .action-label,
 .interactive-session .chat-input-toolbar .chat-sessionPicker-item .action-label {
   height: 16px;
   padding: 3px 0px 3px 6px;
   display: flex;
   align-items: center;
+  color: var(--vscode-foreground);
 }
-.interactive-session .chat-input-toolbar .chat-input-picker-item .action-label .codicon-chevron-down,
-.interactive-session .chat-input-toolbar .chat-sessionPicker-item .action-label .codicon-chevron-down {
+.monaco-workbench .interactive-session .chat-input-toolbar .chat-input-picker-item .action-label .codicon-chevron-down,
+.monaco-workbench .interactive-session .chat-input-toolbar .chat-sessionPicker-item .action-label .codicon-chevron-down {
   font-size: 12px;
   margin-left: 2px;
 }
@@ -1691,10 +1715,6 @@
 .interactive-session .chat-editing-session-list.collapsed {
   display: none;
 }
-.interactive-session .chat-editing-session-list .monaco-tl-twistie:not(.collapsible) {
-  width: 0;
-  padding-right: 0;
-}
 .interactive-session .chat-summary-list .monaco-list .monaco-list-row {
   border-radius: 4px;
 }
@@ -1800,7 +1820,10 @@
       display: inline;
     }
   }
-  &.working-progress:has(.codicon-loading) .rendered-markdown.progress-step > p {
+  &.shimmer-progress > .codicon {
+    display: none;
+  }
+  &.shimmer-progress .rendered-markdown.progress-step > p {
     background:
       linear-gradient(
         90deg,
@@ -2099,58 +2122,86 @@
     display: flex;
     width: 100%;
     position: relative;
-    .checkpoint-divider {
-      border-top: 1px dashed var(--vscode-chat-checkpointSeparator);
-      margin: 15px 0;
-      width: 100%;
-      height: 0;
+    align-items: center;
+    gap: 4px;
+    margin-top: 0;
+    margin-bottom: 8px;
+    .checkpoint-line-left,
+    .checkpoint-line-right {
+      flex: 1;
+      height: 1px;
+      background-color: var(--vscode-chat-requestBorder, var(--vscode-input-background));
     }
-    .codicon-container {
-      color: var(--vscode-descriptionForeground);
-      padding-right: 4px;
-      display: flex;
-      align-items: center;
-      gap: 4px;
+    .checkpoint-line-left {
+      mask-image:
+        linear-gradient(
+          to right,
+          transparent,
+          black);
+      -webkit-mask-image:
+        linear-gradient(
+          to right,
+          transparent,
+          black);
     }
-    .codicon-container .codicon {
-      font-size: 14px;
-      color: var(--vscode-chat-checkpointSeparator);
+    .checkpoint-line-right {
+      mask-image:
+        linear-gradient(
+          to left,
+          transparent,
+          black);
+      -webkit-mask-image:
+        linear-gradient(
+          to left,
+          transparent,
+          black);
     }
     .monaco-toolbar {
-      opacity: 0;
       height: fit-content;
       width: fit-content;
       -webkit-user-select: none;
       user-select: none;
-      position: absolute;
-      top: 4px;
-      margin-left: 25px;
-      background: var(--vscode-sideBar-background);
+      flex-shrink: 0;
     }
     .monaco-toolbar .action-label {
-      border: 1px solid var(--vscode-chat-requestBorder, var(--vscode-input-background));
+      font-size: 12px;
+      line-height: 18px;
+      color: var(--vscode-descriptionForeground);
+      border: 1px solid transparent;
+      background-color: transparent;
       padding: 1px 5px;
+    }
+    .monaco-toolbar .action-label:hover {
+      color: var(--vscode-foreground);
+      border-color: var(--vscode-chat-requestBorder, var(--vscode-input-background));
       background-color: var(--vscode-sideBar-background);
     }
+  }
+  .checkpoint-container {
+    opacity: 0;
+    transition: opacity 0.1s ease-in-out;
   }
   .checkpoint-restore-container {
     margin-top: 10px;
     .checkpoint-label-text {
       font-size: 12px;
+      line-height: 18px;
       color: var(--vscode-descriptionForeground);
-      background-color: var(--vscode-sideBar-background);
-      padding: 4px;
       display: flex;
       align-items: center;
-      gap: 4px;
-      position: absolute;
-      margin-left: 71px;
-      margin-top: 2px;
+      flex-shrink: 0;
+      padding: 1px 5px;
+      border: 1px solid transparent;
+    }
+    .checkpoint-dot-separator {
+      font-size: 12px;
+      line-height: 18px;
+      color: var(--vscode-descriptionForeground);
+      flex-shrink: 0;
     }
   }
-  .checkpoint-container .monaco-toolbar:focus-within,
-  .checkpoint-restore-container .monaco-toolbar,
-  .interactive-item-container.interactive-request:not(.editing):hover .checkpoint-container .monaco-toolbar {
+  .checkpoint-container:focus-within,
+  .interactive-item-container.interactive-request:not(.editing):hover .checkpoint-container {
     opacity: 1;
   }
   .interactive-item-container.interactive-request.editing .checkpoint-container {
@@ -2180,6 +2231,9 @@
     }
     .request-hover:not(.has-no-actions) {
       display: block;
+    }
+    .checkpoint-container {
+      opacity: 1;
     }
   }
   .interactive-request.editing .rendered-markdown,

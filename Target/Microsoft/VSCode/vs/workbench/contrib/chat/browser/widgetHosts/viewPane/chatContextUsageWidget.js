@@ -23,7 +23,9 @@ import { IHoverService } from "../../../../../../platform/hover/browser/hover.js
 import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
 import { IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
 import { IStorageService } from "../../../../../../platform/storage/common/storage.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
 import { ChatContextKeys } from "../../../common/actions/chatContextKeys.js";
+import { ChatConfiguration } from "../../../common/constants.js";
 import { ILanguageModelsService } from "../../../common/languageModels.js";
 import { ChatContextUsageDetails } from "./chatContextUsageDetails.js";
 import { StandardKeyboardEvent } from "../../../../../../base/browser/keyboardEvent.js";
@@ -103,13 +105,14 @@ let ChatContextUsageWidget = class ChatContextUsageWidget2 extends Disposable {
   static {
     this._HOVER_ID = "chat.contextUsage";
   }
-  constructor(hoverService, instantiationService, languageModelsService, contextKeyService, storageService) {
+  constructor(hoverService, instantiationService, languageModelsService, contextKeyService, storageService, configurationService) {
     super();
     this.hoverService = hoverService;
     this.instantiationService = instantiationService;
     this.languageModelsService = languageModelsService;
     this.contextKeyService = contextKeyService;
     this.storageService = storageService;
+    this.configurationService = configurationService;
     this._onDidChangeVisibility = this._register(new Emitter());
     this.onDidChangeVisibility = this._onDidChangeVisibility.event;
     this._isVisible = observableValue(this, false);
@@ -134,6 +137,17 @@ let ChatContextUsageWidget = class ChatContextUsageWidget2 extends Disposable {
     if (this.storageService.getBoolean(ChatContextUsageWidget_1._OPENED_STORAGE_KEY, 1, false)) {
       this._contextUsageOpenedKey.set(true);
     }
+    this._enabled = this.configurationService.getValue(ChatConfiguration.ChatContextUsageEnabled) !== false;
+    this._register(this.configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(ChatConfiguration.ChatContextUsageEnabled)) {
+        this._enabled = this.configurationService.getValue(ChatConfiguration.ChatContextUsageEnabled) !== false;
+        if (!this._enabled) {
+          this.hide();
+        } else if (this.currentData) {
+          this.show();
+        }
+      }
+    }));
     this.setupHover();
   }
   /**
@@ -202,8 +216,15 @@ let ChatContextUsageWidget = class ChatContextUsageWidget2 extends Disposable {
    */
   update(lastRequest) {
     this._lastRequestDisposable.clear();
-    if (!lastRequest?.response || !lastRequest.modelId) {
+    if (!lastRequest) {
+      this.currentData = void 0;
       this.hide();
+      return;
+    }
+    if (!lastRequest.response || !lastRequest.modelId) {
+      if (!this.currentData) {
+        this.hide();
+      }
       return;
     }
     const response = lastRequest.response;
@@ -219,7 +240,9 @@ let ChatContextUsageWidget = class ChatContextUsageWidget2 extends Disposable {
     const maxInputTokens = modelMetadata?.maxInputTokens;
     const maxOutputTokens = modelMetadata?.maxOutputTokens;
     if (!usage || !maxInputTokens || maxInputTokens <= 0 || !maxOutputTokens || maxOutputTokens <= 0) {
-      this.hide();
+      if (!this.currentData) {
+        this.hide();
+      }
       return;
     }
     const promptTokens = usage.promptTokens;
@@ -241,6 +264,9 @@ let ChatContextUsageWidget = class ChatContextUsageWidget2 extends Disposable {
     }
   }
   show() {
+    if (!this._enabled) {
+      return;
+    }
     if (this.domNode.style.display === "none") {
       this.domNode.style.display = "";
       this._isVisible.set(true, void 0);
@@ -260,7 +286,8 @@ ChatContextUsageWidget = ChatContextUsageWidget_1 = __decorate([
   __param(1, IInstantiationService),
   __param(2, ILanguageModelsService),
   __param(3, IContextKeyService),
-  __param(4, IStorageService)
+  __param(4, IStorageService),
+  __param(5, IConfigurationService)
 ], ChatContextUsageWidget);
 export {
   ChatContextUsageWidget,

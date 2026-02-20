@@ -7,8 +7,10 @@ import { IConfigurationService } from '../../../../../platform/configuration/com
 import { IInstantiationService } from '../../../../../platform/instantiation/common/instantiation.js';
 import { ILogService } from '../../../../../platform/log/common/log.js';
 import { IStorageService } from '../../../../../platform/storage/common/storage.js';
+import { ITelemetryService } from '../../../../../platform/telemetry/common/telemetry.js';
 import { IWorkspaceContextService } from '../../../../../platform/workspace/common/workspace.js';
 import { IExtensionService } from '../../../../services/extensions/common/extensions.js';
+import { IChatEntitlementService } from '../../../../services/chat/common/chatEntitlementService.js';
 import { IMcpService } from '../../../mcp/common/mcpTypes.js';
 import { IChatAgentService } from '../participants/chatAgents.js';
 import { ChatModel, IChatModel, IChatRequestModel, IChatRequestVariableData, IExportableChatData, ISerializableChatData } from '../model/chatModel.js';
@@ -22,6 +24,7 @@ import { IPromptsService } from '../promptSyntax/service/promptsService.js';
 export declare class ChatService extends Disposable implements IChatService {
     private readonly storageService;
     private readonly logService;
+    private readonly telemetryService;
     private readonly extensionService;
     private readonly instantiationService;
     private readonly workspaceContextService;
@@ -32,6 +35,7 @@ export declare class ChatService extends Disposable implements IChatService {
     private readonly chatSessionService;
     private readonly mcpService;
     private readonly promptsService;
+    private readonly chatEntitlementService;
     _serviceBrand: undefined;
     private readonly _sessionModels;
     private readonly _pendingRequests;
@@ -72,7 +76,7 @@ export declare class ChatService extends Disposable implements IChatService {
     waitForModelDisposals(): Promise<void>;
     get edits2Enabled(): boolean;
     private get isEmptyWindow();
-    constructor(storageService: IStorageService, logService: ILogService, extensionService: IExtensionService, instantiationService: IInstantiationService, workspaceContextService: IWorkspaceContextService, chatSlashCommandService: IChatSlashCommandService, chatAgentService: IChatAgentService, configurationService: IConfigurationService, chatTransferService: IChatTransferService, chatSessionService: IChatSessionsService, mcpService: IMcpService, promptsService: IPromptsService);
+    constructor(storageService: IStorageService, logService: ILogService, telemetryService: ITelemetryService, extensionService: IExtensionService, instantiationService: IInstantiationService, workspaceContextService: IWorkspaceContextService, chatSlashCommandService: IChatSlashCommandService, chatAgentService: IChatAgentService, configurationService: IConfigurationService, chatTransferService: IChatTransferService, chatSessionService: IChatSessionsService, mcpService: IMcpService, promptsService: IPromptsService, chatEntitlementService: IChatEntitlementService);
     get editingSessions(): import("../editing/chatEditingService.js").IChatEditingSession[];
     isEnabled(location: ChatAgentLocation): boolean;
     private migrateData;

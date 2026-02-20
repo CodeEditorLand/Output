@@ -20,7 +20,7 @@ import { IContextKeyService } from "../../../../../platform/contextkey/common/co
 import { IStorageService } from "../../../../../platform/storage/common/storage.js";
 import { IChatService } from "../../../chat/common/chatService/chatService.js";
 import { TerminalChatContextKeys } from "./terminalChat.js";
-import { chatSessionResourceToId, LocalChatSessionUri } from "../../../chat/common/model/chatUri.js";
+import { LocalChatSessionUri } from "../../../chat/common/model/chatUri.js";
 import { isNumber, isString } from "../../../../../base/common/types.js";
 var StorageKeys;
 (function(StorageKeys2) {
@@ -134,10 +134,6 @@ let TerminalChatService = class TerminalChatService2 extends Disposable {
   }
   getChatSessionResourceForInstance(instance) {
     return this._chatSessionResourceByTerminalInstance.get(instance);
-  }
-  getChatSessionIdForInstance(instance) {
-    const resource = this._chatSessionResourceByTerminalInstance.get(instance);
-    return resource ? chatSessionResourceToId(resource) : void 0;
   }
   isBackgroundTerminal(terminalToolSessionId) {
     if (!terminalToolSessionId) {

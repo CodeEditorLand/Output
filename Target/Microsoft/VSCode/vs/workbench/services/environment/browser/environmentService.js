@@ -192,6 +192,9 @@ class BrowserWorkbenchEnvironmentService {
   get disableWorkspaceTrust() {
     return !this.options.enableWorkspaceTrust;
   }
+  get isSessionsWindow() {
+    return false;
+  }
   get profile() {
     return this.payload?.get("profile");
   }
@@ -431,6 +434,9 @@ __decorate([
 __decorate([
   memoize
 ], BrowserWorkbenchEnvironmentService.prototype, "disableWorkspaceTrust", null);
+__decorate([
+  memoize
+], BrowserWorkbenchEnvironmentService.prototype, "isSessionsWindow", null);
 __decorate([
   memoize
 ], BrowserWorkbenchEnvironmentService.prototype, "profile", null);

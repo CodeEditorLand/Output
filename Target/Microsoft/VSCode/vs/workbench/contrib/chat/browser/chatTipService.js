@@ -29,8 +29,15 @@ import { CancellationToken } from "../../../../base/common/cancellation.js";
 import { localize } from "../../../../nls.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
 import { ILanguageModelToolsService } from "../common/tools/languageModelToolsService.js";
+import { localChatSessionType } from "../common/chatSessionsService.js";
 const IChatTipService = createDecorator("chatTipService");
 const TIP_CATALOG = [
+  {
+    id: "tip.switchToAuto",
+    message: localize("tip.switchToAuto", "Tip: Using gpt-4.1? Try switching to [Auto](command:workbench.action.chat.openModelPicker) in the model picker for better coding performance."),
+    enabledCommands: ["workbench.action.chat.openModelPicker"],
+    onlyWhenModelIds: ["gpt-4.1"]
+  },
   {
     id: "tip.agentMode",
     message: localize("tip.agentMode", "Tip: Try [Agents](command:workbench.action.chat.openEditSession) to make edits across your project and run commands."),
@@ -58,12 +65,12 @@ const TIP_CATALOG = [
   {
     id: "tip.undoChanges",
     message: localize("tip.undoChanges", "Tip: Select Restore Checkpoint to undo changes until that point in the chat conversation."),
-    when: ContextKeyExpr.or(ChatContextKeys.chatModeKind.isEqualTo(ChatModeKind.Agent), ChatContextKeys.chatModeKind.isEqualTo(ChatModeKind.Edit)),
+    when: ContextKeyExpr.and(ChatContextKeys.chatSessionType.isEqualTo(localChatSessionType), ContextKeyExpr.or(ChatContextKeys.chatModeKind.isEqualTo(ChatModeKind.Agent), ChatContextKeys.chatModeKind.isEqualTo(ChatModeKind.Edit))),
     excludeWhenCommandsExecuted: ["workbench.action.chat.restoreCheckpoint", "workbench.action.chat.restoreLastCheckpoint"]
   },
   {
     id: "tip.customInstructions",
-    message: localize("tip.customInstructions", "Tip: [Generate workspace instructions](command:workbench.action.chat.generateInstructions) to give the agent relevant project-specific context when starting a task."),
+    message: localize("tip.customInstructions", "Tip: [Generate workspace instructions](command:workbench.action.chat.generateInstructions) apply coding conventions across all agent sessions."),
     enabledCommands: ["workbench.action.chat.generateInstructions"],
     excludeWhenPromptFilesExist: { promptType: PromptsType.instructions, agentFileType: AgentFileType.copilotInstructionsMd, excludeUntilChecked: true }
   },
@@ -77,7 +84,7 @@ const TIP_CATALOG = [
   },
   {
     id: "tip.skill",
-    message: localize("tip.skill", "Tip: [Create a skill](command:workbench.command.new.skill) to apply domain-specific workflows and instructions, only when needed."),
+    message: localize("tip.skill", "Tip: [Create a skill](command:workbench.command.new.skill) to teach the agent specialized workflows, loaded only when relevant."),
     when: ChatContextKeys.chatModeKind.isEqualTo(ChatModeKind.Agent),
     enabledCommands: ["workbench.command.new.skill"],
     excludeWhenCommandsExecuted: ["workbench.command.new.skill"],
@@ -85,7 +92,7 @@ const TIP_CATALOG = [
   },
   {
     id: "tip.messageQueueing",
-    message: localize("tip.messageQueueing", "Tip: Send follow-up and steering messages while the agent is working. They'll be queued and processed in order."),
+    message: localize("tip.messageQueueing", "Tip: Steer the agent mid-task by sending follow-up messages. They queue and apply in order."),
     when: ChatContextKeys.chatModeKind.isEqualTo(ChatModeKind.Agent),
     excludeWhenCommandsExecuted: ["workbench.action.chat.queueMessage", "workbench.action.chat.steerWithMessage"]
   },
@@ -106,13 +113,6 @@ const TIP_CATALOG = [
     message: localize("tip.subagents", "Tip: Ask the agent to work in parallel to complete large tasks faster."),
     when: ChatContextKeys.chatModeKind.isEqualTo(ChatModeKind.Agent),
     excludeWhenToolsInvoked: ["runSubagent"]
-  },
-  {
-    id: "tip.contextUsage",
-    message: localize("tip.contextUsage", "Tip: [View your context window usage](command:workbench.action.chat.showContextUsage) to see how many tokens are used and what's consuming them."),
-    when: ContextKeyExpr.and(ChatContextKeys.chatModeKind.isEqualTo(ChatModeKind.Agent), ChatContextKeys.contextUsageHasBeenOpened.negate(), ChatContextKeys.chatSessionIsEmpty.negate()),
-    enabledCommands: ["workbench.action.chat.showContextUsage"],
-    excludeWhenCommandsExecuted: ["workbench.action.chat.showContextUsage"]
   },
   {
     id: "tip.sendToNewChat",
@@ -148,23 +148,11 @@ let TipEligibilityTracker = class TipEligibilityTracker2 extends Disposable {
     this._toolListener = this._register(new MutableDisposable());
     this._excludedByFiles = /* @__PURE__ */ new Set();
     this._fileCheckGeneration = /* @__PURE__ */ new Map();
-    const storedCmds = this._storageService.get(
-      TipEligibilityTracker_1._COMMANDS_STORAGE_KEY,
-      1
-      /* StorageScope.WORKSPACE */
-    );
+    const storedCmds = this._readApplicationWithProfileFallback(TipEligibilityTracker_1._COMMANDS_STORAGE_KEY);
     this._executedCommands = new Set(storedCmds ? JSON.parse(storedCmds) : []);
-    const storedModes = this._storageService.get(
-      TipEligibilityTracker_1._MODES_STORAGE_KEY,
-      1
-      /* StorageScope.WORKSPACE */
-    );
+    const storedModes = this._readApplicationWithProfileFallback(TipEligibilityTracker_1._MODES_STORAGE_KEY);
     this._usedModes = new Set(storedModes ? JSON.parse(storedModes) : []);
-    const storedTools = this._storageService.get(
-      TipEligibilityTracker_1._TOOLS_STORAGE_KEY,
-      1
-      /* StorageScope.WORKSPACE */
-    );
+    const storedTools = this._readApplicationWithProfileFallback(TipEligibilityTracker_1._TOOLS_STORAGE_KEY);
     this._invokedTools = new Set(storedTools ? JSON.parse(storedTools) : []);
     this._pendingCommands = /* @__PURE__ */ new Set();
     for (const tip of tips) {
@@ -321,10 +309,35 @@ let TipEligibilityTracker = class TipEligibilityTracker2 extends Disposable {
     this._storageService.store(
       key,
       JSON.stringify([...set]),
-      1,
+      -1,
       1
       /* StorageTarget.MACHINE */
     );
+  }
+  _readApplicationWithProfileFallback(key) {
+    const applicationValue = this._storageService.get(
+      key,
+      -1
+      /* StorageScope.APPLICATION */
+    );
+    if (applicationValue) {
+      return applicationValue;
+    }
+    const profileValue = this._storageService.get(
+      key,
+      0
+      /* StorageScope.PROFILE */
+    );
+    if (profileValue) {
+      this._storageService.store(
+        key,
+        profileValue,
+        -1,
+        1
+        /* StorageTarget.MACHINE */
+      );
+    }
+    return profileValue;
   }
 };
 TipEligibilityTracker = TipEligibilityTracker_1 = __decorate([
@@ -361,39 +374,46 @@ let ChatTipService = class ChatTipService2 extends Disposable {
     this.onDidHideTip = this._onDidHideTip.event;
     this._onDidDisableTips = this._register(new Emitter());
     this.onDidDisableTips = this._onDidDisableTips.event;
-    this._sessionStartedAt = Date.now();
-    this._hasShownRequestTip = false;
     this._tracker = this._register(instantiationService.createInstance(TipEligibilityTracker, TIP_CATALOG));
   }
   resetSession() {
-    this._hasShownRequestTip = false;
     this._shownTip = void 0;
     this._tipRequestId = void 0;
-    this._sessionStartedAt = Date.now();
+    this._contextKeyService = void 0;
   }
   dismissTip() {
     if (this._shownTip) {
-      const dismissed = this._getDismissedTipIds();
-      dismissed.push(this._shownTip.id);
+      const dismissed = new Set(this._getDismissedTipIds());
+      dismissed.add(this._shownTip.id);
       this._storageService.store(
         ChatTipService_1._DISMISSED_TIP_KEY,
-        JSON.stringify(dismissed),
-        0,
+        JSON.stringify([...dismissed]),
+        -1,
         1
         /* StorageTarget.MACHINE */
       );
     }
-    this._hasShownRequestTip = false;
-    this._shownTip = void 0;
     this._tipRequestId = void 0;
     this._onDidDismissTip.fire();
   }
-  _getDismissedTipIds() {
-    const raw = this._storageService.get(
+  clearDismissedTips() {
+    this._storageService.remove(
+      ChatTipService_1._DISMISSED_TIP_KEY,
+      -1
+      /* StorageScope.APPLICATION */
+    );
+    this._storageService.remove(
       ChatTipService_1._DISMISSED_TIP_KEY,
       0
       /* StorageScope.PROFILE */
     );
+    this._shownTip = void 0;
+    this._tipRequestId = void 0;
+    this._contextKeyService = void 0;
+    this._onDidDismissTip.fire();
+  }
+  _getDismissedTipIds() {
+    const raw = this._readApplicationWithProfileFallback(ChatTipService_1._DISMISSED_TIP_KEY);
     if (!raw) {
       return [];
     }
@@ -403,79 +423,90 @@ let ChatTipService = class ChatTipService2 extends Disposable {
       if (!Array.isArray(parsed)) {
         return [];
       }
-      if (parsed.length >= TIP_CATALOG.length) {
-        return [];
+      const knownTipIds = new Set(TIP_CATALOG.map((tip) => tip.id));
+      const dismissed = /* @__PURE__ */ new Set();
+      for (const value of parsed) {
+        if (typeof value === "string" && knownTipIds.has(value)) {
+          dismissed.add(value);
+        }
       }
-      return parsed;
+      return [...dismissed];
     } catch {
       return [];
     }
   }
   hideTip() {
-    this._hasShownRequestTip = false;
     this._shownTip = void 0;
     this._tipRequestId = void 0;
     this._onDidHideTip.fire();
   }
   async disableTips() {
-    this._hasShownRequestTip = false;
     this._shownTip = void 0;
     this._tipRequestId = void 0;
-    await this._configurationService.updateValue("chat.tips.enabled", false);
+    await this._configurationService.updateValue(
+      "chat.tips.enabled",
+      false,
+      1
+      /* ConfigurationTarget.APPLICATION */
+    );
     this._onDidDisableTips.fire();
-  }
-  getNextTip(requestId, requestTimestamp, contextKeyService) {
-    if (!this._configurationService.getValue("chat.tips.enabled")) {
-      return void 0;
-    }
-    if (!this._isCopilotEnabled()) {
-      return void 0;
-    }
-    if (!this._isChatLocation(contextKeyService)) {
-      return void 0;
-    }
-    if (this._tipRequestId === requestId && this._shownTip) {
-      return this._createTip(this._shownTip);
-    }
-    if (this._hasShownRequestTip && this._tipRequestId && this._tipRequestId !== requestId) {
-      this._shownTip = void 0;
-      this._tipRequestId = void 0;
-      this._onDidDismissTip.fire();
-      return void 0;
-    }
-    if (this._hasShownRequestTip) {
-      return void 0;
-    }
-    if (requestTimestamp < this._sessionStartedAt) {
-      return void 0;
-    }
-    return this._pickTip(requestId, contextKeyService);
   }
   getWelcomeTip(contextKeyService) {
     if (!this._configurationService.getValue("chat.tips.enabled")) {
       return void 0;
     }
+    this._contextKeyService = contextKeyService;
     if (!this._isCopilotEnabled()) {
       return void 0;
     }
     if (!this._isChatLocation(contextKeyService)) {
       return void 0;
     }
+    if (this._isChatQuotaExceeded(contextKeyService)) {
+      return void 0;
+    }
     if (this._tipRequestId === "welcome" && this._shownTip) {
+      if (!this._isEligible(this._shownTip, contextKeyService)) {
+        const nextTip = this._findNextEligibleTip(this._shownTip.id, contextKeyService);
+        if (nextTip) {
+          this._shownTip = nextTip;
+          this._storageService.store(
+            ChatTipService_1._LAST_TIP_ID_KEY,
+            nextTip.id,
+            -1,
+            0
+            /* StorageTarget.USER */
+          );
+          const tip2 = this._createTip(nextTip);
+          this._onDidNavigateTip.fire(tip2);
+          return tip2;
+        }
+      }
       return this._createTip(this._shownTip);
     }
     const tip = this._pickTip("welcome", contextKeyService);
     return tip;
   }
+  _findNextEligibleTip(currentTipId, contextKeyService) {
+    const currentIndex = TIP_CATALOG.findIndex((tip) => tip.id === currentTipId);
+    if (currentIndex === -1) {
+      return void 0;
+    }
+    const dismissedIds = new Set(this._getDismissedTipIds());
+    for (let i = 1; i < TIP_CATALOG.length; i++) {
+      const idx = (currentIndex + i) % TIP_CATALOG.length;
+      const candidate = TIP_CATALOG[idx];
+      if (!dismissedIds.has(candidate.id) && this._isEligible(candidate, contextKeyService)) {
+        return candidate;
+      }
+    }
+    return void 0;
+  }
   _pickTip(sourceId, contextKeyService) {
     this._tracker.recordCurrentMode(contextKeyService);
     const dismissedIds = new Set(this._getDismissedTipIds());
     let selectedTip;
-    const lastTipId = this._storageService.get(
-      ChatTipService_1._LAST_TIP_ID_KEY,
-      0
-      /* StorageScope.PROFILE */
-    );
+    const lastTipId = this._readApplicationWithProfileFallback(ChatTipService_1._LAST_TIP_ID_KEY);
     const lastCatalogIndex = lastTipId ? TIP_CATALOG.findIndex((tip) => tip.id === lastTipId) : -1;
     const startIndex = lastCatalogIndex === -1 ? 0 : (lastCatalogIndex + 1) % TIP_CATALOG.length;
     for (let i = 0; i < TIP_CATALOG.length; i++) {
@@ -487,35 +518,30 @@ let ChatTipService = class ChatTipService2 extends Disposable {
       }
     }
     if (!selectedTip) {
-      for (let i = 0; i < TIP_CATALOG.length; i++) {
-        const idx = (startIndex + i) % TIP_CATALOG.length;
-        const candidate = TIP_CATALOG[idx];
-        if (!dismissedIds.has(candidate.id)) {
-          selectedTip = candidate;
-          break;
-        }
-      }
-    }
-    if (!selectedTip) {
-      selectedTip = TIP_CATALOG[startIndex];
+      return void 0;
     }
     this._storageService.store(
       ChatTipService_1._LAST_TIP_ID_KEY,
       selectedTip.id,
-      0,
+      -1,
       0
       /* StorageTarget.USER */
     );
-    this._hasShownRequestTip = sourceId !== "welcome";
     this._tipRequestId = sourceId;
     this._shownTip = selectedTip;
     return this._createTip(selectedTip);
   }
-  navigateToNextTip(contextKeyService) {
-    return this._navigateTip(1, contextKeyService);
+  navigateToNextTip() {
+    if (!this._contextKeyService) {
+      return void 0;
+    }
+    return this._navigateTip(1, this._contextKeyService);
   }
-  navigateToPreviousTip(contextKeyService) {
-    return this._navigateTip(-1, contextKeyService);
+  navigateToPreviousTip() {
+    if (!this._contextKeyService) {
+      return void 0;
+    }
+    return this._navigateTip(-1, this._contextKeyService);
   }
   _navigateTip(direction, contextKeyService) {
     if (!this._shownTip) {
@@ -531,10 +557,11 @@ let ChatTipService = class ChatTipService2 extends Disposable {
       const candidate = TIP_CATALOG[idx];
       if (!dismissedIds.has(candidate.id) && this._isEligible(candidate, contextKeyService)) {
         this._shownTip = candidate;
+        this._tipRequestId = "welcome";
         this._storageService.store(
           ChatTipService_1._LAST_TIP_ID_KEY,
           candidate.id,
-          0,
+          -1,
           0
           /* StorageTarget.USER */
         );
@@ -546,6 +573,13 @@ let ChatTipService = class ChatTipService2 extends Disposable {
     return void 0;
   }
   _isEligible(tip, contextKeyService) {
+    if (tip.onlyWhenModelIds?.length) {
+      const currentModelId = this._getCurrentChatModelId(contextKeyService);
+      const isModelMatch = tip.onlyWhenModelIds.some((modelId) => currentModelId === modelId || currentModelId.startsWith(`${modelId}-`));
+      if (!isModelMatch) {
+        return false;
+      }
+    }
     if (tip.when && !contextKeyService.contextMatchesRules(tip.when)) {
       this._logService.debug("#ChatTips: tip is not eligible due to when clause", tip.id, tip.when.serialize());
       return false;
@@ -556,9 +590,43 @@ let ChatTipService = class ChatTipService2 extends Disposable {
     this._logService.debug("#ChatTips: tip is eligible", tip.id);
     return true;
   }
+  _getCurrentChatModelId(contextKeyService) {
+    const normalize = /* @__PURE__ */ __name((modelId) => {
+      const normalizedModelId = modelId?.toLowerCase() ?? "";
+      if (!normalizedModelId) {
+        return "";
+      }
+      if (normalizedModelId.includes("/")) {
+        return normalizedModelId.split("/").at(-1) ?? "";
+      }
+      return normalizedModelId;
+    }, "normalize");
+    const contextKeyModelId = normalize(contextKeyService.getContextKeyValue(ChatContextKeys.chatModelId.key));
+    if (contextKeyModelId) {
+      return contextKeyModelId;
+    }
+    const location = contextKeyService.getContextKeyValue(ChatContextKeys.location.key) ?? ChatAgentLocation.Chat;
+    const sessionType = contextKeyService.getContextKeyValue(ChatContextKeys.chatSessionType.key) ?? "";
+    const candidateStorageKeys = sessionType ? [`chat.currentLanguageModel.${location}.${sessionType}`, `chat.currentLanguageModel.${location}`] : [`chat.currentLanguageModel.${location}`];
+    for (const storageKey of candidateStorageKeys) {
+      const persistedModelIdentifier = this._storageService.get(
+        storageKey,
+        -1
+        /* StorageScope.APPLICATION */
+      );
+      const persistedModelId = normalize(persistedModelIdentifier);
+      if (persistedModelId) {
+        return persistedModelId;
+      }
+    }
+    return "";
+  }
   _isChatLocation(contextKeyService) {
     const location = contextKeyService.getContextKeyValue(ChatContextKeys.location.key);
     return !location || location === ChatAgentLocation.Chat;
+  }
+  _isChatQuotaExceeded(contextKeyService) {
+    return contextKeyService.getContextKeyValue(ChatContextKeys.chatQuotaExceeded.key) === true;
   }
   _isCopilotEnabled() {
     const defaultChatAgent = this._productService.defaultChatAgent;
@@ -573,6 +641,31 @@ let ChatTipService = class ChatTipService2 extends Disposable {
       content: markdown,
       enabledCommands: tipDef.enabledCommands
     };
+  }
+  _readApplicationWithProfileFallback(key) {
+    const applicationValue = this._storageService.get(
+      key,
+      -1
+      /* StorageScope.APPLICATION */
+    );
+    if (applicationValue) {
+      return applicationValue;
+    }
+    const profileValue = this._storageService.get(
+      key,
+      0
+      /* StorageScope.PROFILE */
+    );
+    if (profileValue) {
+      this._storageService.store(
+        key,
+        profileValue,
+        -1,
+        1
+        /* StorageTarget.MACHINE */
+      );
+    }
+    return profileValue;
   }
 };
 ChatTipService = ChatTipService_1 = __decorate([

@@ -14,6 +14,12 @@ class WebBrowserElementsService {
   async startDebugSession(token, locator) {
     throw new Error("Not implemented");
   }
+  async startConsoleSession(token, locator) {
+    throw new Error("Not implemented");
+  }
+  async getConsoleLogs(locator) {
+    throw new Error("Not implemented");
+  }
 }
 registerSingleton(
   IBrowserElementsService,

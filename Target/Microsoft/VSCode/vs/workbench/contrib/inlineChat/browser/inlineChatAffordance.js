@@ -22,21 +22,29 @@ import { InlineChatEditorAffordance } from "./inlineChatEditorAffordance.js";
 import { InlineChatGutterAffordance } from "./inlineChatGutterAffordance.js";
 import { assertType } from "../../../../base/common/types.js";
 import { IInlineChatSessionService } from "./inlineChatSessionService.js";
+import { CodeActionController } from "../../../../editor/contrib/codeAction/browser/codeActionController.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { generateUuid } from "../../../../base/common/uuid.js";
+import { Event } from "../../../../base/common/event.js";
 let InlineChatAffordance = class InlineChatAffordance2 extends Disposable {
   static {
     __name(this, "InlineChatAffordance");
   }
-  constructor(_editor, _inputWidget, _instantiationService, configurationService, chatEntiteldService, inlineChatSessionService) {
+  #editor;
+  #inputWidget;
+  #instantiationService;
+  #menuData = observableValue(this, void 0);
+  constructor(editor, inputWidget, instantiationService, configurationService, chatEntiteldService, inlineChatSessionService, telemetryService) {
     super();
-    this._editor = _editor;
-    this._inputWidget = _inputWidget;
-    this._instantiationService = _instantiationService;
-    this._menuData = observableValue(this, void 0);
-    const editorObs = observableCodeEditor(this._editor);
+    this.#editor = editor;
+    this.#inputWidget = inputWidget;
+    this.#instantiationService = instantiationService;
+    const editorObs = observableCodeEditor(this.#editor);
     const affordance = observableConfigValue("inlineChat.affordance", "off", configurationService);
     const debouncedSelection = debouncedObservable(editorObs.cursorSelection, 500);
     const selectionData = observableValue(this, void 0);
     let explicitSelection = false;
+    let affordanceId;
     this._store.add(runOnChange(editorObs.selections, (value, _prev, events) => {
       explicitSelection = events.every(
         (e) => e.reason === 3
@@ -48,9 +56,15 @@ let InlineChatAffordance = class InlineChatAffordance2 extends Disposable {
     }));
     this._store.add(autorun((r) => {
       const value = debouncedSelection.read(r);
-      if (!value || value.isEmpty() || !explicitSelection || _editor.getModel()?.getValueInRange(value).match(/^\s+$/)) {
+      if (!value || value.isEmpty() || !explicitSelection || this.#editor.getModel()?.getValueInRange(value).match(/^\s+$/)) {
         selectionData.set(void 0, void 0);
+        affordanceId = void 0;
         return;
+      }
+      affordanceId = generateUuid();
+      const mode = affordance.read(void 0);
+      if (mode === "gutter" || mode === "editor") {
+        telemetryService.publicLog2("inlineChatAffordance/shown", { mode, id: affordanceId, commandId: "" });
       }
       selectionData.set(value, void 0);
     }));
@@ -69,52 +83,70 @@ let InlineChatAffordance = class InlineChatAffordance2 extends Disposable {
         selectionData.set(void 0, void 0);
       }
     }));
-    this._store.add(this._instantiationService.createInstance(InlineChatGutterAffordance, editorObs, derived((r) => affordance.read(r) === "gutter" ? selectionData.read(r) : void 0), this._menuData));
-    this._store.add(this._instantiationService.createInstance(InlineChatEditorAffordance, this._editor, derived((r) => affordance.read(r) === "editor" ? selectionData.read(r) : void 0)));
+    this._store.add(this.#editor.onContextMenu(() => {
+      selectionData.set(void 0, void 0);
+    }));
+    const gutterAffordance = this._store.add(this.#instantiationService.createInstance(InlineChatGutterAffordance, editorObs, derived((r) => affordance.read(r) === "gutter" ? selectionData.read(r) : void 0), this.#menuData));
+    const editorAffordance = this.#instantiationService.createInstance(InlineChatEditorAffordance, this.#editor, derived((r) => affordance.read(r) === "editor" ? selectionData.read(r) : void 0));
+    this._store.add(editorAffordance);
+    this._store.add(Event.any(editorAffordance.onDidRunAction, gutterAffordance.onDidRunAction)((commandId) => {
+      if (affordanceId) {
+        telemetryService.publicLog2("inlineChatAffordance/selected", { mode: affordance.get(), id: affordanceId, commandId });
+      }
+    }));
     this._store.add(autorun((r) => {
-      const data = this._menuData.read(r);
+      const mode = affordance.read(r);
+      const hideWithSelection = mode === "editor" || mode === "gutter";
+      const controller = CodeActionController.get(this.#editor);
+      if (controller) {
+        controller.onlyLightBulbWithEmptySelection = hideWithSelection;
+      }
+    }));
+    this._store.add(autorun((r) => {
+      const data = this.#menuData.read(r);
       if (!data) {
         return;
       }
-      this._editor.revealLineInCenterIfOutsideViewport(
+      this.#editor.revealLineInCenterIfOutsideViewport(
         data.lineNumber,
         1
         /* ScrollType.Immediate */
       );
-      const editorDomNode = this._editor.getDomNode();
+      const editorDomNode = this.#editor.getDomNode();
       const editorRect = editorDomNode.getBoundingClientRect();
       const left = data.rect.left - editorRect.left;
-      this._inputWidget.show(data.lineNumber, left, data.above);
+      this.#inputWidget.show(data.lineNumber, left, data.above);
     }));
     this._store.add(autorun((r) => {
-      const pos = this._inputWidget.position.read(r);
+      const pos = this.#inputWidget.position.read(r);
       if (pos === null) {
-        this._menuData.set(void 0, void 0);
+        this.#menuData.set(void 0, void 0);
       }
     }));
   }
   async showMenuAtSelection() {
-    assertType(this._editor.hasModel());
-    const direction = this._editor.getSelection().getDirection();
-    const position = this._editor.getPosition();
-    const editorDomNode = this._editor.getDomNode();
-    const scrolledPosition = this._editor.getScrolledVisiblePosition(position);
+    assertType(this.#editor.hasModel());
+    const direction = this.#editor.getSelection().getDirection();
+    const position = this.#editor.getPosition();
+    const editorDomNode = this.#editor.getDomNode();
+    const scrolledPosition = this.#editor.getScrolledVisiblePosition(position);
     const editorRect = editorDomNode.getBoundingClientRect();
     const x = editorRect.left + scrolledPosition.left;
     const y = editorRect.top + scrolledPosition.top;
-    this._menuData.set({
+    this.#menuData.set({
       rect: new DOMRect(x, y, 0, scrolledPosition.height),
       above: direction === 1,
       lineNumber: position.lineNumber
     }, void 0);
-    await waitForState(this._inputWidget.position, (pos) => pos === null);
+    await waitForState(this.#inputWidget.position, (pos) => pos === null);
   }
 };
 InlineChatAffordance = __decorate([
   __param(2, IInstantiationService),
   __param(3, IConfigurationService),
   __param(4, IChatEntitlementService),
-  __param(5, IInlineChatSessionService)
+  __param(5, IInlineChatSessionService),
+  __param(6, ITelemetryService)
 ], InlineChatAffordance);
 export {
   InlineChatAffordance

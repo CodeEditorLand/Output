@@ -11,26 +11,19 @@ var __param = function(paramIndex, decorator) {
     decorator(target, key, paramIndex);
   };
 };
-var ChatAgentNameService_1;
 import { findLast } from "../../../../../base/common/arraysFind.js";
-import { timeout } from "../../../../../base/common/async.js";
-import { CancellationToken } from "../../../../../base/common/cancellation.js";
 import { Emitter } from "../../../../../base/common/event.js";
 import { Iterable } from "../../../../../base/common/iterator.js";
 import { Disposable, toDisposable } from "../../../../../base/common/lifecycle.js";
 import { revive } from "../../../../../base/common/marshalling.js";
-import { observableValue } from "../../../../../base/common/observable.js";
 import { equalsIgnoreCase } from "../../../../../base/common/strings.js";
 import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
 import { ContextKeyExpr, IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
 import { ExtensionIdentifier } from "../../../../../platform/extensions/common/extensions.js";
 import { createDecorator } from "../../../../../platform/instantiation/common/instantiation.js";
-import { ILogService } from "../../../../../platform/log/common/log.js";
-import { IProductService } from "../../../../../platform/product/common/productService.js";
-import { asJson, IRequestService } from "../../../../../platform/request/common/request.js";
-import { IStorageService } from "../../../../../platform/storage/common/storage.js";
 import { ChatContextKeys } from "../actions/chatContextKeys.js";
 import { ChatAgentLocation, ChatConfiguration, ChatModeKind } from "../constants.js";
+import { ILanguageModelsService } from "../languageModels.js";
 const IChatAgentService = createDecorator("chatAgentService");
 let ChatAgentService = class ChatAgentService2 extends Disposable {
   static {
@@ -392,62 +385,8 @@ let ChatAgentNameService = class ChatAgentNameService2 {
   static {
     __name(this, "ChatAgentNameService");
   }
-  static {
-    ChatAgentNameService_1 = this;
-  }
-  static {
-    this.StorageKey = "chat.participantNameRegistry";
-  }
-  constructor(productService, requestService, logService, storageService) {
-    this.requestService = requestService;
-    this.logService = logService;
-    this.storageService = storageService;
-    this.registry = observableValue(this, /* @__PURE__ */ Object.create(null));
-    this.disposed = false;
-    if (!productService.chatParticipantRegistry) {
-      return;
-    }
-    this.url = productService.chatParticipantRegistry;
-    const raw = storageService.get(
-      ChatAgentNameService_1.StorageKey,
-      -1
-      /* StorageScope.APPLICATION */
-    );
-    try {
-      this.registry.set(JSON.parse(raw ?? "{}"), void 0);
-    } catch (err) {
-      storageService.remove(
-        ChatAgentNameService_1.StorageKey,
-        -1
-        /* StorageScope.APPLICATION */
-      );
-    }
-    this.refresh();
-  }
-  refresh() {
-    if (this.disposed) {
-      return;
-    }
-    this.update().catch((err) => this.logService.warn("Failed to fetch chat participant registry", err)).then(() => timeout(5 * 60 * 1e3)).then(() => this.refresh());
-  }
-  async update() {
-    const context = await this.requestService.request({ type: "GET", url: this.url }, CancellationToken.None);
-    if (context.res.statusCode !== 200) {
-      throw new Error("Could not get extensions report.");
-    }
-    const result = await asJson(context);
-    if (!result || result.version !== 1) {
-      throw new Error("Unexpected chat participant registry response.");
-    }
-    const registry = result.restrictedChatParticipants;
-    this.registry.set(registry, void 0);
-    this.storageService.store(
-      ChatAgentNameService_1.StorageKey,
-      JSON.stringify(registry),
-      -1,
-      1
-      /* StorageTarget.MACHINE */
-    );
+  constructor(languageModelsService) {
+    this.languageModelsService = languageModelsService;
   }
   /**
    * Returns true if the agent is allowed to use this name
@@ -461,7 +400,7 @@ let ChatAgentNameService = class ChatAgentNameService2 {
     return nameAllowed && fullNameAllowed;
   }
   checkAgentNameRestriction(name, chatAgentData) {
-    const allowList = this.registry.map((registry) => registry[name.toLowerCase()]);
+    const allowList = this.languageModelsService.restrictedChatParticipants.map((registry) => registry[name.toLowerCase()]);
     return allowList.map((allowList2) => {
       if (!allowList2) {
         return true;
@@ -469,15 +408,9 @@ let ChatAgentNameService = class ChatAgentNameService2 {
       return allowList2.some((id) => equalsIgnoreCase(id, id.includes(".") ? chatAgentData.extensionId.value : chatAgentData.extensionPublisherId));
     });
   }
-  dispose() {
-    this.disposed = true;
-  }
 };
-ChatAgentNameService = ChatAgentNameService_1 = __decorate([
-  __param(0, IProductService),
-  __param(1, IRequestService),
-  __param(2, ILogService),
-  __param(3, IStorageService)
+ChatAgentNameService = __decorate([
+  __param(0, ILanguageModelsService)
 ], ChatAgentNameService);
 function getFullyQualifiedId(chatAgentData) {
   return `${chatAgentData.extensionId.value}.${chatAgentData.id}`;

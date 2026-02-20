@@ -1,1 +1,1 @@
-import{$WPc as o}from"../../../../platform/ipc/electron-browser/services.js";import{$5x as r}from"../../../../platform/process/common/process.js";o(r,"process");
+import{$mSc as m}from"../../../../platform/ipc/electron-browser/services.js";import{$iy as o}from"../../../../platform/process/common/process.js";m(o,"process");

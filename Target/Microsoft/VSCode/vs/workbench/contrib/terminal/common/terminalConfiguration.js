@@ -514,7 +514,7 @@ const terminalConfiguration = {
     /* TerminalSettingId.TerminalTitle */
   ]: {
     "type": "string",
-    "default": "${sequence}",
+    "default": "${process}",
     "markdownDescription": terminalTitle
   },
   [
@@ -935,7 +935,7 @@ const terminalConfiguration = {
     /* TerminalSettingId.EnableImages */
   ]: {
     restricted: true,
-    markdownDescription: localize("terminal.integrated.enableImages", "Enables image support in the terminal, this will only work when {0} is enabled. Both sixel and iTerm's inline image protocol are supported on Linux and macOS. This will only work on Windows for versions of ConPTY >= v2 which is shipped with Windows itself, see also {1}. Images will currently not be restored between window reloads/reconnects.", `\`#${"terminal.integrated.gpuAcceleration"}#\``, `\`#${"terminal.integrated.windowsUseConptyDll"}#\``),
+    markdownDescription: localize("terminal.integrated.enableImages", "Enables image support in the terminal, this will only work when {0} is enabled. Both sixel and iTerm's inline image protocol are supported on Linux and macOS. This will only work on Windows for versions of ConPTY >= v2 which is shipped with Windows itself, see also {1}. Images will currently not be restored between window reloads/reconnects. When enabled, transparency mode is also turned on in the terminal.", `\`#${"terminal.integrated.gpuAcceleration"}#\``, `\`#${"terminal.integrated.windowsUseConptyDll"}#\``),
     type: "boolean",
     default: false
   },

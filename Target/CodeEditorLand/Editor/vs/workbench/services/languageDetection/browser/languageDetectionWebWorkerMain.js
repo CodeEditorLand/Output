@@ -1,1 +1,1 @@
-import{$X5c as m}from"./languageDetectionWebWorker.js";import{$nbb as o}from"../../../../base/common/worker/webWorkerBootstrap.js";o(m);
+import{$59c as m}from"./languageDetectionWebWorker.js";import{$Qcb as o}from"../../../../base/common/worker/webWorkerBootstrap.js";o(m);

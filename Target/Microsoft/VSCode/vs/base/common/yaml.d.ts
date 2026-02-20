@@ -4,71 +4,47 @@
  * Tracks positions for error reporting and node locations.
  *
  * Limitations:
- * - No multi-line strings or block literals
  * - No anchors or references
  * - No complex types (dates, binary)
- * - No special handling for escape sequences in strings
- * - Indentation must be consistent (spaces only, no tabs)
- *
- * Notes:
- * - New line separators can be either "\n" or "\r\n". The input string is split into lines internally.
+ * - No single pair implicit entries
  *
  * @param input A string containing the YAML-like input
  * @param errors Array to collect parsing errors
- * @param options Parsing options
- * @returns The parsed representation (ObjectNode, ArrayNode, or primitive node)
+ * @returns The parsed representation (YamlMapNode, YamlSequenceNode, or YamlScalarNode)
  */
 export declare function parse(input: string, errors?: YamlParseError[], options?: ParseOptions): YamlNode | undefined;
+export interface YamlScalarNode {
+    readonly type: 'scalar';
+    readonly value: string;
+    readonly rawValue: string;
+    readonly startOffset: number;
+    readonly endOffset: number;
+    readonly format: 'single' | 'double' | 'none' | 'literal' | 'folded';
+}
+export interface YamlMapNode {
+    readonly type: 'map';
+    readonly properties: {
+        key: YamlScalarNode;
+        value: YamlNode;
+    }[];
+    readonly style: 'block' | 'flow';
+    readonly startOffset: number;
+    readonly endOffset: number;
+}
+export interface YamlSequenceNode {
+    readonly type: 'sequence';
+    readonly items: YamlNode[];
+    readonly style: 'block' | 'flow';
+    readonly startOffset: number;
+    readonly endOffset: number;
+}
+export type YamlNode = YamlSequenceNode | YamlMapNode | YamlScalarNode;
 export interface YamlParseError {
     readonly message: string;
-    readonly start: Position;
-    readonly end: Position;
+    readonly startOffset: number;
+    readonly endOffset: number;
     readonly code: string;
 }
 export interface ParseOptions {
     readonly allowDuplicateKeys?: boolean;
 }
-export interface Position {
-    readonly line: number;
-    readonly character: number;
-}
-export interface YamlStringNode {
-    readonly type: 'string';
-    readonly value: string;
-    readonly start: Position;
-    readonly end: Position;
-}
-export interface YamlNumberNode {
-    readonly type: 'number';
-    readonly value: number;
-    readonly start: Position;
-    readonly end: Position;
-}
-export interface YamlBooleanNode {
-    readonly type: 'boolean';
-    readonly value: boolean;
-    readonly start: Position;
-    readonly end: Position;
-}
-export interface YamlNullNode {
-    readonly type: 'null';
-    readonly value: null;
-    readonly start: Position;
-    readonly end: Position;
-}
-export interface YamlObjectNode {
-    readonly type: 'object';
-    readonly properties: {
-        key: YamlStringNode;
-        value: YamlNode;
-    }[];
-    readonly start: Position;
-    readonly end: Position;
-}
-export interface YamlArrayNode {
-    readonly type: 'array';
-    readonly items: YamlNode[];
-    readonly start: Position;
-    readonly end: Position;
-}
-export type YamlNode = YamlStringNode | YamlNumberNode | YamlBooleanNode | YamlNullNode | YamlObjectNode | YamlArrayNode;

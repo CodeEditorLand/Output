@@ -40,8 +40,7 @@ class DelegationSessionPickerActionItem extends SessionTypePickerActionItem {
     if (this.delegate.getActiveSessionProvider() === type) {
       return true;
     }
-    const contribution = this.chatSessionsService.getChatSessionContribution(type);
-    return getAgentCanContinueIn(type, contribution);
+    return getAgentCanContinueIn(type);
   }
   _getSessionCategory(sessionTypeItem) {
     if (isFirstPartyAgentSessionProvider(sessionTypeItem.type)) {

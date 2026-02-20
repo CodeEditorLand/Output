@@ -37,4 +37,8 @@ export declare class UndoSessionAction2 extends KeepOrUndoSessionAction {
 export declare class UndoAndCloseSessionAction2 extends KeepOrUndoSessionAction {
     constructor();
 }
+export declare class SubmitInlineChatInputAction extends AbstractInlineChatAction {
+    constructor();
+    runInlineChatCommand(_accessor: ServicesAccessor, ctrl: InlineChatController, _editor: ICodeEditor, ..._args: unknown[]): void;
+}
 export {};

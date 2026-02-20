@@ -1,1 +1,1 @@
-import{$Erc as r}from"../../../../platform/imageResize/common/imageResizeService.js";import{$rOc as m}from"../../../../platform/imageResize/browser/imageResizeService.js";import{$WC as o}from"../../../../platform/instantiation/common/extensions.js";o(r,m,1);
+import{$Ttc as o}from"../../../../platform/imageResize/common/imageResizeService.js";import{$SQc as m}from"../../../../platform/imageResize/browser/imageResizeService.js";import{$oD as r}from"../../../../platform/instantiation/common/extensions.js";r(o,m,1);

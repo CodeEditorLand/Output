@@ -12,6 +12,7 @@ import { IWorkbenchExtensionEnablementService } from '../../../../services/exten
 import { IExtensionService } from '../../../../services/extensions/common/extensions.js';
 import { IWorkbenchLayoutService } from '../../../../services/layout/browser/layoutService.js';
 import { IExtensionsWorkbenchService } from '../../../extensions/common/extensions.js';
+import { IChatSessionsService } from '../../common/chatSessionsService.js';
 export declare class ChatSetupContribution extends Disposable implements IWorkbenchContribution {
     private readonly instantiationService;
     private readonly logService;
@@ -20,9 +21,12 @@ export declare class ChatSetupContribution extends Disposable implements IWorkbe
     private readonly extensionsWorkbenchService;
     private readonly extensionService;
     private readonly environmentService;
+    private readonly chatSessionsService;
+    private readonly configurationService;
     static readonly ID = "workbench.contrib.chatSetup";
-    constructor(instantiationService: IInstantiationService, chatEntitlementService: ChatEntitlementService, logService: ILogService, contextKeyService: IContextKeyService, extensionEnablementService: IWorkbenchExtensionEnablementService, extensionsWorkbenchService: IExtensionsWorkbenchService, extensionService: IExtensionService, environmentService: IEnvironmentService);
+    constructor(instantiationService: IInstantiationService, chatEntitlementService: ChatEntitlementService, logService: ILogService, contextKeyService: IContextKeyService, extensionEnablementService: IWorkbenchExtensionEnablementService, extensionsWorkbenchService: IExtensionsWorkbenchService, extensionService: IExtensionService, environmentService: IEnvironmentService, chatSessionsService: IChatSessionsService, configurationService: IConfigurationService);
     private registerSetupAgents;
+    private registerGrowthSession;
     private registerActions;
     private registerUrlLinkHandler;
     private checkExtensionInstallation;

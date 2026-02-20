@@ -53,7 +53,7 @@ class UpdateChannelClient {
   constructor(channel) {
     this.channel = channel;
     this.disposables = new DisposableStore();
-    this._onStateChange = new Emitter();
+    this._onStateChange = this.disposables.add(new Emitter());
     this.onStateChange = this._onStateChange.event;
     this._state = State.Uninitialized;
     this.disposables.add(this.channel.listen("onStateChange")((state) => this.state = state));

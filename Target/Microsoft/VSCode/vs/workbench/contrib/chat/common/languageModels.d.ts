@@ -4,12 +4,15 @@ import { IStringDictionary } from '../../../../base/common/collections.js';
 import { Event } from '../../../../base/common/event.js';
 import { TypeFromJsonSchema } from '../../../../base/common/jsonSchema.js';
 import { IDisposable } from '../../../../base/common/lifecycle.js';
+import { IObservable } from '../../../../base/common/observable.js';
 import Severity from '../../../../base/common/severity.js';
 import { ThemeIcon } from '../../../../base/common/themables.js';
 import { URI } from '../../../../base/common/uri.js';
 import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
 import { ExtensionIdentifier } from '../../../../platform/extensions/common/extensions.js';
 import { ILogService } from '../../../../platform/log/common/log.js';
+import { IProductService } from '../../../../platform/product/common/productService.js';
+import { IRequestService } from '../../../../platform/request/common/request.js';
 import { IQuickInputService } from '../../../../platform/quickinput/common/quickInput.js';
 import { ISecretStorageService } from '../../../../platform/secrets/common/secrets.js';
 import { IStorageService } from '../../../../platform/storage/common/storage.js';
@@ -159,6 +162,12 @@ export interface ILanguageModelChatMetadata {
         readonly agentMode?: boolean;
         readonly editTools?: ReadonlyArray<string>;
     };
+    /**
+     * When set, this model is only shown in the model picker for the specified chat session type.
+     * Models with this property are excluded from the general model picker and only appear
+     * when the user is in a session matching this type.
+     */
+    readonly targetChatSessionType?: string;
 }
 export declare namespace ILanguageModelChatMetadata {
     function suitableForAgentMode(metadata: ILanguageModelChatMetadata): boolean;
@@ -241,6 +250,36 @@ export interface ILanguageModelsService {
     removeLanguageModelsProviderGroup(vendorId: string, providerGroupName: string): Promise<void>;
     configureLanguageModelsProviderGroup(vendorId: string, name?: string): Promise<void>;
     migrateLanguageModelsProviderGroup(languageModelsProviderGroup: ILanguageModelsProviderGroup): Promise<void>;
+    /**
+     * Returns the most recently used model identifiers, ordered by most-recent-first.
+     * @param maxCount Maximum number of entries to return (default 7).
+     */
+    getRecentlyUsedModelIds(): string[];
+    /**
+     * Records that a model was used, updating the recently used list.
+     */
+    recordModelUsage(model: ILanguageModelChatMetadataAndIdentifier): void;
+    /**
+     * Returns the curated models from the models control manifest,
+     * separated into free and paid tiers.
+     */
+    getCuratedModels(): ICuratedModels;
+    /**
+     * Observable map of restricted chat participant names to allowed extension publisher/IDs.
+     * Fetched from the chat control manifest.
+     */
+    readonly restrictedChatParticipants: IObservable<{
+        [name: string]: string[];
+    }>;
+}
+export interface ICuratedModel {
+    readonly id: string;
+    readonly isNew?: boolean;
+    readonly minVSCodeVersion?: string;
+}
+export interface ICuratedModels {
+    readonly free: ICuratedModel[];
+    readonly paid: ICuratedModel[];
 }
 declare const languageModelChatProviderType: {
     readonly type: "object";
@@ -322,6 +361,8 @@ export declare class LanguageModelsService implements ILanguageModelsService {
     private readonly _languageModelsConfigurationService;
     private readonly _quickInputService;
     private readonly _secretStorageService;
+    private readonly _productService;
+    private readonly _requestService;
     private static SECRET_KEY_PREFIX;
     private static SECRET_INPUT;
     readonly _serviceBrand: undefined;
@@ -337,7 +378,15 @@ export declare class LanguageModelsService implements ILanguageModelsService {
     private readonly _hasUserSelectableModels;
     private readonly _onLanguageModelChange;
     readonly onDidChangeLanguageModels: Event<string>;
-    constructor(_extensionService: IExtensionService, _logService: ILogService, _storageService: IStorageService, _contextKeyService: IContextKeyService, _languageModelsConfigurationService: ILanguageModelsConfigurationService, _quickInputService: IQuickInputService, _secretStorageService: ISecretStorageService);
+    private _recentlyUsedModelIds;
+    private _curatedModels;
+    private _chatControlUrl;
+    private _chatControlDisposed;
+    private readonly _restrictedChatParticipants;
+    readonly restrictedChatParticipants: IObservable<{
+        [name: string]: string[];
+    }>;
+    constructor(_extensionService: IExtensionService, _logService: ILogService, _storageService: IStorageService, _contextKeyService: IContextKeyService, _languageModelsConfigurationService: ILanguageModelsConfigurationService, _quickInputService: IQuickInputService, _secretStorageService: ISecretStorageService, _productService: IProductService, _requestService: IRequestService);
     deltaLanguageModelChatProviderDescriptors(added: IUserFriendlyLanguageModel[], removed: IUserFriendlyLanguageModel[]): void;
     private _onDidChangeLanguageModelGroups;
     private _readModelPickerPreferences;
@@ -375,6 +424,15 @@ export declare class LanguageModelsService implements ILanguageModelsService {
     private _resolveLanguageModelProviderGroup;
     private _deleteSecretsInConfiguration;
     migrateLanguageModelsProviderGroup(languageModelsProviderGroup: ILanguageModelsProviderGroup): Promise<void>;
+    private _readRecentlyUsedModels;
+    private _saveRecentlyUsedModels;
+    getRecentlyUsedModelIds(): string[];
+    recordModelUsage(model: ILanguageModelChatMetadataAndIdentifier): void;
+    getCuratedModels(): ICuratedModels;
+    private _setCuratedModels;
+    private _initChatControlData;
+    private _refreshChatControlData;
+    private _fetchChatControlData;
     dispose(): void;
 }
 export {};

@@ -228,8 +228,8 @@ let RemoteTerminalChannelClient = class RemoteTerminalChannelClient2 {
   shutdown(id, immediate) {
     return this._channel.call("$shutdown", [id, immediate]);
   }
-  resize(id, cols, rows) {
-    return this._channel.call("$resize", [id, cols, rows]);
+  resize(id, cols, rows, pixelWidth, pixelHeight) {
+    return this._channel.call("$resize", [id, cols, rows, pixelWidth, pixelHeight]);
   }
   clearBuffer(id) {
     return this._channel.call("$clearBuffer", [id]);

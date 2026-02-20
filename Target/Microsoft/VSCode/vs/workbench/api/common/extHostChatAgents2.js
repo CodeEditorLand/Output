@@ -584,7 +584,8 @@ class ExtHostChatAgents2 extends Disposable {
             resource: URI.revive(context.chatSessionContext.chatSessionResource),
             label: context.chatSessionContext.isUntitled ? "Untitled Session" : "Session"
           },
-          isUntitled: context.chatSessionContext.isUntitled
+          isUntitled: context.chatSessionContext.isUntitled,
+          initialSessionOptions: context.chatSessionContext.initialSessionOptions
         };
       }
       const chatContext = {
@@ -989,6 +990,8 @@ class ExtHostChatAgent {
         disposed = true;
         that._followupProvider = void 0;
         that._onDidReceiveFeedback.dispose();
+        that._onDidPerformAction.dispose();
+        that._pauseStateEmitter.dispose();
         that._proxy.$unregisterAgent(that._handle);
       }
     };

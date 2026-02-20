@@ -45,7 +45,7 @@ let PromptFileRewriter = class PromptFileRewriter2 {
       this.rewriteAttribute(model, "", toolsAttr.range);
       return;
     } else {
-      this.rewriteTools(model, newTools, toolsAttr.value.range, toolsAttr.value.type === "string");
+      this.rewriteTools(model, newTools, toolsAttr.value.range, toolsAttr.value.type === "scalar");
     }
   }
   rewriteTools(model, newTools, range, isString) {
@@ -73,7 +73,7 @@ let PromptFileRewriter = class PromptFileRewriter2 {
     if (!nameAttr) {
       return;
     }
-    if (nameAttr.value.type === "string" && nameAttr.value.value === newName) {
+    if (nameAttr.value.type === "scalar" && nameAttr.value.value === newName) {
       return;
     }
     editor.setSelection(nameAttr.range);

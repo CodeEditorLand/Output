@@ -15,13 +15,13 @@ class ExtHostEditors extends Disposable {
   constructor(mainContext, _extHostDocumentsAndEditors) {
     super();
     this._extHostDocumentsAndEditors = _extHostDocumentsAndEditors;
-    this._onDidChangeTextEditorSelection = new Emitter();
-    this._onDidChangeTextEditorOptions = new Emitter();
-    this._onDidChangeTextEditorVisibleRanges = new Emitter();
-    this._onDidChangeTextEditorViewColumn = new Emitter();
-    this._onDidChangeTextEditorDiffInformation = new Emitter();
-    this._onDidChangeActiveTextEditor = new Emitter();
-    this._onDidChangeVisibleTextEditors = new Emitter();
+    this._onDidChangeTextEditorSelection = this._register(new Emitter());
+    this._onDidChangeTextEditorOptions = this._register(new Emitter());
+    this._onDidChangeTextEditorVisibleRanges = this._register(new Emitter());
+    this._onDidChangeTextEditorViewColumn = this._register(new Emitter());
+    this._onDidChangeTextEditorDiffInformation = this._register(new Emitter());
+    this._onDidChangeActiveTextEditor = this._register(new Emitter());
+    this._onDidChangeVisibleTextEditors = this._register(new Emitter());
     this.onDidChangeTextEditorSelection = this._onDidChangeTextEditorSelection.event;
     this.onDidChangeTextEditorOptions = this._onDidChangeTextEditorOptions.event;
     this.onDidChangeTextEditorVisibleRanges = this._onDidChangeTextEditorVisibleRanges.event;

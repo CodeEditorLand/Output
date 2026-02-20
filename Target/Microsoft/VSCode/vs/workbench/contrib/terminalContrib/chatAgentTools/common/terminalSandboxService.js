@@ -149,7 +149,9 @@ let TerminalSandboxService = class TerminalSandboxService2 extends Disposable {
       const allowedDomainsSet = new Set(networkSetting.allowedDomains ?? []);
       if (networkSetting.allowTrustedDomains) {
         for (const domain of this._trustedDomainService.trustedDomains) {
-          allowedDomainsSet.add(domain);
+          if (domain !== "*") {
+            allowedDomainsSet.add(domain);
+          }
         }
       }
       const allowedDomains = Array.from(allowedDomainsSet);

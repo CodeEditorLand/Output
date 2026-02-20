@@ -135,6 +135,11 @@ let WorkbenchAssignmentService = class WorkbenchAssignmentService2 extends Dispo
     }
     this.telemetry = this._register(new WorkbenchAssignmentServiceTelemetry(telemetryService, productService));
     this._register(this.telemetry.onDidUpdateAssignmentContext(() => this._onDidRefetchAssignments.fire()));
+    this._register(this.configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration("experiments.override")) {
+        this._onDidRefetchAssignments.fire();
+      }
+    }));
     this.keyValueStorage = new MementoKeyValueStorage(new Memento("experiment.service.memento", storageService));
     const overrideDelaySetting = configurationService.getValue("experiments.overrideDelay");
     const overrideDelay = typeof overrideDelaySetting === "number" ? overrideDelaySetting : 0;

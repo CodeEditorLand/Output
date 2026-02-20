@@ -828,7 +828,7 @@ class UnifiedEnvironmentVariableCollection extends Disposable {
     this.scopedCollections = /* @__PURE__ */ new Map();
     this.descriptionMap = /* @__PURE__ */ new Map();
     this._persistent = true;
-    this._onDidChangeCollection = new Emitter();
+    this._onDidChangeCollection = this._register(new Emitter());
     this.map = new Map(serialized);
   }
   getScopedEnvironmentVariableCollection(scope) {

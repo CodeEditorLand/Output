@@ -65,6 +65,7 @@ import { disposableTimeout } from "../../../../../../base/common/async.js";
 import { AgentSessionsFilter, AgentSessionsGrouping } from "../../agentSessions/agentSessionsFilter.js";
 import { IAgentSessionsService } from "../../agentSessions/agentSessionsService.js";
 import { IChatEntitlementService } from "../../../../../services/chat/common/chatEntitlementService.js";
+import { IWorkbenchEnvironmentService } from "../../../../../services/environment/common/environmentService.js";
 let ChatViewPane = class ChatViewPane2 extends ViewPane {
   static {
     __name(this, "ChatViewPane");
@@ -72,7 +73,7 @@ let ChatViewPane = class ChatViewPane2 extends ViewPane {
   static {
     ChatViewPane_1 = this;
   }
-  constructor(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, hoverService, storageService, chatService, chatAgentService, logService, layoutService, chatSessionsService, telemetryService, lifecycleService, progressService, agentSessionsService, chatEntitlementService, commandService, activityService) {
+  constructor(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, hoverService, storageService, chatService, chatAgentService, logService, layoutService, chatSessionsService, telemetryService, lifecycleService, progressService, agentSessionsService, chatEntitlementService, commandService, activityService, workbenchEnvironmentService) {
     super(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, hoverService);
     this.storageService = storageService;
     this.chatService = chatService;
@@ -86,6 +87,7 @@ let ChatViewPane = class ChatViewPane2 extends ViewPane {
     this.chatEntitlementService = chatEntitlementService;
     this.commandService = commandService;
     this.activityService = activityService;
+    this.workbenchEnvironmentService = workbenchEnvironmentService;
     this.lastDimensionsPerOrientation = /* @__PURE__ */ new Map();
     this.modelRef = this._register(new MutableDisposable());
     this.activityBadge = this._register(new MutableDisposable());
@@ -401,7 +403,9 @@ let ChatViewPane = class ChatViewPane2 extends ViewPane {
     const locationBasedColors = this.getLocationBasedColors();
     const editorOverflowWidgetsDomNode = this.layoutService.getContainer(getWindow(chatControlsContainer)).appendChild($(".chat-editor-overflow.monaco-editor"));
     this._register(toDisposable(() => editorOverflowWidgetsDomNode.remove()));
-    this.createChatTitleControl(chatControlsContainer);
+    if (this.viewDescriptorService.getViewLocationById(this.id) !== 3) {
+      this.createChatTitleControl(chatControlsContainer);
+    }
     const scopedInstantiationService = this._register(this.instantiationService.createChild(new ServiceCollection([IContextKeyService, this.scopedContextKeyService])));
     this._widget = this._register(scopedInstantiationService.createInstance(ChatWidget, ChatAgentLocation.Chat, { viewId: this.id }, {
       autoScroll: /* @__PURE__ */ __name((mode) => mode !== ChatModeKind.Ask, "autoScroll"),
@@ -417,7 +421,7 @@ let ChatViewPane = class ChatViewPane2 extends ViewPane {
       },
       editorOverflowWidgetsDomNode,
       enableImplicitContext: true,
-      enableWorkingSet: "explicit",
+      enableWorkingSet: this.workbenchEnvironmentService.isSessionsWindow ? "implicit" : "explicit",
       supportsChangingModes: true,
       dndContainer: parent
     }, {
@@ -519,7 +523,11 @@ let ChatViewPane = class ChatViewPane2 extends ViewPane {
     }));
   }
   //#region Model Management
-  async applyModel() {
+  applyModel() {
+    this.restoringSession = this._applyModel();
+    this.restoringSession.finally(() => this.restoringSession = void 0);
+  }
+  async _applyModel() {
     const sessionResource = this.getTransferredOrPersistedSessionInfo();
     const modelRef = sessionResource ? await this.chatService.getOrRestoreSession(sessionResource) : void 0;
     await this.showModel(modelRef);
@@ -538,7 +546,6 @@ let ChatViewPane = class ChatViewPane2 extends ViewPane {
     const model = ref?.object;
     if (model) {
       await this.updateWidgetLockState(model.sessionResource);
-      this.viewState.sessionId = model.sessionId;
       this.viewState.sessionResource = model.sessionResource;
     }
     this._widget.setModel(model);
@@ -578,6 +585,9 @@ let ChatViewPane = class ChatViewPane2 extends ViewPane {
     this.updateActions();
   }
   async loadSession(sessionResource) {
+    if (this.restoringSession) {
+      await this.restoringSession;
+    }
     return this.progressService.withProgress({ location: ChatViewId, delay: 200 }, async () => {
       let queue = Promise.resolve();
       const clearWidget = disposableTimeout(() => {
@@ -821,7 +831,8 @@ ChatViewPane = ChatViewPane_1 = __decorate([
   __param(19, IAgentSessionsService),
   __param(20, IChatEntitlementService),
   __param(21, ICommandService),
-  __param(22, IActivityService)
+  __param(22, IActivityService),
+  __param(23, IWorkbenchEnvironmentService)
 ], ChatViewPane);
 export {
   ChatViewPane

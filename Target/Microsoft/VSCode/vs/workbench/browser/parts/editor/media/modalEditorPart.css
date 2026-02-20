@@ -4,19 +4,17 @@
   height: 100%;
   top: 0;
   left: 0;
-  z-index: 2550;
+  z-index: 2540;
   display: flex;
   justify-content: center;
   align-items: center;
   overflow: hidden;
-}
-.monaco-modal-editor-block.dimmed {
   background: rgba(0, 0, 0, 0.3);
-}
-.monaco-modal-editor-block .modal-editor-shadow {
-  box-shadow: 0 4px 32px var(--vscode-widget-shadow, rgba(0, 0, 0, 0.2));
-  border-radius: 8px;
-  overflow: hidden;
+  .modal-editor-shadow {
+    box-shadow: 0 4px 32px var(--vscode-widget-shadow, rgba(0, 0, 0, 0.2));
+    border-radius: 8px;
+    overflow: hidden;
+  }
 }
 .monaco-modal-editor-block .modal-editor-part {
   display: flex;
@@ -27,9 +25,14 @@
   border: 1px solid var(--vscode-editorWidget-border, var(--vscode-contrastBorder));
   border-radius: 8px;
   overflow: hidden;
-}
-.monaco-modal-editor-block .modal-editor-part:focus {
-  outline: none;
+  &:focus {
+    outline: none;
+  }
+  .content {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
 }
 .monaco-modal-editor-block .modal-editor-header {
   display: grid;
@@ -41,31 +44,64 @@
   color: var(--vscode-titleBar-activeForeground);
   background-color: var(--vscode-titleBar-activeBackground);
   border-bottom: 1px solid var(--vscode-titleBar-border, transparent);
-}
-.monaco-modal-editor-block .modal-editor-title {
-  grid-column: 1;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--vscode-titleBar-activeForeground);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.monaco-modal-editor-block .modal-editor-action-container {
-  grid-column: 3;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-}
-.monaco-modal-editor-block .modal-editor-action-container .actions-container {
-  gap: 4px;
-}
-.monaco-modal-editor-block .modal-editor-action-container .actions-container .codicon {
-  color: inherit;
-}
-.monaco-modal-editor-block .modal-editor-part .content {
-  flex: 1;
-  position: relative;
-  overflow: hidden;
+  .modal-editor-title {
+    grid-column: 1;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--vscode-titleBar-activeForeground);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .modal-editor-navigation {
+    grid-column: 2;
+    display: flex;
+    align-items: center;
+    height: 22px;
+    border-radius: 4px;
+    border: 1px solid var(--vscode-commandCenter-border, transparent);
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    .modal-editor-nav-button.monaco-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 100%;
+      padding: 0;
+      border: none;
+      border-radius: 0;
+      background: none;
+      color: inherit;
+      opacity: 0.7;
+    }
+    .modal-editor-nav-button.monaco-button:hover:not(.disabled) {
+      opacity: 1;
+      background-color: var(--vscode-commandCenter-activeBackground);
+    }
+    .modal-editor-nav-button.monaco-button.disabled {
+      opacity: 0.3;
+    }
+    .modal-editor-nav-label {
+      font-size: 11px;
+      font-variant-numeric: tabular-nums;
+      opacity: 0.7;
+      white-space: nowrap;
+      padding: 0 6px;
+    }
+  }
+  .modal-editor-action-container {
+    grid-column: 3;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    .actions-container {
+      gap: 4px;
+      .codicon {
+        color: inherit;
+      }
+    }
+  }
 }
 /*# sourceMappingURL=modalEditorPart.css.map */

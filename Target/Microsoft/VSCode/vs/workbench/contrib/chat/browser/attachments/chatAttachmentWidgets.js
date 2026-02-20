@@ -535,8 +535,7 @@ let DefaultChatAttachmentWidget = class DefaultChatAttachmentWidget2 extends Abs
       }
     }
     if (attachment.kind === "symbol") {
-      const scopedContextKeyService = this._register(this.contextKeyService.createScoped(this.element));
-      this._register(this.instantiationService.invokeFunction(hookUpSymbolAttachmentDragAndContextMenu, this.element, scopedContextKeyService, { ...attachment, kind: attachment.symbolKind }, MenuId.ChatInputSymbolAttachmentContext));
+      this._register(this.instantiationService.invokeFunction(hookUpSymbolAttachmentDragAndContextMenu, this.element, this.contextKeyService, { ...attachment, kind: attachment.symbolKind }, MenuId.ChatInputSymbolAttachmentContext));
     }
     if (isStringVariableEntry(attachment) && attachment.commandId) {
       this.element.style.cursor = "pointer";
@@ -954,14 +953,13 @@ function hookUpResourceAttachmentDragAndContextMenu(accessor, widget, resource) 
   return store;
 }
 __name(hookUpResourceAttachmentDragAndContextMenu, "hookUpResourceAttachmentDragAndContextMenu");
-function hookUpSymbolAttachmentDragAndContextMenu(accessor, widget, scopedContextKeyService, attachment, contextMenuId) {
+function hookUpSymbolAttachmentDragAndContextMenu(accessor, widget, parentContextKeyService, attachment, contextMenuId) {
   const instantiationService = accessor.get(IInstantiationService);
   const languageFeaturesService = accessor.get(ILanguageFeaturesService);
   const textModelService = accessor.get(ITextModelService);
+  const contextMenuService = accessor.get(IContextMenuService);
+  const menuService = accessor.get(IMenuService);
   const store = new DisposableStore();
-  store.add(setResourceContext(accessor, scopedContextKeyService, attachment.value.uri));
-  const chatResourceContext = chatAttachmentResourceContextKey.bindTo(scopedContextKeyService);
-  chatResourceContext.set(attachment.value.uri.toString());
   widget.draggable = true;
   store.add(dom.addDisposableListener(widget, "dragstart", (e) => {
     instantiationService.invokeFunction((accessor2) => fillEditorsDragData(accessor2, [{ resource: attachment.value.uri, selection: attachment.value.range }], e));
@@ -973,13 +971,22 @@ function hookUpSymbolAttachmentDragAndContextMenu(accessor, widget, scopedContex
     }], e);
     e.dataTransfer?.setDragImage(widget, 0, 0);
   }));
-  const providerContexts = [
-    [EditorContextKeys.hasDefinitionProvider.bindTo(scopedContextKeyService), languageFeaturesService.definitionProvider],
-    [EditorContextKeys.hasReferenceProvider.bindTo(scopedContextKeyService), languageFeaturesService.referenceProvider],
-    [EditorContextKeys.hasImplementationProvider.bindTo(scopedContextKeyService), languageFeaturesService.implementationProvider],
-    [EditorContextKeys.hasTypeDefinitionProvider.bindTo(scopedContextKeyService), languageFeaturesService.typeDefinitionProvider]
-  ];
+  const scopedContextKeyService = store.add(parentContextKeyService.createScoped(widget));
+  chatAttachmentResourceContextKey.bindTo(scopedContextKeyService).set(attachment.value.uri.toString());
+  store.add(setResourceContext(accessor, scopedContextKeyService, attachment.value.uri));
+  let providerContexts;
+  const ensureProviderContexts = /* @__PURE__ */ __name(() => {
+    if (!providerContexts) {
+      providerContexts = [
+        [EditorContextKeys.hasDefinitionProvider.bindTo(scopedContextKeyService), languageFeaturesService.definitionProvider],
+        [EditorContextKeys.hasReferenceProvider.bindTo(scopedContextKeyService), languageFeaturesService.referenceProvider],
+        [EditorContextKeys.hasImplementationProvider.bindTo(scopedContextKeyService), languageFeaturesService.implementationProvider],
+        [EditorContextKeys.hasTypeDefinitionProvider.bindTo(scopedContextKeyService), languageFeaturesService.typeDefinitionProvider]
+      ];
+    }
+  }, "ensureProviderContexts");
   const updateContextKeys = /* @__PURE__ */ __name(async () => {
+    ensureProviderContexts();
     const modelRef = await textModelService.createModelReference(attachment.value.uri);
     try {
       const model = modelRef.object.textEditorModel;
@@ -990,7 +997,23 @@ function hookUpSymbolAttachmentDragAndContextMenu(accessor, widget, scopedContex
       modelRef.dispose();
     }
   }, "updateContextKeys");
-  store.add(addBasicContextMenu(accessor, widget, scopedContextKeyService, contextMenuId, attachment.value, updateContextKeys));
+  store.add(dom.addDisposableListener(widget, dom.EventType.CONTEXT_MENU, async (domEvent) => {
+    const event2 = new StandardMouseEvent(dom.getWindow(domEvent), domEvent);
+    dom.EventHelper.stop(domEvent, true);
+    try {
+      await updateContextKeys();
+    } catch (e) {
+      console.error(e);
+    }
+    contextMenuService.showContextMenu({
+      contextKeyService: scopedContextKeyService,
+      getAnchor: /* @__PURE__ */ __name(() => event2, "getAnchor"),
+      getActions: /* @__PURE__ */ __name(() => {
+        const menu = menuService.getMenuActions(contextMenuId, scopedContextKeyService, { arg: attachment.value });
+        return getFlatContextMenuActions(menu);
+      }, "getActions")
+    });
+  }));
   return store;
 }
 __name(hookUpSymbolAttachmentDragAndContextMenu, "hookUpSymbolAttachmentDragAndContextMenu");

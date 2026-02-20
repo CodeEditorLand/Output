@@ -3315,6 +3315,7 @@ var EditorOption;
   EditorOption2[EditorOption2["effectiveEditContext"] = 170] = "effectiveEditContext";
   EditorOption2[EditorOption2["scrollOnMiddleClick"] = 171] = "scrollOnMiddleClick";
   EditorOption2[EditorOption2["effectiveAllowVariableFonts"] = 172] = "effectiveAllowVariableFonts";
+  EditorOption2[EditorOption2["doubleClickSelectsBlock"] = 173] = "doubleClickSelectsBlock";
 })(EditorOption || (EditorOption = {}));
 const EditorOptions = {
   acceptSuggestionOnCommitCharacter: register(new EditorBooleanOption(0, "acceptSuggestionOnCommitCharacter", true, { markdownDescription: nls.localize("acceptSuggestionOnCommitCharacter", "Controls whether suggestions should be accepted on commit characters. For example, in JavaScript, the semi-colon (`;`) can be a commit character that accepts a suggestion and types that character.") })),
@@ -3465,6 +3466,7 @@ const EditorOptions = {
   disableLayerHinting: register(new EditorBooleanOption(39, "disableLayerHinting", false)),
   disableMonospaceOptimizations: register(new EditorBooleanOption(40, "disableMonospaceOptimizations", false)),
   domReadOnly: register(new EditorBooleanOption(41, "domReadOnly", false)),
+  doubleClickSelectsBlock: register(new EditorBooleanOption(173, "doubleClickSelectsBlock", true, { description: nls.localize("doubleClickSelectsBlock", "Controls whether double-clicking next to a bracket or quote selects the content inside.") })),
   dragAndDrop: register(new EditorBooleanOption(42, "dragAndDrop", true, { description: nls.localize("dragAndDrop", "Controls whether the editor should allow moving selections via drag and drop.") })),
   emptySelectionClipboard: register(new EditorEmptySelectionClipboard()),
   dropIntoEditor: register(new EditorDropIntoEditor()),

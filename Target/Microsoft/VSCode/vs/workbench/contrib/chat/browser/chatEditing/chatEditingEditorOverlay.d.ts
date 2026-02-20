@@ -2,7 +2,7 @@ import './media/chatEditingEditorOverlay.css';
 import { IObservable } from '../../../../../base/common/observable.js';
 import { IInstantiationService } from '../../../../../platform/instantiation/common/instantiation.js';
 import { IModifiedFileEntry } from '../../common/editing/chatEditingService.js';
-import { ActionViewItem, IBaseActionViewItemOptions } from '../../../../../base/browser/ui/actionbar/actionViewItems.js';
+import { ActionViewItem, IActionViewItemOptions } from '../../../../../base/browser/ui/actionbar/actionViewItems.js';
 import { IAction, IActionRunner } from '../../../../../base/common/actions.js';
 import { IWorkbenchContribution } from '../../../../common/contributions.js';
 import { IEditorGroupsService } from '../../../../services/editor/common/editorGroupsService.js';
@@ -13,7 +13,7 @@ export declare class ChatEditingAcceptRejectActionViewItem extends ActionViewIte
     private readonly _keybindingService;
     private readonly _primaryActionIds;
     private readonly _reveal;
-    constructor(action: IAction, options: IBaseActionViewItemOptions, _entry: IObservable<IModifiedFileEntry | undefined>, _editor: {
+    constructor(action: IAction, options: IActionViewItemOptions, _entry: IObservable<IModifiedFileEntry | undefined>, _editor: {
         focus(): void;
     } | undefined, _keybindingService: IKeybindingService, _primaryActionIds?: readonly string[]);
     render(container: HTMLElement): void;

@@ -32,6 +32,7 @@ import { ILoggerService } from "../../../../platform/log/common/log.js";
 import { Lazy } from "../../../../base/common/lazy.js";
 import { IViewsService } from "../common/viewsService.js";
 import { windowLogGroup } from "../../log/common/logConstants.js";
+import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
 function getViewContainerStorageId(viewContainerId) {
   return `${viewContainerId}.state`;
 }
@@ -52,7 +53,7 @@ let ViewDescriptorService = class ViewDescriptorService2 extends Disposable {
   get viewContainers() {
     return this.viewContainersRegistry.all;
   }
-  constructor(instantiationService, contextKeyService, storageService, extensionService, telemetryService, loggerService) {
+  constructor(instantiationService, contextKeyService, storageService, extensionService, telemetryService, loggerService, environmentService) {
     super();
     this.instantiationService = instantiationService;
     this.contextKeyService = contextKeyService;
@@ -71,6 +72,7 @@ let ViewDescriptorService = class ViewDescriptorService2 extends Disposable {
     this._onDidChangeViewContainers = this._register(new Emitter());
     this.onDidChangeViewContainers = this._onDidChangeViewContainers.event;
     this.logger = new Lazy(() => loggerService.createLogger(VIEWS_LOG_ID, { name: VIEWS_LOG_NAME, group: windowLogGroup }));
+    this.isSessionsWindow = environmentService.isSessionsWindow;
     this.activeViewContextKeys = /* @__PURE__ */ new Map();
     this.movableViewContextKeys = /* @__PURE__ */ new Map();
     this.defaultViewLocationContextKeys = /* @__PURE__ */ new Map();
@@ -228,7 +230,11 @@ let ViewDescriptorService = class ViewDescriptorService2 extends Disposable {
     return viewsByContainer;
   }
   getViewDescriptorById(viewId) {
-    return this.viewsRegistry.getView(viewId);
+    const view = this.viewsRegistry.getView(viewId);
+    if (view && !this.isViewVisible(view)) {
+      return null;
+    }
+    return view;
   }
   getViewLocationById(viewId) {
     const container = this.getViewContainerByViewId(viewId);
@@ -238,14 +244,25 @@ let ViewDescriptorService = class ViewDescriptorService2 extends Disposable {
     return this.getViewContainerLocation(container);
   }
   getViewContainerByViewId(viewId) {
+    const view = this.viewsRegistry.getView(viewId);
+    if (view && !this.isViewVisible(view)) {
+      return null;
+    }
     const containerId = this.viewDescriptorsCustomLocations.get(viewId);
     return containerId ? this.viewContainersRegistry.get(containerId) ?? null : this.getDefaultContainerById(viewId);
   }
   getViewContainerLocation(viewContainer) {
-    return this.viewContainersCustomLocations.get(viewContainer.id) ?? this.getDefaultViewContainerLocation(viewContainer);
+    const location = this.viewContainersCustomLocations.get(viewContainer.id) ?? this.getDefaultViewContainerLocation(viewContainer);
+    return this.getEffectiveViewContainerLocation(location);
   }
   getDefaultViewContainerLocation(viewContainer) {
-    return this.viewContainersRegistry.getViewContainerLocation(viewContainer);
+    return this.getEffectiveViewContainerLocation(this.viewContainersRegistry.getViewContainerLocation(viewContainer));
+  }
+  getEffectiveViewContainerLocation(location) {
+    if (!this.isSessionsWindow && location === 3) {
+      return 2;
+    }
+    return location;
   }
   getDefaultContainerById(viewId) {
     return this.viewsRegistry.getViewContainer(viewId) ?? null;
@@ -254,16 +271,35 @@ let ViewDescriptorService = class ViewDescriptorService2 extends Disposable {
     return this.getOrRegisterViewContainerModel(container);
   }
   getViewContainerById(id) {
-    return this.viewContainersRegistry.get(id) || null;
+    const viewContainer = this.viewContainersRegistry.get(id) || null;
+    if (viewContainer && !this.isViewContainerVisible(viewContainer)) {
+      return null;
+    }
+    return viewContainer;
   }
   getViewContainersByLocation(location) {
-    return this.viewContainers.filter((v) => this.getViewContainerLocation(v) === location);
+    return this.viewContainers.filter((v) => this.getViewContainerLocation(v) === location && this.isViewContainerVisible(v));
+  }
+  isViewContainerVisible(viewContainer) {
+    const layoutVisibility = viewContainer.windowVisibility;
+    if (this.isSessionsWindow) {
+      return layoutVisibility === 2 || layoutVisibility === 3;
+    }
+    return !layoutVisibility || layoutVisibility === 1 || layoutVisibility === 3;
+  }
+  isViewVisible(view) {
+    const layoutVisibility = view.windowVisibility;
+    if (this.isSessionsWindow) {
+      return layoutVisibility === 2 || layoutVisibility === 3;
+    }
+    return !layoutVisibility || layoutVisibility === 1 || layoutVisibility === 3;
   }
   getDefaultViewContainer(location) {
-    return this.viewContainersRegistry.getDefaultViewContainers(location)[0];
+    const viewContainers = this.viewContainersRegistry.getDefaultViewContainers(location);
+    return viewContainers.find((viewContainer) => this.isViewContainerVisible(viewContainer));
   }
   canMoveViews() {
-    return true;
+    return !this.isSessionsWindow;
   }
   moveViewContainerToLocation(viewContainer, location, requestedIndex, reason) {
     if (!this.canMoveViews()) {
@@ -535,9 +571,15 @@ let ViewDescriptorService = class ViewDescriptorService2 extends Disposable {
     }
   }
   getStoredViewCustomizationsValue() {
+    if (this.isSessionsWindow) {
+      return "{}";
+    }
     return this.storageService.get(ViewDescriptorService_1.VIEWS_CUSTOMIZATIONS, 0, "{}");
   }
   setStoredViewCustomizationsValue(value) {
+    if (this.isSessionsWindow) {
+      return;
+    }
     this.storageService.store(
       ViewDescriptorService_1.VIEWS_CUSTOMIZATIONS,
       value,
@@ -792,7 +834,8 @@ ViewDescriptorService = ViewDescriptorService_1 = __decorate([
   __param(2, IStorageService),
   __param(3, IExtensionService),
   __param(4, ITelemetryService),
-  __param(5, ILoggerService)
+  __param(5, ILoggerService),
+  __param(6, IWorkbenchEnvironmentService)
 ], ViewDescriptorService);
 registerSingleton(
   IViewDescriptorService,

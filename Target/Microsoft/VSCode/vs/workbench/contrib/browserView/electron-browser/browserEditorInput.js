@@ -27,7 +27,7 @@ import { hasKey } from "../../../../base/common/types.js";
 import { ILifecycleService } from "../../../services/lifecycle/common/lifecycle.js";
 import { BrowserEditor } from "./browserEditor.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { logBrowserOpen } from "./browserViewTelemetry.js";
+import { logBrowserOpen } from "../../../../platform/browserView/common/browserViewTelemetry.js";
 const LOADING_SPINNER_SVG = /* @__PURE__ */ __name((color) => `
 	<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
 		<path d="M8 1a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm0 1.5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11z" fill="${color}" opacity="0.3"/>

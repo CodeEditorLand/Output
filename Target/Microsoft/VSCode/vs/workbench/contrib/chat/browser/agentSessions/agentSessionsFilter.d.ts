@@ -2,6 +2,7 @@ import { Disposable } from '../../../../../base/common/lifecycle.js';
 import { MenuId } from '../../../../../platform/actions/common/actions.js';
 import { IStorageService } from '../../../../../platform/storage/common/storage.js';
 import { IChatSessionsService } from '../../common/chatSessionsService.js';
+import { AgentSessionProviders } from './agentSessions.js';
 import { IAgentSession } from './agentSessionsModel.js';
 import { IAgentSessionsFilter, IAgentSessionsFilterExcludes } from './agentSessionsViewer.js';
 export declare enum AgentSessionsGrouping {
@@ -10,6 +11,16 @@ export declare enum AgentSessionsGrouping {
 }
 export interface IAgentSessionsFilterOptions extends Partial<IAgentSessionsFilter> {
     readonly filterMenuId?: MenuId;
+    /**
+     * When set, only these providers appear in the filter menu (opt-in).
+     * When unset, all registered contributions plus `Local` are shown.
+     */
+    readonly allowedProviders?: AgentSessionProviders[];
+    /**
+     * Optional label overrides for providers shown in the filter menu.
+     * For example, the sessions window maps `Background` → "Local".
+     */
+    readonly providerLabelOverrides?: ReadonlyMap<string, string>;
     readonly limitResults?: () => number | undefined;
     notifyResults?(count: number): void;
     readonly groupResults?: () => AgentSessionsGrouping | undefined;

@@ -2,6 +2,7 @@ import { Disposable } from '../../../../../../base/common/lifecycle.js';
 import { IInstantiationService } from '../../../../../../platform/instantiation/common/instantiation.js';
 import { IChatRequestVariableEntry } from '../../../common/attachments/chatVariableEntries.js';
 import { IChatContentReference } from '../../../common/chatService/chatService.js';
+import { IChatAttachmentWidgetRegistry } from '../../attachments/chatAttachmentWidgetRegistry.js';
 export interface IChatAttachmentsContentPartOptions {
     readonly variables: readonly IChatRequestVariableEntry[];
     readonly contentReferences?: ReadonlyArray<IChatContentReference>;
@@ -10,6 +11,7 @@ export interface IChatAttachmentsContentPartOptions {
 }
 export declare class ChatAttachmentsContentPart extends Disposable {
     private readonly instantiationService;
+    private readonly chatAttachmentWidgetRegistry;
     private readonly attachedContextDisposables;
     private readonly _onDidChangeVisibility;
     private readonly _contextResourceLabels;
@@ -19,7 +21,7 @@ export declare class ChatAttachmentsContentPart extends Disposable {
     private readonly limit?;
     readonly domNode: HTMLElement | undefined;
     contextMenuHandler?: (attachment: IChatRequestVariableEntry, event: MouseEvent) => void;
-    constructor(options: IChatAttachmentsContentPartOptions, instantiationService: IInstantiationService);
+    constructor(options: IChatAttachmentsContentPartOptions, instantiationService: IInstantiationService, chatAttachmentWidgetRegistry: IChatAttachmentWidgetRegistry);
     /**
      * Update the variables and re-render the attachments in place.
      */

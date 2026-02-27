@@ -34,7 +34,7 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
     try {
       let workbenchUrl;
       if (!!safeProcess.env["VSCODE_DEV"] && globalThis._VSCODE_USE_RELATIVE_IMPORTS) {
-        workbenchUrl = "./workbench.desktop.main.js";
+        workbenchUrl = "./sessions.desktop.main.js";
       } else {
         workbenchUrl = new URL(`vs/sessions/sessions.desktop.main.js`, baseUrl).href;
       }

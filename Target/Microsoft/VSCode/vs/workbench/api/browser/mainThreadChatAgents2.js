@@ -168,9 +168,18 @@ let MainThreadChatAgents2 = class MainThreadChatAgents22 extends Disposable {
           const contributedSession = chatSession?.contributedChatSession;
           let chatSessionContext;
           if (contributedSession) {
+            let chatSessionResource = contributedSession.chatSessionResource;
+            let isUntitled = contributedSession.isUntitled;
+            if (isUntitled) {
+              const newItem = await this._chatSessionService.createNewChatSessionItem(contributedSession.chatSessionType, request, token);
+              if (newItem) {
+                chatSessionResource = newItem.resource;
+                isUntitled = false;
+              }
+            }
             chatSessionContext = {
-              chatSessionResource: contributedSession.chatSessionResource,
-              isUntitled: contributedSession.isUntitled,
+              chatSessionResource,
+              isUntitled,
               initialSessionOptions: contributedSession.initialSessionOptions?.map((o) => ({
                 optionId: o.optionId,
                 value: typeof o.value === "string" ? o.value : o.value.id
@@ -188,8 +197,8 @@ let MainThreadChatAgents2 = class MainThreadChatAgents22 extends Disposable {
       setRequestTools: /* @__PURE__ */ __name((requestId, tools) => {
         this._proxy.$setRequestTools(requestId, tools);
       }, "setRequestTools"),
-      setYieldRequested: /* @__PURE__ */ __name((requestId) => {
-        this._proxy.$setYieldRequested(requestId);
+      setYieldRequested: /* @__PURE__ */ __name((requestId, value) => {
+        this._proxy.$setYieldRequested(requestId, value);
       }, "setYieldRequested"),
       provideFollowups: /* @__PURE__ */ __name(async (request, result, history, token) => {
         if (!this._agents.get(handle)?.hasFollowups) {

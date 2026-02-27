@@ -57,6 +57,7 @@ let ExtensionHostManager = ExtensionHostManager_1 = class ExtensionHostManager2 
     this._logService = _logService;
     this._onDidChangeResponsiveState = this._register(new Emitter());
     this.onDidChangeResponsiveState = this._onDidChangeResponsiveState.event;
+    this._hasStarted = false;
     this._cachedActivationEvents = /* @__PURE__ */ new Map();
     this._resolvedActivationEvents = /* @__PURE__ */ new Set();
     this._rpcProtocol = null;
@@ -98,6 +99,7 @@ let ExtensionHostManager = ExtensionHostManager_1 = class ExtensionHostManager2 
       return null;
     });
     this._proxy.then(() => {
+      this._hasStarted = true;
       initialActivationEvents.forEach((activationEvent) => this.activateByEvent(
         activationEvent,
         0
@@ -139,6 +141,9 @@ let ExtensionHostManager = ExtensionHostManager_1 = class ExtensionHostManager2 
       down,
       up
     };
+  }
+  get isReady() {
+    return this._hasStarted;
   }
   async ready() {
     await this._proxy;

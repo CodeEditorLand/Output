@@ -139,10 +139,20 @@ export declare class NotebookCellOutputChatAttachmentWidget extends AbstractChat
     private getOutputItem;
 }
 export declare class ElementChatAttachmentWidget extends AbstractChatAttachmentWidget {
+    private readonly editorService;
+    private readonly hoverService;
     constructor(attachment: IElementVariableEntry, currentLanguageModel: ILanguageModelChatMetadataAndIdentifier | undefined, options: {
         shouldFocusClearButton: boolean;
         supportsDeletion: boolean;
-    }, container: HTMLElement, contextResourceLabels: ResourceLabels, commandService: ICommandService, openerService: IOpenerService, configurationService: IConfigurationService, editorService: IEditorService);
+    }, container: HTMLElement, contextResourceLabels: ResourceLabels, commandService: ICommandService, openerService: IOpenerService, configurationService: IConfigurationService, editorService: IEditorService, hoverService: IHoverService);
+    private getHoverContent;
+    private shouldRenderRichElementHover;
+    private getSimpleHoverContent;
+    private getComputedStyleEntriesForHover;
+    private getBoxShorthandValue;
+    private openElementAttachment;
+    private formatElementTag;
+    private formatAncestorTag;
 }
 export declare class SCMHistoryItemAttachmentWidget extends AbstractChatAttachmentWidget {
     constructor(attachment: ISCMHistoryItemVariableEntry, currentLanguageModel: ILanguageModelChatMetadataAndIdentifier | undefined, options: {

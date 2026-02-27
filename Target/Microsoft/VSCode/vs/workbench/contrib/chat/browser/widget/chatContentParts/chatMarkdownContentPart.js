@@ -22,6 +22,7 @@ import { findLast } from "../../../../../../base/common/arraysFind.js";
 import { Codicon } from "../../../../../../base/common/codicons.js";
 import { Lazy } from "../../../../../../base/common/lazy.js";
 import { Disposable, DisposableStore, MutableDisposable, toDisposable } from "../../../../../../base/common/lifecycle.js";
+import { Emitter } from "../../../../../../base/common/event.js";
 import { autorun, autorunSelfDisposable, derived } from "../../../../../../base/common/observable.js";
 import { equalsIgnoreCase } from "../../../../../../base/common/strings.js";
 import { ThemeIcon } from "../../../../../../base/common/themables.js";
@@ -80,6 +81,8 @@ let ChatMarkdownContentPart = class ChatMarkdownContentPart2 extends Disposable 
     this.instantiationService = instantiationService;
     this.aiEditTelemetryService = aiEditTelemetryService;
     this.codeblocksPartId = String(++ChatMarkdownContentPart_1.ID_POOL);
+    this._onDidChangeHeight = this._register(new Emitter());
+    this.onDidChangeHeight = this._onDidChangeHeight.event;
     this.allRefs = [];
     this._codeblocks = [];
     this.mathLayoutParticipants = /* @__PURE__ */ new Set();
@@ -333,7 +336,11 @@ let ChatMarkdownContentPart = class ChatMarkdownContentPart2 extends Disposable 
     this.codeBlockModelCollection.update(data.element.sessionResource, data.element, data.codeBlockIndex, { text, languageId: data.languageId, isComplete }).then((e) => {
       this._codeblocks[data.codeBlockPartIndex].codemapperUri = e.codemapperUri;
     });
-    editorInfo.render(data, currentWidth);
+    editorInfo.render(data, currentWidth).then(() => {
+      if (!this._store.isDisposed && isRequestVM(data.element)) {
+        this._onDidChangeHeight.fire();
+      }
+    });
     return ref;
   }
   hasSameContent(other) {
@@ -419,6 +426,19 @@ let CollapsedCodeBlock = class CollapsedCodeBlock2 extends Disposable {
     this.pillElement.role = "button";
     this.element.appendChild(this.statusIndicatorContainer);
     this.element.appendChild(this.pillElement);
+    const updateCheckmarks = /* @__PURE__ */ __name(() => this.element.classList.toggle("show-checkmarks", !!this.configurationService.getValue(
+      "accessibility.chat.showCheckmarks"
+      /* AccessibilityWorkbenchSettingId.ShowChatCheckmarks */
+    )), "updateCheckmarks");
+    updateCheckmarks();
+    this._register(this.configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(
+        "accessibility.chat.showCheckmarks"
+        /* AccessibilityWorkbenchSettingId.ShowChatCheckmarks */
+      )) {
+        updateCheckmarks();
+      }
+    }));
     this.registerListeners();
   }
   registerListeners() {

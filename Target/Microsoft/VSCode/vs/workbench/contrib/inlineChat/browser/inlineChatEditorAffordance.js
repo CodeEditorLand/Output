@@ -32,7 +32,7 @@ import { IThemeService } from "../../../../platform/theme/common/themeService.js
 import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
 import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
 import { Codicon } from "../../../../base/common/codicons.js";
-import { ACTION_START } from "../common/inlineChat.js";
+import { ACTION_START, ACTION_ASK_IN_CHAT } from "../common/inlineChat.js";
 import { ICommandService } from "../../../../platform/commands/common/commands.js";
 let QuickFixActionViewItem = class QuickFixActionViewItem2 extends MenuEntryActionViewItem {
   static {
@@ -95,9 +95,9 @@ QuickFixActionViewItem = __decorate([
   __param(7, IAccessibilityService),
   __param(8, ICommandService)
 ], QuickFixActionViewItem);
-let InlineChatStartActionViewItem = class InlineChatStartActionViewItem2 extends MenuEntryActionViewItem {
+let LabelWithKeybindingActionViewItem = class LabelWithKeybindingActionViewItem2 extends MenuEntryActionViewItem {
   static {
-    __name(this, "InlineChatStartActionViewItem");
+    __name(this, "LabelWithKeybindingActionViewItem");
   }
   constructor(action, keybindingService, notificationService, contextKeyService, themeService, contextMenuService, accessibilityService) {
     super(action, { draggable: false }, keybindingService, notificationService, contextKeyService, themeService, contextMenuService, accessibilityService);
@@ -111,14 +111,14 @@ let InlineChatStartActionViewItem = class InlineChatStartActionViewItem2 extends
     }
   }
 };
-InlineChatStartActionViewItem = __decorate([
+LabelWithKeybindingActionViewItem = __decorate([
   __param(1, IKeybindingService),
   __param(2, INotificationService),
   __param(3, IContextKeyService),
   __param(4, IThemeService),
   __param(5, IContextMenuService),
   __param(6, IAccessibilityService)
-], InlineChatStartActionViewItem);
+], LabelWithKeybindingActionViewItem);
 let InlineChatEditorAffordance = class InlineChatEditorAffordance2 extends Disposable {
   static {
     __name(this, "InlineChatEditorAffordance");
@@ -137,7 +137,7 @@ let InlineChatEditorAffordance = class InlineChatEditorAffordance2 extends Dispo
     this._isVisible = false;
     this._onDidRunAction = this._store.add(new Emitter());
     this.onDidRunAction = this._onDidRunAction.event;
-    this.allowEditorOverflow = false;
+    this.allowEditorOverflow = true;
     this.suppressMouseDown = false;
     this._domNode = dom.$(".inline-chat-content-widget");
     const toolbar = this._store.add(instantiationService.createInstance(MenuWorkbenchToolBar, this._domNode, MenuId.InlineChatEditorAffordance, {
@@ -149,8 +149,8 @@ let InlineChatEditorAffordance = class InlineChatEditorAffordance2 extends Dispo
         if (action instanceof MenuItemAction && action.id === quickFixCommandId) {
           return instantiationService.createInstance(QuickFixActionViewItem, action, this._editor);
         }
-        if (action instanceof MenuItemAction && action.id === ACTION_START) {
-          return instantiationService.createInstance(InlineChatStartActionViewItem, action);
+        if (action instanceof MenuItemAction && (action.id === ACTION_START || action.id === ACTION_ASK_IN_CHAT || action.id === "inlineChat.fixDiagnostics")) {
+          return instantiationService.createInstance(LabelWithKeybindingActionViewItem, action);
         }
         return void 0;
       }, "actionViewItemProvider")

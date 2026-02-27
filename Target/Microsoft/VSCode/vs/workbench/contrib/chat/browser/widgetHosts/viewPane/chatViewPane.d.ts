@@ -8,6 +8,7 @@ import { IHoverService } from '../../../../../../platform/hover/browser/hover.js
 import { IInstantiationService } from '../../../../../../platform/instantiation/common/instantiation.js';
 import { IKeybindingService } from '../../../../../../platform/keybinding/common/keybinding.js';
 import { ILogService } from '../../../../../../platform/log/common/log.js';
+import { INotificationService } from '../../../../../../platform/notification/common/notification.js';
 import { IOpenerService } from '../../../../../../platform/opener/common/opener.js';
 import { IStorageService } from '../../../../../../platform/storage/common/storage.js';
 import { ITelemetryService } from '../../../../../../platform/telemetry/common/telemetry.js';
@@ -31,11 +32,13 @@ import { IAgentSessionsService } from '../../agentSessions/agentSessionsService.
 import { IAgentSession } from '../../agentSessions/agentSessionsModel.js';
 import { IChatEntitlementService } from '../../../../../services/chat/common/chatEntitlementService.js';
 import { IWorkbenchEnvironmentService } from '../../../../../services/environment/common/environmentService.js';
+import { IHostService } from '../../../../../services/host/browser/host.js';
 export declare class ChatViewPane extends ViewPane implements IViewWelcomeDelegate {
     private readonly storageService;
     private readonly chatService;
     private readonly chatAgentService;
     private readonly logService;
+    private readonly notificationService;
     private readonly layoutService;
     private readonly chatSessionsService;
     private readonly telemetryService;
@@ -45,6 +48,7 @@ export declare class ChatViewPane extends ViewPane implements IViewWelcomeDelega
     private readonly commandService;
     private readonly activityService;
     private readonly workbenchEnvironmentService;
+    private readonly hostService;
     private readonly memento;
     private readonly viewState;
     private viewPaneContainer;
@@ -55,7 +59,7 @@ export declare class ChatViewPane extends ViewPane implements IViewWelcomeDelega
     private restoringSession;
     private readonly modelRef;
     private readonly activityBadge;
-    constructor(options: IViewPaneOptions, keybindingService: IKeybindingService, contextMenuService: IContextMenuService, configurationService: IConfigurationService, contextKeyService: IContextKeyService, viewDescriptorService: IViewDescriptorService, instantiationService: IInstantiationService, openerService: IOpenerService, themeService: IThemeService, hoverService: IHoverService, storageService: IStorageService, chatService: IChatService, chatAgentService: IChatAgentService, logService: ILogService, layoutService: IWorkbenchLayoutService, chatSessionsService: IChatSessionsService, telemetryService: ITelemetryService, lifecycleService: ILifecycleService, progressService: IProgressService, agentSessionsService: IAgentSessionsService, chatEntitlementService: IChatEntitlementService, commandService: ICommandService, activityService: IActivityService, workbenchEnvironmentService: IWorkbenchEnvironmentService);
+    constructor(options: IViewPaneOptions, keybindingService: IKeybindingService, contextMenuService: IContextMenuService, configurationService: IConfigurationService, contextKeyService: IContextKeyService, viewDescriptorService: IViewDescriptorService, instantiationService: IInstantiationService, openerService: IOpenerService, themeService: IThemeService, hoverService: IHoverService, storageService: IStorageService, chatService: IChatService, chatAgentService: IChatAgentService, logService: ILogService, notificationService: INotificationService, layoutService: IWorkbenchLayoutService, chatSessionsService: IChatSessionsService, telemetryService: ITelemetryService, lifecycleService: ILifecycleService, progressService: IProgressService, agentSessionsService: IAgentSessionsService, chatEntitlementService: IChatEntitlementService, commandService: ICommandService, activityService: IActivityService, workbenchEnvironmentService: IWorkbenchEnvironmentService, hostService: IHostService);
     private updateContextKeys;
     private getViewPositionAndLocation;
     private getSessionHoverPosition;

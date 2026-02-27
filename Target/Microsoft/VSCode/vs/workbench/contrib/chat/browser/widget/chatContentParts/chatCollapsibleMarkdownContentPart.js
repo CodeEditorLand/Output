@@ -15,13 +15,14 @@ import { $ } from "../../../../../../base/browser/dom.js";
 import { Codicon } from "../../../../../../base/common/codicons.js";
 import { MarkdownString } from "../../../../../../base/common/htmlContent.js";
 import { IHoverService } from "../../../../../../platform/hover/browser/hover.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
 import { ChatCollapsibleContentPart } from "./chatCollapsibleContentPart.js";
 let ChatCollapsibleMarkdownContentPart = class ChatCollapsibleMarkdownContentPart2 extends ChatCollapsibleContentPart {
   static {
     __name(this, "ChatCollapsibleMarkdownContentPart");
   }
-  constructor(title, markdownContent, context, chatContentMarkdownRenderer, hoverService) {
-    super(title, context, void 0, hoverService);
+  constructor(title, markdownContent, context, chatContentMarkdownRenderer, hoverService, configurationService) {
+    super(title, context, void 0, hoverService, configurationService);
     this.markdownContent = markdownContent;
     this.chatContentMarkdownRenderer = chatContentMarkdownRenderer;
     this.icon = Codicon.check;
@@ -41,7 +42,8 @@ let ChatCollapsibleMarkdownContentPart = class ChatCollapsibleMarkdownContentPar
   }
 };
 ChatCollapsibleMarkdownContentPart = __decorate([
-  __param(4, IHoverService)
+  __param(4, IHoverService),
+  __param(5, IConfigurationService)
 ], ChatCollapsibleMarkdownContentPart);
 export {
   ChatCollapsibleMarkdownContentPart

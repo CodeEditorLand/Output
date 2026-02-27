@@ -9,8 +9,9 @@ import { IMcpGatewayService } from '../common/mcpGateway.js';
  * enabling cleanup when a client disconnects.
  */
 export declare class McpGatewayChannel<TContext> extends Disposable implements IServerChannel<TContext> {
+    private readonly _ipcServer;
     private readonly mcpGatewayService;
-    constructor(ipcServer: IPCServer<TContext>, mcpGatewayService: IMcpGatewayService);
+    constructor(_ipcServer: IPCServer<TContext>, mcpGatewayService: IMcpGatewayService);
     listen<T>(_ctx: TContext, _event: string): Event<T>;
     call<T>(ctx: TContext, command: string, args?: unknown): Promise<T>;
 }

@@ -20,9 +20,11 @@ import { IResolvedPromptSourceFolder } from '../config/promptFileLocations.js';
 import { PromptsType } from '../promptTypes.js';
 import { PromptFilesLocator } from '../utils/promptFilesLocator.js';
 import { ParsedPromptFile } from '../promptFileParser.js';
-import { IChatPromptSlashCommand, IConfiguredHooksInfo, ICustomAgent, IPromptPath, IPromptsService, IAgentSkill, PromptsStorage, IPromptFileContext, IPromptFileResource, IPromptDiscoveryInfo, IResolvedAgentFile, Logger } from './promptsService.js';
+import { IChatPromptSlashCommand, IConfiguredHooksInfo, ICustomAgent, IPromptPath, IPromptsService, IAgentSkill, PromptsStorage, IPromptFileContext, IPromptFileResource, IPromptDiscoveryInfo, IResolvedAgentFile, Logger, IPromptDiscoveryLogEntry } from './promptsService.js';
 import { IWorkspaceContextService } from '../../../../../../platform/workspace/common/workspace.js';
 import { IPathService } from '../../../../../services/path/common/pathService.js';
+import { IContextKeyService } from '../../../../../../platform/contextkey/common/contextkey.js';
+import { IAgentPluginService } from '../../plugins/agentPluginService.js';
 /**
  * Error thrown when a skill file is missing the required name attribute.
  */
@@ -63,6 +65,8 @@ export declare class PromptsService extends Disposable implements IPromptsServic
     private readonly telemetryService;
     private readonly workspaceService;
     private readonly pathService;
+    private readonly contextKeyService;
+    private readonly agentPluginService;
     readonly _serviceBrand: undefined;
     /**
      * Prompt files locator utility.
@@ -90,6 +94,12 @@ export declare class PromptsService extends Disposable implements IPromptsServic
      */
     private readonly cachedParsedPromptFromModels;
     /**
+     * Emitter for discovery log events. Listeners (e.g. a debug bridge
+     * contribution) can forward these to IChatDebugService.
+     */
+    private readonly _onDidLogDiscovery;
+    readonly onDidLogDiscovery: Event<IPromptDiscoveryLogEntry>;
+    /**
      * Cached file locations commands. Caching only happens if the corresponding `fileLocatorEvents` event is used.
      */
     private readonly cachedFileLocations;
@@ -103,12 +113,27 @@ export declare class PromptsService extends Disposable implements IPromptsServic
      * Contributed files from extensions keyed by prompt type then name.
      */
     private readonly contributedFiles;
-    constructor(logger: ILogService, labelService: ILabelService, modelService: IModelService, instantiationService: IInstantiationService, userDataService: IUserDataProfileService, configurationService: IConfigurationService, fileService: IFileService, filesConfigService: IFilesConfigurationService, storageService: IStorageService, extensionService: IExtensionService, telemetryService: ITelemetryService, workspaceService: IWorkspaceContextService, pathService: IPathService);
+    /**
+     * Context keys referenced by contributed file `when` clauses.
+     */
+    private readonly _contributedWhenKeys;
+    private readonly _contributedWhenClauses;
+    private readonly _onDidContributedWhenChange;
+    private readonly _onDidPluginPromptFilesChange;
+    private readonly _onDidPluginHooksChange;
+    private _pluginPromptFilesByType;
+    constructor(logger: ILogService, labelService: ILabelService, modelService: IModelService, instantiationService: IInstantiationService, userDataService: IUserDataProfileService, configurationService: IConfigurationService, fileService: IFileService, filesConfigService: IFilesConfigurationService, storageService: IStorageService, extensionService: IExtensionService, telemetryService: ITelemetryService, workspaceService: IWorkspaceContextService, pathService: IPathService, contextKeyService: IContextKeyService, agentPluginService: IAgentPluginService);
+    private watchPluginPromptFilesForType;
     protected createPromptFilesLocator(): PromptFilesLocator;
     private getFileLocatorEvent;
     getParsedPromptFile(textModel: ITextModel): ParsedPromptFile;
     listPromptFiles(type: PromptsType, token: CancellationToken): Promise<readonly IPromptPath[]>;
     private computeListPromptFiles;
+    /**
+     * Collects diagnostic information about which source folders were searched
+     * and whether they exist, for display in the debug panel.
+     */
+    private _collectSourceFolderDiagnostics;
     /**
      * Registry of prompt file provider instances (custom agents, instructions, prompt files).
      * Extensions can register providers via the proposed API.
@@ -124,6 +149,7 @@ export declare class PromptsService extends Disposable implements IPromptsServic
         onDidChangePromptFiles?: Event<void>;
         providePromptFiles: (context: IPromptFileContext, token: CancellationToken) => Promise<IPromptFileResource[] | undefined>;
     }): IDisposable;
+    private invalidatePromptFileCache;
     /**
      * Shared helper to list prompt files from registered providers for a given type.
      */
@@ -137,7 +163,7 @@ export declare class PromptsService extends Disposable implements IPromptsServic
      * Emitter for slash commands change events.
      */
     get onDidChangeSlashCommands(): Event<void>;
-    getPromptSlashCommands(token: CancellationToken): Promise<readonly IChatPromptSlashCommand[]>;
+    getPromptSlashCommands(token: CancellationToken, sessionResource?: URI): Promise<readonly IChatPromptSlashCommand[]>;
     private computePromptSlashCommands;
     isValidSlashCommandName(command: string): boolean;
     resolvePromptSlashCommand(name: string, token: CancellationToken): Promise<IChatPromptSlashCommand | undefined>;
@@ -147,10 +173,11 @@ export declare class PromptsService extends Disposable implements IPromptsServic
      * Emitter for custom agents change events.
      */
     get onDidChangeCustomAgents(): Event<void>;
-    getCustomAgents(token: CancellationToken): Promise<readonly ICustomAgent[]>;
+    getCustomAgents(token: CancellationToken, sessionResource?: URI): Promise<readonly ICustomAgent[]>;
     private computeCustomAgents;
     parseNew(uri: URI, token: CancellationToken): Promise<ParsedPromptFile>;
-    registerContributedFile(type: PromptsType, uri: URI, extension: IExtensionDescription, name?: string, description?: string): Readonly<IDisposable>;
+    registerContributedFile(type: PromptsType, uri: URI, extension: IExtensionDescription, name?: string, description?: string, when?: string): Readonly<IDisposable>;
+    private _updateContributedWhenKeys;
     getPromptLocationLabel(promptPath: IPromptPath): string;
     listNestedAgentMDs(token: CancellationToken): Promise<IResolvedAgentFile[]>;
     listAgentMDs(token: CancellationToken, logger: Logger | undefined): Promise<IResolvedAgentFile[]>;
@@ -170,11 +197,12 @@ export declare class PromptsService extends Disposable implements IPromptsServic
     private truncateAgentSkillName;
     private truncateAgentSkillDescription;
     get onDidChangeSkills(): Event<void>;
-    findAgentSkills(token: CancellationToken): Promise<IAgentSkill[] | undefined>;
+    findAgentSkills(token: CancellationToken, sessionResource?: URI): Promise<IAgentSkill[] | undefined>;
     private computeAgentSkills;
-    getHooks(token: CancellationToken): Promise<IConfiguredHooksInfo | undefined>;
+    getHooks(token: CancellationToken, sessionResource?: URI): Promise<IConfiguredHooksInfo | undefined>;
+    getInstructionFiles(token: CancellationToken, sessionResource?: URI): Promise<readonly IPromptPath[]>;
     private computeHooks;
-    getPromptDiscoveryInfo(type: PromptsType, token: CancellationToken): Promise<IPromptDiscoveryInfo>;
+    getPromptDiscoveryInfo(type: PromptsType, token: CancellationToken, sessionResource?: URI): Promise<IPromptDiscoveryInfo>;
     private getSkillDiscoveryInfo;
     /**
      * Shared implementation for skill discovery used by both findAgentSkills and getSkillDiscoveryInfo.

@@ -2,11 +2,12 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { equals } from "../../../../base/common/arrays.js";
 import { assertNever, softAssertNever } from "../../../../base/common/assert.js";
-import { DeferredPromise, disposableTimeout, IntervalTimer } from "../../../../base/common/async.js";
+import { DeferredPromise, disposableTimeout, IntervalTimer, isThenable } from "../../../../base/common/async.js";
 import { CancellationToken, CancellationTokenSource } from "../../../../base/common/cancellation.js";
 import { CancellationError } from "../../../../base/common/errors.js";
 import { Emitter } from "../../../../base/common/event.js";
 import { Iterable } from "../../../../base/common/iterator.js";
+import { JsonRpcError, JsonRpcProtocol } from "../../../../base/common/jsonRpcProtocol.js";
 import { Disposable, DisposableStore, toDisposable } from "../../../../base/common/lifecycle.js";
 import { autorun, ObservablePromise, observableValue, transaction } from "../../../../base/common/observable.js";
 import { canLog, log, LogLevel } from "../../../../platform/log/common/log.js";
@@ -94,8 +95,6 @@ class McpServerRequestHandler extends Disposable {
   }
   constructor({ launch, logger, createMessageRequestHandler, elicitationRequestHandler, requestLogLevel = LogLevel.Debug, taskManager }) {
     super();
-    this._nextRequestId = 1;
-    this._pendingRequests = /* @__PURE__ */ new Map();
     this._hasAnnouncedRoots = false;
     this._roots = [];
     this._onDidReceiveCancelledNotification = this._register(new Emitter());
@@ -118,6 +117,10 @@ class McpServerRequestHandler extends Disposable {
     this._createMessageRequestHandler = createMessageRequestHandler;
     this._elicitationRequestHandler = elicitationRequestHandler;
     this._taskManager = taskManager;
+    this._rpc = this._register(new JsonRpcProtocol((message) => this.send(message), {
+      handleRequest: /* @__PURE__ */ __name((request, token) => this.handleServerRequest(request, token), "handleRequest"),
+      handleNotification: /* @__PURE__ */ __name((notification) => this.handleServerNotification(notification), "handleNotification")
+    }));
     this._taskManager.setHandler(this);
     this._register(this._taskManager.onDidUpdateTask((task) => {
       this.send({
@@ -127,7 +130,12 @@ class McpServerRequestHandler extends Disposable {
       });
     }));
     this._register(toDisposable(() => this._taskManager.setHandler(void 0)));
-    this._register(launch.onDidReceiveMessage((message) => this.handleMessage(message)));
+    this._register(launch.onDidReceiveMessage((message) => {
+      if (canLog(this.logger.getLevel(), this._requestLogLevel)) {
+        log(this.logger, this._requestLogLevel, `[server -> editor] ${JSON.stringify(message)}`);
+      }
+      void this._rpc.handleMessage(message);
+    }));
     this._register(autorun((reader) => {
       const state = launch.state.read(reader).state;
       if (state === 3 || state === 0) {
@@ -150,28 +158,12 @@ class McpServerRequestHandler extends Disposable {
     if (this._store.isDisposed) {
       return Promise.reject(new CancellationError());
     }
-    const id = this._nextRequestId++;
-    const jsonRpcRequest = {
-      jsonrpc: MCP.JSONRPC_VERSION,
-      id,
-      ...request
-    };
-    const promise = new DeferredPromise();
-    this._pendingRequests.set(id, { promise });
-    const cancelListener = token.onCancellationRequested(() => {
-      if (!promise.isSettled) {
-        this._pendingRequests.delete(id);
-        this.sendNotification({ method: "notifications/cancelled", params: { requestId: id } });
-        promise.cancel();
+    return this._rpc.sendRequest(request, token, (id) => this.sendNotification({ method: "notifications/cancelled", params: { requestId: id } })).catch((error) => {
+      if (error instanceof JsonRpcError) {
+        throw new MpcResponseError(error.message, error.code, error.data);
       }
-      cancelListener.dispose();
+      throw error;
     });
-    this.send(jsonRpcRequest);
-    const ret = promise.p.finally(() => {
-      cancelListener.dispose();
-      this._pendingRequests.delete(id);
-    });
-    return ret;
   }
   send(mcp) {
     if (canLog(this.logger.getLevel(), this._requestLogLevel)) {
@@ -204,165 +196,108 @@ class McpServerRequestHandler extends Disposable {
     this.send({ ...notification, jsonrpc: MCP.JSONRPC_VERSION });
   }
   /**
-   * Handle incoming messages from the server
-   */
-  handleMessage(message) {
-    if (canLog(this.logger.getLevel(), this._requestLogLevel)) {
-      log(this.logger, this._requestLogLevel, `[server -> editor] ${JSON.stringify(message)}`);
-    }
-    if ("id" in message) {
-      if ("result" in message) {
-        this.handleResult(message);
-      } else if ("error" in message) {
-        this.handleError(message);
-      }
-    }
-    if ("method" in message) {
-      if ("id" in message) {
-        this.handleServerRequest(message);
-      } else {
-        this.handleServerNotification(message);
-      }
-    }
-  }
-  /**
-   * Handle successful responses
-   */
-  handleResult(response) {
-    if (response.id !== void 0) {
-      const request = this._pendingRequests.get(response.id);
-      if (request) {
-        this._pendingRequests.delete(response.id);
-        request.promise.complete(response.result);
-      }
-    }
-  }
-  /**
-   * Handle error responses
-   */
-  handleError(response) {
-    if (response.id !== void 0) {
-      const request = this._pendingRequests.get(response.id);
-      if (request) {
-        this._pendingRequests.delete(response.id);
-        request.promise.error(new MpcResponseError(response.error.message, response.error.code, response.error.data));
-      }
-    }
-  }
-  /**
    * Handle incoming server requests
    */
-  async handleServerRequest(request) {
+  handleServerRequest(request, token) {
+    const mapError = /* @__PURE__ */ __name((error) => {
+      if (error instanceof McpError) {
+        return new JsonRpcError(error.code, error.message, error.data);
+      }
+      this.logger.error(`Error handling request ${request.method}:`, error);
+      const mcpError = McpError.unknown(error instanceof Error ? error : new Error(String(error)));
+      return new JsonRpcError(mcpError.code, mcpError.message, mcpError.data);
+    }, "mapError");
     try {
-      let response;
+      let result;
       if (request.method === "ping") {
-        response = this.handlePing(request);
+        result = this.handlePing(request);
       } else if (request.method === "roots/list") {
-        response = this.handleRootsList(request);
+        result = this.handleRootsList(request);
       } else if (request.method === "sampling/createMessage" && this._createMessageRequestHandler) {
         if (request.params.task) {
-          const taskResult = this._taskManager.createTask(request.params.task.ttl ?? null, (token) => this._createMessageRequestHandler(request.params, token));
+          const taskResult = this._taskManager.createTask(request.params.task.ttl ?? null, (token2) => this._createMessageRequestHandler(request.params, token2));
           taskResult._meta ??= {};
           taskResult._meta["io.modelcontextprotocol/related-task"] = { taskId: taskResult.task.taskId };
-          response = taskResult;
+          result = taskResult;
         } else {
-          response = await this._createMessageRequestHandler(request.params);
+          result = this._createMessageRequestHandler(request.params, token);
         }
       } else if (request.method === "elicitation/create" && this._elicitationRequestHandler) {
         if (request.params.task) {
-          const taskResult = this._taskManager.createTask(request.params.task.ttl ?? null, (token) => this._elicitationRequestHandler(request.params, token));
+          const taskResult = this._taskManager.createTask(request.params.task.ttl ?? null, (token2) => this._elicitationRequestHandler(request.params, token2));
           taskResult._meta ??= {};
           taskResult._meta["io.modelcontextprotocol/related-task"] = { taskId: taskResult.task.taskId };
-          response = taskResult;
+          result = taskResult;
         } else {
-          response = await this._elicitationRequestHandler(request.params);
+          result = this._elicitationRequestHandler(request.params, token);
         }
       } else if (request.method === "tasks/get") {
-        response = this._taskManager.getTask(request.params.taskId);
+        result = this._taskManager.getTask(request.params.taskId);
       } else if (request.method === "tasks/result") {
-        response = await this._taskManager.getTaskResult(request.params.taskId);
+        result = this._taskManager.getTaskResult(request.params.taskId);
       } else if (request.method === "tasks/cancel") {
-        response = this._taskManager.cancelTask(request.params.taskId);
+        result = this._taskManager.cancelTask(request.params.taskId);
       } else if (request.method === "tasks/list") {
-        response = this._taskManager.listTasks();
+        result = this._taskManager.listTasks();
       } else {
         throw McpError.methodNotFound(request.method);
       }
-      this.respondToRequest(request, response);
-    } catch (e) {
-      if (!(e instanceof McpError)) {
-        this.logger.error(`Error handling request ${request.method}:`, e);
-        e = McpError.unknown(e);
+      if (isThenable(result)) {
+        return result.then(void 0, (error) => {
+          throw mapError(error);
+        });
       }
-      const errorResponse = {
-        jsonrpc: MCP.JSONRPC_VERSION,
-        id: request.id,
-        error: {
-          code: e.code,
-          message: e.message,
-          data: e.data
-        }
-      };
-      this.send(errorResponse);
+      return result;
+    } catch (e) {
+      throw mapError(e);
     }
   }
   /**
    * Handle incoming server notifications
    */
   handleServerNotification(request) {
-    switch (request.method) {
-      case "notifications/message":
-        return this.handleLoggingNotification(request);
-      case "notifications/cancelled":
-        this._onDidReceiveCancelledNotification.fire(request);
-        return this.handleCancelledNotification(request);
-      case "notifications/progress":
-        this._onDidReceiveProgressNotification.fire(request);
-        return;
-      case "notifications/resources/list_changed":
-        this._onDidChangeResourceList.fire();
-        return;
-      case "notifications/resources/updated":
-        this._onDidUpdateResource.fire(request);
-        return;
-      case "notifications/tools/list_changed":
-        this._onDidChangeToolList.fire();
-        return;
-      case "notifications/prompts/list_changed":
-        this._onDidChangePromptList.fire();
-        return;
-      case "notifications/elicitation/complete":
-        this._onDidReceiveElicitationCompleteNotification.fire(request);
-        return;
-      case "notifications/tasks/status":
-        this._taskManager.getClientTask(request.params.taskId)?.onDidUpdateState(request.params);
-        return;
-      default:
-        softAssertNever(request);
+    try {
+      switch (request.method) {
+        case "notifications/message":
+          return this.handleLoggingNotification(request);
+        case "notifications/cancelled":
+          this._onDidReceiveCancelledNotification.fire(request);
+          return this.handleCancelledNotification(request);
+        case "notifications/progress":
+          this._onDidReceiveProgressNotification.fire(request);
+          return;
+        case "notifications/resources/list_changed":
+          this._onDidChangeResourceList.fire();
+          return;
+        case "notifications/resources/updated":
+          this._onDidUpdateResource.fire(request);
+          return;
+        case "notifications/tools/list_changed":
+          this._onDidChangeToolList.fire();
+          return;
+        case "notifications/prompts/list_changed":
+          this._onDidChangePromptList.fire();
+          return;
+        case "notifications/elicitation/complete":
+          this._onDidReceiveElicitationCompleteNotification.fire(request);
+          return;
+        case "notifications/tasks/status":
+          this._taskManager.getClientTask(request.params.taskId)?.onDidUpdateState(request.params);
+          return;
+        default:
+          softAssertNever(request);
+      }
+    } catch (error) {
+      this.logger.error(`Error handling notification ${request.method}:`, error);
     }
   }
   handleCancelledNotification(request) {
     if (request.params.requestId) {
-      const pendingRequest = this._pendingRequests.get(request.params.requestId);
-      if (pendingRequest) {
-        this._pendingRequests.delete(request.params.requestId);
-        pendingRequest.promise.cancel();
-      }
+      this._rpc.cancelPendingRequest(request.params.requestId);
     }
   }
   handleLoggingNotification(request) {
     translateMcpLogMessage(this.logger, request.params);
-  }
-  /**
-   * Send a generic response to a request
-   */
-  respondToRequest(request, result) {
-    const response = {
-      jsonrpc: MCP.JSONRPC_VERSION,
-      id: request.id,
-      result
-    };
-    this.send(response);
   }
   /**
    * Send a response to a ping request
@@ -378,8 +313,7 @@ class McpServerRequestHandler extends Disposable {
     return { roots: this._roots };
   }
   cancelAllRequests() {
-    this._pendingRequests.forEach((pending) => pending.promise.cancel());
-    this._pendingRequests.clear();
+    this._rpc.cancelAllRequests();
   }
   dispose() {
     this.cancelAllRequests();

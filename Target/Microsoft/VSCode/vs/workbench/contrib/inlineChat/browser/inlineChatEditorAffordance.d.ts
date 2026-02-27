@@ -19,7 +19,7 @@ export declare class InlineChatEditorAffordance extends Disposable implements IC
     private _isVisible;
     private readonly _onDidRunAction;
     readonly onDidRunAction: Event<string>;
-    readonly allowEditorOverflow = false;
+    readonly allowEditorOverflow = true;
     readonly suppressMouseDown = false;
     constructor(_editor: ICodeEditor, selection: IObservable<Selection | undefined>, instantiationService: IInstantiationService);
     private _show;

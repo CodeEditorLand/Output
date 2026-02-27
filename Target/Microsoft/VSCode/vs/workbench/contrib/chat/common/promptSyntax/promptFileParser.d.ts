@@ -41,6 +41,7 @@ export declare namespace PromptHeaderAttributes {
 }
 export declare namespace GithubPromptHeaderAttributes {
     const mcpServers = "mcp-servers";
+    const github = "github";
 }
 export declare namespace ClaudeHeaderAttributes {
     const disallowedTools = "disallowedTools";

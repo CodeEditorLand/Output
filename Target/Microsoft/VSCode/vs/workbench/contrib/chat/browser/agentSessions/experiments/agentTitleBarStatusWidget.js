@@ -51,6 +51,7 @@ import { mainWindow } from "../../../../../../base/browser/window.js";
 import { ChatConfiguration } from "../../../common/constants.js";
 import { ChatEntitlement, IChatEntitlementService } from "../../../../../services/chat/common/chatEntitlementService.js";
 import { IChatWidgetService } from "../../chat.js";
+import { ITelemetryService } from "../../../../../../platform/telemetry/common/telemetry.js";
 const TOGGLE_CHAT_ACTION_ID = "workbench.action.chat.toggle";
 const CHAT_SETUP_ACTION_ID = "workbench.action.chat.triggerSetup";
 const OPEN_CHAT_QUOTA_EXCEEDED_DIALOG = "workbench.action.chat.openQuotaExceededDialog";
@@ -63,7 +64,7 @@ let AgentTitleBarStatusWidget = class AgentTitleBarStatusWidget2 extends BaseAct
   static {
     __name(this, "AgentTitleBarStatusWidget");
   }
-  constructor(action, options, instantiationService, agentTitleBarStatusService, hoverService, commandService, keybindingService, agentSessionsService, labelService, workspaceContextService, environmentService, editorGroupsService, editorService, menuService, contextKeyService, storageService, configurationService, chatEntitlementService, chatWidgetService) {
+  constructor(action, options, instantiationService, agentTitleBarStatusService, hoverService, commandService, keybindingService, agentSessionsService, labelService, workspaceContextService, environmentService, editorGroupsService, editorService, menuService, contextKeyService, storageService, configurationService, chatEntitlementService, chatWidgetService, telemetryService) {
     super(void 0, action, options);
     this.instantiationService = instantiationService;
     this.agentTitleBarStatusService = agentTitleBarStatusService;
@@ -82,6 +83,7 @@ let AgentTitleBarStatusWidget = class AgentTitleBarStatusWidget2 extends BaseAct
     this.configurationService = configurationService;
     this.chatEntitlementService = chatEntitlementService;
     this.chatWidgetService = chatWidgetService;
+    this.telemetryService = telemetryService;
     this._dynamicDisposables = this._register(new DisposableStore());
     this._isRendering = false;
     this._badgeFilterAppliedByThisWindow = null;
@@ -719,6 +721,11 @@ let AgentTitleBarStatusWidget = class AgentTitleBarStatusWidget2 extends BaseAct
     const { isFilteredToUnread, isFilteredToInProgress } = this._getCurrentFilterState();
     const currentFilter = this._getStoredFilter();
     const preservedProviders = currentFilter?.providers ?? [];
+    const isToggleOff = filterType === "unread" && isFilteredToUnread || filterType === "inProgress" && isFilteredToInProgress;
+    this.telemetryService.publicLog2("agentStatusWidget.click", {
+      source: filterType,
+      action: isToggleOff ? "clearFilter" : "applyFilter"
+    });
     if (filterType === "unread") {
       if (isFilteredToUnread) {
         this._restoreUserFilter();
@@ -825,8 +832,16 @@ let AgentTitleBarStatusWidget = class AgentTitleBarStatusWidget2 extends BaseAct
    */
   _handlePillClick() {
     if (this._displayedSession) {
+      this.telemetryService.publicLog2("agentStatusWidget.click", {
+        source: "pill",
+        action: "openSession"
+      });
       this.instantiationService.invokeFunction(openSession, this._displayedSession);
     } else {
+      this.telemetryService.publicLog2("agentStatusWidget.click", {
+        source: "pill",
+        action: "quickAccess"
+      });
       this.commandService.executeCommand(UNIFIED_QUICK_ACCESS_ACTION_ID);
     }
   }
@@ -914,7 +929,8 @@ AgentTitleBarStatusWidget = __decorate([
   __param(15, IStorageService),
   __param(16, IConfigurationService),
   __param(17, IChatEntitlementService),
-  __param(18, IChatWidgetService)
+  __param(18, IChatWidgetService),
+  __param(19, ITelemetryService)
 ], AgentTitleBarStatusWidget);
 let AgentTitleBarStatusRendering = class AgentTitleBarStatusRendering2 extends Disposable {
   static {

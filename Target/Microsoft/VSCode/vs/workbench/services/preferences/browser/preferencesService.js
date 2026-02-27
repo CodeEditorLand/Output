@@ -316,7 +316,7 @@ let PreferencesService = class PreferencesService2 extends Disposable {
     return this.editorService.openEditor({ resource: this.defaultKeybindingsResource, label: nls.localize("defaultKeybindings", "Default Keybindings") });
   }
   getEditorGroupFromOptions(isTextual, options) {
-    if (!isTextual && this.configurationService.getValue("workbench.editor.allowOpenInModalEditor")) {
+    if (!isTextual && this.configurationService.getValue("workbench.editor.useModal") !== "off") {
       return MODAL_GROUP;
     }
     if (options.openToSide) {

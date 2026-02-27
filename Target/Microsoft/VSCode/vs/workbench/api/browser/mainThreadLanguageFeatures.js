@@ -600,9 +600,9 @@ let MainThreadLanguageFeatures = MainThreadLanguageFeatures_1 = class MainThread
     }
     this._registrations.set(handle, this._languageFeaturesService.completionProvider.register(selector, provider));
   }
-  $registerInlineCompletionsSupport(handle, selector, supportsHandleEvents, extensionId, extensionVersion, groupId, yieldsToExtensionIds, displayName, debounceDelayMs, excludesExtensionIds, supportsOnDidChange, supportsSetModelId, initialModelInfo, supportsOnDidChangeModelInfo) {
+  $registerInlineCompletionsSupport(handle, selector, supportsHandleEvents, extensionId, extensionVersion, groupId, yieldsToExtensionIds, displayName, debounceDelayMs, excludesExtensionIds, supportsOnDidChange, supportsSetModelId, initialModelInfo, supportsOnDidChangeModelInfo, supportsSetProviderOption, initialProviderOptions, supportsOnDidChangeProviderOptions) {
     const providerId = new languages.ProviderId(extensionId, extensionVersion, groupId);
-    const provider = this._instantiationService.createInstance(ExtensionBackedInlineCompletionsProvider, handle, groupId ?? extensionId, providerId, yieldsToExtensionIds, excludesExtensionIds, debounceDelayMs, displayName, initialModelInfo, supportsHandleEvents, supportsSetModelId, supportsOnDidChange, supportsOnDidChangeModelInfo, selector, this._proxy);
+    const provider = this._instantiationService.createInstance(ExtensionBackedInlineCompletionsProvider, handle, groupId ?? extensionId, providerId, yieldsToExtensionIds, excludesExtensionIds, debounceDelayMs, displayName, initialModelInfo, supportsHandleEvents, supportsSetModelId, supportsOnDidChange, supportsOnDidChangeModelInfo, initialProviderOptions, supportsSetProviderOption, supportsOnDidChangeProviderOptions, selector, this._proxy);
     this._registrations.set(handle, provider);
   }
   $emitInlineCompletionsChange(handle, changeHint) {
@@ -615,6 +615,12 @@ let MainThreadLanguageFeatures = MainThreadLanguageFeatures_1 = class MainThread
     const obj = this._registrations.get(handle);
     if (obj instanceof ExtensionBackedInlineCompletionsProvider) {
       obj._setModelInfo(data);
+    }
+  }
+  $emitInlineCompletionProviderOptionsChange(handle, data) {
+    const obj = this._registrations.get(handle);
+    if (obj instanceof ExtensionBackedInlineCompletionsProvider) {
+      obj._setProviderOptions(data);
     }
   }
   // --- parameter hints
@@ -1137,7 +1143,7 @@ let ExtensionBackedInlineCompletionsProvider = class ExtensionBackedInlineComple
   static {
     __name(this, "ExtensionBackedInlineCompletionsProvider");
   }
-  constructor(handle, groupId, providerId, yieldsToGroupIds, excludesGroupIds, debounceDelayMs, displayName, modelInfo, _supportsHandleEvents, _supportsSetModelId, _supportsOnDidChange, _supportsOnDidChangeModelInfo, _selector, _proxy, _languageFeaturesService, _aiEditTelemetryService, _instantiationService) {
+  constructor(handle, groupId, providerId, yieldsToGroupIds, excludesGroupIds, debounceDelayMs, displayName, modelInfo, _supportsHandleEvents, _supportsSetModelId, _supportsOnDidChange, _supportsOnDidChangeModelInfo, providerOptions, _supportsSetProviderOption, _supportsOnDidChangeProviderOptions, _selector, _proxy, _languageFeaturesService, _aiEditTelemetryService, _instantiationService) {
     super();
     this.handle = handle;
     this.groupId = groupId;
@@ -1151,6 +1157,9 @@ let ExtensionBackedInlineCompletionsProvider = class ExtensionBackedInlineComple
     this._supportsSetModelId = _supportsSetModelId;
     this._supportsOnDidChange = _supportsOnDidChange;
     this._supportsOnDidChangeModelInfo = _supportsOnDidChangeModelInfo;
+    this.providerOptions = providerOptions;
+    this._supportsSetProviderOption = _supportsSetProviderOption;
+    this._supportsOnDidChangeProviderOptions = _supportsOnDidChangeProviderOptions;
     this._selector = _selector;
     this._proxy = _proxy;
     this._languageFeaturesService = _languageFeaturesService;
@@ -1158,17 +1167,28 @@ let ExtensionBackedInlineCompletionsProvider = class ExtensionBackedInlineComple
     this._instantiationService = _instantiationService;
     this._onDidChangeEmitter = this._register(new Emitter());
     this._onDidChangeModelInfoEmitter = this._register(new Emitter());
+    this._onDidProviderOptionsChangeEmitter = this._register(new Emitter());
     this.setModelId = this._supportsSetModelId ? async (modelId) => {
       await this._proxy.$handleInlineCompletionSetCurrentModelId(this.handle, modelId);
     } : void 0;
+    this.setProviderOption = this._supportsSetProviderOption ? async (optionId, valueId) => {
+      await this._proxy.$handleInlineCompletionSetProviderOption(this.handle, optionId, valueId);
+    } : void 0;
     this.onDidChangeInlineCompletions = this._supportsOnDidChange ? this._onDidChangeEmitter.event : void 0;
     this.onDidChangeModelInfo = this._supportsOnDidChangeModelInfo ? this._onDidChangeModelInfoEmitter.event : void 0;
+    this.onDidProviderOptionsChange = this._supportsOnDidChangeProviderOptions ? this._onDidProviderOptionsChangeEmitter.event : void 0;
     this._register(this._languageFeaturesService.inlineCompletionsProvider.register(this._selector, this));
   }
   _setModelInfo(newModelInfo) {
     this.modelInfo = newModelInfo;
     if (this._supportsOnDidChangeModelInfo) {
       this._onDidChangeModelInfoEmitter.fire();
+    }
+  }
+  _setProviderOptions(newProviderOptions) {
+    this.providerOptions = newProviderOptions;
+    if (this._supportsOnDidChangeProviderOptions) {
+      this._onDidProviderOptionsChangeEmitter.fire();
     }
   }
   _emitDidChange(changeHint) {
@@ -1299,9 +1319,9 @@ let ExtensionBackedInlineCompletionsProvider = class ExtensionBackedInlineComple
   }
 };
 ExtensionBackedInlineCompletionsProvider = __decorate([
-  __param(14, ILanguageFeaturesService),
-  __param(15, IAiEditTelemetryService),
-  __param(16, IInstantiationService)
+  __param(17, ILanguageFeaturesService),
+  __param(18, IAiEditTelemetryService),
+  __param(19, IInstantiationService)
 ], ExtensionBackedInlineCompletionsProvider);
 function extractEngineFromCorrelationId(correlationId) {
   if (!correlationId) {

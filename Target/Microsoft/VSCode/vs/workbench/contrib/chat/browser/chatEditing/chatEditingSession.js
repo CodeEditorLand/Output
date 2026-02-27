@@ -360,7 +360,7 @@ let ChatEditingSession = ChatEditingSession_1 = class ChatEditingSession2 extend
       if (this._editorPane.isVisible()) {
         return;
       } else if (this._editorPane.input) {
-        await this._editorGroupsService.activeGroup.openEditor(this._editorPane.input, { pinned: true, activation: EditorActivation.ACTIVATE });
+        await this._editorService.openEditor(this._editorPane.input, { pinned: true, activation: EditorActivation.ACTIVATE });
         return;
       }
     }
@@ -368,7 +368,7 @@ let ChatEditingSession = ChatEditingSession_1 = class ChatEditingSession2 extend
       multiDiffSource: getMultiDiffSourceUri(this, previousChanges),
       label: localize("multiDiffEditorInput.name", "Suggested Edits")
     }, this._instantiationService);
-    this._editorPane = await this._editorGroupsService.activeGroup.openEditor(input, { pinned: true, activation: EditorActivation.ACTIVATE });
+    this._editorPane = await this._editorService.openEditor(input, { pinned: true, activation: EditorActivation.ACTIVATE });
   }
   async stop(clearState = false) {
     this._stopPromise ??= Promise.allSettled([this._performStop(), this.storeState()]).then(() => {

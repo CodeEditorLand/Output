@@ -27,6 +27,19 @@ var ConfigurationScope;
   ConfigurationScope2[ConfigurationScope2["LANGUAGE_OVERRIDABLE"] = 6] = "LANGUAGE_OVERRIDABLE";
   ConfigurationScope2[ConfigurationScope2["MACHINE_OVERRIDABLE"] = 7] = "MACHINE_OVERRIDABLE";
 })(ConfigurationScope || (ConfigurationScope = {}));
+function isConfigurationDefaultSourceEquals(a, b) {
+  if (a === b) {
+    return true;
+  }
+  if (!a || !b) {
+    return false;
+  }
+  if (typeof a === "string" || typeof b === "string") {
+    return a === b;
+  }
+  return a.id === b.id;
+}
+__name(isConfigurationDefaultSourceEquals, "isConfigurationDefaultSourceEquals");
 const allSettings = { properties: {}, patternProperties: {} };
 const applicationSettings = { properties: {}, patternProperties: {} };
 const applicationMachineSettings = { properties: {}, patternProperties: {} };
@@ -153,7 +166,7 @@ class ConfigurationRegistry extends Disposable {
         if (!configurationDefaultOverridesForKey) {
           continue;
         }
-        const index = configurationDefaultOverridesForKey.configurationDefaultOverrides.findIndex((configurationDefaultOverride) => source ? configurationDefaultOverride.source?.id === source.id : configurationDefaultOverride.value === overrides[key]);
+        const index = configurationDefaultOverridesForKey.configurationDefaultOverrides.findIndex((configurationDefaultOverride) => source ? isConfigurationDefaultSourceEquals(configurationDefaultOverride.source, source) : configurationDefaultOverride.value === overrides[key]);
         if (index === -1) {
           continue;
         }
@@ -654,6 +667,7 @@ export {
   getAllConfigurationProperties,
   getDefaultValue,
   getScopes,
+  isConfigurationDefaultSourceEquals,
   keyFromOverrideIdentifiers,
   machineOverridableSettings,
   machineSettings,

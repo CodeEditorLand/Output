@@ -34,6 +34,7 @@ var McpCollectionSortOrder;
   McpCollectionSortOrder2[McpCollectionSortOrder2["Workspace"] = 100] = "Workspace";
   McpCollectionSortOrder2[McpCollectionSortOrder2["User"] = 200] = "User";
   McpCollectionSortOrder2[McpCollectionSortOrder2["Extension"] = 300] = "Extension";
+  McpCollectionSortOrder2[McpCollectionSortOrder2["Plugin"] = 350] = "Plugin";
   McpCollectionSortOrder2[McpCollectionSortOrder2["Filesystem"] = 400] = "Filesystem";
   McpCollectionSortOrder2[McpCollectionSortOrder2["RemoteBoost"] = -50] = "RemoteBoost";
 })(McpCollectionSortOrder || (McpCollectionSortOrder = {}));
@@ -64,13 +65,15 @@ var McpServerDefinition;
       cacheNonce: def.cacheNonce,
       staticMetadata: def.staticMetadata,
       launch: McpServerLaunch.fromSerialized(def.launch),
+      sandboxEnabled: def.sandboxEnabled,
+      sandbox: def.sandboxEnabled ? def.sandbox : void 0,
       variableReplacement: def.variableReplacement ? McpServerDefinitionVariableReplacement.fromSerialized(def.variableReplacement) : void 0
     };
   }
   __name(fromSerialized, "fromSerialized");
   McpServerDefinition2.fromSerialized = fromSerialized;
   function equals(a, b) {
-    return a.id === b.id && a.label === b.label && a.cacheNonce === b.cacheNonce && arraysEqual(a.roots, b.roots, (a2, b2) => a2.toString() === b2.toString()) && objectsEqual(a.launch, b.launch) && objectsEqual(a.presentation, b.presentation) && objectsEqual(a.variableReplacement, b.variableReplacement) && objectsEqual(a.devMode, b.devMode);
+    return a.id === b.id && a.label === b.label && a.cacheNonce === b.cacheNonce && arraysEqual(a.roots, b.roots, (a2, b2) => a2.toString() === b2.toString()) && objectsEqual(a.launch, b.launch) && objectsEqual(a.presentation, b.presentation) && objectsEqual(a.variableReplacement, b.variableReplacement) && objectsEqual(a.devMode, b.devMode) && a.sandboxEnabled === b.sandboxEnabled && objectsEqual(a.sandbox, b.sandbox);
   }
   __name(equals, "equals");
   McpServerDefinition2.equals = equals;

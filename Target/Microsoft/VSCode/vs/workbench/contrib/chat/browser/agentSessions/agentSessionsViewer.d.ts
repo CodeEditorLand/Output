@@ -41,6 +41,7 @@ interface IAgentSessionItemTemplate {
     readonly disposables: IDisposable;
 }
 export interface IAgentSessionRendererOptions {
+    readonly disableHover?: boolean;
     getHoverPosition(): HoverPosition;
 }
 export declare class AgentSessionRenderer extends Disposable implements ICompressibleTreeRenderer<IAgentSession, FuzzyScore, IAgentSessionItemTemplate> {
@@ -90,7 +91,7 @@ export declare class AgentSessionSectionRenderer implements ICompressibleTreeRen
     disposeTemplate(templateData: IAgentSessionSectionTemplate): void;
 }
 export declare class AgentSessionsListDelegate implements IListVirtualDelegate<AgentSessionListItem> {
-    static readonly ITEM_HEIGHT = 48;
+    static readonly ITEM_HEIGHT = 54;
     static readonly SECTION_HEIGHT = 26;
     getHeight(element: AgentSessionListItem): number;
     getTemplateId(element: AgentSessionListItem): string;
@@ -148,7 +149,6 @@ export declare class AgentSessionsDataSource implements IAsyncDataSource<IAgentS
     private groupSessionsByDate;
 }
 export declare const AgentSessionSectionLabels: {
-    inProgress: string;
     today: string;
     yesterday: string;
     week: string;

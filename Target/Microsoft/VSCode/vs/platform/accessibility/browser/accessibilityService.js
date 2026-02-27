@@ -114,8 +114,12 @@ let AccessibilityService = class AccessibilityService2 extends Disposable {
     return this._onDidChangeScreenReaderOptimized.event;
   }
   isScreenReaderOptimized() {
-    const config = this._configurationService.getValue("editor.accessibilitySupport");
+    const config = this.getAccessibilitySupportConfigurationValue();
     return config === "on" || config === "auto" && this._accessibilitySupport === 2;
+  }
+  getAccessibilitySupportConfigurationValue() {
+    const inspectedValue = this._configurationService.inspect("editor.accessibilitySupport");
+    return inspectedValue.policyValue ?? inspectedValue.memoryValue ?? inspectedValue.workspaceFolderValue ?? inspectedValue.workspaceValue ?? inspectedValue.userValue ?? inspectedValue.applicationValue ?? inspectedValue.defaultValue ?? "auto";
   }
   get onDidChangeReducedMotion() {
     return this._onDidChangeReducedMotion.event;

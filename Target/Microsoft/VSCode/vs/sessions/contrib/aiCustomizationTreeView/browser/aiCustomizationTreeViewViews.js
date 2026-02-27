@@ -34,12 +34,12 @@ import { ViewPane } from "../../../../workbench/browser/parts/views/viewPane.js"
 import { IViewDescriptorService } from "../../../../workbench/common/views.js";
 import { IPromptsService, PromptsStorage } from "../../../../workbench/contrib/chat/common/promptSyntax/service/promptsService.js";
 import { PromptsType } from "../../../../workbench/contrib/chat/common/promptSyntax/promptTypes.js";
-import { agentIcon, extensionIcon, instructionsIcon, promptIcon, skillIcon, userIcon, workspaceIcon } from "./aiCustomizationTreeViewIcons.js";
+import { agentIcon, extensionIcon, instructionsIcon, pluginIcon, promptIcon, skillIcon, userIcon, workspaceIcon } from "../../../../workbench/contrib/chat/browser/aiCustomization/aiCustomizationIcons.js";
 import { AICustomizationItemMenuId } from "./aiCustomizationTreeView.js";
 import { IEditorService } from "../../../../workbench/services/editor/common/editorService.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
 import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
-import { ISessionsManagementService } from "../../sessions/browser/sessionsManagementService.js";
+import { IAICustomizationWorkspaceService } from "../../../../workbench/contrib/chat/common/aiCustomizationWorkspaceService.js";
 const AICustomizationIsEmptyContextKey = new RawContextKey("aiCustomization.isEmpty", true);
 const AICustomizationItemTypeContextKey = new RawContextKey("aiCustomizationItemType", "");
 const ROOT_ELEMENT = /* @__PURE__ */ Symbol("root");
@@ -279,17 +279,20 @@ class UnifiedAICustomizationDataSource {
     const storageLabels = {
       [PromptsStorage.local]: localize("workspaceWithCount", "Workspace ({0})", count),
       [PromptsStorage.user]: localize("userWithCount", "User ({0})", count),
-      [PromptsStorage.extension]: localize("extensionsWithCount", "Extensions ({0})", count)
+      [PromptsStorage.extension]: localize("extensionsWithCount", "Extensions ({0})", count),
+      [PromptsStorage.plugin]: localize("pluginsWithCount", "Plugins ({0})", count)
     };
     const storageIcons = {
       [PromptsStorage.local]: workspaceIcon,
       [PromptsStorage.user]: userIcon,
-      [PromptsStorage.extension]: extensionIcon
+      [PromptsStorage.extension]: extensionIcon,
+      [PromptsStorage.plugin]: pluginIcon
     };
     const storageSuffixes = {
       [PromptsStorage.local]: "workspace",
       [PromptsStorage.user]: "user",
-      [PromptsStorage.extension]: "extensions"
+      [PromptsStorage.extension]: "extensions",
+      [PromptsStorage.plugin]: "plugins"
     };
     return {
       type: "group",
@@ -341,14 +344,14 @@ let AICustomizationViewPane = class AICustomizationViewPane2 extends ViewPane {
   static {
     this.ID = "aiCustomization.view";
   }
-  constructor(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, hoverService, promptsService, editorService, menuService, logService, workspaceContextService, activeSessionService) {
+  constructor(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, hoverService, promptsService, editorService, menuService, logService, workspaceContextService, workspaceService) {
     super(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, hoverService);
     this.promptsService = promptsService;
     this.editorService = editorService;
     this.menuService = menuService;
     this.logService = logService;
     this.workspaceContextService = workspaceContextService;
-    this.activeSessionService = activeSessionService;
+    this.workspaceService = workspaceService;
     this.treeDisposables = this._register(new DisposableStore());
     this.isEmptyContextKey = AICustomizationIsEmptyContextKey.bindTo(contextKeyService);
     this.itemTypeContextKey = AICustomizationItemTypeContextKey.bindTo(contextKeyService);
@@ -356,7 +359,7 @@ let AICustomizationViewPane = class AICustomizationViewPane2 extends ViewPane {
     this._register(this.promptsService.onDidChangeSlashCommands(() => this.refresh()));
     this._register(this.workspaceContextService.onDidChangeWorkspaceFolders(() => this.refresh()));
     this._register(autorun((reader) => {
-      this.activeSessionService.activeSession.read(reader);
+      this.workspaceService.activeProjectRoot.read(reader);
       this.refresh();
     }));
   }
@@ -389,7 +392,7 @@ let AICustomizationViewPane = class AICustomizationViewPane2 extends ViewPane {
           }
           return element.description ? localize("fileAriaLabel", "{0}, {1}", element.name, element.description) : element.name;
         }, "getAriaLabel"),
-        getWidgetAriaLabel: /* @__PURE__ */ __name(() => localize("aiCustomizationTree", "AI Customization Items"), "getWidgetAriaLabel")
+        getWidgetAriaLabel: /* @__PURE__ */ __name(() => localize("aiCustomizationTree", "Chat Customization Items"), "getWidgetAriaLabel")
       },
       keyboardNavigationLabelProvider: {
         getKeyboardNavigationLabel: /* @__PURE__ */ __name((element) => {
@@ -476,7 +479,7 @@ AICustomizationViewPane = __decorate([
   __param(12, IMenuService),
   __param(13, ILogService),
   __param(14, IWorkspaceContextService),
-  __param(15, ISessionsManagementService)
+  __param(15, IAICustomizationWorkspaceService)
 ], AICustomizationViewPane);
 export {
   AICustomizationIsEmptyContextKey,

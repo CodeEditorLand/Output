@@ -387,6 +387,10 @@ export interface IConfigurationProperties {
      * Do not show this task in the run task quickpick
      */
     hide?: boolean;
+    /**
+     * Show this task in the Agent Sessions run action dropdown
+     */
+    inSessions?: boolean;
 }
 export declare enum RunOnOptions {
     default = 1,

@@ -719,4 +719,5 @@ export declare const Codicon: {
     readonly openai: ThemeIcon;
     readonly claude: ThemeIcon;
     readonly openInWindow: ThemeIcon;
+    readonly newSession: ThemeIcon;
 };

@@ -73,6 +73,10 @@ import { SettingsTreeIndicatorsLabel, getIndicatorsLabelAriaLabel } from "./sett
 import { SettingsTreeGroupElement, SettingsTreeNewExtensionsElement, SettingsTreeSettingElement, inspectSetting, objectSettingSupportsRemoveDefaultValue, settingKeyToDisplayFormat } from "./settingsTreeModels.js";
 import { ExcludeSettingWidget, IncludeSettingWidget, ListSettingWidget, ObjectSettingCheckboxWidget, ObjectSettingDropdownWidget } from "./settingsWidgets.js";
 const $ = DOM.$;
+const multiGroupTocSettings = /* @__PURE__ */ new Set([
+  "accessibility.signals.chatUserActionRequired",
+  "accessibility.signals.chatResponseReceived"
+]);
 function getIncludeExcludeDisplayValue(element) {
   const elementDefaultValue = typeof element.defaultValue === "object" ? element.defaultValue ?? {} : {};
   const data = element.isConfigured ? { ...elementDefaultValue, ...element.scopeValue } : elementDefaultValue;
@@ -536,7 +540,9 @@ function getMatchingSettings(allSettings, filter) {
     }
     if (shouldInclude && !shouldExclude) {
       result.push(setting);
-      allSettings.delete(setting);
+      if (!multiGroupTocSettings.has(setting.key)) {
+        allSettings.delete(setting);
+      }
     }
   });
   return result;

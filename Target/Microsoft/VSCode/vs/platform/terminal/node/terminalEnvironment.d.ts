@@ -2,7 +2,6 @@ import { IProcessEnvironment } from '../../../base/common/platform.js';
 import { ILogService } from '../../log/common/log.js';
 import { IProductService } from '../../product/common/productService.js';
 import { IShellLaunchConfig, ITerminalEnvironment, ITerminalProcessOptions, ShellIntegrationInjectionFailureReason } from '../common/terminal.js';
-export declare function getWindowsBuildNumber(): number;
 export interface IShellIntegrationConfigInjection {
     readonly type: 'injection';
     /**

@@ -9,16 +9,14 @@ import { DisposableStore, IDisposable } from '../../../../../base/common/lifecyc
 import { CancellationToken } from '../../../../../base/common/cancellation.js';
 import { IQuickAccessTextEditorContext } from '../../../../../editor/contrib/quickAccess/browser/editorNavigationQuickAccess.js';
 import { IOutlineService } from '../../../../services/outline/browser/outline.js';
-import { IEditorGroupsService } from '../../../../services/editor/common/editorGroupsService.js';
 import { IOutlineModelService } from '../../../../../editor/contrib/documentSymbols/browser/outlineModel.js';
 import { ILanguageFeaturesService } from '../../../../../editor/common/services/languageFeatures.js';
 export declare class GotoSymbolQuickAccessProvider extends AbstractGotoSymbolQuickAccessProvider {
     private readonly editorService;
-    private readonly editorGroupService;
     private readonly configurationService;
     private readonly outlineService;
     protected readonly onDidActiveTextEditorControlChange: Event<void>;
-    constructor(editorService: IEditorService, editorGroupService: IEditorGroupsService, configurationService: IConfigurationService, languageFeaturesService: ILanguageFeaturesService, outlineService: IOutlineService, outlineModelService: IOutlineModelService);
+    constructor(editorService: IEditorService, configurationService: IConfigurationService, languageFeaturesService: ILanguageFeaturesService, outlineService: IOutlineService, outlineModelService: IOutlineModelService);
     private get configuration();
     protected get activeTextEditorControl(): import("../../../../../editor/common/editorCommon.ts").IEditor | undefined;
     protected gotoLocation(context: IQuickAccessTextEditorContext, options: {

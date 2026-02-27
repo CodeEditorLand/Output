@@ -29,7 +29,6 @@ import { IPreferencesService } from '../../../services/preferences/common/prefer
 import { ICommandService } from '../../../../platform/commands/common/commands.js';
 import { IPaneCompositePartService } from '../../../services/panecomposite/browser/panecomposite.js';
 import { IExtensionGalleryManifestService } from '../../../../platform/extensionManagement/common/extensionGalleryManifest.js';
-import { IHoverService } from '../../../../platform/hover/browser/hover.js';
 export declare const ExtensionsSortByContext: RawContextKey<string>;
 export declare const SearchMarketplaceExtensionsContext: RawContextKey<boolean>;
 export declare const SearchHasTextContext: RawContextKey<boolean>;
@@ -63,12 +62,12 @@ export declare class ExtensionsViewPaneContainer extends ViewPaneContainer<IExte
     private readonly contextKeyService;
     private readonly preferencesService;
     private readonly commandService;
-    private readonly hoverService;
     private readonly extensionsSearchValueContextKey;
     private readonly defaultViewsContextKey;
     private readonly sortByContextKey;
     private readonly searchMarketplaceExtensionsContextKey;
     private readonly searchMcpServersContextKey;
+    private readonly searchAgentPluginsContextKey;
     private readonly searchHasTextContextKey;
     private readonly sortByUpdateDateContextKey;
     private readonly installedExtensionsContextKey;
@@ -83,6 +82,7 @@ export declare class ExtensionsViewPaneContainer extends ViewPaneContainer<IExte
     private readonly searchBuiltInExtensionsContextKey;
     private readonly searchWorkspaceUnsupportedExtensionsContextKey;
     private readonly searchDeprecatedExtensionsContextKey;
+    private readonly searchRestartRequiredExtensionsContextKey;
     private readonly recommendedExtensionsContextKey;
     private searchDelayer;
     private root;
@@ -91,7 +91,7 @@ export declare class ExtensionsViewPaneContainer extends ViewPaneContainer<IExte
     private notificationContainer;
     private readonly searchViewletState;
     private extensionGalleryManifest;
-    constructor(layoutService: IWorkbenchLayoutService, telemetryService: ITelemetryService, progressService: IProgressService, instantiationService: IInstantiationService, editorGroupService: IEditorGroupsService, extensionGalleryManifestService: IExtensionGalleryManifestService, extensionsWorkbenchService: IExtensionsWorkbenchService, extensionManagementServerService: IExtensionManagementServerService, notificationService: INotificationService, paneCompositeService: IPaneCompositePartService, themeService: IThemeService, configurationService: IConfigurationService, storageService: IStorageService, contextService: IWorkspaceContextService, contextKeyService: IContextKeyService, contextMenuService: IContextMenuService, extensionService: IExtensionService, viewDescriptorService: IViewDescriptorService, preferencesService: IPreferencesService, commandService: ICommandService, logService: ILogService, hoverService: IHoverService);
+    constructor(layoutService: IWorkbenchLayoutService, telemetryService: ITelemetryService, progressService: IProgressService, instantiationService: IInstantiationService, editorGroupService: IEditorGroupsService, extensionGalleryManifestService: IExtensionGalleryManifestService, extensionsWorkbenchService: IExtensionsWorkbenchService, extensionManagementServerService: IExtensionManagementServerService, notificationService: INotificationService, paneCompositeService: IPaneCompositePartService, themeService: IThemeService, configurationService: IConfigurationService, storageService: IStorageService, contextService: IWorkspaceContextService, contextKeyService: IContextKeyService, contextMenuService: IContextMenuService, extensionService: IExtensionService, viewDescriptorService: IViewDescriptorService, preferencesService: IPreferencesService, commandService: ICommandService, logService: ILogService);
     get searchValue(): string | undefined;
     create(parent: HTMLElement): void;
     focus(): void;

@@ -57,6 +57,7 @@ export declare enum RenderIndentGuides {
 }
 interface ITreeRendererOptions<T> {
     readonly indent?: number;
+    readonly defaultIndent?: number;
     readonly renderIndentGuides?: RenderIndentGuides;
     readonly hideTwistiesOfChildlessElements?: boolean;
     readonly twistieAdditionalCssClass?: (element: T) => string | undefined;
@@ -75,6 +76,7 @@ export declare class TreeRenderer<T, TFilterData, TRef, TTemplateData> implement
     private renderedElements;
     private renderedNodes;
     private indent;
+    private defaultIndent;
     private hideTwistiesOfChildlessElements;
     private twistieAdditionalCssClass?;
     private shouldRenderIndentGuides;
@@ -271,6 +273,7 @@ declare class StickyScrollController<T, TFilterData, TRef> extends Disposable {
     };
 }
 export interface IAbstractTreeOptionsUpdate<T> extends ITreeRendererOptions<T> {
+    readonly defaultIndent?: number;
     readonly multipleSelectionSupport?: boolean;
     readonly typeNavigationEnabled?: boolean;
     readonly typeNavigationMode?: TypeNavigationMode;

@@ -59,6 +59,7 @@ var EditorContextKeys;
   EditorContextKeys2.hasDocumentSelectionFormattingProvider = new RawContextKey("editorHasDocumentSelectionFormattingProvider", false, nls.localize("editorHasDocumentSelectionFormattingProvider", "Whether the editor has a document selection formatting provider"));
   EditorContextKeys2.hasMultipleDocumentFormattingProvider = new RawContextKey("editorHasMultipleDocumentFormattingProvider", false, nls.localize("editorHasMultipleDocumentFormattingProvider", "Whether the editor has multiple document formatting providers"));
   EditorContextKeys2.hasMultipleDocumentSelectionFormattingProvider = new RawContextKey("editorHasMultipleDocumentSelectionFormattingProvider", false, nls.localize("editorHasMultipleDocumentSelectionFormattingProvider", "Whether the editor has multiple document selection formatting providers"));
+  EditorContextKeys2.selectionHasDiagnostics = new RawContextKey("editorSelectionHasDiagnostics", false, nls.localize("editorSelectionHasDiagnostics", "Whether any diagnostic is present in the current editor selection"));
 })(EditorContextKeys || (EditorContextKeys = {}));
 export {
   EditorContextKeys

@@ -1,6 +1,6 @@
 import { Disposable } from '../../../base/common/lifecycle.js';
 import { ILogService } from '../../log/common/log.js';
-import { IMcpGatewayInfo, IMcpGatewayService } from '../common/mcpGateway.js';
+import { IMcpGatewayInfo, IMcpGatewayService, IMcpGatewayToolInvoker } from '../common/mcpGateway.js';
 /**
  * Node.js implementation of the MCP Gateway Service.
  *
@@ -17,7 +17,7 @@ export declare class McpGatewayService extends Disposable implements IMcpGateway
     private readonly _gatewayToClient;
     private _serverStartPromise;
     constructor(_logService: ILogService);
-    createGateway(clientId: unknown): Promise<IMcpGatewayInfo>;
+    createGateway(clientId: unknown, toolInvoker?: IMcpGatewayToolInvoker): Promise<IMcpGatewayInfo>;
     disposeGateway(gatewayId: string): Promise<void>;
     disposeGatewaysForClient(clientId: unknown): void;
     private _ensureServer;

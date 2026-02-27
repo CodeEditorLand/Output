@@ -41,6 +41,7 @@ export declare class BrowserEditor extends EditorPane {
     private _editorVisible;
     private _currentKeyDownEvent;
     private _navigationBar;
+    private _browserContainerWrapper;
     private _browserContainer;
     private _placeholderScreenshot;
     private _overlayPauseContainer;
@@ -77,6 +78,8 @@ export declare class BrowserEditor extends EditorPane {
     private updateOverlayPauseMessage;
     private updateErrorDisplay;
     getUrl(): string | undefined;
+    private _updateSharingState;
+    toggleShareWithAgent(): void;
     navigateToUrl(url: string): Promise<void>;
     focusUrlInput(): void;
     goBack(): Promise<void>;
@@ -104,9 +107,22 @@ export declare class BrowserEditor extends EditorPane {
      * Start element selection in the browser view, wait for a user selection, and add it to chat.
      */
     addElementToChat(): Promise<void>;
+    /**
+     * Grab the current console logs from the active console session and attach them to chat.
+     */
     addConsoleLogsToChat(): Promise<void>;
+    /**
+     * Start a console session to capture logs from the browser view.
+     */
     private startConsoleSession;
+    /**
+     * Stop the active console session.
+     */
     private stopConsoleSession;
+    private createElementContextValue;
+    private formatElementPath;
+    private formatElementMap;
+    private createBoxShorthand;
     /**
      * Update navigation state and context keys
      */

@@ -8,7 +8,6 @@ import { ViewPaneContainer } from "../../../../workbench/browser/parts/views/vie
 import { registerWorkbenchContribution2 } from "../../../../workbench/common/contributions.js";
 import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
 import { SessionsTitleBarContribution } from "./sessionsTitleBarWidget.js";
-import { SessionsAuxiliaryBarContribution } from "./sessionsAuxiliaryBarContribution.js";
 import { AgenticSessionsViewPane, SessionsViewId } from "./sessionsViewPane.js";
 import { SessionsManagementService, ISessionsManagementService } from "./sessionsManagementService.js";
 const agentSessionsViewIcon = registerIcon("chat-sessions-icon", Codicon.commentDiscussionSparkle, localize("agentSessionsViewIcon", "Icon for Agent Sessions View"));
@@ -41,12 +40,6 @@ Registry.as(ViewContainerExtensions.ViewsRegistry).registerViews([agentSessionsV
 registerWorkbenchContribution2(
   SessionsTitleBarContribution.ID,
   SessionsTitleBarContribution,
-  3
-  /* WorkbenchPhase.AfterRestored */
-);
-registerWorkbenchContribution2(
-  SessionsAuxiliaryBarContribution.ID,
-  SessionsAuxiliaryBarContribution,
   3
   /* WorkbenchPhase.AfterRestored */
 );

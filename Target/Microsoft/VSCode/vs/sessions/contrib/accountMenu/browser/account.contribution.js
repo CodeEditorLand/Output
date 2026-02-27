@@ -31,6 +31,8 @@ import { Button } from "../../../../base/browser/ui/button/button.js";
 import { defaultButtonStyles } from "../../../../platform/theme/browser/defaultStyles.js";
 import { Codicon } from "../../../../base/common/codicons.js";
 import { IUpdateService } from "../../../../platform/update/common/update.js";
+import { asCssVariable } from "../../../../platform/theme/common/colorUtils.js";
+import { sessionsUpdateButtonDownloadingBackground, sessionsUpdateButtonDownloadedBackground } from "../../../common/theme.js";
 const AccountMenu = new MenuId("SessionsAccountMenu");
 registerAction2(class extends Action2 {
   constructor() {
@@ -120,11 +122,9 @@ let AccountWidget = class AccountWidget2 extends ActionViewItem {
     const actions = [];
     fillInActionBarActions(menu.getActions(), actions);
     menu.dispose();
-    const rect = anchor.getBoundingClientRect();
     this.contextMenuService.showContextMenu({
-      getAnchor: /* @__PURE__ */ __name(() => ({ x: rect.right, y: rect.top }), "getAnchor"),
-      getActions: /* @__PURE__ */ __name(() => actions, "getActions"),
-      anchorAlignment: 0
+      getAnchor: /* @__PURE__ */ __name(() => anchor, "getAnchor"),
+      getActions: /* @__PURE__ */ __name(() => actions, "getActions")
     });
   }
   async updateAccountButton() {
@@ -192,9 +192,44 @@ let UpdateWidget = class UpdateWidget2 extends ActionViewItem {
     if (this.isUpdatePending() && !this.isUpdateReady()) {
       this.updateButton.enabled = false;
       this.updateButton.label = `$(${Codicon.loading.id}~spin) ${this.getUpdateProgressMessage(state.type)}`;
+      this.updateDownloadProgress(state);
     } else {
       this.updateButton.enabled = true;
       this.updateButton.label = `$(${Codicon.debugRestart.id}) ${localize("update", "Update")}`;
+      const el = this.updateButton.element;
+      if (state.type === "ready") {
+        const color = asCssVariable(sessionsUpdateButtonDownloadedBackground);
+        el.style.backgroundImage = `linear-gradient(to right, ${color} 100%, transparent 100%)`;
+      } else {
+        el.style.backgroundImage = "";
+      }
+    }
+  }
+  updateDownloadProgress(state) {
+    if (!this.updateButton) {
+      return;
+    }
+    const el = this.updateButton.element;
+    if (state.type === "downloading") {
+      const { downloadedBytes, totalBytes } = state;
+      if (downloadedBytes !== void 0 && totalBytes && totalBytes > 0) {
+        const percent = Math.min(100, Math.round(downloadedBytes / totalBytes * 100));
+        const color = asCssVariable(sessionsUpdateButtonDownloadingBackground);
+        el.style.backgroundImage = `linear-gradient(to right, ${color} ${percent}%, transparent ${percent}%)`;
+      } else {
+        const color = asCssVariable(sessionsUpdateButtonDownloadingBackground);
+        el.style.backgroundImage = `linear-gradient(to right, ${color} 0%, transparent 100%)`;
+      }
+    } else if (state.type === "downloaded") {
+      const color = asCssVariable(sessionsUpdateButtonDownloadedBackground);
+      el.style.backgroundImage = `linear-gradient(to right, ${color} 100%, transparent 100%)`;
+    } else {
+      this.clearDownloadProgress();
+    }
+  }
+  clearDownloadProgress() {
+    if (this.updateButton) {
+      this.updateButton.element.style.backgroundImage = "";
     }
   }
   getUpdateProgressMessage(type) {
@@ -270,9 +305,6 @@ let AccountWidgetContribution = class AccountWidgetContribution2 extends Disposa
               "available for download"
               /* StateType.AvailableForDownload */
             ), CONTEXT_UPDATE_STATE.isEqualTo(
-              "checking for updates"
-              /* StateType.CheckingForUpdates */
-            ), CONTEXT_UPDATE_STATE.isEqualTo(
               "downloading"
               /* StateType.Downloading */
             ), CONTEXT_UPDATE_STATE.isEqualTo(
@@ -303,4 +335,7 @@ registerWorkbenchContribution2(
   3
   /* WorkbenchPhase.AfterRestored */
 );
+export {
+  UpdateWidget
+};
 //# sourceMappingURL=account.contribution.js.map

@@ -74,9 +74,8 @@ export declare class LinesLayout {
      *
      * @param fromLineNumber The line number at which the insertion started, inclusive
      * @param toLineNumber The line number at which the insertion ended, inclusive.
-     * @param lineHeightsAdded The custom line height data for the inserted lines.
      */
-    onLinesInserted(fromLineNumber: number, toLineNumber: number, lineHeightsAdded: CustomLineHeightData[]): void;
+    onLinesInserted(fromLineNumber: number, toLineNumber: number): void;
     /**
      * Get the sum of all the whitespaces.
      */

@@ -75,6 +75,7 @@ class ViewModelLinesFromProjectedModel {
     }
     this._validModelVersionId = this.model.getVersionId();
     this.projectedModelLineLineCounts = new ConstantTimePrefixSumComputer(values);
+    this._ensureAtLeastOneVisibleLine();
   }
   getHiddenAreas() {
     return this.hiddenAreasDecorationIds.map((decId) => this.model.getDecorationRange(decId));
@@ -271,8 +272,12 @@ class ViewModelLinesFromProjectedModel {
   }
   acceptVersionId(versionId) {
     this._validModelVersionId = versionId;
-    if (this.modelLineProjections.length === 1 && !this.modelLineProjections[0].isVisible()) {
-      this.setHiddenAreas([]);
+    this._ensureAtLeastOneVisibleLine();
+  }
+  _ensureAtLeastOneVisibleLine() {
+    if (this.getViewLineCount() === 0 && this.modelLineProjections.length > 0) {
+      this.modelLineProjections[0] = this.modelLineProjections[0].setVisible(true);
+      this.projectedModelLineLineCounts.setValue(0, this.modelLineProjections[0].getViewLineCount());
     }
   }
   getViewLineCount() {
@@ -494,7 +499,8 @@ class ViewModelLinesFromProjectedModel {
   }
   getViewLineData(viewLineNumber) {
     const info = this.getViewLineInfo(viewLineNumber);
-    return this.modelLineProjections[info.modelLineNumber - 1].getViewLineData(this.model, info.modelLineNumber, info.modelLineWrappedLineIdx);
+    const baseViewLineNumber = this.projectedModelLineLineCounts.getPrefixSum(info.modelLineNumber - 1) + 1;
+    return this.modelLineProjections[info.modelLineNumber - 1].getViewLineData(this.model, info.modelLineNumber, info.modelLineWrappedLineIdx, baseViewLineNumber);
   }
   getViewLinesData(viewStartLineNumber, viewEndLineNumber, needed) {
     viewStartLineNumber = this._toValidViewLineNumber(viewStartLineNumber);
@@ -516,7 +522,8 @@ class ViewModelLinesFromProjectedModel {
         lastLine = true;
         remainingViewLineCount = viewEndLineNumber - viewLineNumber + 1;
       }
-      line.getViewLinesData(this.model, modelLineIndex + 1, fromViewLineIndex, remainingViewLineCount, viewLineNumber - viewStartLineNumber, needed, result);
+      const baseViewLineNumber = this.projectedModelLineLineCounts.getPrefixSum(modelLineIndex) + 1;
+      line.getViewLinesData(this.model, modelLineIndex + 1, fromViewLineIndex, remainingViewLineCount, baseViewLineNumber, viewLineNumber - viewStartLineNumber, needed, result);
       viewLineNumber += remainingViewLineCount;
       if (lastLine) {
         break;

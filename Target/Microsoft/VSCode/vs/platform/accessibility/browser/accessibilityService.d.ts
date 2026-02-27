@@ -27,6 +27,7 @@ export declare class AccessibilityService extends Disposable implements IAccessi
     onDidChangeLinkUnderlines(listener: () => void): import("../../../base/common/lifecycle.js").IDisposable;
     get onDidChangeScreenReaderOptimized(): Event<void>;
     isScreenReaderOptimized(): boolean;
+    private getAccessibilitySupportConfigurationValue;
     get onDidChangeReducedMotion(): Event<void>;
     isMotionReduced(): boolean;
     get onDidChangeReducedTransparency(): Event<void>;

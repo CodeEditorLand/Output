@@ -23,6 +23,7 @@ import { rcut } from "../../../../../../base/common/strings.js";
 import { localize } from "../../../../../../nls.js";
 import { IHoverService } from "../../../../../../platform/hover/browser/hover.js";
 import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
 import { ChatCollapsibleContentPart } from "./chatCollapsibleContentPart.js";
 import { ChatCollapsibleMarkdownContentPart } from "./chatCollapsibleMarkdownContentPart.js";
 import { renderFileWidgets } from "./chatInlineAnchorWidget.js";
@@ -70,11 +71,11 @@ let ChatSubagentContentPart = ChatSubagentContentPart_1 = class ChatSubagentCont
     }
     return { description: defaultDescription, agentName: void 0, prompt: void 0, modelName: void 0 };
   }
-  constructor(subAgentInvocationId, toolInvocation, context, chatContentMarkdownRenderer, listPool, editorPool, currentWidthDelegate, codeBlockModelCollection, announcedToolProgressKeys, instantiationService, chatMarkdownAnchorService, hoverService) {
+  constructor(subAgentInvocationId, toolInvocation, context, chatContentMarkdownRenderer, listPool, editorPool, currentWidthDelegate, codeBlockModelCollection, announcedToolProgressKeys, instantiationService, chatMarkdownAnchorService, hoverService, configurationService) {
     const { description, agentName, prompt, modelName } = ChatSubagentContentPart_1.extractSubagentInfo(toolInvocation);
     const prefix = agentName || localize("chat.subagent.prefix", "Subagent");
     const initialTitle = `${prefix}: ${description}`;
-    super(initialTitle, context, void 0, hoverService);
+    super(initialTitle, context, void 0, hoverService, configurationService);
     this.subAgentInvocationId = subAgentInvocationId;
     this.context = context;
     this.chatContentMarkdownRenderer = chatContentMarkdownRenderer;
@@ -623,7 +624,8 @@ let ChatSubagentContentPart = ChatSubagentContentPart_1 = class ChatSubagentCont
 ChatSubagentContentPart = ChatSubagentContentPart_1 = __decorate([
   __param(9, IInstantiationService),
   __param(10, IChatMarkdownAnchorService),
-  __param(11, IHoverService)
+  __param(11, IHoverService),
+  __param(12, IConfigurationService)
 ], ChatSubagentContentPart);
 export {
   ChatSubagentContentPart

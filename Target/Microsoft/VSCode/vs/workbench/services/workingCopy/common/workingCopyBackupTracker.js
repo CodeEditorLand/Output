@@ -7,7 +7,7 @@ class WorkingCopyBackupTracker extends Disposable {
   static {
     __name(this, "WorkingCopyBackupTracker");
   }
-  constructor(workingCopyBackupService, workingCopyService, logService, lifecycleService, filesConfigurationService, workingCopyEditorService, editorService, editorGroupService) {
+  constructor(workingCopyBackupService, workingCopyService, logService, lifecycleService, filesConfigurationService, workingCopyEditorService, editorService) {
     super();
     this.workingCopyBackupService = workingCopyBackupService;
     this.workingCopyService = workingCopyService;
@@ -16,7 +16,6 @@ class WorkingCopyBackupTracker extends Disposable {
     this.filesConfigurationService = filesConfigurationService;
     this.workingCopyEditorService = workingCopyEditorService;
     this.editorService = editorService;
-    this.editorGroupService = editorGroupService;
     this.mapWorkingCopyToContentVersion = /* @__PURE__ */ new Map();
     this.pendingBackupOperations = /* @__PURE__ */ new Map();
     this.suspended = false;
@@ -238,7 +237,7 @@ class WorkingCopyBackupTracker extends Disposable {
       restoredBackups.add(unrestoredBackup);
     }
     if (nonOpenedEditorsForBackups.size > 0) {
-      await this.editorGroupService.activeGroup.openEditors([...nonOpenedEditorsForBackups].map((nonOpenedEditorForBackup) => ({
+      await this.editorService.openEditors([...nonOpenedEditorsForBackups].map((nonOpenedEditorForBackup) => ({
         editor: nonOpenedEditorForBackup,
         options: {
           pinned: true,

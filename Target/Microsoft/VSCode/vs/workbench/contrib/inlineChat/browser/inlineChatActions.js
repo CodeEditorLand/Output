@@ -7,10 +7,10 @@ import { EmbeddedDiffEditorWidget } from "../../../../editor/browser/widget/diff
 import { EmbeddedCodeEditorWidget } from "../../../../editor/browser/widget/codeEditor/embeddedCodeEditorWidget.js";
 import { EditorContextKeys } from "../../../../editor/common/editorContextKeys.js";
 import { InlineChatController, InlineChatRunOptions } from "./inlineChatController.js";
-import { ACTION_ACCEPT_CHANGES, CTX_INLINE_CHAT_FOCUSED, CTX_INLINE_CHAT_VISIBLE, CTX_INLINE_CHAT_OUTER_CURSOR_POSITION, CTX_INLINE_CHAT_POSSIBLE, ACTION_START, CTX_INLINE_CHAT_V2_ENABLED, CTX_INLINE_CHAT_V1_ENABLED, CTX_HOVER_MODE, CTX_INLINE_CHAT_INPUT_HAS_TEXT } from "../common/inlineChat.js";
+import { ACTION_ACCEPT_CHANGES, ACTION_ASK_IN_CHAT, CTX_INLINE_CHAT_FOCUSED, CTX_INLINE_CHAT_VISIBLE, CTX_INLINE_CHAT_OUTER_CURSOR_POSITION, CTX_INLINE_CHAT_POSSIBLE, ACTION_START, CTX_INLINE_CHAT_V2_ENABLED, CTX_INLINE_CHAT_V1_ENABLED, CTX_HOVER_MODE, CTX_INLINE_CHAT_INPUT_HAS_TEXT, CTX_INLINE_CHAT_FILE_BELONGS_TO_CHAT, CTX_INLINE_CHAT_INPUT_WIDGET_FOCUSED, CTX_INLINE_CHAT_PENDING_CONFIRMATION, CTX_FIX_DIAGNOSTICS_ENABLED } from "../common/inlineChat.js";
 import { ctxHasEditorModification, ctxHasRequestInProgress } from "../../chat/browser/chatEditing/chatEditingEditorContextKeys.js";
 import { localize, localize2 } from "../../../../nls.js";
-import { Action2, MenuId } from "../../../../platform/actions/common/actions.js";
+import { Action2, MenuId, MenuRegistry } from "../../../../platform/actions/common/actions.js";
 import { ContextKeyExpr, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { IEditorService } from "../../../services/editor/common/editorService.js";
@@ -20,6 +20,9 @@ import { CommandsRegistry } from "../../../../platform/commands/common/commands.
 import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
 import { ChatContextKeys } from "../../chat/common/actions/chatContextKeys.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IChatEditingService } from "../../chat/common/editing/chatEditingService.js";
+import { IChatWidgetService } from "../../chat/browser/chat.js";
 CommandsRegistry.registerCommandAlias("interactiveEditor.start", "inlineChat.start");
 CommandsRegistry.registerCommandAlias("interactive.acceptChanges", ACTION_ACCEPT_CHANGES);
 const START_INLINE_CHAT = registerIcon("start-inline-chat", Codicon.sparkle, localize("startInlineChat", "Icon which spawns the inline chat from the editor toolbar."));
@@ -40,7 +43,7 @@ class StartSessionAction extends Action2 {
       shortTitle: localize2("runShort", "Inline Chat"),
       category: AbstractInlineChatAction.category,
       f1: true,
-      precondition: inlineChatContextKey,
+      precondition: ContextKeyExpr.and(inlineChatContextKey, CTX_INLINE_CHAT_FILE_BELONGS_TO_CHAT.negate()),
       keybinding: {
         when: EditorContextKeys.focus,
         weight: 200,
@@ -78,6 +81,7 @@ class StartSessionAction extends Action2 {
     });
   }
   async _runEditorCommand(accessor, editor, ...args) {
+    const configServce = accessor.get(IConfigurationService);
     const ctrl = InlineChatController.get(editor);
     if (!ctrl) {
       return;
@@ -90,9 +94,29 @@ class StartSessionAction extends Action2 {
     if (arg && InlineChatRunOptions.isInlineChatRunOptions(arg)) {
       options = arg;
     }
-    await InlineChatController.get(editor)?.run({ ...options });
+    if (!options?.message && configServce.getValue(
+      "inlineChat.renderMode"
+      /* InlineChatConfigKeys.RenderMode */
+    ) === "hover") {
+      const selection = editor.getSelection();
+      const placeholder = selection && !selection.isEmpty() ? localize("placeholderWithSelection", "Describe how to change this") : localize("placeholderNoSelection", "Describe what to generate");
+      await ctrl.inputOverlayWidget.showMenuAtSelection(placeholder);
+      return;
+    }
+    await ctrl?.run({ ...options });
   }
 }
+MenuRegistry.appendMenuItem(MenuId.InlineChatEditorAffordance, {
+  group: "0_chat",
+  order: 1,
+  when: ContextKeyExpr.and(EditorContextKeys.writable, EditorContextKeys.hasNonEmptySelection, CTX_INLINE_CHAT_FILE_BELONGS_TO_CHAT.negate()),
+  command: {
+    id: ACTION_START,
+    title: localize("editCode", "Ask for Edits"),
+    shortTitle: localize("editCodeShort", "Ask for Edits"),
+    icon: Codicon.sparkle
+  }
+});
 class FocusInlineChat extends EditorAction2 {
   static {
     __name(this, "FocusInlineChat");
@@ -182,6 +206,33 @@ class AbstractInlineChatAction extends EditorAction2 {
     this.runInlineChatCommand(accessor, ctrl, editor, ..._args);
   }
 }
+class FixDiagnosticsAction extends AbstractInlineChatAction {
+  static {
+    __name(this, "FixDiagnosticsAction");
+  }
+  constructor() {
+    super({
+      id: "inlineChat.fixDiagnostics",
+      title: localize2("fix", "Fix"),
+      icon: Codicon.editSparkle,
+      precondition: ContextKeyExpr.and(inlineChatContextKey, CTX_FIX_DIAGNOSTICS_ENABLED, EditorContextKeys.selectionHasDiagnostics, CTX_INLINE_CHAT_FILE_BELONGS_TO_CHAT.negate()),
+      menu: [{
+        id: MenuId.InlineChatEditorAffordance,
+        group: "1_quickfix",
+        order: 100,
+        when: ContextKeyExpr.and(CTX_FIX_DIAGNOSTICS_ENABLED, EditorContextKeys.selectionHasDiagnostics, CTX_INLINE_CHAT_FILE_BELONGS_TO_CHAT.negate())
+      }, {
+        id: MenuId.ChatEditorInlineMenu,
+        group: "2_chat",
+        order: 1,
+        when: ContextKeyExpr.and(CTX_FIX_DIAGNOSTICS_ENABLED, EditorContextKeys.selectionHasDiagnostics, CTX_INLINE_CHAT_FILE_BELONGS_TO_CHAT.negate())
+      }]
+    });
+  }
+  runInlineChatCommand(_accessor, ctrl, _editor, ..._args) {
+    ctrl.run({ autoSend: true, attachDiagnostics: true });
+  }
+}
 class KeepOrUndoSessionAction extends AbstractInlineChatAction {
   static {
     __name(this, "KeepOrUndoSessionAction");
@@ -266,7 +317,7 @@ class UndoAndCloseSessionAction2 extends KeepOrUndoSessionAction {
       title: localize2("close2", "Close"),
       f1: true,
       icon: Codicon.close,
-      precondition: ContextKeyExpr.and(CTX_INLINE_CHAT_VISIBLE, CTX_HOVER_MODE.negate()),
+      precondition: ContextKeyExpr.and(CTX_INLINE_CHAT_VISIBLE),
       keybinding: [{
         when: ContextKeyExpr.or(ContextKeyExpr.and(EditorContextKeys.focus, ctxHasEditorModification.negate()), ChatContextKeys.inputHasFocus),
         weight: 200 + 1,
@@ -276,7 +327,30 @@ class UndoAndCloseSessionAction2 extends KeepOrUndoSessionAction {
         id: MenuId.ChatEditorInlineExecute,
         group: "navigation",
         order: 100,
-        when: ContextKeyExpr.or(CTX_HOVER_MODE.negate(), ContextKeyExpr.and(CTX_HOVER_MODE, ctxHasEditorModification.negate(), ctxHasRequestInProgress.negate()))
+        when: ContextKeyExpr.or(CTX_HOVER_MODE.negate(), ContextKeyExpr.and(CTX_HOVER_MODE, ctxHasEditorModification.negate(), ctxHasRequestInProgress.negate()), ContextKeyExpr.and(CTX_HOVER_MODE, CTX_INLINE_CHAT_PENDING_CONFIRMATION))
+      }]
+    });
+  }
+}
+class CancelSessionAction extends KeepOrUndoSessionAction {
+  static {
+    __name(this, "CancelSessionAction");
+  }
+  constructor() {
+    super(false, {
+      id: "inlineChat2.cancel",
+      title: localize2("cancel", "Cancel"),
+      precondition: ContextKeyExpr.and(CTX_INLINE_CHAT_VISIBLE, ctxHasRequestInProgress),
+      keybinding: [{
+        when: ContextKeyExpr.or(EditorContextKeys.focus, ChatContextKeys.inputHasFocus),
+        weight: 200 + 1,
+        primary: 9
+      }],
+      menu: [{
+        id: MenuId.ChatEditorInlineExecute,
+        group: "navigation",
+        order: 100,
+        when: ContextKeyExpr.and(CTX_HOVER_MODE, ctxHasRequestInProgress)
       }]
     });
   }
@@ -290,11 +364,18 @@ class SubmitInlineChatInputAction extends AbstractInlineChatAction {
       id: "inlineChat.submitInput",
       title: localize2("submitInput", "Send"),
       icon: Codicon.send,
-      precondition: CTX_INLINE_CHAT_INPUT_HAS_TEXT,
+      precondition: ContextKeyExpr.and(CTX_INLINE_CHAT_INPUT_WIDGET_FOCUSED, CTX_INLINE_CHAT_INPUT_HAS_TEXT, CTX_INLINE_CHAT_FILE_BELONGS_TO_CHAT.negate()),
+      keybinding: {
+        when: ContextKeyExpr.and(CTX_INLINE_CHAT_INPUT_WIDGET_FOCUSED, CTX_INLINE_CHAT_FILE_BELONGS_TO_CHAT.negate()),
+        weight: 0 + 10,
+        primary: 3
+        /* KeyCode.Enter */
+      },
       menu: [{
         id: MenuId.InlineChatInput,
         group: "0_main",
-        order: 1
+        order: 1,
+        when: CTX_INLINE_CHAT_FILE_BELONGS_TO_CHAT.negate()
       }]
     });
   }
@@ -306,10 +387,133 @@ class SubmitInlineChatInputAction extends AbstractInlineChatAction {
     }
   }
 }
+class HideInlineChatInputAction extends AbstractInlineChatAction {
+  static {
+    __name(this, "HideInlineChatInputAction");
+  }
+  constructor() {
+    super({
+      id: "inlineChat.hideInput",
+      title: localize2("hideInput", "Hide Input"),
+      precondition: CTX_INLINE_CHAT_INPUT_WIDGET_FOCUSED,
+      keybinding: {
+        when: CTX_INLINE_CHAT_INPUT_WIDGET_FOCUSED,
+        weight: 0 + 10,
+        primary: 9
+        /* KeyCode.Escape */
+      }
+    });
+  }
+  runInlineChatCommand(_accessor, ctrl, _editor, ..._args) {
+    ctrl.inputWidget.hide();
+  }
+}
+class AskInChatAction extends EditorAction2 {
+  static {
+    __name(this, "AskInChatAction");
+  }
+  constructor() {
+    super({
+      id: ACTION_ASK_IN_CHAT,
+      title: localize2("askInChat", "Ask in Chat"),
+      category: AbstractInlineChatAction.category,
+      f1: true,
+      precondition: ContextKeyExpr.and(inlineChatContextKey, CTX_INLINE_CHAT_FILE_BELONGS_TO_CHAT),
+      keybinding: {
+        when: EditorContextKeys.focus,
+        weight: 200,
+        primary: 2048 | 39
+        /* KeyCode.KeyI */
+      },
+      icon: Codicon.chatSparkle,
+      menu: [{
+        id: MenuId.EditorContext,
+        group: "1_chat",
+        order: 3,
+        when: ContextKeyExpr.and(inlineChatContextKey, CTX_INLINE_CHAT_FILE_BELONGS_TO_CHAT)
+      }, {
+        id: MenuId.InlineChatEditorAffordance,
+        group: "0_chat",
+        order: 1,
+        when: ContextKeyExpr.and(EditorContextKeys.hasNonEmptySelection, CTX_INLINE_CHAT_FILE_BELONGS_TO_CHAT)
+      }]
+    });
+  }
+  async runEditorCommand(accessor, editor) {
+    const chatEditingService = accessor.get(IChatEditingService);
+    const ctrl = InlineChatController.get(editor);
+    if (!ctrl || !editor.hasModel()) {
+      return;
+    }
+    const entry = chatEditingService.editingSessionsObs.get().find((value) => value.getEntry(editor.getModel().uri));
+    if (entry) {
+      ctrl.inputOverlayWidget.showMenuAtSelection(localize("placeholderAskInChat", "Describe how to proceed in Chat"));
+    }
+  }
+}
+class QueueInChatAction extends AbstractInlineChatAction {
+  static {
+    __name(this, "QueueInChatAction");
+  }
+  constructor() {
+    super({
+      id: "inlineChat.queueInChat",
+      title: localize2("queueInChat", "Queue in Chat"),
+      icon: Codicon.arrowUp,
+      precondition: ContextKeyExpr.and(CTX_INLINE_CHAT_INPUT_WIDGET_FOCUSED, CTX_INLINE_CHAT_INPUT_HAS_TEXT, CTX_INLINE_CHAT_FILE_BELONGS_TO_CHAT),
+      keybinding: {
+        when: ContextKeyExpr.and(CTX_INLINE_CHAT_INPUT_WIDGET_FOCUSED, CTX_INLINE_CHAT_FILE_BELONGS_TO_CHAT),
+        weight: 0 + 10,
+        primary: 3
+        /* KeyCode.Enter */
+      },
+      menu: [{
+        id: MenuId.InlineChatInput,
+        group: "0_main",
+        order: 1,
+        when: CTX_INLINE_CHAT_FILE_BELONGS_TO_CHAT
+      }]
+    });
+  }
+  async runInlineChatCommand(accessor, ctrl, editor) {
+    const chatEditingService = accessor.get(IChatEditingService);
+    const chatWidgetService = accessor.get(IChatWidgetService);
+    if (!editor.hasModel()) {
+      return;
+    }
+    const value = ctrl.inputWidget.value;
+    ctrl.inputWidget.hide();
+    if (!value) {
+      return;
+    }
+    const session = chatEditingService.editingSessionsObs.get().find((s) => s.getEntry(editor.getModel().uri));
+    if (!session) {
+      return;
+    }
+    const widget = await chatWidgetService.openSession(session.chatSessionResource);
+    if (!widget) {
+      return;
+    }
+    const selection = editor.getSelection();
+    if (selection && !selection.isEmpty()) {
+      await widget.attachmentModel.addFile(editor.getModel().uri, selection);
+    }
+    await widget.acceptInput(value, {
+      alwaysQueue: true,
+      queue: "queued"
+      /* ChatRequestQueueKind.Queued */
+    });
+  }
+}
 export {
   AbstractInlineChatAction,
+  AskInChatAction,
+  CancelSessionAction,
+  FixDiagnosticsAction,
   FocusInlineChat,
+  HideInlineChatInputAction,
   KeepSessionAction2,
+  QueueInChatAction,
   START_INLINE_CHAT,
   StartSessionAction,
   SubmitInlineChatInputAction,

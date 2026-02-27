@@ -25,7 +25,7 @@ import { NullPolicyConfiguration, PolicyConfiguration } from "../../../../platfo
 import { Configuration } from "../common/configurationModels.js";
 import { FOLDER_CONFIG_FOLDER_NAME, defaultSettingsSchemaId, userSettingsSchemaId, workspaceSettingsSchemaId, folderSettingsSchemaId, machineSettingsSchemaId, LOCAL_MACHINE_SCOPES, PROFILE_SCOPES, LOCAL_MACHINE_PROFILE_SCOPES, profileSettingsSchemaId, APPLY_ALL_PROFILES_SETTING, APPLICATION_SCOPES } from "../common/configuration.js";
 import { Registry } from "../../../../platform/registry/common/platform.js";
-import { Extensions, allSettings, windowSettings, resourceSettings, applicationSettings, machineSettings, machineOverridableSettings, keyFromOverrideIdentifiers, OVERRIDE_PROPERTY_PATTERN, resourceLanguageSettingsSchemaId, configurationDefaultsSchemaId, applicationMachineSettings } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { Extensions, allSettings, windowSettings, resourceSettings, applicationSettings, machineSettings, machineOverridableSettings, keyFromOverrideIdentifiers, OVERRIDE_PROPERTY_PATTERN, resourceLanguageSettingsSchemaId, configurationDefaultsSchemaId, applicationMachineSettings, isConfigurationDefaultSourceEquals } from "../../../../platform/configuration/common/configurationRegistry.js";
 import { isStoredWorkspaceFolder, getStoredWorkspaceFolder, toWorkspaceFolders } from "../../../../platform/workspaces/common/workspaces.js";
 import { ConfigurationEditing } from "../common/configurationEditing.js";
 import { WorkspaceConfiguration, FolderConfiguration, RemoteUserConfiguration, UserConfiguration, DefaultConfiguration, ApplicationConfiguration } from "./configuration.js";
@@ -1214,9 +1214,14 @@ let ConfigurationDefaultOverridesContribution = class ConfigurationDefaultOverri
   async processExperimentalSettings(properties, autoRefetch) {
     const overrides = {};
     const allProperties = this.configurationRegistry.getConfigurationProperties();
+    const defaultConfigurationsPreventingExperimentOverrides = this.configurationRegistry.getRegisteredDefaultConfigurations().filter((configuration) => configuration.preventExperimentOverride);
     for (const property of properties) {
       const schema = allProperties[property];
       if (!schema?.experiment) {
+        continue;
+      }
+      const defaultValueSource = schema.defaultValueSource && !(schema.defaultValueSource instanceof Map) ? schema.defaultValueSource : void 0;
+      if (defaultValueSource && defaultConfigurationsPreventingExperimentOverrides.some((configuration) => isConfigurationDefaultSourceEquals(configuration.source, defaultValueSource) && configuration.overrides?.[property] !== void 0)) {
         continue;
       }
       if (!autoRefetch && this.processedExperimentalSettings.has(property)) {

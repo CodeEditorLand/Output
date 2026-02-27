@@ -94,9 +94,6 @@ class WhitespaceOverlay extends DynamicViewOverlay {
     }
   }
   _applyRenderWhitespace(ctx, lineNumber, selections, lineData) {
-    if (lineData.hasVariableFonts) {
-      return "";
-    }
     if (this._options.renderWhitespace === "selection" && !selections) {
       return "";
     }

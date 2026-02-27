@@ -8,12 +8,11 @@ import { setFullscreen } from "../../base/browser/browser.js";
 import { domContentLoaded } from "../../base/browser/dom.js";
 import { onUnexpectedError } from "../../base/common/errors.js";
 import { URI } from "../../base/common/uri.js";
-import { WorkspaceService } from "../../workbench/services/configuration/browser/configurationService.js";
 import { INativeWorkbenchEnvironmentService, NativeWorkbenchEnvironmentService } from "../../workbench/services/environment/electron-browser/environmentService.js";
 import { ServiceCollection } from "../../platform/instantiation/common/serviceCollection.js";
 import { ILoggerService, ILogService, LogLevel } from "../../platform/log/common/log.js";
 import { NativeWorkbenchStorageService } from "../../workbench/services/storage/electron-browser/storageService.js";
-import { IWorkspaceContextService, isSingleFolderWorkspaceIdentifier, isWorkspaceIdentifier, reviveIdentifier, toWorkspaceIdentifier } from "../../platform/workspace/common/workspace.js";
+import { IWorkspaceContextService, isSingleFolderWorkspaceIdentifier, isWorkspaceIdentifier, reviveIdentifier } from "../../platform/workspace/common/workspace.js";
 import { IWorkbenchConfigurationService } from "../../workbench/services/configuration/common/configuration.js";
 import { IStorageService } from "../../platform/storage/common/storage.js";
 import { Disposable } from "../../base/common/lifecycle.js";
@@ -27,7 +26,6 @@ import { IRemoteAgentService } from "../../workbench/services/remote/common/remo
 import { FileService } from "../../platform/files/common/fileService.js";
 import { IFileService } from "../../platform/files/common/files.js";
 import { RemoteFileSystemProviderClient } from "../../workbench/services/remote/common/remoteFileSystemProviderClient.js";
-import { ConfigurationCache } from "../../workbench/services/configuration/common/configurationCache.js";
 import { ISignService } from "../../platform/sign/common/sign.js";
 import { IProductService } from "../../platform/product/common/productService.js";
 import { IUriIdentityService } from "../../platform/uriIdentity/common/uriIdentity.js";
@@ -62,9 +60,12 @@ import { AccountPolicyService } from "../../workbench/services/policies/common/a
 import { MultiplexPolicyService } from "../../workbench/services/policies/common/multiplexPolicyService.js";
 import { Workbench as AgenticWorkbench } from "../browser/workbench.js";
 import { NativeMenubarControl } from "../../workbench/electron-browser/parts/titlebar/menubarControl.js";
-class AgenticMain extends Disposable {
+import { IWorkspaceEditingService } from "../../workbench/services/workspaces/common/workspaceEditing.js";
+import { ConfigurationService } from "../services/configuration/browser/configurationService.js";
+import { SessionsWorkspaceContextService } from "../services/workspace/browser/workspaceContextService.js";
+class SessionsMain extends Disposable {
   static {
-    __name(this, "AgenticMain");
+    __name(this, "SessionsMain");
   }
   constructor(configuration) {
     super();
@@ -187,14 +188,15 @@ class AgenticMain extends Disposable {
     const remoteAgentService = this._register(new RemoteAgentService(remoteSocketFactoryService, userDataProfileService, environmentService, productService, remoteAuthorityResolverService, signService, logService));
     serviceCollection.set(IRemoteAgentService, remoteAgentService);
     this._register(RemoteFileSystemProviderClient.register(remoteAgentService, fileService, logService));
-    const workspace = this.resolveWorkspaceIdentifier(environmentService);
+    const workspaceContextService = new SessionsWorkspaceContextService(uriIdentityService.extUri.joinPath(uriIdentityService.extUri.dirname(userDataProfilesService.profilesHome), "agent-sessions.code-workspace"), uriIdentityService);
+    serviceCollection.set(IWorkspaceContextService, workspaceContextService);
+    serviceCollection.set(IWorkspaceEditingService, workspaceContextService);
     const [configurationService, storageService] = await Promise.all([
-      this.createWorkspaceService(workspace, environmentService, userDataProfileService, userDataProfilesService, fileService, remoteAgentService, uriIdentityService, logService, policyService).then((service) => {
-        serviceCollection.set(IWorkspaceContextService, service);
+      this.createConfigurationService(userDataProfileService, fileService, logService, policyService).then((service) => {
         serviceCollection.set(IWorkbenchConfigurationService, service);
         return service;
       }),
-      this.createStorageService(workspace, environmentService, userDataProfileService, userDataProfilesService, mainProcessService).then((service) => {
+      this.createStorageService(workspaceContextService.getWorkspace(), environmentService, userDataProfileService, userDataProfilesService, mainProcessService).then((service) => {
         serviceCollection.set(IStorageService, service);
         return service;
       }),
@@ -205,27 +207,18 @@ class AgenticMain extends Disposable {
     ]);
     const workspaceTrustEnablementService = new WorkspaceTrustEnablementService(configurationService, environmentService);
     serviceCollection.set(IWorkspaceTrustEnablementService, workspaceTrustEnablementService);
-    const workspaceTrustManagementService = new WorkspaceTrustManagementService(configurationService, remoteAuthorityResolverService, storageService, uriIdentityService, environmentService, configurationService, workspaceTrustEnablementService, fileService);
+    const workspaceTrustManagementService = new WorkspaceTrustManagementService(configurationService, remoteAuthorityResolverService, storageService, uriIdentityService, environmentService, workspaceContextService, workspaceTrustEnablementService, fileService);
     serviceCollection.set(IWorkspaceTrustManagementService, workspaceTrustManagementService);
-    configurationService.updateWorkspaceTrust(workspaceTrustManagementService.isWorkspaceTrusted());
-    this._register(workspaceTrustManagementService.onDidChangeTrust(() => configurationService.updateWorkspaceTrust(workspaceTrustManagementService.isWorkspaceTrusted())));
     return { serviceCollection, logService, storageService, configurationService };
   }
-  resolveWorkspaceIdentifier(environmentService) {
-    if (this.configuration.workspace) {
-      return this.configuration.workspace;
-    }
-    return toWorkspaceIdentifier(this.configuration.backupPath, environmentService.isExtensionDevelopment);
-  }
-  async createWorkspaceService(workspace, environmentService, userDataProfileService, userDataProfilesService, fileService, remoteAgentService, uriIdentityService, logService, policyService) {
-    const configurationCache = new ConfigurationCache([Schemas.file, Schemas.vscodeUserData], environmentService, fileService);
-    const workspaceService = new WorkspaceService({ remoteAuthority: environmentService.remoteAuthority, configurationCache }, environmentService, userDataProfileService, userDataProfilesService, fileService, remoteAgentService, uriIdentityService, logService, policyService);
+  async createConfigurationService(userDataProfileService, fileService, logService, policyService) {
+    const configurationService = new ConfigurationService(userDataProfileService.currentProfile.settingsResource, fileService, policyService, logService);
     try {
-      await workspaceService.initialize(workspace);
-      return workspaceService;
+      await configurationService.initialize();
+      return configurationService;
     } catch (error) {
       onUnexpectedError(error);
-      return workspaceService;
+      return configurationService;
     }
   }
   async createStorageService(workspace, environmentService, userDataProfileService, userDataProfilesService, mainProcessService) {
@@ -250,12 +243,12 @@ class AgenticMain extends Disposable {
   }
 }
 function main(configuration) {
-  const workbench = new AgenticMain(configuration);
+  const workbench = new SessionsMain(configuration);
   return workbench.open();
 }
 __name(main, "main");
 export {
-  AgenticMain,
+  SessionsMain,
   main
 };
 //# sourceMappingURL=sessions.main.js.map

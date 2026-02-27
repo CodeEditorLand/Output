@@ -170,18 +170,21 @@ class MarkersModel {
         } else {
           change.updated.add(resourceMarkers);
         }
-        const markersCountByKey = /* @__PURE__ */ new Map();
-        const markers = rawMarkers.map((rawMarker) => {
-          const key2 = IMarkerData.makeKey(rawMarker);
-          const index = markersCountByKey.get(key2) || 0;
-          markersCountByKey.set(key2, index + 1);
-          const markerId = this.id(resourceMarkers.id, key2, index, rawMarker.resource.toString());
+        const processedMarkerKeys = /* @__PURE__ */ new Set();
+        const markers = [];
+        for (const rawMarker of rawMarkers) {
+          const markerKey = IMarkerData.makeKey(rawMarker) + rawMarker.resource.toString();
+          if (processedMarkerKeys.has(markerKey)) {
+            continue;
+          }
+          processedMarkerKeys.add(markerKey);
+          const markerId = this.id(resourceMarkers.id, markerKey, 0, rawMarker.resource.toString());
           let relatedInformation = void 0;
           if (rawMarker.relatedInformation) {
-            relatedInformation = rawMarker.relatedInformation.map((r, index2) => new RelatedInformation(this.id(markerId, r.resource.toString(), r.startLineNumber, r.startColumn, r.endLineNumber, r.endColumn, index2), rawMarker, r));
+            relatedInformation = rawMarker.relatedInformation.map((r, index) => new RelatedInformation(this.id(markerId, r.resource.toString(), r.startLineNumber, r.startColumn, r.endLineNumber, r.endColumn, index), rawMarker, r));
           }
-          return new Marker(markerId, rawMarker, relatedInformation);
-        });
+          markers.push(new Marker(markerId, rawMarker, relatedInformation));
+        }
         this._total -= resourceMarkers.total;
         resourceMarkers.set(resource, markers);
         this._total += resourceMarkers.total;

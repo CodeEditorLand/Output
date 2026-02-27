@@ -212,11 +212,14 @@ export interface IConfigurationNode {
     extensionInfo?: IExtensionInfo;
     restrictedProperties?: string[];
 }
-export type ConfigurationDefaultValueSource = IExtensionInfo | Map<string, IExtensionInfo>;
+export type ConfigurationDefaultSource = IExtensionInfo | string;
+export declare function isConfigurationDefaultSourceEquals(a: ConfigurationDefaultSource | undefined, b: ConfigurationDefaultSource | undefined): boolean;
+export type ConfigurationDefaultValueSource = ConfigurationDefaultSource | Map<string, ConfigurationDefaultSource>;
 export interface IConfigurationDefaults {
     overrides: IStringDictionary<unknown>;
-    source?: IExtensionInfo;
+    source?: ConfigurationDefaultSource;
     donotCache?: boolean;
+    preventExperimentOverride?: boolean;
 }
 export type IRegisteredConfigurationPropertySchema = IConfigurationPropertySchema & {
     section?: {
@@ -226,12 +229,12 @@ export type IRegisteredConfigurationPropertySchema = IConfigurationPropertySchem
         extensionInfo?: IExtensionInfo;
     };
     defaultDefaultValue?: unknown;
-    source?: IExtensionInfo;
+    source?: ConfigurationDefaultSource;
     defaultValueSource?: ConfigurationDefaultValueSource;
 };
 export interface IConfigurationDefaultOverride {
     readonly value: unknown;
-    readonly source?: IExtensionInfo;
+    readonly source?: ConfigurationDefaultSource;
 }
 export interface IConfigurationDefaultOverrideValue {
     readonly value: unknown;

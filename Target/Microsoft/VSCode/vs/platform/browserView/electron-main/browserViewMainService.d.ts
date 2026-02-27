@@ -8,6 +8,7 @@ import { IInstantiationService } from '../../instantiation/common/instantiation.
 import { BrowserView } from './browserView.js';
 import { IWindowsMainService } from '../../windows/electron-main/windows.js';
 import { IProductService } from '../../product/common/productService.js';
+import { ITelemetryService } from '../../telemetry/common/telemetry.js';
 export declare const IBrowserViewMainService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IBrowserViewMainService>;
 export interface IBrowserViewMainService extends IBrowserViewService, ICDPBrowserTarget {
     readonly _serviceBrand: undefined;
@@ -18,6 +19,7 @@ export declare class BrowserViewMainService extends Disposable implements IBrows
     private readonly instantiationService;
     private readonly windowsMainService;
     private readonly productService;
+    private readonly telemetryService;
     readonly _serviceBrand: undefined;
     /**
      * Check if a webContents belongs to an integrated browser view.
@@ -29,7 +31,7 @@ export declare class BrowserViewMainService extends Disposable implements IBrows
     readonly onTargetCreated: Event<BrowserView>;
     private readonly _onTargetDestroyed;
     readonly onTargetDestroyed: Event<BrowserView>;
-    constructor(environmentMainService: IEnvironmentMainService, instantiationService: IInstantiationService, windowsMainService: IWindowsMainService, productService: IProductService);
+    constructor(environmentMainService: IEnvironmentMainService, instantiationService: IInstantiationService, windowsMainService: IWindowsMainService, productService: IProductService, telemetryService: ITelemetryService);
     /**
      * Create a browser view backed by the given {@link BrowserSession}.
      */

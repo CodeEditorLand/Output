@@ -4,6 +4,7 @@ import { Emitter } from "../../../base/common/event.js";
 import { Disposable, markAsSingleton } from "../../../base/common/lifecycle.js";
 import { RGBA8 } from "../core/misc/rgba.js";
 import { TokenizationRegistry } from "../languages.js";
+import { BugIndicatingError, onUnexpectedError } from "../../../base/common/errors.js";
 class MinimapTokensColorTracker extends Disposable {
   static {
     __name(this, "MinimapTokensColorTracker");
@@ -51,7 +52,12 @@ class MinimapTokensColorTracker extends Disposable {
     if (colorId < 1 || colorId >= this._colors.length) {
       colorId = 2;
     }
-    return this._colors[colorId];
+    let color = this._colors[colorId];
+    if (!color) {
+      onUnexpectedError(new BugIndicatingError(`Missing color for colorId ${colorId}`));
+      color = RGBA8.Empty;
+    }
+    return color;
   }
   backgroundIsLight() {
     return this._backgroundIsLight;

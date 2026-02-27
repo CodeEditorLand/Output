@@ -4,6 +4,7 @@ import { URI } from '../../../../../../base/common/uri.js';
 import { ILanguageService } from '../../../../../../editor/common/languages/language.js';
 import { IModelService } from '../../../../../../editor/common/services/model.js';
 import { IContextKeyService } from '../../../../../../platform/contextkey/common/contextkey.js';
+import { IConfigurationService } from '../../../../../../platform/configuration/common/configuration.js';
 import { IHoverService } from '../../../../../../platform/hover/browser/hover.js';
 import { IInstantiationService } from '../../../../../../platform/instantiation/common/instantiation.js';
 import { IChatRendererContent } from '../../../common/model/chatViewModel.js';
@@ -48,6 +49,7 @@ export declare class ChatCollapsibleInputOutputContentPart extends Disposable {
     private readonly modelService;
     private readonly languageService;
     private readonly chatMarkdownAnchorService;
+    private readonly configurationService;
     private readonly _editorReferences;
     private readonly _titlePart;
     private _outputSubPart;
@@ -58,7 +60,7 @@ export declare class ChatCollapsibleInputOutputContentPart extends Disposable {
     get title(): string | IMarkdownString;
     private readonly _expanded;
     get expanded(): boolean;
-    constructor(title: IMarkdownString | string, subtitle: string | IMarkdownString | undefined, progressTooltip: IMarkdownString | string | undefined, context: IChatContentPartRenderContext, input: IChatCollapsibleInputData, output: IChatCollapsibleOutputData | undefined, isError: boolean, initiallyExpanded: boolean, contextKeyService: IContextKeyService, _instantiationService: IInstantiationService, hoverService: IHoverService, modelService: IModelService, languageService: ILanguageService, chatMarkdownAnchorService: IChatMarkdownAnchorService);
+    constructor(title: IMarkdownString | string, subtitle: string | IMarkdownString | undefined, progressTooltip: IMarkdownString | string | undefined, context: IChatContentPartRenderContext, input: IChatCollapsibleInputData, output: IChatCollapsibleOutputData | undefined, isError: boolean, initiallyExpanded: boolean, contextKeyService: IContextKeyService, _instantiationService: IInstantiationService, hoverService: IHoverService, modelService: IModelService, languageService: ILanguageService, chatMarkdownAnchorService: IChatMarkdownAnchorService, configurationService: IConfigurationService);
     private createMessageContents;
     private addCodeBlock;
     hasSameContent(other: IChatRendererContent, followingContent: IChatRendererContent[], element: ChatTreeItem): boolean;

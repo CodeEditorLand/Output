@@ -28,6 +28,7 @@ export declare namespace AccessibilityHelpNLS {
     const listSignalSounds: string;
     const listAlerts: string;
     const announceCursorPosition: string;
+    const focusNotifications: string;
     const quickChat: string;
     const startInlineChat: string;
     const startDebugging: string;

@@ -57,8 +57,9 @@ import { chatEditingWidgetFileStateContextKey, hasAppliedChatEditsContextKey, ha
 import { getChatSessionType } from "../../../../workbench/contrib/chat/common/model/chatUri.js";
 import { createFileIconThemableTreeContainerScope } from "../../../../workbench/contrib/files/browser/views/explorerView.js";
 import { IActivityService, NumberBadge } from "../../../../workbench/services/activity/common/activity.js";
-import { ACTIVE_GROUP, IEditorService, SIDE_GROUP } from "../../../../workbench/services/editor/common/editorService.js";
+import { IEditorService, MODAL_GROUP, SIDE_GROUP } from "../../../../workbench/services/editor/common/editorService.js";
 import { IExtensionService } from "../../../../workbench/services/extensions/common/extensions.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
 import { IWorkbenchLayoutService } from "../../../../workbench/services/layout/browser/layoutService.js";
 import { ISessionsManagementService } from "../../sessions/browser/sessionsManagementService.js";
 const $ = dom.$;
@@ -150,7 +151,7 @@ let ChangesViewPane = class ChangesViewPane2 extends ViewPane {
   get activeSessionHasChanges() {
     return this.activeSessionHasChangesObs;
   }
-  constructor(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, hoverService, chatEditingService, editorService, activityService, agentSessionsService, sessionManagementService, labelService, storageService) {
+  constructor(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, hoverService, chatEditingService, editorService, activityService, agentSessionsService, sessionManagementService, labelService, storageService, commandService) {
     super(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, hoverService);
     this.chatEditingService = chatEditingService;
     this.editorService = editorService;
@@ -159,6 +160,7 @@ let ChangesViewPane = class ChangesViewPane2 extends ViewPane {
     this.sessionManagementService = sessionManagementService;
     this.labelService = labelService;
     this.storageService = storageService;
+    this.commandService = commandService;
     this.renderDisposables = this._register(new DisposableStore());
     this.currentBodyHeight = 0;
     this.currentBodyWidth = 0;
@@ -380,9 +382,18 @@ let ChangesViewPane = class ChangesViewPane2 extends ViewPane {
         return files > 0;
       }));
       this.renderDisposables.add(autorun((reader) => {
+        const sessionResource = activeSessionResource.read(reader);
+        if (sessionResource) {
+          const metadata = this.agentSessionsService.getSession(sessionResource)?.metadata;
+          this.commandService.executeCommand("github.checkOpenPullRequest", sessionResource, metadata).catch(() => {
+          });
+        }
+      }));
+      this.renderDisposables.add(autorun((reader) => {
         const { isSessionMenu, added, removed } = topLevelStats.read(reader);
         const sessionResource = activeSessionResource.read(reader);
-        reader.store.add(scopedInstantiationService.createInstance(MenuWorkbenchButtonBar, this.actionsContainer, isSessionMenu ? MenuId.ChatEditingSessionChangesToolbar : MenuId.ChatEditingWidgetToolbar, {
+        const menuId = isSessionMenu ? MenuId.ChatEditingSessionChangesToolbar : MenuId.ChatEditingWidgetToolbar;
+        reader.store.add(scopedInstantiationService.createInstance(MenuWorkbenchButtonBar, this.actionsContainer, menuId, {
           telemetrySource: "changesView",
           menuOptions: isSessionMenu && sessionResource ? { args: [sessionResource, this.agentSessionsService.getSession(sessionResource)?.metadata] } : { shouldForwardArgs: true },
           buttonConfigProvider: /* @__PURE__ */ __name((action) => {
@@ -390,8 +401,14 @@ let ChangesViewPane = class ChangesViewPane2 extends ViewPane {
               const diffStatsLabel = new MarkdownString(`<span class="working-set-lines-added">+${added}</span>&nbsp;<span class="working-set-lines-removed">-${removed}</span>`, { supportHtml: true });
               return { showIcon: true, showLabel: true, isSecondary: true, customClass: "working-set-diff-stats", customLabel: diffStatsLabel };
             }
-            if (action.id === "github.createPullRequest") {
+            if (action.id === "github.createPullRequest" || action.id === "github.openPullRequest") {
               return { showIcon: true, showLabel: true, isSecondary: true, customClass: "flex-grow" };
+            }
+            if (action.id === "chatEditing.applyToParentRepo") {
+              return { showIcon: true, showLabel: false, isSecondary: true };
+            }
+            if (action.id === "chatEditing.synchronizeChanges") {
+              return { showIcon: true, showLabel: true, isSecondary: true };
             }
             return void 0;
           }, "buttonConfigProvider")
@@ -462,33 +479,46 @@ let ChangesViewPane = class ChangesViewPane2 extends ViewPane {
     }
     if (this.tree) {
       const tree = this.tree;
-      this.renderDisposables.add(tree.onDidOpen(async (e) => {
-        if (!e.element) {
-          return;
-        }
-        if (!isChangesFileItem(e.element)) {
-          return;
-        }
-        const { uri: modifiedFileUri, originalUri, isDeletion } = e.element;
+      const openFileItem = /* @__PURE__ */ __name((item, items, sideBySide) => {
+        const { uri: modifiedFileUri, originalUri, isDeletion } = item;
+        const currentIndex = items.indexOf(item);
+        const navigation = {
+          total: items.length,
+          current: currentIndex,
+          navigate: /* @__PURE__ */ __name((index) => {
+            const target = items[index];
+            if (target) {
+              openFileItem(target, items, false);
+            }
+          }, "navigate")
+        };
+        const group = sideBySide ? SIDE_GROUP : MODAL_GROUP;
         if (isDeletion && originalUri) {
-          await this.editorService.openEditor({
+          this.editorService.openEditor({
             resource: originalUri,
-            options: e.editorOptions
-          }, e.sideBySide ? SIDE_GROUP : ACTIVE_GROUP);
+            options: { modal: { navigation } }
+          }, group);
           return;
         }
         if (originalUri) {
-          await this.editorService.openEditor({
+          this.editorService.openEditor({
             original: { resource: originalUri },
             modified: { resource: modifiedFileUri },
-            options: e.editorOptions
-          }, e.sideBySide ? SIDE_GROUP : ACTIVE_GROUP);
+            options: { modal: { navigation } }
+          }, group);
           return;
         }
-        await this.editorService.openEditor({
+        this.editorService.openEditor({
           resource: modifiedFileUri,
-          options: e.editorOptions
-        }, e.sideBySide ? SIDE_GROUP : ACTIVE_GROUP);
+          options: { modal: { navigation } }
+        }, group);
+      }, "openFileItem");
+      this.renderDisposables.add(tree.onDidOpen((e) => {
+        if (!e.element || !isChangesFileItem(e.element)) {
+          return;
+        }
+        const items = combinedEntriesObs.get();
+        openFileItem(e.element, items, e.sideBySide);
       }));
     }
     this.renderDisposables.add(autorun((reader) => {
@@ -568,7 +598,8 @@ ChangesViewPane = __decorate([
   __param(13, IAgentSessionsService),
   __param(14, ISessionsManagementService),
   __param(15, ILabelService),
-  __param(16, IStorageService)
+  __param(16, IStorageService),
+  __param(17, ICommandService)
 ], ChangesViewPane);
 let ChangesViewPaneContainer = class ChangesViewPaneContainer2 extends ViewPaneContainer {
   static {

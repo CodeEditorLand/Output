@@ -22,8 +22,8 @@ import { ActionRunner, Separator, toAction } from "../../../../base/common/actio
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { dispose, DisposableStore, Disposable } from "../../../../base/common/lifecycle.js";
 import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import { NotificationViewItem, ChoiceAction } from "../../../common/notifications.js";
-import { ClearNotificationAction, ExpandNotificationAction, CollapseNotificationAction, ConfigureNotificationAction } from "./notificationsActions.js";
+import { NotificationViewItem, ChoiceAction, getNotificationsPosition } from "../../../common/notifications.js";
+import { ClearNotificationAction, ExpandNotificationAction, CollapseNotificationAction, ConfigureNotificationAction, getNotificationExpandIcon, getNotificationCollapseIcon } from "./notificationsActions.js";
 import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
 import { ProgressBar } from "../../../../base/browser/ui/progressbar/progressbar.js";
 import { INotificationService, NotificationsFilter, Severity, isNotificationSource } from "../../../../platform/notification/common/notification.js";
@@ -38,6 +38,7 @@ import { defaultButtonStyles, defaultProgressBarStyles } from "../../../../platf
 import { StandardKeyboardEvent } from "../../../../base/browser/keyboardEvent.js";
 import { getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
 import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 class NotificationsListDelegate {
   static {
     __name(this, "NotificationsListDelegate");
@@ -246,10 +247,18 @@ let NotificationTemplateRenderer = class NotificationTemplateRenderer2 extends D
   static {
     NotificationTemplateRenderer_1 = this;
   }
+  static updateExpandCollapseIcons(configurationService) {
+    if (!NotificationTemplateRenderer_1.expandNotificationAction) {
+      return;
+    }
+    const position = getNotificationsPosition(configurationService);
+    NotificationTemplateRenderer_1.expandNotificationAction.class = ThemeIcon.asClassName(getNotificationExpandIcon(position));
+    NotificationTemplateRenderer_1.collapseNotificationAction.class = ThemeIcon.asClassName(getNotificationCollapseIcon(position));
+  }
   static {
     this.SEVERITIES = [Severity.Info, Severity.Warning, Severity.Error];
   }
-  constructor(template, actionRunner, openerService, instantiationService, keybindingService, contextMenuService, hoverService) {
+  constructor(template, actionRunner, openerService, instantiationService, keybindingService, contextMenuService, hoverService, configurationService) {
     super();
     this.template = template;
     this.actionRunner = actionRunner;
@@ -263,7 +272,16 @@ let NotificationTemplateRenderer = class NotificationTemplateRenderer2 extends D
       NotificationTemplateRenderer_1.closeNotificationAction = instantiationService.createInstance(ClearNotificationAction, ClearNotificationAction.ID, ClearNotificationAction.LABEL);
       NotificationTemplateRenderer_1.expandNotificationAction = instantiationService.createInstance(ExpandNotificationAction, ExpandNotificationAction.ID, ExpandNotificationAction.LABEL);
       NotificationTemplateRenderer_1.collapseNotificationAction = instantiationService.createInstance(CollapseNotificationAction, CollapseNotificationAction.ID, CollapseNotificationAction.LABEL);
+      NotificationTemplateRenderer_1.updateExpandCollapseIcons(configurationService);
     }
+    this._register(configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(
+        "workbench.notifications.position"
+        /* NotificationsSettings.NOTIFICATIONS_POSITION */
+      )) {
+        NotificationTemplateRenderer_1.updateExpandCollapseIcons(configurationService);
+      }
+    }));
   }
   setInput(notification) {
     this.inputDisposables.clear();
@@ -435,7 +453,8 @@ NotificationTemplateRenderer = NotificationTemplateRenderer_1 = __decorate([
   __param(3, IInstantiationService),
   __param(4, IKeybindingService),
   __param(5, IContextMenuService),
-  __param(6, IHoverService)
+  __param(6, IHoverService),
+  __param(7, IConfigurationService)
 ], NotificationTemplateRenderer);
 export {
   NotificationRenderer,

@@ -141,6 +141,7 @@ export declare const agentOptionId = "agent";
 export interface IChatSession extends IDisposable {
     readonly onWillDispose: Event<void>;
     readonly sessionResource: URI;
+    readonly title?: string;
     readonly history: readonly IChatSessionHistoryItem[];
     /**
      * Session options as key-value pairs. Keys correspond to option group IDs (e.g., 'models', 'subagents')
@@ -167,6 +168,7 @@ export interface IChatSessionItemController {
     readonly onDidChangeChatSessionItems: Event<void>;
     get items(): readonly IChatSessionItem[];
     refresh(token: CancellationToken): Promise<void>;
+    newChatSessionItem?(request: IChatAgentRequest, token: CancellationToken): Promise<IChatSessionItem | undefined>;
 }
 /**
  * Event fired when session options need to be sent to the extension.
@@ -245,6 +247,8 @@ export interface IChatSessionsService {
     readonly onDidChangeOptionGroups: Event<string>;
     getOptionGroupsForSessionType(chatSessionType: string): IChatSessionProviderOptionGroup[] | undefined;
     setOptionGroupsForSessionType(chatSessionType: string, handle: number, optionGroups?: IChatSessionProviderOptionGroup[]): void;
+    getNewSessionOptionsForSessionType(chatSessionType: string): Record<string, string | IChatSessionProviderOptionItem> | undefined;
+    setNewSessionOptionsForSessionType(chatSessionType: string, options: Record<string, string | IChatSessionProviderOptionItem>): void;
     /**
      * Event fired when session options change and need to be sent to the extension.
      * MainThreadChatSessions subscribes to this to forward changes to the extension host.
@@ -257,6 +261,11 @@ export interface IChatSessionsService {
     }>): Promise<void>;
     registerChatModelChangeListeners(chatService: IChatService, chatSessionType: string, onChange: () => void): IDisposable;
     getInProgressSessionDescription(chatModel: IChatModel): string | undefined;
+    /**
+     * Creates a new chat session item using the controller's newChatSessionItemHandler.
+     * Returns undefined if the controller doesn't have a handler or if no controller is registered.
+     */
+    createNewChatSessionItem(chatSessionType: string, request: IChatAgentRequest, token: CancellationToken): Promise<IChatSessionItem | undefined>;
 }
 export declare function isSessionInProgressStatus(state: ChatSessionStatus): boolean;
 export declare function isIChatSessionFileChange2(obj: unknown): obj is IChatSessionFileChange2;

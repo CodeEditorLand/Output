@@ -19,6 +19,7 @@ export declare class ObservableChatSession extends Disposable implements IChatSe
     readonly sessionResource: URI;
     readonly providerHandle: number;
     readonly history: Array<IChatSessionHistoryItem>;
+    title?: string;
     private _options?;
     get options(): Record<string, string | IChatSessionProviderOptionItem> | undefined;
     private readonly _progressObservable;

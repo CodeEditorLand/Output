@@ -34,7 +34,7 @@ let ActionWidgetDropdown = class ActionWidgetDropdown2 extends BaseDropdown {
     if (!this._enabled) {
       return;
     }
-    let actionBarActions = this._options.actionBarActions ?? this._options.actionBarActionProvider?.getActions() ?? [];
+    const actionBarActions = this._options.actionBarActions ?? this._options.actionBarActionProvider?.getActions() ?? [];
     const actions = this._options.actions ?? this._options.actionProvider?.getActions() ?? [];
     const optionBeforeOpen = actions.find((a) => a.checked);
     let selectedOption = optionBeforeOpen;
@@ -94,9 +94,12 @@ let ActionWidgetDropdown = class ActionWidgetDropdown2 extends BaseDropdown {
       }
     }
     const previouslyFocusedElement = getActiveElement();
+    const auxiliaryActionIds = new Set(actionBarActions.map((action) => action.id));
     const actionWidgetDelegate = {
       onSelect: /* @__PURE__ */ __name((action, preview) => {
-        selectedOption = action;
+        if (!auxiliaryActionIds.has(action.id)) {
+          selectedOption = action;
+        }
         this.actionWidgetService.hide();
         action.run();
       }, "onSelect"),
@@ -107,13 +110,29 @@ let ActionWidgetDropdown = class ActionWidgetDropdown2 extends BaseDropdown {
         this._emitCloseEvent(optionBeforeOpen, selectedOption);
       }, "onHide")
     };
-    actionBarActions = actionBarActions.map((action) => ({
-      ...action,
-      run: /* @__PURE__ */ __name(async (...args) => {
-        this.actionWidgetService.hide();
-        return action.run(...args);
-      }, "run")
-    }));
+    if (actionBarActions.length) {
+      if (actionWidgetItems.length) {
+        actionWidgetItems.push({
+          label: "",
+          kind: "separator",
+          canPreview: false,
+          disabled: false,
+          hideIcon: false
+        });
+      }
+      for (const action of actionBarActions) {
+        actionWidgetItems.push({
+          item: action,
+          tooltip: action.tooltip,
+          kind: "action",
+          canPreview: false,
+          group: { title: "", icon: ThemeIcon.fromId(Codicon.blank.id) },
+          disabled: !action.enabled,
+          hideIcon: false,
+          label: action.label
+        });
+      }
+    }
     const accessibilityProvider = {
       isChecked(element) {
         return element.kind === "action" && !!element?.item?.checked;
@@ -121,7 +140,7 @@ let ActionWidgetDropdown = class ActionWidgetDropdown2 extends BaseDropdown {
       getRole: /* @__PURE__ */ __name((e) => {
         switch (e.kind) {
           case "action":
-            return "menuitemcheckbox";
+            return e.item && auxiliaryActionIds.has(e.item.id) ? "menuitem" : "menuitemcheckbox";
           case "separator":
             return "separator";
           default:
@@ -130,7 +149,7 @@ let ActionWidgetDropdown = class ActionWidgetDropdown2 extends BaseDropdown {
       }, "getRole"),
       getWidgetRole: /* @__PURE__ */ __name(() => "menu", "getWidgetRole")
     };
-    this.actionWidgetService.show(this._options.label ?? "", false, actionWidgetItems, actionWidgetDelegate, this._options.getAnchor?.() ?? this.element, void 0, actionBarActions, accessibilityProvider);
+    this.actionWidgetService.show(this._options.label ?? "", false, actionWidgetItems, actionWidgetDelegate, this._options.getAnchor?.() ?? this.element, void 0, [], accessibilityProvider, this._options.listOptions);
   }
   setEnabled(enabled) {
     this._enabled = enabled;

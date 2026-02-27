@@ -13,6 +13,7 @@ var __param = function(paramIndex, decorator) {
 };
 var PanelPart_1;
 import "../../../workbench/browser/parts/panel/media/panelpart.css";
+import "./media/panelPart.css";
 import { ActivePanelContext, PanelFocusContext } from "../../../workbench/common/contextkeys.js";
 import { IWorkbenchLayoutService } from "../../../workbench/services/layout/browser/layoutService.js";
 import { IStorageService } from "../../../platform/storage/common/storage.js";

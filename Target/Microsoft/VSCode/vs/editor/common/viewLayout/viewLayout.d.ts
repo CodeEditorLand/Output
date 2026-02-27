@@ -23,7 +23,7 @@ export declare class ViewLayout extends Disposable implements IViewLayout {
     onConfigurationChanged(e: ConfigurationChangedEvent): void;
     onFlushed(lineCount: number, customLineHeightData: CustomLineHeightData[]): void;
     onLinesDeleted(fromLineNumber: number, toLineNumber: number): void;
-    onLinesInserted(fromLineNumber: number, toLineNumber: number, lineHeightsAdded: CustomLineHeightData[]): void;
+    onLinesInserted(fromLineNumber: number, toLineNumber: number): void;
     private _getHorizontalScrollbarHeight;
     private _getContentHeight;
     private _updateHeight;

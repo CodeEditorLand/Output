@@ -49,19 +49,21 @@ import { IChatWidgetService } from "../../chat.js";
 import { ChatCollapsibleContentPart } from "./chatCollapsibleContentPart.js";
 import { ResourcePool } from "./chatCollections.js";
 import { IHoverService } from "../../../../../../platform/hover/browser/hover.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
 const $ = dom.$;
 let ChatCollapsibleListContentPart = class ChatCollapsibleListContentPart2 extends ChatCollapsibleContentPart {
   static {
     __name(this, "ChatCollapsibleListContentPart");
   }
-  constructor(data, labelOverride, context, contentReferencesListPool, hoverMessage, openerService, menuService, instantiationService, contextMenuService, hoverService) {
-    super(labelOverride ?? (data.length > 1 ? localize("usedReferencesPlural", "Used {0} references", data.length) : localize("usedReferencesSingular", "Used {0} reference", 1)), context, hoverMessage, hoverService);
+  constructor(data, labelOverride, context, contentReferencesListPool, hoverMessage, openerService, menuService, instantiationService, contextMenuService, hoverService, configurationService) {
+    super(labelOverride ?? (data.length > 1 ? localize("usedReferencesPlural", "Used {0} references", data.length) : localize("usedReferencesSingular", "Used {0} reference", 1)), context, hoverMessage, hoverService, configurationService);
     this.data = data;
     this.contentReferencesListPool = contentReferencesListPool;
     this.openerService = openerService;
     this.menuService = menuService;
     this.instantiationService = instantiationService;
     this.contextMenuService = contextMenuService;
+    this.icon = Codicon.check;
   }
   initContent() {
     const ref = this._register(this.contentReferencesListPool.get());
@@ -121,14 +123,15 @@ ChatCollapsibleListContentPart = __decorate([
   __param(6, IMenuService),
   __param(7, IInstantiationService),
   __param(8, IContextMenuService),
-  __param(9, IHoverService)
+  __param(9, IHoverService),
+  __param(10, IConfigurationService)
 ], ChatCollapsibleListContentPart);
 let ChatUsedReferencesListContentPart = class ChatUsedReferencesListContentPart2 extends ChatCollapsibleListContentPart {
   static {
     __name(this, "ChatUsedReferencesListContentPart");
   }
-  constructor(data, labelOverride, context, contentReferencesListPool, options, openerService, menuService, instantiationService, contextMenuService, hoverService) {
-    super(data, labelOverride, context, contentReferencesListPool, void 0, openerService, menuService, instantiationService, contextMenuService, hoverService);
+  constructor(data, labelOverride, context, contentReferencesListPool, options, openerService, menuService, instantiationService, contextMenuService, hoverService, configurationService) {
+    super(data, labelOverride, context, contentReferencesListPool, void 0, openerService, menuService, instantiationService, contextMenuService, hoverService, configurationService);
     this.options = options;
     if (data.length === 0) {
       dom.hide(this.domNode);
@@ -148,7 +151,8 @@ ChatUsedReferencesListContentPart = __decorate([
   __param(6, IMenuService),
   __param(7, IInstantiationService),
   __param(8, IContextMenuService),
-  __param(9, IHoverService)
+  __param(9, IHoverService),
+  __param(10, IConfigurationService)
 ], ChatUsedReferencesListContentPart);
 let CollapsibleListPool = class CollapsibleListPool2 extends Disposable {
   static {

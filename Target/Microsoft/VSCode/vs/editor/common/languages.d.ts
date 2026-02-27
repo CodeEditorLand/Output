@@ -609,6 +609,16 @@ export interface IInlineCompletionModel {
     name: string;
     id: string;
 }
+export interface IInlineCompletionProviderOption {
+    readonly id: string;
+    readonly label: string;
+    readonly values: readonly IInlineCompletionProviderOptionValue[];
+    readonly currentValueId: string;
+}
+export interface IInlineCompletionProviderOptionValue {
+    readonly id: string;
+    readonly label: string;
+}
 export declare class SelectedSuggestionInfo {
     readonly range: IRange;
     readonly text: string;
@@ -756,6 +766,9 @@ export interface InlineCompletionsProvider<T extends InlineCompletions = InlineC
     modelInfo?: IInlineCompletionModelInfo;
     onDidModelInfoChange?: Event<void>;
     setModelId?(modelId: string): Promise<void>;
+    providerOptions?: readonly IInlineCompletionProviderOption[];
+    onDidProviderOptionsChange?: Event<void>;
+    setProviderOption?(optionId: string, valueId: string): Promise<void>;
     toString?(): string;
 }
 /** @internal */

@@ -40,6 +40,7 @@ export declare class ChatImplicitContexts extends Disposable {
     readonly onDidChangeValue: Event<void>;
     private _values;
     private readonly _valuesDisposables;
+    private _enabled;
     setValues(values: ImplicitContextWithSelection[]): void;
     get values(): ChatImplicitContext[];
     get hasEnabled(): boolean;

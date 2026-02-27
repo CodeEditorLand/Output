@@ -348,6 +348,7 @@ export interface IDefaultChatAgent {
             name: string;
         };
     };
+    readonly providerExtensionId: string;
     readonly providerUriSetting: string;
     readonly providerScopes: string[][];
     readonly entitlementUrl: string;

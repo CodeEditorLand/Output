@@ -30,12 +30,15 @@ import { IThemeService } from "../../../../platform/theme/common/themeService.js
 import { EditorPart } from "./editorPart.js";
 import { IEditorService } from "../../../services/editor/common/editorService.js";
 import { EditorPartModalContext, EditorPartModalMaximizedContext, EditorPartModalNavigationContext } from "../../../common/contextkeys.js";
+import { EditorResourceAccessor, SideBySideEditor } from "../../../common/editor.js";
+import { ResourceLabel } from "../../labels.js";
+import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
 import { IHostService } from "../../../services/host/browser/host.js";
 import { IWorkbenchLayoutService } from "../../../services/layout/browser/layoutService.js";
 import { mainWindow } from "../../../../base/browser/window.js";
 import { localize } from "../../../../nls.js";
 import { Codicon } from "../../../../base/common/codicons.js";
-import { CLOSE_MODAL_EDITOR_COMMAND_ID, MOVE_MODAL_EDITOR_TO_MAIN_COMMAND_ID, NAVIGATE_MODAL_EDITOR_NEXT_COMMAND_ID, NAVIGATE_MODAL_EDITOR_PREVIOUS_COMMAND_ID, TOGGLE_MODAL_EDITOR_MAXIMIZED_COMMAND_ID } from "./editorCommands.js";
+import { CLOSE_MODAL_EDITOR_COMMAND_ID, MOVE_MODAL_EDITOR_TO_MAIN_COMMAND_ID, MOVE_MODAL_EDITOR_TO_WINDOW_COMMAND_ID, NAVIGATE_MODAL_EDITOR_NEXT_COMMAND_ID, NAVIGATE_MODAL_EDITOR_PREVIOUS_COMMAND_ID, TOGGLE_MODAL_EDITOR_MAXIMIZED_COMMAND_ID } from "./editorCommands.js";
 const defaultModalEditorAllowableCommands = /* @__PURE__ */ new Set([
   "workbench.action.quit",
   "workbench.action.reloadWindow",
@@ -45,6 +48,7 @@ const defaultModalEditorAllowableCommands = /* @__PURE__ */ new Set([
   "workbench.action.files.saveAll",
   CLOSE_MODAL_EDITOR_COMMAND_ID,
   MOVE_MODAL_EDITOR_TO_MAIN_COMMAND_ID,
+  MOVE_MODAL_EDITOR_TO_WINDOW_COMMAND_ID,
   TOGGLE_MODAL_EDITOR_MAXIMIZED_COMMAND_ID,
   NAVIGATE_MODAL_EDITOR_PREVIOUS_COMMAND_ID,
   NAVIGATE_MODAL_EDITOR_NEXT_COMMAND_ID
@@ -53,13 +57,14 @@ let ModalEditorPart = class ModalEditorPart2 {
   static {
     __name(this, "ModalEditorPart");
   }
-  constructor(editorPartsView, instantiationService, editorService, layoutService, keybindingService, hostService) {
+  constructor(editorPartsView, instantiationService, editorService, layoutService, keybindingService, hostService, environmentService) {
     this.editorPartsView = editorPartsView;
     this.instantiationService = instantiationService;
     this.editorService = editorService;
     this.layoutService = layoutService;
     this.keybindingService = keybindingService;
     this.hostService = hostService;
+    this.environmentService = environmentService;
   }
   async create(options) {
     const disposables = new DisposableStore();
@@ -80,7 +85,7 @@ let ModalEditorPart = class ModalEditorPart2 {
       )) {
         EventHelper.stop(event, true);
         editorPart.close();
-      } else {
+      } else if (!this.environmentService.isSessionsWindow) {
         const resolved = this.keybindingService.softDispatch(event, this.layoutService.mainContainer);
         if (resolved.kind === 2 && resolved.commandId) {
           if (resolved.commandId.startsWith("workbench.") && !defaultModalEditorAllowableCommands.has(resolved.commandId)) {
@@ -99,7 +104,7 @@ let ModalEditorPart = class ModalEditorPart2 {
     });
     shadowElement.appendChild(editorPartContainer);
     const headerElement = editorPartContainer.appendChild($(".modal-editor-header"));
-    const titleElement = append(headerElement, $("div.modal-editor-title"));
+    const titleElement = append(headerElement, $("div.modal-editor-title.show-file-icons"));
     titleElement.id = titleId;
     titleElement.textContent = "";
     const navigationContainer = append(headerElement, $("div.modal-editor-navigation"));
@@ -147,14 +152,27 @@ let ModalEditorPart = class ModalEditorPart2 {
       highlightToggledItems: true,
       menuOptions: { shouldForwardArgs: true }
     }));
-    disposables.add(Event.runAndSubscribe(modalEditorService.onDidActiveEditorChange, (() => {
+    const label = disposables.add(scopedInstantiationService.createInstance(ResourceLabel, titleElement, {}));
+    disposables.add(Event.runAndSubscribe(modalEditorService.onDidActiveEditorChange, () => {
       const activeEditor = editorPart.activeGroup.activeEditor;
-      titleElement.textContent = activeEditor?.getTitle(
-        1
-        /* Verbosity.MEDIUM */
-      ) ?? "";
+      if (activeEditor) {
+        const { labelFormat } = editorPart.partOptions;
+        label.element.setResource({
+          resource: EditorResourceAccessor.getOriginalUri(activeEditor, { supportSideBySide: SideBySideEditor.BOTH }),
+          name: activeEditor.getName(),
+          description: activeEditor.getDescription(
+            labelFormat === "short" ? 0 : labelFormat === "long" ? 2 : 1
+            /* Verbosity.MEDIUM */
+          ) || ""
+        }, {
+          icon: activeEditor.getIcon(),
+          extraClasses: activeEditor.getLabelExtraClasses()
+        });
+      } else {
+        label.element.clear();
+      }
       editorPart.notifyActiveEditorChanged();
-    })));
+    }));
     disposables.add(addDisposableListener(headerElement, EventType.DBLCLICK, (e) => {
       EventHelper.stop(e);
       editorPart.toggleMaximized();
@@ -171,8 +189,8 @@ let ModalEditorPart = class ModalEditorPart2 {
         width = Math.max(containerDimension.width - horizontalPadding, 0);
         height = Math.max(availableHeight - verticalPadding, 0);
       } else {
-        const maxWidth = 1200;
-        const maxHeight = 800;
+        const maxWidth = 1400;
+        const maxHeight = 900;
         const targetWidth = containerDimension.width * 0.8;
         const targetHeight = availableHeight * 0.8;
         width = Math.min(targetWidth, maxWidth, containerDimension.width);
@@ -202,7 +220,8 @@ ModalEditorPart = __decorate([
   __param(2, IEditorService),
   __param(3, IWorkbenchLayoutService),
   __param(4, IKeybindingService),
-  __param(5, IHostService)
+  __param(5, IHostService),
+  __param(6, IWorkbenchEnvironmentService)
 ], ModalEditorPart);
 let ModalEditorPartImpl = class ModalEditorPartImpl2 extends EditorPart {
   static {
@@ -230,9 +249,9 @@ let ModalEditorPartImpl = class ModalEditorPartImpl2 extends EditorPart {
     this.onDidChangeMaximized = this._onDidChangeMaximized.event;
     this._onDidChangeNavigation = this._register(new Emitter());
     this.onDidChangeNavigation = this._onDidChangeNavigation.event;
-    this._maximized = false;
     this.optionsDisposable = this._register(new MutableDisposable());
     this.previousMainWindowActiveElement = null;
+    this._maximized = options?.maximized ?? false;
     this._navigation = options?.navigation;
     this.enforceModalPartOptions();
   }
@@ -257,6 +276,9 @@ let ModalEditorPartImpl = class ModalEditorPartImpl2 extends EditorPart {
     this.enforceModalPartOptions();
   }
   updateOptions(options) {
+    if (typeof options?.maximized === "boolean" && options.maximized !== this._maximized) {
+      this.toggleMaximized();
+    }
     this._navigation = options?.navigation;
     this._onDidChangeNavigation.fire(options?.navigation);
   }

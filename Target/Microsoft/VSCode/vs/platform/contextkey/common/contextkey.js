@@ -722,10 +722,24 @@ class ContextKeyInExpr {
     const source = context.getValue(this.valueKey);
     const item = context.getValue(this.key);
     if (Array.isArray(source)) {
-      return source.includes(item);
+      if (source.includes(item)) {
+        return true;
+      }
+      if (isWindows && typeof item === "string" && item.startsWith("file:///")) {
+        const itemLower = item.toLowerCase();
+        return source.some((s) => typeof s === "string" && s.toLowerCase() === itemLower);
+      }
+      return false;
     }
     if (typeof item === "string" && typeof source === "object" && source !== null) {
-      return hasOwnProperty.call(source, item);
+      if (hasOwnProperty.call(source, item)) {
+        return true;
+      }
+      if (isWindows && item.startsWith("file:///")) {
+        const itemLower = item.toLowerCase();
+        return Object.keys(source).some((key) => key.toLowerCase() === itemLower);
+      }
+      return false;
     }
     return false;
   }

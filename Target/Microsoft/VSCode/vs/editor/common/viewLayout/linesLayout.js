@@ -117,21 +117,17 @@ class LinesLayout {
   }
   changeLineHeights(callback) {
     let hadAChange = false;
-    try {
-      const accessor = {
-        insertOrChangeCustomLineHeight: /* @__PURE__ */ __name((decorationId, startLineNumber, endLineNumber, lineHeight) => {
-          hadAChange = true;
-          this._lineHeightsManager.insertOrChangeCustomLineHeight(decorationId, startLineNumber, endLineNumber, lineHeight);
-        }, "insertOrChangeCustomLineHeight"),
-        removeCustomLineHeight: /* @__PURE__ */ __name((decorationId) => {
-          hadAChange = true;
-          this._lineHeightsManager.removeCustomLineHeight(decorationId);
-        }, "removeCustomLineHeight")
-      };
-      callback(accessor);
-    } finally {
-      this._lineHeightsManager.commit();
-    }
+    const accessor = {
+      insertOrChangeCustomLineHeight: /* @__PURE__ */ __name((decorationId, startLineNumber, endLineNumber, lineHeight) => {
+        hadAChange = true;
+        this._lineHeightsManager.insertOrChangeCustomLineHeight(decorationId, startLineNumber, endLineNumber, lineHeight);
+      }, "insertOrChangeCustomLineHeight"),
+      removeCustomLineHeight: /* @__PURE__ */ __name((decorationId) => {
+        hadAChange = true;
+        this._lineHeightsManager.removeCustomLineHeight(decorationId);
+      }, "removeCustomLineHeight")
+    };
+    callback(accessor);
     return hadAChange;
   }
   changeWhitespace(callback) {
@@ -277,9 +273,8 @@ class LinesLayout {
    *
    * @param fromLineNumber The line number at which the insertion started, inclusive
    * @param toLineNumber The line number at which the insertion ended, inclusive.
-   * @param lineHeightsAdded The custom line height data for the inserted lines.
    */
-  onLinesInserted(fromLineNumber, toLineNumber, lineHeightsAdded) {
+  onLinesInserted(fromLineNumber, toLineNumber) {
     fromLineNumber = fromLineNumber | 0;
     toLineNumber = toLineNumber | 0;
     this._lineCount += toLineNumber - fromLineNumber + 1;
@@ -289,7 +284,7 @@ class LinesLayout {
         this._arr[i].afterLineNumber += toLineNumber - fromLineNumber + 1;
       }
     }
-    this._lineHeightsManager.onLinesInserted(fromLineNumber, toLineNumber, lineHeightsAdded);
+    this._lineHeightsManager.onLinesInserted(fromLineNumber, toLineNumber);
   }
   /**
    * Get the sum of all the whitespaces.

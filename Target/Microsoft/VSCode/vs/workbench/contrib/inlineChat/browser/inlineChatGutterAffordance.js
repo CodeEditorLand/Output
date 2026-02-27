@@ -13,7 +13,7 @@ var __param = function(paramIndex, decorator) {
 };
 import { Codicon } from "../../../../base/common/codicons.js";
 import { Emitter } from "../../../../base/common/event.js";
-import { autorun, constObservable, derived, observableFromEvent, observableValue } from "../../../../base/common/observable.js";
+import { constObservable, derived, observableFromEvent, observableValue } from "../../../../base/common/observable.js";
 import { ThemeIcon } from "../../../../base/common/themables.js";
 import { LineRange } from "../../../../editor/common/core/ranges/lineRange.js";
 import { CodeActionController } from "../../../../editor/contrib/codeAction/browser/codeActionController.js";
@@ -31,10 +31,10 @@ let InlineChatGutterAffordance = class InlineChatGutterAffordance2 extends Inlin
   static {
     __name(this, "InlineChatGutterAffordance");
   }
-  constructor(_myEditorObs, selection, _hover, _keybindingService, hoverService, instantiationService, accessibilityService, themeService, userInteractionService, menuService, contextKeyService) {
+  constructor(myEditorObs, selection, _keybindingService, hoverService, instantiationService, accessibilityService, themeService, userInteractionService, menuService, contextKeyService) {
     const menu = menuService.createMenu(MenuId.InlineChatEditorAffordance, contextKeyService);
     const menuObs = observableFromEvent(menu.onDidChange, () => menu.getActions({ renderShortTitle: false }));
-    const codeActionController = CodeActionController.get(_myEditorObs.editor);
+    const codeActionController = CodeActionController.get(myEditorObs.editor);
     const lightBulbObs = codeActionController?.lightBulbState;
     const data = derived((r) => {
       const value = selection.read(r);
@@ -79,49 +79,30 @@ let InlineChatGutterAffordance = class InlineChatGutterAffordance2 extends Inlin
         gutterMenuData,
         lineRange,
         new SimpleInlineSuggestModel(() => {
-        }, () => this._doShowHover()),
+        }, () => {
+        }),
         void 0,
         // altAction
         { icon }
       );
     });
     const focusIsInMenu = observableValue({}, false);
-    super(_myEditorObs, data, constObservable(InlineEditTabAction.Inactive), constObservable(0), constObservable(false), focusIsInMenu, hoverService, instantiationService, accessibilityService, themeService, userInteractionService);
-    this._myEditorObs = _myEditorObs;
-    this._hover = _hover;
+    super(myEditorObs, data, constObservable(InlineEditTabAction.Inactive), constObservable(0), constObservable(false), focusIsInMenu, hoverService, instantiationService, accessibilityService, themeService, userInteractionService);
     this._onDidRunAction = this._store.add(new Emitter());
     this.onDidRunAction = this._onDidRunAction.event;
     this._store.add(menu);
-    this._store.add(autorun((r) => {
-      const element = _hover.read(r);
-      this._hoverVisible.set(!!element, void 0);
-    }));
     this._store.add(this.onDidCloseWithCommand((commandId) => this._onDidRunAction.fire(commandId)));
-  }
-  _doShowHover() {
-    if (this._hoverVisible.get()) {
-      return;
-    }
-    const iconElement = this._iconRef.element;
-    if (!iconElement) {
-      this._hover.set(void 0, void 0);
-      return;
-    }
-    const selection = this._myEditorObs.cursorSelection.get();
-    const direction = selection?.getDirection() ?? 0;
-    const lineNumber = selection?.getPosition().lineNumber ?? 1;
-    this._hover.set({ rect: iconElement.getBoundingClientRect(), above: direction === 1, lineNumber }, void 0);
   }
 };
 InlineChatGutterAffordance = __decorate([
-  __param(3, IKeybindingService),
-  __param(4, IHoverService),
-  __param(5, IInstantiationService),
-  __param(6, IAccessibilityService),
-  __param(7, IThemeService),
-  __param(8, IUserInteractionService),
-  __param(9, IMenuService),
-  __param(10, IContextKeyService)
+  __param(2, IKeybindingService),
+  __param(3, IHoverService),
+  __param(4, IInstantiationService),
+  __param(5, IAccessibilityService),
+  __param(6, IThemeService),
+  __param(7, IUserInteractionService),
+  __param(8, IMenuService),
+  __param(9, IContextKeyService)
 ], InlineChatGutterAffordance);
 export {
   InlineChatGutterAffordance

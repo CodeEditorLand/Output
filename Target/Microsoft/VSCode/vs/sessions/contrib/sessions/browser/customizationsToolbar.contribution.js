@@ -13,7 +13,6 @@ var __param = function(paramIndex, decorator) {
 };
 import "../../../browser/media/sidebarActionButton.css";
 import "./media/customizationsToolbar.css";
-import { Codicon } from "../../../../base/common/codicons.js";
 import { Disposable, DisposableStore } from "../../../../base/common/lifecycle.js";
 import { ThemeIcon } from "../../../../base/common/themables.js";
 import { localize, localize2 } from "../../../../nls.js";
@@ -21,16 +20,15 @@ import { Action2, registerAction2 } from "../../../../platform/actions/common/ac
 import { IActionViewItemService } from "../../../../platform/actions/browser/actionViewItemService.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { registerWorkbenchContribution2 } from "../../../../workbench/common/contributions.js";
-import { IEditorGroupsService } from "../../../../workbench/services/editor/common/editorGroupsService.js";
-import { AICustomizationManagementEditor } from "../../aiCustomizationManagement/browser/aiCustomizationManagementEditor.js";
-import { AICustomizationManagementSection } from "../../aiCustomizationManagement/browser/aiCustomizationManagement.js";
-import { AICustomizationManagementEditorInput } from "../../aiCustomizationManagement/browser/aiCustomizationManagementEditorInput.js";
-import { IPromptsService } from "../../../../workbench/contrib/chat/common/promptSyntax/service/promptsService.js";
+import { AICustomizationManagementEditor } from "../../../../workbench/contrib/chat/browser/aiCustomization/aiCustomizationManagementEditor.js";
+import { AICustomizationManagementSection } from "../../../../workbench/contrib/chat/browser/aiCustomization/aiCustomizationManagement.js";
+import { AICustomizationManagementEditorInput } from "../../../../workbench/contrib/chat/browser/aiCustomization/aiCustomizationManagementEditorInput.js";
+import { IPromptsService, PromptsStorage } from "../../../../workbench/contrib/chat/common/promptSyntax/service/promptsService.js";
 import { PromptsType } from "../../../../workbench/contrib/chat/common/promptSyntax/promptTypes.js";
 import { ILanguageModelsService } from "../../../../workbench/contrib/chat/common/languageModels.js";
 import { IMcpService } from "../../../../workbench/contrib/mcp/common/mcpTypes.js";
 import { Menus } from "../../../browser/menus.js";
-import { agentIcon, instructionsIcon, promptIcon, skillIcon, hookIcon, workspaceIcon, userIcon, extensionIcon } from "../../aiCustomizationTreeView/browser/aiCustomizationTreeViewIcons.js";
+import { agentIcon, instructionsIcon, promptIcon, skillIcon, hookIcon, workspaceIcon, userIcon } from "../../../../workbench/contrib/chat/browser/aiCustomization/aiCustomizationIcons.js";
 import { ActionViewItem } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
 import { $, append } from "../../../../base/browser/dom.js";
 import { autorun } from "../../../../base/common/observable.js";
@@ -38,63 +36,52 @@ import { IWorkspaceContextService } from "../../../../platform/workspace/common/
 import { ISessionsManagementService } from "./sessionsManagementService.js";
 import { Button } from "../../../../base/browser/ui/button/button.js";
 import { defaultButtonStyles } from "../../../../platform/theme/browser/defaultStyles.js";
-import { getPromptSourceCounts, getSkillSourceCounts, getSourceCountsTotal } from "./customizationCounts.js";
+import { getSourceCounts, getSourceCountsTotal } from "./customizationCounts.js";
+import { IEditorService, MODAL_GROUP } from "../../../../workbench/services/editor/common/editorService.js";
+import { IAICustomizationWorkspaceService } from "../../../../workbench/contrib/chat/common/aiCustomizationWorkspaceService.js";
 const CUSTOMIZATION_ITEMS = [
   {
     id: "sessions.customization.agents",
     label: localize("agents", "Agents"),
     icon: agentIcon,
     section: AICustomizationManagementSection.Agents,
-    getSourceCounts: /* @__PURE__ */ __name((ps) => getPromptSourceCounts(ps, PromptsType.agent), "getSourceCounts")
+    promptType: PromptsType.agent
   },
   {
     id: "sessions.customization.skills",
     label: localize("skills", "Skills"),
     icon: skillIcon,
     section: AICustomizationManagementSection.Skills,
-    getSourceCounts: /* @__PURE__ */ __name((ps) => getSkillSourceCounts(ps), "getSourceCounts")
+    promptType: PromptsType.skill
   },
   {
     id: "sessions.customization.instructions",
     label: localize("instructions", "Instructions"),
     icon: instructionsIcon,
     section: AICustomizationManagementSection.Instructions,
-    getSourceCounts: /* @__PURE__ */ __name((ps) => getPromptSourceCounts(ps, PromptsType.instructions), "getSourceCounts")
+    promptType: PromptsType.instructions
   },
   {
     id: "sessions.customization.prompts",
     label: localize("prompts", "Prompts"),
     icon: promptIcon,
     section: AICustomizationManagementSection.Prompts,
-    getSourceCounts: /* @__PURE__ */ __name((ps) => getPromptSourceCounts(ps, PromptsType.prompt), "getSourceCounts")
+    promptType: PromptsType.prompt
   },
   {
     id: "sessions.customization.hooks",
     label: localize("hooks", "Hooks"),
     icon: hookIcon,
     section: AICustomizationManagementSection.Hooks,
-    getSourceCounts: /* @__PURE__ */ __name((ps) => getPromptSourceCounts(ps, PromptsType.hook), "getSourceCounts")
-  },
-  {
-    id: "sessions.customization.mcpServers",
-    label: localize("mcpServers", "MCP Servers"),
-    icon: Codicon.server,
-    section: AICustomizationManagementSection.McpServers,
-    getCount: /* @__PURE__ */ __name((_lm, mcp) => Promise.resolve(mcp.servers.get().length), "getCount")
-  },
-  {
-    id: "sessions.customization.models",
-    label: localize("models", "Models"),
-    icon: Codicon.vm,
-    section: AICustomizationManagementSection.Models,
-    getCount: /* @__PURE__ */ __name((lm) => Promise.resolve(lm.getLanguageModelIds().length), "getCount")
+    promptType: PromptsType.hook
   }
+  // TODO: Re-enable MCP Servers once CLI MCP configuration is unified with VS Code
 ];
 let CustomizationLinkViewItem = class CustomizationLinkViewItem2 extends ActionViewItem {
   static {
     __name(this, "CustomizationLinkViewItem");
   }
-  constructor(action, options, _config, _promptsService, _languageModelsService, _mcpService, _workspaceContextService, _activeSessionService) {
+  constructor(action, options, _config, _promptsService, _languageModelsService, _mcpService, _workspaceContextService, _activeSessionService, _workspaceService) {
     super(void 0, action, { ...options, icon: false, label: false });
     this._config = _config;
     this._promptsService = _promptsService;
@@ -102,6 +89,8 @@ let CustomizationLinkViewItem = class CustomizationLinkViewItem2 extends ActionV
     this._mcpService = _mcpService;
     this._workspaceContextService = _workspaceContextService;
     this._activeSessionService = _activeSessionService;
+    this._workspaceService = _workspaceService;
+    this._updateCountsRequestId = 0;
     this._viewItemDisposables = this._register(new DisposableStore());
   }
   getTooltip() {
@@ -145,28 +134,39 @@ let CustomizationLinkViewItem = class CustomizationLinkViewItem2 extends ActionV
     if (!this._countContainer) {
       return;
     }
-    if (this._config.getSourceCounts) {
-      const counts = await this._config.getSourceCounts(this._promptsService);
+    const requestId = ++this._updateCountsRequestId;
+    if (this._config.promptType) {
+      const type = this._config.promptType;
+      const filter = this._workspaceService.getStorageSourceFilter(type);
+      const counts = await getSourceCounts(this._promptsService, type, filter, this._workspaceContextService, this._workspaceService);
+      if (requestId !== this._updateCountsRequestId) {
+        return;
+      }
       this._renderSourceCounts(this._countContainer, counts);
     } else if (this._config.getCount) {
       const count = await this._config.getCount(this._languageModelsService, this._mcpService);
+      if (requestId !== this._updateCountsRequestId) {
+        return;
+      }
       this._renderSimpleCount(this._countContainer, count);
     }
   }
   _renderSourceCounts(container, counts) {
     container.textContent = "";
-    const total = getSourceCountsTotal(counts);
+    const type = this._config.promptType;
+    const filter = type ? this._workspaceService.getStorageSourceFilter(type) : this._workspaceService.getStorageSourceFilter(PromptsType.prompt);
+    const total = getSourceCountsTotal(counts, filter);
     container.classList.toggle("hidden", total === 0);
     if (total === 0) {
       return;
     }
+    const visibleSourcesSet = new Set(filter.sources);
     const sources = [
-      { count: counts.workspace, icon: workspaceIcon, title: localize("workspaceCount", "{0} from workspace", counts.workspace) },
-      { count: counts.user, icon: userIcon, title: localize("userCount", "{0} from user", counts.user) },
-      { count: counts.extension, icon: extensionIcon, title: localize("extensionCount", "{0} from extensions", counts.extension) }
+      { storage: PromptsStorage.local, count: counts.workspace, icon: workspaceIcon, title: localize("workspaceCount", "{0} from workspace", counts.workspace) },
+      { storage: PromptsStorage.user, count: counts.user, icon: userIcon, title: localize("userCount", "{0} from user", counts.user) }
     ];
     for (const source of sources) {
-      if (source.count === 0) {
+      if (source.count === 0 || !visibleSourcesSet.has(source.storage)) {
         continue;
       }
       const badge = append(container, $("span.source-count-badge"));
@@ -192,7 +192,8 @@ CustomizationLinkViewItem = __decorate([
   __param(4, ILanguageModelsService),
   __param(5, IMcpService),
   __param(6, IWorkspaceContextService),
-  __param(7, ISessionsManagementService)
+  __param(7, ISessionsManagementService),
+  __param(8, IAICustomizationWorkspaceService)
 ], CustomizationLinkViewItem);
 let CustomizationsToolbarContribution = class CustomizationsToolbarContribution2 extends Disposable {
   static {
@@ -220,9 +221,9 @@ let CustomizationsToolbarContribution = class CustomizationsToolbarContribution2
           });
         }
         async run(accessor) {
-          const editorGroupsService = accessor.get(IEditorGroupsService);
+          const editorService = accessor.get(IEditorService);
           const input = AICustomizationManagementEditorInput.getOrCreate();
-          const editor = await editorGroupsService.activeGroup.openEditor(input, { pinned: true });
+          const editor = await editorService.openEditor(input, { pinned: true }, MODAL_GROUP);
           if (editor instanceof AICustomizationManagementEditor) {
             editor.selectSectionById(config.section);
           }

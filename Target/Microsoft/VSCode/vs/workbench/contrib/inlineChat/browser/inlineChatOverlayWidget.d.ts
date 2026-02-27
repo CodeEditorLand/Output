@@ -7,8 +7,8 @@ import { IModelService } from '../../../../editor/common/services/model.js';
 import { IMenuService } from '../../../../platform/actions/common/actions.js';
 import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
 import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
-import { ICommandService } from '../../../../platform/commands/common/commands.js';
 import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
 import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
 import { IInlineChatSession2 } from './inlineChatSessionService.js';
 /**
@@ -17,7 +17,6 @@ import { IInlineChatSession2 } from './inlineChatSessionService.js';
 export declare class InlineChatInputWidget extends Disposable {
     private readonly _editorObs;
     private readonly _contextKeyService;
-    private readonly _commandService;
     private readonly _menuService;
     private readonly _domNode;
     private readonly _container;
@@ -32,7 +31,7 @@ export declare class InlineChatInputWidget extends Disposable {
     private _anchorLineNumber;
     private _anchorLeft;
     private _anchorAbove;
-    constructor(_editorObs: ObservableCodeEditor, _contextKeyService: IContextKeyService, _commandService: ICommandService, _menuService: IMenuService, instantiationService: IInstantiationService, modelService: IModelService, configurationService: IConfigurationService);
+    constructor(_editorObs: ObservableCodeEditor, _contextKeyService: IContextKeyService, _menuService: IMenuService, instantiationService: IInstantiationService, modelService: IModelService, configurationService: IConfigurationService);
     get value(): string;
     /**
      * Show the widget at the specified line.
@@ -40,7 +39,7 @@ export declare class InlineChatInputWidget extends Disposable {
      * @param left Left offset relative to editor
      * @param anchorAbove Whether to anchor above the position (widget grows upward)
      */
-    show(lineNumber: number, left: number, anchorAbove: boolean): void;
+    show(lineNumber: number, left: number, anchorAbove: boolean, placeholder: string): void;
     private _updatePosition;
     /**
      * Hide the widget (removes from editor but does not dispose).
@@ -54,6 +53,7 @@ export declare class InlineChatSessionOverlayWidget extends Disposable {
     private readonly _editorObs;
     private readonly _instaService;
     private readonly _keybindingService;
+    private readonly _logService;
     private readonly _domNode;
     private readonly _container;
     private readonly _statusNode;
@@ -64,7 +64,7 @@ export declare class InlineChatSessionOverlayWidget extends Disposable {
     private readonly _position;
     private readonly _minContentWidthInPx;
     private readonly _stickyScrollHeight;
-    constructor(_editorObs: ObservableCodeEditor, _instaService: IInstantiationService, _keybindingService: IKeybindingService);
+    constructor(_editorObs: ObservableCodeEditor, _instaService: IInstantiationService, _keybindingService: IKeybindingService, _logService: ILogService);
     show(session: IInlineChatSession2): void;
     hide(): void;
 }

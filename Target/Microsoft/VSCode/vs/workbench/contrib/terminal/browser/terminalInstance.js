@@ -497,7 +497,7 @@ let TerminalInstance = class TerminalInstance2 extends Disposable {
       this._terminalProfileResolverService.resolveIcon(this._shellLaunchConfig, OS);
     }
     this._icon = _shellLaunchConfig.attachPersistentProcess?.icon || _shellLaunchConfig.icon;
-    if (this.shellLaunchConfig.customPtyImplementation) {
+    if (this.shellLaunchConfig.customPtyImplementation && !this._shellLaunchConfig.titleTemplate) {
       this._setTitle(this._shellLaunchConfig.name, TitleEventSource.Api);
     }
     this.statusList = this._register(this._scopedInstantiationService.createInstance(TerminalStatusList));
@@ -1268,7 +1268,7 @@ let TerminalInstance = class TerminalInstance2 extends Disposable {
           }
         }));
       }
-      if (this._shellLaunchConfig.name) {
+      if (this._shellLaunchConfig.name && !this._shellLaunchConfig.titleTemplate) {
         this._setTitle(this._shellLaunchConfig.name, TitleEventSource.Api);
       } else {
         setTimeout(() => {
@@ -1278,7 +1278,11 @@ let TerminalInstance = class TerminalInstance2 extends Disposable {
             }
           });
         });
-        this._setTitle(this._shellLaunchConfig.executable, TitleEventSource.Process);
+        if (this._shellLaunchConfig.titleTemplate && this._shellLaunchConfig.name) {
+          this._setTitle(this._shellLaunchConfig.name, TitleEventSource.Process);
+        } else {
+          this._setTitle(this._shellLaunchConfig.executable, TitleEventSource.Process);
+        }
       }
     }));
     this._register(processManager.onProcessExit((exitCode) => this._onProcessExit(exitCode)));
@@ -2323,7 +2327,8 @@ let TerminalLabelComputer = class TerminalLabelComputer2 extends Disposable {
     this.onDidChangeLabel = this._onDidChangeLabel.event;
   }
   refreshLabel(instance, reset) {
-    this._title = this.computeLabel(instance, this._terminalConfigurationService.config.tabs.title, "title", reset);
+    const titleTemplate = instance.shellLaunchConfig.titleTemplate ?? this._terminalConfigurationService.config.tabs.title;
+    this._title = this.computeLabel(instance, titleTemplate, "title", reset);
     this._description = this.computeLabel(
       instance,
       this._terminalConfigurationService.config.tabs.description,

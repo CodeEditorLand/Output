@@ -196,8 +196,8 @@ class ViewLayout extends Disposable {
   onLinesDeleted(fromLineNumber, toLineNumber) {
     this._linesLayout.onLinesDeleted(fromLineNumber, toLineNumber);
   }
-  onLinesInserted(fromLineNumber, toLineNumber, lineHeightsAdded) {
-    this._linesLayout.onLinesInserted(fromLineNumber, toLineNumber, lineHeightsAdded);
+  onLinesInserted(fromLineNumber, toLineNumber) {
+    this._linesLayout.onLinesInserted(fromLineNumber, toLineNumber);
   }
   // ---- end view event handlers
   _getHorizontalScrollbarHeight(width, scrollWidth) {

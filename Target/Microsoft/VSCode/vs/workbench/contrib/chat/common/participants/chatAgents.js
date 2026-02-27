@@ -232,12 +232,12 @@ let ChatAgentService = class ChatAgentService2 extends Disposable {
     }
     data.impl.setRequestTools?.(requestId, tools);
   }
-  setYieldRequested(id, requestId) {
+  setYieldRequested(id, requestId, value) {
     const data = this._agents.get(id);
     if (!data?.impl) {
       return;
     }
-    data.impl.setYieldRequested?.(requestId);
+    data.impl.setYieldRequested?.(requestId, value);
   }
   async getFollowups(id, request, result, history, token) {
     const data = this._agents.get(id);
@@ -367,8 +367,8 @@ class MergedChatAgent {
   setRequestTools(requestId, tools) {
     this.impl.setRequestTools?.(requestId, tools);
   }
-  setYieldRequested(requestId) {
-    this.impl.setYieldRequested?.(requestId);
+  setYieldRequested(requestId, value) {
+    this.impl.setYieldRequested?.(requestId, value);
   }
   async provideFollowups(request, result, history, token) {
     if (this.impl.provideFollowups) {

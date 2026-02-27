@@ -43,6 +43,7 @@ export interface IRegisterContributedProfileArgs {
     id: string;
     title: string;
     options: ICreateContributedTerminalProfileOptions;
+    titleTemplate?: string;
 }
 export declare const ITerminalProfileService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<ITerminalProfileService>;
 export interface ITerminalProfileService {

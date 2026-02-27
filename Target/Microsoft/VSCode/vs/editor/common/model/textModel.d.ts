@@ -23,7 +23,7 @@ import { TextModelEditSource } from '../textModelEditSource.js';
 import { IModelContentChangedEvent, IModelDecorationsChangedEvent, IModelOptionsChangedEvent, ModelFontChangedEvent, ModelLineHeightChangedEvent } from '../textModelEvents.js';
 import { IGuidesTextModelPart } from '../textModelGuides.js';
 import { ITokenizationTextModelPart } from '../tokenizationTextModelPart.js';
-import { TokenArray } from '../tokens/lineTokens.js';
+import { LineTokens, TokenArray } from '../tokens/lineTokens.js';
 import { IViewModel } from '../viewModel.js';
 export declare function createTextBufferFactory(text: string): model.ITextBufferFactory;
 interface ITextStream {
@@ -258,6 +258,7 @@ export declare class TextModel extends Disposable implements model.ITextModel, I
     getLineIndentColumn(lineNumber: number): number;
     toString(): string;
 }
+export declare function getLineTokensWithInjections(tokens: LineTokens, injectionOptions: model.InjectedTextOptions[] | null, injectionOffsets: number[] | null): LineTokens;
 export declare function indentOfLine(line: string): number;
 export interface IDecorationsTreesHost {
     getVersionId(): number;

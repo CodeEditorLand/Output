@@ -34,9 +34,11 @@ import { isLocalhostAuthority } from "../../../../platform/url/common/trustedDom
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { IEditorService } from "../../../services/editor/common/editorService.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
+import { PolicyCategory } from "../../../../base/common/policy.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { logBrowserOpen } from "./browserViewTelemetry.js";
+import { logBrowserOpen } from "../../../../platform/browserView/common/browserViewTelemetry.js";
 import "./browserViewActions.js";
+import "./tools/browserTools.contribution.js";
 Registry.as(EditorExtensions.EditorPane).registerEditorPane(EditorPaneDescriptor.create(BrowserEditor, BrowserEditor.ID, localize("browser.editorLabel", "Browser")), [
   new SyncDescriptor(BrowserEditorInput)
 ]);
@@ -101,15 +103,14 @@ let LocalhostLinkOpenerContribution = class LocalhostLinkOpenerContribution2 ext
     this.configurationService = configurationService;
     this.editorService = editorService;
     this.telemetryService = telemetryService;
-    this._register(openerService.registerOpener(this));
+    this._register(openerService.registerExternalOpener(this));
   }
-  async open(resource, _options) {
+  async openExternal(href, _ctx, _token) {
     if (!this.configurationService.getValue("workbench.browser.openLocalhostLinks")) {
       return false;
     }
-    const url = typeof resource === "string" ? resource : resource.toString(true);
     try {
-      const parsed = new URL(url);
+      const parsed = new URL(href);
       if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
         return false;
       }
@@ -120,7 +121,7 @@ let LocalhostLinkOpenerContribution = class LocalhostLinkOpenerContribution2 ext
       return false;
     }
     logBrowserOpen(this.telemetryService, "localhostLinkOpener");
-    const browserUri = BrowserViewUri.forUrl(url);
+    const browserUri = BrowserViewUri.forUrl(href);
     await this.editorService.openEditor({ resource: browserUri, options: { pinned: true } });
     return true;
   }
@@ -150,6 +151,25 @@ Registry.as(ConfigurationExtensions.Configuration).registerConfiguration({
       type: "boolean",
       default: false,
       markdownDescription: localize({ comment: ["This is the description for a setting."], key: "browser.openLocalhostLinks" }, "When enabled, localhost links from the terminal, chat, and other sources will open in the Integrated Browser instead of the system browser.")
+    },
+    "workbench.browser.enableChatTools": {
+      type: "boolean",
+      default: false,
+      experiment: { mode: "startup" },
+      tags: ["experimental"],
+      markdownDescription: localize({ comment: ["This is the description for a setting."], key: "browser.enableChatTools" }, "When enabled, chat agents can use browser tools to open and interact with pages in the Integrated Browser."),
+      policy: {
+        name: "BrowserChatTools",
+        category: PolicyCategory.InteractiveSession,
+        minimumVersion: "1.110",
+        value: /* @__PURE__ */ __name((policyData) => policyData.chat_preview_features_enabled === false ? false : void 0, "value"),
+        localization: {
+          description: {
+            key: "browser.enableChatTools",
+            value: localize("browser.enableChatTools", "When enabled, chat agents can use browser tools to open and interact with pages in the Integrated Browser.")
+          }
+        }
+      }
     },
     "workbench.browser.dataStorage": {
       type: "string",

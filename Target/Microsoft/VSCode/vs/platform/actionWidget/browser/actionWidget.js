@@ -18,14 +18,15 @@ import "./actionWidget.css";
 import { localize, localize2 } from "../../../nls.js";
 import { acceptSelectedActionCommand, ActionList, previewSelectedActionCommand } from "./actionList.js";
 import { Action2, registerAction2 } from "../../actions/common/actions.js";
-import { IContextKeyService, RawContextKey } from "../../contextkey/common/contextkey.js";
+import { ContextKeyExpr, IContextKeyService, RawContextKey } from "../../contextkey/common/contextkey.js";
 import { IContextViewService } from "../../contextview/browser/contextView.js";
 import { registerSingleton } from "../../instantiation/common/extensions.js";
 import { createDecorator, IInstantiationService } from "../../instantiation/common/instantiation.js";
 import { inputActiveOptionBackground, registerColor } from "../../theme/common/colorRegistry.js";
 registerColor("actionBar.toggledBackground", inputActiveOptionBackground, localize("actionBar.toggledBackground", "Background color for toggled action items in action bar."));
 const ActionWidgetContextKeys = {
-  Visible: new RawContextKey("codeActionMenuVisible", false, localize("codeActionMenuVisible", "Whether the action widget list is visible"))
+  Visible: new RawContextKey("codeActionMenuVisible", false, localize("codeActionMenuVisible", "Whether the action widget list is visible")),
+  FilterFocused: new RawContextKey("codeActionMenuFilterFocused", false, localize("codeActionMenuFilterFocused", "Whether the action widget filter input is focused"))
 };
 const IActionWidgetService = createDecorator("actionWidgetService");
 let ActionWidgetService = class ActionWidgetService2 extends Disposable {
@@ -42,9 +43,9 @@ let ActionWidgetService = class ActionWidgetService2 extends Disposable {
     this._instantiationService = _instantiationService;
     this._list = this._register(new MutableDisposable());
   }
-  show(user, supportsPreview, items, delegate, anchor, container, actionBarActions, accessibilityProvider) {
+  show(user, supportsPreview, items, delegate, anchor, container, actionBarActions, accessibilityProvider, listOptions) {
     const visibleContext = ActionWidgetContextKeys.Visible.bindTo(this._contextKeyService);
-    const list = this._instantiationService.createInstance(ActionList, user, supportsPreview, items, delegate, accessibilityProvider);
+    const list = this._instantiationService.createInstance(ActionList, user, supportsPreview, items, delegate, accessibilityProvider, listOptions, anchor);
     this._contextViewService.showContextView({
       getAnchor: /* @__PURE__ */ __name(() => anchor, "getAnchor"),
       render: /* @__PURE__ */ __name((container2) => {
@@ -54,7 +55,10 @@ let ActionWidgetService = class ActionWidgetService2 extends Disposable {
       onHide: /* @__PURE__ */ __name((didCancel) => {
         visibleContext.reset();
         this._onWidgetClosed(didCancel);
-      }, "onHide")
+      }, "onHide"),
+      get anchorPosition() {
+        return list.anchorPosition;
+      }
     }, container, false);
   }
   acceptSelected(preview) {
@@ -65,6 +69,18 @@ let ActionWidgetService = class ActionWidgetService2 extends Disposable {
   }
   focusNext() {
     this._list?.value?.focusNext();
+  }
+  collapseSection() {
+    this._list?.value?.collapseFocusedSection();
+  }
+  expandSection() {
+    this._list?.value?.expandFocusedSection();
+  }
+  toggleSection() {
+    return this._list?.value?.toggleFocusedSection() ?? false;
+  }
+  clearFilter() {
+    return this._list?.value?.clearFilter() ?? false;
   }
   hide(didCancel) {
     this._list.value?.hide(didCancel);
@@ -79,6 +95,9 @@ let ActionWidgetService = class ActionWidgetService2 extends Disposable {
     element.appendChild(widget);
     this._list.value = list;
     if (this._list.value) {
+      if (this._list.value.filterContainer) {
+        widget.appendChild(this._list.value.filterContainer);
+      }
       widget.appendChild(this._list.value.domNode);
     } else {
       throw new Error("List has no value");
@@ -104,6 +123,14 @@ let ActionWidgetService = class ActionWidgetService2 extends Disposable {
     }
     const width = this._list.value?.layout(actionBarWidth);
     widget.style.width = `${width}px`;
+    this._list.value?.focus();
+    const filterFocusedContext = ActionWidgetContextKeys.FilterFocused.bindTo(this._contextKeyService);
+    renderDisposables.add({ dispose: /* @__PURE__ */ __name(() => filterFocusedContext.reset(), "dispose") });
+    if (this._list.value?.filterInput) {
+      const filterInput = this._list.value.filterInput;
+      renderDisposables.add(dom.addDisposableListener(filterInput, "focus", () => filterFocusedContext.set(true)));
+      renderDisposables.add(dom.addDisposableListener(filterInput, "blur", () => filterFocusedContext.set(false)));
+    }
     const focusTracker = renderDisposables.add(dom.trackFocus(element));
     renderDisposables.add(focusTracker.onDidBlur(() => {
       const activeElement = dom.getActiveElement();
@@ -162,6 +189,27 @@ registerAction2(class extends Action2 {
 registerAction2(class extends Action2 {
   constructor() {
     super({
+      id: "clearFilterCodeActionWidget",
+      title: localize2("clearFilterCodeActionWidget.title", "Clear action widget filter"),
+      precondition: ContextKeyExpr.and(ActionWidgetContextKeys.Visible, ActionWidgetContextKeys.FilterFocused),
+      keybinding: {
+        weight: weight + 1,
+        primary: 9
+      }
+    });
+  }
+  run(accessor) {
+    const widgetService = accessor.get(IActionWidgetService);
+    if (widgetService instanceof ActionWidgetService) {
+      if (!widgetService.clearFilter()) {
+        widgetService.hide(true);
+      }
+    }
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
       id: "selectPrevCodeAction",
       title: localize2("selectPrevCodeAction.title", "Select previous action"),
       precondition: ActionWidgetContextKeys.Visible,
@@ -212,6 +260,65 @@ registerAction2(class extends Action2 {
     const widgetService = accessor.get(IActionWidgetService);
     if (widgetService instanceof ActionWidgetService) {
       widgetService.focusNext();
+    }
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "collapseSectionCodeAction",
+      title: localize2("collapseSectionCodeAction.title", "Collapse section"),
+      precondition: ContextKeyExpr.and(ActionWidgetContextKeys.Visible, ActionWidgetContextKeys.FilterFocused.negate()),
+      keybinding: {
+        weight,
+        primary: 15
+      }
+    });
+  }
+  run(accessor) {
+    const widgetService = accessor.get(IActionWidgetService);
+    if (widgetService instanceof ActionWidgetService) {
+      widgetService.collapseSection();
+    }
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "expandSectionCodeAction",
+      title: localize2("expandSectionCodeAction.title", "Expand section"),
+      precondition: ContextKeyExpr.and(ActionWidgetContextKeys.Visible, ActionWidgetContextKeys.FilterFocused.negate()),
+      keybinding: {
+        weight,
+        primary: 17
+      }
+    });
+  }
+  run(accessor) {
+    const widgetService = accessor.get(IActionWidgetService);
+    if (widgetService instanceof ActionWidgetService) {
+      widgetService.expandSection();
+    }
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "toggleSectionCodeAction",
+      title: localize2("toggleSectionCodeAction.title", "Toggle section"),
+      precondition: ContextKeyExpr.and(ActionWidgetContextKeys.Visible, ActionWidgetContextKeys.FilterFocused.negate()),
+      keybinding: {
+        weight,
+        primary: 10
+      }
+    });
+  }
+  run(accessor) {
+    const widgetService = accessor.get(IActionWidgetService);
+    if (widgetService instanceof ActionWidgetService) {
+      if (!widgetService.toggleSection()) {
+        widgetService.acceptSelected();
+      }
     }
   }
 });

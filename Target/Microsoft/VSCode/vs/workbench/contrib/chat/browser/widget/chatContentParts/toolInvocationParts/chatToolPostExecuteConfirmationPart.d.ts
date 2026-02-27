@@ -15,6 +15,6 @@ export declare class ChatToolPostExecuteConfirmationPart extends AbstractToolCon
     constructor(toolInvocation: IChatToolInvocation, context: IChatContentPartRenderContext, instantiationService: IInstantiationService, keybindingService: IKeybindingService, contextKeyService: IContextKeyService, chatWidgetService: IChatWidgetService, languageModelToolsService: ILanguageModelToolsService, confirmationService: ILanguageModelToolsConfirmationService);
     protected createContentElement(): HTMLElement;
     protected getTitle(): string;
-    protected additionalPrimaryActions(): (Separator | import("../chatConfirmationWidget.ts").IChatConfirmationButton<() => void>)[];
+    protected additionalPrimaryActions(): (Separator | import("./abstractToolConfirmationSubPart.js").IAbstractToolPrimaryAction)[];
     private createResultsDisplay;
 }

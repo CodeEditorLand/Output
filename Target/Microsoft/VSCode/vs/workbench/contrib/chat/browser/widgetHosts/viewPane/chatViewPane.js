@@ -33,6 +33,7 @@ import { IInstantiationService } from "../../../../../../platform/instantiation/
 import { ServiceCollection } from "../../../../../../platform/instantiation/common/serviceCollection.js";
 import { IKeybindingService } from "../../../../../../platform/keybinding/common/keybinding.js";
 import { ILogService } from "../../../../../../platform/log/common/log.js";
+import { INotificationService } from "../../../../../../platform/notification/common/notification.js";
 import { IOpenerService } from "../../../../../../platform/opener/common/opener.js";
 import { IStorageService } from "../../../../../../platform/storage/common/storage.js";
 import { ITelemetryService } from "../../../../../../platform/telemetry/common/telemetry.js";
@@ -65,7 +66,9 @@ import { disposableTimeout } from "../../../../../../base/common/async.js";
 import { AgentSessionsFilter, AgentSessionsGrouping } from "../../agentSessions/agentSessionsFilter.js";
 import { IAgentSessionsService } from "../../agentSessions/agentSessionsService.js";
 import { IChatEntitlementService } from "../../../../../services/chat/common/chatEntitlementService.js";
+import { toErrorMessage } from "../../../../../../base/common/errorMessage.js";
 import { IWorkbenchEnvironmentService } from "../../../../../services/environment/common/environmentService.js";
+import { IHostService } from "../../../../../services/host/browser/host.js";
 let ChatViewPane = class ChatViewPane2 extends ViewPane {
   static {
     __name(this, "ChatViewPane");
@@ -73,12 +76,13 @@ let ChatViewPane = class ChatViewPane2 extends ViewPane {
   static {
     ChatViewPane_1 = this;
   }
-  constructor(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, hoverService, storageService, chatService, chatAgentService, logService, layoutService, chatSessionsService, telemetryService, lifecycleService, progressService, agentSessionsService, chatEntitlementService, commandService, activityService, workbenchEnvironmentService) {
+  constructor(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, hoverService, storageService, chatService, chatAgentService, logService, notificationService, layoutService, chatSessionsService, telemetryService, lifecycleService, progressService, agentSessionsService, chatEntitlementService, commandService, activityService, workbenchEnvironmentService, hostService) {
     super(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, hoverService);
     this.storageService = storageService;
     this.chatService = chatService;
     this.chatAgentService = chatAgentService;
     this.logService = logService;
+    this.notificationService = notificationService;
     this.layoutService = layoutService;
     this.chatSessionsService = chatSessionsService;
     this.telemetryService = telemetryService;
@@ -88,6 +92,7 @@ let ChatViewPane = class ChatViewPane2 extends ViewPane {
     this.commandService = commandService;
     this.activityService = activityService;
     this.workbenchEnvironmentService = workbenchEnvironmentService;
+    this.hostService = hostService;
     this.lastDimensionsPerOrientation = /* @__PURE__ */ new Map();
     this.modelRef = this._register(new MutableDisposable());
     this.activityBadge = this._register(new MutableDisposable());
@@ -227,7 +232,7 @@ let ChatViewPane = class ChatViewPane2 extends ViewPane {
     if (this.chatAgentService.getDefaultAgent(ChatAgentLocation.Chat)) {
       if (!this._widget?.viewModel && !this.restoringSession) {
         const sessionResource = this.getTransferredOrPersistedSessionInfo();
-        this.restoringSession = (sessionResource ? this.chatService.getOrRestoreSession(sessionResource) : Promise.resolve(void 0)).then(async (modelRef) => {
+        this.restoringSession = (sessionResource ? this.chatService.acquireOrLoadSession(sessionResource, ChatAgentLocation.Chat, CancellationToken.None) : Promise.resolve(void 0)).then(async (modelRef) => {
           if (!this._widget) {
             return;
           }
@@ -331,6 +336,11 @@ let ChatViewPane = class ChatViewPane2 extends ViewPane {
     }));
     this._register(this.onDidChangeBodyVisibility((visible) => sessionsControl.setVisible(visible)));
     sessionsToolbar.context = sessionsControl;
+    this._register(this.hostService.onDidChangeFocus((hasFocus) => {
+      if (hasFocus) {
+        sessionsControl.refresh();
+      }
+    }));
     this._register(Event.runAndSubscribe(Event.filter(this.configurationService.onDidChangeConfiguration, (e) => e.affectsConfiguration(ChatConfiguration.ChatViewSessionsOrientation)), (e) => {
       const newSessionsViewerOrientationConfiguration = this.configurationService.getValue(ChatConfiguration.ChatViewSessionsOrientation);
       this.doUpdateConfiguredSessionsViewerOrientation(newSessionsViewerOrientationConfiguration, { updateConfiguration: false, layout: !!e });
@@ -372,7 +382,7 @@ let ChatViewPane = class ChatViewPane2 extends ViewPane {
     } else {
       if (this.sessionsViewerOrientation === AgentSessionsViewerOrientation.Stacked) {
         newSessionsContainerVisible = !!this.chatEntitlementService.sentiment.installed && // chat is installed (otherwise make room for terms and welcome)
-        (!this._widget || this._widget.isEmpty() && !!this._widget.viewModel) && // chat widget empty (but not when model is loading)
+        (!this._widget || this._widget.isEmpty() && !!this._widget.viewModel && !this._widget.viewModel.model.title) && // chat widget empty (but not when model is loading or has a title)
         !this.welcomeController?.isShowingWelcome.get();
       } else {
         newSessionsContainerVisible = !this.welcomeController?.isShowingWelcome.get() && // welcome not showing
@@ -529,7 +539,7 @@ let ChatViewPane = class ChatViewPane2 extends ViewPane {
   }
   async _applyModel() {
     const sessionResource = this.getTransferredOrPersistedSessionInfo();
-    const modelRef = sessionResource ? await this.chatService.getOrRestoreSession(sessionResource) : void 0;
+    const modelRef = sessionResource ? await this.chatService.acquireOrLoadSession(sessionResource, ChatAgentLocation.Chat, CancellationToken.None) : void 0;
     await this.showModel(modelRef);
   }
   async showModel(modelRef, startNewSession = true) {
@@ -537,7 +547,7 @@ let ChatViewPane = class ChatViewPane2 extends ViewPane {
     this.modelRef.value = void 0;
     let ref;
     if (startNewSession) {
-      ref = modelRef ?? (this.chatService.transferredSessionResource ? await this.chatService.getOrRestoreSession(this.chatService.transferredSessionResource) : this.chatService.startSession(ChatAgentLocation.Chat));
+      ref = modelRef ?? (this.chatService.transferredSessionResource ? await this.chatService.acquireOrLoadSession(this.chatService.transferredSessionResource, ChatAgentLocation.Chat, CancellationToken.None) : this.chatService.startNewLocalSession(ChatAgentLocation.Chat));
       if (!ref) {
         throw new Error("Could not start chat session");
       }
@@ -594,14 +604,18 @@ let ChatViewPane = class ChatViewPane2 extends ViewPane {
         queue = this.showModel(void 0, false).then(() => {
         });
       }, 100);
-      const sessionType = getChatSessionType(sessionResource);
-      if (sessionType !== localChatSessionType) {
-        await this.chatSessionsService.canResolveChatSession(sessionResource);
+      try {
+        const newModelRef = await this.chatService.acquireOrLoadSession(sessionResource, ChatAgentLocation.Chat, CancellationToken.None);
+        clearWidget.dispose();
+        await queue;
+        return this.showModel(newModelRef);
+      } catch (err) {
+        clearWidget.dispose();
+        await queue;
+        this.logService.error(`Failed to load chat session '${sessionResource.toString()}'`, err);
+        this.notificationService.error(localize("chat.loadSessionFailed", "Failed to open chat session: {0}", toErrorMessage(err)));
+        return this.showModel(void 0);
       }
-      const newModelRef = await this.chatService.loadSessionForResource(sessionResource, ChatAgentLocation.Chat, CancellationToken.None);
-      clearWidget.dispose();
-      await queue;
-      return this.showModel(newModelRef);
     });
   }
   //#endregion
@@ -823,16 +837,18 @@ ChatViewPane = ChatViewPane_1 = __decorate([
   __param(11, IChatService),
   __param(12, IChatAgentService),
   __param(13, ILogService),
-  __param(14, IWorkbenchLayoutService),
-  __param(15, IChatSessionsService),
-  __param(16, ITelemetryService),
-  __param(17, ILifecycleService),
-  __param(18, IProgressService),
-  __param(19, IAgentSessionsService),
-  __param(20, IChatEntitlementService),
-  __param(21, ICommandService),
-  __param(22, IActivityService),
-  __param(23, IWorkbenchEnvironmentService)
+  __param(14, INotificationService),
+  __param(15, IWorkbenchLayoutService),
+  __param(16, IChatSessionsService),
+  __param(17, ITelemetryService),
+  __param(18, ILifecycleService),
+  __param(19, IProgressService),
+  __param(20, IAgentSessionsService),
+  __param(21, IChatEntitlementService),
+  __param(22, ICommandService),
+  __param(23, IActivityService),
+  __param(24, IWorkbenchEnvironmentService),
+  __param(25, IHostService)
 ], ChatViewPane);
 export {
   ChatViewPane

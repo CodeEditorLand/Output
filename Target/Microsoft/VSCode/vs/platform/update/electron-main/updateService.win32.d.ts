@@ -33,4 +33,5 @@ export declare class Win32UpdateService extends AbstractUpdateService implements
     private loadUpdateMetadata;
     protected getUpdateType(): UpdateType;
     _applySpecificUpdate(packagePath: string): Promise<void>;
+    private unlink;
 }

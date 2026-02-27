@@ -30,6 +30,7 @@ import { CHAT_CATEGORY } from "../actions/chatActions.js";
 import { IChatWidgetService } from "../chat.js";
 import { isAgentSession } from "../agentSessions/agentSessionsModel.js";
 import { AgentSessionProviders } from "../agentSessions/agentSessions.js";
+import { IsSessionsWindowContext } from "../../../../common/contextkeys.js";
 class EditingSessionAction extends Action2 {
   static {
     __name(this, "EditingSessionAction");
@@ -350,7 +351,7 @@ class ViewAllSessionChangesAction extends Action2 {
           id: MenuId.AgentSessionItemToolbar,
           group: "navigation",
           order: 0,
-          when: ChatContextKeys.hasAgentSessionChanges
+          when: ContextKeyExpr.and(ChatContextKeys.hasAgentSessionChanges, IsSessionsWindowContext.negate())
         }
       ]
     });
@@ -559,15 +560,7 @@ registerAction2(class RestoreLastCheckpoint extends Action2 {
       f1: true,
       category: CHAT_CATEGORY,
       icon: Codicon.discard,
-      precondition: ContextKeyExpr.and(ChatContextKeys.inChatSession, ContextKeyExpr.equals(`config.${ChatConfiguration.CheckpointsEnabled}`, true), ChatContextKeys.lockedToCodingAgent.negate()),
-      menu: [
-        {
-          id: MenuId.ChatMessageFooter,
-          group: "navigation",
-          order: 1,
-          when: ContextKeyExpr.and(ContextKeyExpr.in(ChatContextKeys.itemId.key, ChatContextKeys.lastItemId.key), ContextKeyExpr.equals(`config.${ChatConfiguration.CheckpointsEnabled}`, true), ChatContextKeys.lockedToCodingAgent.negate())
-        }
-      ]
+      precondition: ContextKeyExpr.and(ChatContextKeys.inChatSession, ContextKeyExpr.equals(`config.${ChatConfiguration.CheckpointsEnabled}`, true), ChatContextKeys.lockedToCodingAgent.negate())
     });
   }
   async run(accessor, ...args) {

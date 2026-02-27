@@ -843,7 +843,8 @@ var ConfigurationProperties;
     { property: "problemMatchers" },
     { property: "options" },
     { property: "icon" },
-    { property: "hide" }
+    { property: "hide" },
+    { property: "inSessions" }
   ];
   function from(external, context, includeCommandOptions, source, properties2) {
     if (!external) {
@@ -868,6 +869,7 @@ var ConfigurationProperties;
     }
     result.icon = external.icon;
     result.hide = external.hide;
+    result.inSessions = external.inSessions;
     if (external.isBackground !== void 0) {
       result.isBackground = !!external.isBackground;
     }
@@ -985,7 +987,7 @@ var ConfiguringTask;
         break;
       }
     }
-    const result = new Tasks.ConfiguringTask(`${typeDeclaration.extensionId}.${taskIdentifier._key}`, taskSource, void 0, type, taskIdentifier, RunOptions.fromConfiguration(external.runOptions), { hide: external.hide });
+    const result = new Tasks.ConfiguringTask(`${typeDeclaration.extensionId}.${taskIdentifier._key}`, taskSource, void 0, type, taskIdentifier, RunOptions.fromConfiguration(external.runOptions), { hide: external.hide, inSessions: external.inSessions });
     const configuration = ConfigurationProperties.from(external, context, true, source, typeDeclaration.properties);
     result.addTaskLoadMessages(configuration.errors);
     if (configuration.value) {
@@ -1118,7 +1120,8 @@ var CustomTask;
       name: configuredProps.configurationProperties.name || contributedTask.configurationProperties.name,
       identifier: configuredProps.configurationProperties.identifier || contributedTask.configurationProperties.identifier,
       icon: configuredProps.configurationProperties.icon,
-      hide: configuredProps.configurationProperties.hide
+      hide: configuredProps.configurationProperties.hide,
+      inSessions: configuredProps.configurationProperties.inSessions
     });
     result.addTaskLoadMessages(configuredProps.taskLoadMessages);
     const resultConfigProps = result.configurationProperties;

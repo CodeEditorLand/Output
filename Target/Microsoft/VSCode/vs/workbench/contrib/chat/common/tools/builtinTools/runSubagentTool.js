@@ -198,11 +198,11 @@ let RunSubagentTool = class RunSubagentTool2 extends Disposable {
         modeTools["copilot_askQuestions"] = false;
       }
       const variableSet = new ChatRequestVariableSet();
-      const computer = this.instantiationService.createInstance(ComputeAutomaticInstructions, ChatModeKind.Agent, modeTools, void 0);
+      const computer = this.instantiationService.createInstance(ComputeAutomaticInstructions, ChatModeKind.Agent, modeTools, void 0, invocation.context.sessionResource);
       await computer.collect(variableSet, token);
       let collectedHooks;
       try {
-        const info = await this.promptsService.getHooks(token);
+        const info = await this.promptsService.getHooks(token, invocation.context.sessionResource);
         collectedHooks = info?.hooks;
       } catch (error) {
         this.logService.warn("[ChatService] Failed to collect hooks:", error);

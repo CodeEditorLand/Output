@@ -15,9 +15,10 @@ var BrowserEditor_1;
 import "./media/browser.css";
 import { localize } from "../../../../nls.js";
 import { $, addDisposableListener, EventType, registerExternalFocusChecker } from "../../../../base/browser/dom.js";
+import { Button } from "../../../../base/browser/ui/button/button.js";
 import { renderIcon } from "../../../../base/browser/ui/iconLabel/iconLabels.js";
 import { CancellationTokenSource } from "../../../../base/common/cancellation.js";
-import { RawContextKey, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { RawContextKey, IContextKeyService, ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
 import { MenuId } from "../../../../platform/actions/common/actions.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { ServiceCollection } from "../../../../platform/instantiation/common/serviceCollection.js";
@@ -46,8 +47,10 @@ import { ThemeIcon } from "../../../../base/common/themables.js";
 import { Codicon } from "../../../../base/common/codicons.js";
 import { encodeBase64 } from "../../../../base/common/buffer.js";
 import { getDisplayNameFromOuterHTML } from "../../../../platform/browserElements/common/browserElements.js";
-import { logBrowserOpen } from "./browserViewTelemetry.js";
+import { logBrowserOpen } from "../../../../platform/browserView/common/browserViewTelemetry.js";
 import { URI } from "../../../../base/common/uri.js";
+import { ChatConfiguration } from "../../chat/common/constants.js";
+import { Event } from "../../../../base/common/event.js";
 const CONTEXT_BROWSER_CAN_GO_BACK = new RawContextKey("browserCanGoBack", false, localize("browser.canGoBack", "Whether the browser can go back"));
 const CONTEXT_BROWSER_CAN_GO_FORWARD = new RawContextKey("browserCanGoForward", false, localize("browser.canGoForward", "Whether the browser can go forward"));
 const CONTEXT_BROWSER_FOCUSED = new RawContextKey("browserFocused", true, localize("browser.editorFocused", "Whether the browser editor is focused"));
@@ -56,12 +59,18 @@ const CONTEXT_BROWSER_HAS_URL = new RawContextKey("browserHasUrl", false, locali
 const CONTEXT_BROWSER_HAS_ERROR = new RawContextKey("browserHasError", false, localize("browser.hasError", "Whether the browser has a load error"));
 const CONTEXT_BROWSER_DEVTOOLS_OPEN = new RawContextKey("browserDevToolsOpen", false, localize("browser.devToolsOpen", "Whether developer tools are open for the current browser view"));
 const CONTEXT_BROWSER_ELEMENT_SELECTION_ACTIVE = new RawContextKey("browserElementSelectionActive", false, localize("browser.elementSelectionActive", "Whether element selection is currently active"));
+const canShareBrowserWithAgentContext = ContextKeyExpr.and(ChatContextKeys.enabled, ContextKeyExpr.has(`config.${ChatConfiguration.AgentEnabled}`), ContextKeyExpr.has(`config.workbench.browser.enableChatTools`));
+function watchForAgentSharingContextChanges(contextKeyService) {
+  const agentSharingKeys = new Set(canShareBrowserWithAgentContext.keys());
+  return Event.filter(contextKeyService.onDidChangeContext, (e) => e.affectsSome(agentSharingKeys));
+}
+__name(watchForAgentSharingContextChanges, "watchForAgentSharingContextChanges");
 const originalHtmlElementFocus = HTMLElement.prototype.focus;
 class BrowserNavigationBar extends Disposable {
   static {
     __name(this, "BrowserNavigationBar");
   }
-  constructor(editor, container, instantiationService, scopedContextKeyService) {
+  constructor(editor, container, instantiationService, scopedContextKeyService, configurationService) {
     super();
     const hoverDelegate = this._register(instantiationService.createInstance(WorkbenchHoverDelegate, "element", void 0, { position: {
       hoverPosition: 3
@@ -76,9 +85,21 @@ class BrowserNavigationBar extends Disposable {
       toolbarOptions: { primaryGroup: /* @__PURE__ */ __name(() => true, "primaryGroup"), useSeparatorsInPrimaryActions: true },
       menuOptions: { shouldForwardArgs: true }
     }));
+    const urlContainer = $(".browser-url-container");
     this._urlInput = $("input.browser-url-input");
     this._urlInput.type = "text";
     this._urlInput.placeholder = localize("browser.urlPlaceholder", "Enter a URL");
+    this._shareButtonContainer = $(".browser-share-toggle-container");
+    this._shareButton = this._register(new Button(this._shareButtonContainer, {
+      supportIcons: true,
+      title: localize("browser.shareWithAgent", "Share with Agent"),
+      small: true,
+      hoverDelegate
+    }));
+    this._shareButton.element.classList.add("browser-share-toggle");
+    this._shareButton.label = "$(agent)";
+    urlContainer.appendChild(this._urlInput);
+    urlContainer.appendChild(this._shareButtonContainer);
     const actionsContainer = $(".browser-actions-toolbar");
     const actionsToolbar = this._register(scopedInstantiationService.createInstance(MenuWorkbenchToolBar, actionsContainer, MenuId.BrowserActionsToolbar, {
       hoverDelegate,
@@ -89,7 +110,7 @@ class BrowserNavigationBar extends Disposable {
     navToolbar.context = editor;
     actionsToolbar.context = editor;
     container.appendChild(navContainer);
-    container.appendChild(this._urlInput);
+    container.appendChild(urlContainer);
     container.appendChild(actionsContainer);
     this._register(addDisposableListener(this._urlInput, EventType.KEY_DOWN, (e) => {
       if (e.key === "Enter") {
@@ -102,6 +123,24 @@ class BrowserNavigationBar extends Disposable {
     this._register(addDisposableListener(this._urlInput, EventType.FOCUS, () => {
       this._urlInput.select();
     }));
+    this._register(this._shareButton.onDidClick(() => {
+      editor.toggleShareWithAgent();
+    }));
+    const updateShareButtonVisibility = /* @__PURE__ */ __name(() => {
+      this._shareButtonContainer.style.display = scopedContextKeyService.contextMatchesRules(canShareBrowserWithAgentContext) ? "" : "none";
+    }, "updateShareButtonVisibility");
+    updateShareButtonVisibility();
+    this._register(watchForAgentSharingContextChanges(scopedContextKeyService)(() => {
+      updateShareButtonVisibility();
+    }));
+  }
+  /**
+   * Update the share toggle visual state
+   */
+  setShared(isShared) {
+    this._shareButton.checked = isShared;
+    this._shareButton.label = isShared ? localize("browser.sharingWithAgent", "Sharing with Agent") + " $(agent)" : "$(agent)";
+    this._shareButton.setTitle(isShared ? localize("browser.unshareWithAgent", "Stop Sharing with Agent") : localize("browser.shareWithAgent", "Share with Agent"));
   }
   /**
    * Update the navigation bar state from a navigation event
@@ -158,7 +197,7 @@ let BrowserEditor = class BrowserEditor2 extends EditorPane {
     const root = $(".browser-root");
     parent.appendChild(root);
     const toolbar = $(".browser-toolbar");
-    this._navigationBar = this._register(new BrowserNavigationBar(this, toolbar, this.instantiationService, contextKeyService));
+    this._navigationBar = this._register(new BrowserNavigationBar(this, toolbar, this.instantiationService, contextKeyService, this.configurationService));
     root.appendChild(toolbar);
     this._findWidgetContainer = $(".browser-find-widget-wrapper");
     root.appendChild(this._findWidgetContainer);
@@ -170,9 +209,12 @@ let BrowserEditor = class BrowserEditor2 extends EditorPane {
       return findWidget;
     });
     this._register(toDisposable(() => this._findWidget.rawValue?.dispose()));
+    this._browserContainerWrapper = $(".browser-container-wrapper");
+    this._browserContainerWrapper.style.setProperty("--zoom-factor", String(getZoomFactor(this.window)));
+    root.appendChild(this._browserContainerWrapper);
     this._browserContainer = $(".browser-container");
     this._browserContainer.tabIndex = 0;
-    root.appendChild(this._browserContainer);
+    this._browserContainerWrapper.appendChild(this._browserContainer);
     this._placeholderScreenshot = $(".browser-placeholder-screenshot");
     this._browserContainer.appendChild(this._placeholderScreenshot);
     this._overlayPauseContainer = $(".browser-overlay-paused");
@@ -213,12 +255,20 @@ let BrowserEditor = class BrowserEditor2 extends EditorPane {
     }
     this._storageScopeContext.set(this._model.storageScope);
     this._devToolsOpenContext.set(this._model.isDevToolsOpen);
+    this._updateSharingState();
     this._findWidget.rawValue?.setModel(this._model);
     this._inputDisposables.add(input.onWillDispose(() => {
       this._model = void 0;
     }));
+    this._inputDisposables.add(this._model.onDidChangeSharedWithAgent(() => {
+      this._updateSharingState();
+    }));
+    this._inputDisposables.add(watchForAgentSharingContextChanges(this.contextKeyService)(() => {
+      this._updateSharingState();
+    }));
     this.updateNavigationState({
       url: this._model.url,
+      title: this._model.title,
       canGoBack: this._model.canGoBack,
       canGoForward: this._model.canGoForward
     });
@@ -284,6 +334,7 @@ let BrowserEditor = class BrowserEditor2 extends EditorPane {
     }));
     this._inputDisposables.add(onDidChangeZoomLevel((targetWindowId) => {
       if (targetWindowId === this.window.vscodeWindowId) {
+        this._browserContainerWrapper.style.setProperty("--zoom-factor", String(getZoomFactor(this.window)));
         this.layoutBrowserContainer();
       }
     }));
@@ -291,6 +342,9 @@ let BrowserEditor = class BrowserEditor2 extends EditorPane {
     this.layoutBrowserContainer();
     this.updateVisibility();
     this.doScreenshot();
+    if (this._model.url) {
+      this.startConsoleSession();
+    }
   }
   setEditorVisible(visible) {
     this._editorVisible = visible;
@@ -391,6 +445,18 @@ let BrowserEditor = class BrowserEditor2 extends EditorPane {
   getUrl() {
     return this._model?.url;
   }
+  _updateSharingState() {
+    const sharingEnabled = this.contextKeyService.contextMatchesRules(canShareBrowserWithAgentContext);
+    const isShared = sharingEnabled && !!this._model && this._model.sharedWithAgent;
+    this._browserContainerWrapper.classList.toggle("shared", isShared);
+    this._navigationBar.setShared(isShared);
+  }
+  toggleShareWithAgent() {
+    if (!this._model) {
+      return;
+    }
+    this._model.setSharedWithAgent(!this._model.sharedWithAgent);
+  }
   async navigateToUrl(url) {
     if (this._model) {
       this.group.pinEditor(this.input);
@@ -425,7 +491,7 @@ let BrowserEditor = class BrowserEditor2 extends EditorPane {
    * Show the find widget, optionally pre-populated with selected text from the browser view
    */
   async showFind() {
-    const selectedText = await this._model?.getSelectedText();
+    const selectedText = (await this._model?.getSelectedText())?.trim();
     const textToReveal = selectedText && !/[\r\n]/.test(selectedText) ? selectedText : void 0;
     this._findWidget.value.reveal(textToReveal);
     this._findWidget.value.layout(this._findWidgetContainer.clientWidth);
@@ -479,17 +545,20 @@ let BrowserEditor = class BrowserEditor2 extends EditorPane {
       const toAttach = [];
       const displayName = getDisplayNameFromOuterHTML(elementData.outerHTML);
       const attachCss = this.configurationService.getValue("chat.sendElementsToChat.attachCSS");
-      let value = (attachCss ? "Attached HTML and CSS Context" : "Attached HTML Context") + "\n\n" + elementData.outerHTML;
-      if (attachCss) {
-        value += "\n\n" + elementData.computedStyle;
-      }
+      const value = this.createElementContextValue(elementData, displayName, attachCss);
       toAttach.push({
         id: "element-" + Date.now(),
         name: displayName,
         fullName: displayName,
         value,
+        modelDescription: attachCss ? "Structured browser element context with HTML path, attributes, and computed styles." : "Structured browser element context with HTML path and attributes.",
         kind: "element",
-        icon: ThemeIcon.fromId(Codicon.layout.id)
+        icon: ThemeIcon.fromId(Codicon.layout.id),
+        ancestors: elementData.ancestors,
+        attributes: elementData.attributes,
+        computedStyles: attachCss ? elementData.computedStyles : void 0,
+        dimensions: elementData.dimensions,
+        innerText: elementData.innerText
       });
       const attachImages = this.configurationService.getValue("chat.sendElementsToChat.attachImages");
       if (attachImages && this._model) {
@@ -523,6 +592,9 @@ let BrowserEditor = class BrowserEditor2 extends EditorPane {
       }
     }
   }
+  /**
+   * Grab the current console logs from the active console session and attach them to chat.
+   */
   async addConsoleLogsToChat() {
     const resourceUri = this.input?.resource;
     if (!resourceUri) {
@@ -540,8 +612,9 @@ let BrowserEditor = class BrowserEditor2 extends EditorPane {
         name: localize("consoleLogs", "Console Logs"),
         fullName: localize("consoleLogs", "Console Logs"),
         value: logs,
+        modelDescription: "Console logs captured from Integrated Browser.",
         kind: "element",
-        icon: ThemeIcon.fromId(Codicon.output.id)
+        icon: ThemeIcon.fromId(Codicon.terminal.id)
       });
       const widget = await this.chatWidgetService.revealWidget() ?? this.chatWidgetService.lastFocusedWidget;
       widget?.attachmentModel?.addContext(...toAttach);
@@ -549,6 +622,9 @@ let BrowserEditor = class BrowserEditor2 extends EditorPane {
       this.logService.error("BrowserEditor.addConsoleLogsToChat: Failed to get console logs", error);
     }
   }
+  /**
+   * Start a console session to capture logs from the browser view.
+   */
   startConsoleSession() {
     if (this._consoleSessionCts) {
       return;
@@ -566,11 +642,109 @@ let BrowserEditor = class BrowserEditor2 extends EditorPane {
       }
     });
   }
+  /**
+   * Stop the active console session.
+   */
   stopConsoleSession() {
     if (this._consoleSessionCts) {
       this._consoleSessionCts.dispose(true);
       this._consoleSessionCts = void 0;
     }
+  }
+  createElementContextValue(elementData, displayName, attachCss) {
+    const sections = [];
+    sections.push("Attached Element Context from Integrated Browser");
+    sections.push(`Element: ${displayName}`);
+    const htmlPath = this.formatElementPath(elementData.ancestors);
+    if (htmlPath) {
+      sections.push(`HTML Path:
+${htmlPath}`);
+    }
+    const attributeTable = this.formatElementMap(elementData.attributes);
+    if (attributeTable) {
+      sections.push(`Attributes:
+${attributeTable}`);
+    }
+    if (attachCss) {
+      const computedStyleTable = this.formatElementMap(elementData.computedStyles);
+      if (computedStyleTable) {
+        sections.push(`Computed Styles:
+${computedStyleTable}`);
+      }
+    }
+    if (elementData.dimensions) {
+      const { top, left, width, height } = elementData.dimensions;
+      sections.push(`Dimensions:
+- top: ${Math.round(top)}px
+- left: ${Math.round(left)}px
+- width: ${Math.round(width)}px
+- height: ${Math.round(height)}px`);
+    }
+    const innerText = elementData.innerText?.trim();
+    if (innerText) {
+      sections.push(`Inner Text:
+\`\`\`text
+${innerText}
+\`\`\``);
+    }
+    sections.push(`Outer HTML:
+\`\`\`html
+${elementData.outerHTML}
+\`\`\``);
+    if (attachCss) {
+      sections.push(`Full Computed CSS:
+\`\`\`css
+${elementData.computedStyle}
+\`\`\``);
+    }
+    return sections.join("\n\n");
+  }
+  formatElementPath(ancestors) {
+    if (!ancestors || ancestors.length === 0) {
+      return void 0;
+    }
+    return ancestors.map((ancestor) => {
+      const classes = ancestor.classNames?.length ? `.${ancestor.classNames.join(".")}` : "";
+      const id = ancestor.id ? `#${ancestor.id}` : "";
+      return `${ancestor.tagName}${id}${classes}`;
+    }).join(" > ");
+  }
+  formatElementMap(entries) {
+    if (!entries || Object.keys(entries).length === 0) {
+      return void 0;
+    }
+    const normalizedEntries = new Map(Object.entries(entries));
+    const lines = [];
+    const marginShorthand = this.createBoxShorthand(normalizedEntries, "margin");
+    if (marginShorthand) {
+      lines.push(`- margin: ${marginShorthand}`);
+    }
+    const paddingShorthand = this.createBoxShorthand(normalizedEntries, "padding");
+    if (paddingShorthand) {
+      lines.push(`- padding: ${paddingShorthand}`);
+    }
+    for (const [name, value] of Array.from(normalizedEntries.entries()).sort(([a], [b]) => a.localeCompare(b))) {
+      lines.push(`- ${name}: ${value}`);
+    }
+    return lines.join("\n");
+  }
+  createBoxShorthand(entries, propertyName) {
+    const topKey = `${propertyName}-top`;
+    const rightKey = `${propertyName}-right`;
+    const bottomKey = `${propertyName}-bottom`;
+    const leftKey = `${propertyName}-left`;
+    const top = entries.get(topKey);
+    const right = entries.get(rightKey);
+    const bottom = entries.get(bottomKey);
+    const left = entries.get(leftKey);
+    if (top === void 0 || right === void 0 || bottom === void 0 || left === void 0) {
+      return void 0;
+    }
+    entries.delete(topKey);
+    entries.delete(rightKey);
+    entries.delete(bottomKey);
+    entries.delete(leftKey);
+    return `${top} ${right} ${bottom} ${left}`;
   }
   /**
    * Update navigation state and context keys

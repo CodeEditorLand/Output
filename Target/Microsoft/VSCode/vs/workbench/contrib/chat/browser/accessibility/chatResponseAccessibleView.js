@@ -7,6 +7,7 @@ import { stripIcons } from "../../../../../base/common/iconLabels.js";
 import { Disposable, DisposableStore } from "../../../../../base/common/lifecycle.js";
 import { URI } from "../../../../../base/common/uri.js";
 import { localize } from "../../../../../nls.js";
+import { IStorageService } from "../../../../../platform/storage/common/storage.js";
 import { migrateLegacyTerminalToolSpecificData } from "../../common/chat.js";
 import { ChatContextKeys } from "../../common/actions/chatContextKeys.js";
 import { IChatToolInvocation, isLegacyChatTerminalToolInvocationData } from "../../common/chatService/chatService.js";
@@ -25,6 +26,7 @@ class ChatResponseAccessibleView {
   }
   getProvider(accessor) {
     const widgetService = accessor.get(IChatWidgetService);
+    const storageService = accessor.get(IStorageService);
     const widget = widgetService.lastFocusedWidget;
     if (!widget) {
       return;
@@ -46,9 +48,15 @@ class ChatResponseAccessibleView {
     if (!focusedItem || !isResponseVM(focusedItem)) {
       return;
     }
-    return new ChatResponseAccessibleProvider(verifiedWidget, focusedItem, chatInputFocused);
+    return new ChatResponseAccessibleProvider(verifiedWidget, focusedItem, chatInputFocused, storageService);
   }
 }
+const CHAT_ACCESSIBLE_VIEW_INCLUDE_THINKING_STORAGE_KEY = "chat.accessibleView.includeThinking";
+const CHAT_ACCESSIBLE_VIEW_INCLUDE_THINKING_DEFAULT = true;
+function isThinkingContentIncludedInAccessibleView(storageService) {
+  return storageService.getBoolean(CHAT_ACCESSIBLE_VIEW_INCLUDE_THINKING_STORAGE_KEY, 0, CHAT_ACCESSIBLE_VIEW_INCLUDE_THINKING_DEFAULT);
+}
+__name(isThinkingContentIncludedInAccessibleView, "isThinkingContentIncludedInAccessibleView");
 function isOutputDetailsSerialized(obj) {
   return typeof obj === "object" && obj !== null && "output" in obj && typeof obj.output === "object" && obj.output?.type === "data" && typeof obj.output?.base64Data === "string";
 }
@@ -174,11 +182,13 @@ class ChatResponseAccessibleProvider extends Disposable {
   static {
     __name(this, "ChatResponseAccessibleProvider");
   }
-  constructor(_widget, item, _wasOpenedFromInput) {
+  constructor(_widget, item, _wasOpenedFromInput, _storageService) {
     super();
     this._widget = _widget;
     this._wasOpenedFromInput = _wasOpenedFromInput;
+    this._storageService = _storageService;
     this._focusedItemDisposables = this._register(new DisposableStore());
+    this._storageDisposables = this._register(new DisposableStore());
     this._onDidChangeContent = this._register(new Emitter());
     this.onDidChangeContent = this._onDidChangeContent.event;
     this.id = "panelChat";
@@ -187,6 +197,9 @@ class ChatResponseAccessibleProvider extends Disposable {
       type: "view"
       /* AccessibleViewType.View */
     };
+    this._storageDisposables.add(this._storageService.onDidChangeValue(0, CHAT_ACCESSIBLE_VIEW_INCLUDE_THINKING_STORAGE_KEY, this._storageDisposables)(() => {
+      this._onDidChangeContent.fire();
+    }));
     this._setFocusedItem(item);
   }
   provideContent() {
@@ -213,6 +226,9 @@ class ChatResponseAccessibleProvider extends Disposable {
     for (const part of item.response.value) {
       switch (part.kind) {
         case "thinking": {
+          if (!this._shouldIncludeThinkingContent()) {
+            break;
+          }
           const thinkingValue = Array.isArray(part.value) ? part.value.join("") : part.value || "";
           const trimmed = thinkingValue.trim();
           if (trimmed) {
@@ -298,6 +314,9 @@ ${message}`;
     }
     return normalized.join("\n");
   }
+  _shouldIncludeThinkingContent() {
+    return isThinkingContentIncludedInAccessibleView(this._storageService);
+  }
   onClose() {
     this._widget.reveal(this._focusedItem);
     if (this._wasOpenedFromInput) {
@@ -324,9 +343,11 @@ ${message}`;
   }
 }
 export {
+  CHAT_ACCESSIBLE_VIEW_INCLUDE_THINKING_STORAGE_KEY,
   ChatResponseAccessibleView,
   getResultDetailsDescription,
   getToolInvocationA11yDescription,
-  getToolSpecificDataDescription
+  getToolSpecificDataDescription,
+  isThinkingContentIncludedInAccessibleView
 };
 //# sourceMappingURL=chatResponseAccessibleView.js.map

@@ -10,14 +10,15 @@ function findGroup(accessor, editor, preferredGroup) {
   const configurationService = accessor.get(IConfigurationService);
   const group = doFindGroup(editor, preferredGroup, editorGroupService, configurationService);
   if (group instanceof Promise) {
-    return group.then((group2) => handleGroupResult(group2, editor, preferredGroup, editorGroupService));
+    return group.then((group2) => handleGroupResult(group2, editor, preferredGroup, editorGroupService, configurationService));
   }
-  return handleGroupResult(group, editor, preferredGroup, editorGroupService);
+  return handleGroupResult(group, editor, preferredGroup, editorGroupService, configurationService);
 }
 __name(findGroup, "findGroup");
-function handleGroupResult(group, editor, preferredGroup, editorGroupService) {
+function handleGroupResult(group, editor, preferredGroup, editorGroupService, configurationService) {
   const modalEditorPart = editorGroupService.activeModalEditorPart;
-  if (modalEditorPart && preferredGroup !== MODAL_GROUP) {
+  const modalEditorMode = configurationService.getValue("workbench.editor.useModal");
+  if (modalEditorPart && preferredGroup !== MODAL_GROUP && modalEditorMode !== "all") {
     group = handleModalEditorPart(group, editor, modalEditorPart, editorGroupService);
   }
   return handleGroupActivation(group, editor, preferredGroup, editorGroupService);
@@ -63,7 +64,7 @@ function doFindGroup(input, preferredGroup, editorGroupService, configurationSer
     group = candidateGroup;
   } else if (preferredGroup === AUX_WINDOW_GROUP) {
     group = editorGroupService.createAuxiliaryEditorPart(options?.auxiliary).then((group2) => group2.activeGroup);
-  } else if (preferredGroup === MODAL_GROUP && configurationService.getValue("workbench.editor.allowOpenInModalEditor")) {
+  } else if (preferredGroup === MODAL_GROUP && configurationService.getValue("workbench.editor.useModal") !== "off") {
     group = editorGroupService.createModalEditorPart(options?.modal).then((part) => part.activeGroup);
   } else if (!options || typeof options.index !== "number") {
     const groupsByLastActive = editorGroupService.getGroups(
@@ -101,6 +102,9 @@ function doFindGroup(input, preferredGroup, editorGroupService, configurationSer
         group = groupWithInputActive || groupWithInputOpened;
       }
     }
+  }
+  if (!group && configurationService.getValue("workbench.editor.useModal") === "all") {
+    group = editorGroupService.createModalEditorPart(options?.modal).then((part) => part.activeGroup);
   }
   if (!group) {
     let candidateGroup = editorGroupService.activeGroup;

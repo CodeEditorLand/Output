@@ -199,14 +199,6 @@ export declare function position(element: HTMLElement, top: number, right?: numb
  */
 export declare function getDomNodePagePosition(domNode: HTMLElement): IDomNodePagePosition;
 /**
- * Returns whether the element is in the bottom right quarter of the container.
- *
- * @param element the element to check for being in the bottom right quarter
- * @param container the container to check against
- * @returns true if the element is in the bottom right quarter of the container
- */
-export declare function isElementInBottomRightQuarter(element: HTMLElement, container: HTMLElement): boolean;
-/**
  * Returns the effective zoom on a given element before window zoom level is applied
  */
 export declare function getDomNodeZoomLevel(domNode: HTMLElement): number;

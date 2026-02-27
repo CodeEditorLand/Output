@@ -57,12 +57,10 @@ export declare class TitlebarPart extends Part implements ITitlebarPart {
     protected createContentArea(parent: HTMLElement): HTMLElement;
     updateStyles(): void;
     private onContextMenu;
-    private lastLayoutDimension;
     get hasZoomableElements(): boolean;
     get preventZoom(): boolean;
     layout(width: number, height: number): void;
     private updateLayout;
-    private updateCenterOffset;
     focus(): void;
     toJSON(): object;
     dispose(): void;
@@ -81,7 +79,7 @@ export declare class AuxiliaryTitlebarPart extends TitlebarPart implements IAuxi
     private readonly mainTitlebar;
     private static COUNTER;
     get height(): number;
-    constructor(container: HTMLElement, editorGroupsContainer: IEditorGroupsContainer, mainTitlebar: TitlebarPart, contextMenuService: IContextMenuService, configurationService: IConfigurationService, instantiationService: IInstantiationService, themeService: IThemeService, storageService: IStorageService, layoutService: IWorkbenchLayoutService, contextKeyService: IContextKeyService, hostService: IHostService);
+    constructor(container: HTMLElement, mainTitlebar: TitlebarPart, contextMenuService: IContextMenuService, configurationService: IConfigurationService, instantiationService: IInstantiationService, themeService: IThemeService, storageService: IStorageService, layoutService: IWorkbenchLayoutService, contextKeyService: IContextKeyService, hostService: IHostService);
     get preventZoom(): boolean;
 }
 /**
@@ -94,7 +92,7 @@ export declare class TitleService extends MultiWindowParts<TitlebarPart> impleme
     constructor(instantiationService: IInstantiationService, storageService: IStorageService, themeService: IThemeService);
     protected createMainTitlebarPart(): TitlebarPart;
     createAuxiliaryTitlebarPart(container: HTMLElement, editorGroupsContainer: IEditorGroupsContainer, instantiationService: IInstantiationService): IAuxiliaryTitlebarPart;
-    protected doCreateAuxiliaryTitlebarPart(container: HTMLElement, editorGroupsContainer: IEditorGroupsContainer, instantiationService: IInstantiationService): TitlebarPart & IAuxiliaryTitlebarPart;
+    protected doCreateAuxiliaryTitlebarPart(container: HTMLElement, _editorGroupsContainer: IEditorGroupsContainer, instantiationService: IInstantiationService): TitlebarPart & IAuxiliaryTitlebarPart;
     readonly onMenubarVisibilityChange: Event<boolean>;
     updateProperties(properties: ITitleProperties): void;
     registerVariables(variables: ITitleVariable[]): void;

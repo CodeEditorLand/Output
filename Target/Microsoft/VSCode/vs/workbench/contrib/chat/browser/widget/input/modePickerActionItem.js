@@ -88,22 +88,6 @@ let ModePickerActionItem = class ModePickerActionItem2 extends ChatInputPickerAc
               openerService.open(modeResource.get());
             }, "run")
           });
-        } else if (customAgentTarget === Target.Undefined) {
-          const label = localize("configureToolsFor", "Configure tools for {0} agent", mode.label.get());
-          toolbarActions.push({
-            id: `configureTools:${mode.id}`,
-            label,
-            tooltip: label,
-            class: ThemeIcon.asClassName(Codicon.tools),
-            enabled: true,
-            run: /* @__PURE__ */ __name(async () => {
-              actionWidgetService.hide();
-              if (currentMode.id !== mode.id) {
-                await commandService.executeCommand(ToggleAgentModeActionId, { modeId: mode.id, sessionResource: this.delegate.sessionResource() });
-              }
-              await commandService.executeCommand("workbench.action.chat.configureTools", pickerOptions.actionContext, { source: "modePicker" });
-            }, "run")
-          });
         }
       }
       return {
@@ -166,26 +150,22 @@ let ModePickerActionItem = class ModePickerActionItem2 extends ChatInputPickerAc
         const currentMode = delegate.currentMode.get();
         const agentMode = modes.builtin.find((mode) => mode.id === ChatMode.Agent.id);
         const otherBuiltinModes = modes.builtin.filter((mode) => {
-          return mode.id !== ChatMode.Agent.id && shouldShowBuiltInMode(mode, assignments.get());
+          return mode.id !== ChatMode.Agent.id && shouldShowBuiltInMode(mode, assignments.get(), agentModeDisabledViaPolicy);
         });
         const filteredCustomModes = modes.custom.filter((mode) => {
           if (isModeConsideredBuiltIn(mode, this._productService)) {
-            return shouldShowBuiltInMode(mode, assignments.get());
+            return shouldShowBuiltInMode(mode, assignments.get(), agentModeDisabledViaPolicy);
           }
           return true;
         });
         const customModes = groupBy(filteredCustomModes, (mode) => isModeConsideredBuiltIn(mode, this._productService) ? "builtin" : "custom");
-        const modeSupportsVSCode = /* @__PURE__ */ __name((mode) => {
-          const target = mode.target.get();
-          return target === Target.Undefined || target === Target.VSCode;
-        }, "modeSupportsVSCode");
-        const customBuiltinModeActions = customModes.builtin?.filter(modeSupportsVSCode)?.map((mode) => {
+        const customBuiltinModeActions = customModes.builtin?.map((mode) => {
           const action2 = makeActionFromCustomMode(mode, currentMode);
           action2.category = agentModeDisabledViaPolicy ? policyDisabledCategory : builtInCategory;
           return action2;
         }) ?? [];
         customBuiltinModeActions.sort((a, b) => a.label.localeCompare(b.label));
-        const customModeActions = customModes.custom?.filter(modeSupportsVSCode)?.map((mode) => makeActionFromCustomMode(mode, currentMode)) ?? [];
+        const customModeActions = customModes.custom?.map((mode) => makeActionFromCustomMode(mode, currentMode)) ?? [];
         customModeActions.sort((a, b) => a.label.localeCompare(b.label));
         const orderedModes = coalesce([
           agentMode && makeAction(agentMode, currentMode),
@@ -281,15 +261,20 @@ function isModeConsideredBuiltIn(mode, productService) {
   return !isOrganizationPromptFile(modeUri, mode.source.extensionId, productService);
 }
 __name(isModeConsideredBuiltIn, "isModeConsideredBuiltIn");
-function shouldShowBuiltInMode(mode, assignments) {
-  if (mode.id === ChatMode.Edit.id) {
-    return false;
+function shouldShowBuiltInMode(mode, assignments, agentModeDisabledViaPolicy) {
+  if (mode.id === ChatMode.Edit.id || mode.name.get().toLowerCase() === "edit") {
+    if (mode.id === ChatMode.Edit.id) {
+      return agentModeDisabledViaPolicy;
+    } else {
+      return !agentModeDisabledViaPolicy;
+    }
   }
-  if (mode.id === ChatMode.Ask.id) {
-    return assignments.showOldAskMode;
-  }
-  if (mode.name.get().toLowerCase() === "ask") {
-    return !assignments.showOldAskMode;
+  if (mode.id === ChatMode.Ask.id || mode.name.get().toLowerCase() === "ask") {
+    if (mode.id === ChatMode.Ask.id) {
+      return assignments.showOldAskMode || agentModeDisabledViaPolicy;
+    } else {
+      return !(assignments.showOldAskMode || agentModeDisabledViaPolicy);
+    }
   }
   return true;
 }

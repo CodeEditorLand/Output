@@ -11,30 +11,32 @@ var __param = function(paramIndex, decorator) {
     decorator(target, key, paramIndex);
   };
 };
+import { distinct } from "../../../../base/common/arrays.js";
+import { Barrier, RunOnceScheduler, ThrottledDelayer, timeout } from "../../../../base/common/async.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { getErrorMessage } from "../../../../base/common/errors.js";
 import { Emitter } from "../../../../base/common/event.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
-import { IAuthenticationExtensionsService, IAuthenticationService } from "../../authentication/common/authentication.js";
-import { asJson, IRequestService, isClientError, isSuccess } from "../../../../platform/request/common/request.js";
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { IExtensionService } from "../../extensions/common/extensions.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import { registerWorkbenchContribution2 } from "../../../common/contributions.js";
-import { Barrier, RunOnceScheduler, ThrottledDelayer, timeout } from "../../../../base/common/async.js";
-import { IHostService } from "../../host/browser/host.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { getErrorMessage } from "../../../../base/common/errors.js";
-import { isString, isUndefined } from "../../../../base/common/types.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
-import { isWeb } from "../../../../base/common/platform.js";
-import { IDefaultAccountService } from "../../../../platform/defaultAccount/common/defaultAccount.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { distinct } from "../../../../base/common/arrays.js";
 import { equals } from "../../../../base/common/objects.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { isWeb } from "../../../../base/common/platform.js";
+import { isString, isUndefined } from "../../../../base/common/types.js";
+import { localize2 } from "../../../../nls.js";
+import { Action2, registerAction2 } from "../../../../platform/actions/common/actions.js";
 import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { IDefaultAccountService } from "../../../../platform/defaultAccount/common/defaultAccount.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { asJson, IRequestService, isClientError, isSuccess } from "../../../../platform/request/common/request.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { registerWorkbenchContribution2 } from "../../../common/contributions.js";
+import { IAuthenticationExtensionsService, IAuthenticationService } from "../../authentication/common/authentication.js";
+import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+import { IExtensionService } from "../../extensions/common/extensions.js";
+import { IHostService } from "../../host/browser/host.js";
 const DEFAULT_ACCOUNT_SIGN_IN_COMMAND = "workbench.actions.accounts.signIn";
 var DefaultAccountStatus;
 (function(DefaultAccountStatus2) {
@@ -81,6 +83,9 @@ let DefaultAccountService = class DefaultAccountService2 extends Disposable {
   get policyData() {
     return this.defaultAccountProvider?.policyData ?? null;
   }
+  get copilotTokenInfo() {
+    return this.defaultAccountProvider?.copilotTokenInfo ?? null;
+  }
   constructor(productService) {
     super();
     this.defaultAccount = null;
@@ -89,6 +94,8 @@ let DefaultAccountService = class DefaultAccountService2 extends Disposable {
     this.onDidChangeDefaultAccount = this._onDidChangeDefaultAccount.event;
     this._onDidChangePolicyData = this._register(new Emitter());
     this.onDidChangePolicyData = this._onDidChangePolicyData.event;
+    this._onDidChangeCopilotTokenInfo = this._register(new Emitter());
+    this.onDidChangeCopilotTokenInfo = this._onDidChangeCopilotTokenInfo.event;
     this.defaultAccountProvider = null;
     this.defaultAccountConfig = toDefaultAccountConfig(productService.defaultChatAgent);
   }
@@ -119,6 +126,7 @@ let DefaultAccountService = class DefaultAccountService2 extends Disposable {
       this.initBarrier.open();
       this._register(provider.onDidChangeDefaultAccount((account) => this.setDefaultAccount(account)));
       this._register(provider.onDidChangePolicyData((policyData) => this._onDidChangePolicyData.fire(policyData)));
+      this._register(provider.onDidChangeCopilotTokenInfo((tokenInfo) => this._onDidChangeCopilotTokenInfo.fire(tokenInfo)));
     });
   }
   async refresh() {
@@ -156,6 +164,9 @@ let DefaultAccountProvider = class DefaultAccountProvider2 extends Disposable {
   get policyData() {
     return this._policyData?.policyData ?? null;
   }
+  get copilotTokenInfo() {
+    return this._copilotTokenInfo;
+  }
   constructor(defaultAccountConfig, configurationService, authenticationService, authenticationExtensionsService, telemetryService, extensionService, requestService, logService, environmentService, contextKeyService, storageService, hostService, commandService) {
     super();
     this.defaultAccountConfig = defaultAccountConfig;
@@ -172,21 +183,26 @@ let DefaultAccountProvider = class DefaultAccountProvider2 extends Disposable {
     this.commandService = commandService;
     this._defaultAccount = null;
     this._policyData = null;
+    this._copilotTokenInfo = null;
     this._onDidChangeDefaultAccount = this._register(new Emitter());
     this.onDidChangeDefaultAccount = this._onDidChangeDefaultAccount.event;
     this._onDidChangePolicyData = this._register(new Emitter());
     this.onDidChangePolicyData = this._onDidChangePolicyData.event;
+    this._onDidChangeCopilotTokenInfo = this._register(new Emitter());
+    this.onDidChangeCopilotTokenInfo = this._onDidChangeCopilotTokenInfo.event;
     this.initialized = false;
     this.updateThrottler = this._register(new ThrottledDelayer(100));
     this.accountDataPollScheduler = this._register(new RunOnceScheduler(() => this.refetchDefaultAccount(), ACCOUNT_DATA_POLL_INTERVAL_MS));
     this.accountStatusContext = CONTEXT_DEFAULT_ACCOUNT_STATE.bindTo(contextKeyService);
-    this._policyData = this.getCachedPolicyData();
+    const cachedAccountData = this.getCachedAccountData();
+    this._policyData = cachedAccountData?.accountPolicyData ?? null;
+    this._copilotTokenInfo = cachedAccountData?.copilotTokenInfo ?? null;
     this.initPromise = this.init().finally(() => {
       this.telemetryService.publicLog2("defaultaccount:status", { status: this.defaultAccount ? "available" : "unavailable", initial: true });
       this.initialized = true;
     });
   }
-  getCachedPolicyData() {
+  getCachedAccountData() {
     const cached = this.storageService.get(
       CACHED_POLICY_DATA_KEY,
       -1
@@ -194,10 +210,24 @@ let DefaultAccountProvider = class DefaultAccountProvider2 extends Disposable {
     );
     if (cached) {
       try {
-        const { accountId, policyData } = JSON.parse(cached);
+        const parsed = JSON.parse(cached);
+        const { accountId, policyData, tokenEntitlementsFetchedAt, mcpRegistryDataFetchedAt, copilotTokenInfo } = parsed;
         if (accountId && policyData) {
+          this.logService.debug("[DefaultAccount] Initializing with cached policy data (migrating old format)");
+          const result = { accountPolicyData: { accountId, policyData, tokenEntitlementsFetchedAt, mcpRegistryDataFetchedAt }, copilotTokenInfo };
+          this.storageService.store(
+            CACHED_POLICY_DATA_KEY,
+            JSON.stringify(result),
+            -1,
+            1
+            /* StorageTarget.MACHINE */
+          );
+          return result;
+        }
+        const { accountPolicyData, copilotTokenInfo: wrappedCopilotTokenInfo } = parsed;
+        if (accountPolicyData?.accountId && accountPolicyData?.policyData) {
           this.logService.debug("[DefaultAccount] Initializing with cached policy data");
-          return { accountId, policyData };
+          return { accountPolicyData, copilotTokenInfo: wrappedCopilotTokenInfo };
         }
       } catch (error) {
         this.logService.error("[DefaultAccount] Failed to parse cached policy data", getErrorMessage(error));
@@ -314,6 +344,7 @@ let DefaultAccountProvider = class DefaultAccountProvider2 extends Disposable {
     this.logService.trace("[DefaultAccount] Updating default account:", account);
     if (account) {
       this._defaultAccount = account;
+      this.setCopilotTokenInfo(account.copilotTokenInfo);
       this.setPolicyData(account.policyData);
       this._onDidChangeDefaultAccount.fire(this._defaultAccount.defaultAccount);
       this.accountStatusContext.set(
@@ -324,6 +355,7 @@ let DefaultAccountProvider = class DefaultAccountProvider2 extends Disposable {
     } else {
       this._defaultAccount = null;
       this.setPolicyData(null);
+      this.setCopilotTokenInfo(null);
       this._onDidChangeDefaultAccount.fire(null);
       this.accountDataPollScheduler.cancel();
       this.accountStatusContext.set(
@@ -341,12 +373,23 @@ let DefaultAccountProvider = class DefaultAccountProvider2 extends Disposable {
     this.cachePolicyData(accountPolicyData);
     this._onDidChangePolicyData.fire(this._policyData?.policyData ?? null);
   }
+  setCopilotTokenInfo(copilotTokenInfo) {
+    if (equals(this._copilotTokenInfo, copilotTokenInfo)) {
+      return;
+    }
+    this._copilotTokenInfo = copilotTokenInfo;
+    this._onDidChangeCopilotTokenInfo.fire(this._copilotTokenInfo);
+  }
   cachePolicyData(accountPolicyData) {
     if (accountPolicyData) {
       this.logService.debug("[DefaultAccount] Caching policy data for account:", accountPolicyData.accountId);
+      const cachedAccountData = {
+        accountPolicyData,
+        copilotTokenInfo: this._copilotTokenInfo ?? void 0
+      };
       this.storageService.store(
         CACHED_POLICY_DATA_KEY,
-        JSON.stringify(accountPolicyData),
+        JSON.stringify(cachedAccountData),
         -1,
         1
         /* StorageTarget.MACHINE */
@@ -407,9 +450,9 @@ let DefaultAccountProvider = class DefaultAccountProvider2 extends Disposable {
         tokenEntitlementsFetchedAt = tokenEntitlementsResult.fetchedAt;
         const tokenEntitlementsData = tokenEntitlementsResult.data;
         policyData = policyData ?? {};
-        policyData.chat_agent_enabled = tokenEntitlementsData.chat_agent_enabled;
-        policyData.chat_preview_features_enabled = tokenEntitlementsData.chat_preview_features_enabled;
-        policyData.mcp = tokenEntitlementsData.mcp;
+        policyData.chat_agent_enabled = tokenEntitlementsData.policyData.chat_agent_enabled;
+        policyData.chat_preview_features_enabled = tokenEntitlementsData.policyData.chat_preview_features_enabled;
+        policyData.mcp = tokenEntitlementsData.policyData.mcp;
         if (policyData.mcp) {
           const mcpRegistryResult = await this.getMcpRegistryProvider(sessions, accountPolicyData);
           mcpRegistryDataFetchedAt = mcpRegistryResult?.fetchedAt;
@@ -428,7 +471,12 @@ let DefaultAccountProvider = class DefaultAccountProvider2 extends Disposable {
         entitlementsData
       };
       this.logService.debug("[DefaultAccount] Successfully created default account for provider:", authenticationProvider.id);
-      return { defaultAccount, accountId, policyData: policyData ? { accountId, policyData, tokenEntitlementsFetchedAt, mcpRegistryDataFetchedAt } : null };
+      return {
+        defaultAccount,
+        accountId,
+        policyData: policyData ? { accountId, policyData, tokenEntitlementsFetchedAt, mcpRegistryDataFetchedAt } : null,
+        copilotTokenInfo: tokenEntitlementsResult?.data.copilotTokenInfo ?? null
+      };
     } catch (error) {
       this.logService.error("[DefaultAccount] Failed to create default account for provider:", authenticationProvider.id, getErrorMessage(error));
       return null;
@@ -481,7 +529,7 @@ let DefaultAccountProvider = class DefaultAccountProvider2 extends Disposable {
   async getTokenEntitlements(sessions, accountPolicyData) {
     if (accountPolicyData?.tokenEntitlementsFetchedAt && !this.isDataStale(accountPolicyData.tokenEntitlementsFetchedAt)) {
       this.logService.debug("[DefaultAccount] Using last fetched token entitlements data");
-      return { data: accountPolicyData.policyData, fetchedAt: accountPolicyData.tokenEntitlementsFetchedAt };
+      return { data: { policyData: accountPolicyData.policyData, copilotTokenInfo: this._copilotTokenInfo ?? {} }, fetchedAt: accountPolicyData.tokenEntitlementsFetchedAt };
     }
     const data = await this.requestTokenEntitlements(sessions);
     return data ? { data, fetchedAt: Date.now() } : void 0;
@@ -506,11 +554,17 @@ let DefaultAccountProvider = class DefaultAccountProvider2 extends Disposable {
       if (chatData) {
         const tokenMap = this.extractFromToken(chatData.token);
         return {
-          // Editor preview features are disabled if the flag is present and set to 0
-          chat_preview_features_enabled: tokenMap.get("editor_preview_features") !== "0",
-          chat_agent_enabled: tokenMap.get("agent_mode") !== "0",
-          // MCP is disabled if the flag is present and set to 0
-          mcp: tokenMap.get("mcp") !== "0"
+          policyData: {
+            // Editor preview features are disabled if the flag is present and set to 0
+            chat_preview_features_enabled: tokenMap.get("editor_preview_features") !== "0",
+            chat_agent_enabled: tokenMap.get("agent_mode") !== "0",
+            // MCP is disabled if the flag is present and set to 0
+            mcp: tokenMap.get("mcp") !== "0"
+          },
+          copilotTokenInfo: {
+            sn: tokenMap.get("sn"),
+            fcv1: tokenMap.get("fcv1")
+          }
         };
       }
       this.logService.error("Failed to fetch token entitlements", "No data returned");
@@ -740,6 +794,18 @@ DefaultAccountProviderContribution = __decorate([
   __param(1, IInstantiationService),
   __param(2, IDefaultAccountService)
 ], DefaultAccountProviderContribution);
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: DEFAULT_ACCOUNT_SIGN_IN_COMMAND,
+      title: localize2("signIn", "Sign In")
+    });
+  }
+  async run(accessor) {
+    const defaultAccountService = accessor.get(IDefaultAccountService);
+    await defaultAccountService.signIn();
+  }
+});
 registerWorkbenchContribution2(
   DefaultAccountProviderContribution.ID,
   DefaultAccountProviderContribution,

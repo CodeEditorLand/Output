@@ -16,6 +16,7 @@ import { Codicon } from "../../../../../base/common/codicons.js";
 import { h } from "../../../../../base/browser/dom.js";
 import { Disposable, markAsSingleton } from "../../../../../base/common/lifecycle.js";
 import { Schemas } from "../../../../../base/common/network.js";
+import { isAbsolute } from "../../../../../base/common/path.js";
 import { basename } from "../../../../../base/common/resources.js";
 import { ThemeIcon } from "../../../../../base/common/themables.js";
 import { URI } from "../../../../../base/common/uri.js";
@@ -31,8 +32,9 @@ import { IInstantiationService } from "../../../../../platform/instantiation/com
 import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
 import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
 import { IOpenerService } from "../../../../../platform/opener/common/opener.js";
-import { ResourceContextKey } from "../../../../common/contextkeys.js";
+import { IsSessionsWindowContext, ResourceContextKey } from "../../../../common/contextkeys.js";
 import { IEditorService } from "../../../../services/editor/common/editorService.js";
+import { IFileService } from "../../../../../platform/files/common/files.js";
 import { IChatAgentService } from "../../common/participants/chatAgents.js";
 import { ChatContextKeys } from "../../common/actions/chatContextKeys.js";
 import { chatEditingWidgetFileStateContextKey } from "../../common/editing/chatEditingService.js";
@@ -41,11 +43,50 @@ import { ChatSendResult, IChatService } from "../../common/chatService/chatServi
 import { IChatSessionsService } from "../../common/chatSessionsService.js";
 import { ChatAgentLocation } from "../../common/constants.js";
 import { PROMPT_LANGUAGE_ID } from "../../common/promptSyntax/promptTypes.js";
-import { AgentSessionProviders, getAgentSessionProviderIcon, getAgentSessionProviderName } from "../agentSessions/agentSessions.js";
-import { IChatWidgetService } from "../chat.js";
+import { AgentSessionProviders, getAgentSessionProvider, getAgentSessionProviderIcon, getAgentSessionProviderName } from "../agentSessions/agentSessions.js";
+import { IAgentSessionsService } from "../agentSessions/agentSessionsService.js";
+import { IChatWidgetService, isIChatViewViewContext } from "../chat.js";
 import { ctxHasEditorModification } from "../chatEditing/chatEditingEditorContextKeys.js";
 import { CHAT_SETUP_ACTION_ID } from "./chatActions.js";
 import { PromptFileVariableKind, toPromptFileVariableEntry } from "../../common/attachments/chatVariableEntries.js";
+function extractNwoFromRemoteUrl(remoteUrl) {
+  const match = remoteUrl.match(/(?:github\.com)[/:](?<owner>[^/]+)\/(?<repo>[^/.]+)/);
+  if (match?.groups) {
+    return `${match.groups.owner}/${match.groups.repo}`;
+  }
+  return void 0;
+}
+__name(extractNwoFromRemoteUrl, "extractNwoFromRemoteUrl");
+async function resolveGitRemoteNwo(repoPath, fileService) {
+  try {
+    const gitPath = `${repoPath}/.git`;
+    const gitUri = URI.file(gitPath);
+    let configUri;
+    try {
+      const stat = await fileService.stat(gitUri);
+      if (stat.isDirectory) {
+        configUri = URI.file(`${gitPath}/config`);
+      } else {
+        const gitFile = await fileService.readFile(gitUri);
+        const gitDir = gitFile.value.toString().trim().replace(/^gitdir:\s*/, "");
+        const resolvedGitDir = gitDir.startsWith("/") ? gitDir : `${repoPath}/${gitDir}`;
+        const commonDir = resolvedGitDir.replace(/\/worktrees\/[^/]+$/, "");
+        configUri = URI.file(`${commonDir}/config`);
+      }
+    } catch {
+      return void 0;
+    }
+    const content = await fileService.readFile(configUri);
+    const configText = content.value.toString();
+    const remoteMatch = configText.match(/\[remote\s+"origin"\][^[]*url\s*=\s*(.+)/m);
+    if (remoteMatch?.[1]) {
+      return extractNwoFromRemoteUrl(remoteMatch[1].trim());
+    }
+  } catch {
+  }
+  return void 0;
+}
+__name(resolveGitRemoteNwo, "resolveGitRemoteNwo");
 var ActionLocation;
 (function(ActionLocation2) {
   ActionLocation2["ChatWidget"] = "chatWidget";
@@ -200,6 +241,79 @@ class CreateRemoteAgentJobAction {
   openUntitledEditor(commandService, continuationTarget) {
     commandService.executeCommand(`${NEW_CHAT_SESSION_ACTION_ID}.${continuationTarget.type}`);
   }
+  /**
+   * Extracts the GitHub "owner/repo" NWO from the source session by checking
+   * multiple data sources: chat model repoData, session metadata, and session options.
+   */
+  async extractRepoNwoFromSession(agentSessionsService, chatSessionsService, fileService, sessionResource, chatModel) {
+    const repoData = chatModel.repoData;
+    if (repoData?.remoteUrl) {
+      const nwo = extractNwoFromRemoteUrl(repoData.remoteUrl);
+      if (nwo) {
+        return nwo;
+      }
+    }
+    const agentSession = agentSessionsService.getSession(sessionResource);
+    if (agentSession?.metadata) {
+      const metadata = agentSession.metadata;
+      const owner = metadata.owner;
+      const name = metadata.name;
+      if (owner && name) {
+        return `${owner}/${name}`;
+      }
+      const repositoryNwo = metadata.repositoryNwo;
+      if (repositoryNwo?.includes("/")) {
+        return repositoryNwo;
+      }
+      const repositoryUrl = metadata.repositoryUrl;
+      if (repositoryUrl) {
+        const nwo = extractNwoFromRemoteUrl(repositoryUrl);
+        if (nwo) {
+          return nwo;
+        }
+      }
+      const workingDir = metadata.workingDirectoryPath ?? metadata.repositoryPath ?? metadata.worktreePath;
+      if (workingDir) {
+        const nwo = await resolveGitRemoteNwo(workingDir, fileService);
+        if (nwo) {
+          return nwo;
+        }
+      }
+    }
+    for (const optionId of ["repositories", "repository"]) {
+      const repoOption = chatSessionsService.getSessionOption(sessionResource, optionId);
+      if (repoOption) {
+        const optionValue = typeof repoOption === "string" ? repoOption : repoOption.id;
+        if (optionValue) {
+          const segments = optionValue.split("/").filter(Boolean);
+          if (segments.length === 2) {
+            return optionValue;
+          }
+          const nwo = extractNwoFromRemoteUrl(optionValue);
+          if (nwo) {
+            return nwo;
+          }
+          try {
+            const uri = URI.parse(optionValue);
+            if (uri.authority === "github") {
+              const parts = uri.path.split("/").filter(Boolean);
+              if (parts.length >= 2) {
+                return `${parts[0]}/${parts[1]}`;
+              }
+            }
+          } catch {
+          }
+          if (isAbsolute(optionValue)) {
+            const nwoFromGit = await resolveGitRemoteNwo(optionValue, fileService);
+            if (nwoFromGit) {
+              return nwoFromGit;
+            }
+          }
+        }
+      }
+    }
+    return void 0;
+  }
   async run(accessor, continuationTarget, _widget) {
     const contextKeyService = accessor.get(IContextKeyService);
     const commandService = accessor.get(ICommandService);
@@ -207,6 +321,9 @@ class CreateRemoteAgentJobAction {
     const chatAgentService = accessor.get(IChatAgentService);
     const chatService = accessor.get(IChatService);
     const editorService = accessor.get(IEditorService);
+    const agentSessionsService = accessor.get(IAgentSessionsService);
+    const chatSessionsService = accessor.get(IChatSessionsService);
+    const fileService = accessor.get(IFileService);
     const remoteJobCreatingKey = ChatContextKeys.remoteJobCreating.bindTo(contextKeyService);
     try {
       remoteJobCreatingKey.set(true);
@@ -251,10 +368,42 @@ class CreateRemoteAgentJobAction {
           }
         }
       }
+      const continuationTargetType = continuationTarget.type;
+      const isSessionsWindow = IsSessionsWindowContext.getValue(contextKeyService);
+      const sourceProvider = getAgentSessionProvider(sessionResource);
+      if (isSessionsWindow && sourceProvider && sourceProvider !== continuationTargetType) {
+        const isSidebar = isIChatViewViewContext(widget.viewContext);
+        const actionId = isSidebar ? `workbench.action.chat.openNewSessionSidebar.${continuationTargetType}` : `${NEW_CHAT_SESSION_ACTION_ID}.${continuationTargetType}`;
+        const maxTranscriptLength = 2e4;
+        let transcript = chatRequests.map((req) => {
+          const userMsg = `User: ${req.message.text}`;
+          const respMsg = req.response?.response ? `Assistant: ${req.response.response.getMarkdown()}` : "";
+          return respMsg ? `${userMsg}
+${respMsg}` : userMsg;
+        }).join("\n\n");
+        if (transcript.length > maxTranscriptLength) {
+          transcript = transcript.substring(transcript.length - maxTranscriptLength);
+        }
+        const delegationPrompt = transcript ? `The following is the conversation history from a previous ${getAgentSessionProviderName(sourceProvider)} session. Continue working on it.
+
+${transcript}
+
+User: ${userPrompt}` : userPrompt;
+        const initialSessionOptions = [];
+        const repoNwo = await this.extractRepoNwoFromSession(agentSessionsService, chatSessionsService, fileService, sessionResource, chatModel);
+        if (repoNwo) {
+          initialSessionOptions.push({ optionId: "repositories", value: repoNwo });
+        }
+        await commandService.executeCommand(actionId, {
+          prompt: delegationPrompt,
+          attachedContext: attachedContext.asArray(),
+          initialSessionOptions: initialSessionOptions.length > 0 ? initialSessionOptions : void 0
+        });
+        return;
+      }
       const defaultAgent = chatAgentService.getDefaultAgent(ChatAgentLocation.Chat);
       const instantiationService = accessor.get(IInstantiationService);
       const requestParser = instantiationService.createInstance(ChatRequestParser);
-      const continuationTargetType = continuationTarget.type;
       const parsedRequest = requestParser.parseChatRequest(sessionResource, userPrompt, ChatAgentLocation.Chat);
       const addedRequest = chatModel.addRequest(parsedRequest, { variables: attachedContext.asArray() }, 0, void 0, defaultAgent);
       await chatService.removeRequest(sessionResource, addedRequest.id);
@@ -268,7 +417,7 @@ class CreateRemoteAgentJobAction {
         await widget.handleDelegationExitIfNeeded(defaultAgent, sendResult.data.agent);
       }
     } catch (e) {
-      console.error("Error creating remote coding agent job", e);
+      console.error("[Delegation] Error creating remote coding agent job", e);
       throw e;
     } finally {
       remoteJobCreatingKey.set(false);

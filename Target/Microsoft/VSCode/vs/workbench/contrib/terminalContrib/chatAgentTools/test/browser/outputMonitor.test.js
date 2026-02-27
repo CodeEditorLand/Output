@@ -2,7 +2,7 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import * as assert from "assert";
 import { detectsGenericPressAnyKeyPattern, detectsInputRequiredPattern, detectsNonInteractiveHelpPattern, detectsVSCodeTaskFinishMessage, matchTerminalPromptOption, OutputMonitor } from "../../browser/tools/monitoring/outputMonitor.js";
-import { CancellationTokenSource } from "../../../../../../base/common/cancellation.js";
+import { CancellationToken, CancellationTokenSource } from "../../../../../../base/common/cancellation.js";
 import { ensureNoDisposablesAreLeakedInTestSuite } from "../../../../../../base/test/common/utils.js";
 import { OutputMonitorState } from "../../browser/tools/monitoring/types.js";
 import { TestInstantiationService } from "../../../../../../platform/instantiation/test/common/instantiationServiceMock.js";
@@ -15,6 +15,9 @@ import { ITerminalLogService } from "../../../../../../platform/terminal/common/
 import { runWithFakedTimers } from "../../../../../../base/test/common/timeTravelScheduler.js";
 import { LocalChatSessionUri } from "../../../../chat/common/model/chatUri.js";
 import { isNumber } from "../../../../../../base/common/types.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
+import { TestConfigurationService } from "../../../../../../platform/configuration/test/common/testConfigurationService.js";
+import { IChatWidgetService } from "../../../../chat/browser/chat.js";
 suite("OutputMonitor", () => {
   const store = ensureNoDisposablesAreLeakedInTestSuite();
   let monitor;
@@ -70,6 +73,15 @@ suite("OutputMonitor", () => {
       }), "getSession")
     });
     instantiationService.stub(ITerminalLogService, new NullLogService());
+    instantiationService.stub(IConfigurationService, new TestConfigurationService({
+      [
+        "chat.tools.terminal.autoReplyToPrompts"
+        /* TerminalChatAgentToolsSettingId.AutoReplyToPrompts */
+      ]: false
+    }));
+    instantiationService.stub(IChatWidgetService, {
+      getWidgetsByLocations: /* @__PURE__ */ __name(() => [], "getWidgetsByLocations")
+    });
     cts = new CancellationTokenSource();
   });
   teardown(() => {
@@ -173,6 +185,70 @@ suite("OutputMonitor", () => {
       assert.strictEqual(res.output, "test output");
       assert.ok(isNumber(res.pollDurationMs));
     });
+  });
+  test("auto reply sends first option when model lookup is unavailable", async () => {
+    instantiationService.stub(IConfigurationService, new TestConfigurationService({
+      [
+        "chat.tools.terminal.autoReplyToPrompts"
+        /* TerminalChatAgentToolsSettingId.AutoReplyToPrompts */
+      ]: true
+    }));
+    instantiationService.stub(ILanguageModelsService, {
+      selectLanguageModels: /* @__PURE__ */ __name(async () => [], "selectLanguageModels")
+    });
+    const monitorCts = new CancellationTokenSource();
+    monitorCts.cancel();
+    monitor = store.add(instantiationService.createInstance(OutputMonitor, execution, void 0, createTestContext("1"), monitorCts.token, "test command"));
+    const outputMonitorWithPrivateMethod = monitor;
+    const optionResult = await outputMonitorWithPrivateMethod["_selectAndHandleOption"]({
+      prompt: "Continue?",
+      options: ["y", "n"],
+      detectedRequestForFreeFormInput: false
+    }, CancellationToken.None);
+    await Event.toPromise(monitor.onDidFinishCommand);
+    monitorCts.dispose();
+    assert.strictEqual(sendTextCalled, true, "sendText should be called when auto reply is enabled");
+    assert.strictEqual(optionResult?.sentToTerminal, true, "option should be auto-sent");
+    assert.strictEqual(optionResult?.suggestedOption, "y", "first option should be used as fallback");
+  });
+  test("auto reply uses fallback model to derive suggested option", async () => {
+    instantiationService.stub(IConfigurationService, new TestConfigurationService({
+      [
+        "chat.tools.terminal.autoReplyToPrompts"
+        /* TerminalChatAgentToolsSettingId.AutoReplyToPrompts */
+      ]: true
+    }));
+    let fallbackModelRequested = false;
+    instantiationService.stub(ILanguageModelsService, {
+      selectLanguageModels: /* @__PURE__ */ __name(async (selector) => {
+        if (selector.id === "copilot-fast") {
+          fallbackModelRequested = true;
+          return ["copilot-fast"];
+        }
+        return [];
+      }, "selectLanguageModels"),
+      sendChatRequest: /* @__PURE__ */ __name(async () => ({
+        stream: (async function* () {
+          yield { type: "text", value: "n" };
+        })(),
+        result: Promise.resolve(void 0)
+      }), "sendChatRequest")
+    });
+    const monitorCts = new CancellationTokenSource();
+    monitorCts.cancel();
+    monitor = store.add(instantiationService.createInstance(OutputMonitor, execution, void 0, createTestContext("1"), monitorCts.token, "test command"));
+    const outputMonitorWithPrivateMethod = monitor;
+    const optionResult = await outputMonitorWithPrivateMethod["_selectAndHandleOption"]({
+      prompt: "Continue?",
+      options: ["y", "n"],
+      detectedRequestForFreeFormInput: false
+    }, CancellationToken.None);
+    await Event.toPromise(monitor.onDidFinishCommand);
+    monitorCts.dispose();
+    assert.strictEqual(fallbackModelRequested, true, "fallback model should be requested via _getLanguageModel");
+    assert.strictEqual(sendTextCalled, true, "sendText should be called when auto reply is enabled");
+    assert.strictEqual(optionResult?.sentToTerminal, true, "option should be auto-sent");
+    assert.strictEqual(optionResult?.suggestedOption, "n", "suggested option should be derived from fallback model response");
   });
   suite("detectsInputRequiredPattern", () => {
     test("detects yes/no confirmation prompts (pairs and variants)", () => {

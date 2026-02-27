@@ -7,17 +7,19 @@ import { IInstantiationService } from '../../../../platform/instantiation/common
 import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
 import { IOpenerService } from '../../../../platform/opener/common/opener.js';
 import { IThemeService } from '../../../../platform/theme/common/themeService.js';
-import { IViewPaneOptions, ViewPane } from '../../../../workbench/browser/parts/views/viewPane.js';
+import { IViewPaneOptions, IViewPaneLocationColors, ViewPane } from '../../../../workbench/browser/parts/views/viewPane.js';
 import { IViewDescriptorService } from '../../../../workbench/common/views.js';
 import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
 import { IHoverService } from '../../../../platform/hover/browser/hover.js';
 import { AgentSessionsControl } from '../../../../workbench/contrib/chat/browser/agentSessions/agentSessionsControl.js';
 import { IPromptsService } from '../../../../workbench/contrib/chat/common/promptSyntax/service/promptsService.js';
 import { IMcpService } from '../../../../workbench/contrib/mcp/common/mcpTypes.js';
+import { IAICustomizationWorkspaceService } from '../../../../workbench/contrib/chat/common/aiCustomizationWorkspaceService.js';
 import { ISessionsManagementService } from './sessionsManagementService.js';
 import { IWorkbenchLayoutService } from '../../../../workbench/services/layout/browser/layoutService.js';
 import { IStorageService } from '../../../../platform/storage/common/storage.js';
 import { IWorkspaceContextService } from '../../../../platform/workspace/common/workspace.js';
+import { IHostService } from '../../../../workbench/services/host/browser/host.js';
 export declare const SessionsViewId = "agentic.workbench.view.sessionsView";
 export declare class AgenticSessionsViewPane extends ViewPane {
     private readonly layoutService;
@@ -26,12 +28,15 @@ export declare class AgenticSessionsViewPane extends ViewPane {
     private readonly mcpService;
     private readonly workspaceContextService;
     private readonly activeSessionService;
+    private readonly hostService;
+    private readonly workspaceService;
     private viewPaneContainer;
     private sessionsControlContainer;
     sessionsControl: AgentSessionsControl | undefined;
     private aiCustomizationContainer;
-    constructor(options: IViewPaneOptions, keybindingService: IKeybindingService, contextMenuService: IContextMenuService, configurationService: IConfigurationService, contextKeyService: IContextKeyService, viewDescriptorService: IViewDescriptorService, instantiationService: IInstantiationService, openerService: IOpenerService, themeService: IThemeService, hoverService: IHoverService, layoutService: IWorkbenchLayoutService, storageService: IStorageService, promptsService: IPromptsService, mcpService: IMcpService, workspaceContextService: IWorkspaceContextService, activeSessionService: ISessionsManagementService);
+    constructor(options: IViewPaneOptions, keybindingService: IKeybindingService, contextMenuService: IContextMenuService, configurationService: IConfigurationService, contextKeyService: IContextKeyService, viewDescriptorService: IViewDescriptorService, instantiationService: IInstantiationService, openerService: IOpenerService, themeService: IThemeService, hoverService: IHoverService, layoutService: IWorkbenchLayoutService, storageService: IStorageService, promptsService: IPromptsService, mcpService: IMcpService, workspaceContextService: IWorkspaceContextService, activeSessionService: ISessionsManagementService, hostService: IHostService, workspaceService: IAICustomizationWorkspaceService);
     protected renderBody(parent: HTMLElement): void;
+    protected getLocationBasedColors(): IViewPaneLocationColors;
     private createControls;
     private restoreLastSelectedSession;
     private createAICustomizationShortcuts;

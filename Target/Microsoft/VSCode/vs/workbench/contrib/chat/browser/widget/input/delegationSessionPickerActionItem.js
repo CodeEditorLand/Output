@@ -1,14 +1,37 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
 import { Codicon } from "../../../../../../base/common/codicons.js";
 import { URI } from "../../../../../../base/common/uri.js";
 import { localize } from "../../../../../../nls.js";
+import { IActionWidgetService } from "../../../../../../platform/actionWidget/browser/actionWidget.js";
+import { ICommandService } from "../../../../../../platform/commands/common/commands.js";
+import { IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { IKeybindingService } from "../../../../../../platform/keybinding/common/keybinding.js";
+import { IOpenerService } from "../../../../../../platform/opener/common/opener.js";
+import { ITelemetryService } from "../../../../../../platform/telemetry/common/telemetry.js";
+import { IsSessionsWindowContext } from "../../../../../common/contextkeys.js";
+import { IChatSessionsService } from "../../../common/chatSessionsService.js";
 import { ACTION_ID_NEW_CHAT } from "../../actions/chatActions.js";
 import { AgentSessionProviders, getAgentCanContinueIn, getAgentSessionProvider, isFirstPartyAgentSessionProvider } from "../../agentSessions/agentSessions.js";
 import { SessionTypePickerActionItem } from "./sessionTargetPickerActionItem.js";
-class DelegationSessionPickerActionItem extends SessionTypePickerActionItem {
+let DelegationSessionPickerActionItem = class DelegationSessionPickerActionItem2 extends SessionTypePickerActionItem {
   static {
     __name(this, "DelegationSessionPickerActionItem");
+  }
+  constructor(action, chatSessionPosition, delegate, pickerOptions, actionWidgetService, keybindingService, contextKeyService, chatSessionsService, commandService, openerService, telemetryService) {
+    super(action, chatSessionPosition, delegate, pickerOptions, actionWidgetService, keybindingService, contextKeyService, chatSessionsService, commandService, openerService, telemetryService);
+    this._isSessionsWindow = IsSessionsWindowContext.getValue(contextKeyService) === true;
   }
   _run(sessionTypeItem) {
     if (this.delegate.setPendingDelegationTarget) {
@@ -28,15 +51,22 @@ class DelegationSessionPickerActionItem extends SessionTypePickerActionItem {
   _isSessionTypeEnabled(type) {
     const allContributions = this.chatSessionsService.getAllChatSessionContributions();
     const contribution = allContributions.find((contribution2) => getAgentSessionProvider(contribution2.type) === type);
-    if (this.delegate.getActiveSessionProvider() !== AgentSessionProviders.Local) {
+    const activeProvider = this.delegate.getActiveSessionProvider();
+    if (!this._isSessionsWindow && activeProvider !== AgentSessionProviders.Local) {
       return false;
     }
-    if (contribution && !contribution.canDelegate && this.delegate.getActiveSessionProvider() !== type) {
+    if (this._isSessionsWindow && activeProvider !== AgentSessionProviders.Background) {
+      return false;
+    }
+    if (contribution && !contribution.canDelegate && activeProvider !== type) {
       return false;
     }
     return this._getSelectedSessionType() !== type;
   }
   _isVisible(type) {
+    if (this._isSessionsWindow && type === AgentSessionProviders.Local) {
+      return false;
+    }
     if (this.delegate.getActiveSessionProvider() === type) {
       return true;
     }
@@ -62,6 +92,9 @@ class DelegationSessionPickerActionItem extends SessionTypePickerActionItem {
     };
   }
   _getAdditionalActions() {
+    if (this._isSessionsWindow) {
+      return [];
+    }
     return [{
       id: "newChatSession",
       class: void 0,
@@ -78,7 +111,16 @@ class DelegationSessionPickerActionItem extends SessionTypePickerActionItem {
       }, "run")
     }];
   }
-}
+};
+DelegationSessionPickerActionItem = __decorate([
+  __param(4, IActionWidgetService),
+  __param(5, IKeybindingService),
+  __param(6, IContextKeyService),
+  __param(7, IChatSessionsService),
+  __param(8, ICommandService),
+  __param(9, IOpenerService),
+  __param(10, ITelemetryService)
+], DelegationSessionPickerActionItem);
 export {
   DelegationSessionPickerActionItem
 };

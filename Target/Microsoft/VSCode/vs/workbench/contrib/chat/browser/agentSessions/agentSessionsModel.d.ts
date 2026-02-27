@@ -57,7 +57,6 @@ export declare function isLocalAgentSessionItem(session: IAgentSession): boolean
 export declare function isAgentSession(obj: unknown): obj is IAgentSession;
 export declare function isAgentSessionsModel(obj: unknown): obj is IAgentSessionsModel;
 export declare const enum AgentSessionSection {
-    InProgress = "inProgress",
     Today = "today",
     Yesterday = "yesterday",
     Week = "week",

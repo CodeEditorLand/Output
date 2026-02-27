@@ -127,7 +127,7 @@ const agentSessionSelectedUnfocusedBadgeBorder = registerColor("agentSessionSele
 const AGENT_SESSION_RENAME_ACTION_ID = "agentSession.rename";
 const AGENT_SESSION_DELETE_ACTION_ID = "agentSession.delete";
 function getAgentSessionTime(timing) {
-  return timing.lastRequestEnded ?? timing.lastRequestStarted ?? timing.created;
+  return timing.lastRequestStarted ?? timing.created;
 }
 __name(getAgentSessionTime, "getAgentSessionTime");
 export {

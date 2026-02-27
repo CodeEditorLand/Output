@@ -21,6 +21,7 @@ import { IChatEditingService } from '../../../../workbench/contrib/chat/common/e
 import { IActivityService } from '../../../../workbench/services/activity/common/activity.js';
 import { IEditorService } from '../../../../workbench/services/editor/common/editorService.js';
 import { IExtensionService } from '../../../../workbench/services/extensions/common/extensions.js';
+import { ICommandService } from '../../../../platform/commands/common/commands.js';
 import { IWorkbenchLayoutService } from '../../../../workbench/services/layout/browser/layoutService.js';
 import { ISessionsManagementService } from '../../sessions/browser/sessionsManagementService.js';
 export declare const CHANGES_VIEW_CONTAINER_ID = "workbench.view.agentSessions.changesContainer";
@@ -37,6 +38,7 @@ export declare class ChangesViewPane extends ViewPane {
     private readonly sessionManagementService;
     private readonly labelService;
     private readonly storageService;
+    private readonly commandService;
     private bodyContainer;
     private welcomeContainer;
     private contentContainer;
@@ -57,7 +59,7 @@ export declare class ChangesViewPane extends ViewPane {
     private readonly activeSessionHasChangesObs;
     get activeSessionHasChanges(): IObservable<boolean>;
     private readonly badgeDisposable;
-    constructor(options: IViewPaneOptions, keybindingService: IKeybindingService, contextMenuService: IContextMenuService, configurationService: IConfigurationService, contextKeyService: IContextKeyService, viewDescriptorService: IViewDescriptorService, instantiationService: IInstantiationService, openerService: IOpenerService, themeService: IThemeService, hoverService: IHoverService, chatEditingService: IChatEditingService, editorService: IEditorService, activityService: IActivityService, agentSessionsService: IAgentSessionsService, sessionManagementService: ISessionsManagementService, labelService: ILabelService, storageService: IStorageService);
+    constructor(options: IViewPaneOptions, keybindingService: IKeybindingService, contextMenuService: IContextMenuService, configurationService: IConfigurationService, contextKeyService: IContextKeyService, viewDescriptorService: IViewDescriptorService, instantiationService: IInstantiationService, openerService: IOpenerService, themeService: IThemeService, hoverService: IHoverService, chatEditingService: IChatEditingService, editorService: IEditorService, activityService: IActivityService, agentSessionsService: IAgentSessionsService, sessionManagementService: ISessionsManagementService, labelService: ILabelService, storageService: IStorageService, commandService: ICommandService);
     private registerBadgeTracking;
     private createActiveSessionFileCountObservable;
     private updateBadge;

@@ -7,9 +7,8 @@ import { ILogService } from '../../../../platform/log/common/log.js';
 import { WorkingCopyBackupTracker } from '../common/workingCopyBackupTracker.js';
 import { IWorkingCopyEditorService } from '../common/workingCopyEditorService.js';
 import { IEditorService } from '../../editor/common/editorService.js';
-import { IEditorGroupsService } from '../../editor/common/editorGroupsService.js';
 export declare class BrowserWorkingCopyBackupTracker extends WorkingCopyBackupTracker implements IWorkbenchContribution {
     static readonly ID = "workbench.contrib.browserWorkingCopyBackupTracker";
-    constructor(workingCopyBackupService: IWorkingCopyBackupService, filesConfigurationService: IFilesConfigurationService, workingCopyService: IWorkingCopyService, lifecycleService: ILifecycleService, logService: ILogService, workingCopyEditorService: IWorkingCopyEditorService, editorService: IEditorService, editorGroupService: IEditorGroupsService);
+    constructor(workingCopyBackupService: IWorkingCopyBackupService, filesConfigurationService: IFilesConfigurationService, workingCopyService: IWorkingCopyService, lifecycleService: ILifecycleService, logService: ILogService, workingCopyEditorService: IWorkingCopyEditorService, editorService: IEditorService);
     protected onFinalBeforeShutdown(reason: ShutdownReason): boolean;
 }

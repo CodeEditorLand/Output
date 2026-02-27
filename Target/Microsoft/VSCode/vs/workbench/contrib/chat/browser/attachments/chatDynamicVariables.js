@@ -14,7 +14,7 @@ var __param = function(paramIndex, decorator) {
 var ChatDynamicVariableModel_1;
 import { coalesce } from "../../../../../base/common/arrays.js";
 import { MarkdownString } from "../../../../../base/common/htmlContent.js";
-import { Disposable, dispose, isDisposable } from "../../../../../base/common/lifecycle.js";
+import { Disposable, dispose, isDisposable, MutableDisposable } from "../../../../../base/common/lifecycle.js";
 import { URI } from "../../../../../base/common/uri.js";
 import { Range } from "../../../../../editor/common/core/range.js";
 import { isLocation } from "../../../../../editor/common/languages.js";
@@ -44,16 +44,28 @@ let ChatDynamicVariableModel = class ChatDynamicVariableModel2 extends Disposabl
     this.labelService = labelService;
     this._variables = [];
     this.decorationData = [];
-    this._register(widget.inputEditor.onDidChangeModelContent((e) => {
+    this._editorListener = this._register(new MutableDisposable());
+    this._subscribeToEditor();
+    this._register(widget.onDidChangeActiveInputEditor(() => {
+      this._subscribeToEditor();
+      this.updateDecorations();
+    }));
+  }
+  _subscribeToEditor() {
+    this._editorListener.value = this.widget.inputEditor.onDidChangeModelContent((e) => {
       const removed = [];
       let didChange = false;
       this._variables = coalesce(this._variables.map((ref, idx) => {
-        const model = widget.inputEditor.getModel();
+        const model = this.widget.inputEditor.getModel();
         if (!model) {
           removed.push(ref);
           return null;
         }
         const data = this.decorationData[idx];
+        if (!data) {
+          removed.push(ref);
+          return null;
+        }
         const newRange = model.getDecorationRange(data.id);
         if (!newRange) {
           removed.push(ref);
@@ -80,7 +92,7 @@ let ChatDynamicVariableModel = class ChatDynamicVariableModel2 extends Disposabl
         this.widget.refreshParsedInput();
       }
       this.updateDecorations();
-    }));
+    });
   }
   getInputState(contrib) {
     contrib[ChatDynamicVariableModel_1.ID] = this.variables;
@@ -100,20 +112,30 @@ let ChatDynamicVariableModel = class ChatDynamicVariableModel2 extends Disposabl
     }
   }
   addReference(ref) {
+    if (!isValidEditorRange(ref.range)) {
+      return;
+    }
     this._variables.push(ref);
     this.updateDecorations();
     this.widget.refreshParsedInput();
   }
   updateDecorations() {
-    const decorationIds = this.widget.inputEditor.setDecorationsByType("chat", dynamicVariableDecorationType, this._variables.map((r) => ({
+    const model = this.widget.inputEditor.getModel();
+    if (!model) {
+      this.decorationData = [];
+      return;
+    }
+    const validVariables = this._variables.filter((v) => isValidEditorRange(v.range));
+    const decorationIds = this.widget.inputEditor.setDecorationsByType("chat", dynamicVariableDecorationType, validVariables.map((r) => ({
       range: r.range,
       hoverMessage: this.getHoverForReference(r)
     })));
+    this._variables = validVariables.slice(0, decorationIds.length);
     this.decorationData = [];
     for (let i = 0; i < decorationIds.length; i++) {
       this.decorationData.push({
         id: decorationIds[i],
-        text: this.widget.inputEditor.getModel().getValueInRange(this._variables[i].range)
+        text: model.getValueInRange(this._variables[i].range)
       });
     }
   }
@@ -148,9 +170,22 @@ ChatDynamicVariableModel = ChatDynamicVariableModel_1 = __decorate([
   __param(1, ILabelService)
 ], ChatDynamicVariableModel);
 function isDynamicVariable(obj) {
-  return obj && typeof obj.id === "string" && Range.isIRange(obj.range) && "data" in obj;
+  return obj && typeof obj.id === "string" && Range.isIRange(obj.range) && isValidEditorRange(obj.range) && "data" in obj;
 }
 __name(isDynamicVariable, "isDynamicVariable");
+function isValidEditorRange(range) {
+  if (range.startLineNumber < 1 || range.endLineNumber < 1 || range.startColumn < 1 || range.endColumn < 1) {
+    return false;
+  }
+  if (range.startLineNumber > range.endLineNumber) {
+    return false;
+  }
+  if (range.startLineNumber === range.endLineNumber && range.startColumn >= range.endColumn) {
+    return false;
+  }
+  return true;
+}
+__name(isValidEditorRange, "isValidEditorRange");
 function isAddDynamicVariableContext(context) {
   return "widget" in context && "range" in context && "variableData" in context;
 }

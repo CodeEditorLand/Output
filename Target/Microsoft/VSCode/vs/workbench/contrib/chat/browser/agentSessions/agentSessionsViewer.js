@@ -72,10 +72,6 @@ let AgentSessionRenderer = class AgentSessionRenderer2 extends Disposable {
       h("div.agent-session-main-col", [
         h("div.agent-session-title-row", [
           h("div.agent-session-title@title"),
-          h("div.agent-session-status@statusContainer", [
-            h("span.agent-session-status-provider-icon@statusProviderIcon"),
-            h("span.agent-session-status-time@statusTime")
-          ]),
           h("div.agent-session-title-toolbar@titleToolbar")
         ]),
         h("div.agent-session-details-row", [
@@ -83,9 +79,15 @@ let AgentSessionRenderer = class AgentSessionRenderer2 extends Disposable {
             h("span.agent-session-diff-added@addedSpan"),
             h("span.agent-session-diff-removed@removedSpan")
           ]),
-          h("div.agent-session-badge@badge"),
-          h("span.agent-session-separator@separator"),
-          h("div.agent-session-description@description")
+          h("div.agent-session-description@description"),
+          h("div.agent-session-details-right", [
+            h("div.agent-session-badge@badge"),
+            h("span.agent-session-separator@separator"),
+            h("div.agent-session-status@statusContainer", [
+              h("span.agent-session-status-provider-icon@statusProviderIcon"),
+              h("span.agent-session-status-time@statusTime")
+            ])
+          ])
         ])
       ])
     ]);
@@ -146,10 +148,9 @@ let AgentSessionRenderer = class AgentSessionRenderer2 extends Disposable {
     const hasBadge = this.renderBadge(session, template);
     template.badge.classList.toggle("has-badge", hasBadge);
     if (!hasDiff) {
-      this.renderDescription(session, template, hasBadge);
+      this.renderDescription(session, template);
     }
-    const hasDescription = template.description.textContent !== "";
-    template.separator.classList.toggle("has-separator", hasBadge && hasDescription);
+    template.separator.classList.toggle("has-separator", hasBadge);
     this.renderStatus(session, template);
     this.renderHover(session, template);
   }
@@ -203,23 +204,21 @@ let AgentSessionRenderer = class AgentSessionRenderer2 extends Disposable {
     }
     return Codicon.circleSmallFilled;
   }
-  renderDescription(session, template, hasBadge) {
+  renderDescription(session, template) {
     const description = session.element.description;
     if (description) {
       this.renderMarkdownOrText(description, template.description, template.elementDisposable);
+      return;
+    }
+    if (session.element.status === 2) {
+      template.description.textContent = localize("chat.session.status.inProgress", "Working...");
+    } else if (session.element.status === 3) {
+      template.description.textContent = localize("chat.session.status.needsInput", "Input needed.");
+    } else if (session.element.timing.lastRequestEnded && session.element.timing.lastRequestStarted && session.element.timing.lastRequestEnded > session.element.timing.lastRequestStarted) {
+      const duration = this.toDuration(session.element.timing.lastRequestStarted, session.element.timing.lastRequestEnded, false, true);
+      template.description.textContent = session.element.status === 0 ? localize("chat.session.status.failedAfter", "Failed after {0}", duration) : localize("chat.session.status.completedAfter", "Completed in {0}", duration);
     } else {
-      if (session.element.status === 2) {
-        template.description.textContent = localize("chat.session.status.inProgress", "Working...");
-      } else if (session.element.status === 3) {
-        template.description.textContent = localize("chat.session.status.needsInput", "Input needed.");
-      } else if (hasBadge && session.element.status === 1) {
-        template.description.textContent = "";
-      } else if (session.element.timing.lastRequestEnded && session.element.timing.lastRequestStarted && session.element.timing.lastRequestEnded > session.element.timing.lastRequestStarted) {
-        const duration = this.toDuration(session.element.timing.lastRequestStarted, session.element.timing.lastRequestEnded, false, true);
-        template.description.textContent = session.element.status === 0 ? localize("chat.session.status.failedAfter", "Failed after {0}", duration) : localize("chat.session.status.completedAfter", "Completed in {0}", duration);
-      } else {
-        template.description.textContent = session.element.status === 0 ? localize("chat.session.status.failed", "Failed") : localize("chat.session.status.completed", "Completed");
-      }
+      template.description.textContent = session.element.status === 0 ? localize("chat.session.status.failed", "Failed") : localize("chat.session.status.completed", "Completed");
     }
   }
   toDuration(startTime, endTime, useFullTimeWords, disallowNow) {
@@ -261,6 +260,9 @@ let AgentSessionRenderer = class AgentSessionRenderer2 extends Disposable {
     );
   }
   renderHover(session, template) {
+    if (this.options.disableHover) {
+      return;
+    }
     if (!isSessionInProgressStatus(session.element.status) && session.element.isRead()) {
       return;
     }
@@ -375,7 +377,7 @@ class AgentSessionsListDelegate {
     __name(this, "AgentSessionsListDelegate");
   }
   static {
-    this.ITEM_HEIGHT = 48;
+    this.ITEM_HEIGHT = 54;
   }
   static {
     this.SECTION_HEIGHT = 26;
@@ -475,7 +477,10 @@ class AgentSessionsDataSource {
     if (othersSessions.length > 0) {
       result.push({
         section: "more",
-        label: localize("agentSessions.moreSectionWithCount", "More ({0})", othersSessions.length),
+        label: AgentSessionSectionLabels[
+          "more"
+          /* AgentSessionSection.More */
+        ],
         sessions: othersSessions
       });
     }
@@ -494,10 +499,6 @@ class AgentSessionsDataSource {
   }
 }
 const AgentSessionSectionLabels = {
-  [
-    "inProgress"
-    /* AgentSessionSection.InProgress */
-  ]: localize("agentSessions.inProgressSection", "In progress"),
   [
     "today"
     /* AgentSessionSection.Today */
@@ -530,7 +531,6 @@ function groupAgentSessionsByDate(sessions) {
   const startOfToday = new Date(now).setHours(0, 0, 0, 0);
   const startOfYesterday = startOfToday - DAY_THRESHOLD;
   const weekThreshold = now - WEEK_THRESHOLD;
-  const inProgressSessions = [];
   const todaySessions = [];
   const yesterdaySessions = [];
   const weekSessions = [];
@@ -539,8 +539,6 @@ function groupAgentSessionsByDate(sessions) {
   for (const session of sessions) {
     if (session.isArchived()) {
       archivedSessions.push(session);
-    } else if (isSessionInProgressStatus(session.status)) {
-      inProgressSessions.push(session);
     } else {
       const sessionTime = getAgentSessionTime(session.timing);
       if (sessionTime >= startOfToday) {
@@ -554,18 +552,27 @@ function groupAgentSessionsByDate(sessions) {
       }
     }
   }
-  const sectionWithCount = /* @__PURE__ */ __name((section, sessions2) => ({
-    section,
-    label: localize("agentSessions.sectionWithCount", "{0} ({1})", AgentSessionSectionLabels[section], sessions2.length),
-    sessions: sessions2
-  }), "sectionWithCount");
   return /* @__PURE__ */ new Map([
-    ["inProgress", sectionWithCount("inProgress", inProgressSessions)],
-    ["today", sectionWithCount("today", todaySessions)],
-    ["yesterday", sectionWithCount("yesterday", yesterdaySessions)],
-    ["week", sectionWithCount("week", weekSessions)],
-    ["older", sectionWithCount("older", olderSessions)],
-    ["archived", sectionWithCount("archived", archivedSessions)]
+    ["today", { section: "today", label: AgentSessionSectionLabels[
+      "today"
+      /* AgentSessionSection.Today */
+    ], sessions: todaySessions }],
+    ["yesterday", { section: "yesterday", label: AgentSessionSectionLabels[
+      "yesterday"
+      /* AgentSessionSection.Yesterday */
+    ], sessions: yesterdaySessions }],
+    ["week", { section: "week", label: AgentSessionSectionLabels[
+      "week"
+      /* AgentSessionSection.Week */
+    ], sessions: weekSessions }],
+    ["older", { section: "older", label: AgentSessionSectionLabels[
+      "older"
+      /* AgentSessionSection.Older */
+    ], sessions: olderSessions }],
+    ["archived", { section: "archived", label: AgentSessionSectionLabels[
+      "archived"
+      /* AgentSessionSection.Archived */
+    ], sessions: archivedSessions }]
   ]);
 }
 __name(groupAgentSessionsByDate, "groupAgentSessionsByDate");
@@ -625,14 +632,6 @@ class AgentSessionsSorter {
       return -1;
     }
     if (!aNeedsInput && bNeedsInput) {
-      return 1;
-    }
-    const aInProgress = sessionA.status === 2;
-    const bInProgress = sessionB.status === 2;
-    if (aInProgress && !bInProgress) {
-      return -1;
-    }
-    if (!aInProgress && bInProgress) {
       return 1;
     }
     const aArchived = sessionA.isArchived();

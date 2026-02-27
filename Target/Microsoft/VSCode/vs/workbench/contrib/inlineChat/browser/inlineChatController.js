@@ -42,6 +42,7 @@ import { observableConfigValue } from "../../../../platform/observable/common/pl
 import { ISharedWebContentExtractorService } from "../../../../platform/webContentExtractor/common/webContentExtractor.js";
 import { IEditorService, SIDE_GROUP } from "../../../services/editor/common/editorService.js";
 import { IChatAttachmentResolveService } from "../../chat/browser/attachments/chatAttachmentResolveService.js";
+import { IChatEditingService } from "../../chat/common/editing/chatEditingService.js";
 import { ChatMode } from "../../chat/common/chatModes.js";
 import { IChatService } from "../../chat/common/chatService/chatService.js";
 import { IDiagnosticVariableEntryFilterData } from "../../chat/common/attachments/chatVariableEntries.js";
@@ -52,7 +53,7 @@ import { isNotebookContainingCellEditor as isNotebookWithCellEditor } from "../.
 import { INotebookEditorService } from "../../notebook/browser/services/notebookEditorService.js";
 import { CellUri } from "../../notebook/common/notebookCommon.js";
 import { INotebookService } from "../../notebook/common/notebookService.js";
-import { CTX_INLINE_CHAT_VISIBLE } from "../common/inlineChat.js";
+import { CTX_INLINE_CHAT_FILE_BELONGS_TO_CHAT, CTX_INLINE_CHAT_PENDING_CONFIRMATION, CTX_INLINE_CHAT_VISIBLE } from "../common/inlineChat.js";
 import { InlineChatAffordance } from "./inlineChatAffordance.js";
 import { InlineChatInputWidget, InlineChatSessionOverlayWidget } from "./inlineChatOverlayWidget.js";
 import { IInlineChatSessionService } from "./inlineChatSessionService.js";
@@ -65,8 +66,8 @@ class InlineChatRunOptions {
     if (typeof options !== "object" || options === null) {
       return false;
     }
-    const { initialSelection, initialRange, message, autoSend, position, attachments, modelSelector, resolveOnResponse } = options;
-    if (typeof message !== "undefined" && typeof message !== "string" || typeof autoSend !== "undefined" && typeof autoSend !== "boolean" || typeof initialRange !== "undefined" && !Range.isIRange(initialRange) || typeof initialSelection !== "undefined" && !Selection.isISelection(initialSelection) || typeof position !== "undefined" && !Position.isIPosition(position) || typeof attachments !== "undefined" && (!Array.isArray(attachments) || !attachments.every((item) => item instanceof URI)) || typeof modelSelector !== "undefined" && !isILanguageModelChatSelector(modelSelector) || typeof resolveOnResponse !== "undefined" && typeof resolveOnResponse !== "boolean") {
+    const { initialSelection, initialRange, message, autoSend, position, attachments, modelSelector, resolveOnResponse, attachDiagnostics } = options;
+    if (typeof message !== "undefined" && typeof message !== "string" || typeof autoSend !== "undefined" && typeof autoSend !== "boolean" || typeof initialRange !== "undefined" && !Range.isIRange(initialRange) || typeof initialSelection !== "undefined" && !Selection.isISelection(initialSelection) || typeof position !== "undefined" && !Position.isIPosition(position) || typeof attachments !== "undefined" && (!Array.isArray(attachments) || !attachments.every((item) => item instanceof URI)) || typeof modelSelector !== "undefined" && !isILanguageModelChatSelector(modelSelector) || typeof resolveOnResponse !== "undefined" && typeof resolveOnResponse !== "boolean" || typeof attachDiagnostics !== "undefined" && typeof attachDiagnostics !== "boolean") {
       return false;
     }
     return true;
@@ -98,7 +99,7 @@ let InlineChatController = class InlineChatController2 {
   get inputWidget() {
     return this._inputWidget;
   }
-  constructor(_editor, _instaService, _notebookEditorService, _inlineChatSessionService, codeEditorService, contextKeyService, _configurationService, _webContentExtractorService, _fileService, _chatAttachmentResolveService, _editorService, _markerDecorationsService, _languageModelService, _logService) {
+  constructor(_editor, _instaService, _notebookEditorService, _inlineChatSessionService, codeEditorService, contextKeyService, _configurationService, _webContentExtractorService, _fileService, _chatAttachmentResolveService, _editorService, _markerDecorationsService, _languageModelService, _logService, _chatEditingService, _chatService) {
     this._editor = _editor;
     this._instaService = _instaService;
     this._notebookEditorService = _notebookEditorService;
@@ -111,15 +112,41 @@ let InlineChatController = class InlineChatController2 {
     this._markerDecorationsService = _markerDecorationsService;
     this._languageModelService = _languageModelService;
     this._logService = _logService;
+    this._chatEditingService = _chatEditingService;
+    this._chatService = _chatService;
     this._store = new DisposableStore();
     this._isActiveController = observableValue(this, false);
     const editorObs = observableCodeEditor(_editor);
     const ctxInlineChatVisible = CTX_INLINE_CHAT_VISIBLE.bindTo(contextKeyService);
+    const ctxFileBelongsToChat = CTX_INLINE_CHAT_FILE_BELONGS_TO_CHAT.bindTo(contextKeyService);
+    const ctxPendingConfirmation = CTX_INLINE_CHAT_PENDING_CONFIRMATION.bindTo(contextKeyService);
     const notebookAgentConfig = observableConfigValue("inlineChat.notebookAgent", false, this._configurationService);
     this._renderMode = observableConfigValue("inlineChat.renderMode", "zone", this._configurationService);
+    this._store.add(autorun((r) => {
+      const model = editorObs.model.read(r);
+      if (!model) {
+        ctxFileBelongsToChat.set(false);
+        return;
+      }
+      const sessions = this._chatEditingService.editingSessionsObs.read(r);
+      let hasEdits = false;
+      for (const session of sessions) {
+        const entries = session.entries.read(r);
+        for (const entry of entries) {
+          if (isEqual(entry.modifiedURI, model.uri)) {
+            hasEdits = true;
+            break;
+          }
+        }
+        if (hasEdits) {
+          break;
+        }
+      }
+      ctxFileBelongsToChat.set(hasEdits);
+    }));
     const overlayWidget = this._inputWidget = this._store.add(this._instaService.createInstance(InlineChatInputWidget, editorObs));
     const sessionOverlayWidget = this._store.add(this._instaService.createInstance(InlineChatSessionOverlayWidget, editorObs));
-    this._gutterIndicator = this._store.add(this._instaService.createInstance(InlineChatAffordance, this._editor, overlayWidget));
+    this.inputOverlayWidget = this._store.add(this._instaService.createInstance(InlineChatAffordance, this._editor, overlayWidget));
     this._zone = new Lazy(() => {
       assertType(this._editor.hasModel(), "[Illegal State] widget should only be created when the editor has a model");
       const location = {
@@ -247,14 +274,17 @@ let InlineChatController = class InlineChatController2 {
       const session = visibleSessionObs.read(r);
       const renderMode = this._renderMode.read(r);
       if (!session || renderMode !== "hover") {
+        ctxPendingConfirmation.set(false);
         sessionOverlayWidget.hide();
         return;
       }
       const lastRequest = session.chatModel.lastRequestObs.read(r);
       const isInProgress = lastRequest?.response?.isInProgress.read(r);
+      const isPendingConfirmation = !!lastRequest?.response?.isPendingConfirmation.read(r);
+      ctxPendingConfirmation.set(isPendingConfirmation);
       const entry = session.editingSession.readEntry(session.uri, r);
       const isNotSettled = entry ? entry.state.read(r) === 0 : false;
-      if (isInProgress || isNotSettled) {
+      if (isInProgress || isNotSettled || isPendingConfirmation) {
         sessionOverlayWidget.show(session);
       } else {
         sessionOverlayWidget.hide();
@@ -358,29 +388,32 @@ let InlineChatController = class InlineChatController2 {
       await existingSession.editingSession.accept();
       existingSession.dispose();
     }
-    if (!arg?.message && this._configurationService.getValue(
-      "inlineChat.renderMode"
-      /* InlineChatConfigKeys.RenderMode */
-    ) === "hover") {
-      await this._gutterIndicator.showMenuAtSelection();
-      return true;
-    }
     this._isActiveController.set(true, void 0);
     const session = this._inlineChatSessionService.createSession(this._editor);
     const sessionStore = new DisposableStore();
     try {
       await this._applyModelDefaults(session, sessionStore);
-      const entries = [];
-      for (const [range, marker] of this._markerDecorationsService.getLiveMarkers(uri)) {
-        if (range.intersectRanges(this._editor.getSelection())) {
-          const filter = IDiagnosticVariableEntryFilterData.fromMarker(marker);
-          entries.push(IDiagnosticVariableEntryFilterData.toEntry(filter));
-        }
+      if (arg) {
+        arg.attachDiagnostics ??= this._configurationService.getValue(
+          "inlineChat.renderMode"
+          /* InlineChatConfigKeys.RenderMode */
+        ) === "zone";
       }
-      if (entries.length > 0) {
-        this._zone.value.widget.chatWidget.attachmentModel.addContext(...entries);
-        this._zone.value.widget.chatWidget.input.setValue(entries.length > 1 ? localize("fixN", "Fix the attached problems") : localize("fix1", "Fix the attached problem"), true);
-        this._zone.value.widget.chatWidget.inputEditor.setSelection(new Selection(1, 1, Number.MAX_SAFE_INTEGER, 1));
+      if (arg?.attachDiagnostics) {
+        const entries = [];
+        for (const [range, marker] of this._markerDecorationsService.getLiveMarkers(uri)) {
+          if (range.intersectRanges(this._editor.getSelection())) {
+            const filter = IDiagnosticVariableEntryFilterData.fromMarker(marker);
+            entries.push(IDiagnosticVariableEntryFilterData.toEntry(filter));
+          }
+        }
+        if (entries.length > 0) {
+          this._zone.value.widget.chatWidget.attachmentModel.addContext(...entries);
+          const msg = entries.length > 1 ? localize("fixN", "Fix the attached problems") : localize("fix1", "Fix the attached problem");
+          this._zone.value.widget.chatWidget.input.setValue(msg, true);
+          arg.message = msg;
+          this._zone.value.widget.chatWidget.inputEditor.setSelection(new Selection(1, 1, Number.MAX_SAFE_INTEGER, 1));
+        }
       }
       if (arg && InlineChatRunOptions.isInlineChatRunOptions(arg)) {
         if (arg.initialRange) {
@@ -442,6 +475,7 @@ let InlineChatController = class InlineChatController2 {
     if (!session) {
       return;
     }
+    this._chatService.cancelCurrentRequestForSession(session.chatModel.sessionResource, "inlineChatReject");
     await session.editingSession.reject();
     session.dispose();
   }
@@ -531,7 +565,9 @@ InlineChatController = InlineChatController_1 = __decorate([
   __param(10, IEditorService),
   __param(11, IMarkerDecorationsService),
   __param(12, ILanguageModelsService),
-  __param(13, ILogService)
+  __param(13, ILogService),
+  __param(14, IChatEditingService),
+  __param(15, IChatService)
 ], InlineChatController);
 async function reviewEdits(accessor, editor, stream, token, applyCodeBlockSuggestionId) {
   if (!editor.hasModel()) {
@@ -539,7 +575,7 @@ async function reviewEdits(accessor, editor, stream, token, applyCodeBlockSugges
   }
   const chatService = accessor.get(IChatService);
   const uri = editor.getModel().uri;
-  const chatModelRef = chatService.startSession(ChatAgentLocation.EditorInline);
+  const chatModelRef = chatService.startNewLocalSession(ChatAgentLocation.EditorInline);
   const chatModel = chatModelRef.object;
   chatModel.startEditingSession(true);
   const store = new DisposableStore();
@@ -582,7 +618,7 @@ async function reviewNotebookEdits(accessor, uri, stream, token) {
   const chatService = accessor.get(IChatService);
   const notebookService = accessor.get(INotebookService);
   const isNotebook = notebookService.hasSupportedNotebooks(uri);
-  const chatModelRef = chatService.startSession(ChatAgentLocation.EditorInline);
+  const chatModelRef = chatService.startNewLocalSession(ChatAgentLocation.EditorInline);
   const chatModel = chatModelRef.object;
   chatModel.startEditingSession(true);
   const store = new DisposableStore();

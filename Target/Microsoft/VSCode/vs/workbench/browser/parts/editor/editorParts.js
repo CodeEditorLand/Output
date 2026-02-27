@@ -50,6 +50,7 @@ let EditorParts = class EditorParts2 extends MultiWindowParts {
     this.mapPartToInstantiationService = /* @__PURE__ */ new Map();
     this._onDidCreateAuxiliaryEditorPart = this._register(new Emitter());
     this.onDidCreateAuxiliaryEditorPart = this._onDidCreateAuxiliaryEditorPart.event;
+    this.modalEditorMaximized = false;
     this.workspaceMemento = this.getMemento(
       1,
       0
@@ -140,12 +141,15 @@ let EditorParts = class EditorParts2 extends MultiWindowParts {
       this.modalEditorPart.updateOptions(options);
       return this.modalEditorPart;
     }
-    const { part, instantiationService, disposables } = await this.instantiationService.createInstance(ModalEditorPart, this).create(options);
+    const { part, instantiationService, disposables } = await this.instantiationService.createInstance(ModalEditorPart, this).create({ ...options, maximized: options?.maximized ?? this.modalEditorMaximized });
     this.modalEditorPart = part;
     this.modalPartInstantiationService = instantiationService;
     disposables.add(toDisposable(() => {
       this.modalPartInstantiationService = void 0;
       this.modalEditorPart = void 0;
+    }));
+    disposables.add(part.onDidChangeMaximized((maximized) => {
+      this.modalEditorMaximized = maximized;
     }));
     this._onDidAddGroup.fire(part.activeGroup);
     return part;

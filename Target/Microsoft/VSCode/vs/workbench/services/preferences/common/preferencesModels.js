@@ -26,6 +26,7 @@ import { EditorModel } from "../../../common/editor/editorModel.js";
 import { SettingMatchType } from "./preferences.js";
 import { FOLDER_SCOPES, WORKSPACE_SCOPES } from "../../configuration/common/configuration.js";
 import { createValidator } from "./preferencesValidation.js";
+import { isString } from "../../../../base/common/types.js";
 const nullRange = { startLineNumber: -1, startColumn: -1, endLineNumber: -1, endColumn: -1 };
 function isNullRange(range) {
   return range.startLineNumber === -1 && range.startColumn === -1 && range.endLineNumber === -1 && range.endColumn === -1;
@@ -558,7 +559,7 @@ class DefaultSettings extends Disposable {
         }
       }
       if (!settingsGroup) {
-        settingsGroup = { sections: [{ title: property.section.title, settings: [] }], id: property.section.id || "", title: property.section.title ?? "", titleRange: nullRange, order: property.section.order, range: nullRange, extensionInfo: property.source };
+        settingsGroup = { sections: [{ title: property.section.title, settings: [] }], id: property.section.id || "", title: property.section.title ?? "", titleRange: nullRange, order: property.section.order, range: nullRange, extensionInfo: isString(property.source) ? void 0 : property.source };
         result.push(settingsGroup);
         if (property.section.title) {
           const byTitleGroups = byTitle.get(property.section.title);
@@ -671,7 +672,7 @@ class DefaultSettings extends Disposable {
       tags: prop.tags,
       disallowSyncIgnore: prop.disallowSyncIgnore,
       restricted: prop.restricted,
-      extensionInfo: prop.source,
+      extensionInfo: isString(prop.source) ? void 0 : prop.source,
       deprecationMessage: prop.markdownDeprecationMessage || prop.deprecationMessage,
       deprecationMessageIsMarkdown: !!prop.markdownDeprecationMessage,
       validator: createValidator(prop),
@@ -680,7 +681,7 @@ class DefaultSettings extends Disposable {
       order: prop.order,
       nonLanguageSpecificDefaultValueSource: defaultValueSource,
       isLanguageTagSetting,
-      categoryLabel: prop.source?.id === prop.section?.id ? prop.title : prop.section?.id
+      categoryLabel: (isString(prop.source) ? void 0 : prop.source?.id) === prop.section?.id ? prop.title : prop.section?.id
     };
   }
   parseOverrideSettings(overrideSettings) {

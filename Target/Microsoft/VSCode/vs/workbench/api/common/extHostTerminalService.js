@@ -30,6 +30,7 @@ import { TerminalCompletionList, TerminalQuickFix, ViewColumn } from "./extHostT
 import { IExtHostCommands } from "./extHostCommands.js";
 import { isWindows } from "../../../base/common/platform.js";
 import { hasKey } from "../../../base/common/types.js";
+import { isProposedApiEnabled } from "../../services/extensions/common/extensions.js";
 const IExtHostTerminalService = createDecorator("IExtHostTerminalService");
 class ExtHostTerminal extends Disposable {
   static {
@@ -125,10 +126,11 @@ class ExtHostTerminal extends Disposable {
       useShellEnvironment: internalOptions?.useShellEnvironment ?? void 0,
       location: internalOptions?.location || this._serializeParentTerminal(options.location, internalOptions?.resolvedExtHostIdentifier),
       isTransient: options.isTransient ?? void 0,
-      shellIntegrationNonce: options.shellIntegrationNonce ?? void 0
+      shellIntegrationNonce: options.shellIntegrationNonce ?? void 0,
+      titleTemplate: options.titleTemplate ?? void 0
     });
   }
-  async createExtensionTerminal(location, internalOptions, parentTerminal, iconPath, color, shellIntegrationNonce) {
+  async createExtensionTerminal(location, internalOptions, parentTerminal, iconPath, color, shellIntegrationNonce, titleTemplate) {
     if (typeof this._id !== "string") {
       throw new Error("Terminal has already been created");
     }
@@ -139,7 +141,8 @@ class ExtHostTerminal extends Disposable {
       color: ThemeColor.isThemeColor(color) ? color.id : void 0,
       location: internalOptions?.location || this._serializeParentTerminal(location, parentTerminal),
       isTransient: true,
-      shellIntegrationNonce: shellIntegrationNonce ?? void 0
+      shellIntegrationNonce: shellIntegrationNonce ?? void 0,
+      titleTemplate: titleTemplate ?? void 0
     });
     if (typeof this._id === "string") {
       throw new Error("Terminal creation failed");
@@ -383,7 +386,7 @@ let BaseExtHostTerminalService = class BaseExtHostTerminalService2 extends Dispo
   createExtensionTerminal(options, internalOptions) {
     const terminal = new ExtHostTerminal(this._proxy, generateUuid(), options, options.name);
     const p = new ExtHostPseudoterminal(options.pty);
-    terminal.createExtensionTerminal(options.location, internalOptions, this._serializeParentTerminal(options, internalOptions).resolvedExtHostIdentifier, asTerminalIcon(options.iconPath), asTerminalColor(options.color), options.shellIntegrationNonce).then((id) => {
+    terminal.createExtensionTerminal(options.location, internalOptions, this._serializeParentTerminal(options, internalOptions).resolvedExtHostIdentifier, asTerminalIcon(options.iconPath), asTerminalColor(options.color), options.shellIntegrationNonce, options.titleTemplate).then((id) => {
       const disposable = this._setupExtHostProcessListeners(id, p);
       this._terminalProcessDisposables[id] = disposable;
     });
@@ -489,7 +492,8 @@ let BaseExtHostTerminalService = class BaseExtHostTerminalService2 extends Dispo
       shellArgs: shellLaunchConfigDto.args,
       cwd: typeof shellLaunchConfigDto.cwd === "string" ? shellLaunchConfigDto.cwd : URI.revive(shellLaunchConfigDto.cwd),
       env: shellLaunchConfigDto.env,
-      hideFromUser: shellLaunchConfigDto.hideFromUser
+      hideFromUser: shellLaunchConfigDto.hideFromUser,
+      titleTemplate: shellLaunchConfigDto.titleTemplate
     };
     const terminal = new ExtHostTerminal(this._proxy, id, creationOptions, name);
     this._terminals.push(terminal);
@@ -577,7 +581,7 @@ let BaseExtHostTerminalService = class BaseExtHostTerminalService2 extends Dispo
     if (this._profileProviders.has(id)) {
       throw new Error(`Terminal profile provider "${id}" already registered`);
     }
-    this._profileProviders.set(id, provider);
+    this._profileProviders.set(id, { provider, extension });
     this._proxy.$registerProfileProvider(id, extension.identifier.value);
     return new VSCodeDisposable(() => {
       this._profileProviders.delete(id);
@@ -657,7 +661,11 @@ let BaseExtHostTerminalService = class BaseExtHostTerminalService2 extends Dispo
   }
   async $createContributedProfileTerminal(id, options) {
     const token = new CancellationTokenSource().token;
-    let profile = await this._profileProviders.get(id)?.provideTerminalProfile(token);
+    const profileProviderData = this._profileProviders.get(id);
+    if (!profileProviderData) {
+      throw new Error(`No terminal profile provider registered for id "${id}"`);
+    }
+    let profile = await profileProviderData.provider.provideTerminalProfile(token);
     if (token.isCancellationRequested) {
       return;
     }
@@ -667,11 +675,20 @@ let BaseExtHostTerminalService = class BaseExtHostTerminalService2 extends Dispo
     if (!profile || !hasKey(profile, { options: true })) {
       throw new Error(`No terminal profile options provided for id "${id}"`);
     }
-    if (hasKey(profile.options, { pty: true })) {
-      this.createExtensionTerminal(profile.options, options);
+    const hasTerminalTitleProposal = isProposedApiEnabled(profileProviderData.extension, "terminalTitle");
+    if (!hasTerminalTitleProposal && profile.options.titleTemplate !== void 0) {
+      console.error(`[${profileProviderData.extension.identifier.value}] \`titleTemplate\` returned from TerminalProfileProvider is ignored because the \`terminalTitle\` proposed API is not enabled.`);
+      profile = { options: { ...profile.options, titleTemplate: void 0 } };
+    }
+    if (!hasTerminalTitleProposal && options.titleTemplate !== void 0) {
+      console.error(`[${profileProviderData.extension.identifier.value}] \`titleTemplate\` passed to createContributedTerminalProfile is ignored because the \`terminalTitle\` proposed API is not enabled.`);
+    }
+    const profileOptions = hasTerminalTitleProposal && options.titleTemplate && !profile.options.titleTemplate ? { ...profile.options, titleTemplate: options.titleTemplate } : profile.options;
+    if (hasKey(profileOptions, { pty: true })) {
+      this.createExtensionTerminal(profileOptions, options);
       return;
     }
-    this.createTerminalFromOptions(profile.options, options);
+    this.createTerminalFromOptions(profileOptions, options);
   }
   registerLinkProvider(provider) {
     this._linkProviders.add(provider);

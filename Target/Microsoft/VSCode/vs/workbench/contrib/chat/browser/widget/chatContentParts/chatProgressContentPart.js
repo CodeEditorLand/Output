@@ -55,7 +55,7 @@ let ChatProgressContentPart = class ChatProgressContentPart2 extends Disposable 
       alert(progress.content.value);
     }
     const isLoadingIcon = icon && ThemeIcon.isEqual(icon, ThemeIcon.modify(Codicon.loading, "spin"));
-    const useShimmer = shimmer ?? ((!icon || isLoadingIcon) && this.showSpinner);
+    const useShimmer = (shimmer ?? (!icon || isLoadingIcon)) && this.showSpinner;
     const codicon = useShimmer ? Codicon.check : icon ?? (this.showSpinner ? ThemeIcon.modify(Codicon.loading, "spin") : Codicon.check);
     const result = this.chatContentMarkdownRenderer.render(progress.content);
     result.element.classList.add("progress-step");
@@ -117,6 +117,10 @@ let ChatProgressSubPart = class ChatProgressSubPart2 extends Disposable {
     iconElement.classList.add(...ThemeIcon.asClassNameArray(icon));
     if (tooltip) {
       this._register(hoverService.setupDelayedHover(iconElement, {
+        content: tooltip,
+        style: 1
+      }));
+      this._register(hoverService.setupDelayedHover(messageElement, {
         content: tooltip,
         style: 1
       }));

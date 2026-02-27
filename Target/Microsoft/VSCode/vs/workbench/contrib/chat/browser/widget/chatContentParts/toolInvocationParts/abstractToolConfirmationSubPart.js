@@ -57,17 +57,25 @@ let AbstractToolConfirmationSubPart = class AbstractToolConfirmationSubPart2 ext
       const allowTooltip = keybindingService.appendKeybinding(config.allowLabel, config.allowActionId);
       const skipTooltip = keybindingService.appendKeybinding(config.skipLabel, config.skipActionId);
       const additionalActions = this.additionalPrimaryActions();
+      const sessionAction = additionalActions.find((action) => "scope" in action && action.scope === "session");
+      const allowAction = {
+        label: config.allowLabel,
+        tooltip: allowTooltip,
+        data: /* @__PURE__ */ __name(() => {
+          this.confirmWith(toolInvocation, {
+            type: 4
+            /* ToolConfirmKind.UserAction */
+          });
+        }, "data")
+      };
+      const primaryAction = sessionAction ?? allowAction;
+      const moreActions = sessionAction ? [allowAction, ...additionalActions.filter((a) => a !== sessionAction)] : additionalActions;
       buttons = [
         {
-          label: config.allowLabel,
-          tooltip: allowTooltip,
-          data: /* @__PURE__ */ __name(() => {
-            this.confirmWith(toolInvocation, {
-              type: 4
-              /* ToolConfirmKind.UserAction */
-            });
-          }, "data"),
-          moreActions: additionalActions.length > 0 ? additionalActions : void 0
+          label: primaryAction.label,
+          tooltip: primaryAction.tooltip,
+          data: primaryAction.data,
+          moreActions: moreActions.length > 0 ? moreActions : void 0
         },
         {
           label: localize("skip", "Skip"),

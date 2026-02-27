@@ -16,21 +16,26 @@ import { MarkdownString, isMarkdownString } from "../../../../base/common/htmlCo
 import { Disposable } from "../../../../base/common/lifecycle.js";
 import * as nls from "../../../../nls.js";
 import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { INotificationService, Severity } from "../../../../platform/notification/common/notification.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
 import { IChatAgentService } from "../common/participants/chatAgents.js";
 import { IChatSlashCommandService } from "../common/participants/chatSlashCommands.js";
 import { IChatService } from "../common/chatService/chatService.js";
-import { ChatAgentLocation, ChatModeKind } from "../common/constants.js";
+import { ChatAgentLocation, ChatConfiguration, ChatModeKind } from "../common/constants.js";
 import { ACTION_ID_NEW_CHAT } from "./actions/chatActions.js";
 import { ChatSubmitAction, OpenModePickerAction, OpenModelPickerAction } from "./actions/chatExecuteActions.js";
 import { ConfigureToolsAction } from "./actions/chatToolActions.js";
 import { IAgentSessionsService } from "./agentSessions/agentSessionsService.js";
-import { IChatWidgetService } from "./chat.js";
 import { CONFIGURE_INSTRUCTIONS_ACTION_ID } from "./promptSyntax/attachInstructionsAction.js";
 import { showConfigureHooksQuickPick } from "./promptSyntax/hookActions.js";
 import { CONFIGURE_PROMPTS_ACTION_ID } from "./promptSyntax/runPromptAction.js";
 import { CONFIGURE_SKILLS_ACTION_ID } from "./promptSyntax/skillActions.js";
+import { globalAutoApproveDescription } from "./tools/languageModelToolsService.js";
 import { agentSlashCommandToMarkdown, agentToMarkdown } from "./widget/chatContentParts/chatMarkdownDecorationsRenderer.js";
+import { Target } from "../common/promptSyntax/service/promptsService.js";
 let ChatSlashCommandsContribution = class ChatSlashCommandsContribution2 extends Disposable {
   static {
     __name(this, "ChatSlashCommandsContribution");
@@ -38,7 +43,7 @@ let ChatSlashCommandsContribution = class ChatSlashCommandsContribution2 extends
   static {
     this.ID = "workbench.contrib.chatSlashCommands";
   }
-  constructor(slashCommandService, commandService, chatAgentService, chatWidgetService, instantiationService, agentSessionsService, chatService) {
+  constructor(slashCommandService, commandService, chatAgentService, instantiationService, agentSessionsService, chatService, configurationService, dialogService, notificationService, storageService) {
     super();
     this._store.add(slashCommandService.registerSlashCommand({
       command: "clear",
@@ -76,7 +81,8 @@ let ChatSlashCommandsContribution = class ChatSlashCommandsContribution2 extends
       sortText: "z3_tools",
       executeImmediately: true,
       silent: true,
-      locations: [ChatAgentLocation.Chat]
+      locations: [ChatAgentLocation.Chat],
+      target: Target.VSCode
     }, async () => {
       await commandService.executeCommand(ConfigureToolsAction.ID);
     }));
@@ -131,25 +137,132 @@ let ChatSlashCommandsContribution = class ChatSlashCommandsContribution2 extends
       await commandService.executeCommand(CONFIGURE_PROMPTS_ACTION_ID);
     }));
     this._store.add(slashCommandService.registerSlashCommand({
+      command: "fork",
+      detail: nls.localize("fork", "Fork conversation into a new chat session"),
+      sortText: "z2_fork",
+      executeImmediately: true,
+      silent: true,
+      locations: [ChatAgentLocation.Chat],
+      target: Target.VSCode
+    }, async (_prompt, _progress, _history, _location, sessionResource) => {
+      await commandService.executeCommand("workbench.action.chat.forkConversation", sessionResource);
+    }));
+    this._store.add(slashCommandService.registerSlashCommand({
       command: "rename",
       detail: nls.localize("rename", "Rename this chat"),
       sortText: "z2_rename",
       executeImmediately: false,
       silent: true,
-      locations: [ChatAgentLocation.Chat]
+      locations: [ChatAgentLocation.Chat],
+      target: Target.VSCode
     }, async (prompt, _progress, _history, _location, sessionResource) => {
       const title = prompt.trim();
       if (title) {
         chatService.setChatSessionTitle(sessionResource, title);
       }
     }));
+    const handleEnableAutoApprove = /* @__PURE__ */ __name(async () => {
+      const inspection = configurationService.inspect(ChatConfiguration.GlobalAutoApprove);
+      if (inspection.policyValue !== void 0) {
+        if (inspection.policyValue === true) {
+          notificationService.info(nls.localize("autoApprove.alreadyEnabled", "Global auto-approve is already enabled."));
+          return;
+        }
+        notificationService.warn(nls.localize("autoApprove.policyBlocked", "Global auto-approve is managed by your organization policy. Contact your administrator to change this setting."));
+        return;
+      }
+      if (configurationService.getValue(ChatConfiguration.GlobalAutoApprove)) {
+        notificationService.info(nls.localize("autoApprove.alreadyEnabled", "Global auto-approve is already enabled."));
+        return;
+      }
+      const alreadyOptedIn = storageService.getBoolean("chat.tools.global.autoApprove.optIn", -1, false);
+      if (!alreadyOptedIn) {
+        const result = await dialogService.prompt({
+          type: Severity.Warning,
+          message: nls.localize("autoApprove.enable.title", "Enable global auto approve?"),
+          buttons: [
+            { label: nls.localize("autoApprove.enable.button", "Enable"), run: /* @__PURE__ */ __name(() => true, "run") },
+            { label: nls.localize("autoApprove.cancel.button", "Cancel"), run: /* @__PURE__ */ __name(() => false, "run") }
+          ],
+          custom: {
+            markdownDetails: [{ markdown: new MarkdownString(globalAutoApproveDescription.value, { isTrusted: { enabledCommands: ["workbench.action.openSettings"] } }) }]
+          }
+        });
+        if (result.result !== true) {
+          return;
+        }
+        storageService.store(
+          "chat.tools.global.autoApprove.optIn",
+          true,
+          -1,
+          0
+          /* StorageTarget.USER */
+        );
+      }
+      await configurationService.updateValue(ChatConfiguration.GlobalAutoApprove, true);
+      notificationService.info(nls.localize("autoApprove.enabled", "Global auto-approve enabled \u2014 all tool calls will be approved automatically"));
+    }, "handleEnableAutoApprove");
+    const handleDisableAutoApprove = /* @__PURE__ */ __name(async () => {
+      const inspection = configurationService.inspect(ChatConfiguration.GlobalAutoApprove);
+      if (inspection.policyValue !== void 0) {
+        if (inspection.policyValue === false) {
+          notificationService.info(nls.localize("autoApprove.alreadyDisabled", "Global auto-approve is already disabled."));
+          return;
+        }
+        notificationService.warn(nls.localize("autoApprove.policyBlocked", "Global auto-approve is managed by your organization policy. Contact your administrator to change this setting."));
+        return;
+      }
+      if (!configurationService.getValue(ChatConfiguration.GlobalAutoApprove)) {
+        notificationService.info(nls.localize("autoApprove.alreadyDisabled", "Global auto-approve is already disabled."));
+        return;
+      }
+      await configurationService.updateValue(ChatConfiguration.GlobalAutoApprove, false);
+      notificationService.info(nls.localize("autoApprove.disabled", "Global auto-approve disabled \u2014 tools will require approval"));
+    }, "handleDisableAutoApprove");
+    this._store.add(slashCommandService.registerSlashCommand({
+      command: "autoApprove",
+      detail: nls.localize("autoApprove", "Enable global auto-approval of all tool calls"),
+      sortText: "z1_autoApprove",
+      executeImmediately: true,
+      silent: true,
+      locations: [ChatAgentLocation.Chat],
+      target: Target.VSCode
+    }, handleEnableAutoApprove));
+    this._store.add(slashCommandService.registerSlashCommand({
+      command: "disableAutoApprove",
+      detail: nls.localize("disableAutoApprove", "Disable global auto-approval of all tool calls"),
+      sortText: "z1_disableAutoApprove",
+      executeImmediately: true,
+      silent: true,
+      locations: [ChatAgentLocation.Chat],
+      target: Target.VSCode
+    }, handleDisableAutoApprove));
+    this._store.add(slashCommandService.registerSlashCommand({
+      command: "yolo",
+      detail: nls.localize("yolo", "Enable global auto-approval of all tool calls"),
+      sortText: "z1_yolo",
+      executeImmediately: true,
+      silent: true,
+      locations: [ChatAgentLocation.Chat],
+      target: Target.VSCode
+    }, handleEnableAutoApprove));
+    this._store.add(slashCommandService.registerSlashCommand({
+      command: "disableYolo",
+      detail: nls.localize("disableYolo", "Disable global auto-approval of all tool calls"),
+      sortText: "z1_disableYolo",
+      executeImmediately: true,
+      silent: true,
+      locations: [ChatAgentLocation.Chat],
+      target: Target.VSCode
+    }, handleDisableAutoApprove));
     this._store.add(slashCommandService.registerSlashCommand({
       command: "help",
       detail: "",
       sortText: "z1_help",
       executeImmediately: true,
       locations: [ChatAgentLocation.Chat],
-      modes: [ChatModeKind.Ask]
+      modes: [ChatModeKind.Ask],
+      target: Target.VSCode
     }, async (prompt, progress, _history, _location, sessionResource) => {
       const defaultAgent = chatAgentService.getDefaultAgent(ChatAgentLocation.Chat);
       const agents = chatAgentService.getAgents();
@@ -188,10 +301,13 @@ ChatSlashCommandsContribution = __decorate([
   __param(0, IChatSlashCommandService),
   __param(1, ICommandService),
   __param(2, IChatAgentService),
-  __param(3, IChatWidgetService),
-  __param(4, IInstantiationService),
-  __param(5, IAgentSessionsService),
-  __param(6, IChatService)
+  __param(3, IInstantiationService),
+  __param(4, IAgentSessionsService),
+  __param(5, IChatService),
+  __param(6, IConfigurationService),
+  __param(7, IDialogService),
+  __param(8, INotificationService),
+  __param(9, IStorageService)
 ], ChatSlashCommandsContribution);
 export {
   ChatSlashCommandsContribution

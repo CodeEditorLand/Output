@@ -78,6 +78,7 @@ class ObservableChatSession extends Disposable {
     try {
       const sessionContent = await raceCancellationError(this._proxy.$provideChatSessionContent(this._providerHandle, this.sessionResource, token), token);
       this._options = sessionContent.options;
+      this.title = sessionContent.title;
       this.history.length = 0;
       this.history.push(...sessionContent.history.map((turn) => {
         if (turn.type === "request") {
@@ -254,6 +255,20 @@ class MainThreadChatSessionItemController extends Disposable {
   refresh(token) {
     return this._proxy.$refreshChatSessionItems(this._handle, token);
   }
+  async newChatSessionItem(request, token) {
+    const dto = await raceCancellationError(this._proxy.$newChatSessionItem(this._handle, request, token), token);
+    if (!dto) {
+      return void 0;
+    }
+    const item = {
+      ...dto,
+      resource: URI.revive(dto.resource),
+      changes: revive(dto.changes)
+    };
+    this._items.set(item.resource, item);
+    this._onDidChangeChatSessionItems.fire();
+    return item;
+  }
   acceptChange(change) {
     for (const item of change.addedOrUpdated) {
       this._items.set(item.resource, item);
@@ -388,7 +403,7 @@ let MainThreadChatSessions = class MainThreadChatSessions2 extends Disposable {
       return;
     }
     const originalEditor = this._editorService.editors.find((editor) => editor.resource?.toString() === originalResource.toString());
-    const originalModel = this._chatService.getActiveSessionReference(originalResource);
+    const originalModel = this._chatService.acquireExistingSession(originalResource);
     const contribution = this._chatSessionsService.getAllChatSessionContributions().find((c) => c.type === chatSessionType);
     try {
       this._chatTodoListService.migrateTodos(originalResource, modifiedResource);
@@ -421,7 +436,7 @@ let MainThreadChatSessions = class MainThreadChatSessions2 extends Disposable {
       if (chatViewWidget && isIChatViewViewContext(chatViewWidget.viewContext)) {
         await this._chatWidgetService.openSession(modifiedResource, void 0, { preserveFocus: true });
       } else {
-        const ref = await this._chatService.loadSessionForResource(modifiedResource, ChatAgentLocation.Chat, CancellationToken.None);
+        const ref = await this._chatService.acquireOrLoadSession(modifiedResource, ChatAgentLocation.Chat, CancellationToken.None);
         ref?.dispose();
       }
     } finally {
@@ -553,6 +568,9 @@ let MainThreadChatSessions = class MainThreadChatSessions2 extends Disposable {
           } : void 0
         }));
         this._chatSessionsService.setOptionGroupsForSessionType(chatSessionScheme, handle, groupsWithCallbacks);
+      }
+      if (options?.newSessionOptions) {
+        this._chatSessionsService.setNewSessionOptionsForSessionType(chatSessionScheme, options.newSessionOptions);
       }
     }).catch((err) => this._logService.error("Error fetching chat session options", err));
   }

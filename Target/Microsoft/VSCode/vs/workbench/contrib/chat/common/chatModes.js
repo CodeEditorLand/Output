@@ -16,7 +16,7 @@ import { CancellationToken } from "../../../../base/common/cancellation.js";
 import { Emitter } from "../../../../base/common/event.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
 import { constObservable, observableValue, transaction } from "../../../../base/common/observable.js";
-import { URI } from "../../../../base/common/uri.js";
+import { isUriComponents, URI } from "../../../../base/common/uri.js";
 import { localize } from "../../../../nls.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
@@ -30,6 +30,7 @@ import { ChatConfiguration, ChatModeKind } from "./constants.js";
 import { isTarget } from "./promptSyntax/promptFileParser.js";
 import { ExtensionAgentSourceType, IPromptsService, isCustomAgentVisibility, PromptsStorage, Target } from "./promptSyntax/service/promptsService.js";
 import { Codicon } from "../../../../base/common/codicons.js";
+import { hash } from "../../../../base/common/hash.js";
 import { isString } from "../../../../base/common/types.js";
 const IChatModeService = createDecorator("chatModeService");
 let ChatModeService = class ChatModeService2 extends Disposable {
@@ -97,6 +98,10 @@ let ChatModeService = class ChatModeService2 extends Disposable {
     for (const cachedMode of cachedCustomModes) {
       if (isCachedChatModeData(cachedMode) && cachedMode.uri) {
         try {
+          const visibility = cachedMode.visibility ?? { userInvocable: true, agentInvocable: cachedMode.infer !== false };
+          if (!visibility.userInvocable) {
+            continue;
+          }
           const uri = URI.revive(cachedMode.uri);
           const customChatMode = {
             uri,
@@ -108,7 +113,7 @@ let ChatModeService = class ChatModeService2 extends Disposable {
             agentInstructions: cachedMode.modeInstructions ?? { content: cachedMode.body ?? "", toolReferences: [] },
             handOffs: cachedMode.handOffs,
             target: cachedMode.target ?? Target.Undefined,
-            visibility: cachedMode.visibility ?? { userInvocable: true, agentInvocable: cachedMode.infer !== false },
+            visibility,
             agents: cachedMode.agents,
             source: reviveChatModeSource(cachedMode.source) ?? { storage: PromptsStorage.local }
           };
@@ -327,6 +332,9 @@ function isChatModeSourceData(value) {
   if (data.storage === PromptsStorage.extension) {
     return typeof data.extensionId === "string";
   }
+  if (data.storage === PromptsStorage.plugin) {
+    return isUriComponents(data.pluginUri);
+  }
   return data.storage === PromptsStorage.local || data.storage === PromptsStorage.user;
 }
 __name(isChatModeSourceData, "isChatModeSourceData");
@@ -337,6 +345,9 @@ function serializeChatModeSource(source) {
   if (source.storage === PromptsStorage.extension) {
     return { storage: PromptsStorage.extension, extensionId: source.extensionId.value, type: source.type };
   }
+  if (source.storage === PromptsStorage.plugin) {
+    return { storage: PromptsStorage.plugin, pluginUri: source.pluginUri };
+  }
   return { storage: source.storage };
 }
 __name(serializeChatModeSource, "serializeChatModeSource");
@@ -346,6 +357,9 @@ function reviveChatModeSource(data) {
   }
   if (data.storage === PromptsStorage.extension) {
     return { storage: PromptsStorage.extension, extensionId: new ExtensionIdentifier(data.extensionId), type: data.type ?? ExtensionAgentSourceType.contribution };
+  }
+  if (data.storage === PromptsStorage.plugin) {
+    return { storage: PromptsStorage.plugin, pluginUri: URI.revive(data.pluginUri) };
   }
   return { storage: data.storage };
 }
@@ -390,12 +404,21 @@ function isBuiltinChatMode(mode) {
   return mode.id === ChatMode.Ask.id || mode.id === ChatMode.Edit.id || mode.id === ChatMode.Agent.id;
 }
 __name(isBuiltinChatMode, "isBuiltinChatMode");
+function getModeNameForTelemetry(mode) {
+  const modeStorage = mode.source?.storage;
+  if (modeStorage === PromptsStorage.local || modeStorage === PromptsStorage.user) {
+    return String(hash(mode.name.get()));
+  }
+  return mode.name.get();
+}
+__name(getModeNameForTelemetry, "getModeNameForTelemetry");
 export {
   BuiltinChatMode,
   ChatMode,
   ChatModeService,
   CustomChatMode,
   IChatModeService,
+  getModeNameForTelemetry,
   isBuiltinChatMode
 };
 //# sourceMappingURL=chatModes.js.map

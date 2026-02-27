@@ -19,7 +19,6 @@ import { ILogService } from "../../../../platform/log/common/log.js";
 import { WorkingCopyBackupTracker } from "../common/workingCopyBackupTracker.js";
 import { IWorkingCopyEditorService } from "../common/workingCopyEditorService.js";
 import { IEditorService } from "../../editor/common/editorService.js";
-import { IEditorGroupsService } from "../../editor/common/editorGroupsService.js";
 let BrowserWorkingCopyBackupTracker = class BrowserWorkingCopyBackupTracker2 extends WorkingCopyBackupTracker {
   static {
     __name(this, "BrowserWorkingCopyBackupTracker");
@@ -27,8 +26,8 @@ let BrowserWorkingCopyBackupTracker = class BrowserWorkingCopyBackupTracker2 ext
   static {
     this.ID = "workbench.contrib.browserWorkingCopyBackupTracker";
   }
-  constructor(workingCopyBackupService, filesConfigurationService, workingCopyService, lifecycleService, logService, workingCopyEditorService, editorService, editorGroupService) {
-    super(workingCopyBackupService, workingCopyService, logService, lifecycleService, filesConfigurationService, workingCopyEditorService, editorService, editorGroupService);
+  constructor(workingCopyBackupService, filesConfigurationService, workingCopyService, lifecycleService, logService, workingCopyEditorService, editorService) {
+    super(workingCopyBackupService, workingCopyService, logService, lifecycleService, filesConfigurationService, workingCopyEditorService, editorService);
   }
   onFinalBeforeShutdown(reason) {
     const modifiedWorkingCopies = this.workingCopyService.modifiedWorkingCopies;
@@ -54,8 +53,7 @@ BrowserWorkingCopyBackupTracker = __decorate([
   __param(3, ILifecycleService),
   __param(4, ILogService),
   __param(5, IWorkingCopyEditorService),
-  __param(6, IEditorService),
-  __param(7, IEditorGroupsService)
+  __param(6, IEditorService)
 ], BrowserWorkingCopyBackupTracker);
 export {
   BrowserWorkingCopyBackupTracker

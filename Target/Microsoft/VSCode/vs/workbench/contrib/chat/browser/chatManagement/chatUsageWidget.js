@@ -54,10 +54,13 @@ let ChatUsageWidget = class ChatUsageWidget2 extends Disposable {
         this.renderQuotaItem(this.usageSection, localize("plan.chatMessages", "Chat messages"), chatQuota);
       }
       if (premiumChatQuota) {
-        this.renderQuotaItem(this.usageSection, localize("plan.premiumRequests", "Premium requests"), premiumChatQuota);
-        if (premiumChatQuota.overageEnabled) {
+        const premiumLabel = premiumChatQuota.overageEnabled ? localize("plan.includedPremiumRequests", "Included premium requests") : localize("plan.premiumRequests", "Premium requests");
+        this.renderQuotaItem(this.usageSection, premiumLabel, premiumChatQuota, premiumChatQuota.overageEnabled);
+        if (premiumChatQuota.overageEnabled && !premiumChatQuota.unlimited) {
           const overageMessage = DOM.append(this.usageSection, $(".overage-message"));
-          overageMessage.textContent = localize("plan.additionalPaidEnabled", "Additional paid premium requests enabled.");
+          overageMessage.append(localize("plan.overageApprovedLine1", "Additional premium requests approved."));
+          DOM.append(overageMessage, $("br"));
+          overageMessage.append(localize("plan.overageApprovedLine2", "You can continue after included premium requests limit reaches 100%."));
         }
       }
       if (resetDate) {
@@ -68,7 +71,7 @@ let ChatUsageWidget = class ChatUsageWidget2 extends Disposable {
     const height = this.element.offsetHeight || 400;
     this._onDidChangeContentHeight.fire(height);
   }
-  renderQuotaItem(container, label, quota) {
+  renderQuotaItem(container, label, quota, overageEnabled = false) {
     const quotaItem = DOM.append(container, $(".quota-item"));
     const quotaItemHeader = DOM.append(quotaItem, $(".quota-item-header"));
     const quotaItemLabel = DOM.append(quotaItemHeader, $(".quota-item-label"));
@@ -83,9 +86,9 @@ let ChatUsageWidget = class ChatUsageWidget2 extends Disposable {
     const progressBar = DOM.append(progressBarContainer, $(".quota-bit"));
     const percentageUsed = this.getQuotaPercentageUsed(quota);
     progressBar.style.width = percentageUsed + "%";
-    if (percentageUsed >= 90) {
+    if (percentageUsed >= 90 && !overageEnabled) {
       quotaItem.classList.add("error");
-    } else if (percentageUsed >= 75) {
+    } else if (percentageUsed >= 75 && !overageEnabled) {
       quotaItem.classList.add("warning");
     }
   }

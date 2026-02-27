@@ -464,9 +464,6 @@ let BrowserTitlebarPart = class BrowserTitlebarPart2 extends Part {
           this.editorActionsChangeDisposable.add(editorActions.onDidChange(() => updateToolBarActions()));
         }
       }
-      if (this.globalToolbarMenu) {
-        fillInActionBarActions(this.globalToolbarMenu.getActions(), actions);
-      }
       if (this.layoutToolbarMenu) {
         fillInActionBarActions(
           this.layoutToolbarMenu.getActions(),
@@ -474,6 +471,9 @@ let BrowserTitlebarPart = class BrowserTitlebarPart2 extends Part {
           () => !this.editorActionsEnabled || this.isCompact
           // layout actions move to "..." if editor actions are enabled unless compact
         );
+      }
+      if (this.globalToolbarMenu) {
+        fillInActionBarActions(this.globalToolbarMenu.getActions(), actions);
       }
       if (this.activityActionsEnabled) {
         if (isAccountsActionVisible(this.storageService)) {

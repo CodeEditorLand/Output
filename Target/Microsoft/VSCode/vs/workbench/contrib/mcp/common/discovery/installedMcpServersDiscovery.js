@@ -92,6 +92,8 @@ let InstalledMcpServersDiscovery = class InstalledMcpServersDiscovery2 extends D
           id: `${collectionId}.${server.name}`,
           label: server.name,
           launch,
+          sandboxEnabled: config.type === "http" ? void 0 : config.sandboxEnabled,
+          sandbox: config.type === "http" || !config.sandboxEnabled ? void 0 : config.sandbox,
           cacheNonce: await McpServerLaunch.hash(launch),
           roots: mcpConfigPath?.workspaceFolder ? [mcpConfigPath.workspaceFolder.uri] : void 0,
           variableReplacement: {

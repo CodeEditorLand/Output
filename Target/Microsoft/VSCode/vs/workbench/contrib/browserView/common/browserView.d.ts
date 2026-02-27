@@ -1,6 +1,9 @@
 import { Event } from '../../../../base/common/event.js';
 import { Disposable, IDisposable } from '../../../../base/common/lifecycle.js';
 import { VSBuffer } from '../../../../base/common/buffer.js';
+import { IPlaywrightService } from '../../../../platform/browserView/common/playwrightService.js';
+import { IDialogService } from '../../../../platform/dialogs/common/dialogs.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
 import { IBrowserViewBounds, IBrowserViewNavigationEvent, IBrowserViewLoadingEvent, IBrowserViewLoadError, IBrowserViewFocusEvent, IBrowserViewKeyDownEvent, IBrowserViewTitleChangeEvent, IBrowserViewFaviconChangeEvent, IBrowserViewNewPageRequest, IBrowserViewDevToolsStateEvent, IBrowserViewService, BrowserViewStorageScope, IBrowserViewCaptureScreenshotOptions, IBrowserViewFindInPageOptions, IBrowserViewFindInPageResult, IBrowserViewVisibilityEvent } from '../../../../platform/browserView/common/browserView.js';
 import { IWorkspaceContextService } from '../../../../platform/workspace/common/workspace.js';
 import { ITelemetryService } from '../../../../platform/telemetry/common/telemetry.js';
@@ -46,6 +49,8 @@ export interface IBrowserViewModel extends IDisposable {
     readonly canGoForward: boolean;
     readonly error: IBrowserViewLoadError | undefined;
     readonly storageScope: BrowserViewStorageScope;
+    readonly sharedWithAgent: boolean;
+    readonly onDidChangeSharedWithAgent: Event<boolean>;
     readonly onDidNavigate: Event<IBrowserViewNavigationEvent>;
     readonly onDidChangeLoadingState: Event<IBrowserViewLoadingEvent>;
     readonly onDidChangeFocus: Event<IBrowserViewFocusEvent>;
@@ -73,6 +78,7 @@ export interface IBrowserViewModel extends IDisposable {
     stopFindInPage(keepSelection?: boolean): Promise<void>;
     getSelectedText(): Promise<string>;
     clearStorage(): Promise<void>;
+    setSharedWithAgent(shared: boolean): Promise<void>;
 }
 export declare class BrowserViewModel extends Disposable implements IBrowserViewModel {
     readonly id: string;
@@ -81,6 +87,9 @@ export declare class BrowserViewModel extends Disposable implements IBrowserView
     private readonly workspaceTrustManagementService;
     private readonly telemetryService;
     private readonly configurationService;
+    private readonly playwrightService;
+    private readonly dialogService;
+    private readonly storageService;
     private _url;
     private _title;
     private _favicon;
@@ -93,9 +102,12 @@ export declare class BrowserViewModel extends Disposable implements IBrowserView
     private _canGoForward;
     private _error;
     private _storageScope;
+    private _sharedWithAgent;
+    private readonly _onDidChangeSharedWithAgent;
+    readonly onDidChangeSharedWithAgent: Event<boolean>;
     private readonly _onWillDispose;
     readonly onWillDispose: Event<void>;
-    constructor(id: string, browserViewService: IBrowserViewService, workspaceContextService: IWorkspaceContextService, workspaceTrustManagementService: IWorkspaceTrustManagementService, telemetryService: ITelemetryService, configurationService: IConfigurationService);
+    constructor(id: string, browserViewService: IBrowserViewService, workspaceContextService: IWorkspaceContextService, workspaceTrustManagementService: IWorkspaceTrustManagementService, telemetryService: ITelemetryService, configurationService: IConfigurationService, playwrightService: IPlaywrightService, dialogService: IDialogService, storageService: IStorageService);
     get url(): string;
     get title(): string;
     get favicon(): string | undefined;
@@ -108,6 +120,7 @@ export declare class BrowserViewModel extends Disposable implements IBrowserView
     get screenshot(): VSBuffer | undefined;
     get error(): IBrowserViewLoadError | undefined;
     get storageScope(): BrowserViewStorageScope;
+    get sharedWithAgent(): boolean;
     get onDidNavigate(): Event<IBrowserViewNavigationEvent>;
     get onDidChangeLoadingState(): Event<IBrowserViewLoadingEvent>;
     get onDidChangeFocus(): Event<IBrowserViewFocusEvent>;
@@ -137,6 +150,9 @@ export declare class BrowserViewModel extends Disposable implements IBrowserView
     stopFindInPage(keepSelection?: boolean): Promise<void>;
     getSelectedText(): Promise<string>;
     clearStorage(): Promise<void>;
+    private static readonly SHARE_DONT_ASK_KEY;
+    setSharedWithAgent(shared: boolean): Promise<void>;
+    private _setSharedWithAgent;
     /**
      * Log navigation telemetry event
      */

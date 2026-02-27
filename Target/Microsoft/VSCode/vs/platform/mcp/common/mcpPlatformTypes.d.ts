@@ -10,6 +10,17 @@ export interface IMcpDevModeConfig {
         debugpyPath?: string;
     };
 }
+export interface IMcpSandboxConfiguration {
+    network?: {
+        allowedDomains?: string[];
+        deniedDomains?: string[];
+    };
+    filesystem?: {
+        denyRead?: string[];
+        allowWrite?: string[];
+        denyWrite?: string[];
+    };
+}
 export declare const enum McpServerVariableType {
     PROMPT = "promptString",
     PICK = "pickString"
@@ -39,6 +50,8 @@ export interface IMcpStdioServerConfiguration extends ICommonMcpServerConfigurat
     readonly env?: Record<string, string | number | null>;
     readonly envFile?: string;
     readonly cwd?: string;
+    readonly sandboxEnabled?: boolean;
+    readonly sandbox?: IMcpSandboxConfiguration;
     readonly dev?: IMcpDevModeConfig;
 }
 export interface IMcpRemoteServerConfiguration extends ICommonMcpServerConfiguration {

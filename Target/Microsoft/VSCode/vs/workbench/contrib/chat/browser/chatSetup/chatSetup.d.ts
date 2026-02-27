@@ -1,4 +1,6 @@
 import { ICommandService } from '../../../../../platform/commands/common/commands.js';
+import { ILogService } from '../../../../../platform/log/common/log.js';
+import { IExtensionsWorkbenchService } from '../../../extensions/common/extensions.js';
 export type InstallChatClassification = {
     owner: 'bpasero';
     comment: 'Provides insight into chat installation.';
@@ -53,3 +55,11 @@ export interface IChatSetupResult {
     readonly dialogSkipped: boolean;
 }
 export declare function refreshTokens(commandService: ICommandService): void;
+/**
+ * Ensures the authentication provider extension is enabled.
+ * If the extension is found locally but disabled, it will be
+ * re-enabled and running extensions will be updated.
+ *
+ * @returns `true` if the extension was re-enabled, `false` otherwise.
+ */
+export declare function maybeEnableAuthExtension(extensionsWorkbenchService: IExtensionsWorkbenchService, logService: ILogService): Promise<boolean>;

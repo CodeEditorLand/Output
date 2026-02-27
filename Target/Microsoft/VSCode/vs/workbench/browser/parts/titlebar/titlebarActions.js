@@ -53,7 +53,7 @@ registerAction2(class ToggleNavigationControl extends ToggleTitleBarConfigAction
     __name(this, "ToggleNavigationControl");
   }
   constructor() {
-    super("workbench.navigationControl.enabled", localize("toggle.navigation", "Navigation Controls"), localize("toggle.navigationDescription", "Toggle visibility of the Navigation Controls in title bar"), 2, ContextKeyExpr.and(IsCompactTitleBarContext.toNegated(), ContextKeyExpr.has("config.window.commandCenter")));
+    super("workbench.navigationControl.enabled", localize("toggle.navigation", "Navigation Controls"), localize("toggle.navigationDescription", "Toggle visibility of the Navigation Controls in title bar"), 2, ContextKeyExpr.and(IsCompactTitleBarContext.toNegated(), ContextKeyExpr.has(`config.${"window.commandCenter"}`)));
   }
 });
 registerAction2(class ToggleLayoutControl extends ToggleTitleBarConfigAction {
@@ -62,6 +62,18 @@ registerAction2(class ToggleLayoutControl extends ToggleTitleBarConfigAction {
   }
   constructor() {
     super("workbench.layoutControl.enabled", localize("toggle.layout", "Layout Controls"), localize("toggle.layoutDescription", "Toggle visibility of the Layout Controls in title bar"), 4);
+  }
+});
+registerAction2(class ToggleNotificationsButton extends ToggleTitleBarConfigAction {
+  static {
+    __name(this, "ToggleNotificationsButton");
+  }
+  constructor() {
+    super("workbench.notifications.showInTitleBar", localize("toggle.notifications", "Notifications"), localize("toggle.notificationsDescription", "Toggle visibility of the Notifications button in title bar"), 5, ContextKeyExpr.equals(
+      `config.${"workbench.notifications.position"}`,
+      "top-right"
+      /* NotificationsPosition.TOP_RIGHT */
+    ));
   }
 });
 registerAction2(class ToggleCustomTitleBar extends Action2 {

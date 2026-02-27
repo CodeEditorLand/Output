@@ -9,7 +9,7 @@ import { ILabelService } from '../../../../../platform/label/common/label.js';
 import { ILogService } from '../../../../../platform/log/common/log.js';
 import { IThemeService } from '../../../../../platform/theme/common/themeService.js';
 import { IExtensionService } from '../../../../services/extensions/common/extensions.js';
-import { IChatAgentAttachmentCapabilities, IChatAgentService } from '../../common/participants/chatAgents.js';
+import { IChatAgentAttachmentCapabilities, IChatAgentRequest, IChatAgentService } from '../../common/participants/chatAgents.js';
 import { IChatSession, IChatSessionContentProvider, IChatSessionItem, IChatSessionItemController, IChatSessionOptionsWillNotifyExtensionEvent, IChatSessionProviderOptionGroup, IChatSessionProviderOptionItem, IChatSessionsExtensionPoint, IChatSessionsService } from '../../common/chatSessionsService.js';
 import { IChatModel } from '../../common/model/chatModel.js';
 import { IChatService } from '../../common/chatService/chatService.js';
@@ -54,6 +54,7 @@ export declare class ChatSessionsService extends Disposable implements IChatSess
     get onRequestNotifyExtension(): Event<IChatSessionOptionsWillNotifyExtensionEvent>;
     private readonly inProgressMap;
     private readonly _sessionTypeOptions;
+    private readonly _sessionTypeNewSessionOptions;
     private readonly _sessionTypeIcons;
     private readonly _sessionTypeWelcomeTitles;
     private readonly _sessionTypeWelcomeMessages;
@@ -98,6 +99,7 @@ export declare class ChatSessionsService extends Disposable implements IChatSess
     registerChatSessionContentProvider(chatSessionType: string, provider: IChatSessionContentProvider): IDisposable;
     registerChatModelChangeListeners(chatService: IChatService, chatSessionType: string, onChange: () => void): IDisposable;
     getInProgressSessionDescription(chatModel: IChatModel): string | undefined;
+    createNewChatSessionItem(chatSessionType: string, request: IChatAgentRequest, token: CancellationToken): Promise<IChatSessionItem | undefined>;
     getOrCreateChatSession(sessionResource: URI, token: CancellationToken): Promise<IChatSession>;
     hasAnySessionOptions(sessionResource: URI): boolean;
     getSessionOption(sessionResource: URI, optionId: string): string | IChatSessionProviderOptionItem | undefined;
@@ -110,6 +112,8 @@ export declare class ChatSessionsService extends Disposable implements IChatSess
      * Get available option groups for a session type
      */
     getOptionGroupsForSessionType(chatSessionType: string): IChatSessionProviderOptionGroup[] | undefined;
+    getNewSessionOptionsForSessionType(chatSessionType: string): Record<string, string | IChatSessionProviderOptionItem> | undefined;
+    setNewSessionOptionsForSessionType(chatSessionType: string, options: Record<string, string | IChatSessionProviderOptionItem>): void;
     /**
      * Notify extension about option changes for a session
      */

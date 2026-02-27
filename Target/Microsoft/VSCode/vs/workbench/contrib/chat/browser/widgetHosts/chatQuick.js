@@ -341,7 +341,7 @@ let QuickChat = class QuickChat2 extends Disposable {
     this.widget.inputEditor.setValue("");
   }
   updateModel() {
-    this.modelRef ??= this.chatService.startSession(ChatAgentLocation.Chat, { disableBackgroundKeepAlive: true });
+    this.modelRef ??= this.chatService.startNewLocalSession(ChatAgentLocation.Chat, { disableBackgroundKeepAlive: true });
     const model = this.modelRef?.object;
     if (!model) {
       throw new Error("Could not start chat session");

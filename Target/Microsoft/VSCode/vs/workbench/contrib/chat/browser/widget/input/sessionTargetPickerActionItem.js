@@ -145,7 +145,10 @@ let SessionTypePickerActionItem = class SessionTypePickerActionItem2 extends Cha
     return true;
   }
   _isSessionTypeEnabled(type) {
-    return true;
+    if (type === AgentSessionProviders.Local) {
+      return true;
+    }
+    return !!this.chatSessionsService.getChatSessionContribution(type);
   }
   _getSessionCategory(sessionTypeItem) {
     return isFirstPartyAgentSessionProvider(sessionTypeItem.type) ? firstPartyCategory : otherCategory;

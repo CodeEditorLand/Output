@@ -123,10 +123,11 @@ class ModelRawLinesDeleted {
   static {
     __name(this, "ModelRawLinesDeleted");
   }
-  constructor(fromLineNumber, toLineNumber) {
+  constructor(fromLineNumber, toLineNumber, lastUntouchedLinePostEdit) {
     this.changeType = 3;
     this.fromLineNumber = fromLineNumber;
     this.toLineNumber = toLineNumber;
+    this.lastUntouchedLinePostEdit = lastUntouchedLinePostEdit;
   }
 }
 class ModelRawLinesInserted {

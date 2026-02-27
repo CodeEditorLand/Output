@@ -31,25 +31,23 @@ import { getFlatActionBarActions } from "../../../../platform/actions/browser/me
 import { IMenuService, MenuId } from "../../../../platform/actions/common/actions.js";
 import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { ICommandService } from "../../../../platform/commands/common/commands.js";
 import { ChatEditingAcceptRejectActionViewItem } from "../../chat/browser/chatEditing/chatEditingEditorOverlay.js";
-import { CTX_INLINE_CHAT_INPUT_HAS_TEXT } from "../common/inlineChat.js";
+import { CTX_INLINE_CHAT_INPUT_HAS_TEXT, CTX_INLINE_CHAT_INPUT_WIDGET_FOCUSED } from "../common/inlineChat.js";
 import { StickyScrollController } from "../../../../editor/contrib/stickyScroll/browser/stickyScrollController.js";
 import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { getSimpleEditorOptions } from "../../codeEditor/browser/simpleEditorOptions.js";
 import { PlaceholderTextContribution } from "../../../../editor/contrib/placeholderText/browser/placeholderTextContribution.js";
-import { CancelChatActionId } from "../../chat/browser/actions/chatExecuteActions.js";
 import { assertType } from "../../../../base/common/types.js";
 let InlineChatInputWidget = class InlineChatInputWidget2 extends Disposable {
   static {
     __name(this, "InlineChatInputWidget");
   }
-  constructor(_editorObs, _contextKeyService, _commandService, _menuService, instantiationService, modelService, configurationService) {
+  constructor(_editorObs, _contextKeyService, _menuService, instantiationService, modelService, configurationService) {
     super();
     this._editorObs = _editorObs;
     this._contextKeyService = _contextKeyService;
-    this._commandService = _commandService;
     this._menuService = _menuService;
     this._position = observableValue(this, null);
     this.position = this._position;
@@ -116,21 +114,13 @@ let InlineChatInputWidget = class InlineChatInputWidget2 extends Disposable {
     });
     this._store.add(resizeObserver);
     this._store.add(resizeObserver.observe(toolbar.getElement()));
-    const maxWidgetWidth = derived((r) => {
-      const layoutInfo = this._editorObs.layoutInfo.read(r);
-      return Math.max(0, Math.round(layoutInfo.contentWidth * 0.7));
-    });
-    const minWidgetWidth = derived((r) => {
-      const layoutInfo = this._editorObs.layoutInfo.read(r);
-      return Math.max(0, Math.round(layoutInfo.contentWidth * 0.33));
-    });
     const contentWidth = observableFromEvent(this, this._input.onDidChangeModelContent, () => this._input.getContentWidth());
     const contentHeight = observableFromEvent(this, this._input.onDidContentSizeChange, () => this._input.getContentHeight());
     this._layoutData = derived((r) => {
       const editorPad = 6;
       const totalWidth = contentWidth.read(r) + editorPad + toolbarWidth.read(r);
-      const minWidth = minWidgetWidth.read(r);
-      const maxWidth = maxWidgetWidth.read(r);
+      const minWidth = 220;
+      const maxWidth = 600;
       const clampedWidth = this._input.getOption(
         149
         /* EditorOption.wordWrap */
@@ -162,30 +152,17 @@ let InlineChatInputWidget = class InlineChatInputWidget2 extends Disposable {
     this._store.add(this._input.onDidScrollChange((e) => {
       this._toolbarContainer.classList.toggle("fake-scroll-decoration", e.scrollTop > 0);
     }));
-    this._store.add(autorun((r) => {
-      const selection = this._editorObs.cursorSelection.read(r);
-      const hasSelection = selection && !selection.isEmpty();
-      const placeholderText = hasSelection ? localize("placeholderWithSelection", "Describe how to change this") : localize("placeholderNoSelection", "Describe what to generate");
-      this._input.updateOptions({ placeholder: placeholderText });
-    }));
     const inputHasText = CTX_INLINE_CHAT_INPUT_HAS_TEXT.bindTo(this._contextKeyService);
     this._store.add(this._input.onDidChangeModelContent(() => {
       inputHasText.set(this._input.getModel().getValue().trim().length > 0);
     }));
     this._store.add(toDisposable(() => inputHasText.reset()));
+    const inputWidgetFocused = CTX_INLINE_CHAT_INPUT_WIDGET_FOCUSED.bindTo(this._contextKeyService);
+    this._store.add(this._input.onDidFocusEditorText(() => inputWidgetFocused.set(true)));
+    this._store.add(this._input.onDidBlurEditorText(() => inputWidgetFocused.set(false)));
+    this._store.add(toDisposable(() => inputWidgetFocused.reset()));
     this._store.add(this._input.onKeyDown((e) => {
-      if (e.keyCode === 3 && !e.shiftKey) {
-        e.preventDefault();
-        e.stopPropagation();
-        this._commandService.executeCommand("inlineChat.submitInput");
-      } else if (e.keyCode === 9) {
-        const value = this._input.getModel().getValue() ?? "";
-        if (!value) {
-          e.preventDefault();
-          e.stopPropagation();
-          this.hide();
-        }
-      } else if (e.keyCode === 18 && !actionBar.isEmpty()) {
+      if (e.keyCode === 18 && !actionBar.isEmpty()) {
         const model2 = this._input.getModel();
         const position = this._input.getPosition();
         if (position && position.lineNumber === model2.getLineCount()) {
@@ -197,7 +174,11 @@ let InlineChatInputWidget = class InlineChatInputWidget2 extends Disposable {
     }));
     this._store.add(dom.addDisposableListener(actionBar.domNode, "keydown", (e) => {
       const event = new StandardKeyboardEvent(e);
-      if (event.keyCode === 16) {
+      if (event.keyCode === 9) {
+        event.preventDefault();
+        event.stopPropagation();
+        this.hide();
+      } else if (event.keyCode === 16) {
         const firstItem = actionBar.viewItems[0];
         if (firstItem?.element && dom.isAncestorOfActiveElement(firstItem.element)) {
           event.preventDefault();
@@ -218,9 +199,9 @@ let InlineChatInputWidget = class InlineChatInputWidget2 extends Disposable {
    * @param left Left offset relative to editor
    * @param anchorAbove Whether to anchor above the position (widget grows upward)
    */
-  show(lineNumber, left, anchorAbove) {
+  show(lineNumber, left, anchorAbove, placeholder) {
     this._showStore.clear();
-    this._input.updateOptions({ wordWrap: "off" });
+    this._input.updateOptions({ wordWrap: "off", placeholder });
     this._input.getModel().setValue("");
     this._anchorLineNumber = lineNumber;
     this._anchorLeft = left;
@@ -289,21 +270,21 @@ let InlineChatInputWidget = class InlineChatInputWidget2 extends Disposable {
 };
 InlineChatInputWidget = __decorate([
   __param(1, IContextKeyService),
-  __param(2, ICommandService),
-  __param(3, IMenuService),
-  __param(4, IInstantiationService),
-  __param(5, IModelService),
-  __param(6, IConfigurationService)
+  __param(2, IMenuService),
+  __param(3, IInstantiationService),
+  __param(4, IModelService),
+  __param(5, IConfigurationService)
 ], InlineChatInputWidget);
 let InlineChatSessionOverlayWidget = class InlineChatSessionOverlayWidget2 extends Disposable {
   static {
     __name(this, "InlineChatSessionOverlayWidget");
   }
-  constructor(_editorObs, _instaService, _keybindingService) {
+  constructor(_editorObs, _instaService, _keybindingService, _logService) {
     super();
     this._editorObs = _editorObs;
     this._instaService = _instaService;
     this._keybindingService = _keybindingService;
+    this._logService = _logService;
     this._domNode = document.createElement("div");
     this._showStore = this._store.add(new DisposableStore());
     this._position = observableValue(this, null);
@@ -349,6 +330,13 @@ let InlineChatSessionOverlayWidget = class InlineChatSessionOverlayWidget2 exten
           icon: Codicon.check
         };
       }
+      const pendingConfirmation = response.isPendingConfirmation.read(r);
+      if (pendingConfirmation) {
+        return {
+          message: localize("needsApproval", "Sorry, but an expected error happened"),
+          icon: Codicon.error
+        };
+      }
       const lastPart = observableFromEventOpts({ equalsFn: /* @__PURE__ */ __name(() => false, "equalsFn") }, response.onDidChange, () => response.response.value).read(r).filter((part) => part.kind === "progressMessage" || part.kind === "toolInvocation").at(-1);
       if (lastPart?.kind === "toolInvocation") {
         return { message: lastPart.invocationMessage, icon: ThemeIcon.modify(Codicon.loading, "spin") };
@@ -369,6 +357,13 @@ let InlineChatSessionOverlayWidget = class InlineChatSessionOverlayWidget2 exten
         this._icon.className = "";
       }
     }));
+    this._showStore.add(autorun((r) => {
+      const response = session.chatModel.lastRequestObs.read(r)?.response;
+      const pending = response?.isPendingConfirmation.read(r);
+      if (pending) {
+        this._logService.info(`[InlineChat] UNEXPECTED approval needed: ${pending.detail ?? "unknown"}`);
+      }
+    }));
     this._container.appendChild(this._toolbarNode);
     this._showStore.add(toDisposable(() => this._toolbarNode.remove()));
     const that = this;
@@ -381,7 +376,7 @@ let InlineChatSessionOverlayWidget = class InlineChatSessionOverlayWidget2 exten
       },
       menuOptions: { renderShortTitle: true },
       actionViewItemProvider: /* @__PURE__ */ __name((action, options) => {
-        const primaryActions = [CancelChatActionId, "inlineChat2.keep"];
+        const primaryActions = ["inlineChat2.cancel", "inlineChat2.keep", "inlineChat2.close"];
         const labeledActions = primaryActions.concat(["inlineChat2.undo"]);
         if (!labeledActions.includes(action.id)) {
           return void 0;
@@ -427,7 +422,8 @@ let InlineChatSessionOverlayWidget = class InlineChatSessionOverlayWidget2 exten
 };
 InlineChatSessionOverlayWidget = __decorate([
   __param(1, IInstantiationService),
-  __param(2, IKeybindingService)
+  __param(2, IKeybindingService),
+  __param(3, ILogService)
 ], InlineChatSessionOverlayWidget);
 export {
   InlineChatInputWidget,

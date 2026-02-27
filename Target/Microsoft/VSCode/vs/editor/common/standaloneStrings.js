@@ -30,6 +30,7 @@ var AccessibilityHelpNLS;
   AccessibilityHelpNLS2.listSignalSounds = nls.localize("listSignalSoundsCommand", "Run the command: List Signal Sounds for an overview of all sounds and their current status.");
   AccessibilityHelpNLS2.listAlerts = nls.localize("listAnnouncementsCommand", "Run the command: List Signal Announcements for an overview of announcements and their current status.");
   AccessibilityHelpNLS2.announceCursorPosition = nls.localize("announceCursorPosition", "Run the command: Announce Cursor Position{0} to hear the current line and column.", "<keybinding:editor.action.announceCursorPosition>");
+  AccessibilityHelpNLS2.focusNotifications = nls.localize("focusNotifications", "Focus notification toasts{0} to navigate them with the keyboard. Accept the primary action of a focused notification{1}.", "<keybinding:notifications.focusToasts>", "<keybinding:notification.acceptPrimaryAction>");
   AccessibilityHelpNLS2.quickChat = nls.localize("quickChatCommand", "Toggle quick chat{0} to open or close a chat session.", "<keybinding:workbench.action.quickchat.toggle>");
   AccessibilityHelpNLS2.startInlineChat = nls.localize("startInlineChatCommand", "Start inline chat{0} to create an in editor chat session.", "<keybinding:inlineChat.start>");
   AccessibilityHelpNLS2.startDebugging = nls.localize("debug.startDebugging", "The Debug: Start Debugging command{0} will start a debug session.", "<keybinding:workbench.action.debug.start>");

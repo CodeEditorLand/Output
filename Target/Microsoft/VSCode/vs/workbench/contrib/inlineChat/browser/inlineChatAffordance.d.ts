@@ -9,5 +9,5 @@ import { ITelemetryService } from '../../../../platform/telemetry/common/telemet
 export declare class InlineChatAffordance extends Disposable {
     #private;
     constructor(editor: ICodeEditor, inputWidget: InlineChatInputWidget, instantiationService: IInstantiationService, configurationService: IConfigurationService, chatEntiteldService: IChatEntitlementService, inlineChatSessionService: IInlineChatSessionService, telemetryService: ITelemetryService);
-    showMenuAtSelection(): Promise<void>;
+    showMenuAtSelection(placeholder: string): Promise<void>;
 }

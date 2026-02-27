@@ -25,7 +25,7 @@ import { ICommandService } from "../../../../../../platform/commands/common/comm
 import { getCleanPromptName } from "../../../common/promptSyntax/config/promptFileLocations.js";
 import { PromptsType, INSTRUCTIONS_DOCUMENTATION_URL, AGENT_DOCUMENTATION_URL, PROMPT_DOCUMENTATION_URL, SKILL_DOCUMENTATION_URL, HOOK_DOCUMENTATION_URL } from "../../../common/promptSyntax/promptTypes.js";
 import { NEW_PROMPT_COMMAND_ID, NEW_INSTRUCTIONS_COMMAND_ID, NEW_AGENT_COMMAND_ID, NEW_SKILL_COMMAND_ID } from "../newPromptFileActions.js";
-import { GENERATE_INSTRUCTIONS_COMMAND_ID, GENERATE_INSTRUCTION_COMMAND_ID, GENERATE_PROMPT_COMMAND_ID, GENERATE_SKILL_COMMAND_ID, GENERATE_AGENT_COMMAND_ID } from "../../actions/chatActions.js";
+import { GENERATE_AGENT_INSTRUCTIONS_COMMAND_ID, GENERATE_ON_DEMAND_INSTRUCTIONS_COMMAND_ID, GENERATE_PROMPT_COMMAND_ID, GENERATE_SKILL_COMMAND_ID, GENERATE_AGENT_COMMAND_ID } from "../../actions/chatActions.js";
 import { IQuickInputService } from "../../../../../../platform/quickinput/common/quickInput.js";
 import { askForPromptFileName } from "./askForPromptName.js";
 import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
@@ -35,6 +35,7 @@ import { ILabelService } from "../../../../../../platform/label/common/label.js"
 import { IProductService } from "../../../../../../platform/product/common/productService.js";
 import { PromptFileRewriter } from "../promptFileRewriter.js";
 import { isOrganizationPromptFile } from "../../../common/promptSyntax/utils/promptsServiceUtils.js";
+import { assertNever } from "../../../../../../base/common/assert.js";
 function newHelpButton(type) {
   const iconClass = ThemeIcon.asClassName(Codicon.question);
   switch (type) {
@@ -99,21 +100,21 @@ const NEW_INSTRUCTIONS_FILE_OPTION = {
   buttons: [newHelpButton(PromptsType.instructions)],
   commandId: NEW_INSTRUCTIONS_COMMAND_ID
 };
-const GENERATE_WORKSPACE_INSTRUCTIONS_OPTION = {
+const GENERATE_AGENT_INSTRUCTIONS_OPTION = {
   type: "item",
-  label: `$(sparkle) ${localize("commands.generate-workspace-instructions.select-dialog.label", "Generate workspace instructions with agent...")}`,
+  label: `$(sparkle) ${localize("commands.generate-agent-instructions.select-dialog.label", "Generate agent instructions...")}`,
   pickable: false,
   alwaysShow: true,
   buttons: [newHelpButton(PromptsType.instructions)],
-  commandId: GENERATE_INSTRUCTIONS_COMMAND_ID
+  commandId: GENERATE_AGENT_INSTRUCTIONS_COMMAND_ID
 };
-const GENERATE_INSTRUCTION_OPTION = {
+const GENERATE_ON_DEMAND_INSTRUCTIONS_OPTION = {
   type: "item",
-  label: `$(sparkle) ${localize("commands.generate-instruction.select-dialog.label", "Generate on-demand instruction with agent...")}`,
+  label: `$(sparkle) ${localize("commands.generate-on-demand-instructions.select-dialog.label", "Generate on-demand instructions...")}`,
   pickable: false,
   alwaysShow: true,
   buttons: [newHelpButton(PromptsType.instructions)],
-  commandId: GENERATE_INSTRUCTION_COMMAND_ID
+  commandId: GENERATE_ON_DEMAND_INSTRUCTIONS_COMMAND_ID
 };
 const NEW_AGENT_FILE_OPTION = {
   type: "item",
@@ -133,7 +134,7 @@ const NEW_SKILL_FILE_OPTION = {
 };
 const GENERATE_PROMPT_OPTION = {
   type: "item",
-  label: `$(sparkle) ${localize("commands.generate-prompt.select-dialog.label", "Generate prompt with agent...")}`,
+  label: `$(sparkle) ${localize("commands.generate-prompt.select-dialog.label", "Generate prompt...")}`,
   pickable: false,
   alwaysShow: true,
   buttons: [newHelpButton(PromptsType.prompt)],
@@ -141,7 +142,7 @@ const GENERATE_PROMPT_OPTION = {
 };
 const GENERATE_SKILL_OPTION = {
   type: "item",
-  label: `$(sparkle) ${localize("commands.generate-skill.select-dialog.label", "Generate skill with agent...")}`,
+  label: `$(sparkle) ${localize("commands.generate-skill.select-dialog.label", "Generate skill...")}`,
   pickable: false,
   alwaysShow: true,
   buttons: [newHelpButton(PromptsType.skill)],
@@ -149,7 +150,7 @@ const GENERATE_SKILL_OPTION = {
 };
 const GENERATE_AGENT_OPTION = {
   type: "item",
-  label: `$(sparkle) ${localize("commands.generate-agent.select-dialog.label", "Generate agent with agent...")}`,
+  label: `$(sparkle) ${localize("commands.generate-agent.select-dialog.label", "Generate agent...")}`,
   pickable: false,
   alwaysShow: true,
   buttons: [newHelpButton(PromptsType.agent)],
@@ -339,6 +340,15 @@ let PromptFilePickers = class PromptFilePickers2 {
       result.push({ type: "separator", label: localize("separator.user", "User Data") });
       result.push(...sortByLabel(await Promise.all(users.map((u) => this._createPromptPickItem(u, buttons, getVisibility(u), token)))));
     }
+    const plugins = await this._promptsService.listPromptFilesForStorage(options.type, PromptsStorage.plugin, token);
+    if (plugins.length) {
+      const pluginButtons = [];
+      if (options.optionCopy !== false) {
+        pluginButtons.push(COPY_BUTTON);
+      }
+      result.push({ type: "separator", label: localize("separator.plugins", "Plugins") });
+      result.push(...sortByLabel(await Promise.all(plugins.map((p) => this._createPromptPickItem(p, pluginButtons, getVisibility(p), token)))));
+    }
     return result;
   }
   _getExtensionGroupLabel(extPath) {
@@ -352,7 +362,7 @@ let PromptFilePickers = class PromptFilePickers2 {
       case PromptsType.prompt:
         return [NEW_PROMPT_FILE_OPTION, GENERATE_PROMPT_OPTION];
       case PromptsType.instructions:
-        return [NEW_INSTRUCTIONS_FILE_OPTION, GENERATE_INSTRUCTION_OPTION, GENERATE_WORKSPACE_INSTRUCTIONS_OPTION];
+        return [NEW_INSTRUCTIONS_FILE_OPTION, GENERATE_ON_DEMAND_INSTRUCTIONS_OPTION, GENERATE_AGENT_INSTRUCTIONS_OPTION];
       case PromptsType.agent:
         return [NEW_AGENT_FILE_OPTION, GENERATE_AGENT_OPTION];
       case PromptsType.skill:
@@ -376,6 +386,11 @@ let PromptFilePickers = class PromptFilePickers2 {
       case PromptsStorage.user:
         tooltip = void 0;
         break;
+      case PromptsStorage.plugin:
+        tooltip = promptFile.name;
+        break;
+      default:
+        assertNever(promptFile);
     }
     let iconClass;
     if (visibility === false) {

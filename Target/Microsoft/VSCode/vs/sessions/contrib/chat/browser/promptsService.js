@@ -20,6 +20,8 @@ import { IFileService } from "../../../../platform/files/common/files.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
 import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
 import { HOOKS_SOURCE_FOLDER } from "../../../../workbench/contrib/chat/common/promptSyntax/config/promptFileLocations.js";
+import { PromptsType } from "../../../../workbench/contrib/chat/common/promptSyntax/promptTypes.js";
+import { PromptsStorage } from "../../../../workbench/contrib/chat/common/promptSyntax/service/promptsService.js";
 import { IWorkbenchEnvironmentService } from "../../../../workbench/services/environment/common/environmentService.js";
 import { IPathService } from "../../../../workbench/services/path/common/pathService.js";
 import { ISearchService } from "../../../../workbench/services/search/common/search.js";
@@ -31,6 +33,28 @@ class AgenticPromptsService extends PromptsService {
   }
   createPromptFilesLocator() {
     return this.instantiationService.createInstance(AgenticPromptFilesLocator);
+  }
+  getCopilotRoot() {
+    if (!this._copilotRoot) {
+      const pathService = this.instantiationService.invokeFunction((accessor) => accessor.get(IPathService));
+      this._copilotRoot = joinPath(pathService.userHome({ preferLocal: true }), ".copilot");
+    }
+    return this._copilotRoot;
+  }
+  /**
+   * Override to use ~/.copilot as the user-level source folder for creation,
+   * instead of the VS Code profile's promptsHome.
+   */
+  async getSourceFolders(type) {
+    const folders = await super.getSourceFolders(type);
+    const copilotRoot = this.getCopilotRoot();
+    return folders.map((folder) => {
+      if (folder.storage === PromptsStorage.user) {
+        const subfolder = getCliUserSubfolder(type);
+        return subfolder ? { ...folder, uri: joinPath(copilotRoot, subfolder) } : folder;
+      }
+      return folder;
+    });
   }
 }
 let AgenticPromptFilesLocator = class AgenticPromptFilesLocator2 extends PromptFilesLocator {
@@ -88,6 +112,21 @@ AgenticPromptFilesLocator = __decorate([
   __param(7, IPathService),
   __param(8, ISessionsManagementService)
 ], AgenticPromptFilesLocator);
+function getCliUserSubfolder(type) {
+  switch (type) {
+    case PromptsType.instructions:
+      return "instructions";
+    case PromptsType.skill:
+      return "skills";
+    case PromptsType.agent:
+      return "agents";
+    case PromptsType.prompt:
+      return "prompts";
+    default:
+      return void 0;
+  }
+}
+__name(getCliUserSubfolder, "getCliUserSubfolder");
 export {
   AgenticPromptsService
 };

@@ -46,7 +46,12 @@ export declare class PromptValidator {
     private validateUserInvokable;
     private validateDisableModelInvocation;
     private validateAgentsAttribute;
+    private validateGithubPermissions;
 }
+export declare const githubPermissionScopes: Record<string, {
+    allowedValues: string[];
+    description: string;
+}>;
 export declare function getValidAttributeNames(promptType: PromptsType, includeNonRecommended: boolean, target: Target): string[];
 export declare function isNonRecommendedAttribute(attributeName: string): boolean;
 export declare function getAttributeDescription(attributeName: string, promptType: PromptsType, target: Target): string | undefined;

@@ -12,7 +12,7 @@ import { RawContextKey } from '../../../../platform/contextkey/common/contextkey
 import { IEditorOptions } from '../../../../platform/editor/common/editor.js';
 import { ExtensionIdentifier } from '../../../../platform/extensions/common/extensions.js';
 import { IGalleryMcpServer, IInstallableMcpServer, IGalleryMcpServerConfiguration, IQueryOptions } from '../../../../platform/mcp/common/mcpManagement.js';
-import { IMcpDevModeConfig, IMcpServerConfiguration } from '../../../../platform/mcp/common/mcpPlatformTypes.js';
+import { IMcpDevModeConfig, IMcpSandboxConfiguration, IMcpServerConfiguration } from '../../../../platform/mcp/common/mcpPlatformTypes.js';
 import { StorageScope } from '../../../../platform/storage/common/storage.js';
 import { IWorkspaceFolder, IWorkspaceFolderData } from '../../../../platform/workspace/common/workspace.js';
 import { IWorkbenchLocalMcpServer, IWorkbencMcpServerInstallOptions } from '../../../services/mcp/common/mcpWorkbenchManagementService.js';
@@ -69,6 +69,7 @@ export declare const enum McpCollectionSortOrder {
     Workspace = 100,
     User = 200,
     Extension = 300,
+    Plugin = 350,
     Filesystem = 400,
     RemoteBoost = -50
 }
@@ -101,6 +102,10 @@ export interface McpServerDefinition {
     readonly devMode?: IMcpDevModeConfig;
     /** Static description of server tools/data, used to hydrate the cache. */
     readonly staticMetadata?: McpServerStaticMetadata;
+    /** Indicates if the sandbox is enabled for this server. */
+    readonly sandboxEnabled?: boolean;
+    /** Sandbox configuration to apply for this server. */
+    readonly sandbox?: IMcpSandboxConfiguration;
     readonly presentation?: {
         /** Sort order of the definition. */
         readonly order?: number;
@@ -131,6 +136,8 @@ export declare namespace McpServerDefinition {
         readonly launch: McpServerLaunch.Serialized;
         readonly variableReplacement?: McpServerDefinitionVariableReplacement.Serialized;
         readonly staticMetadata?: McpServerStaticMetadata;
+        readonly sandboxEnabled?: boolean;
+        readonly sandbox?: IMcpSandboxConfiguration;
     }
     function toSerialized(def: McpServerDefinition): McpServerDefinition.Serialized;
     function fromSerialized(def: McpServerDefinition.Serialized): McpServerDefinition;

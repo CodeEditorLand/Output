@@ -28,18 +28,25 @@ import { Checkbox } from "../../../../../../base/browser/ui/toggle/toggle.js";
 import { isResponseVM } from "../../../common/model/chatViewModel.js";
 import { Codicon } from "../../../../../../base/common/codicons.js";
 import { IHoverService } from "../../../../../../platform/hover/browser/hover.js";
+import { IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { IKeybindingService } from "../../../../../../platform/keybinding/common/keybinding.js";
+import { ChatContextKeys } from "../../../common/actions/chatContextKeys.js";
 import "./media/chatQuestionCarousel.css";
+const PREVIOUS_QUESTION_ACTION_ID = "workbench.action.chat.previousQuestion";
+const NEXT_QUESTION_ACTION_ID = "workbench.action.chat.nextQuestion";
 let ChatQuestionCarouselPart = class ChatQuestionCarouselPart2 extends Disposable {
   static {
     __name(this, "ChatQuestionCarouselPart");
   }
-  constructor(carousel, context, _options, _markdownRendererService, _hoverService, _accessibilityService) {
+  constructor(carousel, context, _options, _markdownRendererService, _hoverService, _accessibilityService, _contextKeyService, _keybindingService) {
     super();
     this.carousel = carousel;
     this._options = _options;
     this._markdownRendererService = _markdownRendererService;
     this._hoverService = _hoverService;
     this._accessibilityService = _accessibilityService;
+    this._contextKeyService = _contextKeyService;
+    this._keybindingService = _keybindingService;
     this._onDidChangeHeight = this._register(new Emitter());
     this.onDidChangeHeight = this._onDidChangeHeight.event;
     this._currentIndex = 0;
@@ -54,6 +61,11 @@ let ChatQuestionCarouselPart = class ChatQuestionCarouselPart2 extends Disposabl
     this._questionRenderStore = this._register(new MutableDisposable());
     this._interactiveUIStore = this._register(new MutableDisposable());
     this.domNode = dom.$(".chat-question-carousel-container");
+    this._inChatQuestionCarouselContextKey = ChatContextKeys.inChatQuestionCarousel.bindTo(this._contextKeyService);
+    const focusTracker = this._register(dom.trackFocus(this.domNode));
+    this._register(focusTracker.onDidFocus(() => this._inChatQuestionCarouselContextKey.set(true)));
+    this._register(focusTracker.onDidBlur(() => this._inChatQuestionCarouselContextKey.set(false)));
+    this._register({ dispose: /* @__PURE__ */ __name(() => this._inChatQuestionCarouselContextKey.reset(), "dispose") });
     this.domNode.tabIndex = 0;
     this.domNode.setAttribute("role", "region");
     this.domNode.setAttribute("aria-roledescription", localize("chat.questionCarousel.roleDescription", "chat question"));
@@ -92,11 +104,12 @@ let ChatQuestionCarouselPart = class ChatQuestionCarouselPart2 extends Disposabl
     this._navigationButtons.setAttribute("aria-label", localize("chat.questionCarousel.navigation", "Question navigation"));
     const arrowsContainer = dom.$(".chat-question-nav-arrows");
     const previousLabel = localize("previous", "Previous");
+    const previousLabelWithKeybinding = this.getLabelWithKeybinding(previousLabel, PREVIOUS_QUESTION_ACTION_ID);
     const prevButton = interactiveStore.add(new Button(arrowsContainer, { ...defaultButtonStyles, secondary: true, supportIcons: true }));
     prevButton.element.classList.add("chat-question-nav-arrow", "chat-question-nav-prev");
     prevButton.label = `$(${Codicon.chevronLeft.id})`;
-    prevButton.element.setAttribute("aria-label", previousLabel);
-    interactiveStore.add(this._hoverService.setupDelayedHover(prevButton.element, { content: previousLabel }));
+    prevButton.element.setAttribute("aria-label", previousLabelWithKeybinding);
+    interactiveStore.add(this._hoverService.setupDelayedHover(prevButton.element, { content: previousLabelWithKeybinding }));
     this._prevButton = prevButton;
     const nextButton = interactiveStore.add(new Button(arrowsContainer, { ...defaultButtonStyles, secondary: true, supportIcons: true }));
     nextButton.element.classList.add("chat-question-nav-arrow", "chat-question-nav-next");
@@ -322,6 +335,20 @@ let ChatQuestionCarouselPart = class ChatQuestionCarouselPart2 extends Disposabl
   hasFocus() {
     return dom.isAncestorOfActiveElement(this.domNode);
   }
+  navigateToPreviousQuestion() {
+    if (this._currentIndex <= 0) {
+      return false;
+    }
+    this.navigate(-1);
+    return true;
+  }
+  navigateToNextQuestion() {
+    if (this._currentIndex >= this.carousel.questions.length - 1) {
+      return false;
+    }
+    this.navigate(1);
+    return true;
+  }
   renderCurrentQuestion(focusContainerForScreenReader = false) {
     if (!this._questionContainer || !this._prevButton || !this._nextButton) {
       return;
@@ -344,8 +371,9 @@ let ChatQuestionCarouselPart = class ChatQuestionCarouselPart2 extends Disposabl
       const title = dom.$(".chat-question-title");
       const messageContent = this.getQuestionText(questionText);
       title.setAttribute("aria-label", messageContent);
-      if (isMarkdownString(questionText)) {
-        const renderedTitle = questionRenderStore.add(this._markdownRendererService.render(MarkdownString.lift(questionText)));
+      if (question.message !== void 0) {
+        const messageMd = isMarkdownString(questionText) ? MarkdownString.lift(questionText) : new MarkdownString(questionText);
+        const renderedTitle = questionRenderStore.add(this._markdownRendererService.render(messageMd));
         title.appendChild(renderedTitle.element);
       } else {
         const parenMatch = messageContent.match(/^(.+?)\s*(\([^)]+\))\s*$/);
@@ -379,6 +407,7 @@ let ChatQuestionCarouselPart = class ChatQuestionCarouselPart2 extends Disposabl
     const isLastQuestion = this._currentIndex === this.carousel.questions.length - 1;
     const submitLabel = localize("submit", "Submit");
     const nextLabel = localize("next", "Next");
+    const nextLabelWithKeybinding = this.getLabelWithKeybinding(nextLabel, NEXT_QUESTION_ACTION_ID);
     if (isLastQuestion) {
       this._nextButton.label = submitLabel;
       this._nextButton.element.setAttribute("aria-label", submitLabel);
@@ -386,15 +415,19 @@ let ChatQuestionCarouselPart = class ChatQuestionCarouselPart2 extends Disposabl
       this._nextButtonHover.value = this._hoverService.setupDelayedHover(this._nextButton.element, { content: submitLabel });
     } else {
       this._nextButton.label = `$(${Codicon.chevronRight.id})`;
-      this._nextButton.element.setAttribute("aria-label", nextLabel);
+      this._nextButton.element.setAttribute("aria-label", nextLabelWithKeybinding);
       this._nextButton.element.classList.remove("chat-question-nav-submit");
-      this._nextButtonHover.value = this._hoverService.setupDelayedHover(this._nextButton.element, { content: nextLabel });
+      this._nextButtonHover.value = this._hoverService.setupDelayedHover(this._nextButton.element, { content: nextLabelWithKeybinding });
     }
     this._updateAriaLabel();
     if (focusContainerForScreenReader && this._accessibilityService.isScreenReaderOptimized()) {
       this._focusContainerAndAnnounce();
     }
     this._onDidChangeHeight.fire();
+  }
+  getLabelWithKeybinding(label, actionId) {
+    const keybindingLabel = this._keybindingService.lookupKeybinding(actionId, this._contextKeyService)?.getLabel();
+    return keybindingLabel ? localize("chat.questionCarousel.labelWithKeybinding", "{0} ({1})", label, keybindingLabel) : label;
   }
   renderInput(container, question) {
     switch (question.type) {
@@ -793,14 +826,8 @@ let ChatQuestionCarouselPart = class ChatQuestionCarouselPart2 extends Disposabl
         }
         const freeformTextarea = this._freeformTextareas.get(question.id);
         const freeformValue = freeformTextarea?.value !== "" ? freeformTextarea?.value : void 0;
-        let finalSelectedValues = selectedValues;
-        if (selectedValues.length === 0 && !freeformValue && question.defaultValue !== void 0) {
-          const defaultIds = Array.isArray(question.defaultValue) ? question.defaultValue : [question.defaultValue];
-          const defaultValues = question.options?.filter((opt) => defaultIds.includes(opt.id)).map((opt) => opt.value);
-          finalSelectedValues = defaultValues?.filter((v) => v !== void 0) || [];
-        }
-        if (freeformValue || finalSelectedValues.length > 0) {
-          return { selectedValues: finalSelectedValues, freeformValue };
+        if (freeformValue || selectedValues.length > 0) {
+          return { selectedValues, freeformValue };
         }
         return void 0;
       }
@@ -897,10 +924,8 @@ let ChatQuestionCarouselPart = class ChatQuestionCarouselPart2 extends Disposabl
     }
   }
   getQuestionText(questionText) {
-    if (typeof questionText === "string") {
-      return questionText;
-    }
-    return renderAsPlaintext(questionText);
+    const md = typeof questionText === "string" ? new MarkdownString(questionText) : questionText;
+    return renderAsPlaintext(md);
   }
   hasSameContent(other, _followingContent, element) {
     if (!this._isSkipped && !this.carousel.isUsed && isResponseVM(element) && element.isComplete) {
@@ -915,7 +940,9 @@ let ChatQuestionCarouselPart = class ChatQuestionCarouselPart2 extends Disposabl
 ChatQuestionCarouselPart = __decorate([
   __param(3, IMarkdownRendererService),
   __param(4, IHoverService),
-  __param(5, IAccessibilityService)
+  __param(5, IAccessibilityService),
+  __param(6, IContextKeyService),
+  __param(7, IKeybindingService)
 ], ChatQuestionCarouselPart);
 export {
   ChatQuestionCarouselPart

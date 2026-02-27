@@ -21,7 +21,9 @@ import { ILanguageService } from "../../../../../../editor/common/languages/lang
 import { IModelService } from "../../../../../../editor/common/services/model.js";
 import { localize } from "../../../../../../nls.js";
 import { IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
 import { IHoverService } from "../../../../../../platform/hover/browser/hover.js";
+import { observableConfigValue } from "../../../../../../platform/observable/common/platformObservableUtils.js";
 import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
 import { LanguageModelPartAudience } from "../../../common/languageModels.js";
 import { ChatQueryTitlePart } from "./chatConfirmationWidget.js";
@@ -45,7 +47,7 @@ let ChatCollapsibleInputOutputContentPart = class ChatCollapsibleInputOutputCont
   get expanded() {
     return this._expanded.get();
   }
-  constructor(title, subtitle, progressTooltip, context, input, output, isError, initiallyExpanded, contextKeyService, _instantiationService, hoverService, modelService, languageService, chatMarkdownAnchorService) {
+  constructor(title, subtitle, progressTooltip, context, input, output, isError, initiallyExpanded, contextKeyService, _instantiationService, hoverService, modelService, languageService, chatMarkdownAnchorService, configurationService) {
     super();
     this.context = context;
     this.input = input;
@@ -55,6 +57,7 @@ let ChatCollapsibleInputOutputContentPart = class ChatCollapsibleInputOutputCont
     this.modelService = modelService;
     this.languageService = languageService;
     this.chatMarkdownAnchorService = chatMarkdownAnchorService;
+    this.configurationService = configurationService;
     this._editorReferences = [];
     this._contentInitialized = false;
     const container = dom.h(".chat-confirmation-widget-container");
@@ -69,18 +72,23 @@ let ChatCollapsibleInputOutputContentPart = class ChatCollapsibleInputOutputCont
     const btn = this._register(new ButtonWithIcon(elements.root, {}));
     btn.element.classList.add("chat-confirmation-widget-title", "monaco-text-button");
     btn.labelElement.append(titleEl.root);
-    const check = dom.h(isError ? ThemeIcon.asCSSSelector(Codicon.error) : output ? ThemeIcon.asCSSSelector(Codicon.check) : ThemeIcon.asCSSSelector(ThemeIcon.modify(Codicon.loading, "spin")));
-    if (progressTooltip) {
-      this._register(hoverService.setupDelayedHover(check.root, {
-        content: progressTooltip,
-        style: 1
-      }));
-    }
+    const hoverChevron = dom.$("span.chat-collapsible-hover-chevron.codicon.codicon-chevron-right");
+    hoverChevron.setAttribute("aria-hidden", "true");
+    btn.element.appendChild(hoverChevron);
+    const showCheckmarks = observableConfigValue("accessibility.chat.showCheckmarks", false, this.configurationService);
     const expanded = this._expanded = observableValue(this, initiallyExpanded);
     this._register(autorun((r) => {
       const value = expanded.read(r);
-      btn.icon = isError ? Codicon.error : output ? Codicon.check : ThemeIcon.modify(Codicon.loading, "spin");
+      const checkmarksEnabled = showCheckmarks.read(r);
       elements.root.classList.toggle("collapsed", !value);
+      if (isError) {
+        btn.icon = Codicon.error;
+      } else {
+        btn.icon = output ? Codicon.check : ThemeIcon.modify(Codicon.loading, "spin");
+      }
+      container.root.classList.toggle("show-checkmarks", checkmarksEnabled);
+      hoverChevron.classList.toggle("codicon-chevron-right", !value);
+      hoverChevron.classList.toggle("codicon-chevron-down", value);
       if (value && !this._contentInitialized) {
         this._contentInitialized = true;
         const messageContainer = dom.h(".chat-confirmation-widget-message");
@@ -159,7 +167,8 @@ ChatCollapsibleInputOutputContentPart = __decorate([
   __param(10, IHoverService),
   __param(11, IModelService),
   __param(12, ILanguageService),
-  __param(13, IChatMarkdownAnchorService)
+  __param(13, IChatMarkdownAnchorService),
+  __param(14, IConfigurationService)
 ], ChatCollapsibleInputOutputContentPart);
 export {
   ChatCollapsibleInputOutputContentPart

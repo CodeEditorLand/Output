@@ -62,14 +62,15 @@ var AutoApproveStorageKeys;
 const SkipAutoApproveConfirmationKey = "vscode.chat.tools.global.autoApprove.testMode";
 const toolIdThatCannotBeAutoApproved = "vscode_get_confirmation_with_options";
 const globalAutoApproveDescription = localize2({
-  key: "autoApprove2.markdown",
+  key: "autoApprove3.markdown",
   comment: [
     "{Locked='](https://github.com/features/codespaces)'}",
     "{Locked='](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)'}",
     "{Locked='](https://code.visualstudio.com/docs/copilot/security)'}",
-    "{Locked='**'}"
+    "{Locked='**'}",
+    "{Locked='[`chat.autoReply`](command:workbench.action.openSettings?%5B%22chat.autoReply%22%5D)'}"
   ]
-}, 'Global auto approve also known as "YOLO mode" disables manual approval completely for _all tools in all workspaces_, allowing the agent to act fully autonomously. This is extremely dangerous and is *never* recommended, even containerized environments like [Codespaces](https://github.com/features/codespaces) and [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) have user keys forwarded into the container that could be compromised.\n\n**This feature disables [critical security protections](https://code.visualstudio.com/docs/copilot/security) and makes it much easier for an attacker to compromise the machine.**');
+}, 'Global auto approve also known as "YOLO mode" disables manual approval completely for _all tools in all workspaces_, allowing the agent to act fully autonomously. This is extremely dangerous and is *never* recommended, even containerized environments like [Codespaces](https://github.com/features/codespaces) and [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) have user keys forwarded into the container that could be compromised.\n\n**This feature disables [critical security protections](https://code.visualstudio.com/docs/copilot/security) and makes it much easier for an attacker to compromise the machine.**\n\nNote: This setting only controls tool approval and does not prevent the agent from asking questions. To automatically answer agent questions, use the [`chat.autoReply`](command:workbench.action.openSettings?%5B%22chat.autoReply%22%5D) setting.');
 let LanguageModelToolsService = class LanguageModelToolsService2 extends Disposable {
   static {
     __name(this, "LanguageModelToolsService");
@@ -885,9 +886,8 @@ ${msgText}`),
       ],
       custom: {
         icon: Codicon.warning,
-        disableCloseAction: true,
         markdownDetails: [{
-          markdown: new MarkdownString(globalAutoApproveDescription.value)
+          markdown: new MarkdownString(globalAutoApproveDescription.value, { isTrusted: { enabledCommands: ["workbench.action.openSettings"] } })
         }]
       }
     });
@@ -927,6 +927,10 @@ ${msgText}`),
     }
     for (const [toolCallId, invocation] of this._pendingToolCalls) {
       if (invocation.chatRequestId === requestId) {
+        invocation.cancelFromStreaming(
+          5
+          /* ToolConfirmKind.Skipped */
+        );
         this._pendingToolCalls.delete(toolCallId);
       }
     }
@@ -1151,7 +1155,12 @@ ${msgText}`),
           add(alias, fullReferenceName);
         }
         if (tool.legacyToolReferenceFullNames) {
+          const slashIndex = fullReferenceName.lastIndexOf("/");
+          const toolSetPrefix = slashIndex !== -1 ? fullReferenceName.substring(0, slashIndex + 1) : void 0;
           for (const legacyName of tool.legacyToolReferenceFullNames) {
+            if (toolSetPrefix && !legacyName.includes("/")) {
+              add(toolSetPrefix + legacyName, fullReferenceName);
+            }
             if (legacyName.includes("/")) {
               const toolSetFullName = legacyName.substring(0, legacyName.lastIndexOf("/"));
               if (!knownToolSetNames.has(toolSetFullName)) {

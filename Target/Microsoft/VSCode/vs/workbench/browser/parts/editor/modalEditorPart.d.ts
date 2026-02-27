@@ -11,6 +11,7 @@ import { IEditorGroupView, IEditorPartsView } from './editor.js';
 import { EditorPart } from './editorPart.js';
 import { IModalEditorPart } from '../../../services/editor/common/editorGroupsService.js';
 import { IEditorService } from '../../../services/editor/common/editorService.js';
+import { IWorkbenchEnvironmentService } from '../../../services/environment/common/environmentService.js';
 import { IHostService } from '../../../services/host/browser/host.js';
 import { IWorkbenchLayoutService } from '../../../services/layout/browser/layoutService.js';
 import { IModalEditorNavigation, IModalEditorPartOptions } from '../../../../platform/editor/common/editor.js';
@@ -26,7 +27,8 @@ export declare class ModalEditorPart {
     private readonly layoutService;
     private readonly keybindingService;
     private readonly hostService;
-    constructor(editorPartsView: IEditorPartsView, instantiationService: IInstantiationService, editorService: IEditorService, layoutService: IWorkbenchLayoutService, keybindingService: IKeybindingService, hostService: IHostService);
+    private readonly environmentService;
+    constructor(editorPartsView: IEditorPartsView, instantiationService: IInstantiationService, editorService: IEditorService, layoutService: IWorkbenchLayoutService, keybindingService: IKeybindingService, hostService: IHostService, environmentService: IWorkbenchEnvironmentService);
     create(options?: IModalEditorPartOptions): Promise<ICreateModalEditorPartResult>;
 }
 declare class ModalEditorPartImpl extends EditorPart implements IModalEditorPart {

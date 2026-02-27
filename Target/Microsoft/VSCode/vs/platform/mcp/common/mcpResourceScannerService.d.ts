@@ -6,10 +6,11 @@ import { ConfigurationTarget } from '../../configuration/common/configuration.js
 import { IFileService } from '../../files/common/files.js';
 import { IUriIdentityService } from '../../uriIdentity/common/uriIdentity.js';
 import { IInstallableMcpServer } from './mcpManagement.js';
-import { IMcpServerConfiguration, IMcpServerVariable } from './mcpPlatformTypes.js';
+import { IMcpSandboxConfiguration, IMcpServerConfiguration, IMcpServerVariable } from './mcpPlatformTypes.js';
 interface IScannedMcpServers {
     servers?: IStringDictionary<Mutable<IMcpServerConfiguration>>;
     inputs?: IMcpServerVariable[];
+    sandbox?: IMcpSandboxConfiguration;
 }
 export type McpResourceTarget = ConfigurationTarget.USER | ConfigurationTarget.WORKSPACE | ConfigurationTarget.WORKSPACE_FOLDER;
 export declare const IMcpResourceScannerService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<IMcpResourceScannerService>;

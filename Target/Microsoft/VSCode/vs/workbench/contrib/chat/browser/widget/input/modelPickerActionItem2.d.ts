@@ -3,7 +3,6 @@ import { IAction } from '../../../../../../base/common/actions.js';
 import { IContextKeyService } from '../../../../../../platform/contextkey/common/contextkey.js';
 import { IInstantiationService } from '../../../../../../platform/instantiation/common/instantiation.js';
 import { IKeybindingService } from '../../../../../../platform/keybinding/common/keybinding.js';
-import { ILanguageModelsService } from '../../../common/languageModels.js';
 import { IChatInputPickerOptions } from './chatInputPickerActionItem.js';
 import { IModelPickerDelegate } from './modelPickerActionItem.js';
 /**
@@ -16,10 +15,9 @@ export declare class EnhancedModelPickerActionItem extends BaseActionViewItem {
     private readonly pickerOptions;
     private readonly _contextKeyService;
     private readonly keybindingService;
-    private readonly languageModelsService;
     private readonly _pickerWidget;
     private readonly _managedHover;
-    constructor(action: IAction, delegate: IModelPickerDelegate, pickerOptions: IChatInputPickerOptions, instantiationService: IInstantiationService, _contextKeyService: IContextKeyService, keybindingService: IKeybindingService, languageModelsService: ILanguageModelsService);
+    constructor(action: IAction, delegate: IModelPickerDelegate, pickerOptions: IChatInputPickerOptions, instantiationService: IInstantiationService, _contextKeyService: IContextKeyService, keybindingService: IKeybindingService);
     render(container: HTMLElement): void;
     private _getAnchorElement;
     openModelPicker(): void;

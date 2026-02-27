@@ -1,7 +1,7 @@
 import { IActionWidgetService } from './actionWidget.js';
 import { IAction } from '../../../base/common/actions.js';
 import { BaseDropdown, IActionProvider, IBaseDropdownOptions } from '../../../base/browser/ui/dropdown/dropdown.js';
-import { IActionListItemHover } from './actionList.js';
+import { IActionListItemHover, IActionListOptions } from './actionList.js';
 import { ThemeIcon } from '../../../base/common/themables.js';
 import { IKeybindingService } from '../../keybinding/common/keybinding.js';
 import { ITelemetryService } from '../../telemetry/common/telemetry.js';
@@ -42,6 +42,10 @@ export interface IActionWidgetDropdownOptions extends IBaseDropdownOptions {
         name?: string;
         includeOptions?: boolean;
     };
+    /**
+     * Options for the underlying ActionList (filter, collapsible sections).
+     */
+    readonly listOptions?: IActionListOptions;
 }
 /**
  * Action widget dropdown is a dropdown that uses the action widget under the hood to simulate a native dropdown menu

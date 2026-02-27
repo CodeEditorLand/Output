@@ -29,6 +29,7 @@ export declare class ComputeAutomaticInstructions {
     private readonly _modeKind;
     private readonly _enabledTools;
     private readonly _enabledSubagents;
+    private readonly _sessionResource;
     private readonly _promptsService;
     readonly _logService: ILogService;
     private readonly _labelService;
@@ -39,7 +40,7 @@ export declare class ComputeAutomaticInstructions {
     private readonly _telemetryService;
     private readonly _languageModelToolsService;
     private _parseResults;
-    constructor(_modeKind: ChatModeKind, _enabledTools: UserSelectedTools | undefined, _enabledSubagents: (readonly string[]) | undefined, _promptsService: IPromptsService, _logService: ILogService, _labelService: ILabelService, _configurationService: IConfigurationService, _workspaceService: IWorkspaceContextService, _fileService: IFileService, _remoteAgentService: IRemoteAgentService, _telemetryService: ITelemetryService, _languageModelToolsService: ILanguageModelToolsService);
+    constructor(_modeKind: ChatModeKind, _enabledTools: UserSelectedTools | undefined, _enabledSubagents: (readonly string[]) | undefined, _sessionResource: URI | undefined, _promptsService: IPromptsService, _logService: ILogService, _labelService: ILabelService, _configurationService: IConfigurationService, _workspaceService: IWorkspaceContextService, _fileService: IFileService, _remoteAgentService: IRemoteAgentService, _telemetryService: ITelemetryService, _languageModelToolsService: ILanguageModelToolsService);
     private _parseInstructionsFile;
     collect(variables: ChatRequestVariableSet, token: CancellationToken): Promise<void>;
     private sendTelemetry;

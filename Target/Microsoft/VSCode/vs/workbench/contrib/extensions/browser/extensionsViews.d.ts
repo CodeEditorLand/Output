@@ -94,6 +94,7 @@ export declare class ExtensionsListView extends AbstractExtensionsListView<IExte
     private filterWorkspaceUnsupportedExtensions;
     private filterDeprecatedExtensions;
     private filterRecentlyUpdatedExtensions;
+    private filterRestartRequiredExtensions;
     private filterExtensionsByFeature;
     private mergeAddedExtensions;
     private queryGallery;
@@ -141,6 +142,7 @@ export declare class ExtensionsListView extends AbstractExtensionsListView<IExte
     static isSearchPopularQuery(query: string): boolean;
     static isSearchRecentlyPublishedQuery(query: string): boolean;
     static isSearchRecentlyUpdatedQuery(query: string): boolean;
+    static isRestartRequiredQuery(query: string): boolean;
     static isSearchExtensionUpdatesQuery(query: string): boolean;
     static isSortUpdateDateQuery(query: string): boolean;
     static isFeatureExtensionsQuery(query: string): boolean;

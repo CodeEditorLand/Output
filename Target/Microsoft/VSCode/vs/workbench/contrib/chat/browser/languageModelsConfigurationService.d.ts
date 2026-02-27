@@ -4,7 +4,7 @@ import { Mutable } from '../../../../base/common/types.js';
 import { URI } from '../../../../base/common/uri.js';
 import { IFileService } from '../../../../platform/files/common/files.js';
 import { IUriIdentityService } from '../../../../platform/uriIdentity/common/uriIdentity.js';
-import { IEditorGroupsService } from '../../../services/editor/common/editorGroupsService.js';
+import { IEditorService } from '../../../services/editor/common/editorService.js';
 import { ITextEditorService } from '../../../services/textfile/common/textEditorService.js';
 import { IUserDataProfileService } from '../../../services/userDataProfile/common/userDataProfile.js';
 import { ITextModel } from '../../../../editor/common/model.js';
@@ -18,7 +18,7 @@ export declare class LanguageModelsConfigurationService extends Disposable imple
     private readonly fileService;
     private readonly textFileService;
     private readonly textModelService;
-    private readonly editorGroupsService;
+    private readonly editorService;
     private readonly textEditorService;
     _serviceBrand: undefined;
     private readonly modelsConfigurationFile;
@@ -26,7 +26,7 @@ export declare class LanguageModelsConfigurationService extends Disposable imple
     private readonly _onDidChangeLanguageModelGroups;
     readonly onDidChangeLanguageModelGroups: Event<readonly ILanguageModelsProviderGroup[]>;
     private languageModelsProviderGroups;
-    constructor(fileService: IFileService, textFileService: ITextFileService, textModelService: ITextModelService, editorGroupsService: IEditorGroupsService, textEditorService: ITextEditorService, userDataProfileService: IUserDataProfileService, uriIdentityService: IUriIdentityService);
+    constructor(fileService: IFileService, textFileService: ITextFileService, textModelService: ITextModelService, editorService: IEditorService, textEditorService: ITextEditorService, userDataProfileService: IUserDataProfileService, uriIdentityService: IUriIdentityService);
     private setLanguageModelsConfiguration;
     private updateLanguageModelsConfiguration;
     getLanguageModelsProviderGroups(): readonly ILanguageModelsProviderGroup[];

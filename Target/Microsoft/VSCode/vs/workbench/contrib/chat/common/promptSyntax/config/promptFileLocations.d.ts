@@ -83,7 +83,8 @@ export declare enum PromptFileSource {
     ConfigWorkspace = "config-workspace",
     ConfigPersonal = "config-personal",
     ExtensionContribution = "extension-contribution",
-    ExtensionAPI = "extension-api"
+    ExtensionAPI = "extension-api",
+    Plugin = "plugin"
 }
 /**
  * Prompt source folder path with source and storage type.

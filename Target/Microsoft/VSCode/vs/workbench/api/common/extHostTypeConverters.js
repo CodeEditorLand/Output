@@ -3076,8 +3076,13 @@ var ChatToolInvocationPart;
         language: data.language
       };
     } else if ("commandLine" in data && "language" in data) {
+      const presentationOverrides = data.presentationOverrides && typeof data.presentationOverrides.commandLine === "string" ? {
+        commandLine: data.presentationOverrides.commandLine,
+        language: data.presentationOverrides.language
+      } : void 0;
       const result = {
         kind: "terminal",
+        presentationOverrides,
         commandLine: data.commandLine,
         language: data.language,
         terminalCommandOutput: typeof data.output?.text === "string" ? {

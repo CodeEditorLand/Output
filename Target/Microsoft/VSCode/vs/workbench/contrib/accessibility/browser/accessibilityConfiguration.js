@@ -39,6 +39,7 @@ var AccessibilityWorkbenchSettingId;
   AccessibilityWorkbenchSettingId2["HideAccessibleView"] = "accessibility.hideAccessibleView";
   AccessibilityWorkbenchSettingId2["AccessibleViewCloseOnKeyPress"] = "accessibility.accessibleView.closeOnKeyPress";
   AccessibilityWorkbenchSettingId2["VerboseChatProgressUpdates"] = "accessibility.verboseChatProgressUpdates";
+  AccessibilityWorkbenchSettingId2["ShowChatCheckmarks"] = "accessibility.chat.showCheckmarks";
 })(AccessibilityWorkbenchSettingId || (AccessibilityWorkbenchSettingId = {}));
 var ViewDimUnfocusedOpacityProperties;
 (function(ViewDimUnfocusedOpacityProperties2) {
@@ -925,6 +926,15 @@ function registerAccessibilityConfiguration() {
         "type": "boolean",
         "default": true,
         "markdownDescription": localize("accessibility.verboseChatProgressUpdates", "Controls whether verbose progress announcements should be made when a chat request is in progress, including information like searched text for <search term> with X results, created file <file_name>, or read file <file path>.")
+      },
+      [
+        "accessibility.chat.showCheckmarks"
+        /* AccessibilityWorkbenchSettingId.ShowChatCheckmarks */
+      ]: {
+        "type": "boolean",
+        "default": false,
+        "tags": ["accessibility"],
+        "markdownDescription": localize("accessibility.chat.showCheckmarks", "Controls whether checkmark icons are shown on completed tool calls and other collapsible items in chat responses.")
       }
     }
   });

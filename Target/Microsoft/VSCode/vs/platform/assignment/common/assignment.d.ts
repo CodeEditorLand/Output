@@ -83,3 +83,4 @@ export declare class AssignmentFilterProvider implements IExperimentationFilterP
     private static formatReleaseDate;
     getFilters(): Map<string, unknown>;
 }
+export declare function getInternalOrg(organisations: string[] | undefined): 'vscode' | 'github' | 'microsoft' | undefined;

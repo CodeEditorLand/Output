@@ -103,6 +103,7 @@ let EditorAccessibilityHelpProvider = class EditorAccessibilityHelpProvider2 ext
     content.push(AccessibilityHelpNLS.listSignalSounds);
     content.push(AccessibilityHelpNLS.listAlerts);
     content.push(AccessibilityHelpNLS.announceCursorPosition);
+    content.push(AccessibilityHelpNLS.focusNotifications);
     const chatCommandInfo = getChatCommandInfo(this._keybindingService, this._contextKeyService);
     if (chatCommandInfo) {
       content.push(chatCommandInfo);

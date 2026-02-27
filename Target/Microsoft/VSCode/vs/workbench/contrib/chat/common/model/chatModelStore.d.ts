@@ -1,4 +1,4 @@
-import { IDisposable, IReference, ReferenceCollection } from '../../../../../base/common/lifecycle.js';
+import { Disposable, IReference } from '../../../../../base/common/lifecycle.js';
 import { URI } from '../../../../../base/common/uri.js';
 import { ILogService } from '../../../../../platform/log/common/log.js';
 import { ChatAgentLocation } from '../constants.js';
@@ -17,10 +17,10 @@ export interface ChatModelStoreDelegate {
     createModel: (props: IStartSessionProps) => ChatModel;
     willDisposeModel: (model: ChatModel) => Promise<void>;
 }
-export declare class ChatModelStore extends ReferenceCollection<ChatModel> implements IDisposable {
+export declare class ChatModelStore extends Disposable {
     private readonly delegate;
     private readonly logService;
-    private readonly _store;
+    private readonly _refCollection;
     private readonly _models;
     private readonly _modelsToDispose;
     private readonly _pendingDisposals;
@@ -38,8 +38,8 @@ export declare class ChatModelStore extends ReferenceCollection<ChatModel> imple
     has(uri: URI): boolean;
     acquireExisting(uri: URI): IReference<ChatModel> | undefined;
     acquireOrCreate(props: IStartSessionProps): IReference<ChatModel>;
-    protected createReferencedObject(key: string, props?: IStartSessionProps): ChatModel;
-    protected destroyReferencedObject(key: string, object: ChatModel): void;
+    private createReferencedObject;
+    private destroyReferencedObject;
     private doDestroyReferencedObject;
     /**
      * For test use only

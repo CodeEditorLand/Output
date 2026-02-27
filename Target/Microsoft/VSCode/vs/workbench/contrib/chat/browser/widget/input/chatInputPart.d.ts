@@ -38,6 +38,7 @@ import { ILanguageModelToolsService } from '../../../common/tools/languageModelT
 import { AgentSessionProviders } from '../../agentSessions/agentSessions.js';
 import { IAgentSessionsService } from '../../agentSessions/agentSessionsService.js';
 import { ChatAttachmentModel } from '../../attachments/chatAttachmentModel.js';
+import { IChatAttachmentWidgetRegistry } from '../../attachments/chatAttachmentWidgetRegistry.js';
 import { ChatImplicitContexts } from '../../attachments/chatImplicitContext.js';
 import { IChatWidget, ISessionTypePickerDelegate, IWorkspacePickerDelegate } from '../../chat.js';
 import { IChatContextService } from '../../contextContrib/chatContextService.js';
@@ -121,6 +122,7 @@ export declare class ChatInputPart extends Disposable implements IHistoryNavigat
     private readonly workspaceContextService;
     private readonly layoutService;
     private readonly viewDescriptorService;
+    private readonly _chatAttachmentWidgetRegistry;
     private static _counter;
     private _workingSetCollapsed;
     private readonly _chatInputTodoListWidget;
@@ -149,7 +151,6 @@ export declare class ChatInputPart extends Disposable implements IHistoryNavigat
     }>;
     private _onDidClickOverlay;
     readonly onDidClickOverlay: Event<void>;
-    private readonly _implicitContextWidget;
     private readonly _attachmentModel;
     private _widget?;
     get attachmentModel(): ChatAttachmentModel;
@@ -195,8 +196,6 @@ export declare class ChatInputPart extends Disposable implements IHistoryNavigat
     private readonly _syncTextDebounced;
     private executeToolbar;
     private inputActionsToolbar;
-    private addFilesToolbar;
-    private addFilesButton;
     get inputEditor(): CodeEditorWidget;
     readonly dnd: ChatDragAndDrop;
     private history;
@@ -278,7 +277,7 @@ export declare class ChatInputPart extends Disposable implements IHistoryNavigat
     private _chatSessionIsEmpty;
     private _pendingDelegationTarget;
     private _currentSessionType;
-    constructor(location: ChatAgentLocation, options: IChatInputPartOptions, styles: IChatInputStyles, inline: boolean, modelService: IModelService, instantiationService: IInstantiationService, contextKeyService: IContextKeyService, configurationService: IConfigurationService, keybindingService: IKeybindingService, accessibilityService: IAccessibilityService, languageModelsService: ILanguageModelsService, logService: ILogService, fileService: IFileService, editorService: IEditorService, themeService: IThemeService, textModelResolverService: ITextModelService, storageService: IStorageService, agentService: IChatAgentService, sharedWebExtracterService: ISharedWebContentExtractorService, experimentService: IWorkbenchAssignmentService, entitlementService: IChatEntitlementService, chatModeService: IChatModeService, toolService: ILanguageModelToolsService, chatService: IChatService, chatSessionsService: IChatSessionsService, chatContextService: IChatContextService, agentSessionsService: IAgentSessionsService, workspaceContextService: IWorkspaceContextService, layoutService: IWorkbenchLayoutService, viewDescriptorService: IViewDescriptorService);
+    constructor(location: ChatAgentLocation, options: IChatInputPartOptions, styles: IChatInputStyles, inline: boolean, modelService: IModelService, instantiationService: IInstantiationService, contextKeyService: IContextKeyService, configurationService: IConfigurationService, keybindingService: IKeybindingService, accessibilityService: IAccessibilityService, languageModelsService: ILanguageModelsService, logService: ILogService, fileService: IFileService, editorService: IEditorService, themeService: IThemeService, textModelResolverService: ITextModelService, storageService: IStorageService, agentService: IChatAgentService, sharedWebExtracterService: ISharedWebContentExtractorService, experimentService: IWorkbenchAssignmentService, entitlementService: IChatEntitlementService, chatModeService: IChatModeService, toolService: ILanguageModelToolsService, chatService: IChatService, chatSessionsService: IChatSessionsService, chatContextService: IChatContextService, agentSessionsService: IAgentSessionsService, workspaceContextService: IWorkspaceContextService, layoutService: IWorkbenchLayoutService, viewDescriptorService: IViewDescriptorService, _chatAttachmentWidgetRegistry: IChatAttachmentWidgetRegistry);
     private setImplicitContextEnablement;
     setIsWithinEditSession(inInsideDiff: boolean, isFilePartOfEditSession: boolean): void;
     private getSelectedModelStorageKey;
@@ -450,7 +449,6 @@ export declare class ChatInputPart extends Disposable implements IHistoryNavigat
     render(container: HTMLElement, initialValue: string, widget: IChatWidget): void;
     toggleChatInputOverlay(editing: boolean): void;
     renderAttachedContext(): void;
-    private isAttachmentAlreadyAttached;
     private handleAttachmentDeletion;
     private handleAttachmentOpen;
     private handleAttachmentNavigation;
@@ -462,6 +460,8 @@ export declare class ChatInputPart extends Disposable implements IHistoryNavigat
     get questionCarousel(): ChatQuestionCarouselPart | undefined;
     focusQuestionCarousel(): boolean;
     isQuestionCarouselFocused(): boolean;
+    navigateToPreviousQuestion(): boolean;
+    navigateToNextQuestion(): boolean;
     setWorkingSetCollapsed(collapsed: boolean): void;
     renderChatEditingSessionState(chatEditingSession: IChatEditingSession | null): void;
     private renderChatEditingSessionWithEntries;

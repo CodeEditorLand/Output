@@ -70,6 +70,9 @@ let LazyCreateExtensionHostManager = class LazyCreateExtensionHostManager2 exten
     await actual.ready();
     return actual;
   }
+  get isReady() {
+    return this._startCalled.isOpen() && (this._actual?.isReady ?? false);
+  }
   async ready() {
     await this._startCalled.wait();
     if (this._actual) {

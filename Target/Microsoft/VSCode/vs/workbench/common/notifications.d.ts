@@ -3,6 +3,7 @@ import { Event } from '../../base/common/event.js';
 import { Disposable } from '../../base/common/lifecycle.js';
 import { Action } from '../../base/common/actions.js';
 import { LinkedText } from '../../base/common/linkedText.js';
+import { IConfigurationService } from '../../platform/configuration/common/configuration.js';
 export interface INotificationsModel {
     readonly notifications: INotificationViewItem[];
     readonly onDidChangeNotification: Event<INotificationChangeEvent>;
@@ -236,3 +237,13 @@ export declare class ChoiceAction extends Action {
     get menu(): ChoiceAction[] | undefined;
     get keepOpen(): boolean;
 }
+export declare const enum NotificationsSettings {
+    NOTIFICATIONS_POSITION = "workbench.notifications.position",
+    NOTIFICATIONS_BUTTON = "workbench.notifications.showInTitleBar"
+}
+export declare const enum NotificationsPosition {
+    BOTTOM_RIGHT = "bottom-right",
+    BOTTOM_LEFT = "bottom-left",
+    TOP_RIGHT = "top-right"
+}
+export declare function getNotificationsPosition(configurationService: IConfigurationService): NotificationsPosition;

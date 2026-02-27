@@ -21,6 +21,7 @@ import { IActionViewItemService } from '../../../../../../platform/actions/brows
 import { IConfigurationService } from '../../../../../../platform/configuration/common/configuration.js';
 import { IChatEntitlementService } from '../../../../../services/chat/common/chatEntitlementService.js';
 import { IChatWidgetService } from '../../chat.js';
+import { ITelemetryService } from '../../../../../../platform/telemetry/common/telemetry.js';
 /**
  * Agent Status Widget - renders agent status in the command center.
  *
@@ -48,6 +49,7 @@ export declare class AgentTitleBarStatusWidget extends BaseActionViewItem {
     private readonly configurationService;
     private readonly chatEntitlementService;
     private readonly chatWidgetService;
+    private readonly telemetryService;
     private _container;
     private readonly _dynamicDisposables;
     /** The currently displayed in-progress session (if any) - clicking pill opens this */
@@ -64,7 +66,7 @@ export declare class AgentTitleBarStatusWidget extends BaseActionViewItem {
     private readonly _commandCenterMenu;
     /** Menu for ChatTitleBarMenu items (same as chat controls dropdown) */
     private readonly _chatTitleBarMenu;
-    constructor(action: IAction, options: IBaseActionViewItemOptions | undefined, instantiationService: IInstantiationService, agentTitleBarStatusService: IAgentTitleBarStatusService, hoverService: IHoverService, commandService: ICommandService, keybindingService: IKeybindingService, agentSessionsService: IAgentSessionsService, labelService: ILabelService, workspaceContextService: IWorkspaceContextService, environmentService: IBrowserWorkbenchEnvironmentService, editorGroupsService: IEditorGroupsService, editorService: IEditorService, menuService: IMenuService, contextKeyService: IContextKeyService, storageService: IStorageService, configurationService: IConfigurationService, chatEntitlementService: IChatEntitlementService, chatWidgetService: IChatWidgetService);
+    constructor(action: IAction, options: IBaseActionViewItemOptions | undefined, instantiationService: IInstantiationService, agentTitleBarStatusService: IAgentTitleBarStatusService, hoverService: IHoverService, commandService: ICommandService, keybindingService: IKeybindingService, agentSessionsService: IAgentSessionsService, labelService: ILabelService, workspaceContextService: IWorkspaceContextService, environmentService: IBrowserWorkbenchEnvironmentService, editorGroupsService: IEditorGroupsService, editorService: IEditorService, menuService: IMenuService, contextKeyService: IContextKeyService, storageService: IStorageService, configurationService: IConfigurationService, chatEntitlementService: IChatEntitlementService, chatWidgetService: IChatWidgetService, telemetryService: ITelemetryService);
     render(container: HTMLElement): void;
     setFocusable(_focusable: boolean): void;
     focus(): void;

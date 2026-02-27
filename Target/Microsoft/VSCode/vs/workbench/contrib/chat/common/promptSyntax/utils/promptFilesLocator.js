@@ -20,7 +20,7 @@ import { getPromptFileLocationsConfigKey, isTildePath, PromptsConfig } from "../
 import { basename, dirname, isEqualOrParent, joinPath } from "../../../../../../base/common/resources.js";
 import { IWorkspaceContextService } from "../../../../../../platform/workspace/common/workspace.js";
 import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
-import { COPILOT_CUSTOM_INSTRUCTIONS_FILENAME, AGENTS_SOURCE_FOLDER, getPromptFileExtension, getPromptFileType, LEGACY_MODE_FILE_EXTENSION, getCleanPromptName, AGENT_FILE_EXTENSION, getPromptFileDefaultLocations, SKILL_FILENAME, DEFAULT_AGENT_SOURCE_FOLDERS, PromptFileSource, isInClaudeRulesFolder } from "../config/promptFileLocations.js";
+import { COPILOT_CUSTOM_INSTRUCTIONS_FILENAME, AGENTS_SOURCE_FOLDER, getPromptFileExtension, getPromptFileType, LEGACY_MODE_FILE_EXTENSION, getCleanPromptName, AGENT_FILE_EXTENSION, getPromptFileDefaultLocations, SKILL_FILENAME, PromptFileSource, isInClaudeRulesFolder } from "../config/promptFileLocations.js";
 import { PromptsType } from "../promptTypes.js";
 import { IWorkbenchEnvironmentService } from "../../../../../services/environment/common/environmentService.js";
 import { Schemas } from "../../../../../../base/common/network.js";
@@ -195,10 +195,6 @@ let PromptFilesLocator = class PromptFilesLocator2 {
     disposables.add(this.fileService.watch(userDataFolder));
     return { event: eventEmitter.event, dispose: /* @__PURE__ */ __name(() => disposables.dispose(), "dispose") };
   }
-  async getAgentSourceFolders() {
-    const userHome = await this.pathService.userHome();
-    return this.toAbsoluteLocations(PromptsType.agent, DEFAULT_AGENT_SOURCE_FOLDERS, userHome).map((l) => l.uri);
-  }
   /**
    * Gets the hook source folders for creating new hooks.
    * Returns folders from config, excluding user storage and Claude paths (which are read-only).
@@ -263,6 +259,9 @@ let PromptFilesLocator = class PromptFilesLocator2 {
    * This method merges configured locations with default locations and resolves them
    * to absolute paths, including displayPath and isDefault information.
    *
+   * The returned order prefers workspace (local) folders first, then user folders.
+   * This is used for UX like the "Create Prompt" command where workspace is preferred.
+   *
    * @param type The type of prompt files.
    * @returns List of resolved source folders with metadata.
    */
@@ -270,6 +269,17 @@ let PromptFilesLocator = class PromptFilesLocator2 {
     const localFolders = await this.getLocalStorageFolders(type);
     const userFolders = await this.getUserStorageFolders(type);
     return this.dedupeSourceFolders([...localFolders, ...userFolders]);
+  }
+  /**
+   * Gets all resolved source folders in the same order that file discovery
+   * searches them (user folders first, then local/workspace folders).
+   * This matches the order used by {@link listFiles} and should be used
+   * for debug/diagnostic output so the displayed order is accurate.
+   */
+  async getSourceFoldersInDiscoveryOrder(type) {
+    const userFolders = await this.getUserStorageFolders(type);
+    const localFolders = await this.getLocalStorageFolders(type);
+    return this.dedupeSourceFolders([...userFolders, ...localFolders]);
   }
   /**
    * Gets all local (workspace) storage folders for the given prompt type.

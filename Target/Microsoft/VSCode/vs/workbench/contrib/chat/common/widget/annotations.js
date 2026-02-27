@@ -23,15 +23,25 @@ function annotateSpecialMarkdownContent(response) {
           label = item.inlineReference.name;
         }
       }
-      const refId = refIdPool++;
-      const printUri = URI.parse(contentRefUrl).with({ path: String(refId) });
-      const markdownText = `[${label}](${printUri.toString()})`;
-      const annotationMetadata = { [refId]: item };
-      if (previousItem?.kind === "markdownContent") {
-        const merged = appendMarkdownString(previousItem.content, new MarkdownString(markdownText));
-        result[previousItemIndex] = { ...previousItem, content: merged, inlineReferences: { ...annotationMetadata, ...previousItem.inlineReferences || {} } };
+      const previousText = previousItem?.kind === "markdownContent" ? previousItem.content.value : "";
+      if (isInsideCodeContext(previousText)) {
+        if (previousItem?.kind === "markdownContent") {
+          const merged = appendMarkdownString(previousItem.content, new MarkdownString(label));
+          result[previousItemIndex] = { ...previousItem, content: merged };
+        } else {
+          result.push({ content: new MarkdownString(label), kind: "markdownContent" });
+        }
       } else {
-        result.push({ content: new MarkdownString(markdownText), inlineReferences: annotationMetadata, kind: "markdownContent" });
+        const refId = refIdPool++;
+        const printUri = URI.parse(contentRefUrl).with({ path: String(refId) });
+        const markdownText = `[${label}](${printUri.toString()})`;
+        const annotationMetadata = { [refId]: item };
+        if (previousItem?.kind === "markdownContent") {
+          const merged = appendMarkdownString(previousItem.content, new MarkdownString(markdownText));
+          result[previousItemIndex] = { ...previousItem, content: merged, inlineReferences: { ...annotationMetadata, ...previousItem.inlineReferences || {} } };
+        } else {
+          result.push({ content: new MarkdownString(markdownText), inlineReferences: annotationMetadata, kind: "markdownContent" });
+        }
       }
     } else if (item.kind === "markdownContent" && previousItem?.kind === "markdownContent" && canMergeMarkdownStrings(previousItem.content, item.content)) {
       const merged = appendMarkdownString(previousItem.content, item.content);
@@ -61,6 +71,75 @@ function annotateSpecialMarkdownContent(response) {
   return result;
 }
 __name(annotateSpecialMarkdownContent, "annotateSpecialMarkdownContent");
+function isInsideCodeContext(text) {
+  const lines = text.split("\n");
+  let inFencedBlock = false;
+  let fenceChar = "";
+  let fenceLength = 0;
+  const unfencedLines = [];
+  for (const line of lines) {
+    const trimmed = line.trimStart();
+    if (inFencedBlock) {
+      const closeLength = countLeadingChar(trimmed, fenceChar);
+      if (closeLength >= fenceLength && trimmed.substring(closeLength).trim() === "") {
+        inFencedBlock = false;
+        unfencedLines.length = 0;
+      }
+      continue;
+    }
+    const firstChar = trimmed[0];
+    if (firstChar === "`" || firstChar === "~") {
+      const openLength = countLeadingChar(trimmed, firstChar);
+      if (openLength >= 3 && (firstChar === "~" || !trimmed.substring(openLength).includes("`"))) {
+        inFencedBlock = true;
+        fenceChar = firstChar;
+        fenceLength = openLength;
+        unfencedLines.length = 0;
+        continue;
+      }
+    }
+    unfencedLines.push(line);
+  }
+  return inFencedBlock || hasUnclosedInlineCode(unfencedLines.join("\n"));
+}
+__name(isInsideCodeContext, "isInsideCodeContext");
+function countLeadingChar(text, char) {
+  let count = 0;
+  while (count < text.length && text[count] === char) {
+    count++;
+  }
+  return count;
+}
+__name(countLeadingChar, "countLeadingChar");
+function hasUnclosedInlineCode(text) {
+  let i = 0;
+  while (i < text.length) {
+    if (text[i] !== "`") {
+      i++;
+      continue;
+    }
+    const openLen = countLeadingChar(text.substring(i), "`");
+    i += openLen;
+    let found = false;
+    while (i < text.length) {
+      if (text[i] !== "`") {
+        i++;
+        continue;
+      }
+      const closeLen = countLeadingChar(text.substring(i), "`");
+      i += closeLen;
+      if (closeLen === openLen) {
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      return true;
+    }
+  }
+  return false;
+}
+__name(hasUnclosedInlineCode, "hasUnclosedInlineCode");
 function extractCodeblockUrisFromText(text) {
   const match = /<vscode_codeblock_uri( isEdit)?( subAgentInvocationId="([^"]*)")?>([\s\S]*?)<\/vscode_codeblock_uri>/ms.exec(text);
   if (match) {
@@ -132,6 +211,7 @@ export {
   extractCodeblockUrisFromText,
   extractSubAgentInvocationIdFromText,
   extractVulnerabilitiesFromText,
-  hasCodeblockUriTag
+  hasCodeblockUriTag,
+  isInsideCodeContext
 };
 //# sourceMappingURL=annotations.js.map

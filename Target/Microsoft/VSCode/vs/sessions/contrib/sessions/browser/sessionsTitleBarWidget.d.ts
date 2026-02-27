@@ -9,7 +9,6 @@ import { IActionViewItemService } from '../../../../platform/actions/browser/act
 import { IAgentSessionsService } from '../../../../workbench/contrib/chat/browser/agentSessions/agentSessionsService.js';
 import { ISessionsManagementService } from './sessionsManagementService.js';
 import { IChatService } from '../../../../workbench/contrib/chat/common/chatService/chatService.js';
-import { ICommandService } from '../../../../platform/commands/common/commands.js';
 /**
  * Sessions Title Bar Widget - renders the active chat session title
  * in the command center of the agent sessions workbench.
@@ -18,7 +17,9 @@ import { ICommandService } from '../../../../platform/commands/common/commands.j
  * - Kind icon at the beginning (provider type icon)
  * - Session title
  * - Repository folder name
- * - Changes summary (+insertions -deletions)
+ *
+ * Session actions (changes, terminal, etc.) are rendered via the
+ * SessionTitleActions menu toolbar next to the session title.
  *
  * On click, opens the sessions picker.
  */
@@ -28,7 +29,6 @@ export declare class SessionsTitleBarWidget extends BaseActionViewItem {
     private readonly activeSessionService;
     private readonly chatService;
     private readonly agentSessionsService;
-    private readonly commandService;
     private _container;
     private readonly _dynamicDisposables;
     private readonly _modelChangeListener;
@@ -36,7 +36,7 @@ export declare class SessionsTitleBarWidget extends BaseActionViewItem {
     private _lastRenderState;
     /** Guard to prevent re-entrant rendering */
     private _isRendering;
-    constructor(action: SubmenuItemAction, options: IBaseActionViewItemOptions | undefined, instantiationService: IInstantiationService, hoverService: IHoverService, activeSessionService: ISessionsManagementService, chatService: IChatService, agentSessionsService: IAgentSessionsService, commandService: ICommandService);
+    constructor(action: SubmenuItemAction, options: IBaseActionViewItemOptions | undefined, instantiationService: IInstantiationService, hoverService: IHoverService, activeSessionService: ISessionsManagementService, chatService: IChatService, agentSessionsService: IAgentSessionsService);
     render(container: HTMLElement): void;
     setFocusable(_focusable: boolean): void;
     onClick(): void;
@@ -60,12 +60,7 @@ export declare class SessionsTitleBarWidget extends BaseActionViewItem {
      * Get the repository label for the active session.
      */
     private _getRepositoryLabel;
-    /**
-     * Get the changes summary (insertions/deletions) for the active session.
-     */
-    private _getChanges;
     private _showSessionsPicker;
-    private _openChanges;
 }
 /**
  * Provides custom rendering for the sessions title bar widget

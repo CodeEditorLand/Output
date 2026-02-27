@@ -14,7 +14,7 @@ import { IPromptsService } from '../../../../workbench/contrib/chat/common/promp
 import { IEditorService } from '../../../../workbench/services/editor/common/editorService.js';
 import { ILogService } from '../../../../platform/log/common/log.js';
 import { IWorkspaceContextService } from '../../../../platform/workspace/common/workspace.js';
-import { ISessionsManagementService } from '../../sessions/browser/sessionsManagementService.js';
+import { IAICustomizationWorkspaceService } from '../../../../workbench/contrib/chat/common/aiCustomizationWorkspaceService.js';
 /**
  * Context key indicating whether the AI Customization view has no items.
  */
@@ -32,7 +32,7 @@ export declare class AICustomizationViewPane extends ViewPane {
     private readonly menuService;
     private readonly logService;
     private readonly workspaceContextService;
-    private readonly activeSessionService;
+    private readonly workspaceService;
     static readonly ID = "aiCustomization.view";
     private tree;
     private dataSource;
@@ -40,7 +40,7 @@ export declare class AICustomizationViewPane extends ViewPane {
     private readonly treeDisposables;
     private readonly isEmptyContextKey;
     private readonly itemTypeContextKey;
-    constructor(options: IViewPaneOptions, keybindingService: IKeybindingService, contextMenuService: IContextMenuService, configurationService: IConfigurationService, contextKeyService: IContextKeyService, viewDescriptorService: IViewDescriptorService, instantiationService: IInstantiationService, openerService: IOpenerService, themeService: IThemeService, hoverService: IHoverService, promptsService: IPromptsService, editorService: IEditorService, menuService: IMenuService, logService: ILogService, workspaceContextService: IWorkspaceContextService, activeSessionService: ISessionsManagementService);
+    constructor(options: IViewPaneOptions, keybindingService: IKeybindingService, contextMenuService: IContextMenuService, configurationService: IConfigurationService, contextKeyService: IContextKeyService, viewDescriptorService: IViewDescriptorService, instantiationService: IInstantiationService, openerService: IOpenerService, themeService: IThemeService, hoverService: IHoverService, promptsService: IPromptsService, editorService: IEditorService, menuService: IMenuService, logService: ILogService, workspaceContextService: IWorkspaceContextService, workspaceService: IAICustomizationWorkspaceService);
     protected renderBody(container: HTMLElement): void;
     private createTree;
     private autoExpandCategories;

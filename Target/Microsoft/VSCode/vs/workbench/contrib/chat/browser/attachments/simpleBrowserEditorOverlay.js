@@ -241,7 +241,12 @@ let SimpleBrowserOverlayWidget = class SimpleBrowserOverlayWidget2 {
       fullName: displayName,
       value,
       kind: "element",
-      icon: ThemeIcon.fromId(Codicon.layout.id)
+      icon: ThemeIcon.fromId(Codicon.layout.id),
+      ancestors: elementData.ancestors,
+      attributes: elementData.attributes,
+      computedStyles: attachCss ? elementData.computedStyles : void 0,
+      dimensions: elementData.dimensions,
+      innerText: elementData.innerText
     });
     if (this.configurationService.getValue("chat.sendElementsToChat.attachImages")) {
       this._domNode.style.display = "none";

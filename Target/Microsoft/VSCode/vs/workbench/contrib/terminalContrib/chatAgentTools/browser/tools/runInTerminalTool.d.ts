@@ -65,6 +65,7 @@ export declare class RunInTerminalTool extends Disposable implements IToolImpl {
     private readonly _commandLineRewriters;
     private readonly _commandLineAnalyzers;
     private readonly _commandLinePresenters;
+    private readonly _outputAnalyzers;
     protected readonly _sessionTerminalAssociations: ResourceMap<IToolTerminal>;
     protected readonly _osBackend: Promise<OperatingSystem>;
     private static readonly _activeExecutions;

@@ -3,7 +3,7 @@ import { MenuId } from "../../../../platform/actions/common/actions.js";
 const AI_CUSTOMIZATION_VIEWLET_ID = "workbench.view.aiCustomization";
 const AI_CUSTOMIZATION_VIEW_ID = "aiCustomization.view";
 const AI_CUSTOMIZATION_STORAGE_ID = "workbench.aiCustomization.views.state";
-const AI_CUSTOMIZATION_CATEGORY = localize2("aiCustomization", "AI Customization");
+const AI_CUSTOMIZATION_CATEGORY = localize2("aiCustomization", "Chat Customization");
 const AICustomizationItemMenuId = new MenuId("aiCustomization.item");
 const AICustomizationNewMenuId = new MenuId("aiCustomization.new");
 export {

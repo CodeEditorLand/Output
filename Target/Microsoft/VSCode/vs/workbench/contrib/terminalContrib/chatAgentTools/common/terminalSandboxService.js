@@ -94,7 +94,10 @@ let TerminalSandboxService = class TerminalSandboxService2 extends Disposable {
     if (!this._srtPath) {
       throw new Error("Sandbox runtime path not resolved");
     }
-    const wrappedCommand = `"${this._execPath}" "${this._srtPath}" TMPDIR=${this._tempDir.path} --settings "${this._sandboxConfigPath}" -c "${command}"`;
+    if (!this._rgPath) {
+      throw new Error("Ripgrep path not resolved");
+    }
+    const wrappedCommand = `PATH="$PATH:${dirname(this._rgPath)}" TMPDIR="${this._tempDir.path}" "${this._execPath}" "${this._srtPath}" --settings "${this._sandboxConfigPath}" -c "${command}"`;
     if (this._remoteEnvDetails) {
       return `${wrappedCommand}`;
     }
@@ -120,13 +123,12 @@ let TerminalSandboxService = class TerminalSandboxService2 extends Disposable {
     }
     this._srtPathResolved = true;
     const remoteEnv = this._remoteEnvDetails || await this._remoteEnvDetailsPromise;
-    if (!remoteEnv) {
-      this._srtPath = this._pathJoin(this._appRoot, "node_modules", "@anthropic-ai", "sandbox-runtime", "dist", "cli.js");
-      return;
+    if (remoteEnv) {
+      this._appRoot = remoteEnv.appRoot.path;
+      this._execPath = this._pathJoin(this._appRoot, "node");
     }
-    this._appRoot = remoteEnv.appRoot.path;
-    this._execPath = this._pathJoin(this._appRoot, "node");
     this._srtPath = this._pathJoin(this._appRoot, "node_modules", "@anthropic-ai", "sandbox-runtime", "dist", "cli.js");
+    this._rgPath = this._pathJoin(this._appRoot, "node_modules", "@vscode", "ripgrep", "bin", "rg");
   }
   async _createSandboxConfig() {
     if (await this.isEnabled() && !this._tempDir) {

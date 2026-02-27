@@ -257,7 +257,8 @@ let TerminalService = class TerminalService2 extends Disposable {
         await this.createContributedTerminalProfile(result.config.extensionIdentifier, result.config.id, {
           icon: result.config.options?.icon,
           color: result.config.options?.color,
-          location: !!(keyMods?.alt && activeInstance) ? { splitActiveTerminal: true } : defaultLocation
+          location: !!(keyMods?.alt && activeInstance) ? { splitActiveTerminal: true } : defaultLocation,
+          titleTemplate: result.config.titleTemplate
         });
         return;
       } else if (result.config && hasKey(result.config, { profileName: true })) {
@@ -897,7 +898,8 @@ let TerminalService = class TerminalService2 extends Disposable {
         icon: contributedProfile.icon,
         color: contributedProfile.color,
         location: location2,
-        cwd: shellLaunchConfig.cwd
+        cwd: shellLaunchConfig.cwd,
+        titleTemplate: contributedProfile.titleTemplate
       });
       const instanceHost = resolvedLocation === TerminalLocation.Editor ? this._terminalEditorService : this._terminalGroupService;
       const instance2 = instanceHost.instances[instanceHost.instances.length - 1];

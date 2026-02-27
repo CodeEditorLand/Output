@@ -10,6 +10,7 @@ import { IInstantiationService } from '../../instantiation/common/instantiation.
 import { IKeybindingService } from '../../keybinding/common/keybinding.js';
 import { INotificationService } from '../../notification/common/notification.js';
 import { IStorageService } from '../../storage/common/storage.js';
+import { ClickAnimation } from '../../../base/browser/ui/animations/animations.js';
 import { IThemeService } from '../../theme/common/themeService.js';
 import { IMenuService, MenuItemAction, SubmenuItemAction } from '../common/actions.js';
 import './menuEntryActionViewItem.css';
@@ -27,6 +28,7 @@ export interface IMenuEntryActionViewItemOptions {
     readonly keybinding?: string | null;
     readonly hoverDelegate?: IHoverDelegate;
     readonly keybindingNotRenderedWithLabel?: boolean;
+    readonly onClickAnimation?: ClickAnimation;
 }
 export declare class MenuEntryActionViewItem<T extends IMenuEntryActionViewItemOptions = IMenuEntryActionViewItemOptions> extends ActionViewItem {
     protected readonly _options: T | undefined;

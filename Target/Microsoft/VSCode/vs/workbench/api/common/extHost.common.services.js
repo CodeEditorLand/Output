@@ -31,6 +31,7 @@ import { ExtHostUrls, IExtHostUrlsService } from "./extHostUrls.js";
 import { ExtHostProgress, IExtHostProgress } from "./extHostProgress.js";
 import { ExtHostDataChannels, IExtHostDataChannels } from "./extHostDataChannels.js";
 import { ExtHostMeteredConnection, IExtHostMeteredConnection } from "./extHostMeteredConnection.js";
+import { ExtHostGitExtensionService, IExtHostGitExtensionService } from "./extHostGitExtensionService.js";
 registerSingleton(
   IExtHostLocalizationService,
   ExtHostLocalizationService,
@@ -216,5 +217,11 @@ registerSingleton(
   ExtHostMeteredConnection,
   0
   /* InstantiationType.Eager */
+);
+registerSingleton(
+  IExtHostGitExtensionService,
+  ExtHostGitExtensionService,
+  1
+  /* InstantiationType.Delayed */
 );
 //# sourceMappingURL=extHost.common.services.js.map

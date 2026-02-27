@@ -25,9 +25,11 @@ export declare namespace ChatContextKeys {
     const inputHasFocus: RawContextKey<boolean>;
     const inChatInput: RawContextKey<boolean>;
     const inChatSession: RawContextKey<boolean>;
+    const inChatQuestionCarousel: RawContextKey<boolean>;
     const inChatEditor: RawContextKey<boolean>;
     const inChatTodoList: RawContextKey<boolean>;
     const inChatTip: RawContextKey<boolean>;
+    const multipleChatTips: RawContextKey<boolean>;
     const inChatTerminalToolOutput: RawContextKey<boolean>;
     const chatModeKind: RawContextKey<ChatModeKind>;
     const chatModeName: RawContextKey<string>;
@@ -69,6 +71,7 @@ export declare namespace ChatContextKeys {
     const hasFileAttachments: RawContextKey<boolean>;
     const chatSessionIsEmpty: RawContextKey<boolean>;
     const hasPendingRequests: RawContextKey<boolean>;
+    const chatSessionHasDebugData: RawContextKey<boolean>;
     const remoteJobCreating: RawContextKey<boolean>;
     const hasRemoteCodingAgent: RawContextKey<boolean>;
     const hasCanDelegateProviders: RawContextKey<boolean>;
@@ -121,7 +124,13 @@ export declare namespace ChatContextKeys {
     const hasMultipleAgentSessionsSelected: RawContextKey<boolean>;
     const hasAgentSessionChanges: RawContextKey<boolean>;
     const isKatexMathElement: RawContextKey<boolean>;
+    /**
+     * True when the user has submitted a chat request using any of the `/create-*` slash commands.
+     * This is persisted in application storage and used to suppress onboarding tips once discovered.
+     */
+    const hasUsedCreateSlashCommands: RawContextKey<boolean>;
     const contextUsageHasBeenOpened: RawContextKey<boolean>;
+    const newChatButtonExperimentIcon: RawContextKey<string>;
 }
 export declare namespace ChatContextKeyExprs {
     const inEditingMode: import("../../../../../platform/contextkey/common/contextkey.js").ContextKeyExpression | undefined;

@@ -31,7 +31,7 @@ export declare class ToolConfirmationSubPart extends AbstractToolConfirmationSub
     private markdownParts;
     get codeblocks(): IChatCodeBlockInfo[];
     constructor(toolInvocation: IChatToolInvocation, context: IChatContentPartRenderContext, renderer: IMarkdownRenderer, editorPool: EditorPool, currentWidthDelegate: () => number, codeBlockModelCollection: CodeBlockModelCollection, codeBlockStartIndex: number, instantiationService: IInstantiationService, keybindingService: IKeybindingService, modelService: IModelService, languageService: ILanguageService, contextKeyService: IContextKeyService, chatWidgetService: IChatWidgetService, commandService: ICommandService, markerService: IMarkerService, languageModelToolsService: ILanguageModelToolsService, chatMarkdownAnchorService: IChatMarkdownAnchorService, confirmationService: ILanguageModelToolsConfirmationService);
-    protected additionalPrimaryActions(): (Separator | import("../chatConfirmationWidget.ts").IChatConfirmationButton<() => void>)[];
+    protected additionalPrimaryActions(): (Separator | import("./abstractToolConfirmationSubPart.js").IAbstractToolPrimaryAction)[];
     protected createContentElement(): HTMLElement | string;
     protected getTitle(): string;
     private _makeMarkdownPart;

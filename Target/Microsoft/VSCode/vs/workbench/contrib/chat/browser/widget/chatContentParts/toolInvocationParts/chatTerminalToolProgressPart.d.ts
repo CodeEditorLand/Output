@@ -15,6 +15,25 @@ import { IContextKeyService } from '../../../../../../../platform/contextkey/com
 import { EditorPool } from '../chatContentCodePools.js';
 import { IKeybindingService } from '../../../../../../../platform/keybinding/common/keybinding.js';
 import { ITelemetryService } from '../../../../../../../platform/telemetry/common/telemetry.js';
+/**
+ * A chat content part that displays terminal tool invocation progress.
+ *
+ * This component shows:
+ * - The command being executed with syntax highlighting
+ * - A status decoration indicating success/failure/running state
+ * - Expandable terminal output with live streaming support
+ * - Actions to focus the terminal, show/hide output, and continue in background
+ *
+ * The component supports two rendering modes:
+ * - Standard mode: Shows full progress with status indicators
+ * - Collapsible wrapper mode: For thinking containers with simplified UI
+ *
+ * Output auto-expansion behavior:
+ * - Long-running commands with output auto-expand after a short delay
+ * - Fast commands that complete quickly don't auto-expand (prevents flickering)
+ * - Failed commands can be configured to auto-expand via settings
+ * - Successful commands auto-collapse if output was auto-expanded
+ */
 export declare class ChatTerminalToolProgressPart extends BaseChatToolInvocationSubPart implements IChatTerminalToolProgressPart {
     private readonly _instantiationService;
     private readonly _terminalChatService;
@@ -45,6 +64,7 @@ export declare class ChatTerminalToolProgressPart extends BaseChatToolInvocation
     private readonly _decoration;
     private _userToggledOutput;
     private _isInThinkingContainer;
+    private _usesCollapsibleWrapper;
     private _thinkingCollapsibleWrapper;
     private markdownPart;
     get codeblocks(): IChatCodeBlockInfo[];
@@ -59,9 +79,32 @@ export declare class ChatTerminalToolProgressPart extends BaseChatToolInvocation
     private _getResolvedCommand;
     private _ensureShowOutputAction;
     private _clearCommandAssociation;
+    /**
+     * Determines whether the terminal output should auto-expand.
+     * Returns false if already expanded, user has manually toggled, component is disposed,
+     * or if the invocation was previously expanded (to preserve state across re-renders).
+     */
+    private _shouldAutoExpand;
+    /**
+     * Registers event listeners on the terminal instance to track command execution,
+     * manage auto-expansion of output, and handle command completion.
+     *
+     * This method sets up:
+     * - Command detection listeners for tracking command lifecycle
+     * - Auto-expand logic based on command output and duration
+     * - Instance disposal handling to clean up actions and state
+     */
     private _registerInstanceListener;
     private _removeFocusAction;
     private _removeContinueInBackgroundAction;
+    /**
+     * Handles the completion of a terminal command by updating the UI state.
+     * This includes marking the collapsible wrapper as complete, auto-collapsing
+     * successful commands, and keeping failed commands expanded.
+     *
+     * @param resolvedCommand The completed terminal command with exit code information.
+     */
+    private _handleCommandCompletion;
     private _toggleOutput;
     private _ensureTerminalInstance;
     private _handleOutputFocus;

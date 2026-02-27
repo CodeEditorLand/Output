@@ -1218,6 +1218,8 @@ let ExtensionsWorkbenchService = class ExtensionsWorkbenchService2 extends Dispo
           message: computedNotificiations[0].message,
           severity: computedNotificiations[0].severity,
           extensions: computedNotificiations[0].extensions,
+          query: computedNotificiations[0].query,
+          action: computedNotificiations[0].action,
           key: computedNotificiations[0].key,
           dismiss: /* @__PURE__ */ __name(() => {
             this.setDismissedNotifications([...this.getDismissedNotifications(), computedNotificiations[0].key]);
@@ -1261,6 +1263,32 @@ let ExtensionsWorkbenchService = class ExtensionsWorkbenchService2 extends Dispo
           severity: Severity.Warning,
           extensions: invalidExtensions,
           key: "invalidExtensions:" + invalidExtensions.sort((a, b) => a.identifier.id.localeCompare(b.identifier.id)).map((e) => `${e.identifier.id.toLowerCase()}@${e.local?.manifest.version}`).join("-")
+        });
+      }
+    }
+    if (!this.configurationService.getValue(AutoRestartConfigurationKey)) {
+      const restartRequiredExtensions = this.local.filter((e) => e.runtimeState !== void 0 && (e.runtimeState.action === "restartExtensions" || e.runtimeState.action === "reloadWindow"));
+      if (restartRequiredExtensions.length) {
+        const needsReload = restartRequiredExtensions.some(
+          (e) => e.runtimeState?.action === "reloadWindow"
+          /* ExtensionRuntimeActionType.ReloadWindow */
+        );
+        computedNotificiations.push({
+          message: needsReload ? nls.localize("extensions need reload", "Extensions require a window reload to take effect.") : nls.localize("extensions need restart", "Extensions require a restart to take effect."),
+          severity: Severity.Info,
+          extensions: restartRequiredExtensions,
+          query: "@restartrequired",
+          action: {
+            label: needsReload ? nls.localize("reload window", "Reload Window") : nls.localize("restart extensions action", "Restart Extensions"),
+            run: /* @__PURE__ */ __name(() => {
+              if (needsReload) {
+                this.hostService.reload();
+              } else {
+                this.updateRunningExtensions();
+              }
+            }, "run")
+          },
+          key: "restartRequired:" + restartRequiredExtensions.sort((a, b) => a.identifier.id.localeCompare(b.identifier.id)).map((e) => e.identifier.id.toLowerCase()).join("-")
         });
       }
     }

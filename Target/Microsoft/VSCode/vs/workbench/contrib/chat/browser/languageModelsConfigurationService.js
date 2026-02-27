@@ -16,7 +16,7 @@ import { Emitter } from "../../../../base/common/event.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
 import { IFileService } from "../../../../platform/files/common/files.js";
 import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
 import { ITextEditorService } from "../../../services/textfile/common/textEditorService.js";
 import { IUserDataProfileService } from "../../../services/userDataProfile/common/userDataProfile.js";
 import { equals } from "../../../../base/common/objects.js";
@@ -36,12 +36,12 @@ let LanguageModelsConfigurationService = class LanguageModelsConfigurationServic
   get configurationFile() {
     return this.modelsConfigurationFile;
   }
-  constructor(fileService, textFileService, textModelService, editorGroupsService, textEditorService, userDataProfileService, uriIdentityService) {
+  constructor(fileService, textFileService, textModelService, editorService, textEditorService, userDataProfileService, uriIdentityService) {
     super();
     this.fileService = fileService;
     this.textFileService = textFileService;
     this.textModelService = textModelService;
-    this.editorGroupsService = editorGroupsService;
+    this.editorService = editorService;
     this.textEditorService = textEditorService;
     this._onDidChangeLanguageModelGroups = this._register(new Emitter());
     this.onDidChangeLanguageModelGroups = this._onDidChangeLanguageModelGroups.event;
@@ -130,7 +130,7 @@ let LanguageModelsConfigurationService = class LanguageModelsConfigurationServic
     await this.updateLanguageModelsConfiguration();
   }
   async configureLanguageModels(options) {
-    const editor = await this.editorGroupsService.activeGroup.openEditor(this.textEditorService.createTextEditor({ resource: this.modelsConfigurationFile }));
+    const editor = await this.editorService.openEditor(this.textEditorService.createTextEditor({ resource: this.modelsConfigurationFile }));
     if (!editor || !options?.group) {
       return;
     }
@@ -188,7 +188,7 @@ LanguageModelsConfigurationService = __decorate([
   __param(0, IFileService),
   __param(1, ITextFileService),
   __param(2, ITextModelService),
-  __param(3, IEditorGroupsService),
+  __param(3, IEditorService),
   __param(4, ITextEditorService),
   __param(5, IUserDataProfileService),
   __param(6, IUriIdentityService)

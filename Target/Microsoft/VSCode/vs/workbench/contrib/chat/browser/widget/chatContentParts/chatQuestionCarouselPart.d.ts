@@ -7,6 +7,8 @@ import { IChatContentPart, IChatContentPartRenderContext } from './chatContentPa
 import { IChatRendererContent } from '../../../common/model/chatViewModel.js';
 import { ChatTreeItem } from '../../chat.js';
 import { IHoverService } from '../../../../../../platform/hover/browser/hover.js';
+import { IContextKeyService } from '../../../../../../platform/contextkey/common/contextkey.js';
+import { IKeybindingService } from '../../../../../../platform/keybinding/common/keybinding.js';
 import './media/chatQuestionCarousel.css';
 export interface IChatQuestionCarouselOptions {
     onSubmit: (answers: Map<string, unknown> | undefined) => void;
@@ -18,6 +20,8 @@ export declare class ChatQuestionCarouselPart extends Disposable implements ICha
     private readonly _markdownRendererService;
     private readonly _hoverService;
     private readonly _accessibilityService;
+    private readonly _contextKeyService;
+    private readonly _keybindingService;
     readonly domNode: HTMLElement;
     private readonly _onDidChangeHeight;
     readonly onDidChangeHeight: Event<void>;
@@ -44,7 +48,8 @@ export declare class ChatQuestionCarouselPart extends Disposable implements ICha
      * that should be disposed when transitioning to summary view.
      */
     private readonly _interactiveUIStore;
-    constructor(carousel: IChatQuestionCarousel, context: IChatContentPartRenderContext, _options: IChatQuestionCarouselOptions, _markdownRendererService: IMarkdownRendererService, _hoverService: IHoverService, _accessibilityService: IAccessibilityService);
+    private readonly _inChatQuestionCarouselContextKey;
+    constructor(carousel: IChatQuestionCarousel, context: IChatContentPartRenderContext, _options: IChatQuestionCarouselOptions, _markdownRendererService: IMarkdownRendererService, _hoverService: IHoverService, _accessibilityService: IAccessibilityService, _contextKeyService: IContextKeyService, _keybindingService: IKeybindingService);
     /**
      * Saves the current question's answer to the answers map.
      */
@@ -107,7 +112,10 @@ export declare class ChatQuestionCarouselPart extends Disposable implements ICha
      * Returns whether the carousel container has focus.
      */
     hasFocus(): boolean;
+    navigateToPreviousQuestion(): boolean;
+    navigateToNextQuestion(): boolean;
     private renderCurrentQuestion;
+    private getLabelWithKeybinding;
     private renderInput;
     /**
      * Sets up auto-resize behavior for a textarea element.

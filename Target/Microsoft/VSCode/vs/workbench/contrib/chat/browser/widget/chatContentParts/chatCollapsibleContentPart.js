@@ -13,10 +13,11 @@ var __param = function(paramIndex, decorator) {
 };
 import { $ } from "../../../../../../base/browser/dom.js";
 import { ButtonWithIcon } from "../../../../../../base/browser/ui/button/button.js";
-import { Codicon } from "../../../../../../base/common/codicons.js";
 import { Disposable, MutableDisposable } from "../../../../../../base/common/lifecycle.js";
 import { autorun, observableValue } from "../../../../../../base/common/observable.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
 import { IHoverService } from "../../../../../../platform/hover/browser/hover.js";
+import { observableConfigValue } from "../../../../../../platform/observable/common/platformObservableUtils.js";
 import { renderFileWidgets } from "./chatInlineAnchorWidget.js";
 let ChatCollapsibleContentPart = class ChatCollapsibleContentPart2 extends Disposable {
   static {
@@ -28,7 +29,7 @@ let ChatCollapsibleContentPart = class ChatCollapsibleContentPart2 extends Dispo
   set icon(value) {
     this._overrideIcon.set(value, void 0);
   }
-  constructor(title, context, hoverMessage, hoverService) {
+  constructor(title, context, hoverMessage, hoverService, configurationService) {
     super();
     this.title = title;
     this.hoverMessage = hoverMessage;
@@ -39,6 +40,7 @@ let ChatCollapsibleContentPart = class ChatCollapsibleContentPart2 extends Dispo
     this._contentInitialized = false;
     this.element = context.element;
     this.hasFollowingContent = context.contentIndex + 1 < context.content.length;
+    this._showCheckmarks = observableConfigValue("accessibility.chat.showCheckmarks", false, configurationService);
   }
   get domNode() {
     this._domNode ??= this.init();
@@ -60,6 +62,8 @@ let ChatCollapsibleContentPart = class ChatCollapsibleContentPart2 extends Dispo
     this._collapseButton = collapseButton;
     this._domNode = $(".chat-used-context", void 0, buttonElement);
     collapseButton.label = referencesLabel;
+    const hoverChevron = $("span.chat-collapsible-hover-chevron.codicon.codicon-chevron-right", { "aria-hidden": "true" });
+    collapseButton.element.appendChild(hoverChevron);
     if (this.hoverMessage) {
       this._register(this.hoverService.setupDelayedHover(collapseButton.iconElement, {
         content: this.hoverMessage,
@@ -73,7 +77,14 @@ let ChatCollapsibleContentPart = class ChatCollapsibleContentPart2 extends Dispo
     this._isExpanded.set(this.isExpanded(), void 0);
     this._register(autorun((r) => {
       const expanded = this._isExpanded.read(r);
-      collapseButton.icon = this._overrideIcon.read(r) ?? (expanded ? Codicon.chevronDown : Codicon.chevronRight);
+      const overrideIcon = this._overrideIcon.read(r);
+      const showCheckmarks = this._showCheckmarks.read(r);
+      if (overrideIcon) {
+        collapseButton.icon = overrideIcon;
+      }
+      this._domNode?.classList.toggle("show-checkmarks", showCheckmarks);
+      hoverChevron.classList.toggle("codicon-chevron-right", !expanded);
+      hoverChevron.classList.toggle("codicon-chevron-down", expanded);
       this._domNode?.classList.toggle("chat-used-context-collapsed", !expanded);
       this.updateAriaLabel(collapseButton.element, typeof referencesLabel === "string" ? referencesLabel : referencesLabel.value, expanded);
       if ((expanded || this.shouldInitEarly()) && !this._contentInitialized) {
@@ -127,7 +138,8 @@ let ChatCollapsibleContentPart = class ChatCollapsibleContentPart2 extends Dispo
   }
 };
 ChatCollapsibleContentPart = __decorate([
-  __param(3, IHoverService)
+  __param(3, IHoverService),
+  __param(4, IConfigurationService)
 ], ChatCollapsibleContentPart);
 export {
   ChatCollapsibleContentPart

@@ -114,6 +114,11 @@ export interface IExtensionsNotification {
     readonly message: string;
     readonly severity: Severity;
     readonly extensions: IExtension[];
+    readonly query?: string;
+    readonly action?: {
+        readonly label: string;
+        run(): void;
+    };
     dismiss(): void;
 }
 export interface IExtensionsWorkbenchService {
@@ -207,6 +212,7 @@ export declare const CONTEXT_HAS_GALLERY: RawContextKey<boolean>;
 export declare const CONTEXT_EXTENSIONS_GALLERY_STATUS: RawContextKey<string>;
 export declare const ExtensionResultsListFocused: RawContextKey<boolean>;
 export declare const SearchMcpServersContext: RawContextKey<boolean>;
+export declare const SearchAgentPluginsContext: RawContextKey<boolean>;
 export declare const THEME_ACTIONS_GROUP = "_theme_";
 export declare const INSTALL_ACTIONS_GROUP = "0_install";
 export declare const UPDATE_ACTIONS_GROUP = "0_update";

@@ -156,14 +156,14 @@ let ChatSetup = class ChatSetup2 {
   }
   async showDialog(options) {
     const disposables = new DisposableStore();
-    const useCloseButton = await this.experimentService.getTreatment("chatSetupDialogCloseButton");
+    const useCloseButton = options?.dialogHideSkip || await this.experimentService.getTreatment("chatSetupDialogCloseButton");
     const buttons = this.getButtons(options, useCloseButton);
     const dialog = disposables.add(new Dialog(this.layoutService.activeContainer, this.getDialogTitle(options), buttons.map((button2) => button2[0]), createWorkbenchDialogOptions({
       type: "none",
       extraClasses: ["chat-setup-dialog"],
       detail: " ",
       // workaround allowing us to render the message in large
-      icon: Codicon.copilotLarge,
+      icon: options?.dialogIcon ?? Codicon.copilotLarge,
       alignment: DialogContentsAlignment.Vertical,
       cancelId: useCloseButton ? buttons.length : buttons.length - 1,
       disableCloseButton: !useCloseButton,
@@ -208,6 +208,9 @@ let ChatSetup = class ChatSetup2 {
     return buttons;
   }
   getDialogTitle(options) {
+    if (options?.dialogTitle) {
+      return options.dialogTitle;
+    }
     if (this.chatEntitlementService.anonymous) {
       if (options?.forceAnonymous) {
         return localize("startUsing", "Start using AI Features");

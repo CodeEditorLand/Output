@@ -168,6 +168,11 @@ class ConstantTimePrefixSumComputer {
   getIndexOf(sum) {
     this._ensureValid();
     const idx = this._indexBySum[sum];
+    if (idx === void 0) {
+      const lastIdx = Math.max(0, this._values.length - 1);
+      const lastPrefixSum = lastIdx > 0 ? this._prefixSum[lastIdx - 1] : 0;
+      return new PrefixSumIndexOfResult(lastIdx, sum - lastPrefixSum);
+    }
     const viewLinesAbove = idx > 0 ? this._prefixSum[idx - 1] : 0;
     return new PrefixSumIndexOfResult(idx, sum - viewLinesAbove);
   }
@@ -196,7 +201,7 @@ class ConstantTimePrefixSumComputer {
       }
     }
     this._prefixSum.length = this._values.length;
-    this._indexBySum.length = this._prefixSum[this._prefixSum.length - 1];
+    this._indexBySum.length = this._values.length > 0 ? this._prefixSum[this._values.length - 1] : 0;
     this._isValid = true;
     this._validEndIndex = this._values.length - 1;
   }

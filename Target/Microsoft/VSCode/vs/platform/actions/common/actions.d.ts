@@ -104,6 +104,7 @@ export declare class MenuId {
     static readonly PanelAlignmentMenu: MenuId;
     static readonly PanelPositionMenu: MenuId;
     static readonly ActivityBarPositionMenu: MenuId;
+    static readonly NotificationsCenterPositionMenu: MenuId;
     static readonly MenubarPreferencesMenu: MenuId;
     static readonly MenubarRecentMenu: MenuId;
     static readonly MenubarSelectionMenu: MenuId;
@@ -227,7 +228,6 @@ export declare class MenuId {
     static readonly MergeInputResultToolbar: MenuId;
     static readonly InlineSuggestionToolbar: MenuId;
     static readonly InlineEditToolbar: MenuId;
-    static readonly AgentFeedbackEditorContent: MenuId;
     static readonly ChatContext: MenuId;
     static readonly ChatCodeBlock: MenuId;
     static readonly ChatCompareBlock: MenuId;

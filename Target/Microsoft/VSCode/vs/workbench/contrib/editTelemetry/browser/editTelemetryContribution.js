@@ -23,6 +23,7 @@ import { VSCodeWorkspace } from "./helpers/vscodeObservableWorkspace.js";
 import { AiStatsFeature } from "./editStats/aiStatsFeature.js";
 import { AI_STATS_SETTING_ID, EDIT_TELEMETRY_SETTING_ID } from "./settingIds.js";
 import { IChatEntitlementService } from "../../../services/chat/common/chatEntitlementService.js";
+import { AiContributionFeature } from "./aiContributionFeature.js";
 let EditTelemetryContribution = class EditTelemetryContribution2 extends Disposable {
   static {
     __name(this, "EditTelemetryContribution");
@@ -51,6 +52,13 @@ let EditTelemetryContribution = class EditTelemetryContribution2 extends Disposa
         return;
       }
       r.store.add(instantiationService.createInstance(AiStatsFeature, annotatedDocuments.read(r)));
+    }));
+    const addAICoAuthor = observableConfigValue("git.addAICoAuthor", "off", configurationService);
+    this._register(autorun((r) => {
+      if (addAICoAuthor.read(r) === "off") {
+        return;
+      }
+      r.store.add(instantiationService.createInstance(AiContributionFeature, annotatedDocuments.read(r)));
     }));
   }
 };

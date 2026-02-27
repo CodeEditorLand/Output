@@ -92,16 +92,20 @@ let TerminalProfileQuickpick = class TerminalProfileQuickpick2 {
       );
     } else if (type === "createInstance") {
       if (hasKey(result.profile, { id: true })) {
+        const config = {
+          extensionIdentifier: result.profile.extensionIdentifier,
+          id: result.profile.id,
+          title: result.profile.title,
+          options: {
+            icon: result.profile.icon,
+            color: result.profile.color
+          }
+        };
+        if (result.profile.titleTemplate !== void 0) {
+          config.titleTemplate = result.profile.titleTemplate;
+        }
         return {
-          config: {
-            extensionIdentifier: result.profile.extensionIdentifier,
-            id: result.profile.id,
-            title: result.profile.title,
-            options: {
-              icon: result.profile.icon,
-              color: result.profile.color
-            }
-          },
+          config,
           keyMods: result.keyMods
         };
       } else {
@@ -190,7 +194,8 @@ let TerminalProfileQuickpick = class TerminalProfileQuickpick2 {
           title: contributed.title,
           icon: contributed.icon,
           id: contributed.id,
-          color: contributed.color
+          color: contributed.color,
+          titleTemplate: contributed.titleTemplate
         },
         profileName: contributed.title,
         iconClasses

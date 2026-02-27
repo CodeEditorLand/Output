@@ -3,7 +3,6 @@ import { IObservable } from '../../../../../../base/common/observable.js';
 import { URI } from '../../../../../../base/common/uri.js';
 import { IHoverService } from '../../../../../../platform/hover/browser/hover.js';
 import { IInstantiationService } from '../../../../../../platform/instantiation/common/instantiation.js';
-import { IEditorGroupsService } from '../../../../../services/editor/common/editorGroupsService.js';
 import { IEditorService } from '../../../../../services/editor/common/editorService.js';
 import { IChatEditingSession, IEditSessionEntryDiff } from '../../../common/editing/chatEditingService.js';
 import { IChatService } from '../../../common/chatService/chatService.js';
@@ -15,7 +14,6 @@ export declare class ChatCheckpointFileChangesSummaryContentPart extends Disposa
     private readonly hoverService;
     private readonly chatService;
     private readonly editorService;
-    private readonly editorGroupsService;
     private readonly instantiationService;
     readonly domNode: HTMLElement;
     readonly ELEMENT_HEIGHT = 22;
@@ -24,7 +22,7 @@ export declare class ChatCheckpointFileChangesSummaryContentPart extends Disposa
     private fileChangesDiffsObservable;
     private list;
     private isCollapsed;
-    constructor(content: IChatFileChangesSummaryPart, context: IChatContentPartRenderContext, hoverService: IHoverService, chatService: IChatService, editorService: IEditorService, editorGroupsService: IEditorGroupsService, instantiationService: IInstantiationService);
+    constructor(content: IChatFileChangesSummaryPart, context: IChatContentPartRenderContext, hoverService: IHoverService, chatService: IChatService, editorService: IEditorService, instantiationService: IInstantiationService);
     private computeFileChangesDiffs;
     getCachedEntryDiffBetweenRequests(editSession: IChatEditingSession, uri: URI, startRequestId: string, stopRequestId: string): IObservable<IEditSessionEntryDiff | undefined> | undefined;
     private renderHeader;

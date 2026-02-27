@@ -283,7 +283,11 @@ export declare class ModelRawLinesDeleted {
      * At what line the deletion stopped (inclusive).
      */
     readonly toLineNumber: number;
-    constructor(fromLineNumber: number, toLineNumber: number);
+    /**
+     * The last unmodified line in the updated buffer after the deletion is made.
+     */
+    readonly lastUntouchedLinePostEdit: number;
+    constructor(fromLineNumber: number, toLineNumber: number, lastUntouchedLinePostEdit: number);
 }
 /**
  * An event describing that line(s) have been inserted in a model.

@@ -33,6 +33,7 @@ export declare class LazyCreateExtensionHostManager extends Disposable implement
     dispose(): void;
     private _createActual;
     private _getOrCreateActualAndStart;
+    get isReady(): boolean;
     ready(): Promise<void>;
     disconnect(): Promise<void>;
     representsRunningLocation(runningLocation: ExtensionRunningLocation): boolean;

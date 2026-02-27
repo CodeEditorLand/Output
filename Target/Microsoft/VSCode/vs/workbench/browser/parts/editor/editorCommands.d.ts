@@ -50,6 +50,7 @@ export declare const COPY_EDITOR_GROUP_INTO_NEW_WINDOW_COMMAND_ID = "workbench.a
 export declare const NEW_EMPTY_EDITOR_WINDOW_COMMAND_ID = "workbench.action.newEmptyEditorWindow";
 export declare const CLOSE_MODAL_EDITOR_COMMAND_ID = "workbench.action.closeModalEditor";
 export declare const MOVE_MODAL_EDITOR_TO_MAIN_COMMAND_ID = "workbench.action.moveModalEditorToMain";
+export declare const MOVE_MODAL_EDITOR_TO_WINDOW_COMMAND_ID = "workbench.action.moveModalEditorToWindow";
 export declare const TOGGLE_MODAL_EDITOR_MAXIMIZED_COMMAND_ID = "workbench.action.toggleModalEditorMaximized";
 export declare const NAVIGATE_MODAL_EDITOR_PREVIOUS_COMMAND_ID = "workbench.action.navigateModalEditorPrevious";
 export declare const NAVIGATE_MODAL_EDITOR_NEXT_COMMAND_ID = "workbench.action.navigateModalEditorNext";

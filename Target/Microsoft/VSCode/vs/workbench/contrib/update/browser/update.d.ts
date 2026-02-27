@@ -16,8 +16,6 @@ import { IProductService } from '../../../../platform/product/common/productServ
 import { IDefaultAccountService } from '../../../../platform/defaultAccount/common/defaultAccount.js';
 export declare const CONTEXT_UPDATE_STATE: RawContextKey<string>;
 export declare const MAJOR_MINOR_UPDATE_AVAILABLE: RawContextKey<boolean>;
-export declare const RELEASE_NOTES_URL: RawContextKey<string>;
-export declare const DOWNLOAD_URL: RawContextKey<string>;
 export declare function showReleaseNotesInEditor(instantiationService: IInstantiationService, version: string, useCurrentFile: boolean): Promise<boolean>;
 /**
  * Appends update-related menu items to the given menu. This registers menu items
@@ -28,7 +26,7 @@ export declare function showReleaseNotesInEditor(instantiationService: IInstanti
 export declare function appendUpdateMenuItems(menuId: MenuId, group: string): void;
 export declare class ProductContribution implements IWorkbenchContribution {
     private static readonly KEY;
-    constructor(storageService: IStorageService, instantiationService: IInstantiationService, notificationService: INotificationService, environmentService: IBrowserWorkbenchEnvironmentService, openerService: IOpenerService, configurationService: IConfigurationService, hostService: IHostService, productService: IProductService, contextKeyService: IContextKeyService);
+    constructor(storageService: IStorageService, instantiationService: IInstantiationService, notificationService: INotificationService, environmentService: IBrowserWorkbenchEnvironmentService, openerService: IOpenerService, configurationService: IConfigurationService, hostService: IHostService, productService: IProductService);
 }
 export declare class UpdateContribution extends Disposable implements IWorkbenchContribution {
     private readonly storageService;
@@ -65,8 +63,13 @@ export declare class SwitchProductQualityContribution extends Disposable impleme
     private registerGlobalActivityActions;
 }
 export declare class DefaultAccountUpdateContribution extends Disposable implements IWorkbenchContribution {
+    #private;
     private readonly updateService;
     private readonly defaultAccountService;
-    constructor(updateService: IUpdateService, defaultAccountService: IDefaultAccountService);
-    private checkDefaultAccount;
+    private readonly storageService;
+    private static readonly STORAGE_KEY;
+    private throttler;
+    constructor(updateService: IUpdateService, defaultAccountService: IDefaultAccountService, storageService: IStorageService);
+    private refresh;
+    private doRefresh;
 }

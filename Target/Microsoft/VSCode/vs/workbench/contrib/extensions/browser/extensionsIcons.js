@@ -25,6 +25,7 @@ const warningIcon = registerIcon("extensions-warning-message", Codicon.warning, 
 const infoIcon = registerIcon("extensions-info-message", Codicon.info, localize("infoIcon", "Icon shown with an info message in the extensions editor."));
 const trustIcon = registerIcon("extension-workspace-trust", Codicon.shield, localize("trustIcon", "Icon shown with a workspace trust message in the extension editor."));
 const activationTimeIcon = registerIcon("extension-activation-time", Codicon.history, localize("activationtimeIcon", "Icon shown with a activation time message in the extension editor."));
+const restartRequiredIcon = registerIcon("extension-restart-required", Codicon.refresh, localize("restartRequiredIcon", "Icon shown when an extension requires a restart in the extensions view."));
 export {
   activationTimeIcon,
   clearSearchResultsIcon,
@@ -42,6 +43,7 @@ export {
   ratingIcon,
   refreshIcon,
   remoteIcon,
+  restartRequiredIcon,
   sponsorIcon,
   starEmptyIcon,
   starFullIcon,

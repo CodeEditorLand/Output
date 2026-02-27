@@ -1,8 +1,14 @@
 import './media/notificationsActions.css';
-import { INotificationViewItem } from '../../../common/notifications.js';
+import { INotificationViewItem, NotificationsPosition } from '../../../common/notifications.js';
 import { Action } from '../../../../base/common/actions.js';
 import { ICommandService } from '../../../../platform/commands/common/commands.js';
 import { IClipboardService } from '../../../../platform/clipboard/common/clipboardService.js';
+import { ThemeIcon } from '../../../../base/common/themables.js';
+export declare const hideIcon: ThemeIcon;
+export declare const hideUpIcon: ThemeIcon;
+export declare const positionIcon: ThemeIcon;
+export declare function getNotificationExpandIcon(position: NotificationsPosition): ThemeIcon;
+export declare function getNotificationCollapseIcon(position: NotificationsPosition): ThemeIcon;
 export declare class ClearNotificationAction extends Action {
     private readonly commandService;
     static readonly ID = "notification.clear";
@@ -33,6 +39,11 @@ export declare class ToggleDoNotDisturbBySourceAction extends Action {
 }
 export declare class ConfigureDoNotDisturbAction extends Action {
     static readonly ID = "workbench.action.configureDoNotDisturbMode";
+    static readonly LABEL: string;
+    constructor(id: string, label: string);
+}
+export declare class ConfigureNotificationsPositionAction extends Action {
+    static readonly ID = "workbench.action.configureNotificationsPosition";
     static readonly LABEL: string;
     constructor(id: string, label: string);
 }

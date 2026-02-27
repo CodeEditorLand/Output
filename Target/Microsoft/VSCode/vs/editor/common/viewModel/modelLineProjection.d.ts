@@ -16,8 +16,8 @@ export interface IModelLineProjection {
     getViewLineLength(model: ISimpleModel, modelLineNumber: number, outputLineIndex: number): number;
     getViewLineMinColumn(model: ISimpleModel, modelLineNumber: number, outputLineIndex: number): number;
     getViewLineMaxColumn(model: ISimpleModel, modelLineNumber: number, outputLineIndex: number): number;
-    getViewLineData(model: ISimpleModel, modelLineNumber: number, outputLineIndex: number): ViewLineData;
-    getViewLinesData(model: ISimpleModel, modelLineNumber: number, outputLineIdx: number, lineCount: number, globalStartIndex: number, needed: boolean[], result: Array<ViewLineData | null>): void;
+    getViewLineData(model: ISimpleModel, modelLineNumber: number, outputLineIndex: number, baseViewLineNumber: number): ViewLineData;
+    getViewLinesData(model: ISimpleModel, modelLineNumber: number, outputLineIdx: number, lineCount: number, baseViewLineNumber: number, globalStartIndex: number, needed: boolean[], result: Array<ViewLineData | null>): void;
     getModelColumnOfViewPosition(outputLineIndex: number, outputColumn: number): number;
     getViewPositionOfModelPosition(deltaLineNumber: number, inputColumn: number, affinity?: PositionAffinity): Position;
     getViewLineNumberOfModelPosition(deltaLineNumber: number, inputColumn: number): number;

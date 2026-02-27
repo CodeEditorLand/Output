@@ -198,7 +198,8 @@ let TerminalProfileService = class TerminalProfileService2 extends Disposable {
         icon: args.options.icon,
         id: args.id,
         title: args.title,
-        color: args.options.color
+        color: args.options.color,
+        titleTemplate: args.titleTemplate
       };
       profilesConfig[args.title] = newProfile;
     }
@@ -237,7 +238,7 @@ function profilesEqual(one, other) {
 }
 __name(profilesEqual, "profilesEqual");
 function contributedProfilesEqual(one, other) {
-  return one.extensionIdentifier === other.extensionIdentifier && one.color === other.color && one.icon === other.icon && one.id === other.id && one.title === other.title;
+  return one.extensionIdentifier === other.extensionIdentifier && one.color === other.color && one.icon === other.icon && one.id === other.id && one.title === other.title && one.titleTemplate === other.titleTemplate;
 }
 __name(contributedProfilesEqual, "contributedProfilesEqual");
 export {

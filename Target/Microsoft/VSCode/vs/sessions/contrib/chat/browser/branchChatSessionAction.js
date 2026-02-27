@@ -65,10 +65,7 @@ class BranchChatSessionAction extends Action2 {
     if (serializedData.requests.length === 0) {
       return;
     }
-    const modelRef = chatService.loadSessionFromContent(serializedData);
-    if (!modelRef) {
-      return;
-    }
+    const modelRef = chatService.loadSessionFromData(serializedData);
     await widgetService.openSession(modelRef.object.sessionResource, ChatViewPaneTarget);
   }
 }

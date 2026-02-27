@@ -110,7 +110,9 @@ import { IExtHostWindow } from "./extHostWindow.js";
 import { IExtHostPower } from "./extHostPower.js";
 import { IExtHostWorkspace } from "./extHostWorkspace.js";
 import { ExtHostChatContext } from "./extHostChatContext.js";
+import { ExtHostChatDebug } from "./extHostChatDebug.js";
 import { IExtHostMeteredConnection } from "./extHostMeteredConnection.js";
+import { IExtHostGitExtensionService } from "./extHostGitExtensionService.js";
 function createApiFactoryAndRegisterActors(accessor) {
   const initData = accessor.get(IExtHostInitDataService);
   const extHostFileSystemInfo = accessor.get(IExtHostFileSystemInfo);
@@ -139,6 +141,7 @@ function createApiFactoryAndRegisterActors(accessor) {
   const extHostMcp = accessor.get(IExtHostMpcService);
   const extHostDataChannels = accessor.get(IExtHostDataChannels);
   const extHostMeteredConnection = accessor.get(IExtHostMeteredConnection);
+  const extHostGitExtensionService = accessor.get(IExtHostGitExtensionService);
   rpcProtocol.set(ExtHostContext.ExtHostFileSystemInfo, extHostFileSystemInfo);
   rpcProtocol.set(ExtHostContext.ExtHostLogLevelServiceShape, extHostLoggerService);
   rpcProtocol.set(ExtHostContext.ExtHostWorkspace, extHostWorkspace);
@@ -158,6 +161,7 @@ function createApiFactoryAndRegisterActors(accessor) {
   rpcProtocol.set(ExtHostContext.ExtHostChatProvider, extHostLanguageModels);
   rpcProtocol.set(ExtHostContext.ExtHostDataChannels, extHostDataChannels);
   rpcProtocol.set(ExtHostContext.ExtHostMeteredConnection, extHostMeteredConnection);
+  rpcProtocol.set(ExtHostContext.ExtHostGitExtension, extHostGitExtensionService);
   const extHostDecorations = rpcProtocol.set(ExtHostContext.ExtHostDecorations, accessor.get(IExtHostDecorations));
   const extHostDocumentsAndEditors = rpcProtocol.set(ExtHostContext.ExtHostDocumentsAndEditors, accessor.get(IExtHostDocumentsAndEditors));
   const extHostCommands = rpcProtocol.set(ExtHostContext.ExtHostCommands, accessor.get(IExtHostCommands));
@@ -207,6 +211,7 @@ function createApiFactoryAndRegisterActors(accessor) {
   const extHostChatSessions = rpcProtocol.set(ExtHostContext.ExtHostChatSessions, new ExtHostChatSessions(extHostCommands, extHostLanguageModels, rpcProtocol, extHostLogService));
   const extHostChatAgents2 = rpcProtocol.set(ExtHostContext.ExtHostChatAgents2, new ExtHostChatAgents2(rpcProtocol, extHostLogService, extHostCommands, extHostDocuments, extHostDocumentsAndEditors, extHostLanguageModels, extHostDiagnostics, extHostLanguageModelTools));
   const extHostChatContext = rpcProtocol.set(ExtHostContext.ExtHostChatContext, new ExtHostChatContext(rpcProtocol, extHostCommands));
+  const extHostChatDebug = rpcProtocol.set(ExtHostContext.ExtHostChatDebug, new ExtHostChatDebug(rpcProtocol));
   const extHostAiRelatedInformation = rpcProtocol.set(ExtHostContext.ExtHostAiRelatedInformation, new ExtHostRelatedInformation(rpcProtocol));
   const extHostAiEmbeddingVector = rpcProtocol.set(ExtHostContext.ExtHostAiEmbeddingVector, new ExtHostAiEmbeddingVector(rpcProtocol));
   const extHostAiSettingsSearch = rpcProtocol.set(ExtHostContext.ExtHostAiSettingsSearch, new ExtHostAiSettingsSearch(rpcProtocol));
@@ -341,7 +346,6 @@ function createApiFactoryAndRegisterActors(accessor) {
         return initData.telemetryInfo.devDeviceId ?? initData.telemetryInfo.machineId;
       },
       get isAppPortable() {
-        checkProposedApiEnabled(extension, "envIsAppPortable");
         return initData.environment.isPortable ?? false;
       },
       get sessionId() {
@@ -874,10 +878,15 @@ function createApiFactoryAndRegisterActors(accessor) {
       },
       createTerminal(nameOrOptions, shellPath, shellArgs) {
         if (typeof nameOrOptions === "object") {
-          if ("pty" in nameOrOptions) {
-            return extHostTerminalService.createExtensionTerminal(nameOrOptions);
+          let options = nameOrOptions;
+          if (!isProposedApiEnabled(extension, "terminalTitle") && "titleTemplate" in nameOrOptions && nameOrOptions.titleTemplate !== void 0) {
+            console.error(`[${extension.identifier.value}] \`titleTemplate\` was provided to window.createTerminal but is ignored because the \`terminalTitle\` proposed API is not enabled.`);
+            options = { ...nameOrOptions, titleTemplate: void 0 };
           }
-          return extHostTerminalService.createTerminalFromOptions(nameOrOptions);
+          if ("pty" in options) {
+            return extHostTerminalService.createExtensionTerminal(options);
+          }
+          return extHostTerminalService.createTerminalFromOptions(options);
         }
         return extHostTerminalService.createTerminal(nameOrOptions, shellPath, shellArgs);
       },
@@ -1556,6 +1565,10 @@ function createApiFactoryAndRegisterActors(accessor) {
       registerSkillProvider(provider) {
         checkProposedApiEnabled(extension, "chatPromptFiles");
         return extHostChatAgents2.registerPromptFileProvider(extension, PromptsType.skill, provider);
+      },
+      registerChatDebugLogProvider(provider) {
+        checkProposedApiEnabled(extension, "chatDebug");
+        return extHostChatDebug.registerChatDebugLogProvider(provider);
       }
     };
     const lm = {
@@ -1938,6 +1951,20 @@ function createApiFactoryAndRegisterActors(accessor) {
       ChatToolInvocationPart: extHostTypes.ChatToolInvocationPart,
       ChatLocation: extHostTypes.ChatLocation,
       ChatSessionStatus: extHostTypes.ChatSessionStatus,
+      ChatDebugLogLevel: extHostTypes.ChatDebugLogLevel,
+      ChatDebugToolCallResult: extHostTypes.ChatDebugToolCallResult,
+      ChatDebugToolCallEvent: extHostTypes.ChatDebugToolCallEvent,
+      ChatDebugModelTurnEvent: extHostTypes.ChatDebugModelTurnEvent,
+      ChatDebugGenericEvent: extHostTypes.ChatDebugGenericEvent,
+      ChatDebugSubagentInvocationEvent: extHostTypes.ChatDebugSubagentInvocationEvent,
+      ChatDebugUserMessageEvent: extHostTypes.ChatDebugUserMessageEvent,
+      ChatDebugAgentResponseEvent: extHostTypes.ChatDebugAgentResponseEvent,
+      ChatDebugMessageSection: extHostTypes.ChatDebugMessageSection,
+      ChatDebugEventTextContent: extHostTypes.ChatDebugEventTextContent,
+      ChatDebugMessageContentType: extHostTypes.ChatDebugMessageContentType,
+      ChatDebugEventMessageContent: extHostTypes.ChatDebugEventMessageContent,
+      ChatDebugEventToolCallContent: extHostTypes.ChatDebugEventToolCallContent,
+      ChatDebugEventModelTurnContent: extHostTypes.ChatDebugEventModelTurnContent,
       ChatRequestEditorData: extHostTypes.ChatRequestEditorData,
       ChatRequestNotebookData: extHostTypes.ChatRequestNotebookData,
       ChatReferenceBinaryData: extHostTypes.ChatReferenceBinaryData,
@@ -1980,7 +2007,8 @@ function createApiFactoryAndRegisterActors(accessor) {
       McpToolAvailability: extHostTypes.McpToolAvailability,
       McpToolInvocationContentData: extHostTypes.McpToolInvocationContentData,
       SettingsSearchResultKind: extHostTypes.SettingsSearchResultKind,
-      ChatTodoStatus: extHostTypes.ChatTodoStatus
+      ChatTodoStatus: extHostTypes.ChatTodoStatus,
+      ChatDebugSubagentStatus: extHostTypes.ChatDebugSubagentStatus
     };
   };
 }

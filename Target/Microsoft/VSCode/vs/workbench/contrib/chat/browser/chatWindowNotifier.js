@@ -21,6 +21,7 @@ import { IConfigurationService } from "../../../../platform/configuration/common
 import { ICommandService } from "../../../../platform/commands/common/commands.js";
 import { IHostService } from "../../../services/host/browser/host.js";
 import { IChatService } from "../common/chatService/chatService.js";
+import { ChatConfiguration, ChatNotificationMode } from "../common/constants.js";
 import { IChatWidgetService } from "./chat.js";
 import { AcceptToolConfirmationActionId } from "./actions/chatToolActions.js";
 let ChatWindowNotifier = class ChatWindowNotifier2 extends Disposable {
@@ -60,27 +61,34 @@ let ChatWindowNotifier = class ChatWindowNotifier2 extends Disposable {
     });
   }
   async _notifyIfNeeded(sessionResource, info) {
-    if (!this._configurationService.getValue("chat.notifyWindowOnConfirmation")) {
+    const mode = this._configurationService.getValue(ChatConfiguration.NotifyWindowOnConfirmation);
+    if (mode === ChatNotificationMode.Off) {
       return;
     }
     const widget = this._chatWidgetService.getWidgetBySessionResource(sessionResource);
     const targetWindow = widget ? dom.getWindow(widget.domNode) : mainWindow;
-    if (targetWindow.document.hasFocus()) {
+    const isFocused = targetWindow.document.hasFocus();
+    if (mode !== ChatNotificationMode.Always && isFocused) {
       return;
     }
     this._clearNotification(sessionResource);
-    await this._hostService.focus(targetWindow, {
-      mode: 1
-      /* FocusMode.Notify */
-    });
+    if (!isFocused) {
+      await this._hostService.focus(targetWindow, {
+        mode: 1
+        /* FocusMode.Notify */
+      });
+    }
     const notificationTitle = info.title ? localize("chatTitle", "Chat: {0}", info.title) : localize("chat.untitledChat", "Untitled Chat");
     const cts = new CancellationTokenSource();
     this._activeNotifications.set(sessionResource, toDisposable(() => cts.dispose(true)));
+    const isQuestionCarousel = this._isQuestionCarouselPending(sessionResource);
     try {
+      const actionLabel = isQuestionCarousel ? localize("openChatAction", "Open Chat") : localize("allowAction", "Allow");
+      const body = info.detail ? this._sanitizeOSToastText(info.detail) : isQuestionCarousel ? localize("questionCarouselDetail", "Questions need your input.") : localize("notificationDetail", "Approval needed to continue.");
       const result = await this._hostService.showToast({
         title: this._sanitizeOSToastText(notificationTitle),
-        body: info.detail ? this._sanitizeOSToastText(info.detail) : localize("notificationDetail", "Approval needed to continue."),
-        actions: [localize("allowAction", "Allow")]
+        body,
+        actions: [actionLabel]
       }, cts.token);
       if (result.clicked || typeof result.actionIndex === "number") {
         await this._hostService.focus(targetWindow, {
@@ -89,13 +97,21 @@ let ChatWindowNotifier = class ChatWindowNotifier2 extends Disposable {
         });
         const widget2 = await this._chatWidgetService.openSession(sessionResource);
         widget2?.focusInput();
-        if (result.actionIndex === 0) {
+        if (result.actionIndex === 0 && !isQuestionCarousel) {
           await this._commandService.executeCommand(AcceptToolConfirmationActionId, { sessionResource });
         }
       }
     } finally {
       this._clearNotification(sessionResource);
     }
+  }
+  _isQuestionCarouselPending(sessionResource) {
+    const model = this._chatService.getSession(sessionResource);
+    const lastResponse = model?.lastRequest?.response;
+    if (!lastResponse) {
+      return false;
+    }
+    return lastResponse.response.value.some((part) => part.kind === "questionCarousel" && !part.isUsed);
   }
   _sanitizeOSToastText(text) {
     return text.replace(/`/g, "'");

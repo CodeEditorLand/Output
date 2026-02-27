@@ -1,10 +1,12 @@
+import { ICopilotTokenInfo, IDefaultAccount, IDefaultAccountAuthenticationProvider, IPolicyData } from '../../../base/common/defaultAccount.js';
 import { Event } from '../../../base/common/event.js';
-import { IDefaultAccount, IDefaultAccountAuthenticationProvider, IPolicyData } from '../../../base/common/defaultAccount.js';
 export interface IDefaultAccountProvider {
     readonly defaultAccount: IDefaultAccount | null;
     readonly onDidChangeDefaultAccount: Event<IDefaultAccount | null>;
     readonly policyData: IPolicyData | null;
     readonly onDidChangePolicyData: Event<IPolicyData | null>;
+    readonly copilotTokenInfo: ICopilotTokenInfo | null;
+    readonly onDidChangeCopilotTokenInfo: Event<ICopilotTokenInfo | null>;
     getDefaultAccountAuthenticationProvider(): IDefaultAccountAuthenticationProvider;
     refresh(): Promise<IDefaultAccount | null>;
     signIn(options?: {
@@ -19,6 +21,8 @@ export interface IDefaultAccountService {
     readonly onDidChangeDefaultAccount: Event<IDefaultAccount | null>;
     readonly onDidChangePolicyData: Event<IPolicyData | null>;
     readonly policyData: IPolicyData | null;
+    readonly copilotTokenInfo: ICopilotTokenInfo | null;
+    readonly onDidChangeCopilotTokenInfo: Event<ICopilotTokenInfo | null>;
     getDefaultAccount(): Promise<IDefaultAccount | null>;
     getDefaultAccountAuthenticationProvider(): IDefaultAccountAuthenticationProvider;
     setDefaultAccountProvider(provider: IDefaultAccountProvider): void;

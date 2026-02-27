@@ -14,6 +14,7 @@ var __param = function(paramIndex, decorator) {
 import { Disposable } from "../../../../../../base/common/lifecycle.js";
 import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
 import { ILanguageModelToolsService } from "../languageModelToolsService.js";
+import { AskQuestionsTool, AskQuestionsToolData } from "./askQuestionsTool.js";
 import { ConfirmationTool, ConfirmationToolData, ConfirmationToolWithOptionsData } from "./confirmationTool.js";
 import { EditTool, EditToolData } from "./editFileTool.js";
 import { createManageTodoListToolData, ManageTodoListTool } from "./manageTodoListTool.js";
@@ -29,6 +30,9 @@ let BuiltinToolsContribution = class BuiltinToolsContribution2 extends Disposabl
     super();
     const editTool = instantiationService.createInstance(EditTool);
     this._register(toolsService.registerTool(EditToolData, editTool));
+    const askQuestionsTool = this._register(instantiationService.createInstance(AskQuestionsTool));
+    this._register(toolsService.registerTool(AskQuestionsToolData, askQuestionsTool));
+    this._register(toolsService.vscodeToolSet.addTool(AskQuestionsToolData));
     const todoToolData = createManageTodoListToolData();
     const manageTodoListTool = this._register(instantiationService.createInstance(ManageTodoListTool));
     this._register(toolsService.registerTool(todoToolData, manageTodoListTool));

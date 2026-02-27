@@ -14,6 +14,7 @@ var InlineChatConfigKeys;
   InlineChatConfigKeys2["DefaultModel"] = "inlineChat.defaultModel";
   InlineChatConfigKeys2["Affordance"] = "inlineChat.affordance";
   InlineChatConfigKeys2["RenderMode"] = "inlineChat.renderMode";
+  InlineChatConfigKeys2["FixDiagnostics"] = "inlineChat.fixDiagnostics";
 })(InlineChatConfigKeys || (InlineChatConfigKeys = {}));
 Registry.as(Extensions.Configuration).registerConfiguration({
   id: "editor",
@@ -92,6 +93,18 @@ Registry.as(Extensions.Configuration).registerConfiguration({
         mode: "auto"
       },
       tags: ["experimental"]
+    },
+    [
+      "inlineChat.fixDiagnostics"
+      /* InlineChatConfigKeys.FixDiagnostics */
+    ]: {
+      description: localize("fixDiagnostics", "Controls whether the Fix action is shown for diagnostics in the editor."),
+      default: true,
+      type: "boolean",
+      experiment: {
+        mode: "auto"
+      },
+      tags: ["experimental"]
     }
   }
 });
@@ -113,6 +126,7 @@ const CTX_INLINE_CHAT_EDITING = new RawContextKey("inlineChatEditing", true, loc
 const CTX_INLINE_CHAT_RESPONSE_FOCUSED = new RawContextKey("inlineChatResponseFocused", false, localize("inlineChatResponseFocused", "Whether the interactive widget's response is focused"));
 const CTX_INLINE_CHAT_EMPTY = new RawContextKey("inlineChatEmpty", false, localize("inlineChatEmpty", "Whether the interactive editor input is empty"));
 const CTX_INLINE_CHAT_INPUT_HAS_TEXT = new RawContextKey("inlineChatInputHasText", false, localize("inlineChatInputHasText", "Whether the inline chat input widget has text"));
+const CTX_INLINE_CHAT_INPUT_WIDGET_FOCUSED = new RawContextKey("inlineChatInputWidgetFocused", false, localize("inlineChatInputWidgetFocused", "Whether the inline chat input widget editor is focused"));
 const CTX_INLINE_CHAT_INNER_CURSOR_FIRST = new RawContextKey("inlineChatInnerCursorFirst", false, localize("inlineChatInnerCursorFirst", "Whether the cursor of the iteractive editor input is on the first line"));
 const CTX_INLINE_CHAT_INNER_CURSOR_LAST = new RawContextKey("inlineChatInnerCursorLast", false, localize("inlineChatInnerCursorLast", "Whether the cursor of the iteractive editor input is on the last line"));
 const CTX_INLINE_CHAT_OUTER_CURSOR_POSITION = new RawContextKey("inlineChatOuterCursorPosition", "", localize("inlineChatOuterCursorPosition", "Whether the cursor of the outer editor is above or below the interactive editor input"));
@@ -121,10 +135,14 @@ const CTX_INLINE_CHAT_CHANGE_HAS_DIFF = new RawContextKey("inlineChatChangeHasDi
 const CTX_INLINE_CHAT_CHANGE_SHOWS_DIFF = new RawContextKey("inlineChatChangeShowsDiff", false, localize("inlineChatChangeShowsDiff", "Whether the current change showing a diff"));
 const CTX_INLINE_CHAT_REQUEST_IN_PROGRESS = new RawContextKey("inlineChatRequestInProgress", false, localize("inlineChatRequestInProgress", "Whether an inline chat request is currently in progress"));
 const CTX_INLINE_CHAT_RESPONSE_TYPE = new RawContextKey("inlineChatResponseType", "none", localize("inlineChatResponseTypes", "What type was the responses have been receieved, nothing yet, just messages, or messaged and local edits"));
+const CTX_INLINE_CHAT_FILE_BELONGS_TO_CHAT = new RawContextKey("inlineChatFileBelongsToChat", false, localize("inlineChatFileBelongsToChat", "Whether the current file belongs to a chat editing session"));
+const CTX_INLINE_CHAT_PENDING_CONFIRMATION = new RawContextKey("inlineChatPendingConfirmation", false, localize("inlineChatPendingConfirmation", "Whether an inline chat request is pending user confirmation"));
 const CTX_INLINE_CHAT_V1_ENABLED = ContextKeyExpr.or(ContextKeyExpr.and(NOTEBOOK_IS_ACTIVE_EDITOR, CTX_INLINE_CHAT_HAS_NOTEBOOK_INLINE));
 const CTX_INLINE_CHAT_V2_ENABLED = ContextKeyExpr.or(CTX_INLINE_CHAT_HAS_AGENT2, ContextKeyExpr.and(NOTEBOOK_IS_ACTIVE_EDITOR, CTX_INLINE_CHAT_HAS_NOTEBOOK_AGENT));
 const CTX_HOVER_MODE = ContextKeyExpr.equals("config.inlineChat.renderMode", "hover");
+const CTX_FIX_DIAGNOSTICS_ENABLED = ContextKeyExpr.equals("config.inlineChat.fixDiagnostics", true);
 const ACTION_START = "inlineChat.start";
+const ACTION_ASK_IN_CHAT = "inlineChat.askInChat";
 const ACTION_ACCEPT_CHANGES = "inlineChat.acceptChanges";
 const ACTION_DISCARD_CHANGES = "inlineChat.discardHunkChange";
 const ACTION_REGENERATE_RESPONSE = "inlineChat.regenerate";
@@ -150,17 +168,20 @@ const inlineChatDiffRemoved = registerColor("inlineChatDiff.removed", transparen
 const overviewRulerInlineChatDiffRemoved = registerColor("editorOverviewRuler.inlineChatRemoved", { dark: transparent(diffRemoved, 0.6), light: transparent(diffRemoved, 0.8), hcDark: transparent(diffRemoved, 0.6), hcLight: transparent(diffRemoved, 0.8) }, localize("editorOverviewRuler.inlineChatRemoved", "Overview ruler marker color for inline chat removed content."));
 export {
   ACTION_ACCEPT_CHANGES,
+  ACTION_ASK_IN_CHAT,
   ACTION_DISCARD_CHANGES,
   ACTION_REGENERATE_RESPONSE,
   ACTION_REPORT_ISSUE,
   ACTION_START,
   ACTION_TOGGLE_DIFF,
   ACTION_VIEW_IN_CHAT,
+  CTX_FIX_DIAGNOSTICS_ENABLED,
   CTX_HOVER_MODE,
   CTX_INLINE_CHAT_CHANGE_HAS_DIFF,
   CTX_INLINE_CHAT_CHANGE_SHOWS_DIFF,
   CTX_INLINE_CHAT_EDITING,
   CTX_INLINE_CHAT_EMPTY,
+  CTX_INLINE_CHAT_FILE_BELONGS_TO_CHAT,
   CTX_INLINE_CHAT_FOCUSED,
   CTX_INLINE_CHAT_HAS_AGENT2,
   CTX_INLINE_CHAT_HAS_NOTEBOOK_AGENT,
@@ -169,7 +190,9 @@ export {
   CTX_INLINE_CHAT_INNER_CURSOR_FIRST,
   CTX_INLINE_CHAT_INNER_CURSOR_LAST,
   CTX_INLINE_CHAT_INPUT_HAS_TEXT,
+  CTX_INLINE_CHAT_INPUT_WIDGET_FOCUSED,
   CTX_INLINE_CHAT_OUTER_CURSOR_POSITION,
+  CTX_INLINE_CHAT_PENDING_CONFIRMATION,
   CTX_INLINE_CHAT_POSSIBLE,
   CTX_INLINE_CHAT_REQUEST_IN_PROGRESS,
   CTX_INLINE_CHAT_RESPONSE_FOCUSED,

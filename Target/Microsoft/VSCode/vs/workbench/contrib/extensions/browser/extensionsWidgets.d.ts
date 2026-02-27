@@ -154,6 +154,13 @@ export declare class SyncIgnoredWidget extends ExtensionWidget {
     constructor(container: HTMLElement, configurationService: IConfigurationService, extensionsWorkbenchService: IExtensionsWorkbenchService, hoverService: IHoverService, userDataSyncEnablementService: IUserDataSyncEnablementService);
     render(): void;
 }
+export declare class ExtensionRestartRequiredWidget extends ExtensionWidget {
+    private readonly container;
+    private readonly hoverService;
+    private readonly disposables;
+    constructor(container: HTMLElement, hoverService: IHoverService);
+    render(): void;
+}
 export declare class ExtensionRuntimeStatusWidget extends ExtensionWidget {
     private readonly extensionViewState;
     private readonly container;

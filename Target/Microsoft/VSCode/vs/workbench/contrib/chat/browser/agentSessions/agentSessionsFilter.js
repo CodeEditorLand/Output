@@ -114,19 +114,28 @@ let AgentSessionsFilter = class AgentSessionsFilter2 extends Disposable {
     this.registerResetAction(this.actionDisposables, menuId);
   }
   registerProviderActions(disposables, menuId) {
-    const providers = [{
-      id: AgentSessionProviders.Local,
-      label: getAgentSessionProviderName(AgentSessionProviders.Local)
-    }];
-    for (const contribution of this.chatSessionsService.getAllChatSessionContributions()) {
-      if (providers.find((p) => p.id === contribution.type)) {
-        continue;
+    const labelOverrides = this.options.providerLabelOverrides;
+    const resolveLabel = /* @__PURE__ */ __name((id) => {
+      if (labelOverrides?.has(id)) {
+        return labelOverrides.get(id);
       }
-      const knownProvider = getAgentSessionProvider(contribution.type);
-      providers.push({
-        id: contribution.type,
-        label: knownProvider ? getAgentSessionProviderName(knownProvider) : contribution.displayName
-      });
+      const knownProvider = getAgentSessionProvider(id);
+      return knownProvider ? getAgentSessionProviderName(knownProvider) : id;
+    }, "resolveLabel");
+    let providers;
+    if (this.options.allowedProviders) {
+      providers = this.options.allowedProviders.map((id) => ({ id, label: resolveLabel(id) }));
+    } else {
+      providers = [{ id: AgentSessionProviders.Local, label: resolveLabel(AgentSessionProviders.Local) }];
+      for (const contribution of this.chatSessionsService.getAllChatSessionContributions()) {
+        if (providers.find((p) => p.id === contribution.type)) {
+          continue;
+        }
+        providers.push({
+          id: contribution.type,
+          label: resolveLabel(contribution.type)
+        });
+      }
     }
     const that = this;
     let counter = 0;
@@ -256,6 +265,9 @@ let AgentSessionsFilter = class AgentSessionsFilter2 extends Disposable {
     const overrideExclude = this.options?.overrideExclude?.(session);
     if (typeof overrideExclude === "boolean") {
       return overrideExclude;
+    }
+    if (this.options.allowedProviders && !this.options.allowedProviders.includes(session.providerType)) {
+      return true;
     }
     if (this.excludes.read && session.isRead()) {
       return true;

@@ -16,6 +16,7 @@ export declare class NativeTitlebarPart extends TitlebarPart {
     private cachedWindowControlStyles;
     private cachedWindowControlHeight;
     constructor(id: string, targetWindow: CodeWindow, contextMenuService: IContextMenuService, configurationService: IConfigurationService, instantiationService: IInstantiationService, themeService: IThemeService, storageService: IStorageService, layoutService: IWorkbenchLayoutService, contextKeyService: IContextKeyService, hostService: IHostService, nativeHostService: INativeHostService);
+    private handleWindowsAlwaysOnTop;
     updateStyles(): void;
     layout(width: number, height: number): void;
 }
@@ -27,11 +28,11 @@ declare class AuxiliaryNativeTitlebarPart extends NativeTitlebarPart implements 
     private readonly mainTitlebar;
     private static COUNTER;
     get height(): number;
-    constructor(container: HTMLElement, editorGroupsContainer: IEditorGroupsContainer, mainTitlebar: TitlebarPart, contextMenuService: IContextMenuService, configurationService: IConfigurationService, instantiationService: IInstantiationService, themeService: IThemeService, storageService: IStorageService, layoutService: IWorkbenchLayoutService, contextKeyService: IContextKeyService, hostService: IHostService, nativeHostService: INativeHostService);
+    constructor(container: HTMLElement, mainTitlebar: TitlebarPart, contextMenuService: IContextMenuService, configurationService: IConfigurationService, instantiationService: IInstantiationService, themeService: IThemeService, storageService: IStorageService, layoutService: IWorkbenchLayoutService, contextKeyService: IContextKeyService, hostService: IHostService, nativeHostService: INativeHostService);
     get preventZoom(): boolean;
 }
 export declare class NativeTitleService extends TitleService {
     protected createMainTitlebarPart(): MainNativeTitlebarPart;
-    protected doCreateAuxiliaryTitlebarPart(container: HTMLElement, editorGroupsContainer: IEditorGroupsContainer, instantiationService: IInstantiationService): AuxiliaryNativeTitlebarPart;
+    protected doCreateAuxiliaryTitlebarPart(container: HTMLElement, _editorGroupsContainer: IEditorGroupsContainer, instantiationService: IInstantiationService): AuxiliaryNativeTitlebarPart;
 }
 export {};

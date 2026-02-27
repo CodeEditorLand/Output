@@ -499,6 +499,7 @@ let ListSettingWidget = class ListSettingWidget2 extends AbstractListSettingWidg
       )) {
         this.cancelEdit();
         e.preventDefault();
+        e.stopPropagation();
       }
       rowElement?.focus();
     }, "onKeyDown");
@@ -875,6 +876,7 @@ let ObjectSettingDropdownWidget = class ObjectSettingDropdownWidget2 extends Abs
       )) {
         this.cancelEdit();
         e.preventDefault();
+        e.stopPropagation();
       }
     }, "onKeyDown");
     this.listDisposables.add(DOM.addStandardDisposableListener(inputBox.inputElement, DOM.EventType.KEY_DOWN, onKeyDown));

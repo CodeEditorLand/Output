@@ -17,14 +17,13 @@ import { IHoverService } from '../../../platform/hover/browser/hover.js';
 export declare class ChatBarPart extends AbstractPaneCompositePart {
     static readonly activeViewSettingsKey = "workbench.chatbar.activepanelid";
     static readonly pinnedViewsKey = "workbench.chatbar.pinnedPanels";
-    static readonly placeholdeViewContainersKey = "workbench.chatbar.placeholderPanels";
+    static readonly placeholderViewContainersKey = "workbench.chatbar.placeholderPanels";
     static readonly viewContainersWorkspaceStateKey = "workbench.chatbar.viewContainersWorkspaceState";
     readonly minimumWidth: number;
     readonly maximumWidth: number;
     readonly minimumHeight: number;
     readonly maximumHeight: number;
     get preferredHeight(): number | undefined;
-    get preferredWidth(): number | undefined;
     readonly priority = LayoutPriority.High;
     constructor(notificationService: INotificationService, storageService: IStorageService, contextMenuService: IContextMenuService, layoutService: IWorkbenchLayoutService, keybindingService: IKeybindingService, hoverService: IHoverService, instantiationService: IInstantiationService, themeService: IThemeService, viewDescriptorService: IViewDescriptorService, contextKeyService: IContextKeyService, extensionService: IExtensionService, menuService: IMenuService);
     updateStyles(): void;

@@ -45,13 +45,14 @@ import { ResourceMap } from "../../../../../base/common/map.js";
 import { CodeActionKind } from "../../../../../editor/contrib/codeAction/common/types.js";
 import { ACTION_START as INLINE_CHAT_START } from "../../../inlineChat/common/inlineChat.js";
 import { IMarkerService, MarkerSeverity } from "../../../../../platform/markers/common/markers.js";
-import { ChatSetupAnonymous, ChatSetupStep } from "./chatSetup.js";
+import { ChatSetupAnonymous, ChatSetupStep, maybeEnableAuthExtension, refreshTokens } from "./chatSetup.js";
 import { ChatSetup } from "./chatSetupRunner.js";
 import { chatViewsWelcomeRegistry } from "../viewsWelcome/chatViewsWelcome.js";
 import { CommandsRegistry, ICommandService } from "../../../../../platform/commands/common/commands.js";
 import { IDefaultAccountService } from "../../../../../platform/defaultAccount/common/defaultAccount.js";
 import { IHostService } from "../../../../services/host/browser/host.js";
 import { IOutputService } from "../../../../services/output/common/output.js";
+import { IExtensionsWorkbenchService } from "../../../extensions/common/extensions.js";
 const defaultChat = {
   extensionId: product.defaultChatAgent?.extensionId ?? "",
   chatExtensionId: product.defaultChatAgent?.chatExtensionId ?? "",
@@ -168,7 +169,7 @@ let SetupAgent = class SetupAgent2 extends Disposable {
   static {
     this.CHAT_SHOW_OUTPUT_COMMAND_ID = "workbench.action.chat.showOutput";
   }
-  constructor(context, controller, location, instantiationService, logService, telemetryService, environmentService, workspaceTrustManagementService, chatEntitlementService, viewsService, contextKeyService, outputService) {
+  constructor(context, controller, location, instantiationService, logService, telemetryService, environmentService, workspaceTrustManagementService, chatEntitlementService, viewsService, contextKeyService, outputService, extensionsWorkbenchService, commandService) {
     super();
     this.context = context;
     this.controller = controller;
@@ -182,6 +183,8 @@ let SetupAgent = class SetupAgent2 extends Disposable {
     this.viewsService = viewsService;
     this.contextKeyService = contextKeyService;
     this.outputService = outputService;
+    this.extensionsWorkbenchService = extensionsWorkbenchService;
+    this.commandService = commandService;
     this._onUnresolvableError = this._register(new Emitter());
     this.onUnresolvableError = this._onUnresolvableError.event;
     this.pendingForwardedRequests = new ResourceMap();
@@ -267,6 +270,10 @@ let SetupAgent = class SetupAgent2 extends Disposable {
     }
   }
   async doForwardRequestToChatWhenReady(requestModel, progress, chatService, languageModelsService, chatAgentService, chatWidgetService, languageModelToolsService) {
+    const authExtensionReEnabled = await maybeEnableAuthExtension(this.extensionsWorkbenchService, this.logService);
+    if (authExtensionReEnabled) {
+      refreshTokens(this.commandService);
+    }
     const widget = chatWidgetService.getWidgetBySessionResource(requestModel.session.sessionResource);
     const modeInfo = widget?.input.currentModeInfo;
     let agentActivated = false;
@@ -626,7 +633,9 @@ SetupAgent = SetupAgent_1 = __decorate([
   __param(8, IChatEntitlementService),
   __param(9, IViewsService),
   __param(10, IContextKeyService),
-  __param(11, IOutputService)
+  __param(11, IOutputService),
+  __param(12, IExtensionsWorkbenchService),
+  __param(13, ICommandService)
 ], SetupAgent);
 class SetupTool {
   static {

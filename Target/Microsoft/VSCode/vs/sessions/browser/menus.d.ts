@@ -18,4 +18,6 @@ export declare const Menus: {
     readonly AuxiliaryBarTitleLeft: MenuId;
     readonly SidebarFooter: MenuId;
     readonly SidebarCustomizations: MenuId;
+    readonly AgentFeedbackEditorContent: MenuId;
+    readonly SessionTitleActions: MenuId;
 };

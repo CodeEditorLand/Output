@@ -151,7 +151,8 @@ let ChatStatusDashboard = class ChatStatusDashboard2 extends DomWidget {
       }));
       const completionsQuotaIndicator = completionsQuota && (completionsQuota.total > 0 || completionsQuota.unlimited) ? this.createQuotaIndicator(this.element, this._store, completionsQuota, localize("completionsLabel", "Inline Suggestions"), false) : void 0;
       const chatQuotaIndicator = chatQuota && (chatQuota.total > 0 || chatQuota.unlimited) ? this.createQuotaIndicator(this.element, this._store, chatQuota, localize("chatsLabel", "Chat messages"), false) : void 0;
-      const premiumChatQuotaIndicator = premiumChatQuota && (premiumChatQuota.total > 0 || premiumChatQuota.unlimited) ? this.createQuotaIndicator(this.element, this._store, premiumChatQuota, localize("premiumChatsLabel", "Premium requests"), true) : void 0;
+      const premiumChatLabel = premiumChatQuota?.overageEnabled && !premiumChatQuota?.unlimited ? localize("includedPremiumChatsLabel", "Included premium requests") : localize("premiumChatsLabel", "Premium requests");
+      const premiumChatQuotaIndicator = premiumChatQuota && (premiumChatQuota.total > 0 || premiumChatQuota.unlimited) ? this.createQuotaIndicator(this.element, this._store, premiumChatQuota, premiumChatLabel, true) : void 0;
       if (resetDate) {
         this.element.appendChild($("div.description", void 0, localize("limitQuota", "Allowance resets {0}.", resetDateHasTime ? this.dateTimeFormatter.value.format(new Date(resetDate)) : this.dateFormatter.value.format(new Date(resetDate)))));
       }
@@ -245,18 +246,42 @@ let ChatStatusDashboard = class ChatStatusDashboard2 extends DomWidget {
         const currentModel = modelInfo.models.find((m) => m.id === modelInfo.currentModelId);
         if (currentModel) {
           const modelContainer = this.element.appendChild($("div.model-selection"));
-          modelContainer.appendChild($("span.model-text", void 0, localize("modelLabel", "Model: {0}", currentModel.name)));
+          modelContainer.appendChild($("span.model-text", void 0, localize("modelLabel", "Model")));
           const actionBar = modelContainer.appendChild($("div.model-action-bar"));
           const toolbar = this._store.add(new ActionBar(actionBar, { hoverDelegate: nativeHoverDelegate }));
           toolbar.push([toAction({
             id: "workbench.action.selectInlineCompletionsModel",
-            label: localize("selectModel", "Select Model"),
+            label: currentModel.name,
             tooltip: localize("selectModel", "Select Model"),
             class: ThemeIcon.asClassName(Codicon.gear),
             run: /* @__PURE__ */ __name(async () => {
               await this.showModelPicker(provider);
             }, "run")
-          })], { icon: true, label: false });
+          })], { icon: false, label: true });
+        }
+      }
+    }
+    {
+      const providers = this.languageFeaturesService.inlineCompletionsProvider.allNoModel();
+      for (const provider of providers) {
+        if (provider.providerOptions && provider.providerOptions.length > 0) {
+          for (const option of provider.providerOptions) {
+            const currentValue = option.values.find((v) => v.id === option.currentValueId);
+            if (currentValue) {
+              const optionContainer = this.element.appendChild($("div.suggest-option-selection"));
+              optionContainer.appendChild($("span.suggest-option-text", void 0, option.label));
+              const actionBar = optionContainer.appendChild($("div.suggest-option-action-bar"));
+              const toolbar = this._store.add(new ActionBar(actionBar, { hoverDelegate: nativeHoverDelegate }));
+              toolbar.push([toAction({
+                id: `workbench.action.selectProviderOption.${option.id}`,
+                label: currentValue.label,
+                tooltip: localize("selectOption", "Select {0}", option.label),
+                run: /* @__PURE__ */ __name(async () => {
+                  await this.showProviderOptionPicker(provider, option);
+                }, "run")
+              })], { icon: false, label: true });
+            }
+          }
         }
       }
     }
@@ -404,14 +429,17 @@ let ChatStatusDashboard = class ChatStatusDashboard2 extends DomWidget {
         quotaValue.textContent = localize("quotaDisplay", "{0}%", this.quotaPercentageFormatter.value.format(usedPercentage));
       }
       quotaBit.style.width = `${usedPercentage}%`;
-      if (usedPercentage >= 90) {
+      const overageEnabled = supportsOverage && typeof quota2 !== "string" && quota2?.overageEnabled;
+      if (usedPercentage >= 90 && !overageEnabled) {
         quotaIndicator.classList.add("error");
-      } else if (usedPercentage >= 75) {
+      } else if (usedPercentage >= 75 && !overageEnabled) {
         quotaIndicator.classList.add("warning");
       }
       if (supportsOverage) {
-        if (typeof quota2 !== "string" && quota2?.overageEnabled) {
-          overageLabel.textContent = localize("additionalUsageEnabled", "Additional paid premium requests enabled.");
+        if (typeof quota2 !== "string" && quota2.unlimited) {
+          overageLabel.textContent = "";
+        } else if (typeof quota2 !== "string" && quota2?.overageEnabled) {
+          overageLabel.replaceChildren(localize("additionalUsageApprovedLine1", "Additional premium requests approved."), $("br"), localize("additionalUsageApprovedLine2", "You can continue after the included premium requests limit reaches 100%."));
         } else {
           overageLabel.textContent = localize("additionalUsageDisabled", "Additional paid premium requests disabled.");
         }
@@ -599,6 +627,25 @@ let ChatStatusDashboard = class ChatStatusDashboard2 extends DomWidget {
     });
     if (selected && selected.id && selected.id !== modelInfo.currentModelId) {
       await provider.setModelId(selected.id);
+    }
+    this.hoverService.hideHover(true);
+  }
+  async showProviderOptionPicker(provider, option) {
+    if (!provider.setProviderOption) {
+      return;
+    }
+    const items = option.values.map((value) => ({
+      id: value.id,
+      label: value.label,
+      description: value.id === option.currentValueId ? localize("currentOption.description", "Currently selected") : void 0,
+      picked: value.id === option.currentValueId
+    }));
+    const selected = await this.quickInputService.pick(items, {
+      placeHolder: localize("selectProviderOptionFor", "Select {0}", option.label),
+      canPickMany: false
+    });
+    if (selected && selected.id && selected.id !== option.currentValueId) {
+      await provider.setProviderOption(option.id, selected.id);
     }
     this.hoverService.hideHover(true);
   }

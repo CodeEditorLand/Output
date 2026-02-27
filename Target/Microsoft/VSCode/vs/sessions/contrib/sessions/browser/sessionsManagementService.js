@@ -11,7 +11,7 @@ var __param = function(paramIndex, decorator) {
     decorator(target, key, paramIndex);
   };
 };
-import { Disposable } from "../../../../base/common/lifecycle.js";
+import { Disposable, DisposableStore, MutableDisposable } from "../../../../base/common/lifecycle.js";
 import { CancellationToken } from "../../../../base/common/cancellation.js";
 import { observableValue } from "../../../../base/common/observable.js";
 import { URI } from "../../../../base/common/uri.js";
@@ -20,16 +20,17 @@ import { IContextKeyService, RawContextKey } from "../../../../platform/contextk
 import { ILogService } from "../../../../platform/log/common/log.js";
 import { IStorageService } from "../../../../platform/storage/common/storage.js";
 import { openSession as openSessionDefault } from "../../../../workbench/contrib/chat/browser/agentSessions/agentSessionsOpener.js";
-import { ChatViewId, ChatViewPaneTarget, IChatWidgetService } from "../../../../workbench/contrib/chat/browser/chat.js";
+import { ChatViewPaneTarget, IChatWidgetService } from "../../../../workbench/contrib/chat/browser/chat.js";
 import { IChatSessionsService } from "../../../../workbench/contrib/chat/common/chatSessionsService.js";
 import { IChatService } from "../../../../workbench/contrib/chat/common/chatService/chatService.js";
-import { ChatAgentLocation } from "../../../../workbench/contrib/chat/common/constants.js";
+import { ChatAgentLocation, ChatModeKind } from "../../../../workbench/contrib/chat/common/constants.js";
 import { isAgentSession } from "../../../../workbench/contrib/chat/browser/agentSessions/agentSessionsModel.js";
 import { IAgentSessionsService } from "../../../../workbench/contrib/chat/browser/agentSessions/agentSessionsService.js";
-import { LocalChatSessionUri } from "../../../../workbench/contrib/chat/common/model/chatUri.js";
-import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
-import { IWorkspaceEditingService } from "../../../../workbench/services/workspaces/common/workspaceEditing.js";
-import { IViewsService } from "../../../../workbench/services/views/common/viewsService.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { AgentSessionProviders } from "../../../../workbench/contrib/chat/browser/agentSessions/agentSessions.js";
+import { LocalNewSession, RemoteNewSession } from "../../chat/browser/newSession.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { ILanguageModelsService } from "../../../../workbench/contrib/chat/common/languageModels.js";
 const IsNewChatSessionContext = new RawContextKey("isNewChatSession", true);
 const LAST_SELECTED_SESSION_KEY = "agentSessions.lastSelectedSession";
 const repositoryOptionId = "repository";
@@ -38,33 +39,34 @@ let SessionsManagementService = class SessionsManagementService2 extends Disposa
   static {
     __name(this, "SessionsManagementService");
   }
-  constructor(storageService, agentSessionsService, chatSessionsService, chatWidgetService, chatService, instantiationService, logService, contextKeyService, workspaceContextService, workspaceEditingService, viewsService) {
+  constructor(storageService, uriIdentityService, agentSessionsService, chatSessionsService, chatWidgetService, chatService, instantiationService, logService, contextKeyService, commandService, languageModelsService) {
     super();
     this.storageService = storageService;
+    this.uriIdentityService = uriIdentityService;
     this.agentSessionsService = agentSessionsService;
     this.chatSessionsService = chatSessionsService;
     this.chatWidgetService = chatWidgetService;
     this.chatService = chatService;
     this.instantiationService = instantiationService;
     this.logService = logService;
-    this.workspaceContextService = workspaceContextService;
-    this.workspaceEditingService = workspaceEditingService;
-    this.viewsService = viewsService;
+    this.commandService = commandService;
+    this.languageModelsService = languageModelsService;
     this._activeSession = observableValue(this, void 0);
     this.activeSession = this._activeSession;
+    this._newActiveSessionDisposables = this._register(new DisposableStore());
+    this._newSession = this._register(new MutableDisposable());
     this.isNewChatSessionContext = IsNewChatSessionContext.bindTo(contextKeyService);
     this.lastSelectedSession = this.loadLastSelectedSession();
     this._register(this.storageService.onWillSaveState(() => this.saveLastSelectedSession()));
-    this._register(this.chatSessionsService.onDidChangeSessionOptions((sessionResource) => {
-      const currentActive = this._activeSession.get();
-      if (currentActive && currentActive.resource.toString() === sessionResource.toString()) {
-        const repository = this.getRepositoryFromSessionOption(sessionResource);
-        if (currentActive.repository?.toString() !== repository?.toString()) {
-          this._activeSession.set({ ...currentActive, repository }, void 0);
+    this._register(this.agentSessionsService.model.onDidChangeSessions(() => this.refreshActiveSessionFromModel()));
+    this._register(this.agentSessionsService.model.onDidChangeSessionArchivedState((e) => {
+      if (e.isArchived()) {
+        const currentActive = this._activeSession.get();
+        if (currentActive && currentActive.resource.toString() === e.resource.toString()) {
+          this.openNewSessionView();
         }
       }
     }));
-    this._register(this.agentSessionsService.model.onDidChangeSessions(() => this.refreshActiveSessionFromModel()));
   }
   refreshActiveSessionFromModel() {
     const currentActive = this._activeSession.get();
@@ -73,18 +75,19 @@ let SessionsManagementService = class SessionsManagementService2 extends Disposa
     }
     const agentSession = this.agentSessionsService.model.getSession(currentActive.resource);
     if (!agentSession) {
-      if (isAgentSession(currentActive)) {
+      if (currentActive.isUntitled) {
+        const chatViewWidgets = this.chatWidgetService.getWidgetsByLocations(ChatAgentLocation.Chat);
+        const committedResource = chatViewWidgets[0]?.viewModel?.sessionResource;
+        const committedSession = committedResource ? this.agentSessionsService.model.getSession(committedResource) : void 0;
+        if (committedSession) {
+          this.setActiveSession(committedSession);
+        }
+      } else {
         this.showNextSession();
       }
       return;
     }
-    const [repository, worktree] = this.getRepositoryFromMetadata(agentSession.metadata);
-    const activeSessionItem = {
-      ...agentSession,
-      repository,
-      worktree
-    };
-    this._activeSession.set(activeSessionItem, void 0);
+    this.setActiveSession(agentSession);
   }
   showNextSession() {
     const sessions = this.agentSessionsService.model.sessions.filter((s) => !s.isArchived()).sort((a, b) => (b.timing.lastRequestEnded ?? b.timing.created) - (a.timing.lastRequestEnded ?? a.timing.created));
@@ -92,7 +95,7 @@ let SessionsManagementService = class SessionsManagementService2 extends Disposa
       this.setActiveSession(sessions[0]);
       this.instantiationService.invokeFunction(openSessionDefault, sessions[0]);
     } else {
-      this.openNewSession();
+      this.openNewSessionView();
     }
   }
   getRepositoryFromMetadata(metadata) {
@@ -131,11 +134,23 @@ let SessionsManagementService = class SessionsManagementService2 extends Disposa
     const existingSession = this.agentSessionsService.model.getSession(sessionResource);
     if (existingSession) {
       await this.openExistingSession(existingSession, openOptions);
-    } else if (LocalChatSessionUri.isLocalSession(sessionResource)) {
-      await this.openLocalSession();
-    } else {
-      await this.openNewRemoteSession(sessionResource);
+    } else if (this._newSession.value && this.uriIdentityService.extUri.isEqual(sessionResource, this._newSession.value.resource)) {
+      await this.openNewSession(this._newSession.value);
     }
+  }
+  async createNewSessionForTarget(target, sessionResource, defaultRepoUri) {
+    if (!this.isNewChatSessionContext.get()) {
+      this.isNewChatSessionContext.set(true);
+    }
+    let newSession;
+    if (target === AgentSessionProviders.Background || target === AgentSessionProviders.Local) {
+      newSession = this.instantiationService.createInstance(LocalNewSession, sessionResource, defaultRepoUri);
+    } else {
+      newSession = this.instantiationService.createInstance(RemoteNewSession, sessionResource, target);
+    }
+    this._newSession.value = newSession;
+    this.setActiveSession(newSession);
+    return newSession;
   }
   /**
    * Open an existing agent session - set it as active and reveal it.
@@ -145,80 +160,69 @@ let SessionsManagementService = class SessionsManagementService2 extends Disposa
     await this.instantiationService.invokeFunction(openSessionDefault, session, openOptions);
   }
   /**
-   * Open a fresh local chat session - show the ChatViewPane and clear the widget.
-   */
-  async openLocalSession() {
-    const view = await this.viewsService.openView(ChatViewId);
-    if (view) {
-      await view.widget.clear();
-      if (view.widget.viewModel) {
-        const folder = this.workspaceContextService.getWorkspace().folders[0];
-        const activeSessionItem = {
-          resource: view.widget.viewModel.sessionResource,
-          label: view.widget.viewModel.model.title || "",
-          timing: view.widget.viewModel.model.timing,
-          repository: folder?.uri,
-          worktree: void 0
-        };
-        this._activeSession.set(activeSessionItem, void 0);
-      }
-    }
-  }
-  /**
    * Open a new remote session - load the model first, then show it in the ChatViewPane.
    */
-  async openNewRemoteSession(sessionResource) {
-    const modelRef = await this.chatService.loadSessionForResource(sessionResource, ChatAgentLocation.Chat, CancellationToken.None);
+  async openNewSession(newSession) {
+    this.setActiveSession(newSession);
+    const sessionResource = newSession.resource;
     const chatWidget = await this.chatWidgetService.openSession(sessionResource, ChatViewPaneTarget);
     if (!chatWidget?.viewModel) {
       this.logService.warn(`[ActiveSessionService] Failed to open session: ${sessionResource.toString()}`);
-      modelRef?.dispose();
       return;
     }
     const repository = this.getRepositoryFromSessionOption(sessionResource);
-    const activeSessionItem = {
-      resource: sessionResource,
-      label: chatWidget.viewModel.model.title || "",
-      timing: chatWidget.viewModel.model.timing,
-      repository,
-      worktree: void 0
-    };
     this.logService.info(`[ActiveSessionService] Active session changed (new): ${sessionResource.toString()}, repository: ${repository?.toString() ?? "none"}`);
-    this._activeSession.set(activeSessionItem, void 0);
   }
-  async sendRequestForNewSession(sessionResource, query, sendOptions, selectedOptions, folderUri) {
-    if (LocalChatSessionUri.isLocalSession(sessionResource)) {
-      await this.sendLocalSession(sessionResource, query, folderUri);
-    } else {
-      await this.sendCustomSession(sessionResource, query, sendOptions, selectedOptions);
+  async sendRequestForNewSession(sessionResource, options) {
+    const session = this._newSession.value;
+    if (!session) {
+      this.logService.error(`[SessionsManagementService] No new session found for resource: ${sessionResource.toString()}`);
+      return;
     }
+    if (!this.uriIdentityService.extUri.isEqual(sessionResource, session.resource)) {
+      this.logService.error(`[SessionsManagementService] Session resource mismatch. Expected: ${session.resource.toString()}, received: ${sessionResource.toString()}`);
+      return;
+    }
+    const query = session.query;
+    if (!query) {
+      this.logService.error("[SessionsManagementService] No query set on session");
+      return;
+    }
+    const contribution = this.chatSessionsService.getChatSessionContribution(session.target);
+    const sendOptions = {
+      location: ChatAgentLocation.Chat,
+      userSelectedModelId: session.modelId,
+      modeInfo: {
+        kind: ChatModeKind.Agent,
+        isBuiltin: true,
+        modeInstructions: void 0,
+        modeId: "agent",
+        applyCodeBlockSuggestionId: void 0
+      },
+      agentIdSilent: contribution?.type,
+      attachedContext: session.attachedContext
+    };
+    await this.chatSessionsService.getOrCreateChatSession(session.resource, CancellationToken.None);
+    await this.doSendRequestForNewSession(session, query, sendOptions, session.selectedOptions, options?.openNewSessionView);
+    this._newSession.value = void 0;
   }
-  /**
-   * Local sessions run directly through the ChatWidget.
-   * Set the workspace folder, open a fresh chat view, and submit via acceptInput.
-   */
-  async sendLocalSession(sessionResource, query, folderUri) {
-    if (folderUri) {
-      await this.workspaceEditingService.updateFolders(0, this.workspaceContextService.getWorkspace().folders.length, [{ uri: folderUri }]);
+  async doSendRequestForNewSession(session, query, sendOptions, selectedOptions, openNewSessionView) {
+    await this.openSession(session.resource);
+    if (openNewSessionView) {
+      this.openNewSessionView();
     }
-    await this.openSession(sessionResource);
-    const widget = this.chatWidgetService.lastFocusedWidget;
-    if (widget) {
-      widget.setInput(query);
-      widget.acceptInput(query);
-    }
-  }
-  /**
-   * Custom sessions (worktree, cloud, etc.) go through the chat service.
-   * Apply selected options, send the request, then wait for the extension
-   * to create an agent session so it appears in the sidebar.
-   */
-  async sendCustomSession(sessionResource, query, sendOptions, selectedOptions) {
-    await this.openSession(sessionResource);
-    if (selectedOptions && selectedOptions.size > 0) {
-      const modelRef = this.chatService.getActiveSessionReference(sessionResource);
-      if (modelRef) {
-        const model = modelRef.object;
+    const modelRef = this.chatService.acquireExistingSession(session.resource);
+    if (modelRef) {
+      const model = modelRef.object;
+      if (session.modelId) {
+        const languageModel = this.languageModelsService.lookupLanguageModel(session.modelId);
+        if (languageModel) {
+          model.inputModel.setState({
+            selectedModel: { identifier: session.modelId, metadata: languageModel }
+          });
+        }
+      }
+      if (selectedOptions && selectedOptions.size > 0) {
         const contributedSession = model.contributedChatSession;
         if (contributedSession) {
           const initialSessionOptions = [...selectedOptions.entries()].map(([optionId, value]) => ({ optionId, value }));
@@ -227,11 +231,11 @@ let SessionsManagementService = class SessionsManagementService2 extends Disposa
             initialSessionOptions
           });
         }
-        modelRef.dispose();
       }
+      modelRef.dispose();
     }
     const existingResources = new Set(this.agentSessionsService.model.sessions.map((s) => s.resource.toString()));
-    const result = await this.chatService.sendRequest(sessionResource, query, sendOptions);
+    const result = await this.chatService.sendRequest(session.resource, query, sendOptions);
     if (result.kind === "rejected") {
       this.logService.error(`[ActiveSessionService] sendRequest rejected: ${result.reason}`);
       return;
@@ -242,9 +246,9 @@ let SessionsManagementService = class SessionsManagementService2 extends Disposa
       newSession = await Promise.race([
         new Promise((resolve) => {
           listener = this.agentSessionsService.model.onDidChangeSessions(() => {
-            const session = this.agentSessionsService.model.sessions.find((s) => !existingResources.has(s.resource.toString()));
-            if (session) {
-              resolve(session);
+            const session2 = this.agentSessionsService.model.sessions.find((s) => !existingResources.has(s.resource.toString()));
+            if (session2) {
+              resolve(session2);
             }
           });
         }),
@@ -252,27 +256,87 @@ let SessionsManagementService = class SessionsManagementService2 extends Disposa
       ]);
       listener?.dispose();
     }
-    if (newSession) {
+    if (newSession && !openNewSessionView) {
       this.setActiveSession(newSession);
     }
   }
-  openNewSession() {
+  openNewSessionView() {
     if (this.isNewChatSessionContext.get()) {
       return;
     }
     this.isNewChatSessionContext.set(true);
-    this._activeSession.set(void 0, void 0);
+    this.setActiveSession(void 0);
   }
   setActiveSession(session) {
-    this.lastSelectedSession = session.resource;
-    const [repository, worktree] = this.getRepositoryFromMetadata(session.metadata);
-    const activeSessionItem = {
-      ...session,
-      repository,
-      worktree
-    };
-    this.logService.info(`[ActiveSessionService] Active session changed: ${session.resource.toString()}, repository: ${repository?.toString() ?? "none"}`);
+    let activeSessionItem;
+    if (session) {
+      if (isAgentSession(session)) {
+        this.lastSelectedSession = session.resource;
+        const [repository, worktree] = this.getRepositoryFromMetadata(session.metadata);
+        activeSessionItem = {
+          isUntitled: this.chatService.getSession(session.resource)?.contributedChatSession?.isUntitled ?? true,
+          label: session.label,
+          resource: session.resource,
+          repository,
+          worktree,
+          providerType: session.providerType
+        };
+      } else {
+        activeSessionItem = {
+          isUntitled: true,
+          label: void 0,
+          resource: session.resource,
+          repository: session.repoUri,
+          worktree: void 0,
+          providerType: session.target
+        };
+        this._newActiveSessionDisposables.clear();
+        this._newActiveSessionDisposables.add(session.onDidChange((e) => {
+          if (e === "repoUri") {
+            this.doSetActiveSession({
+              isUntitled: true,
+              label: void 0,
+              resource: session.resource,
+              repository: session.repoUri,
+              worktree: void 0,
+              providerType: session.target
+            });
+          }
+        }));
+      }
+    }
+    this.doSetActiveSession(activeSessionItem);
+  }
+  doSetActiveSession(activeSessionItem) {
+    if (this.equalsSessionItem(this._activeSession.get(), activeSessionItem)) {
+      return;
+    }
+    if (activeSessionItem) {
+      this.logService.info(`[ActiveSessionService] Active session changed: ${activeSessionItem.resource.toString()}`);
+      this.logService.trace(`[ActiveSessionService] Active session details: ${JSON.stringify(activeSessionItem)}`);
+    } else {
+      this.logService.trace("[ActiveSessionService] Active session cleared");
+    }
     this._activeSession.set(activeSessionItem, void 0);
+  }
+  equalsSessionItem(a, b) {
+    if (a === b) {
+      return true;
+    }
+    if (!a || !b) {
+      return false;
+    }
+    return a.label === b.label && a.resource.toString() === b.resource.toString() && a.repository?.toString() === b.repository?.toString() && a.worktree?.toString() === b.worktree?.toString();
+  }
+  async commitWorktreeFiles(session, fileUris) {
+    const worktreeUri = session.worktree;
+    if (!worktreeUri) {
+      throw new Error("Cannot commit worktree files: active session has no associated worktree");
+    }
+    for (const fileUri of fileUris) {
+      await this.commandService.executeCommand("github.copilot.cli.sessions.commitToWorktree", { worktreeUri, fileUri });
+    }
+    await this.agentSessionsService.model.resolve(AgentSessionProviders.Background);
   }
   loadLastSelectedSession() {
     const cached = this.storageService.get(
@@ -303,16 +367,16 @@ let SessionsManagementService = class SessionsManagementService2 extends Disposa
 };
 SessionsManagementService = __decorate([
   __param(0, IStorageService),
-  __param(1, IAgentSessionsService),
-  __param(2, IChatSessionsService),
-  __param(3, IChatWidgetService),
-  __param(4, IChatService),
-  __param(5, IInstantiationService),
-  __param(6, ILogService),
-  __param(7, IContextKeyService),
-  __param(8, IWorkspaceContextService),
-  __param(9, IWorkspaceEditingService),
-  __param(10, IViewsService)
+  __param(1, IUriIdentityService),
+  __param(2, IAgentSessionsService),
+  __param(3, IChatSessionsService),
+  __param(4, IChatWidgetService),
+  __param(5, IChatService),
+  __param(6, IInstantiationService),
+  __param(7, ILogService),
+  __param(8, IContextKeyService),
+  __param(9, ICommandService),
+  __param(10, ILanguageModelsService)
 ], SessionsManagementService);
 export {
   ISessionsManagementService,

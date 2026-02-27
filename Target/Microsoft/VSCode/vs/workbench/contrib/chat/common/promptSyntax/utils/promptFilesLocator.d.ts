@@ -49,7 +49,6 @@ export declare class PromptFilesLocator {
         readonly event: Event<void>;
         dispose: () => void;
     };
-    getAgentSourceFolders(): Promise<readonly URI[]>;
     /**
      * Gets the hook source folders for creating new hooks.
      * Returns folders from config, excluding user storage and Claude paths (which are read-only).
@@ -73,10 +72,20 @@ export declare class PromptFilesLocator {
      * This method merges configured locations with default locations and resolves them
      * to absolute paths, including displayPath and isDefault information.
      *
+     * The returned order prefers workspace (local) folders first, then user folders.
+     * This is used for UX like the "Create Prompt" command where workspace is preferred.
+     *
      * @param type The type of prompt files.
      * @returns List of resolved source folders with metadata.
      */
     getResolvedSourceFolders(type: PromptsType): Promise<readonly IResolvedPromptSourceFolder[]>;
+    /**
+     * Gets all resolved source folders in the same order that file discovery
+     * searches them (user folders first, then local/workspace folders).
+     * This matches the order used by {@link listFiles} and should be used
+     * for debug/diagnostic output so the displayed order is accurate.
+     */
+    getSourceFoldersInDiscoveryOrder(type: PromptsType): Promise<readonly IResolvedPromptSourceFolder[]>;
     /**
      * Gets all local (workspace) storage folders for the given prompt type.
      * This merges default folders with configured locations.

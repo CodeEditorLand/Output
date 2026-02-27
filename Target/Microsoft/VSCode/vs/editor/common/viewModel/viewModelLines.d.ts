@@ -75,6 +75,7 @@ export declare class ViewModelLinesFromProjectedModel implements IViewModelLines
     onModelLinesInserted(versionId: number | null, fromLineNumber: number, _toLineNumber: number, lineBreaks: (ModelLineProjectionData | null)[]): viewEvents.ViewLinesInsertedEvent | null;
     onModelLineChanged(versionId: number | null, lineNumber: number, lineBreakData: ModelLineProjectionData | null): [boolean, viewEvents.ViewLinesChangedEvent | null, viewEvents.ViewLinesInsertedEvent | null, viewEvents.ViewLinesDeletedEvent | null];
     acceptVersionId(versionId: number): void;
+    private _ensureAtLeastOneVisibleLine;
     getViewLineCount(): number;
     private _toValidViewLineNumber;
     getActiveIndentGuide(viewLineNumber: number, minLineNumber: number, maxLineNumber: number): IActiveIndentGuideInfo;

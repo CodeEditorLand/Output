@@ -34,6 +34,7 @@ var PromptFileSource;
   PromptFileSource2["ConfigPersonal"] = "config-personal";
   PromptFileSource2["ExtensionContribution"] = "extension-contribution";
   PromptFileSource2["ExtensionAPI"] = "extension-api";
+  PromptFileSource2["Plugin"] = "plugin";
 })(PromptFileSource || (PromptFileSource = {}));
 const DEFAULT_SKILL_SOURCE_FOLDERS = [
   { path: ".github/skills", source: PromptFileSource.GitHubWorkspace, storage: PromptsStorage.local },
@@ -46,6 +47,7 @@ const DEFAULT_SKILL_SOURCE_FOLDERS = [
 const DEFAULT_INSTRUCTIONS_SOURCE_FOLDERS = [
   { path: INSTRUCTIONS_DEFAULT_SOURCE_FOLDER, source: PromptFileSource.GitHubWorkspace, storage: PromptsStorage.local },
   { path: CLAUDE_RULES_SOURCE_FOLDER, source: PromptFileSource.ClaudeWorkspace, storage: PromptsStorage.local },
+  { path: "~/.copilot/instructions", source: PromptFileSource.CopilotPersonal, storage: PromptsStorage.user },
   { path: "~/" + CLAUDE_RULES_SOURCE_FOLDER, source: PromptFileSource.ClaudePersonal, storage: PromptsStorage.user }
 ];
 const DEFAULT_PROMPT_SOURCE_FOLDERS = [
@@ -53,7 +55,8 @@ const DEFAULT_PROMPT_SOURCE_FOLDERS = [
 ];
 const DEFAULT_AGENT_SOURCE_FOLDERS = [
   { path: AGENTS_SOURCE_FOLDER, source: PromptFileSource.GitHubWorkspace, storage: PromptsStorage.local },
-  { path: CLAUDE_AGENTS_SOURCE_FOLDER, source: PromptFileSource.ClaudeWorkspace, storage: PromptsStorage.local }
+  { path: CLAUDE_AGENTS_SOURCE_FOLDER, source: PromptFileSource.ClaudeWorkspace, storage: PromptsStorage.local },
+  { path: "~/" + CLAUDE_AGENTS_SOURCE_FOLDER, source: PromptFileSource.ClaudePersonal, storage: PromptsStorage.user }
 ];
 const DEFAULT_HOOK_FILE_PATHS = [
   { path: ".github/hooks", source: PromptFileSource.GitHubWorkspace, storage: PromptsStorage.local },

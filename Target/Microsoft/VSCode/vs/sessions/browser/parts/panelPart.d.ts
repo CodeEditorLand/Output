@@ -1,4 +1,5 @@
 import '../../../workbench/browser/parts/panel/media/panelpart.css';
+import './media/panelPart.css';
 import { IWorkbenchLayoutService } from '../../../workbench/services/layout/browser/layoutService.js';
 import { IStorageService } from '../../../platform/storage/common/storage.js';
 import { IContextMenuService } from '../../../platform/contextview/browser/contextView.js';

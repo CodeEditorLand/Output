@@ -77,7 +77,6 @@ let UpdateStatusBarEntryContribution = class UpdateStatusBarEntryContribution2 e
       this.statusBarEntryAccessor.clear();
       return;
     }
-    const productIcon = this.productService.quality === "insider" ? "$(vscode-insiders)" : "$(vscode)";
     switch (state.type) {
       case "uninitialized":
       case "idle":
@@ -95,9 +94,8 @@ let UpdateStatusBarEntryContribution = class UpdateStatusBarEntryContribution2 e
         break;
       case "available for download":
         this.updateStatusBarEntry({
-          kind: "prominent",
           name: UpdateStatusBarEntryContribution_1.NAME,
-          text: nls.localize("updateStatus.updateAvailableStatus", "{0} Update available, click to download.", productIcon),
+          text: nls.localize("updateStatus.updateAvailableStatus", "$(circle-filled) Update available, click to download."),
           ariaLabel: nls.localize("updateStatus.updateAvailableAria", "Update available, click to download."),
           tooltip: this.getAvailableTooltip(state.update),
           command: "update.downloadNow"
@@ -114,9 +112,8 @@ let UpdateStatusBarEntryContribution = class UpdateStatusBarEntryContribution2 e
         break;
       case "downloaded":
         this.updateStatusBarEntry({
-          kind: "prominent",
           name: UpdateStatusBarEntryContribution_1.NAME,
-          text: nls.localize("updateStatus.updateReadyStatus", "{0} Update downloaded, click to install.", productIcon),
+          text: nls.localize("updateStatus.updateReadyStatus", "$(circle-filled) Update downloaded, click to install."),
           ariaLabel: nls.localize("updateStatus.updateReadyAria", "Update downloaded, click to install."),
           tooltip: this.getReadyToInstallTooltip(state.update),
           command: "update.install"
@@ -133,9 +130,8 @@ let UpdateStatusBarEntryContribution = class UpdateStatusBarEntryContribution2 e
         break;
       case "ready": {
         this.updateStatusBarEntry({
-          kind: "prominent",
           name: UpdateStatusBarEntryContribution_1.NAME,
-          text: nls.localize("updateStatus.restartToUpdateStatus", "{0} Update is ready, click to restart.", productIcon),
+          text: nls.localize("updateStatus.restartToUpdateStatus", "$(circle-filled) Update is ready, click to restart."),
           ariaLabel: nls.localize("updateStatus.restartToUpdateAria", "Update is ready, click to restart."),
           tooltip: this.getRestartToUpdateTooltip(state.update),
           command: "update.restart"

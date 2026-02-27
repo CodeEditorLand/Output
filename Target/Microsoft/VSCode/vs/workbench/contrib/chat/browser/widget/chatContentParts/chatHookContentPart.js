@@ -15,6 +15,7 @@ import { $ } from "../../../../../../base/browser/dom.js";
 import { Codicon } from "../../../../../../base/common/codicons.js";
 import { localize } from "../../../../../../nls.js";
 import { IHoverService } from "../../../../../../platform/hover/browser/hover.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
 import { HookType, HOOK_TYPES } from "../../../common/promptSyntax/hookSchema.js";
 import { ChatCollapsibleContentPart } from "./chatCollapsibleContentPart.js";
 import "./media/chatHookContentPart.css";
@@ -26,13 +27,13 @@ let ChatHookContentPart = class ChatHookContentPart2 extends ChatCollapsibleCont
   static {
     __name(this, "ChatHookContentPart");
   }
-  constructor(hookPart, context, hoverService) {
+  constructor(hookPart, context, hoverService, configurationService) {
     const hookTypeLabel = getHookTypeLabel(hookPart.hookType);
     const isStopped = !!hookPart.stopReason;
     const isWarning = !!hookPart.systemMessage;
     const toolName = hookPart.toolDisplayName;
     const title = isStopped ? toolName ? localize("hook.title.stoppedWithTool", "Blocked {0} - {1} hook", toolName, hookTypeLabel) : localize("hook.title.stopped", "Blocked by {0} hook", hookTypeLabel) : toolName ? localize("hook.title.warningWithTool", "Warning for {0} - {1} hook", toolName, hookTypeLabel) : localize("hook.title.warning", "Warning from {0} hook", hookTypeLabel);
-    super(title, context, void 0, hoverService);
+    super(title, context, void 0, hoverService, configurationService);
     this.hookPart = hookPart;
     this.icon = isStopped ? Codicon.error : isWarning ? Codicon.warning : Codicon.check;
     if (isStopped) {
@@ -63,7 +64,8 @@ let ChatHookContentPart = class ChatHookContentPart2 extends ChatCollapsibleCont
   }
 };
 ChatHookContentPart = __decorate([
-  __param(2, IHoverService)
+  __param(2, IHoverService),
+  __param(3, IConfigurationService)
 ], ChatHookContentPart);
 export {
   ChatHookContentPart

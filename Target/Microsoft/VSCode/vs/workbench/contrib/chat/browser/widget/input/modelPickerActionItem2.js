@@ -21,33 +21,25 @@ import { localize } from "../../../../../../nls.js";
 import { IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
 import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
 import { IKeybindingService } from "../../../../../../platform/keybinding/common/keybinding.js";
-import { ILanguageModelsService } from "../../../common/languageModels.js";
 import { ModelPickerWidget } from "./chatModelPicker.js";
 let EnhancedModelPickerActionItem = class EnhancedModelPickerActionItem2 extends BaseActionViewItem {
   static {
     __name(this, "EnhancedModelPickerActionItem");
   }
-  constructor(action, delegate, pickerOptions, instantiationService, _contextKeyService, keybindingService, languageModelsService) {
+  constructor(action, delegate, pickerOptions, instantiationService, _contextKeyService, keybindingService) {
     super(void 0, action);
     this.pickerOptions = pickerOptions;
     this._contextKeyService = _contextKeyService;
     this.keybindingService = keybindingService;
-    this.languageModelsService = languageModelsService;
     this._managedHover = this._register(new MutableDisposable());
-    this._pickerWidget = this._register(instantiationService.createInstance(ModelPickerWidget));
-    this._pickerWidget.setModels(delegate.getModels());
+    this._pickerWidget = this._register(instantiationService.createInstance(ModelPickerWidget, delegate));
     this._pickerWidget.setSelectedModel(delegate.currentModel.get());
     this._register(autorun((t) => {
       const model = delegate.currentModel.read(t);
       this._pickerWidget.setSelectedModel(model);
       this._updateTooltip();
     }));
-    this._register(this._pickerWidget.onDidChangeSelection((model) => {
-      delegate.setModel(model);
-    }));
-    this._register(this.languageModelsService.onDidChangeLanguageModels(() => {
-      this._pickerWidget.setModels(delegate.getModels());
-    }));
+    this._register(this._pickerWidget.onDidChangeSelection((model) => delegate.setModel(model)));
   }
   render(container) {
     this._pickerWidget.render(container);
@@ -94,8 +86,7 @@ let EnhancedModelPickerActionItem = class EnhancedModelPickerActionItem2 extends
 EnhancedModelPickerActionItem = __decorate([
   __param(3, IInstantiationService),
   __param(4, IContextKeyService),
-  __param(5, IKeybindingService),
-  __param(6, ILanguageModelsService)
+  __param(5, IKeybindingService)
 ], EnhancedModelPickerActionItem);
 export {
   EnhancedModelPickerActionItem

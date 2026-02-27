@@ -31,7 +31,7 @@ import { IInstantiationService } from "../../../../platform/instantiation/common
 import { CountBadge } from "../../../../base/browser/ui/countBadge/countBadge.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { IUserDataSyncEnablementService } from "../../../../platform/userDataSync/common/userDataSync.js";
-import { activationTimeIcon, errorIcon, infoIcon, installCountIcon, preReleaseIcon, privateExtensionIcon, ratingIcon, remoteIcon, sponsorIcon, starEmptyIcon, starFullIcon, starHalfIcon, syncIgnoredIcon, warningIcon } from "./extensionsIcons.js";
+import { activationTimeIcon, errorIcon, infoIcon, installCountIcon, preReleaseIcon, privateExtensionIcon, ratingIcon, remoteIcon, restartRequiredIcon, sponsorIcon, starEmptyIcon, starFullIcon, starHalfIcon, syncIgnoredIcon, warningIcon } from "./extensionsIcons.js";
 import { registerColor, textLinkForeground } from "../../../../platform/theme/common/colorRegistry.js";
 import { IHoverService } from "../../../../platform/hover/browser/hover.js";
 import { createCommandUri, MarkdownString } from "../../../../base/common/htmlContent.js";
@@ -658,6 +658,31 @@ SyncIgnoredWidget = __decorate([
   __param(3, IHoverService),
   __param(4, IUserDataSyncEnablementService)
 ], SyncIgnoredWidget);
+let ExtensionRestartRequiredWidget = class ExtensionRestartRequiredWidget2 extends ExtensionWidget {
+  static {
+    __name(this, "ExtensionRestartRequiredWidget");
+  }
+  constructor(container, hoverService) {
+    super();
+    this.container = container;
+    this.hoverService = hoverService;
+    this.disposables = this._register(new DisposableStore());
+  }
+  render() {
+    this.disposables.clear();
+    this.container.innerText = "";
+    const runtimeState = this.extension?.runtimeState;
+    const reason = typeof runtimeState?.reason === "string" ? runtimeState.reason : "";
+    if (runtimeState && /restart|reload/i.test(reason)) {
+      const element = append(this.container, $("span.extension-restart-required" + ThemeIcon.asCSSSelector(restartRequiredIcon)));
+      append(this.container, $("span.extension-restart-required-label", void 0, localize("restart required", "Restart Required")));
+      this.disposables.add(this.hoverService.setupManagedHover(getDefaultHoverDelegate("mouse"), element, reason));
+    }
+  }
+};
+ExtensionRestartRequiredWidget = __decorate([
+  __param(1, IHoverService)
+], ExtensionRestartRequiredWidget);
 let ExtensionRuntimeStatusWidget = class ExtensionRuntimeStatusWidget2 extends ExtensionWidget {
   static {
     __name(this, "ExtensionRuntimeStatusWidget");
@@ -1073,6 +1098,7 @@ export {
   ExtensionKindIndicatorWidget,
   ExtensionPackCountWidget,
   ExtensionRecommendationWidget,
+  ExtensionRestartRequiredWidget,
   ExtensionRuntimeStatusWidget,
   ExtensionStatusWidget,
   ExtensionWidget,

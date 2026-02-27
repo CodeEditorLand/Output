@@ -347,6 +347,7 @@ var ChatRequestQueueKind;
 const IChatService = createDecorator("IChatService");
 const KEYWORD_ACTIVIATION_SETTING_ID = "accessibility.voice.keywordActivation";
 const ChatStopCancellationNoopEventName = "chat.stopCancellationNoop";
+const ChatPendingRequestChangeEventName = "chat.pendingRequestChange";
 export {
   ChatAgentVoteDirection,
   ChatAgentVoteDownReason,
@@ -354,6 +355,7 @@ export {
   ChatErrorLevel,
   ChatMcpServersStarting,
   ChatMultiDiffData,
+  ChatPendingRequestChangeEventName,
   ChatRequestQueueKind,
   ChatResponseClearToPreviousToolInvocationReason,
   ChatResponseReferencePartStatusKind,

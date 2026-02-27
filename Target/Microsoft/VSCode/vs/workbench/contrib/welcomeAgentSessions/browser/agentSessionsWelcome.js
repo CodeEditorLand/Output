@@ -219,8 +219,8 @@ let AgentSessionsWelcomePage = class AgentSessionsWelcomePage2 extends EditorPan
           position: ChatSessionPosition.Sidebar,
           displayName: ""
         });
-        const ref = await this.chatService.loadSessionForResource(newResource, ChatAgentLocation.Chat, CancellationToken.None);
-        this.chatModelRef = ref ?? this.chatService.startSession(ChatAgentLocation.Chat);
+        const ref = await this.chatService.acquireOrLoadSession(newResource, ChatAgentLocation.Chat, CancellationToken.None);
+        this.chatModelRef = ref ?? this.chatService.startNewLocalSession(ChatAgentLocation.Chat);
         this.contentDisposables.add(this.chatModelRef);
         if (this.chatModelRef.object) {
           this.chatWidget.setModel(this.chatModelRef.object);
@@ -293,7 +293,7 @@ let AgentSessionsWelcomePage = class AgentSessionsWelcomePage2 extends EditorPan
     this.contentDisposables.add(scheduleAtNextAnimationFrame(getWindow(chatWidgetContainer), () => {
       this.layoutChatWidget();
     }));
-    this.chatModelRef = this.chatService.startSession(ChatAgentLocation.Chat);
+    this.chatModelRef = this.chatService.startNewLocalSession(ChatAgentLocation.Chat);
     this.contentDisposables.add(this.chatModelRef);
     if (this.chatModelRef.object) {
       this.chatWidget.setModel(this.chatModelRef.object);
@@ -419,7 +419,8 @@ let AgentSessionsWelcomePage = class AgentSessionsWelcomePage2 extends EditorPan
         listBackground: editorBackground
       }),
       filter: this.sessionsControlDisposables.add(this.instantiationService.createInstance(AgentSessionsFilter, {
-        limitResults: /* @__PURE__ */ __name(() => MAX_SESSIONS, "limitResults")
+        limitResults: /* @__PURE__ */ __name(() => MAX_SESSIONS, "limitResults"),
+        overrideExclude: /* @__PURE__ */ __name((session) => session.isArchived() ? true : void 0, "overrideExclude")
       })),
       getHoverPosition: /* @__PURE__ */ __name(() => 2, "getHoverPosition"),
       trackActiveEditorSession: /* @__PURE__ */ __name(() => false, "trackActiveEditorSession"),

@@ -4,11 +4,13 @@ import { alert } from "../../base/browser/ui/aria/aria.js";
 import { Codicon } from "../../base/common/codicons.js";
 import { localize, localize2 } from "../../nls.js";
 import { Categories } from "../../platform/action/common/actionCommonCategories.js";
-import { Action2, registerAction2 } from "../../platform/actions/common/actions.js";
+import { Action2, MenuRegistry, registerAction2 } from "../../platform/actions/common/actions.js";
+import { ContextKeyExpr } from "../../platform/contextkey/common/contextkey.js";
 import { Menus } from "./menus.js";
 import { registerIcon } from "../../platform/theme/common/iconRegistry.js";
-import { AuxiliaryBarVisibleContext, SideBarVisibleContext } from "../../workbench/common/contextkeys.js";
+import { AuxiliaryBarVisibleContext, IsAuxiliaryWindowContext, IsWindowAlwaysOnTopContext, SideBarVisibleContext } from "../../workbench/common/contextkeys.js";
 import { IWorkbenchLayoutService } from "../../workbench/services/layout/browser/layoutService.js";
+import { SessionsWelcomeVisibleContext } from "../common/contextkeys.js";
 const panelLeftIcon = registerIcon("agent-panel-left", Codicon.layoutSidebarLeft, localize("panelLeft", "Represents a side bar in the left position"));
 const panelLeftOffIcon = registerIcon("agent-panel-left-off", Codicon.layoutSidebarLeftOff, localize("panelLeftOff", "Represents a side bar in the left position that is hidden"));
 const panelRightIcon = registerIcon("agent-panel-right", Codicon.layoutSidebarRight, localize("panelRight", "Represents a secondary side bar in the right position"));
@@ -49,7 +51,14 @@ class ToggleSidebarVisibilityAction extends Action2 {
         {
           id: Menus.TitleBarLeft,
           group: "navigation",
-          order: 0
+          order: 0,
+          when: ContextKeyExpr.and(IsAuxiliaryWindowContext.toNegated(), SessionsWelcomeVisibleContext.toNegated())
+        },
+        {
+          id: Menus.TitleBarContext,
+          group: "navigation",
+          order: 0,
+          when: IsAuxiliaryWindowContext.toNegated()
         }
       ]
     });
@@ -99,7 +108,13 @@ class ToggleSecondarySidebarVisibilityAction extends Action2 {
         {
           id: Menus.TitleBarRight,
           group: "navigation",
-          order: 10
+          order: 10,
+          when: ContextKeyExpr.and(IsAuxiliaryWindowContext.toNegated(), SessionsWelcomeVisibleContext.toNegated())
+        },
+        {
+          id: Menus.TitleBarContext,
+          order: 1,
+          when: IsAuxiliaryWindowContext.toNegated()
         }
       ]
     });
@@ -137,7 +152,8 @@ class TogglePanelVisibilityAction extends Action2 {
         {
           id: Menus.PanelTitle,
           group: "navigation",
-          order: 2
+          order: 2,
+          when: IsAuxiliaryWindowContext.toNegated()
         }
       ]
     });
@@ -157,4 +173,18 @@ class TogglePanelVisibilityAction extends Action2 {
 registerAction2(ToggleSidebarVisibilityAction);
 registerAction2(ToggleSecondarySidebarVisibilityAction);
 registerAction2(TogglePanelVisibilityAction);
+MenuRegistry.appendMenuItem(Menus.TitleBarRight, {
+  command: {
+    id: "workbench.action.toggleWindowAlwaysOnTop",
+    title: localize("toggleWindowAlwaysOnTop", "Toggle Always on Top"),
+    icon: Codicon.pin,
+    toggled: {
+      condition: IsWindowAlwaysOnTopContext,
+      icon: Codicon.pinned
+    }
+  },
+  when: IsAuxiliaryWindowContext,
+  group: "navigation",
+  order: 0
+});
 //# sourceMappingURL=layoutActions.js.map

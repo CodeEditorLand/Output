@@ -139,6 +139,12 @@ var IAuthServerMetadataSource;
   IAuthServerMetadataSource2["WellKnown"] = "wellKnown";
   IAuthServerMetadataSource2["Default"] = "default";
 })(IAuthServerMetadataSource || (IAuthServerMetadataSource = {}));
+var GitRefTypeDto;
+(function(GitRefTypeDto2) {
+  GitRefTypeDto2[GitRefTypeDto2["Head"] = 0] = "Head";
+  GitRefTypeDto2[GitRefTypeDto2["RemoteHead"] = 1] = "RemoteHead";
+  GitRefTypeDto2[GitRefTypeDto2["Tag"] = 2] = "Tag";
+})(GitRefTypeDto || (GitRefTypeDto = {}));
 const MainContext = {
   MainThreadAuthentication: createProxyIdentifier("MainThreadAuthentication"),
   MainThreadBulkEdits: createProxyIdentifier("MainThreadBulkEdits"),
@@ -147,6 +153,7 @@ const MainContext = {
   MainThreadChatAgents2: createProxyIdentifier("MainThreadChatAgents2"),
   MainThreadCodeMapper: createProxyIdentifier("MainThreadCodeMapper"),
   MainThreadLanguageModelTools: createProxyIdentifier("MainThreadChatSkills"),
+  MainThreadGitExtension: createProxyIdentifier("MainThreadGitExtension"),
   MainThreadClipboard: createProxyIdentifier("MainThreadClipboard"),
   MainThreadCommands: createProxyIdentifier("MainThreadCommands"),
   MainThreadComments: createProxyIdentifier("MainThreadComments"),
@@ -218,7 +225,8 @@ const MainContext = {
   MainThreadDataChannels: createProxyIdentifier("MainThreadDataChannels"),
   MainThreadChatSessions: createProxyIdentifier("MainThreadChatSessions"),
   MainThreadChatOutputRenderer: createProxyIdentifier("MainThreadChatOutputRenderer"),
-  MainThreadChatContext: createProxyIdentifier("MainThreadChatContext")
+  MainThreadChatContext: createProxyIdentifier("MainThreadChatContext"),
+  MainThreadChatDebug: createProxyIdentifier("MainThreadChatDebug")
 };
 const ExtHostContext = {
   ExtHostCodeMapper: createProxyIdentifier("ExtHostCodeMapper"),
@@ -279,6 +287,7 @@ const ExtHostContext = {
   ExtHostLanguageModelTools: createProxyIdentifier("ExtHostChatSkills"),
   ExtHostChatProvider: createProxyIdentifier("ExtHostChatProvider"),
   ExtHostChatContext: createProxyIdentifier("ExtHostChatContext"),
+  ExtHostChatDebug: createProxyIdentifier("ExtHostChatDebug"),
   ExtHostSpeech: createProxyIdentifier("ExtHostSpeech"),
   ExtHostEmbeddings: createProxyIdentifier("ExtHostEmbeddings"),
   ExtHostAiRelatedInformation: createProxyIdentifier("ExtHostAiRelatedInformation"),
@@ -295,13 +304,15 @@ const ExtHostContext = {
   ExtHostLocalization: createProxyIdentifier("ExtHostLocalization"),
   ExtHostMcp: createProxyIdentifier("ExtHostMcp"),
   ExtHostDataChannels: createProxyIdentifier("ExtHostDataChannels"),
-  ExtHostChatSessions: createProxyIdentifier("ExtHostChatSessions")
+  ExtHostChatSessions: createProxyIdentifier("ExtHostChatSessions"),
+  ExtHostGitExtension: createProxyIdentifier("ExtHostGitExtension")
 };
 export {
   CandidatePortSource,
   CellOutputKind,
   ExtHostContext,
   ExtHostTestingResource,
+  GitRefTypeDto,
   IAuthResourceMetadataSource,
   IAuthServerMetadataSource,
   ISuggestDataDtoField,

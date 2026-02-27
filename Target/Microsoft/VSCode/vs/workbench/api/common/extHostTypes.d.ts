@@ -1674,6 +1674,11 @@ export declare enum ChatTodoStatus {
     InProgress = 2,
     Completed = 3
 }
+export declare enum ChatDebugSubagentStatus {
+    Running = 0,
+    Completed = 1,
+    Failed = 2
+}
 export declare class ChatToolInvocationPart {
     toolName: string;
     toolCallId: string;
@@ -1725,6 +1730,137 @@ export declare enum ChatSessionStatus {
     Completed = 1,
     InProgress = 2,
     NeedsInput = 3
+}
+export declare enum ChatDebugLogLevel {
+    Trace = 0,
+    Info = 1,
+    Warning = 2,
+    Error = 3
+}
+export declare enum ChatDebugToolCallResult {
+    Success = 0,
+    Error = 1
+}
+export declare class ChatDebugToolCallEvent {
+    readonly _kind = "toolCall";
+    id?: string;
+    sessionResource?: vscode.Uri;
+    created: Date;
+    parentEventId?: string;
+    toolName: string;
+    toolCallId?: string;
+    input?: string;
+    output?: string;
+    result?: ChatDebugToolCallResult;
+    durationInMillis?: number;
+    constructor(toolName: string, created: Date);
+}
+export declare class ChatDebugModelTurnEvent {
+    readonly _kind = "modelTurn";
+    id?: string;
+    sessionResource?: vscode.Uri;
+    created: Date;
+    parentEventId?: string;
+    model?: string;
+    inputTokens?: number;
+    outputTokens?: number;
+    totalTokens?: number;
+    cost?: number;
+    durationInMillis?: number;
+    constructor(created: Date);
+}
+export declare class ChatDebugGenericEvent {
+    readonly _kind = "generic";
+    id?: string;
+    sessionResource?: vscode.Uri;
+    created: Date;
+    parentEventId?: string;
+    name: string;
+    details?: string;
+    level: ChatDebugLogLevel;
+    category?: string;
+    constructor(name: string, level: ChatDebugLogLevel, created: Date);
+}
+export declare class ChatDebugSubagentInvocationEvent {
+    readonly _kind = "subagentInvocation";
+    id?: string;
+    sessionResource?: vscode.Uri;
+    created: Date;
+    parentEventId?: string;
+    agentName: string;
+    description?: string;
+    status?: ChatDebugSubagentStatus;
+    durationInMillis?: number;
+    toolCallCount?: number;
+    modelTurnCount?: number;
+    constructor(agentName: string, created: Date);
+}
+export declare class ChatDebugMessageSection {
+    name: string;
+    content: string;
+    constructor(name: string, content: string);
+}
+export declare class ChatDebugUserMessageEvent {
+    readonly _kind = "userMessage";
+    id?: string;
+    sessionResource?: vscode.Uri;
+    created: Date;
+    parentEventId?: string;
+    message: string;
+    sections: ChatDebugMessageSection[];
+    constructor(message: string, created: Date);
+}
+export declare class ChatDebugAgentResponseEvent {
+    readonly _kind = "agentResponse";
+    id?: string;
+    sessionResource?: vscode.Uri;
+    created: Date;
+    parentEventId?: string;
+    message: string;
+    sections: ChatDebugMessageSection[];
+    constructor(message: string, created: Date);
+}
+export declare class ChatDebugEventTextContent {
+    readonly _kind = "text";
+    value: string;
+    constructor(value: string);
+}
+export declare enum ChatDebugMessageContentType {
+    User = 0,
+    Agent = 1
+}
+export declare class ChatDebugEventMessageContent {
+    readonly _kind = "messageContent";
+    type: ChatDebugMessageContentType;
+    message: string;
+    sections: ChatDebugMessageSection[];
+    constructor(type: ChatDebugMessageContentType, message: string, sections: ChatDebugMessageSection[]);
+}
+export declare class ChatDebugEventToolCallContent {
+    readonly _kind = "toolCallContent";
+    toolName: string;
+    result?: ChatDebugToolCallResult;
+    durationInMillis?: number;
+    input?: string;
+    output?: string;
+    constructor(toolName: string);
+}
+export declare class ChatDebugEventModelTurnContent {
+    readonly _kind = "modelTurnContent";
+    requestName: string;
+    model?: string;
+    status?: string;
+    durationInMillis?: number;
+    timeToFirstTokenInMillis?: number;
+    maxInputTokens?: number;
+    maxOutputTokens?: number;
+    inputTokens?: number;
+    outputTokens?: number;
+    cachedTokens?: number;
+    totalTokens?: number;
+    errorMessage?: string;
+    sections?: ChatDebugMessageSection[];
+    constructor(requestName: string);
 }
 export declare class ChatSessionChangedFile {
     readonly modifiedUri: vscode.Uri;

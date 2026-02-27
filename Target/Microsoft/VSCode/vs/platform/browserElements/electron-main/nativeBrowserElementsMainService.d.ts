@@ -1,4 +1,4 @@
-import { IElementData, INativeBrowserElementsService, IBrowserTargetLocator } from '../common/browserElements.js';
+import { IElementData, IElementAncestor, INativeBrowserElementsService, IBrowserTargetLocator } from '../common/browserElements.js';
 import { CancellationToken } from '../../../base/common/cancellation.js';
 import { IRectangle } from '../../window/common/window.js';
 import { BrowserWindow } from 'electron';
@@ -14,6 +14,16 @@ interface NodeDataResponse {
     outerHTML: string;
     computedStyle: string;
     bounds: IRectangle;
+    ancestors?: IElementAncestor[];
+    attributes?: Record<string, string>;
+    computedStyles?: Record<string, string>;
+    dimensions?: {
+        top: number;
+        left: number;
+        width: number;
+        height: number;
+    };
+    innerText?: string;
 }
 export declare class NativeBrowserElementsMainService extends Disposable implements INativeBrowserElementsMainService {
     private readonly windowsMainService;

@@ -2,6 +2,9 @@ import { ServicesAccessor } from '../../../../platform/instantiation/common/inst
 import { RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
 export declare enum ChatConfiguration {
     AIDisabled = "chat.disableAIFeatures",
+    PluginsEnabled = "chat.plugins.enabled",
+    PluginPaths = "chat.plugins.paths",
+    PluginMarketplaces = "chat.plugins.marketplaces",
     AgentEnabled = "chat.agent.enabled",
     PlanAgentDefaultModel = "chat.planAgent.defaultModel",
     ExploreAgentDefaultModel = "chat.exploreAgent.defaultModel",
@@ -11,7 +14,6 @@ export declare enum ChatConfiguration {
     UnifiedAgentsBar = "chat.unifiedAgentsBar.enabled",
     AgentSessionProjectionEnabled = "chat.agentSessionProjection.enabled",
     EditModeHidden = "chat.editMode.hidden",
-    AlternativeToolAction = "chat.alternativeToolAction.enabled",
     Edits2Enabled = "chat.edits2.enabled",
     ExtensionToolsEnabled = "chat.extensionTools.enabled",
     RepoInfoEnabled = "chat.repoInfo.enabled",
@@ -27,8 +29,11 @@ export declare enum ChatConfiguration {
     ThinkingStyle = "chat.agent.thinkingStyle",
     ThinkingGenerateTitles = "chat.agent.thinking.generateTitles",
     TerminalToolsInThinking = "chat.agent.thinking.terminalTools",
+    SimpleTerminalCollapsible = "chat.tools.terminal.simpleCollapsible",
+    ThinkingPhrases = "chat.agent.thinking.phrases",
     AutoExpandToolFailures = "chat.tools.autoExpandFailures",
     TodosShowWidget = "chat.tools.todos.showWidget",
+    NotifyWindowOnConfirmation = "chat.notifyWindowOnConfirmation",
     NotifyWindowOnResponseReceived = "chat.notifyWindowOnResponseReceived",
     ChatViewSessionsEnabled = "chat.viewSessions.enabled",
     ChatViewSessionsGrouping = "chat.viewSessions.grouping",
@@ -41,7 +46,8 @@ export declare enum ChatConfiguration {
     ExitAfterDelegation = "chat.exitAfterDelegation",
     AgentsControlClickBehavior = "chat.agentsControl.clickBehavior",
     ExplainChangesEnabled = "chat.editing.explainChanges.enabled",
-    GrowthNotificationEnabled = "chat.growthNotification.enabled"
+    GrowthNotificationEnabled = "chat.growthNotification.enabled",
+    ChatCustomizationMenuEnabled = "chat.customizationsMenu.enabled"
 }
 /**
  * The "kind" of agents for custom agents.
@@ -61,6 +67,11 @@ export declare enum ThinkingDisplayMode {
 export declare enum CollapsedToolsDisplayMode {
     Off = "off",
     WithThinking = "withThinking",
+    Always = "always"
+}
+export declare enum ChatNotificationMode {
+    Off = "off",
+    WindowNotFocused = "windowNotFocused",
     Always = "always"
 }
 export declare enum AgentsControlClickBehavior {

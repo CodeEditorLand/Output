@@ -35,6 +35,7 @@ import { ILanguageConfigurationService } from "../languages/languageConfiguratio
 import * as model from "../model.js";
 import { EditSources } from "../textModelEditSource.js";
 import { InternalModelContentChangeEvent, LineInjectedText, ModelFontChanged, ModelFontChangedEvent, ModelInjectedTextChangedEvent, ModelLineHeightChanged, ModelLineHeightChangedEvent, ModelRawContentChangedEvent, ModelRawEOLChanged, ModelRawFlush, ModelRawLineChanged, ModelRawLinesDeleted, ModelRawLinesInserted } from "../textModelEvents.js";
+import { LineTokens } from "../tokens/lineTokens.js";
 import { BracketPairsTextModelPart } from "./bracketPairsTextModelPart/bracketPairsImpl.js";
 import { ColorizedBracketPairsDecorationProvider } from "./bracketPairsTextModelPart/colorizedBracketPairsDecorationProvider.js";
 import { EditStack } from "./editStack.js";
@@ -1206,7 +1207,9 @@ let TextModel = class TextModel2 extends Disposable {
         }
         if (editingLinesCnt < deletingLinesCnt) {
           const spliceStartLineNumber = startLineNumber + editingLinesCnt;
-          rawContentChanges.push(new ModelRawLinesDeleted(spliceStartLineNumber + 1, endLineNumber));
+          const cnt = insertingLinesCnt - deletingLinesCnt;
+          const lastUntouchedLinePostEdit = newLineCount - lineCount - cnt + spliceStartLineNumber;
+          rawContentChanges.push(new ModelRawLinesDeleted(spliceStartLineNumber + 1, endLineNumber, lastUntouchedLinePostEdit));
         }
         if (editingLinesCnt < insertingLinesCnt) {
           const injectedTextInEditedRangeQueue2 = new ArrayQueue(injectedTextInEditedRange);
@@ -1278,10 +1281,18 @@ let TextModel = class TextModel2 extends Disposable {
   }
   _onDidChangeContentOrInjectedText(e) {
     for (const viewModel of this._viewModels) {
-      viewModel.onDidChangeContentOrInjectedText(e);
+      try {
+        viewModel.onDidChangeContentOrInjectedText(e);
+      } catch (error) {
+        onUnexpectedError(error);
+      }
     }
     for (const viewModel of this._viewModels) {
-      viewModel.emitContentChangeEvent(e);
+      try {
+        viewModel.emitContentChangeEvent(e);
+      } catch (error) {
+        onUnexpectedError(error);
+      }
     }
   }
   changeDecorations(callback, ownerId = 0) {
@@ -1675,6 +1686,36 @@ TextModel = TextModel_1 = __decorate([
   __param(6, ILanguageConfigurationService),
   __param(7, IInstantiationService)
 ], TextModel);
+function getLineTokensWithInjections(tokens, injectionOptions, injectionOffsets) {
+  let lineTokens;
+  if (injectionOffsets) {
+    const tokensToInsert = [];
+    for (let idx = 0; idx < injectionOffsets.length; idx++) {
+      const offset = injectionOffsets[idx];
+      const tokens2 = injectionOptions[idx].tokens;
+      if (tokens2) {
+        tokens2.forEach((range, info) => {
+          tokensToInsert.push({
+            offset,
+            text: range.substring(injectionOptions[idx].content),
+            tokenMetadata: info.metadata
+          });
+        });
+      } else {
+        tokensToInsert.push({
+          offset,
+          text: injectionOptions[idx].content,
+          tokenMetadata: LineTokens.defaultTokenMetadata
+        });
+      }
+    }
+    lineTokens = tokens.withInserted(tokensToInsert);
+  } else {
+    lineTokens = tokens;
+  }
+  return lineTokens;
+}
+__name(getLineTokensWithInjections, "getLineTokensWithInjections");
 function indentOfLine(line) {
   let indent = 0;
   for (const c of line) {
@@ -2151,6 +2192,7 @@ export {
   createTextBufferFactory,
   createTextBufferFactoryFromSnapshot,
   createTextBufferFactoryFromStream,
+  getLineTokensWithInjections,
   indentOfLine
 };
 //# sourceMappingURL=textModel.js.map

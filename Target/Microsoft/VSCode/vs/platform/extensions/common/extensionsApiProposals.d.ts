@@ -36,6 +36,10 @@ declare const _allApiProposals: {
     chatContextProvider: {
         proposal: string;
     };
+    chatDebug: {
+        proposal: string;
+        version: number;
+    };
     chatHooks: {
         proposal: string;
         version: number;
@@ -221,9 +225,6 @@ declare const _allApiProposals: {
         proposal: string;
     };
     embeddings: {
-        proposal: string;
-    };
-    envIsAppPortable: {
         proposal: string;
     };
     envIsConnectionMetered: {
@@ -440,6 +441,9 @@ declare const _allApiProposals: {
         proposal: string;
     };
     terminalShellEnv: {
+        proposal: string;
+    };
+    terminalTitle: {
         proposal: string;
     };
     testObserver: {

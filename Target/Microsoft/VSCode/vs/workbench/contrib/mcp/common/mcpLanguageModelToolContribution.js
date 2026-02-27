@@ -34,6 +34,7 @@ import { IMcpRegistry } from "./mcpRegistryTypes.js";
 import { IMcpService, McpResourceURI, McpToolResourceLinkMimeType } from "./mcpTypes.js";
 import { mcpServerToSourceData } from "./mcpTypesUtils.js";
 import { ILifecycleService } from "../../../services/lifecycle/common/lifecycle.js";
+import { McpServer } from "./mcpServer.js";
 let McpLanguageModelToolContribution = class McpLanguageModelToolContribution2 extends Disposable {
   static {
     __name(this, "McpLanguageModelToolContribution");
@@ -175,17 +176,24 @@ let McpToolImplementation = class McpToolImplementation2 {
   async prepareToolInvocation(context) {
     const tool = this._tool;
     const server = this._server;
+    const sandboxEnabled = await McpServer.callOn(server, async (_handler, connection) => {
+      return connection.definition.sandboxEnabled;
+    });
+    const isSandboxedServer = sandboxEnabled === true;
     const mcpToolWarning = localize("mcp.tool.warning", "Note that MCP servers or malicious conversation content may attempt to misuse '{0}' through tools.", this._productService.nameShort);
     const title = tool.definition.annotations?.title || tool.definition.title || "`" + tool.definition.name + "`";
-    const confirm = {};
-    if (!tool.definition.annotations?.readOnlyHint) {
-      confirm.title = new MarkdownString(localize("msg.title", "Run {0}", title));
-      confirm.message = new MarkdownString(tool.definition.description, { supportThemeIcons: true });
-      confirm.disclaimer = mcpToolWarning;
-      confirm.allowAutoConfirm = true;
-    }
-    if (tool.definition.annotations?.openWorldHint) {
-      confirm.confirmResults = true;
+    let confirm;
+    if (!isSandboxedServer) {
+      confirm = {};
+      if (!tool.definition.annotations?.readOnlyHint) {
+        confirm.title = new MarkdownString(localize("msg.title", "Run {0}", title));
+        confirm.message = new MarkdownString(tool.definition.description, { supportThemeIcons: true });
+        confirm.disclaimer = mcpToolWarning;
+        confirm.allowAutoConfirm = true;
+      }
+      if (tool.definition.annotations?.openWorldHint) {
+        confirm.confirmResults = true;
+      }
     }
     const mcpUiEnabled = this._configurationService.getValue(mcpAppsEnabledConfig);
     return {
@@ -208,7 +216,7 @@ let McpToolImplementation = class McpToolImplementation2 {
     const result = {
       content: []
     };
-    const callResult = await this._tool.callWithProgress(invocation.parameters, progress, { chatRequestId: invocation.chatRequestId, chatSessionResource: void 0 }, token);
+    const callResult = await this._tool.callWithProgress(invocation.parameters, progress, { chatRequestId: invocation.chatRequestId, chatSessionResource: invocation.context?.sessionResource }, token);
     const details = {
       input: JSON.stringify(invocation.parameters, void 0, 2),
       output: [],

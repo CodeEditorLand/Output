@@ -192,7 +192,7 @@ let McpServer = McpServer_1 = class McpServer2 extends Disposable {
             return;
           }
         }
-        resolve(fn(handler));
+        resolve(fn(handler, connection));
         ranOnce = true;
       });
     });

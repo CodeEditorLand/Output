@@ -339,7 +339,8 @@ body {
 .monaco-workbench.mac select:focus {
   border-color: transparent;
 }
-.monaco-workbench .monaco-list:not(.element-focused):not(:active):focus:before {
+.monaco-workbench.hc-black .monaco-list:not(.element-focused):not(:active):focus:before,
+.monaco-workbench.hc-light .monaco-list:not(.element-focused):not(:active):focus:before {
   position: absolute;
   top: 0;
   left: 0;

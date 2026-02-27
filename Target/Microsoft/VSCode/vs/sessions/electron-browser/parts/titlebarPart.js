@@ -22,6 +22,7 @@ import { INativeHostService } from "../../../platform/native/common/native.js";
 import { IStorageService } from "../../../platform/storage/common/storage.js";
 import { IThemeService } from "../../../platform/theme/common/themeService.js";
 import { useWindowControlsOverlay } from "../../../platform/window/common/window.js";
+import { IsWindowAlwaysOnTopContext } from "../../../workbench/common/contextkeys.js";
 import { IHostService } from "../../../workbench/services/host/browser/host.js";
 import { IWorkbenchLayoutService } from "../../../workbench/services/layout/browser/layoutService.js";
 import { mainWindow } from "../../../base/browser/window.js";
@@ -33,12 +34,26 @@ let NativeTitlebarPart = class NativeTitlebarPart2 extends TitlebarPart {
   constructor(id, targetWindow, contextMenuService, configurationService, instantiationService, themeService, storageService, layoutService, contextKeyService, hostService, nativeHostService) {
     super(id, targetWindow, contextMenuService, configurationService, instantiationService, themeService, storageService, layoutService, contextKeyService, hostService);
     this.nativeHostService = nativeHostService;
+    this.handleWindowsAlwaysOnTop(targetWindow.vscodeWindowId, contextKeyService);
+  }
+  async handleWindowsAlwaysOnTop(targetWindowId, contextKeyService) {
+    const isWindowAlwaysOnTopContext = IsWindowAlwaysOnTopContext.bindTo(contextKeyService);
+    this._register(this.nativeHostService.onDidChangeWindowAlwaysOnTop(({ windowId, alwaysOnTop }) => {
+      if (windowId === targetWindowId) {
+        isWindowAlwaysOnTopContext.set(alwaysOnTop);
+      }
+    }));
+    isWindowAlwaysOnTopContext.set(await this.nativeHostService.isWindowAlwaysOnTop({ targetWindowId }));
   }
   updateStyles() {
     super.updateStyles();
     if (this.element) {
       if (useWindowControlsOverlay(this.configurationService)) {
         if (!this.cachedWindowControlStyles || this.cachedWindowControlStyles.bgColor !== this.element.style.backgroundColor || this.cachedWindowControlStyles.fgColor !== this.element.style.color) {
+          this.cachedWindowControlStyles = {
+            bgColor: this.element.style.backgroundColor,
+            fgColor: this.element.style.color
+          };
           this.nativeHostService.updateWindowControls({
             targetWindowId: getWindowId(getWindow(this.element)),
             backgroundColor: this.element.style.backgroundColor,
@@ -105,7 +120,7 @@ let AuxiliaryNativeTitlebarPart = class AuxiliaryNativeTitlebarPart2 extends Nat
   get height() {
     return this.minimumHeight;
   }
-  constructor(container, editorGroupsContainer, mainTitlebar, contextMenuService, configurationService, instantiationService, themeService, storageService, layoutService, contextKeyService, hostService, nativeHostService) {
+  constructor(container, mainTitlebar, contextMenuService, configurationService, instantiationService, themeService, storageService, layoutService, contextKeyService, hostService, nativeHostService) {
     const id = AuxiliaryNativeTitlebarPart_1.COUNTER++;
     super(`workbench.parts.auxiliaryTitle.${id}`, getWindow(container), contextMenuService, configurationService, instantiationService, themeService, storageService, layoutService, contextKeyService, hostService, nativeHostService);
     this.container = container;
@@ -116,15 +131,15 @@ let AuxiliaryNativeTitlebarPart = class AuxiliaryNativeTitlebarPart2 extends Nat
   }
 };
 AuxiliaryNativeTitlebarPart = AuxiliaryNativeTitlebarPart_1 = __decorate([
-  __param(3, IContextMenuService),
-  __param(4, IConfigurationService),
-  __param(5, IInstantiationService),
-  __param(6, IThemeService),
-  __param(7, IStorageService),
-  __param(8, IWorkbenchLayoutService),
-  __param(9, IContextKeyService),
-  __param(10, IHostService),
-  __param(11, INativeHostService)
+  __param(2, IContextMenuService),
+  __param(3, IConfigurationService),
+  __param(4, IInstantiationService),
+  __param(5, IThemeService),
+  __param(6, IStorageService),
+  __param(7, IWorkbenchLayoutService),
+  __param(8, IContextKeyService),
+  __param(9, IHostService),
+  __param(10, INativeHostService)
 ], AuxiliaryNativeTitlebarPart);
 class NativeTitleService extends TitleService {
   static {
@@ -133,8 +148,8 @@ class NativeTitleService extends TitleService {
   createMainTitlebarPart() {
     return this.instantiationService.createInstance(MainNativeTitlebarPart);
   }
-  doCreateAuxiliaryTitlebarPart(container, editorGroupsContainer, instantiationService) {
-    return instantiationService.createInstance(AuxiliaryNativeTitlebarPart, container, editorGroupsContainer, this.mainPart);
+  doCreateAuxiliaryTitlebarPart(container, _editorGroupsContainer, instantiationService) {
+    return instantiationService.createInstance(AuxiliaryNativeTitlebarPart, container, this.mainPart);
   }
 }
 export {

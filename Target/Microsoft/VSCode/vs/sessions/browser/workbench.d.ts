@@ -1,5 +1,5 @@
 import '../../workbench/browser/style.js';
-import './style.css';
+import './media/style.css';
 import { Disposable, DisposableStore, IDisposable } from '../../base/common/lifecycle.js';
 import { Event } from '../../base/common/event.js';
 import { IDimension } from '../../base/browser/dom.js';
@@ -80,7 +80,6 @@ export declare class Workbench extends Disposable implements IWorkbenchLayoutSer
     private sideBarPartView;
     private panelPartView;
     private auxiliaryBarPartView;
-    private editorModal;
     private chatBarPartView;
     private readonly partVisibility;
     private mainWindowFullscreen;
@@ -107,7 +106,7 @@ export declare class Workbench extends Disposable implements IWorkbenchLayoutSer
     private renderWorkbench;
     private createNotificationsHandlers;
     private createPartContainer;
-    private createEditorModal;
+    private createHiddenEditorPart;
     private restore;
     private restoreParts;
     initLayout(accessor: ServicesAccessor): void;

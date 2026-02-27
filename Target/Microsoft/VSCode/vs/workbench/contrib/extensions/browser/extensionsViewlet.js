@@ -23,7 +23,7 @@ import { append, $, Dimension, hide, show, DragAndDropObserver, trackFocus, addD
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { IExtensionService } from "../../../services/extensions/common/extensions.js";
-import { IExtensionsWorkbenchService, VIEWLET_ID, CloseExtensionDetailsOnViewChangeKey, INSTALL_EXTENSION_FROM_VSIX_COMMAND_ID, WORKSPACE_RECOMMENDATIONS_VIEW_ID, AutoCheckUpdatesConfigurationKey, OUTDATED_EXTENSIONS_VIEW_ID, CONTEXT_HAS_GALLERY, extensionsSearchActionsMenu, AutoRestartConfigurationKey, SearchMcpServersContext, DefaultViewsContext, CONTEXT_EXTENSIONS_GALLERY_STATUS } from "../common/extensions.js";
+import { IExtensionsWorkbenchService, VIEWLET_ID, CloseExtensionDetailsOnViewChangeKey, INSTALL_EXTENSION_FROM_VSIX_COMMAND_ID, WORKSPACE_RECOMMENDATIONS_VIEW_ID, AutoCheckUpdatesConfigurationKey, OUTDATED_EXTENSIONS_VIEW_ID, CONTEXT_HAS_GALLERY, extensionsSearchActionsMenu, AutoRestartConfigurationKey, SearchMcpServersContext, SearchAgentPluginsContext, DefaultViewsContext, CONTEXT_EXTENSIONS_GALLERY_STATUS } from "../common/extensions.js";
 import { InstallLocalExtensionsInRemoteAction, InstallRemoteExtensionsInLocalAction } from "./extensionsActions.js";
 import { IExtensionManagementService } from "../../../../platform/extensionManagement/common/extensionManagement.js";
 import { IWorkbenchExtensionEnablementService, IExtensionManagementServerService } from "../../../services/extensionManagement/common/extensionManagement.js";
@@ -68,12 +68,9 @@ import { MenuWorkbenchToolBar } from "../../../../platform/actions/browser/toolb
 import { createActionViewItem } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
 import { SeverityIcon } from "../../../../base/browser/ui/severityIcon/severityIcon.js";
 import { StandardKeyboardEvent } from "../../../../base/browser/keyboardEvent.js";
-import { ThemeIcon } from "../../../../base/common/themables.js";
-import { Codicon } from "../../../../base/common/codicons.js";
 import { IExtensionGalleryManifestService } from "../../../../platform/extensionManagement/common/extensionGalleryManifest.js";
 import { URI } from "../../../../base/common/uri.js";
 import { DEFAULT_ACCOUNT_SIGN_IN_COMMAND } from "../../../services/accounts/browser/defaultAccount.js";
-import { IHoverService } from "../../../../platform/hover/browser/hover.js";
 const ExtensionsSortByContext = new RawContextKey("extensionsSortByValue", "");
 const SearchMarketplaceExtensionsContext = new RawContextKey("searchMarketplaceExtensions", false);
 const SearchHasTextContext = new RawContextKey("extensionSearchHasText", false);
@@ -89,6 +86,7 @@ const BuiltInExtensionsContext = new RawContextKey("builtInExtensions", false);
 const SearchBuiltInExtensionsContext = new RawContextKey("searchBuiltInExtensions", false);
 const SearchUnsupportedWorkspaceExtensionsContext = new RawContextKey("searchUnsupportedWorkspaceExtensions", false);
 const SearchDeprecatedExtensionsContext = new RawContextKey("searchDeprecatedExtensions", false);
+const SearchRestartRequiredExtensionsContext = new RawContextKey("searchRestartRequiredExtensions", false);
 const RecommendedExtensionsContext = new RawContextKey("recommendedExtensions", false);
 const SortByUpdateDateContext = new RawContextKey("sortByUpdateDate", false);
 const ExtensionsSearchValueContext = new RawContextKey("extensionsSearchValue", "");
@@ -409,6 +407,12 @@ let ExtensionsViewletViewsContribution = class ExtensionsViewletViewsContributio
       ctorDescriptor: new SyncDescriptor(DeprecatedExtensionsView, [{}]),
       when: ContextKeyExpr.and(SearchDeprecatedExtensionsContext)
     });
+    viewDescriptors.push({
+      id: "workbench.views.extensions.restartRequired",
+      name: localize2("restart required", "Restart Required"),
+      ctorDescriptor: new SyncDescriptor(ExtensionsListView, [{}]),
+      when: ContextKeyExpr.and(SearchRestartRequiredExtensionsContext)
+    });
     return viewDescriptors;
   }
 };
@@ -421,7 +425,7 @@ let ExtensionsViewPaneContainer = class ExtensionsViewPaneContainer2 extends Vie
   static {
     __name(this, "ExtensionsViewPaneContainer");
   }
-  constructor(layoutService, telemetryService, progressService, instantiationService, editorGroupService, extensionGalleryManifestService, extensionsWorkbenchService, extensionManagementServerService, notificationService, paneCompositeService, themeService, configurationService, storageService, contextService, contextKeyService, contextMenuService, extensionService, viewDescriptorService, preferencesService, commandService, logService, hoverService) {
+  constructor(layoutService, telemetryService, progressService, instantiationService, editorGroupService, extensionGalleryManifestService, extensionsWorkbenchService, extensionManagementServerService, notificationService, paneCompositeService, themeService, configurationService, storageService, contextService, contextKeyService, contextMenuService, extensionService, viewDescriptorService, preferencesService, commandService, logService) {
     super(VIEWLET_ID, { mergeViewWithContainerWhenSingleView: true }, instantiationService, configurationService, layoutService, contextMenuService, telemetryService, extensionService, themeService, storageService, contextService, viewDescriptorService, logService);
     this.progressService = progressService;
     this.editorGroupService = editorGroupService;
@@ -432,7 +436,6 @@ let ExtensionsViewPaneContainer = class ExtensionsViewPaneContainer2 extends Vie
     this.contextKeyService = contextKeyService;
     this.preferencesService = preferencesService;
     this.commandService = commandService;
-    this.hoverService = hoverService;
     this.extensionGalleryManifest = null;
     this.notificationDisposables = this._register(new MutableDisposable());
     this.searchDelayer = this._register(new Delayer(500));
@@ -441,6 +444,7 @@ let ExtensionsViewPaneContainer = class ExtensionsViewPaneContainer2 extends Vie
     this.sortByContextKey = ExtensionsSortByContext.bindTo(contextKeyService);
     this.searchMarketplaceExtensionsContextKey = SearchMarketplaceExtensionsContext.bindTo(contextKeyService);
     this.searchMcpServersContextKey = SearchMcpServersContext.bindTo(contextKeyService);
+    this.searchAgentPluginsContextKey = SearchAgentPluginsContext.bindTo(contextKeyService);
     this.searchHasTextContextKey = SearchHasTextContext.bindTo(contextKeyService);
     this.sortByUpdateDateContextKey = SortByUpdateDateContext.bindTo(contextKeyService);
     this.installedExtensionsContextKey = InstalledExtensionsContext.bindTo(contextKeyService);
@@ -449,6 +453,7 @@ let ExtensionsViewPaneContainer = class ExtensionsViewPaneContainer2 extends Vie
     this.searchExtensionUpdatesContextKey = SearchExtensionUpdatesContext.bindTo(contextKeyService);
     this.searchWorkspaceUnsupportedExtensionsContextKey = SearchUnsupportedWorkspaceExtensionsContext.bindTo(contextKeyService);
     this.searchDeprecatedExtensionsContextKey = SearchDeprecatedExtensionsContext.bindTo(contextKeyService);
+    this.searchRestartRequiredExtensionsContextKey = SearchRestartRequiredExtensionsContext.bindTo(contextKeyService);
     this.searchOutdatedExtensionsContextKey = SearchOutdatedExtensionsContext.bindTo(contextKeyService);
     this.searchEnabledExtensionsContextKey = SearchEnabledExtensionsContext.bindTo(contextKeyService);
     this.searchDisabledExtensionsContextKey = SearchDisabledExtensionsContext.bindTo(contextKeyService);
@@ -610,14 +615,15 @@ let ExtensionsViewPaneContainer = class ExtensionsViewPaneContainer2 extends Vie
     clearNode(this.notificationContainer);
     this.notificationDisposables.value = new DisposableStore();
     const status = this.extensionsWorkbenchService.getExtensionsNotification();
-    const query = status?.extensions.map((extension) => `@id:${extension.identifier.id}`).join(" ");
+    const query = status?.query ?? status?.extensions.map((extension) => `@id:${extension.identifier.id}`).join(" ");
     if (status && (query === this.searchBox?.getValue() || !this.searchMarketplaceExtensionsContextKey.get())) {
       this.notificationContainer.setAttribute("aria-label", status.message);
       this.notificationContainer.classList.remove("hidden");
       const messageContainer = append(this.notificationContainer, $(".message-container"));
       append(messageContainer, $("span")).className = SeverityIcon.className(status.severity);
-      append(messageContainer, $("span.message", void 0, status.message));
-      const showAction = append(messageContainer, $("span.message-text-action", {
+      const messageText = append(messageContainer, $("span.message-text"));
+      append(messageText, $("span.message", void 0, status.message));
+      const showAction = append(messageText, $("span.message-text-action", {
         "tabindex": "0",
         "role": "button",
         "aria-label": `${status.message}. ${localize("click show", "Click to Show")}`
@@ -630,23 +636,30 @@ let ExtensionsViewPaneContainer = class ExtensionsViewPaneContainer2 extends Vie
         }
         standardKeyboardEvent.stopPropagation();
       }));
-      const dismissAction = append(this.notificationContainer, $(`span.message-action${ThemeIcon.asCSSSelector(Codicon.close)}`, {
-        "tabindex": "0",
-        "role": "button",
-        "aria-label": localize("dismiss", "Dismiss")
-      }));
-      this.notificationDisposables.value.add(this.hoverService.setupDelayedHover(dismissAction, { content: localize("dismiss hover", "Dismiss") }));
-      this.notificationDisposables.value.add(addDisposableListener(dismissAction, EventType.CLICK, () => status.dismiss()));
-      this.notificationDisposables.value.add(addDisposableListener(dismissAction, EventType.KEY_DOWN, (e) => {
-        const standardKeyboardEvent = new StandardKeyboardEvent(e);
-        if (standardKeyboardEvent.keyCode === 3 || standardKeyboardEvent.keyCode === 10) {
-          status.dismiss();
-        }
-        standardKeyboardEvent.stopPropagation();
-      }));
+      const actionsContainer = append(this.notificationContainer, $(".notification-actions"));
+      if (status.action) {
+        const actionButton = append(actionsContainer, $("span.message-action-button", {
+          "tabindex": "0",
+          "role": "button",
+          "aria-label": status.action.label
+        }, status.action.label));
+        this.notificationDisposables.value.add(addDisposableListener(actionButton, EventType.CLICK, () => {
+          Promise.resolve(status.action.run()).catch((error) => this.notificationService.error(error));
+        }));
+        this.notificationDisposables.value.add(addDisposableListener(actionButton, EventType.KEY_DOWN, (e) => {
+          const standardKeyboardEvent = new StandardKeyboardEvent(e);
+          if (standardKeyboardEvent.keyCode === 3 || standardKeyboardEvent.keyCode === 10) {
+            Promise.resolve(status.action.run()).catch((error) => this.notificationService.error(error));
+          }
+          standardKeyboardEvent.stopPropagation();
+        }));
+      }
     } else {
       this.notificationContainer.removeAttribute("aria-label");
       this.notificationContainer.classList.add("hidden");
+      if (this.searchBox && ExtensionsListView.isRestartRequiredQuery(this.searchBox.getValue())) {
+        this.search("");
+      }
     }
     if (this._dimension) {
       this.layout(this._dimension);
@@ -687,10 +700,12 @@ let ExtensionsViewPaneContainer = class ExtensionsViewPaneContainer2 extends Vie
       this.searchBuiltInExtensionsContextKey.set(ExtensionsListView.isSearchBuiltInExtensionsQuery(value));
       this.searchWorkspaceUnsupportedExtensionsContextKey.set(ExtensionsListView.isSearchWorkspaceUnsupportedExtensionsQuery(value));
       this.searchDeprecatedExtensionsContextKey.set(ExtensionsListView.isSearchDeprecatedExtensionsQuery(value));
+      this.searchRestartRequiredExtensionsContextKey.set(ExtensionsListView.isRestartRequiredQuery(value));
       this.builtInExtensionsContextKey.set(ExtensionsListView.isBuiltInExtensionsQuery(value));
       this.recommendedExtensionsContextKey.set(isRecommendedExtensionsQuery);
       this.searchMcpServersContextKey.set(!!value && /@mcp\s?.*/i.test(value));
-      this.searchMarketplaceExtensionsContextKey.set(!!value && !ExtensionsListView.isLocalExtensionsQuery(value) && !isRecommendedExtensionsQuery && !this.searchMcpServersContextKey.get());
+      this.searchAgentPluginsContextKey.set(!!value && /@agentPlugins\s?.*/i.test(value));
+      this.searchMarketplaceExtensionsContextKey.set(!!value && !ExtensionsListView.isLocalExtensionsQuery(value) && !isRecommendedExtensionsQuery && !this.searchMcpServersContextKey.get() && !this.searchAgentPluginsContextKey.get());
       this.sortByUpdateDateContextKey.set(ExtensionsListView.isSortUpdateDateQuery(value));
       this.defaultViewsContextKey.set(!value || ExtensionsListView.isSortInstalledExtensionsQuery(value));
     });
@@ -806,8 +821,7 @@ ExtensionsViewPaneContainer = __decorate([
   __param(17, IViewDescriptorService),
   __param(18, IPreferencesService),
   __param(19, ICommandService),
-  __param(20, ILogService),
-  __param(21, IHoverService)
+  __param(20, ILogService)
 ], ExtensionsViewPaneContainer);
 let StatusUpdater = class StatusUpdater2 extends Disposable {
   static {
@@ -827,11 +841,10 @@ let StatusUpdater = class StatusUpdater2 extends Disposable {
     this.badgeHandle.clear();
     let badge;
     const extensionsNotification = this.extensionsWorkbenchService.getExtensionsNotification();
-    if (extensionsNotification) {
-      if (extensionsNotification.severity === Severity.Warning) {
-        badge = new WarningBadge(() => extensionsNotification.message);
-      }
-    } else {
+    if (extensionsNotification && extensionsNotification.severity === Severity.Warning) {
+      badge = new WarningBadge(() => extensionsNotification.message);
+    }
+    if (!badge) {
       const actionRequired = this.configurationService.getValue(AutoRestartConfigurationKey) === true ? [] : this.extensionsWorkbenchService.installed.filter((e) => e.runtimeState !== void 0);
       const outdated = this.extensionsWorkbenchService.outdated.reduce((r, e) => r + (this.extensionEnablementService.isEnabled(e.local) && !actionRequired.includes(e) ? 1 : 0), 0);
       const newBadgeNumber = outdated + actionRequired.length;

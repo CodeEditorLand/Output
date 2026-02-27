@@ -17,7 +17,7 @@ import { IContextMenuService } from "../../../../../platform/contextview/browser
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
 import { WorkbenchCompressibleAsyncDataTree } from "../../../../../platform/list/browser/listService.js";
 import { $, append, EventHelper } from "../../../../../base/browser/dom.js";
-import { isAgentSession, isAgentSessionSection, isSessionInProgressStatus } from "./agentSessionsModel.js";
+import { isAgentSession, isAgentSessionSection } from "./agentSessionsModel.js";
 import { AgentSessionRenderer, AgentSessionsAccessibilityProvider, AgentSessionsCompressionDelegate, AgentSessionsDataSource, AgentSessionsDragAndDrop, AgentSessionsIdentityProvider, AgentSessionsKeyboardNavigationLabelProvider, AgentSessionsListDelegate, AgentSessionSectionRenderer, AgentSessionsSorter } from "./agentSessionsViewer.js";
 import { IMenuService, MenuId } from "../../../../../platform/actions/common/actions.js";
 import { IChatSessionsService } from "../../common/chatSessionsService.js";
@@ -174,7 +174,7 @@ let AgentSessionsControl = class AgentSessionsControl2 extends Disposable {
   }
   hasTodaySessions() {
     const startOfToday = (/* @__PURE__ */ new Date()).setHours(0, 0, 0, 0);
-    return this.agentSessionsService.model.sessions.some((session) => !session.isArchived() && (isSessionInProgressStatus(session.status) || getAgentSessionTime(session.timing) >= startOfToday));
+    return this.agentSessionsService.model.sessions.some((session) => !session.isArchived() && getAgentSessionTime(session.timing) >= startOfToday);
   }
   async openAgentSession(e) {
     const element = e.element;
@@ -218,7 +218,7 @@ let AgentSessionsControl = class AgentSessionsControl2 extends Disposable {
     menu.dispose();
   }
   async showAgentSessionContextMenu(session, anchor) {
-    await this.chatSessionsService.activateChatSessionItemProvider(session.providerType);
+    this.chatSessionsService.activateChatSessionItemProvider(session.providerType);
     const contextOverlay = [];
     contextOverlay.push([ChatContextKeys.isArchivedAgentSession.key, session.isArchived()]);
     contextOverlay.push([ChatContextKeys.isReadAgentSession.key, session.isRead()]);

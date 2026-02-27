@@ -496,7 +496,7 @@ const terminalChatAgentToolsConfiguration = {
     markdownDescription: localize("terminalSandbox.enabledSetting", "Controls whether to run commands in a sandboxed terminal for the run in terminal tool."),
     type: "boolean",
     default: false,
-    tags: ["experimental"],
+    tags: ["preview"],
     restricted: true
   },
   [
@@ -529,14 +529,14 @@ const terminalChatAgentToolsConfiguration = {
       deniedDomains: [],
       allowTrustedDomains: false
     },
-    tags: ["experimental"],
+    tags: ["preview"],
     restricted: true
   },
   [
     "chat.tools.terminal.sandbox.linuxFileSystem"
     /* TerminalChatAgentToolsSettingId.TerminalSandboxLinuxFileSystem */
   ]: {
-    markdownDescription: localize("terminalSandbox.linuxFileSystemSetting", "Note: this setting is applicable only when {0} is enabled. Controls file system access in the terminal sandbox on Linux. Paths do not support glob patterns, only literal paths (ex: ./src/, ~/.ssh, .env). **bubblewrap**, **socat** and **ripgrep** should be installed for this setting to work.", `\`#${"chat.tools.terminal.sandbox.enabled"}#\``),
+    markdownDescription: localize("terminalSandbox.linuxFileSystemSetting", "Note: this setting is applicable only when {0} is enabled. Controls file system access in the terminal sandbox on Linux. Paths do not support glob patterns, only literal paths (ex: ./src/, ~/.ssh, .env). **bubblewrap** and **socat** should be installed for this setting to work.", `\`#${"chat.tools.terminal.sandbox.enabled"}#\``),
     type: "object",
     properties: {
       denyRead: {
@@ -563,14 +563,14 @@ const terminalChatAgentToolsConfiguration = {
       allowWrite: ["."],
       denyWrite: []
     },
-    tags: ["experimental"],
+    tags: ["preview"],
     restricted: true
   },
   [
     "chat.tools.terminal.sandbox.macFileSystem"
     /* TerminalChatAgentToolsSettingId.TerminalSandboxMacFileSystem */
   ]: {
-    markdownDescription: localize("terminalSandbox.macFileSystemSetting", "Note: this setting is applicable only when {0} is enabled. Controls file system access in the terminal sandbox on macOS.Paths also support git-style glob patterns(ex: *.ts, ./src, ./src/**/*.ts, file?.txt). **ripgrep** should be installed for this setting to work.", `\`#${"chat.tools.terminal.sandbox.enabled"}#\``),
+    markdownDescription: localize("terminalSandbox.macFileSystemSetting", "Note: this setting is applicable only when {0} is enabled. Controls file system access in the terminal sandbox on macOS. Paths also support git-style glob patterns(ex: *.ts, ./src, ./src/**/*.ts, file?.txt).", `\`#${"chat.tools.terminal.sandbox.enabled"}#\``),
     type: "object",
     properties: {
       denyRead: {
@@ -597,7 +597,7 @@ const terminalChatAgentToolsConfiguration = {
       allowWrite: ["."],
       denyWrite: []
     },
-    tags: ["experimental"],
+    tags: ["preview"],
     restricted: true
   },
   [

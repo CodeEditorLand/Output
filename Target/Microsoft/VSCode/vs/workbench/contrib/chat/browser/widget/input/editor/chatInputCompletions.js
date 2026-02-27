@@ -58,16 +58,19 @@ import { IChatSlashCommandService } from "../../../../common/participants/chatSl
 import { ChatAgentLocation, ChatModeKind, isSupportedChatFileScheme } from "../../../../common/constants.js";
 import { isToolSet } from "../../../../common/tools/languageModelToolsService.js";
 import { IChatSessionsService } from "../../../../common/chatSessionsService.js";
-import { IPromptsService } from "../../../../common/promptSyntax/service/promptsService.js";
+import { IPromptsService, Target } from "../../../../common/promptSyntax/service/promptsService.js";
 import { ChatSubmitAction } from "../../../actions/chatExecuteActions.js";
 import { IChatWidgetService } from "../../../chat.js";
 import { resizeImage } from "../../../chatImageUtils.js";
 import { ChatDynamicVariableModel } from "../../../attachments/chatDynamicVariables.js";
+import { IChatService } from "../../../../common/chatService/chatService.js";
+const SlashCommandWord = /\/[\p{L}0-9_.:-]*/gu;
+const AgentOrSlashCommandWord = /(@|\/)[\p{L}0-9_.:-]*/gu;
 let SlashCommandCompletions = class SlashCommandCompletions2 extends Disposable {
   static {
     __name(this, "SlashCommandCompletions");
   }
-  constructor(languageFeaturesService, chatWidgetService, chatSlashCommandService, promptsService, mcpService) {
+  constructor(languageFeaturesService, chatWidgetService, chatSlashCommandService, promptsService, chatService, chatSessionsService, mcpService) {
     super();
     this.languageFeaturesService = languageFeaturesService;
     this.chatWidgetService = chatWidgetService;
@@ -81,10 +84,16 @@ let SlashCommandCompletions = class SlashCommandCompletions2 extends Disposable 
         if (!widget || !widget.viewModel) {
           return null;
         }
+        let customAgentTarget = void 0;
         if (widget.lockedAgentId) {
-          return null;
+          if (!widget.attachmentCapabilities.supportsPromptAttachments) {
+            return null;
+          }
+          const sessionResource = widget.viewModel.model.sessionResource;
+          const ctx = sessionResource && chatService.getChatSessionFromInternalUri(sessionResource);
+          customAgentTarget = (ctx ? chatSessionsService.getCustomAgentTargetForSessionType(ctx.chatSessionType) : void 0) ?? Target.Undefined;
         }
-        const range = computeCompletionRanges(model, position, /\/\w*/g);
+        const range = computeCompletionRanges(model, position, SlashCommandWord);
         if (!range) {
           return null;
         }
@@ -101,7 +110,18 @@ let SlashCommandCompletions = class SlashCommandCompletions2 extends Disposable 
           return null;
         }
         return {
-          suggestions: slashCommands.map((c, i) => {
+          suggestions: slashCommands.filter((c) => {
+            if (!widget.lockedAgentId) {
+              return true;
+            }
+            if (c.modes && c.modes.length && !c.modes.includes(ChatModeKind.Agent)) {
+              return false;
+            }
+            if (c.target && customAgentTarget && c.target !== customAgentTarget) {
+              return false;
+            }
+            return true;
+          }).map((c, i) => {
             const withSlash = `/${c.command}`;
             return {
               label: withSlash,
@@ -165,7 +185,7 @@ let SlashCommandCompletions = class SlashCommandCompletions2 extends Disposable 
         if (!widget || !widget.viewModel) {
           return null;
         }
-        const range = computeCompletionRanges(model, position, /\/\w*/g);
+        const range = computeCompletionRanges(model, position, SlashCommandWord);
         if (!range) {
           return null;
         }
@@ -184,7 +204,12 @@ let SlashCommandCompletions = class SlashCommandCompletions2 extends Disposable 
         if (widget.lockedAgentId && !widget.attachmentCapabilities.supportsPromptAttachments) {
           return null;
         }
-        const userInvocableCommands = promptCommands.filter((c) => c.parsedPromptFile?.header?.userInvocable !== false);
+        const userInvocableCommands = promptCommands.filter((c) => {
+          if (widget.lockedAgentId && c.promptPath.extension) {
+            return false;
+          }
+          return true;
+        }).filter((c) => c.parsedPromptFile?.header?.userInvocable !== false);
         if (userInvocableCommands.length === 0) {
           return null;
         }
@@ -213,7 +238,7 @@ let SlashCommandCompletions = class SlashCommandCompletions2 extends Disposable 
         if (!widget || !widget.viewModel) {
           return null;
         }
-        const range = computeCompletionRanges(model, position, /\/[a-z0-9_.-]*/g);
+        const range = computeCompletionRanges(model, position, /\/[\p{L}0-9_.-]*/gu);
         if (!range) {
           return null;
         }
@@ -248,7 +273,9 @@ SlashCommandCompletions = __decorate([
   __param(1, IChatWidgetService),
   __param(2, IChatSlashCommandService),
   __param(3, IPromptsService),
-  __param(4, IMcpService)
+  __param(4, IChatService),
+  __param(5, IChatSessionsService),
+  __param(6, IMcpService)
 ], SlashCommandCompletions);
 Registry.as(WorkbenchExtensions.Workbench).registerWorkbenchContribution(
   SlashCommandCompletions,
@@ -274,7 +301,7 @@ let AgentCompletions = class AgentCompletions2 extends Disposable {
         if (!widget || !widget.viewModel) {
           return;
         }
-        const range = computeCompletionRanges(model, position, /\/\w*/g);
+        const range = computeCompletionRanges(model, position, SlashCommandWord);
         if (!range) {
           return;
         }
@@ -310,7 +337,7 @@ let AgentCompletions = class AgentCompletions2 extends Disposable {
         if (widget.lockedAgentId) {
           return null;
         }
-        const range = computeCompletionRanges(model, position, /(@|\/)\w*/g);
+        const range = computeCompletionRanges(model, position, AgentOrSlashCommandWord);
         if (!range) {
           return null;
         }
@@ -381,7 +408,7 @@ let AgentCompletions = class AgentCompletions2 extends Disposable {
         if (widget.lockedAgentId) {
           return null;
         }
-        const range = computeCompletionRanges(model, position, /(@|\/)\w*/g);
+        const range = computeCompletionRanges(model, position, AgentOrSlashCommandWord);
         if (!range) {
           return null;
         }
@@ -434,7 +461,7 @@ let AgentCompletions = class AgentCompletions2 extends Disposable {
         if (widget.lockedAgentId) {
           return null;
         }
-        const range = computeCompletionRanges(model, position, /(@|\/)\w*/g);
+        const range = computeCompletionRanges(model, position, AgentOrSlashCommandWord);
         if (!range) {
           return;
         }
@@ -477,7 +504,7 @@ let AgentCompletions = class AgentCompletions2 extends Disposable {
       };
     }
     for (const partAfterAgent of parsedRequest.slice(usedAgentIdx + 1)) {
-      if (!(partAfterAgent instanceof ChatRequestTextPart) || !partAfterAgent.text.trim().match(/^(\/\w*)?$/)) {
+      if (!(partAfterAgent instanceof ChatRequestTextPart) || !partAfterAgent.text.trim().match(/^(\/[\p{L}0-9_.:-]*)?$/u)) {
         return;
       }
     }

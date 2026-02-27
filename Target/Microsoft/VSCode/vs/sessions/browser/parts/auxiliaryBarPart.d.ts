@@ -24,7 +24,7 @@ import { IBaseActionViewItemOptions } from '../../../base/browser/ui/actionbar/a
 export declare class AuxiliaryBarPart extends AbstractPaneCompositePart {
     static readonly activeViewSettingsKey = "workbench.agentsession.auxiliarybar.activepanelid";
     static readonly pinnedViewsKey = "workbench.agentsession.auxiliarybar.pinnedPanels";
-    static readonly placeholdeViewContainersKey = "workbench.agentsession.auxiliarybar.placeholderPanels";
+    static readonly placeholderViewContainersKey = "workbench.agentsession.auxiliarybar.placeholderPanels";
     static readonly viewContainersWorkspaceStateKey = "workbench.agentsession.auxiliarybar.viewContainersWorkspaceState";
     /** Visual margin values for the card-like appearance */
     static readonly MARGIN_TOP = 8;

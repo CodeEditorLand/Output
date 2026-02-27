@@ -300,6 +300,7 @@ let ChatSessionsService = class ChatSessionsService2 extends Disposable {
     this._onRequestNotifyExtension = this._register(new AsyncEmitter());
     this.inProgressMap = /* @__PURE__ */ new Map();
     this._sessionTypeOptions = /* @__PURE__ */ new Map();
+    this._sessionTypeNewSessionOptions = /* @__PURE__ */ new Map();
     this._sessionTypeIcons = /* @__PURE__ */ new Map();
     this._sessionTypeWelcomeTitles = /* @__PURE__ */ new Map();
     this._sessionTypeWelcomeMessages = /* @__PURE__ */ new Map();
@@ -520,9 +521,17 @@ let ChatSessionsService = class ChatSessionsService2 extends Disposable {
           const { type } = contribution;
           if (chatOptions) {
             const resource = URI.revive(chatOptions.resource);
-            const ref = await chatService.loadSessionForResource(resource, ChatAgentLocation.Chat, CancellationToken.None);
-            await chatService.sendRequest(resource, chatOptions.prompt, { agentIdSilent: type, attachedContext: chatOptions.attachedContext });
-            ref?.dispose();
+            const ref = await chatService.acquireOrLoadSession(resource, ChatAgentLocation.Chat, CancellationToken.None);
+            try {
+              const result = await chatService.sendRequest(resource, chatOptions.prompt, { agentIdSilent: type, attachedContext: chatOptions.attachedContext });
+              if (result.kind === "queued") {
+                await result.deferred;
+              } else if (result.kind === "sent") {
+                await result.data.responseCompletePromise;
+              }
+            } finally {
+              ref?.dispose();
+            }
           }
         }
       }),
@@ -860,6 +869,14 @@ let ChatSessionsService = class ChatSessionsService2 extends Disposable {
     }
     return description ? renderAsPlaintext(description, { useLinkFormatter: true }) : "";
   }
+  async createNewChatSessionItem(chatSessionType, request, token) {
+    const controllerData = this._itemControllers.get(chatSessionType);
+    if (!controllerData) {
+      return void 0;
+    }
+    await controllerData.initialRefresh;
+    return controllerData.controller.newChatSessionItem?.(request, token);
+  }
   async getOrCreateChatSession(sessionResource, token) {
     {
       const existingSessionData = this._sessions.get(sessionResource);
@@ -881,7 +898,23 @@ let ChatSessionsService = class ChatSessionsService2 extends Disposable {
     if (!provider) {
       throw Error(`Can not find provider for ${sessionResource}`);
     }
-    const session = await raceCancellationError(provider.provideChatSessionContent(sessionResource, token), token);
+    let session;
+    const newSessionOptions = this.getNewSessionOptionsForSessionType(resolvedType);
+    if (sessionResource.path.startsWith("/untitled") && newSessionOptions) {
+      session = {
+        sessionResource,
+        onWillDispose: Event.None,
+        history: [],
+        options: newSessionOptions ?? {},
+        dispose: /* @__PURE__ */ __name(() => {
+        }, "dispose")
+      };
+      for (const [optionId, value] of Object.entries(newSessionOptions ?? {})) {
+        this.setSessionOption(sessionResource, optionId, value);
+      }
+    } else {
+      session = await raceCancellationError(provider.provideChatSessionContent(sessionResource, token), token);
+    }
     {
       const existingSessionData = this._sessions.get(sessionResource);
       if (existingSessionData) {
@@ -925,6 +958,12 @@ let ChatSessionsService = class ChatSessionsService2 extends Disposable {
    */
   getOptionGroupsForSessionType(chatSessionType) {
     return this._sessionTypeOptions.get(chatSessionType);
+  }
+  getNewSessionOptionsForSessionType(chatSessionType) {
+    return this._sessionTypeNewSessionOptions.get(chatSessionType);
+  }
+  setNewSessionOptionsForSessionType(chatSessionType, options) {
+    this._sessionTypeNewSessionOptions.set(chatSessionType, options);
   }
   /**
    * Notify extension about option changes for a session
@@ -1113,6 +1152,15 @@ async function openChatSession(accessor, openOptions, chatSendOptions) {
   }
   if (chatSendOptions) {
     try {
+      if (chatSendOptions.initialSessionOptions) {
+        const model = chatService.getSession(resource);
+        if (model?.contributedChatSession) {
+          model.setContributedChatSession({
+            ...model.contributedChatSession,
+            initialSessionOptions: chatSendOptions.initialSessionOptions
+          });
+        }
+      }
       await chatService.sendRequest(resource, chatSendOptions.prompt, { agentIdSilent: openOptions.type, attachedContext: chatSendOptions.attachedContext });
     } catch (e) {
       logService.error(`Failed to send initial request to '${openOptions.type}' chat session with contextOptions: ${JSON.stringify(chatSendOptions)}`, e);

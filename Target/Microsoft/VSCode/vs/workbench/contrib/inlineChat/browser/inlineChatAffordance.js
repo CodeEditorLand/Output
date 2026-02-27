@@ -86,7 +86,7 @@ let InlineChatAffordance = class InlineChatAffordance2 extends Disposable {
     this._store.add(this.#editor.onContextMenu(() => {
       selectionData.set(void 0, void 0);
     }));
-    const gutterAffordance = this._store.add(this.#instantiationService.createInstance(InlineChatGutterAffordance, editorObs, derived((r) => affordance.read(r) === "gutter" ? selectionData.read(r) : void 0), this.#menuData));
+    const gutterAffordance = this._store.add(this.#instantiationService.createInstance(InlineChatGutterAffordance, editorObs, derived((r) => affordance.read(r) === "gutter" ? selectionData.read(r) : void 0)));
     const editorAffordance = this.#instantiationService.createInstance(InlineChatEditorAffordance, this.#editor, derived((r) => affordance.read(r) === "editor" ? selectionData.read(r) : void 0));
     this._store.add(editorAffordance);
     this._store.add(Event.any(editorAffordance.onDidRunAction, gutterAffordance.onDidRunAction)((commandId) => {
@@ -115,7 +115,7 @@ let InlineChatAffordance = class InlineChatAffordance2 extends Disposable {
       const editorDomNode = this.#editor.getDomNode();
       const editorRect = editorDomNode.getBoundingClientRect();
       const left = data.rect.left - editorRect.left;
-      this.#inputWidget.show(data.lineNumber, left, data.above);
+      this.#inputWidget.show(data.lineNumber, left, data.above, data.placeholder);
     }));
     this._store.add(autorun((r) => {
       const pos = this.#inputWidget.position.read(r);
@@ -124,7 +124,7 @@ let InlineChatAffordance = class InlineChatAffordance2 extends Disposable {
       }
     }));
   }
-  async showMenuAtSelection() {
+  async showMenuAtSelection(placeholder) {
     assertType(this.#editor.hasModel());
     const direction = this.#editor.getSelection().getDirection();
     const position = this.#editor.getPosition();
@@ -136,7 +136,8 @@ let InlineChatAffordance = class InlineChatAffordance2 extends Disposable {
     this.#menuData.set({
       rect: new DOMRect(x, y, 0, scrolledPosition.height),
       above: direction === 1,
-      lineNumber: position.lineNumber
+      lineNumber: position.lineNumber,
+      placeholder
     }, void 0);
     await waitForState(this.#inputWidget.position, (pos) => pos === null);
   }

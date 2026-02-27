@@ -46,6 +46,7 @@ class YamlScanner {
     this.pos = 0;
     this.tokens = [];
     this.flowDepth = 0;
+    this.seenBlockColon = false;
   }
   scan() {
     while (this.pos < this.input.length) {
@@ -56,6 +57,7 @@ class YamlScanner {
   }
   // Scan a single logical line (up to and including the newline character)
   scanLine() {
+    this.seenBlockColon = false;
     if (this.peekChar() === "\n") {
       this.tokens.push(makeToken(8, this.pos, this.pos + 1));
       this.pos++;
@@ -156,6 +158,9 @@ class YamlScanner {
       } else if (ch === ":" && this.isBlockColon()) {
         this.tokens.push(makeToken(1, this.pos, this.pos + 1));
         this.pos++;
+        if (this.flowDepth === 0) {
+          this.seenBlockColon = true;
+        }
       } else if (ch === ":" && this.flowDepth > 0 && this.lastTokenIsJsonLike()) {
         this.tokens.push(makeToken(1, this.pos, this.pos + 1));
         this.pos++;
@@ -176,6 +181,9 @@ class YamlScanner {
   }
   /** Check if ':' acts as a mapping value indicator (followed by space, newline, EOF, or flow indicator) */
   isBlockColon() {
+    if (this.seenBlockColon && this.flowDepth === 0) {
+      return false;
+    }
     const next = this.input[this.pos + 1];
     if (next === void 0 || next === " " || next === "	" || next === "\n" || next === "\r") {
       return true;

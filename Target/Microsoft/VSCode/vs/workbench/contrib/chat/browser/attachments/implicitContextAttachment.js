@@ -83,6 +83,7 @@ let ImplicitContextAttachmentWidget = class ImplicitContextAttachmentWidget2 ext
   renderMainContext(context, isSelection) {
     const contextNode = dom.$(".chat-attached-context-attachment.show-file-icons.implicit");
     this.domNode.appendChild(contextNode);
+    contextNode.tabIndex = 0;
     contextNode.classList.toggle("disabled", !context.enabled);
     const file = context.uri;
     const attachmentTypeName = file?.scheme === Schemas.vscodeNotebookCell ? localize("cell.lowercase", "cell") : localize("file.lowercase", "file");
@@ -150,7 +151,7 @@ let ImplicitContextAttachmentWidget = class ImplicitContextAttachmentWidget2 ext
       markdownTooltip = context.value.tooltip;
       title = this.renderString(label, context.name, context.icon, context.value.resourceUri, markdownTooltip, localize("openFile", "Current file context"));
     } else {
-      title = this.renderResource(context.value, context.isSelection, context.enabled, label);
+      title = this.renderResource(context.value, context.isSelection, context.enabled, label, contextNode);
     }
     if (markdownTooltip || title) {
       this.renderDisposables.add(this.hoverService.setupDelayedHover(contextNode, {
@@ -185,7 +186,7 @@ let ImplicitContextAttachmentWidget = class ImplicitContextAttachmentWidget2 ext
     }
     return title;
   }
-  renderResource(attachmentValue, isSelection, enabled, label) {
+  renderResource(attachmentValue, isSelection, enabled, label, contextNode) {
     const file = URI.isUri(attachmentValue) ? attachmentValue : attachmentValue.uri;
     const range = URI.isUri(attachmentValue) || !isSelection ? void 0 : attachmentValue.range;
     const attachmentTypeName = file.scheme === Schemas.vscodeNotebookCell ? localize("cell.lowercase", "cell") : localize("file.lowercase", "file");
@@ -205,8 +206,7 @@ ${uriLabel}`;
       range,
       title
     });
-    this.domNode.ariaLabel = ariaLabel;
-    this.domNode.tabIndex = 0;
+    contextNode.ariaLabel = ariaLabel;
     return title;
   }
   async convertToRegularAttachment(attachment) {

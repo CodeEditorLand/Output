@@ -41,6 +41,7 @@ export declare class ChatThinkingContentPart extends ChatCollapsibleContentPart 
     private appendedItemCount;
     private isActive;
     private toolInvocations;
+    private allThinkingParts;
     private hookCount;
     private singleItemInfo;
     private lazyItems;
@@ -51,6 +52,7 @@ export declare class ChatThinkingContentPart extends ChatCollapsibleContentPart 
     private readonly toolWrappersByCallId;
     private readonly toolDisposables;
     private pendingRemovals;
+    private pendingRemovalFlushDisposable;
     private pendingScrollDisposable;
     private mutationObserverDisposable;
     private isUpdatingDimensions;
@@ -70,6 +72,7 @@ export declare class ChatThinkingContentPart extends ChatCollapsibleContentPart 
      */
     private updateScrollDimensionsForCompletion;
     private renderMarkdown;
+    private setFinalizedTitle;
     private setDropdownClickable;
     private shouldAllowExpansion;
     private updateDropdownClickability;
@@ -80,7 +83,7 @@ export declare class ChatThinkingContentPart extends ChatCollapsibleContentPart 
     getIsActive(): boolean;
     markAsInactive(): void;
     finalizeTitleIfDefault(): void;
-    private setGeneratedTitleOnToolInvocations;
+    private setGeneratedTitleOnAllParts;
     private generateTitleViaLLM;
     private restoreSingleItemToOriginalPosition;
     private setFallbackTitle;
@@ -99,6 +102,7 @@ export declare class ChatThinkingContentPart extends ChatCollapsibleContentPart 
      */
     removeLazyItem(toolInvocationId: string): boolean;
     private processPendingRemovals;
+    private schedulePendingRemovalsFlush;
     private removeStreamingToolEntry;
     private trackToolMetadata;
     private appendItemToDOM;

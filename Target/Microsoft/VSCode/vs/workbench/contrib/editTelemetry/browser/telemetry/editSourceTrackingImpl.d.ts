@@ -7,7 +7,7 @@ import { AnnotatedDocument, IAnnotatedDocuments } from '../helpers/annotatedDocu
 import { DocumentEditSourceTracker, TrackedEdit } from './editTracker.js';
 import { ScmAdapter } from './scmAdapter.js';
 import { IRandomService } from '../randomService.js';
-type EditTelemetryMode = 'longterm' | '5minWindow' | '20minFocusWindow';
+type EditTelemetryMode = 'longterm' | '10minFocusWindow' | '20minFocusWindow';
 type EditTelemetryTrigger = '10hours' | 'hashChange' | 'branchChange' | 'closed' | 'time';
 export declare class EditSourceTrackingImpl extends Disposable {
     private readonly _statsEnabled;

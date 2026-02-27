@@ -283,6 +283,7 @@ class TreeRenderer {
     this.renderedElements = /* @__PURE__ */ new Map();
     this.renderedNodes = /* @__PURE__ */ new Map();
     this.indent = TreeRenderer.DefaultIndent;
+    this.defaultIndent = TreeRenderer.DefaultIndent;
     this.hideTwistiesOfChildlessElements = false;
     this.shouldRenderIndentGuides = false;
     this.activeIndentNodes = /* @__PURE__ */ new Set();
@@ -294,12 +295,16 @@ class TreeRenderer {
     renderer.onDidChangeTwistieState?.(this.onDidChangeTwistieState, this, this.disposables);
   }
   updateOptions(options = {}) {
-    if (typeof options.indent !== "undefined") {
-      const indent = clamp(options.indent, 0, 40);
-      if (indent !== this.indent) {
+    if (typeof options.defaultIndent !== "undefined") {
+      this.defaultIndent = options.defaultIndent;
+    }
+    if (typeof options.indent !== "undefined" || typeof options.defaultIndent !== "undefined") {
+      const indent = typeof options.indent !== "undefined" ? clamp(options.indent, 0, 40) : this.indent;
+      const needsRerender = indent !== this.indent || typeof options.defaultIndent !== "undefined";
+      if (needsRerender) {
         this.indent = indent;
         for (const [node, templateData] of this.renderedNodes) {
-          templateData.indentSize = TreeRenderer.DefaultIndent + (node.depth - 1) * this.indent;
+          templateData.indentSize = this.defaultIndent + (node.depth - 1) * this.indent;
           this.renderTreeElement(node, templateData);
         }
       }
@@ -336,7 +341,7 @@ class TreeRenderer {
     return { container, indent, twistie, indentGuidesDisposable: Disposable.None, indentSize: 0, templateData };
   }
   renderElement(node, index, templateData, details) {
-    templateData.indentSize = TreeRenderer.DefaultIndent + (node.depth - 1) * this.indent;
+    templateData.indentSize = this.defaultIndent + (node.depth - 1) * this.indent;
     this.renderedNodes.set(node, templateData);
     this.renderedElements.set(node.element, node);
     this.renderTreeElement(node, templateData);

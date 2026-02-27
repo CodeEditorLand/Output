@@ -15,7 +15,7 @@ import { INotificationService } from '../../../../platform/notification/common/n
 import { CancellationToken } from '../../../../base/common/cancellation.js';
 import { IStorageService } from '../../../../platform/storage/common/storage.js';
 import { Event } from '../../../../base/common/event.js';
-import { IKeybindingItemEntry, IKeybindingsEditorPane } from '../../../services/preferences/common/preferences.js';
+import { IKeybindingItemEntry, IKeybindingsEditorPane, IPreferencesService } from '../../../services/preferences/common/preferences.js';
 import { KeybindingsEditorInput } from '../../../services/preferences/browser/keybindingsEditorInput.js';
 import { IEditorOptions } from '../../../../platform/editor/common/editor.js';
 import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
@@ -35,6 +35,7 @@ export declare class KeybindingsEditor extends EditorPane<IKeybindingsEditorMeme
     private readonly editorService;
     private readonly configurationService;
     private readonly accessibilityService;
+    private readonly preferencesService;
     static readonly ID: string;
     private _onDefineWhenExpression;
     readonly onDefineWhenExpression: Event<IKeybindingItemEntry>;
@@ -66,7 +67,7 @@ export declare class KeybindingsEditor extends EditorPane<IKeybindingsEditorMeme
     private readonly recordKeysAction;
     private ariaLabelElement;
     readonly overflowWidgetsDomNode: HTMLElement;
-    constructor(group: IEditorGroup, telemetryService: ITelemetryService, themeService: IThemeService, keybindingsService: IKeybindingService, contextMenuService: IContextMenuService, keybindingEditingService: IKeybindingEditingService, contextKeyService: IContextKeyService, notificationService: INotificationService, clipboardService: IClipboardService, instantiationService: IInstantiationService, editorService: IEditorService, storageService: IStorageService, configurationService: IConfigurationService, accessibilityService: IAccessibilityService);
+    constructor(group: IEditorGroup, telemetryService: ITelemetryService, themeService: IThemeService, keybindingsService: IKeybindingService, contextMenuService: IContextMenuService, keybindingEditingService: IKeybindingEditingService, contextKeyService: IContextKeyService, notificationService: INotificationService, clipboardService: IClipboardService, instantiationService: IInstantiationService, editorService: IEditorService, storageService: IStorageService, configurationService: IConfigurationService, accessibilityService: IAccessibilityService, preferencesService: IPreferencesService);
     create(parent: HTMLElement): void;
     protected createEditor(parent: HTMLElement): void;
     setInput(input: KeybindingsEditorInput, options: IEditorOptions | undefined, context: IEditorOpenContext, token: CancellationToken): Promise<void>;

@@ -233,7 +233,7 @@ async function searchFilesAndFolders(workspace, pattern, fuzzyMatch, token, cach
   };
   let searchResult;
   try {
-    searchResult = await searchService.fileSearch({ ...searchOptions, filePattern: `{**/${segmentMatchPattern}/**,${pattern}}` }, token);
+    searchResult = await searchService.fileSearch({ ...searchOptions, filePattern: `{**/${segmentMatchPattern}/**,**/${segmentMatchPattern}}` }, token);
   } catch (e) {
     if (!isCancellationError(e)) {
       throw e;

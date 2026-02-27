@@ -539,21 +539,26 @@ let ResultSummaryView = class ResultSummaryView2 extends Disposable {
     }
     count.textContent = `${counts.passed}/${counts.totalWillBeRun}`;
     this.countHover.update(getTestProgressText(counts));
-    this.renderActivityBadge(counts);
+    this.renderActivityBadge(counts, live.length > 0);
     if (!this.elementsWereAttached) {
       dom.clearNode(this.container);
       this.container.appendChild(root);
       this.elementsWereAttached = true;
     }
   }
-  renderActivityBadge(countSummary) {
-    if (countSummary && this.badgeType !== "off" && countSummary[this.badgeType] !== 0) {
-      if (this.lastBadge instanceof NumberBadge && this.lastBadge.number === countSummary[this.badgeType]) {
+  renderActivityBadge(countSummary, isRunning) {
+    if (isRunning) {
+      if (this.badgeDisposable.value && this.lastBadge instanceof IconBadge && this.lastBadge.icon === spinningLoading) {
+        return;
+      }
+      this.lastBadge = new IconBadge(spinningLoading, () => localize("testingRunningBadge", "Tests are running"));
+    } else if (countSummary && this.badgeType !== "off" && countSummary[this.badgeType] !== 0) {
+      if (this.badgeDisposable.value && this.lastBadge instanceof NumberBadge && this.lastBadge.number === countSummary[this.badgeType]) {
         return;
       }
       this.lastBadge = new NumberBadge(countSummary[this.badgeType], (num) => this.getLocalizedBadgeString(this.badgeType, num));
     } else if (this.crService.isEnabled()) {
-      if (this.lastBadge instanceof IconBadge && this.lastBadge.icon === icons.testingContinuousIsOn) {
+      if (this.badgeDisposable.value && this.lastBadge instanceof IconBadge && this.lastBadge.icon === icons.testingContinuousIsOn) {
         return;
       }
       this.lastBadge = new IconBadge(icons.testingContinuousIsOn, () => localize("testingContinuousBadge", "Tests are being watched for changes"));

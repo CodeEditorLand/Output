@@ -17,7 +17,6 @@ import { IInstantiationService } from '../../../../../platform/instantiation/com
 import { ILogService } from '../../../../../platform/log/common/log.js';
 import { IThemeService } from '../../../../../platform/theme/common/themeService.js';
 import { IAccessibilitySignalService } from '../../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js';
-import { IHostService } from '../../../../services/host/browser/host.js';
 import { IChatEntitlementService } from '../../../../services/chat/common/chatEntitlementService.js';
 import { IWorkbenchIssueService } from '../../../issue/common/issue.js';
 import { IChatFollowup, IChatService, IChatThinkingPart } from '../../common/chatService/chatService.js';
@@ -31,6 +30,7 @@ import { ChatEditorOptions } from './chatOptions.js';
 import { CodeBlockPart } from './chatContentParts/codeBlockPart.js';
 import { IAccessibilityService } from '../../../../../platform/accessibility/common/accessibility.js';
 import { ChatPendingDragController } from './chatPendingDragAndDrop.js';
+import { IWorkbenchEnvironmentService } from '../../../../services/environment/common/environmentService.js';
 export interface IChatListItemTemplate {
     currentElement?: ChatTreeItem;
     /**
@@ -90,21 +90,21 @@ export declare class ChatListItemRenderer extends Disposable implements ITreeRen
     private readonly chatWidgetService;
     private readonly chatEntitlementService;
     private readonly chatService;
-    private readonly hostService;
     private readonly accessibilitySignalService;
     private readonly accessibilityService;
+    private readonly environmentService;
     static readonly ID = "item";
     private readonly codeBlocksByResponseId;
     private readonly codeBlocksByEditorUri;
     private readonly fileTreesByResponseId;
     private readonly focusedFileTreesByResponseId;
     private readonly templateDataByRequestId;
+    private readonly responseTemplateDataByRequestId;
     /** Track pending question carousels by session resource for auto-skip on chat submission */
     private readonly pendingQuestionCarousels;
     private readonly _autoRepliedQuestionCarousels;
     private readonly _autoReply;
     private readonly _notifiedQuestionCarousels;
-    private readonly _questionCarouselToast;
     private readonly chatContentMarkdownRenderer;
     private readonly markdownDecorationsRenderer;
     protected readonly _onDidClickFollowup: Emitter<IChatFollowup>;
@@ -144,13 +144,14 @@ export declare class ChatListItemRenderer extends Disposable implements ITreeRen
      * by screen readers
      */
     private readonly _announcedToolProgressKeys;
-    constructor(editorOptions: ChatEditorOptions, rendererOptions: IChatListItemRendererOptions, delegate: IChatRendererDelegate, codeBlockModelCollection: CodeBlockModelCollection, overflowWidgetsDomNode: HTMLElement | undefined, viewModel: IChatViewModel | undefined, instantiationService: IInstantiationService, configService: IConfigurationService, logService: ILogService, contextKeyService: IContextKeyService, themeService: IThemeService, commandService: ICommandService, hoverService: IHoverService, chatWidgetService: IChatWidgetService, chatEntitlementService: IChatEntitlementService, chatService: IChatService, hostService: IHostService, accessibilitySignalService: IAccessibilitySignalService, accessibilityService: IAccessibilityService);
+    constructor(editorOptions: ChatEditorOptions, rendererOptions: IChatListItemRendererOptions, delegate: IChatRendererDelegate, codeBlockModelCollection: CodeBlockModelCollection, overflowWidgetsDomNode: HTMLElement | undefined, viewModel: IChatViewModel | undefined, instantiationService: IInstantiationService, configService: IConfigurationService, logService: ILogService, contextKeyService: IContextKeyService, themeService: IThemeService, commandService: ICommandService, hoverService: IHoverService, chatWidgetService: IChatWidgetService, chatEntitlementService: IChatEntitlementService, chatService: IChatService, accessibilitySignalService: IAccessibilitySignalService, accessibilityService: IAccessibilityService, environmentService: IWorkbenchEnvironmentService);
     private _pendingDragController;
     set pendingDragController(controller: ChatPendingDragController);
     updateOptions(options: IChatListItemRendererOptions): void;
     get templateId(): string;
     editorsInUse(): Iterable<CodeBlockPart>;
     private traceLayout;
+    private fireItemHeightChange;
     /**
      * Compute a rate to render at in words/s.
      */

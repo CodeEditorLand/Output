@@ -829,10 +829,7 @@ let AbstractExtensionService = AbstractExtensionService_1 = class AbstractExtens
   _activateByEvent(activationEvent, activationKind) {
     let managers;
     if (activationKind === 1) {
-      managers = this._extensionHostManagers.filter(
-        (extHostManager) => extHostManager.kind === 1 || extHostManager.kind === 2
-        /* ExtensionHostKind.LocalWebWorker */
-      );
+      managers = this._extensionHostManagers.filter((extHostManager) => extHostManager.kind === 1 || extHostManager.kind === 2 || extHostManager.isReady);
       this._pendingRemoteActivationEvents.add(activationEvent);
     } else {
       managers = [...this._extensionHostManagers];

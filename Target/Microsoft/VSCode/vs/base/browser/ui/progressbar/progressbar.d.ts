@@ -1,6 +1,7 @@
 import { Disposable } from '../../../common/lifecycle.js';
 import './progressbar.css';
 export interface IProgressBarOptions extends IProgressBarStyles {
+    ariaLabel?: string;
 }
 export interface IProgressBarStyles {
     progressBarBackground: string | undefined;

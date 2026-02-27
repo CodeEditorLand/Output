@@ -11,6 +11,7 @@ var PromptsStorage;
   PromptsStorage2["local"] = "local";
   PromptsStorage2["user"] = "user";
   PromptsStorage2["extension"] = "extension";
+  PromptsStorage2["plugin"] = "plugin";
 })(PromptsStorage || (PromptsStorage = {}));
 var ExtensionAgentSourceType;
 (function(ExtensionAgentSourceType2) {

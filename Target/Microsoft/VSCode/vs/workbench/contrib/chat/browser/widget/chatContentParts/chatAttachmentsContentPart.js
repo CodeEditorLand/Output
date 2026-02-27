@@ -22,13 +22,15 @@ import { ResourceLabels } from "../../../../../browser/labels.js";
 import { isElementVariableEntry, isImageVariableEntry, isNotebookOutputVariableEntry, isPasteVariableEntry, isPromptFileVariableEntry, isPromptTextVariableEntry, isSCMHistoryItemChangeRangeVariableEntry, isSCMHistoryItemChangeVariableEntry, isSCMHistoryItemVariableEntry, isTerminalVariableEntry, isWorkspaceVariableEntry } from "../../../common/attachments/chatVariableEntries.js";
 import { ChatResponseReferencePartStatusKind } from "../../../common/chatService/chatService.js";
 import { DefaultChatAttachmentWidget, ElementChatAttachmentWidget, FileAttachmentWidget, ImageAttachmentWidget, NotebookCellOutputChatAttachmentWidget, PasteAttachmentWidget, PromptFileAttachmentWidget, PromptTextAttachmentWidget, SCMHistoryItemAttachmentWidget, SCMHistoryItemChangeAttachmentWidget, SCMHistoryItemChangeRangeAttachmentWidget, TerminalCommandAttachmentWidget, ToolSetOrToolItemAttachmentWidget } from "../../attachments/chatAttachmentWidgets.js";
+import { IChatAttachmentWidgetRegistry } from "../../attachments/chatAttachmentWidgetRegistry.js";
 let ChatAttachmentsContentPart = class ChatAttachmentsContentPart2 extends Disposable {
   static {
     __name(this, "ChatAttachmentsContentPart");
   }
-  constructor(options, instantiationService) {
+  constructor(options, instantiationService, chatAttachmentWidgetRegistry) {
     super();
     this.instantiationService = instantiationService;
+    this.chatAttachmentWidgetRegistry = chatAttachmentWidgetRegistry;
     this.attachedContextDisposables = this._register(new DisposableStore());
     this._onDidChangeVisibility = this._register(new Emitter());
     this._showingAll = false;
@@ -135,7 +137,7 @@ let ChatAttachmentsContentPart = class ChatAttachmentsContentPart2 extends Dispo
     } else if (isWorkspaceVariableEntry(attachment)) {
       return;
     } else {
-      widget = this.instantiationService.createInstance(DefaultChatAttachmentWidget, resource, range, attachment, correspondingContentReference, void 0, { shouldFocusClearButton: false, supportsDeletion: false }, container, this._contextResourceLabels);
+      widget = this.chatAttachmentWidgetRegistry.createWidget(attachment, { shouldFocusClearButton: false, supportsDeletion: false }, container) ?? this.instantiationService.createInstance(DefaultChatAttachmentWidget, resource, range, attachment, correspondingContentReference, void 0, { shouldFocusClearButton: false, supportsDeletion: false }, container, this._contextResourceLabels);
     }
     let ariaLabel = null;
     if (isAttachmentPartialOrOmitted) {
@@ -145,7 +147,7 @@ let ChatAttachmentsContentPart = class ChatAttachmentsContentPart2 extends Dispo
     if (isAttachmentPartialOrOmitted) {
       ariaLabel = `${ariaLabel}${description ? ` ${description}` : ""}`;
       for (const selector of [".monaco-icon-suffix-container", ".monaco-icon-name-container"]) {
-        const element = widget.label.element.querySelector(selector);
+        const element = widget.label?.element.querySelector(selector);
         if (element) {
           element.classList.add("warning");
         }
@@ -163,7 +165,8 @@ let ChatAttachmentsContentPart = class ChatAttachmentsContentPart2 extends Dispo
   }
 };
 ChatAttachmentsContentPart = __decorate([
-  __param(1, IInstantiationService)
+  __param(1, IInstantiationService),
+  __param(2, IChatAttachmentWidgetRegistry)
 ], ChatAttachmentsContentPart);
 export {
   ChatAttachmentsContentPart

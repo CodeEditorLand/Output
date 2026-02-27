@@ -10,6 +10,7 @@ import { ChatSessionDto, ExtHostChatSessionsShape, IChatSessionProviderOptions }
 import { ExtHostCommands } from './extHostCommands.js';
 import { ExtHostLanguageModels } from './extHostLanguageModels.js';
 import { IExtHostRpcService } from './extHostRpcService.js';
+import * as typeConvert from './extHostTypeConverters.js';
 export declare class ExtHostChatSessions extends Disposable implements ExtHostChatSessionsShape {
     private readonly commands;
     private readonly _languageModels;
@@ -48,5 +49,6 @@ export declare class ExtHostChatSessions extends Disposable implements ExtHostCh
     private convertResponseTurn;
     $invokeOptionGroupSearch(providerHandle: number, optionGroupId: string, query: string, token: CancellationToken): Promise<IChatSessionProviderOptionItem[]>;
     $refreshChatSessionItems(handle: number, token: CancellationToken): Promise<void>;
+    $newChatSessionItem(handle: number, request: IChatAgentRequest, token: CancellationToken): Promise<ReturnType<typeof typeConvert.ChatSessionItem.from> | undefined>;
     $onDidChangeChatSessionItemState(controllerHandle: number, sessionResourceComponents: UriComponents, archived: boolean): void;
 }

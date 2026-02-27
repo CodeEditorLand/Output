@@ -1,12 +1,33 @@
+import { IStringDictionary } from '../../../../../../base/common/collections.js';
 import { Event } from '../../../../../../base/common/event.js';
 import { Disposable } from '../../../../../../base/common/lifecycle.js';
+import { IActionListItem } from '../../../../../../platform/actionWidget/browser/actionList.js';
+import { IActionWidgetService } from '../../../../../../platform/actionWidget/browser/actionWidget.js';
+import { IActionWidgetDropdownAction } from '../../../../../../platform/actionWidget/browser/actionWidgetDropdown.js';
 import { ICommandService } from '../../../../../../platform/commands/common/commands.js';
-import { IInstantiationService } from '../../../../../../platform/instantiation/common/instantiation.js';
-import { IOpenerService } from '../../../../../../platform/opener/common/opener.js';
 import { IProductService } from '../../../../../../platform/product/common/productService.js';
 import { ITelemetryService } from '../../../../../../platform/telemetry/common/telemetry.js';
-import { ILanguageModelChatMetadataAndIdentifier, ILanguageModelsService } from '../../../common/languageModels.js';
+import { IModelControlEntry, ILanguageModelChatMetadataAndIdentifier, ILanguageModelsService } from '../../../common/languageModels.js';
 import { IChatEntitlementService } from '../../../../../services/chat/common/chatEntitlementService.js';
+import { IModelPickerDelegate } from './modelPickerActionItem.js';
+import { IUpdateService, StateType } from '../../../../../../platform/update/common/update.js';
+/**
+ * Builds the grouped items for the model picker dropdown.
+ *
+ * Layout:
+ * 1. Auto (always first)
+ * 2. Promoted section (selected + recently used + featured models from control manifest)
+ *    - Available models sorted alphabetically, followed by unavailable models
+ *    - Unavailable models show upgrade/update/admin status
+ * 3. Other Models (collapsible toggle, available first, then sorted by vendor then name)
+ *    - Last item is "Manage Models..." (always visible during filtering)
+ */
+export declare function buildModelPickerItems(models: ILanguageModelChatMetadataAndIdentifier[], selectedModelId: string | undefined, recentModelIds: string[], controlModels: IStringDictionary<IModelControlEntry>, currentVSCodeVersion: string, updateStateType: StateType, onSelect: (model: ILanguageModelChatMetadataAndIdentifier) => void, manageSettingsUrl: string | undefined, canManageModels: boolean, commandService: ICommandService, chatEntitlementService: IChatEntitlementService): IActionListItem<IActionWidgetDropdownAction>[];
+export declare function getModelPickerAccessibilityProvider(): {
+    readonly isChecked: (element: IActionListItem<IActionWidgetDropdownAction>) => boolean | undefined;
+    readonly getRole: (element: IActionListItem<IActionWidgetDropdownAction>) => "separator" | "menuitemradio";
+    readonly getWidgetRole: () => string;
+};
 export type ModelPickerBadge = 'info' | 'warning';
 /**
  * A model selection dropdown widget.
@@ -19,25 +40,23 @@ export type ModelPickerBadge = 'info' | 'warning';
  * Listen for selection changes via `onDidChangeSelection`.
  */
 export declare class ModelPickerWidget extends Disposable {
-    private readonly _instantiationService;
+    private readonly _delegate;
+    private readonly _actionWidgetService;
     private readonly _commandService;
-    private readonly _openerService;
     private readonly _telemetryService;
     private readonly _languageModelsService;
     private readonly _productService;
     private readonly _entitlementService;
+    private readonly _updateService;
     private readonly _onDidChangeSelection;
     readonly onDidChangeSelection: Event<ILanguageModelChatMetadataAndIdentifier>;
-    private _models;
     private _selectedModel;
     private _badge;
     private _domNode;
     private _badgeIcon;
-    private readonly _dropdown;
     get selectedModel(): ILanguageModelChatMetadataAndIdentifier | undefined;
     get domNode(): HTMLElement | undefined;
-    constructor(_instantiationService: IInstantiationService, _commandService: ICommandService, _openerService: IOpenerService, _telemetryService: ITelemetryService, _languageModelsService: ILanguageModelsService, _productService: IProductService, _entitlementService: IChatEntitlementService);
-    setModels(models: ILanguageModelChatMetadataAndIdentifier[]): void;
+    constructor(_delegate: IModelPickerDelegate, _actionWidgetService: IActionWidgetService, _commandService: ICommandService, _telemetryService: ITelemetryService, _languageModelsService: ILanguageModelsService, _productService: IProductService, _entitlementService: IChatEntitlementService, _updateService: IUpdateService);
     setSelectedModel(model: ILanguageModelChatMetadataAndIdentifier | undefined): void;
     setBadge(badge: ModelPickerBadge | undefined): void;
     render(container: HTMLElement): void;

@@ -37,6 +37,7 @@ import { ConfigurationResolverExpression } from "../../../services/configuration
 import { AUX_WINDOW_GROUP, IEditorService } from "../../../services/editor/common/editorService.js";
 import { IMcpDevModeDebugging } from "./mcpDevMode.js";
 import { McpRegistryInputStorage } from "./mcpRegistryInputStorage.js";
+import { IMcpSandboxService } from "./mcpSandboxService.js";
 import { McpServerConnection } from "./mcpServerConnection.js";
 import { McpStartServerInteraction, UserInteractionRequiredError } from "./mcpTypes.js";
 const notTrustedNonce = "__vscode_not_trusted";
@@ -47,7 +48,7 @@ let McpRegistry = class McpRegistry2 extends Disposable {
   get delegates() {
     return this._delegates;
   }
-  constructor(_instantiationService, _configurationResolverService, _dialogService, _notificationService, _editorService, configurationService, _quickInputService, _labelService, _logService) {
+  constructor(_instantiationService, _configurationResolverService, _dialogService, _notificationService, _editorService, configurationService, _quickInputService, _labelService, _logService, _mcpSandboxService) {
     super();
     this._instantiationService = _instantiationService;
     this._configurationResolverService = _configurationResolverService;
@@ -57,6 +58,7 @@ let McpRegistry = class McpRegistry2 extends Disposable {
     this._quickInputService = _quickInputService;
     this._labelService = _labelService;
     this._logService = _logService;
+    this._mcpSandboxService = _mcpSandboxService;
     this._collections = observableValue("collections", []);
     this._delegates = observableValue("delegates", []);
     this.collections = derived((reader) => {
@@ -430,6 +432,7 @@ let McpRegistry = class McpRegistry2 extends Disposable {
       if (definition.devMode && debug) {
         launch = await this._instantiationService.invokeFunction((accessor) => accessor.get(IMcpDevModeDebugging).transform(definition, launch));
       }
+      launch = await this._mcpSandboxService.launchInSandboxIfEnabled(definition, launch, collection.remoteAuthority ?? void 0, collection.configTarget);
     } catch (e) {
       if (e instanceof UserInteractionRequiredError) {
         throw e;
@@ -467,7 +470,8 @@ McpRegistry = __decorate([
   __param(5, IConfigurationService),
   __param(6, IQuickInputService),
   __param(7, ILabelService),
-  __param(8, ILogService)
+  __param(8, ILogService),
+  __param(9, IMcpSandboxService)
 ], McpRegistry);
 export {
   McpRegistry

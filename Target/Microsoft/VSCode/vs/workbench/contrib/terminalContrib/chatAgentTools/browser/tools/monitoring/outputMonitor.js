@@ -515,13 +515,17 @@ Proceeding with operation..."
     if (!confirmationPrompt?.options.length) {
       return void 0;
     }
-    const model = this._chatWidgetService.getWidgetsByLocations(ChatAgentLocation.Chat)[0]?.input.currentLanguageModel;
-    if (!model) {
-      return void 0;
+    const autoReply = this._configurationService.getValue(
+      "chat.tools.terminal.autoReplyToPrompts"
+      /* TerminalChatAgentToolsSettingId.AutoReplyToPrompts */
+    );
+    let model = this._chatWidgetService.getWidgetsByLocations(ChatAgentLocation.Chat)[0]?.input.currentLanguageModel;
+    if (model) {
+      const models = await this._languageModelsService.selectLanguageModels({ vendor: "copilot", family: model.replaceAll("copilot/", "") });
+      model = models[0];
     }
-    const models = await this._languageModelsService.selectLanguageModels({ vendor: "copilot", family: model.replaceAll("copilot/", "") });
-    if (!models.length) {
-      return void 0;
+    if (!model) {
+      model = await this._getLanguageModel();
     }
     const prompt = confirmationPrompt.prompt;
     const options = confirmationPrompt.options;
@@ -531,18 +535,23 @@ Proceeding with operation..."
     }
     this._lastPromptMarker = currentMarker;
     this._lastPrompt = prompt;
-    const promptText = `Given the following confirmation prompt and options from a terminal output, which option is the default?
+    let suggestedOption = "";
+    if (model) {
+      try {
+        const promptText = `Given the following confirmation prompt and options from a terminal output, which option is the default?
 Prompt: "${prompt}"
 Options: ${JSON.stringify(options)}
 Respond with only the option string.`;
-    const response = await this._languageModelsService.sendChatRequest(models[0], new ExtensionIdentifier("core"), [
-      { role: 1, content: [{ type: "text", value: promptText }] }
-    ], {}, token);
-    const suggestedOption = (await getTextResponseFromStream(response)).trim();
-    const autoReply = this._configurationService.getValue(
-      "chat.tools.terminal.autoReplyToPrompts"
-      /* TerminalChatAgentToolsSettingId.AutoReplyToPrompts */
-    );
+        const response = await this._languageModelsService.sendChatRequest(model, new ExtensionIdentifier("core"), [
+          { role: 1, content: [{ type: "text", value: promptText }] }
+        ], {}, token);
+        suggestedOption = (await getTextResponseFromStream(response)).trim();
+      } catch (err) {
+        this._logService.trace("OutputMonitor: Failed to get suggested option from model", err);
+      }
+    } else if (!autoReply) {
+      return void 0;
+    }
     let validOption;
     let index;
     if (!suggestedOption) {

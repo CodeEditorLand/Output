@@ -727,9 +727,11 @@ let SettingsEditor2 = class SettingsEditor22 extends EditorPane {
       }
     }
     if (!recursed && (!targetElement || revealFailed)) {
-      const p = this.triggerSearch("", true);
+      const idQuery = `@id:${evt.targetKey}`;
+      this.searchWidget.setValue(idQuery);
+      this.searchInputDelayer.cancel();
+      const p = this.triggerSearch(idQuery, true);
       p.then(() => {
-        this.searchWidget.setValue("");
         this.onDidClickSetting(evt, true);
       });
     }

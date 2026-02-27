@@ -34,6 +34,7 @@ export declare class SidebarPart extends AbstractPaneCompositePart {
     private static readonly FOOTER_ITEM_GAP;
     private static readonly FOOTER_VERTICAL_PADDING;
     private footerContainer;
+    private sideBarTitleArea;
     private footerToolbar;
     private previousLayoutDimensions;
     readonly minimumWidth: number;

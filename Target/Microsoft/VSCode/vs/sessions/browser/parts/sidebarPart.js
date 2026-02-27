@@ -21,8 +21,9 @@ import { IContextMenuService } from "../../../platform/contextview/browser/conte
 import { IKeybindingService } from "../../../platform/keybinding/common/keybinding.js";
 import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
 import { IThemeService } from "../../../platform/theme/common/themeService.js";
-import { SIDE_BAR_TITLE_FOREGROUND, SIDE_BAR_TITLE_BORDER, SIDE_BAR_BACKGROUND, SIDE_BAR_FOREGROUND, SIDE_BAR_BORDER, SIDE_BAR_DRAG_AND_DROP_BACKGROUND, ACTIVITY_BAR_BADGE_BACKGROUND, ACTIVITY_BAR_BADGE_FOREGROUND, ACTIVITY_BAR_TOP_FOREGROUND, ACTIVITY_BAR_TOP_ACTIVE_BORDER, ACTIVITY_BAR_TOP_INACTIVE_FOREGROUND, ACTIVITY_BAR_TOP_DRAG_AND_DROP_BORDER } from "../../../workbench/common/theme.js";
+import { SIDE_BAR_TITLE_FOREGROUND, SIDE_BAR_TITLE_BORDER, SIDE_BAR_BACKGROUND, SIDE_BAR_FOREGROUND, SIDE_BAR_DRAG_AND_DROP_BACKGROUND, ACTIVITY_BAR_BADGE_BACKGROUND, ACTIVITY_BAR_BADGE_FOREGROUND, ACTIVITY_BAR_TOP_FOREGROUND, ACTIVITY_BAR_TOP_ACTIVE_BORDER, ACTIVITY_BAR_TOP_INACTIVE_FOREGROUND, ACTIVITY_BAR_TOP_DRAG_AND_DROP_BORDER } from "../../../workbench/common/theme.js";
 import { contrastBorder } from "../../../platform/theme/common/colorRegistry.js";
+import { sessionsSidebarBorder, sessionsSidebarHeaderBackground, sessionsSidebarHeaderForeground } from "../../common/theme.js";
 import { INotificationService } from "../../../platform/notification/common/notification.js";
 import { IContextKeyService } from "../../../platform/contextkey/common/contextkey.js";
 import { IExtensionService } from "../../../workbench/services/extensions/common/extensions.js";
@@ -93,7 +94,7 @@ let SidebarPart = class SidebarPart2 extends AbstractPaneCompositePart {
   }
   //#endregion
   constructor(notificationService, storageService, contextMenuService, layoutService, keybindingService, hoverService, instantiationService, themeService, viewDescriptorService, contextKeyService, extensionService, menuService) {
-    super("workbench.parts.sidebar", { hasTitle: true, trailingSeparator: false, borderWidth: /* @__PURE__ */ __name(() => this.getColor(SIDE_BAR_BORDER) || this.getColor(contrastBorder) ? 1 : 0, "borderWidth") }, SidebarPart_1.activeViewletSettingsKey, ActiveViewletContext.bindTo(contextKeyService), SidebarFocusContext.bindTo(contextKeyService), "sideBar", "viewlet", SIDE_BAR_TITLE_FOREGROUND, SIDE_BAR_TITLE_BORDER, 0, Extensions.Viewlets, Menus.SidebarTitle, Menus.TitleBarLeft, notificationService, storageService, contextMenuService, layoutService, keybindingService, hoverService, instantiationService, themeService, viewDescriptorService, contextKeyService, extensionService, menuService);
+    super("workbench.parts.sidebar", { hasTitle: true, trailingSeparator: false, borderWidth: /* @__PURE__ */ __name(() => this.getColor(sessionsSidebarBorder) || this.getColor(contrastBorder) ? 1 : 0, "borderWidth") }, SidebarPart_1.activeViewletSettingsKey, ActiveViewletContext.bindTo(contextKeyService), SidebarFocusContext.bindTo(contextKeyService), "sideBar", "viewlet", SIDE_BAR_TITLE_FOREGROUND, SIDE_BAR_TITLE_BORDER, 0, Extensions.Viewlets, Menus.SidebarTitle, Menus.TitleBarLeft, notificationService, storageService, contextMenuService, layoutService, keybindingService, hoverService, instantiationService, themeService, viewDescriptorService, contextKeyService, extensionService, menuService);
     this.minimumWidth = 170;
     this.maximumWidth = Number.POSITIVE_INFINITY;
     this.minimumHeight = 0;
@@ -106,6 +107,7 @@ let SidebarPart = class SidebarPart2 extends AbstractPaneCompositePart {
   }
   createTitleArea(parent) {
     const titleArea = super.createTitleArea(parent);
+    this.sideBarTitleArea = titleArea;
     if (titleArea) {
       prepend(titleArea, $("div.titlebar-drag-region"));
     }
@@ -163,10 +165,14 @@ let SidebarPart = class SidebarPart2 extends AbstractPaneCompositePart {
     container.style.backgroundColor = this.getColor(SIDE_BAR_BACKGROUND) || "";
     container.style.color = this.getColor(SIDE_BAR_FOREGROUND) || "";
     container.style.outlineColor = this.getColor(SIDE_BAR_DRAG_AND_DROP_BACKGROUND) ?? "";
-    const borderColor = this.getColor(SIDE_BAR_BORDER) || this.getColor(contrastBorder) || "";
+    const borderColor = this.getColor(sessionsSidebarBorder) || this.getColor(contrastBorder) || "";
     container.style.borderRightWidth = borderColor ? "1px" : "";
     container.style.borderRightStyle = borderColor ? "solid" : "";
     container.style.borderRightColor = borderColor;
+    if (this.sideBarTitleArea) {
+      this.sideBarTitleArea.style.backgroundColor = this.getColor(sessionsSidebarHeaderBackground) || "";
+      this.sideBarTitleArea.style.color = this.getColor(sessionsSidebarHeaderForeground) || "";
+    }
   }
   layout(width, height, top, left) {
     this.previousLayoutDimensions = { width, height, top, left };

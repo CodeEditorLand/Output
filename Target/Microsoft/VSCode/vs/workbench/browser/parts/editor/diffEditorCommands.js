@@ -13,7 +13,6 @@ import { ActiveCompareEditorCanSwapContext, TextCompareEditorActiveContext, Text
 import { DiffEditorInput } from "../../../common/editor/diffEditorInput.js";
 import { IEditorService } from "../../../services/editor/common/editorService.js";
 import { EditorContextKeys } from "../../../../editor/common/editorContextKeys.js";
-import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
 import { isDiffEditor } from "../../../../editor/browser/editorBrowser.js";
 const TOGGLE_DIFF_SIDE_BY_SIDE = "toggle.diff.renderSideBySide";
 const GOTO_NEXT_CHANGE = "workbench.action.compareEditor.nextChange";
@@ -36,7 +35,6 @@ function registerDiffEditorCommands() {
     ),
     handler: /* @__PURE__ */ __name(async (accessor) => {
       const editorService = accessor.get(IEditorService);
-      const editorGroupsService = accessor.get(IEditorGroupsService);
       const activeEditor = editorService.activeEditor;
       const activeTextEditorControl = editorService.activeTextEditorControl;
       if (!isDiffEditor(activeTextEditorControl) || !(activeEditor instanceof DiffEditorInput)) {
@@ -49,7 +47,7 @@ function registerDiffEditorCommands() {
       } else {
         editor = activeEditor.modified;
       }
-      return editorGroupsService.activeGroup.openEditor(editor);
+      return editorService.openEditor(editor);
     }, "handler")
   });
   MenuRegistry.appendMenuItem(MenuId.CommandPalette, {

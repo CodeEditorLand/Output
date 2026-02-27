@@ -143,7 +143,7 @@ export declare class McpServer extends Disposable implements IMcpServer {
      * Helper function to call the function on the handler once it's online. The
      * connection started if it is not already.
      */
-    static callOn<R>(server: IMcpServer, fn: (handler: McpServerRequestHandler) => Promise<R>, token?: CancellationToken): Promise<R>;
+    static callOn<R>(server: IMcpServer, fn: (handler: McpServerRequestHandler, connection: IMcpServerConnection) => Promise<R>, token?: CancellationToken): Promise<R>;
     readonly collection: McpCollectionReference;
     private readonly _connectionSequencer;
     private readonly _connection;

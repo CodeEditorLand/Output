@@ -56,7 +56,16 @@ class CDPBrowserProxy extends Disposable {
         await this.attachToTarget(targetInfo.targetId, true);
       }
     });
-    this._targets.onDidUnregisterTarget(async ({ targetInfo }) => {
+    this._targets.onDidUnregisterTarget(({ targetInfo }) => {
+      const toDispose = [];
+      for (const [, connection] of this._sessions) {
+        if (this._sessionTargetIds.get(connection) === targetInfo.targetId) {
+          toDispose.push(connection);
+        }
+      }
+      for (const connection of toDispose) {
+        connection.dispose();
+      }
       if (this._discover) {
         this.sendBrowserEvent("Target.targetDestroyed", { targetId: targetInfo.targetId });
       }

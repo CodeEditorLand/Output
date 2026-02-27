@@ -22,3 +22,4 @@ export declare const warningIcon: import("../../../../base/common/themables.ts")
 export declare const infoIcon: import("../../../../base/common/themables.ts").ThemeIcon;
 export declare const trustIcon: import("../../../../base/common/themables.ts").ThemeIcon;
 export declare const activationTimeIcon: import("../../../../base/common/themables.ts").ThemeIcon;
+export declare const restartRequiredIcon: import("../../../../base/common/themables.ts").ThemeIcon;

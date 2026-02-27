@@ -28,7 +28,6 @@ import { IInstantiationService } from "../../../../../../platform/instantiation/
 import { WorkbenchList } from "../../../../../../platform/list/browser/listService.js";
 import { IThemeService } from "../../../../../../platform/theme/common/themeService.js";
 import { ResourceLabels } from "../../../../../browser/labels.js";
-import { IEditorGroupsService } from "../../../../../services/editor/common/editorGroupsService.js";
 import { IEditorService } from "../../../../../services/editor/common/editorService.js";
 import { createFileIconThemableTreeContainerScope } from "../../../../files/browser/views/explorerView.js";
 import { MultiDiffEditorInput } from "../../../../multiDiffEditor/browser/multiDiffEditorInput.js";
@@ -39,13 +38,12 @@ let ChatCheckpointFileChangesSummaryContentPart = class ChatCheckpointFileChange
   static {
     __name(this, "ChatCheckpointFileChangesSummaryContentPart");
   }
-  constructor(content, context, hoverService, chatService, editorService, editorGroupsService, instantiationService) {
+  constructor(content, context, hoverService, chatService, editorService, instantiationService) {
     super();
     this.content = content;
     this.hoverService = hoverService;
     this.chatService = chatService;
     this.editorService = editorService;
-    this.editorGroupsService = editorGroupsService;
     this.instantiationService = instantiationService;
     this.ELEMENT_HEIGHT = 22;
     this.MAX_ITEMS_SHOWN = 6;
@@ -108,7 +106,7 @@ let ChatCheckpointFileChangesSummaryContentPart = class ChatCheckpointFileChange
       const input = this.instantiationService.createInstance(MultiDiffEditorInput, source, "Checkpoint File Changes", resources.map((resource) => {
         return new MultiDiffEditorItem(resource.originalUri, resource.modifiedUri, void 0);
       }), false);
-      this.editorGroupsService.activeGroup.openEditor(input);
+      this.editorService.openEditor(input);
       dom.EventHelper.stop(e, true);
     }));
   }
@@ -153,8 +151,7 @@ ChatCheckpointFileChangesSummaryContentPart = __decorate([
   __param(2, IHoverService),
   __param(3, IChatService),
   __param(4, IEditorService),
-  __param(5, IEditorGroupsService),
-  __param(6, IInstantiationService)
+  __param(5, IInstantiationService)
 ], ChatCheckpointFileChangesSummaryContentPart);
 let CollapsibleChangesSummaryListPool = class CollapsibleChangesSummaryListPool2 extends Disposable {
   static {

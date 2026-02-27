@@ -13,22 +13,20 @@ var __param = function(paramIndex, decorator) {
 };
 import { localize, localize2 } from "../../../../../nls.js";
 import { IQuickInputService } from "../../../../../platform/quickinput/common/quickInput.js";
-import { IEditorService } from "../../../../services/editor/common/editorService.js";
+import { IEditorService, SIDE_GROUP } from "../../../../services/editor/common/editorService.js";
 import { AbstractGotoLineQuickAccessProvider } from "../../../../../editor/contrib/quickAccess/browser/gotoLineQuickAccess.js";
 import { Registry } from "../../../../../platform/registry/common/platform.js";
 import { Extensions as QuickAccessExtensions } from "../../../../../platform/quickinput/common/quickAccess.js";
 import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
 import { Action2, registerAction2 } from "../../../../../platform/actions/common/actions.js";
-import { IEditorGroupsService } from "../../../../services/editor/common/editorGroupsService.js";
 import { IStorageService } from "../../../../../platform/storage/common/storage.js";
 let GotoLineQuickAccessProvider = class GotoLineQuickAccessProvider2 extends AbstractGotoLineQuickAccessProvider {
   static {
     __name(this, "GotoLineQuickAccessProvider");
   }
-  constructor(editorService, editorGroupService, configurationService, storageService) {
+  constructor(editorService, configurationService, storageService) {
     super();
     this.editorService = editorService;
-    this.editorGroupService = editorGroupService;
     this.configurationService = configurationService;
     this.storageService = storageService;
     this.onDidActiveTextEditorControlChange = this.editorService.onDidActiveEditorChange;
@@ -50,7 +48,7 @@ let GotoLineQuickAccessProvider = class GotoLineQuickAccessProvider2 extends Abs
         pinned: options.keyMods.ctrlCmd || this.configuration.openEditorPinned,
         preserveFocus: options.preserveFocus
       };
-      this.editorGroupService.sideGroup.openEditor(this.editorService.activeEditor, editorOptions);
+      this.editorService.openEditor(this.editorService.activeEditor, editorOptions, SIDE_GROUP);
     } else {
       super.gotoLocation(context, options);
     }
@@ -58,9 +56,8 @@ let GotoLineQuickAccessProvider = class GotoLineQuickAccessProvider2 extends Abs
 };
 GotoLineQuickAccessProvider = __decorate([
   __param(0, IEditorService),
-  __param(1, IEditorGroupsService),
-  __param(2, IConfigurationService),
-  __param(3, IStorageService)
+  __param(1, IConfigurationService),
+  __param(2, IStorageService)
 ], GotoLineQuickAccessProvider);
 class GotoLineAction extends Action2 {
   static {

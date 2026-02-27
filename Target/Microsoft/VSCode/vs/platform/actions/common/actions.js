@@ -205,6 +205,9 @@ class MenuId {
     this.ActivityBarPositionMenu = new MenuId("ActivityBarPositionMenu");
   }
   static {
+    this.NotificationsCenterPositionMenu = new MenuId("NotificationsCenterPositionMenu");
+  }
+  static {
     this.MenubarPreferencesMenu = new MenuId("MenubarPreferencesMenu");
   }
   static {
@@ -572,9 +575,6 @@ class MenuId {
   }
   static {
     this.InlineEditToolbar = new MenuId("InlineEditToolbar");
-  }
-  static {
-    this.AgentFeedbackEditorContent = new MenuId("AgentFeedbackEditorContent");
   }
   static {
     this.ChatContext = new MenuId("ChatContext");

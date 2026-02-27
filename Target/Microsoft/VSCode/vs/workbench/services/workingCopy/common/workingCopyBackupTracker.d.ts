@@ -7,7 +7,6 @@ import { ShutdownReason, ILifecycleService } from '../../lifecycle/common/lifecy
 import { IFilesConfigurationService } from '../../filesConfiguration/common/filesConfigurationService.js';
 import { IWorkingCopyEditorHandler, IWorkingCopyEditorService } from './workingCopyEditorService.js';
 import { IEditorService } from '../../editor/common/editorService.js';
-import { IEditorGroupsService } from '../../editor/common/editorGroupsService.js';
 /**
  * The working copy backup tracker deals with:
  * - restoring backups that exist
@@ -23,8 +22,7 @@ export declare abstract class WorkingCopyBackupTracker extends Disposable {
     protected readonly filesConfigurationService: IFilesConfigurationService;
     private readonly workingCopyEditorService;
     protected readonly editorService: IEditorService;
-    private readonly editorGroupService;
-    constructor(workingCopyBackupService: IWorkingCopyBackupService, workingCopyService: IWorkingCopyService, logService: ILogService, lifecycleService: ILifecycleService, filesConfigurationService: IFilesConfigurationService, workingCopyEditorService: IWorkingCopyEditorService, editorService: IEditorService, editorGroupService: IEditorGroupsService);
+    constructor(workingCopyBackupService: IWorkingCopyBackupService, workingCopyService: IWorkingCopyService, logService: ILogService, lifecycleService: ILifecycleService, filesConfigurationService: IFilesConfigurationService, workingCopyEditorService: IWorkingCopyEditorService, editorService: IEditorService);
     private registerListeners;
     protected abstract onFinalBeforeShutdown(reason: ShutdownReason): boolean | Promise<boolean>;
     private onWillShutdown;

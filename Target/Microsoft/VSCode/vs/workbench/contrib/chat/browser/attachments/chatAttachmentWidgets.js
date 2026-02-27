@@ -17,6 +17,7 @@ import { StandardKeyboardEvent } from "../../../../../base/browser/keyboardEvent
 import { StandardMouseEvent } from "../../../../../base/browser/mouseEvent.js";
 import { Button } from "../../../../../base/browser/ui/button/button.js";
 import { createInstantHoverDelegate } from "../../../../../base/browser/ui/hover/hoverDelegateFactory.js";
+import { DomScrollableElement } from "../../../../../base/browser/ui/scrollbar/scrollableElement.js";
 import { Codicon } from "../../../../../base/common/codicons.js";
 import * as event from "../../../../../base/common/event.js";
 import { MarkdownString } from "../../../../../base/common/htmlContent.js";
@@ -75,6 +76,16 @@ const commonHoverOptions = {
 const commonHoverLifecycleOptions = {
   groupId: "chat-attachments"
 };
+const KEY_ELEMENT_HOVER_COMPUTED_STYLE_PROPERTIES = [
+  "display",
+  "position",
+  "margin",
+  "padding",
+  "font-size",
+  "font-family",
+  "color",
+  "background-color"
+];
 let AbstractChatAttachmentWidget = class AbstractChatAttachmentWidget2 extends Disposable {
   static {
     __name(this, "AbstractChatAttachmentWidget");
@@ -792,8 +803,10 @@ let ElementChatAttachmentWidget = class ElementChatAttachmentWidget2 extends Abs
   static {
     __name(this, "ElementChatAttachmentWidget");
   }
-  constructor(attachment, currentLanguageModel, options, container, contextResourceLabels, commandService, openerService, configurationService, editorService) {
+  constructor(attachment, currentLanguageModel, options, container, contextResourceLabels, commandService, openerService, configurationService, editorService, hoverService) {
     super(attachment, options, container, contextResourceLabels, currentLanguageModel, commandService, openerService, configurationService);
+    this.editorService = editorService;
+    this.hoverService = hoverService;
     const ariaLabel = localize("chat.elementAttachment", "Attached element, {0}", attachment.name);
     this.element.ariaLabel = ariaLabel;
     this.element.style.position = "relative";
@@ -801,23 +814,247 @@ let ElementChatAttachmentWidget = class ElementChatAttachmentWidget2 extends Abs
     const attachmentLabel = attachment.name;
     const withIcon = attachment.icon?.id ? `$(${attachment.icon.id})\xA0${attachmentLabel}` : attachmentLabel;
     this.label.setLabel(withIcon, void 0, { title: localize("chat.clickToViewContents", "Click to view the contents of: {0}", attachmentLabel) });
+    this._register(this.hoverService.setupDelayedHover(this.element, this.getHoverContent(attachment), commonHoverLifecycleOptions));
     this._register(dom.addDisposableListener(this.element, dom.EventType.CLICK, async () => {
-      const content = attachment.value?.toString() || "";
-      await editorService.openEditor({
-        resource: void 0,
-        contents: content,
-        options: {
-          pinned: true
-        }
-      });
+      await this.openElementAttachment(attachment);
     }));
+  }
+  getHoverContent(attachment) {
+    if (!this.shouldRenderRichElementHover(attachment)) {
+      return this.getSimpleHoverContent(attachment);
+    }
+    const hoverElement = dom.$("div.chat-attached-context-hover.chat-element-hover");
+    const scrollableContent = dom.$("div.chat-element-hover-content");
+    const innerScrollables = [];
+    {
+      const section = dom.$("div.chat-element-hover-section");
+      const header = dom.$("div.chat-element-hover-header", {}, localize("chat.elementHover.element", "ELEMENT"));
+      section.appendChild(header);
+      const elementPre = dom.$("pre.chat-element-hover-code");
+      const elementCode = dom.$("code");
+      const tagDisplay = this.formatElementTag(attachment);
+      elementCode.textContent = tagDisplay;
+      elementPre.appendChild(elementCode);
+      const elementScrollable = this._register(new DomScrollableElement(elementPre, {
+        horizontal: 1,
+        vertical: 2
+      }));
+      innerScrollables.push(elementScrollable);
+      section.appendChild(elementScrollable.getDomNode());
+      scrollableContent.appendChild(section);
+    }
+    const computedStyleEntries = this.getComputedStyleEntriesForHover(attachment.computedStyles);
+    if (computedStyleEntries.length > 0) {
+      const section = dom.$("div.chat-element-hover-section");
+      const header = dom.$("div.chat-element-hover-header", {}, localize("chat.elementHover.computedStyles", "KEY COMPUTED STYLES"));
+      section.appendChild(header);
+      const table = dom.$("div.chat-element-hover-table");
+      for (const [name, value] of computedStyleEntries) {
+        const row = dom.$("div.chat-element-hover-row");
+        row.appendChild(dom.$("span.chat-element-hover-label", {}, `${name}:`));
+        const valueContainer = dom.$("span.chat-element-hover-value");
+        if ((name === "color" || name === "background-color") && value) {
+          const swatch = dom.$("span.chat-element-hover-color-swatch");
+          swatch.style.backgroundColor = value;
+          valueContainer.appendChild(swatch);
+        }
+        valueContainer.appendChild(document.createTextNode(value));
+        row.appendChild(valueContainer);
+        table.appendChild(row);
+      }
+      section.appendChild(table);
+      const showMoreButton = dom.$("button.chat-element-hover-show-more", { type: "button" }, localize("chat.elementHover.showMore", "Show More..."));
+      this._register(dom.addDisposableListener(showMoreButton, dom.EventType.CLICK, async (e) => {
+        dom.EventHelper.stop(e, true);
+        await this.openElementAttachment(attachment);
+      }));
+      section.appendChild(showMoreButton);
+      scrollableContent.appendChild(section);
+    }
+    if (attachment.ancestors && attachment.ancestors.length > 1) {
+      const section = dom.$("div.chat-element-hover-section");
+      const header = dom.$("div.chat-element-hover-header", {}, localize("chat.elementHover.htmlPath", "HTML PATH"));
+      section.appendChild(header);
+      const lines = [];
+      for (let i = 0; i < attachment.ancestors.length; i++) {
+        const ancestor = attachment.ancestors[i];
+        const indent = "  ".repeat(i);
+        const tag = this.formatAncestorTag(ancestor);
+        lines.push(`${indent}${tag}`);
+      }
+      const pathPre = dom.$("pre.chat-element-hover-code");
+      const pathCode = dom.$("code");
+      pathCode.textContent = lines.join("\n");
+      pathPre.appendChild(pathCode);
+      const pathScrollable = this._register(new DomScrollableElement(pathPre, {
+        horizontal: 1,
+        vertical: 2
+      }));
+      innerScrollables.push(pathScrollable);
+      section.appendChild(pathScrollable.getDomNode());
+      scrollableContent.appendChild(section);
+    }
+    if (attachment.attributes && Object.keys(attachment.attributes).length > 0) {
+      const section = dom.$("div.chat-element-hover-section");
+      const header = dom.$("div.chat-element-hover-header", {}, localize("chat.elementHover.attributes", "ATTRIBUTES"));
+      section.appendChild(header);
+      const table = dom.$("div.chat-element-hover-table");
+      for (const [name, value] of Object.entries(attachment.attributes)) {
+        const row = dom.$("div.chat-element-hover-row");
+        row.appendChild(dom.$("span.chat-element-hover-label", {}, `${name}:`));
+        row.appendChild(dom.$("span.chat-element-hover-value", {}, value));
+        table.appendChild(row);
+      }
+      section.appendChild(table);
+      scrollableContent.appendChild(section);
+    }
+    if (attachment.dimensions) {
+      const section = dom.$("div.chat-element-hover-section");
+      const header = dom.$("div.chat-element-hover-header", {}, localize("chat.elementHover.positionSize", "POSITION & SIZE"));
+      section.appendChild(header);
+      const table = dom.$("div.chat-element-hover-table");
+      const dims = [
+        ["top:", attachment.dimensions.top],
+        ["left:", attachment.dimensions.left],
+        ["width:", attachment.dimensions.width],
+        ["height:", attachment.dimensions.height]
+      ];
+      for (const [label, val] of dims) {
+        const row = dom.$("div.chat-element-hover-row");
+        row.appendChild(dom.$("span.chat-element-hover-label", {}, label));
+        row.appendChild(dom.$("span.chat-element-hover-value", {}, `${Math.round(val)}px`));
+        table.appendChild(row);
+      }
+      section.appendChild(table);
+      scrollableContent.appendChild(section);
+    }
+    if (attachment.innerText) {
+      const section = dom.$("div.chat-element-hover-section");
+      const header = dom.$("div.chat-element-hover-header", {}, localize("chat.elementHover.innerText", "INNER TEXT"));
+      section.appendChild(header);
+      section.appendChild(dom.$("div.chat-element-hover-text", {}, attachment.innerText));
+      scrollableContent.appendChild(section);
+    }
+    const scrollableElement = this._register(new DomScrollableElement(scrollableContent, {
+      vertical: 1,
+      horizontal: 2,
+      consumeMouseWheelIfScrollbarIsNeeded: true
+    }));
+    const scrollableDomNode = scrollableElement.getDomNode();
+    scrollableDomNode.classList.add("chat-element-hover-scrollable");
+    hoverElement.appendChild(scrollableDomNode);
+    return {
+      ...commonHoverOptions,
+      content: hoverElement,
+      additionalClasses: ["chat-element-data-hover"],
+      onDidShow: /* @__PURE__ */ __name(() => {
+        for (const s of innerScrollables) {
+          s.scanDomNode();
+        }
+        scrollableElement.scanDomNode();
+      }, "onDidShow")
+    };
+  }
+  shouldRenderRichElementHover(attachment) {
+    if (attachment.dimensions || attachment.innerText) {
+      return true;
+    }
+    if (attachment.ancestors && attachment.ancestors.length > 0) {
+      return true;
+    }
+    if (attachment.attributes && Object.keys(attachment.attributes).length > 0) {
+      return true;
+    }
+    if (attachment.computedStyles && Object.keys(attachment.computedStyles).length > 0) {
+      return true;
+    }
+    return false;
+  }
+  getSimpleHoverContent(attachment) {
+    const content = attachment.value?.toString() ?? "";
+    const hoverContent = new MarkdownString();
+    hoverContent.appendText(attachment.fullName ?? attachment.name);
+    if (content.trim().length > 0) {
+      hoverContent.appendMarkdown("\n\n");
+      hoverContent.appendCodeblock("text", content);
+    }
+    return {
+      ...commonHoverOptions,
+      content: hoverContent
+    };
+  }
+  getComputedStyleEntriesForHover(computedStyles) {
+    if (!computedStyles) {
+      return [];
+    }
+    const keyEntries = [];
+    for (const property of KEY_ELEMENT_HOVER_COMPUTED_STYLE_PROPERTIES) {
+      if (property === "margin" || property === "padding") {
+        const shorthand = this.getBoxShorthandValue(computedStyles, property);
+        if (typeof shorthand === "string") {
+          keyEntries.push([property, shorthand]);
+          continue;
+        }
+      }
+      const value = computedStyles[property];
+      if (typeof value === "string") {
+        keyEntries.push([property, value]);
+      }
+    }
+    if (keyEntries.length > 0) {
+      return keyEntries;
+    }
+    return Object.entries(computedStyles).slice(0, KEY_ELEMENT_HOVER_COMPUTED_STYLE_PROPERTIES.length);
+  }
+  getBoxShorthandValue(computedStyles, propertyName) {
+    const top = computedStyles[`${propertyName}-top`];
+    const right = computedStyles[`${propertyName}-right`];
+    const bottom = computedStyles[`${propertyName}-bottom`];
+    const left = computedStyles[`${propertyName}-left`];
+    if (typeof top === "string" && typeof right === "string" && typeof bottom === "string" && typeof left === "string") {
+      return `${top} ${right} ${bottom} ${left}`;
+    }
+    return computedStyles[propertyName];
+  }
+  async openElementAttachment(attachment) {
+    const content = attachment.value?.toString() || "";
+    await this.editorService.openEditor({
+      resource: void 0,
+      contents: content,
+      options: {
+        pinned: true
+      }
+    });
+  }
+  formatElementTag(attachment) {
+    const content = attachment.value?.toString() ?? "";
+    const htmlMatch = content.match(/\n\n(<[^>]+>)/);
+    if (htmlMatch) {
+      return htmlMatch[1];
+    }
+    const fallback = content.match(/<([^>]+)>/);
+    if (fallback) {
+      return `<${fallback[1]}>`;
+    }
+    return `<${attachment.name}>`;
+  }
+  formatAncestorTag(ancestor) {
+    const parts = [`<${ancestor.tagName}`];
+    if (ancestor.classNames?.length) {
+      parts.push(` class="${ancestor.classNames.join(" ")}"`);
+    }
+    if (ancestor.id) {
+      parts.push(` id="${ancestor.id}"`);
+    }
+    return parts.join("") + ">";
   }
 };
 ElementChatAttachmentWidget = __decorate([
   __param(5, ICommandService),
   __param(6, IOpenerService),
   __param(7, IConfigurationService),
-  __param(8, IEditorService)
+  __param(8, IEditorService),
+  __param(9, IHoverService)
 ], ElementChatAttachmentWidget);
 let SCMHistoryItemAttachmentWidget = class SCMHistoryItemAttachmentWidget2 extends AbstractChatAttachmentWidget {
   static {

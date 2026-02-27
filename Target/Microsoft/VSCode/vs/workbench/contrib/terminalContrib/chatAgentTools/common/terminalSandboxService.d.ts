@@ -24,6 +24,7 @@ export declare class TerminalSandboxService extends Disposable implements ITermi
     private readonly _trustedDomainService;
     readonly _serviceBrand: undefined;
     private _srtPath;
+    private _rgPath;
     private _srtPathResolved;
     private _execPath?;
     private _sandboxConfigPath;

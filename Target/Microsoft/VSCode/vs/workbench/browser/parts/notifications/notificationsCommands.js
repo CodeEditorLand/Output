@@ -16,7 +16,7 @@ import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextke
 import { KeybindingsRegistry } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
 import { KeyChord } from "../../../../base/common/keyCodes.js";
 import { isNotificationViewItem } from "../../../common/notifications.js";
-import { MenuRegistry, MenuId } from "../../../../platform/actions/common/actions.js";
+import { Action2, MenuRegistry, MenuId, registerAction2 } from "../../../../platform/actions/common/actions.js";
 import { localize, localize2 } from "../../../../nls.js";
 import { IListService, WorkbenchList } from "../../../../platform/list/browser/listService.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
@@ -27,6 +27,8 @@ import { ActionRunner } from "../../../../base/common/actions.js";
 import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
 import { DisposableStore } from "../../../../base/common/lifecycle.js";
 import { AccessibilitySignal, IAccessibilitySignalService } from "../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 const SHOW_NOTIFICATIONS_CENTER = "notifications.showList";
 const HIDE_NOTIFICATIONS_CENTER = "notifications.hideList";
 const TOGGLE_NOTIFICATIONS_CENTER = "notifications.toggleList";
@@ -269,8 +271,103 @@ function registerNotificationCommands(center, toasts, model) {
   MenuRegistry.appendMenuItem(MenuId.CommandPalette, { command: { id: TOGGLE_DO_NOT_DISTURB_MODE, title: localize2("toggleDoNotDisturbMode", "Toggle Do Not Disturb Mode"), category } });
   MenuRegistry.appendMenuItem(MenuId.CommandPalette, { command: { id: TOGGLE_DO_NOT_DISTURB_MODE_BY_SOURCE, title: localize2("toggleDoNotDisturbModeBySource", "Toggle Do Not Disturb Mode By Source..."), category } });
   MenuRegistry.appendMenuItem(MenuId.CommandPalette, { command: { id: FOCUS_NOTIFICATION_TOAST, title: localize2("focusNotificationToasts", "Focus Notification Toast"), category }, when: NotificationsToastsVisibleContext });
+  MenuRegistry.appendMenuItem(MenuId.TitleBar, {
+    command: {
+      id: TOGGLE_NOTIFICATIONS_CENTER,
+      title: localize("toggleNotifications", "Toggle Notifications"),
+      icon: Codicon.bell
+    },
+    group: "navigation",
+    order: 1e4,
+    when: ContextKeyExpr.and(ContextKeyExpr.equals(
+      `config.${"workbench.notifications.position"}`,
+      "top-right"
+      /* NotificationsPosition.TOP_RIGHT */
+    ), ContextKeyExpr.equals(`config.${"workbench.notifications.showInTitleBar"}`, true))
+  });
 }
 __name(registerNotificationCommands, "registerNotificationCommands");
+registerAction2(class SetNotificationsPositionBottomRight extends Action2 {
+  static {
+    __name(this, "SetNotificationsPositionBottomRight");
+  }
+  constructor() {
+    super({
+      id: "workbench.action.setNotificationsPosition.bottomRight",
+      title: localize2("positionBottomRight", "Bottom Right"),
+      toggled: ContextKeyExpr.equals(
+        `config.${"workbench.notifications.position"}`,
+        "bottom-right"
+        /* NotificationsPosition.BOTTOM_RIGHT */
+      ),
+      menu: {
+        id: MenuId.NotificationsCenterPositionMenu,
+        order: 1
+      }
+    });
+  }
+  run(accessor) {
+    accessor.get(IConfigurationService).updateValue(
+      "workbench.notifications.position",
+      "bottom-right"
+      /* NotificationsPosition.BOTTOM_RIGHT */
+    );
+  }
+});
+registerAction2(class SetNotificationsPositionBottomLeft extends Action2 {
+  static {
+    __name(this, "SetNotificationsPositionBottomLeft");
+  }
+  constructor() {
+    super({
+      id: "workbench.action.setNotificationsPosition.bottomLeft",
+      title: localize2("positionBottomLeft", "Bottom Left"),
+      toggled: ContextKeyExpr.equals(
+        `config.${"workbench.notifications.position"}`,
+        "bottom-left"
+        /* NotificationsPosition.BOTTOM_LEFT */
+      ),
+      menu: {
+        id: MenuId.NotificationsCenterPositionMenu,
+        order: 2
+      }
+    });
+  }
+  run(accessor) {
+    accessor.get(IConfigurationService).updateValue(
+      "workbench.notifications.position",
+      "bottom-left"
+      /* NotificationsPosition.BOTTOM_LEFT */
+    );
+  }
+});
+registerAction2(class SetNotificationsPositionTopRight extends Action2 {
+  static {
+    __name(this, "SetNotificationsPositionTopRight");
+  }
+  constructor() {
+    super({
+      id: "workbench.action.setNotificationsPosition.topRight",
+      title: localize2("positionTopRight", "Top Right"),
+      toggled: ContextKeyExpr.equals(
+        `config.${"workbench.notifications.position"}`,
+        "top-right"
+        /* NotificationsPosition.TOP_RIGHT */
+      ),
+      menu: {
+        id: MenuId.NotificationsCenterPositionMenu,
+        order: 3
+      }
+    });
+  }
+  run(accessor) {
+    accessor.get(IConfigurationService).updateValue(
+      "workbench.notifications.position",
+      "top-right"
+      /* NotificationsPosition.TOP_RIGHT */
+    );
+  }
+});
 let NotificationActionRunner = class NotificationActionRunner2 extends ActionRunner {
   static {
     __name(this, "NotificationActionRunner");

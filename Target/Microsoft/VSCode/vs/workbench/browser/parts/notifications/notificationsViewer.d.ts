@@ -10,6 +10,7 @@ import { IKeybindingService } from '../../../../platform/keybinding/common/keybi
 import { ProgressBar } from '../../../../base/browser/ui/progressbar/progressbar.js';
 import { INotificationService } from '../../../../platform/notification/common/notification.js';
 import { IHoverService } from '../../../../platform/hover/browser/hover.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
 export declare class NotificationsListDelegate implements IListVirtualDelegate<INotificationViewItem> {
     private static readonly ROW_HEIGHT;
     private static readonly LINE_HEIGHT;
@@ -56,9 +57,10 @@ export declare class NotificationTemplateRenderer extends Disposable {
     private static closeNotificationAction;
     private static expandNotificationAction;
     private static collapseNotificationAction;
+    private static updateExpandCollapseIcons;
     private static readonly SEVERITIES;
     private readonly inputDisposables;
-    constructor(template: INotificationTemplateData, actionRunner: IActionRunner, openerService: IOpenerService, instantiationService: IInstantiationService, keybindingService: IKeybindingService, contextMenuService: IContextMenuService, hoverService: IHoverService);
+    constructor(template: INotificationTemplateData, actionRunner: IActionRunner, openerService: IOpenerService, instantiationService: IInstantiationService, keybindingService: IKeybindingService, contextMenuService: IContextMenuService, hoverService: IHoverService, configurationService: IConfigurationService);
     setInput(notification: INotificationViewItem): void;
     private render;
     private renderSeverity;

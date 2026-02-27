@@ -43,6 +43,7 @@
   line-height: inherit;
   padding-top: 0;
   padding-bottom: 0;
+  border-radius: 0 var(--vscode-cornerRadius-small) var(--vscode-cornerRadius-small) 0;
   min-width: 90px;
   white-space: nowrap;
   text-overflow: ellipsis;

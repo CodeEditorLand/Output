@@ -13,6 +13,7 @@ import { IConfigurationResolverService } from '../../../services/configurationRe
 import { IResolvedValue } from '../../../services/configurationResolver/common/configurationResolverExpression.js';
 import { IEditorService } from '../../../services/editor/common/editorService.js';
 import { IMcpHostDelegate, IMcpRegistry, IMcpResolveConnectionOptions } from './mcpRegistryTypes.js';
+import { IMcpSandboxService } from './mcpSandboxService.js';
 import { IMcpServerConnection, LazyCollectionState, McpCollectionDefinition, McpDefinitionReference, McpServerDefinition } from './mcpTypes.js';
 export declare class McpRegistry extends Disposable implements IMcpRegistry {
     private readonly _instantiationService;
@@ -23,6 +24,7 @@ export declare class McpRegistry extends Disposable implements IMcpRegistry {
     private readonly _quickInputService;
     private readonly _labelService;
     private readonly _logService;
+    private readonly _mcpSandboxService;
     readonly _serviceBrand: undefined;
     private readonly _collections;
     private readonly _delegates;
@@ -38,7 +40,7 @@ export declare class McpRegistry extends Disposable implements IMcpRegistry {
     get delegates(): IObservable<readonly IMcpHostDelegate[]>;
     private readonly _onDidChangeInputs;
     readonly onDidChangeInputs: import("../../../../base/common/event.js").Event<void>;
-    constructor(_instantiationService: IInstantiationService, _configurationResolverService: IConfigurationResolverService, _dialogService: IDialogService, _notificationService: INotificationService, _editorService: IEditorService, configurationService: IConfigurationService, _quickInputService: IQuickInputService, _labelService: ILabelService, _logService: ILogService);
+    constructor(_instantiationService: IInstantiationService, _configurationResolverService: IConfigurationResolverService, _dialogService: IDialogService, _notificationService: INotificationService, _editorService: IEditorService, configurationService: IConfigurationService, _quickInputService: IQuickInputService, _labelService: ILabelService, _logService: ILogService, _mcpSandboxService: IMcpSandboxService);
     registerDelegate(delegate: IMcpHostDelegate): IDisposable;
     registerCollection(collection: McpCollectionDefinition): IDisposable;
     getServerDefinition(collectionRef: McpDefinitionReference, definitionRef: McpDefinitionReference): IObservable<{

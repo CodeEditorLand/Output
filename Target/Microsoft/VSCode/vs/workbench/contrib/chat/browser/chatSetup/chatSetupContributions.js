@@ -235,13 +235,14 @@ let ChatSetupContribution = class ChatSetupContribution2 extends Disposable {
           title: ChatSetupTriggerAction.CHAT_SETUP_ACTION_LABEL
         });
       }
-      async run(accessor) {
+      async run(accessor, options) {
         const commandService = accessor.get(ICommandService);
         const telemetryService = accessor.get(ITelemetryService);
         const chatEntitlementService = accessor.get(IChatEntitlementService);
         telemetryService.publicLog2("workbenchActionExecuted", { id: CHAT_SETUP_ACTION_ID, from: "api" });
         return commandService.executeCommand(CHAT_SETUP_ACTION_ID, void 0, {
-          forceAnonymous: chatEntitlementService.anonymous ? ChatSetupAnonymous.EnabledWithDialog : void 0
+          forceAnonymous: chatEntitlementService.anonymous ? ChatSetupAnonymous.EnabledWithDialog : void 0,
+          ...options
         });
       }
     }
@@ -391,9 +392,7 @@ let ChatSetupContribution = class ChatSetupContribution2 extends Disposable {
             await commandService.executeCommand(actualCommand2.id, ...actualCommand2.arguments ?? []);
             break;
           }
-          case "chat.internal.review":
-          case "chat.internal.generateDocs":
-          case "chat.internal.generateTests": {
+          case "chat.internal.review": {
             const result = await commandService.executeCommand(CHAT_SETUP_SUPPORT_ANONYMOUS_ACTION_ID);
             if (result) {
               await commandService.executeCommand(actualCommand);
@@ -406,8 +405,6 @@ let ChatSetupContribution = class ChatSetupContribution2 extends Disposable {
     registerGenerateCodeCommand("chat.internal.explain", "github.copilot.chat.explain");
     registerGenerateCodeCommand("chat.internal.fix", "github.copilot.chat.fix");
     registerGenerateCodeCommand("chat.internal.review", "github.copilot.chat.review");
-    registerGenerateCodeCommand("chat.internal.generateDocs", "github.copilot.chat.generateDocs");
-    registerGenerateCodeCommand("chat.internal.generateTests", "github.copilot.chat.generateTests");
     const internalGenerateCodeContext = ContextKeyExpr.and(ChatContextKeys.Setup.hidden.negate(), ChatContextKeys.Setup.disabled.negate(), ChatContextKeys.Setup.installed.negate());
     MenuRegistry.appendMenuItem(MenuId.EditorContext, {
       command: {
@@ -418,41 +415,23 @@ let ChatSetupContribution = class ChatSetupContribution2 extends Disposable {
       order: 4,
       when: internalGenerateCodeContext
     });
-    MenuRegistry.appendMenuItem(MenuId.ChatTextEditorMenu, {
+    MenuRegistry.appendMenuItem(MenuId.EditorContext, {
       command: {
         id: "chat.internal.fix",
         title: localize("fix", "Fix")
       },
-      group: "1_action",
-      order: 1,
+      group: "1_chat",
+      order: 5,
       when: ContextKeyExpr.and(internalGenerateCodeContext, EditorContextKeys.readOnly.negate())
     });
-    MenuRegistry.appendMenuItem(MenuId.ChatTextEditorMenu, {
+    MenuRegistry.appendMenuItem(MenuId.EditorContext, {
       command: {
         id: "chat.internal.review",
         title: localize("review", "Code Review")
       },
-      group: "1_action",
-      order: 2,
+      group: "1_chat",
+      order: 6,
       when: internalGenerateCodeContext
-    });
-    MenuRegistry.appendMenuItem(MenuId.ChatTextEditorMenu, {
-      command: {
-        id: "chat.internal.generateDocs",
-        title: localize("generateDocs", "Generate Docs")
-      },
-      group: "2_generate",
-      order: 1,
-      when: ContextKeyExpr.and(internalGenerateCodeContext, EditorContextKeys.readOnly.negate())
-    });
-    MenuRegistry.appendMenuItem(MenuId.ChatTextEditorMenu, {
-      command: {
-        id: "chat.internal.generateTests",
-        title: localize("generateTests", "Generate Tests")
-      },
-      group: "2_generate",
-      order: 2,
-      when: ContextKeyExpr.and(internalGenerateCodeContext, EditorContextKeys.readOnly.negate())
     });
   }
   registerUrlLinkHandler() {

@@ -1,12 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { HookType } from "./hookSchema.js";
-const COPILOT_CLI_HOOK_TYPE_MAP = {
-  "sessionStart": HookType.SessionStart,
-  "userPromptSubmitted": HookType.UserPromptSubmit,
-  "preToolUse": HookType.PreToolUse,
-  "postToolUse": HookType.PostToolUse
-};
+import { COPILOT_CLI_HOOK_TYPE_MAP } from "./hookSchema.js";
 let _hookTypeToCopilotCliName;
 function getHookTypeToCopilotCliNameMap() {
   if (!_hookTypeToCopilotCliName) {
@@ -27,7 +21,6 @@ function getCopilotCliHookTypeName(hookType) {
 }
 __name(getCopilotCliHookTypeName, "getCopilotCliHookTypeName");
 export {
-  COPILOT_CLI_HOOK_TYPE_MAP,
   getCopilotCliHookTypeName,
   resolveCopilotCliHookType
 };

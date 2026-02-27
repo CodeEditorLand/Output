@@ -463,7 +463,7 @@ for (let i = 0; i <= 132; i++) {
     [1, 79, "Insert", 19, "Insert", 45, "VK_INSERT", empty, empty],
     [1, 80, "Home", 14, "Home", 36, "VK_HOME", empty, empty],
     [1, 81, "PageUp", 11, "PageUp", 33, "VK_PRIOR", empty, empty],
-    [1, 82, "Delete", 20, "Delete", 46, "VK_DELETE", empty, empty],
+    [1, 82, "Delete", 20, "Del", 46, "VK_DELETE", "Delete", empty],
     [1, 83, "End", 13, "End", 35, "VK_END", empty, empty],
     [1, 84, "PageDown", 12, "PageDown", 34, "VK_NEXT", empty, empty],
     [1, 85, "ArrowRight", 17, "RightArrow", 39, "VK_RIGHT", "Right", empty],
@@ -693,6 +693,8 @@ var KeyCodeUtils;
         return "Left";
       case 17:
         return "Right";
+      case 20:
+        return "Delete";
     }
     return uiMap.keyCodeToStr(keyCode);
   }

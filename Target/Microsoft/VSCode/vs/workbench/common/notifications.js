@@ -524,6 +524,28 @@ class StatusMessageViewItem {
     return { message, options };
   }
 }
+var NotificationsSettings;
+(function(NotificationsSettings2) {
+  NotificationsSettings2["NOTIFICATIONS_POSITION"] = "workbench.notifications.position";
+  NotificationsSettings2["NOTIFICATIONS_BUTTON"] = "workbench.notifications.showInTitleBar";
+})(NotificationsSettings || (NotificationsSettings = {}));
+var NotificationsPosition;
+(function(NotificationsPosition2) {
+  NotificationsPosition2["BOTTOM_RIGHT"] = "bottom-right";
+  NotificationsPosition2["BOTTOM_LEFT"] = "bottom-left";
+  NotificationsPosition2["TOP_RIGHT"] = "top-right";
+})(NotificationsPosition || (NotificationsPosition = {}));
+function getNotificationsPosition(configurationService) {
+  const position = configurationService.getValue(
+    "workbench.notifications.position"
+    /* NotificationsSettings.NOTIFICATIONS_POSITION */
+  );
+  if (position === "bottom-left" || position === "top-right") {
+    return position;
+  }
+  return "bottom-right";
+}
+__name(getNotificationsPosition, "getNotificationsPosition");
 export {
   ChoiceAction,
   NotificationChangeType,
@@ -532,7 +554,10 @@ export {
   NotificationViewItemContentChangeKind,
   NotificationViewItemProgress,
   NotificationsModel,
+  NotificationsPosition,
+  NotificationsSettings,
   StatusMessageChangeType,
+  getNotificationsPosition,
   isNotificationViewItem
 };
 //# sourceMappingURL=notifications.js.map

@@ -16,7 +16,9 @@ export declare class ChatDynamicVariableModel extends Disposable implements ICha
     get variables(): ReadonlyArray<IDynamicVariable>;
     get id(): string;
     private decorationData;
+    private readonly _editorListener;
     constructor(widget: IChatWidget, labelService: ILabelService);
+    private _subscribeToEditor;
     getInputState(contrib: Record<string, unknown>): void;
     setInputState(contrib: Readonly<Record<string, unknown>>): void;
     addReference(ref: IDynamicVariable): void;

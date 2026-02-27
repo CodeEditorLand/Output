@@ -97,11 +97,19 @@ class AssignmentFilterProvider {
     return filters;
   }
 }
+function getInternalOrg(organisations) {
+  const isVSCodeInternal = organisations?.includes("Visual-Studio-Code");
+  const isGitHubInternal = organisations?.includes("github");
+  const isMicrosoftInternal = organisations?.includes("microsoft") || organisations?.includes("ms-copilot") || organisations?.includes("MicrosoftCopilot");
+  return isVSCodeInternal ? "vscode" : isGitHubInternal ? "github" : isMicrosoftInternal ? "microsoft" : void 0;
+}
+__name(getInternalOrg, "getInternalOrg");
 export {
   ASSIGNMENT_REFETCH_INTERVAL,
   ASSIGNMENT_STORAGE_KEY,
   AssignmentFilterProvider,
   Filters,
-  TargetPopulation
+  TargetPopulation,
+  getInternalOrg
 };
 //# sourceMappingURL=assignment.js.map

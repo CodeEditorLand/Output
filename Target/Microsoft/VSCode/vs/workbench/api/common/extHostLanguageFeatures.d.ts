@@ -120,6 +120,7 @@ export declare class ExtHostLanguageFeatures extends CoreDisposable implements e
     $freeInlineCompletionsList(handle: number, pid: number, reason: languages.InlineCompletionsDisposeReason): void;
     $acceptInlineCompletionsUnificationState(state: IInlineCompletionsUnificationState): void;
     $handleInlineCompletionSetCurrentModelId(handle: number, modelId: string): void;
+    $handleInlineCompletionSetProviderOption(handle: number, optionId: string, valueId: string): void;
     registerSignatureHelpProvider(extension: IExtensionDescription, selector: vscode.DocumentSelector, provider: vscode.SignatureHelpProvider, metadataOrTriggerChars: string[] | vscode.SignatureHelpProviderMetadata): vscode.Disposable;
     $provideSignatureHelp(handle: number, resource: UriComponents, position: IPosition, context: extHostProtocol.ISignatureHelpContextDto, token: CancellationToken): Promise<extHostProtocol.ISignatureHelpDto | undefined>;
     $releaseSignatureHelp(handle: number, id: number): void;

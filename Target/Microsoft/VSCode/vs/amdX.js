@@ -143,14 +143,26 @@ class AMDModuleImporter {
     if (this._amdPolicy) {
       scriptSrc = this._amdPolicy.createScriptURL(scriptSrc);
     }
-    await import(scriptSrc);
+    await import(
+      /* @vite-ignore */
+      scriptSrc
+    );
     return this._defineCalls.pop();
   }
   async _nodeJSLoadScript(scriptSrc) {
     try {
-      const fs = (await import(`${"fs"}`)).default;
-      const vm = (await import(`${"vm"}`)).default;
-      const module = (await import(`${"module"}`)).default;
+      const fs = (await import(
+        /* @vite-ignore */
+        `${"fs"}`
+      )).default;
+      const vm = (await import(
+        /* @vite-ignore */
+        `${"vm"}`
+      )).default;
+      const module = (await import(
+        /* @vite-ignore */
+        `${"module"}`
+      )).default;
       const filePath = URI.parse(scriptSrc).fsPath;
       const content = fs.readFileSync(filePath).toString();
       const scriptSource = module.wrap(content.replace(/^#!.*/, ""));

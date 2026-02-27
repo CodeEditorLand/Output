@@ -134,6 +134,9 @@ let CSSExtensionPoint = class CSSExtensionPoint2 {
         this.pendingExtensions.set(extensionId, extension);
         if (this.isExtensionThemeActive(extensionId)) {
           this.activateExtensionCSS(extension);
+        } else if (this.stylesheetsByExtension.has(extensionId)) {
+          this.removeStylesheets(extensionId);
+          this.clearCacheForExtension(extensionId);
         }
       }
     });
@@ -146,11 +149,12 @@ let CSSExtensionPoint = class CSSExtensionPoint2 {
   }
   onThemeChange() {
     for (const [extensionId, extension] of this.pendingExtensions) {
-      const isActive = this.stylesheetsByExtension.has(extensionId);
-      const shouldBeActive = this.isExtensionThemeActive(extensionId);
-      if (shouldBeActive && !isActive) {
+      if (!this.stylesheetsByExtension.has(extensionId) && this.isExtensionThemeActive(extensionId)) {
         this.activateExtensionCSS(extension);
-      } else if (!shouldBeActive && isActive) {
+      }
+    }
+    for (const extensionId of this.stylesheetsByExtension.keys()) {
+      if (!this.isExtensionThemeActive(extensionId)) {
         this.removeStylesheets(extensionId);
         this.clearCacheForExtension(extensionId);
       }

@@ -1,5 +1,6 @@
 import { type MarkdownRenderOptions } from '../../../../../../base/browser/markdownRenderer.js';
 import { Disposable, IDisposable } from '../../../../../../base/common/lifecycle.js';
+import { Event } from '../../../../../../base/common/event.js';
 import { URI } from '../../../../../../base/common/uri.js';
 import { ILanguageService } from '../../../../../../editor/common/languages/language.js';
 import { IModelService } from '../../../../../../editor/common/services/model.js';
@@ -46,6 +47,8 @@ export declare class ChatMarkdownContentPart extends Disposable implements IChat
     private static ID_POOL;
     readonly codeblocksPartId: string;
     readonly domNode: HTMLElement;
+    private readonly _onDidChangeHeight;
+    readonly onDidChangeHeight: Event<void>;
     private readonly allRefs;
     private readonly _codeblocks;
     get codeblocks(): IChatCodeBlockInfo[];

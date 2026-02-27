@@ -50,6 +50,7 @@ async function startServerAndWaitForLiveTools(server, opts, token) {
       }
     }));
   });
+  store.dispose();
   if (ok) {
     await timeout(0);
   }

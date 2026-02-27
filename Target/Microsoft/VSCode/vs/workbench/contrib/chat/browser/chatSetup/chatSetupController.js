@@ -36,7 +36,7 @@ import { IExtensionsWorkbenchService } from "../../../extensions/common/extensio
 import { ChatEntitlement, isProUser } from "../../../../services/chat/common/chatEntitlementService.js";
 import { CHAT_OPEN_ACTION_ID } from "../actions/chatActions.js";
 import { ChatViewId, ChatViewContainerId } from "../chat.js";
-import { ChatSetupStep, refreshTokens } from "./chatSetup.js";
+import { ChatSetupStep, refreshTokens, maybeEnableAuthExtension } from "./chatSetup.js";
 import { IDefaultAccountService } from "../../../../../platform/defaultAccount/common/defaultAccount.js";
 const defaultChat = {
   chatExtensionId: product.defaultChatAgent?.chatExtensionId ?? "",
@@ -135,6 +135,10 @@ let ChatSetupController = class ChatSetupController2 extends Disposable {
     return success;
   }
   async signIn(options) {
+    const authExtensionReEnabled = await maybeEnableAuthExtension(this.extensionsWorkbenchService, this.logService);
+    if (authExtensionReEnabled) {
+      refreshTokens(this.commandService);
+    }
     let entitlements;
     let defaultAccount;
     try {

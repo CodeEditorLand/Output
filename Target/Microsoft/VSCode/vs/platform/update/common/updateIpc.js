@@ -33,8 +33,8 @@ class UpdateChannel {
         return this.service.isLatestVersion();
       case "_applySpecificUpdate":
         return this.service._applySpecificUpdate(arg);
-      case "disableProgressiveReleases":
-        return this.service.disableProgressiveReleases();
+      case "setInternalOrg":
+        return this.service.setInternalOrg(arg);
     }
     throw new Error(`Call not found: ${command}`);
   }
@@ -77,8 +77,8 @@ class UpdateChannelClient {
   _applySpecificUpdate(packagePath) {
     return this.channel.call("_applySpecificUpdate", packagePath);
   }
-  disableProgressiveReleases() {
-    return this.channel.call("disableProgressiveReleases");
+  setInternalOrg(internalOrg) {
+    return this.channel.call("setInternalOrg", internalOrg);
   }
   dispose() {
     this.disposables.dispose();

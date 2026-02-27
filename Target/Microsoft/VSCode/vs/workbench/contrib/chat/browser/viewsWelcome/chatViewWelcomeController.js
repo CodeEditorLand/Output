@@ -14,28 +14,20 @@ var __param = function(paramIndex, decorator) {
 import { asCSSUrl } from "../../../../../base/browser/cssValue.js";
 import * as dom from "../../../../../base/browser/dom.js";
 import { createCSSRule } from "../../../../../base/browser/domStylesheets.js";
-import { StandardKeyboardEvent } from "../../../../../base/browser/keyboardEvent.js";
 import { Button } from "../../../../../base/browser/ui/button/button.js";
 import { renderIcon } from "../../../../../base/browser/ui/iconLabel/iconLabels.js";
-import { Action } from "../../../../../base/common/actions.js";
-import { Codicon } from "../../../../../base/common/codicons.js";
 import { Event } from "../../../../../base/common/event.js";
 import { StringSHA1 } from "../../../../../base/common/hash.js";
 import { Disposable, DisposableStore } from "../../../../../base/common/lifecycle.js";
 import { observableValue } from "../../../../../base/common/observable.js";
 import { ThemeIcon } from "../../../../../base/common/themables.js";
 import { URI } from "../../../../../base/common/uri.js";
-import { localize } from "../../../../../nls.js";
 import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
-import { IContextMenuService } from "../../../../../platform/contextview/browser/contextView.js";
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
 import { ILogService } from "../../../../../platform/log/common/log.js";
 import { IMarkdownRendererService } from "../../../../../platform/markdown/browser/markdownRenderer.js";
 import { IOpenerService } from "../../../../../platform/opener/common/opener.js";
-import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
 import { defaultButtonStyles } from "../../../../../platform/theme/browser/defaultStyles.js";
-import { ChatAgentLocation } from "../../common/constants.js";
-import { IChatWidgetService } from "../chat.js";
 import { chatViewsWelcomeRegistry } from "./chatViewsWelcome.js";
 const $ = dom.$;
 let ChatViewWelcomeController = class ChatViewWelcomeController2 extends Disposable {
@@ -118,15 +110,12 @@ let ChatViewWelcomePart = class ChatViewWelcomePart2 extends Disposable {
   static {
     __name(this, "ChatViewWelcomePart");
   }
-  constructor(content, options, openerService, logService, chatWidgetService, telemetryService, markdownRendererService, contextMenuService) {
+  constructor(content, options, openerService, logService, markdownRendererService) {
     super();
     this.content = content;
     this.openerService = openerService;
     this.logService = logService;
-    this.chatWidgetService = chatWidgetService;
-    this.telemetryService = telemetryService;
     this.markdownRendererService = markdownRendererService;
-    this.contextMenuService = contextMenuService;
     this.element = dom.$(".chat-welcome-view");
     try {
       const icon = dom.append(this.element, $(".chat-welcome-view-icon"));
@@ -165,76 +154,6 @@ let ChatViewWelcomePart = class ChatViewWelcomePart2 extends Disposable {
           disclaimers.appendChild(additionalMessageResult.element);
         }
       }
-      if (content.suggestedPrompts && content.suggestedPrompts.length) {
-        const suggestedPromptsContainer = dom.append(this.element, $(".chat-welcome-view-suggested-prompts"));
-        const titleElement = dom.append(suggestedPromptsContainer, $(".chat-welcome-view-suggested-prompts-title"));
-        titleElement.textContent = localize("chatWidget.suggestedActions", "Suggested Actions");
-        for (const prompt of content.suggestedPrompts) {
-          const promptElement = dom.append(suggestedPromptsContainer, $(".chat-welcome-view-suggested-prompt"));
-          promptElement.setAttribute("role", "button");
-          promptElement.setAttribute("tabindex", "0");
-          const promptAriaLabel = prompt.description ? localize("suggestedPromptAriaLabelWithDescription", "Suggested prompt: {0}, {1}", prompt.label, prompt.description) : localize("suggestedPromptAriaLabel", "Suggested prompt: {0}", prompt.label);
-          promptElement.setAttribute("aria-label", promptAriaLabel);
-          const titleElement2 = dom.append(promptElement, $(".chat-welcome-view-suggested-prompt-title"));
-          titleElement2.textContent = prompt.label;
-          const tooltip = localize("runPromptTitle", "Suggested prompt: {0}", prompt.prompt);
-          promptElement.title = tooltip;
-          titleElement2.title = tooltip;
-          if (prompt.description) {
-            const descriptionElement = dom.append(promptElement, $(".chat-welcome-view-suggested-prompt-description"));
-            descriptionElement.textContent = prompt.description;
-            descriptionElement.title = prompt.description;
-          }
-          const executePrompt = /* @__PURE__ */ __name(() => {
-            this.telemetryService.publicLog2("chat.clickedSuggestedPrompt", {
-              suggestedPrompt: prompt.prompt
-            });
-            if (!this.chatWidgetService.lastFocusedWidget) {
-              const widgets = this.chatWidgetService.getWidgetsByLocations(ChatAgentLocation.Chat);
-              if (widgets.length) {
-                widgets[0].setInput(prompt.prompt);
-              }
-            } else {
-              this.chatWidgetService.lastFocusedWidget.setInput(prompt.prompt);
-            }
-          }, "executePrompt");
-          this._register(dom.addDisposableListener(promptElement, dom.EventType.CONTEXT_MENU, (e) => {
-            e.preventDefault();
-            e.stopImmediatePropagation();
-            const actions = this.getPromptContextMenuActions(prompt);
-            this.contextMenuService.showContextMenu({
-              getAnchor: /* @__PURE__ */ __name(() => ({ x: e.clientX, y: e.clientY }), "getAnchor"),
-              getActions: /* @__PURE__ */ __name(() => actions, "getActions")
-            });
-          }));
-          this._register(dom.addDisposableListener(promptElement, dom.EventType.CLICK, executePrompt));
-          this._register(dom.addDisposableListener(promptElement, dom.EventType.KEY_DOWN, (e) => {
-            const event = new StandardKeyboardEvent(e);
-            if (event.equals(
-              3
-              /* KeyCode.Enter */
-            ) || event.equals(
-              10
-              /* KeyCode.Space */
-            )) {
-              e.preventDefault();
-              e.stopPropagation();
-              executePrompt();
-            } else if (event.equals(
-              68
-              /* KeyCode.F10 */
-            ) && event.shiftKey) {
-              e.preventDefault();
-              e.stopPropagation();
-              const actions = this.getPromptContextMenuActions(prompt);
-              this.contextMenuService.showContextMenu({
-                getAnchor: /* @__PURE__ */ __name(() => promptElement, "getAnchor"),
-                getActions: /* @__PURE__ */ __name(() => actions, "getActions")
-              });
-            }
-          }));
-        }
-      }
       if (content.tips) {
         const tips = dom.append(this.element, $(".chat-welcome-view-tips"));
         const tipsResult = this._register(this.markdownRendererService.render(content.tips));
@@ -244,25 +163,8 @@ let ChatViewWelcomePart = class ChatViewWelcomePart2 extends Disposable {
       this.logService.error("Failed to render chat view welcome content", err);
     }
   }
-  getPromptContextMenuActions(prompt) {
-    const actions = [];
-    if (prompt.uri) {
-      const uri = prompt.uri;
-      actions.push(new Action("chat.editPromptFile", localize("editPromptFile", "Edit Prompt File"), ThemeIcon.asClassName(Codicon.goToFile), true, async () => {
-        try {
-          await this.openerService.open(uri);
-        } catch (error) {
-          this.logService.error("Failed to open prompt file:", error);
-        }
-      }));
-    }
-    return actions;
-  }
   needsRerender(content) {
-    return !!(this.content.title !== content.title || this.content.message.value !== content.message.value || this.content.additionalMessage !== content.additionalMessage || this.content.tips?.value !== content.tips?.value || this.content.suggestedPrompts?.length !== content.suggestedPrompts?.length || this.content.suggestedPrompts?.some((prompt, index) => {
-      const incoming = content.suggestedPrompts?.[index];
-      return incoming?.label !== prompt.label || incoming?.description !== prompt.description;
-    }));
+    return !!(this.content.title !== content.title || this.content.message.value !== content.message.value || this.content.additionalMessage !== content.additionalMessage || this.content.tips?.value !== content.tips?.value);
   }
   renderMarkdownMessageContent(content, options) {
     const messageResult = this._register(this.markdownRendererService.render(content));
@@ -284,10 +186,7 @@ let ChatViewWelcomePart = class ChatViewWelcomePart2 extends Disposable {
 ChatViewWelcomePart = __decorate([
   __param(2, IOpenerService),
   __param(3, ILogService),
-  __param(4, IChatWidgetService),
-  __param(5, ITelemetryService),
-  __param(6, IMarkdownRendererService),
-  __param(7, IContextMenuService)
+  __param(4, IMarkdownRendererService)
 ], ChatViewWelcomePart);
 export {
   ChatViewWelcomeController,

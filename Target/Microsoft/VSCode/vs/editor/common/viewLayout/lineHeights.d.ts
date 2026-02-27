@@ -40,7 +40,7 @@ export declare class CustomLine {
 export declare class LineHeightsManager {
     private _decorationIDToCustomLine;
     private _orderedCustomLines;
-    private _pendingSpecialLinesToInsert;
+    private _pendingChanges;
     private _invalidIndex;
     private _defaultLineHeight;
     private _hasPending;
@@ -52,8 +52,13 @@ export declare class LineHeightsManager {
     heightForLineNumber(lineNumber: number): number;
     getAccumulatedLineHeightsIncludingLineNumber(lineNumber: number): number;
     onLinesDeleted(fromLineNumber: number, toLineNumber: number): void;
-    onLinesInserted(fromLineNumber: number, toLineNumber: number, lineHeightsAdded: CustomLineHeightData[]): void;
-    commit(): void;
+    onLinesInserted(fromLineNumber: number, toLineNumber: number): void;
+    private _commit;
+    private _doRemoveCustomLineHeight;
+    private _doInsertOrChangeCustomLineHeight;
+    private _flushStagedDecorationChanges;
+    private _doLinesDeleted;
+    private _doLinesInserted;
     private _binarySearchOverOrderedCustomLinesArray;
 }
 export declare class CustomLineHeightData {

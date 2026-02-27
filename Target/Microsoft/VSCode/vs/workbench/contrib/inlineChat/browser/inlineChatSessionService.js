@@ -28,7 +28,7 @@ async function askInPanelChat(accessor, request, state) {
   if (!request) {
     return;
   }
-  const newModelRef = chatService.startSession(ChatAgentLocation.Chat);
+  const newModelRef = chatService.startNewLocalSession(ChatAgentLocation.Chat);
   const newModel = newModelRef.object;
   newModel.inputModel.setState({ ...state });
   const widget = await widgetService.openSession(newModelRef.object.sessionResource);

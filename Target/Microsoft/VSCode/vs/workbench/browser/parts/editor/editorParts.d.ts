@@ -41,6 +41,7 @@ export declare class EditorParts extends MultiWindowParts<EditorPart, IEditorPar
     createAuxiliaryEditorPart(options?: IAuxiliaryEditorPartOpenOptions): Promise<IAuxiliaryEditorPart>;
     private modalEditorPart;
     get activeModalEditorPart(): IModalEditorPart | undefined;
+    private modalEditorMaximized;
     createModalEditorPart(options?: IModalEditorPartOptions): Promise<IModalEditorPart>;
     registerPart(part: EditorPart): IDisposable;
     protected unregisterPart(part: EditorPart): void;

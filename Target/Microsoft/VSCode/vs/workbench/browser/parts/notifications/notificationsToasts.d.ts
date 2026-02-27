@@ -11,6 +11,7 @@ import { IContextKeyService } from '../../../../platform/contextkey/common/conte
 import { ILifecycleService } from '../../../services/lifecycle/common/lifecycle.js';
 import { IHostService } from '../../../services/host/browser/host.js';
 import { IWorkbenchEnvironmentService } from '../../../services/environment/common/environmentService.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
 export declare class NotificationsToasts extends Themable implements INotificationsToastController {
     private readonly container;
     private readonly model;
@@ -20,6 +21,7 @@ export declare class NotificationsToasts extends Themable implements INotificati
     private readonly lifecycleService;
     private readonly hostService;
     private readonly environmentService;
+    private readonly configurationService;
     private static readonly MAX_WIDTH;
     private static readonly MAX_NOTIFICATIONS;
     private static readonly PURGE_TIMEOUT;
@@ -35,10 +37,13 @@ export declare class NotificationsToasts extends Themable implements INotificati
     private readonly mapNotificationToDisposable;
     private readonly notificationsToastsVisibleContextKey;
     private readonly addedToastsIntervalCounter;
-    constructor(container: HTMLElement, model: INotificationsModel, instantiationService: IInstantiationService, layoutService: IWorkbenchLayoutService, themeService: IThemeService, editorGroupService: IEditorGroupsService, contextKeyService: IContextKeyService, lifecycleService: ILifecycleService, hostService: IHostService, environmentService: IWorkbenchEnvironmentService);
+    constructor(container: HTMLElement, model: INotificationsModel, instantiationService: IInstantiationService, layoutService: IWorkbenchLayoutService, themeService: IThemeService, editorGroupService: IEditorGroupsService, contextKeyService: IContextKeyService, lifecycleService: ILifecycleService, hostService: IHostService, environmentService: IWorkbenchEnvironmentService, configurationService: IConfigurationService);
     private registerListeners;
+    private updateNotificationPosition;
+    private updateTopOffset;
     private onDidChangeNotification;
     private addToast;
+    private isElementInNotificationQuarter;
     private doAddToast;
     private purgeNotification;
     private removeToast;

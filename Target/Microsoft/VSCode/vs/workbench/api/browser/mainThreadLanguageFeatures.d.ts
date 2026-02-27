@@ -11,7 +11,7 @@ import { ILanguageFeaturesService } from '../../../editor/common/services/langua
 import { ExtensionIdentifier } from '../../../platform/extensions/common/extensions.js';
 import { IUriIdentityService } from '../../../platform/uriIdentity/common/uriIdentity.js';
 import { IExtHostContext } from '../../services/extensions/common/extHostCustomers.js';
-import { ExtHostLanguageFeaturesShape, ICodeActionProviderMetadataDto, IDocumentDropEditProviderMetadata, IDocumentFilterDto, IInlineCompletionChangeHintDto, IInlineCompletionModelInfoDto, ILanguageConfigurationDto, IPasteEditProviderMetadataDto, ISignatureHelpProviderMetadataDto, MainThreadLanguageFeaturesShape } from '../common/extHost.protocol.js';
+import { ExtHostLanguageFeaturesShape, ICodeActionProviderMetadataDto, IDocumentDropEditProviderMetadata, IDocumentFilterDto, IInlineCompletionChangeHintDto, IInlineCompletionModelInfoDto, IInlineCompletionProviderOptionDto, ILanguageConfigurationDto, IPasteEditProviderMetadataDto, ISignatureHelpProviderMetadataDto, MainThreadLanguageFeaturesShape } from '../common/extHost.protocol.js';
 import { IInstantiationService } from '../../../platform/instantiation/common/instantiation.js';
 import { IInlineCompletionsUnificationService } from '../../services/inlineCompletions/common/inlineCompletionsUnification.js';
 export declare class MainThreadLanguageFeatures extends Disposable implements MainThreadLanguageFeaturesShape {
@@ -63,9 +63,10 @@ export declare class MainThreadLanguageFeatures extends Disposable implements Ma
     $registerDocumentRangeSemanticTokensProvider(handle: number, selector: IDocumentFilterDto[], legend: languages.SemanticTokensLegend, eventHandle: number | undefined): void;
     private static _inflateSuggestDto;
     $registerCompletionsProvider(handle: number, selector: IDocumentFilterDto[], triggerCharacters: string[], supportsResolveDetails: boolean, extensionId: ExtensionIdentifier): void;
-    $registerInlineCompletionsSupport(handle: number, selector: IDocumentFilterDto[], supportsHandleEvents: boolean, extensionId: string, extensionVersion: string, groupId: string | undefined, yieldsToExtensionIds: string[], displayName: string | undefined, debounceDelayMs: number | undefined, excludesExtensionIds: string[], supportsOnDidChange: boolean, supportsSetModelId: boolean, initialModelInfo: IInlineCompletionModelInfoDto | undefined, supportsOnDidChangeModelInfo: boolean): void;
+    $registerInlineCompletionsSupport(handle: number, selector: IDocumentFilterDto[], supportsHandleEvents: boolean, extensionId: string, extensionVersion: string, groupId: string | undefined, yieldsToExtensionIds: string[], displayName: string | undefined, debounceDelayMs: number | undefined, excludesExtensionIds: string[], supportsOnDidChange: boolean, supportsSetModelId: boolean, initialModelInfo: IInlineCompletionModelInfoDto | undefined, supportsOnDidChangeModelInfo: boolean, supportsSetProviderOption: boolean, initialProviderOptions: readonly IInlineCompletionProviderOptionDto[] | undefined, supportsOnDidChangeProviderOptions: boolean): void;
     $emitInlineCompletionsChange(handle: number, changeHint: IInlineCompletionChangeHintDto | undefined): void;
     $emitInlineCompletionModelInfoChange(handle: number, data: IInlineCompletionModelInfoDto | undefined): void;
+    $emitInlineCompletionProviderOptionsChange(handle: number, data: readonly IInlineCompletionProviderOptionDto[] | undefined): void;
     $registerSignatureHelpProvider(handle: number, selector: IDocumentFilterDto[], metadata: ISignatureHelpProviderMetadataDto): void;
     $registerInlayHintsProvider(handle: number, selector: IDocumentFilterDto[], supportsResolve: boolean, eventHandle: number | undefined, displayName: string | undefined): void;
     $emitInlayHintsEvent(eventHandle: number): void;

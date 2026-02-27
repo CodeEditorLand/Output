@@ -336,6 +336,8 @@ let ExtensionsListView = class ExtensionsListView2 extends AbstractExtensionsLis
       extensions = await this.filterDeprecatedExtensions(local, query, options);
     } else if (/@recentlyUpdated/i.test(query.value)) {
       extensions = this.filterRecentlyUpdatedExtensions(local, query, options);
+    } else if (/@restartrequired/i.test(query.value)) {
+      extensions = this.filterRestartRequiredExtensions(local, query, options);
     } else if (/@contribute:/i.test(query.value)) {
       extensions = this.filterExtensionsByFeature(local, query);
     } else if (includeBuiltin) {
@@ -525,6 +527,13 @@ let ExtensionsListView = class ExtensionsListView2 extends AbstractExtensionsLis
     value = value.replace(/@recentlyUpdated/g, "").replace(/@sort:(\w+)(-\w*)?/g, "").trim().toLowerCase();
     const result = local.filter((e) => (e.name.toLowerCase().indexOf(value) > -1 || e.displayName.toLowerCase().indexOf(value) > -1) && this.filterExtensionByCategory(e, includedCategories, excludedCategories));
     options.sortBy = options.sortBy ?? "UpdateDate";
+    return this.sortExtensions(result, options);
+  }
+  filterRestartRequiredExtensions(local, query, options) {
+    let { value, includedCategories, excludedCategories } = this.parseCategories(query.value);
+    local = local.filter((e) => e.runtimeState !== void 0);
+    value = value.replace(/@restartrequired/gi, "").replace(/@sort:(\w+)(-\w*)?/g, "").trim().toLowerCase();
+    const result = local.filter((e) => (e.name.toLowerCase().indexOf(value) > -1 || e.displayName.toLowerCase().indexOf(value) > -1) && this.filterExtensionByCategory(e, includedCategories, excludedCategories));
     return this.sortExtensions(result, options);
   }
   filterExtensionsByFeature(local, query) {
@@ -934,7 +943,7 @@ let ExtensionsListView = class ExtensionsListView2 extends AbstractExtensionsLis
     this.list = null;
   }
   static isLocalExtensionsQuery(query, sortBy) {
-    return this.isInstalledExtensionsQuery(query) || this.isSearchInstalledExtensionsQuery(query) || this.isOutdatedExtensionsQuery(query) || this.isEnabledExtensionsQuery(query) || this.isDisabledExtensionsQuery(query) || this.isBuiltInExtensionsQuery(query) || this.isSearchBuiltInExtensionsQuery(query) || this.isBuiltInGroupExtensionsQuery(query) || this.isSearchDeprecatedExtensionsQuery(query) || this.isSearchWorkspaceUnsupportedExtensionsQuery(query) || this.isSearchRecentlyUpdatedQuery(query) || this.isSearchExtensionUpdatesQuery(query) || this.isSortInstalledExtensionsQuery(query, sortBy) || this.isFeatureExtensionsQuery(query);
+    return this.isInstalledExtensionsQuery(query) || this.isSearchInstalledExtensionsQuery(query) || this.isOutdatedExtensionsQuery(query) || this.isEnabledExtensionsQuery(query) || this.isDisabledExtensionsQuery(query) || this.isBuiltInExtensionsQuery(query) || this.isSearchBuiltInExtensionsQuery(query) || this.isBuiltInGroupExtensionsQuery(query) || this.isSearchDeprecatedExtensionsQuery(query) || this.isSearchWorkspaceUnsupportedExtensionsQuery(query) || this.isSearchRecentlyUpdatedQuery(query) || this.isRestartRequiredQuery(query) || this.isSearchExtensionUpdatesQuery(query) || this.isSortInstalledExtensionsQuery(query, sortBy) || this.isFeatureExtensionsQuery(query);
   }
   static isSearchBuiltInExtensionsQuery(query) {
     return /@builtin\s.+|.+\s@builtin/i.test(query);
@@ -998,6 +1007,9 @@ let ExtensionsListView = class ExtensionsListView2 extends AbstractExtensionsLis
   }
   static isSearchRecentlyUpdatedQuery(query) {
     return /@recentlyUpdated/i.test(query);
+  }
+  static isRestartRequiredQuery(query) {
+    return /@restartrequired/i.test(query);
   }
   static isSearchExtensionUpdatesQuery(query) {
     return /@updates/i.test(query);

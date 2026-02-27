@@ -78,7 +78,6 @@ function isAgentSessionsModel(obj) {
 __name(isAgentSessionsModel, "isAgentSessionsModel");
 var AgentSessionSection;
 (function(AgentSessionSection2) {
-  AgentSessionSection2["InProgress"] = "inProgress";
   AgentSessionSection2["Today"] = "today";
   AgentSessionSection2["Yesterday"] = "yesterday";
   AgentSessionSection2["Week"] = "week";
@@ -290,10 +289,18 @@ let AgentSessionsModel = class AgentSessionsModel2 extends Disposable {
     this.registerListeners();
   }
   registerListeners() {
-    this._register(this.chatSessionsService.onDidChangeItemsProviders(({ chatSessionType }) => this.resolve(chatSessionType)));
-    this._register(this.chatSessionsService.onDidChangeAvailability(() => this.resolve(void 0)));
-    this._register(this.chatSessionsService.onDidChangeSessionItems(({ chatSessionType }) => this.updateItems([chatSessionType], CancellationToken.None)));
-    this._register(this.workspaceContextService.onDidChangeWorkspaceFolders(() => this.resolve(void 0)));
+    this._register(this.chatSessionsService.onDidChangeItemsProviders(({ chatSessionType }) => {
+      this.resolve(chatSessionType);
+    }));
+    this._register(this.chatSessionsService.onDidChangeAvailability(() => {
+      this.resolve(void 0);
+    }));
+    this._register(this.chatSessionsService.onDidChangeSessionItems(({ chatSessionType }) => {
+      this.updateItems([chatSessionType], CancellationToken.None);
+    }));
+    this._register(this.workspaceContextService.onDidChangeWorkspaceFolders(() => {
+      this.resolve(void 0);
+    }));
     this._register(this.storageService.onWillSaveState(() => {
       this.cache.saveCachedSessions(Array.from(this._sessions.values()));
       this.cache.saveSessionStates(this.sessionStates);

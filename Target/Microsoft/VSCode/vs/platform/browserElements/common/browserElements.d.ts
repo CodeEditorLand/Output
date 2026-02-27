@@ -1,10 +1,25 @@
 import { CancellationToken } from '../../../base/common/cancellation.js';
 import { IRectangle } from '../../window/common/window.js';
 export declare const INativeBrowserElementsService: import("../../instantiation/common/instantiation.js").ServiceIdentifier<INativeBrowserElementsService>;
+export interface IElementAncestor {
+    readonly tagName: string;
+    readonly id?: string;
+    readonly classNames?: string[];
+}
 export interface IElementData {
     readonly outerHTML: string;
     readonly computedStyle: string;
     readonly bounds: IRectangle;
+    readonly ancestors?: IElementAncestor[];
+    readonly attributes?: Record<string, string>;
+    readonly computedStyles?: Record<string, string>;
+    readonly dimensions?: {
+        readonly top: number;
+        readonly left: number;
+        readonly width: number;
+        readonly height: number;
+    };
+    readonly innerText?: string;
 }
 /**
  * Locator for identifying a browser target/webview.

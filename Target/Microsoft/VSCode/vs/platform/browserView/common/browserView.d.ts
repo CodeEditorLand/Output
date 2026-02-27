@@ -34,6 +34,7 @@ export interface IBrowserViewState {
 }
 export interface IBrowserViewNavigationEvent {
     url: string;
+    title: string;
     canGoBack: boolean;
     canGoForward: boolean;
 }
@@ -69,7 +70,7 @@ export interface IBrowserViewTitleChangeEvent {
     title: string;
 }
 export interface IBrowserViewFaviconChangeEvent {
-    favicon: string;
+    favicon: string | undefined;
 }
 export declare enum BrowserNewPageLocation {
     Foreground = "foreground",

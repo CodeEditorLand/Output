@@ -48,7 +48,7 @@ let McpResourceScannerService = class McpResourceScannerService2 extends Disposa
           updatedInputs = [...updatedInputs, ...newInputs];
         }
       }
-      return { servers: existingServers, inputs: updatedInputs };
+      return { servers: existingServers, inputs: updatedInputs, sandbox: scannedMcpServers.sandbox };
     });
   }
   async removeMcpServers(serverNames, mcpResource, target) {
@@ -135,31 +135,33 @@ let McpResourceScannerService = class McpResourceScannerService2 extends Disposa
   }
   fromUserMcpServers(scannedMcpServers) {
     const userMcpServers = {
-      inputs: scannedMcpServers.inputs
+      inputs: scannedMcpServers.inputs,
+      sandbox: scannedMcpServers.sandbox
     };
     const servers = Object.entries(scannedMcpServers.servers ?? {});
     if (servers.length > 0) {
       userMcpServers.servers = {};
       for (const [serverName, server] of servers) {
-        userMcpServers.servers[serverName] = this.sanitizeServer(server);
+        userMcpServers.servers[serverName] = this.sanitizeServer(server, scannedMcpServers.sandbox);
       }
     }
     return userMcpServers;
   }
   fromWorkspaceFolderMcpServers(scannedWorkspaceFolderMcpServers) {
     const scannedMcpServers = {
-      inputs: scannedWorkspaceFolderMcpServers.inputs
+      inputs: scannedWorkspaceFolderMcpServers.inputs,
+      sandbox: scannedWorkspaceFolderMcpServers.sandbox
     };
     const servers = Object.entries(scannedWorkspaceFolderMcpServers.servers ?? {});
     if (servers.length > 0) {
       scannedMcpServers.servers = {};
       for (const [serverName, config] of servers) {
-        scannedMcpServers.servers[serverName] = this.sanitizeServer(config);
+        scannedMcpServers.servers[serverName] = this.sanitizeServer(config, scannedWorkspaceFolderMcpServers.sandbox);
       }
     }
     return scannedMcpServers;
   }
-  sanitizeServer(serverOrConfig) {
+  sanitizeServer(serverOrConfig, sandbox) {
     let server;
     if (serverOrConfig.config) {
       const oldScannedMcpServer = serverOrConfig;
@@ -173,6 +175,9 @@ let McpResourceScannerService = class McpResourceScannerService2 extends Disposa
     }
     if (server.type === void 0 || server.type !== "http" && server.type !== "stdio") {
       server.type = server.command ? "stdio" : "http";
+    }
+    if (sandbox && server.type === "stdio" && !server.sandbox && server.sandboxEnabled) {
+      server.sandbox = sandbox;
     }
     return server;
   }

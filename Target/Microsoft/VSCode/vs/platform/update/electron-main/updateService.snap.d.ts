@@ -24,7 +24,7 @@ declare abstract class AbstractUpdateService implements IUpdateService {
     quitAndInstall(): Promise<void>;
     protected getUpdateType(): UpdateType;
     protected doQuitAndInstall(): void;
-    disableProgressiveReleases(): Promise<void>;
+    setInternalOrg(_internalOrg: string | undefined): Promise<void>;
     abstract isLatestVersion(): Promise<boolean | undefined>;
     _applySpecificUpdate(packagePath: string): Promise<void>;
     protected abstract doCheckForUpdates(context: any): void;

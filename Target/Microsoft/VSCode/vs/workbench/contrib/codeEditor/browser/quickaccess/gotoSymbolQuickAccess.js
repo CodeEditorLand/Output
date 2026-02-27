@@ -14,7 +14,7 @@ var __param = function(paramIndex, decorator) {
 var GotoSymbolQuickAccessProvider_1;
 import { localize, localize2 } from "../../../../../nls.js";
 import { IQuickInputService, ItemActivation } from "../../../../../platform/quickinput/common/quickInput.js";
-import { IEditorService } from "../../../../services/editor/common/editorService.js";
+import { IEditorService, SIDE_GROUP } from "../../../../services/editor/common/editorService.js";
 import { Registry } from "../../../../../platform/registry/common/platform.js";
 import { Extensions as QuickaccessExtensions } from "../../../../../platform/quickinput/common/quickAccess.js";
 import { AbstractGotoSymbolQuickAccessProvider } from "../../../../../editor/contrib/quickAccess/browser/gotoSymbolQuickAccess.js";
@@ -28,7 +28,6 @@ import { fuzzyScore } from "../../../../../base/common/filters.js";
 import { onUnexpectedError } from "../../../../../base/common/errors.js";
 import { IOutlineService } from "../../../../services/outline/browser/outline.js";
 import { isCompositeEditor } from "../../../../../editor/browser/editorBrowser.js";
-import { IEditorGroupsService } from "../../../../services/editor/common/editorGroupsService.js";
 import { IOutlineModelService } from "../../../../../editor/contrib/documentSymbols/browser/outlineModel.js";
 import { ILanguageFeaturesService } from "../../../../../editor/common/services/languageFeatures.js";
 import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
@@ -41,12 +40,11 @@ let GotoSymbolQuickAccessProvider = class GotoSymbolQuickAccessProvider2 extends
   static {
     GotoSymbolQuickAccessProvider_1 = this;
   }
-  constructor(editorService, editorGroupService, configurationService, languageFeaturesService, outlineService, outlineModelService) {
+  constructor(editorService, configurationService, languageFeaturesService, outlineService, outlineModelService) {
     super(languageFeaturesService, outlineModelService, {
       openSideBySideDirection: /* @__PURE__ */ __name(() => this.configuration.openSideBySideDirection, "openSideBySideDirection")
     });
     this.editorService = editorService;
-    this.editorGroupService = editorGroupService;
     this.configurationService = configurationService;
     this.outlineService = outlineService;
     this.onDidActiveTextEditorControlChange = this.editorService.onDidActiveEditorChange;
@@ -73,7 +71,7 @@ let GotoSymbolQuickAccessProvider = class GotoSymbolQuickAccessProvider2 extends
         pinned: options.keyMods.ctrlCmd || this.configuration.openEditorPinned,
         preserveFocus: options.preserveFocus
       };
-      this.editorGroupService.sideGroup.openEditor(this.editorService.activeEditor, editorOptions);
+      this.editorService.openEditor(this.editorService.activeEditor, editorOptions, SIDE_GROUP);
     } else {
       super.gotoLocation(context, options);
     }
@@ -197,11 +195,10 @@ let GotoSymbolQuickAccessProvider = class GotoSymbolQuickAccessProvider2 extends
 };
 GotoSymbolQuickAccessProvider = GotoSymbolQuickAccessProvider_1 = __decorate([
   __param(0, IEditorService),
-  __param(1, IEditorGroupsService),
-  __param(2, IConfigurationService),
-  __param(3, ILanguageFeaturesService),
-  __param(4, IOutlineService),
-  __param(5, IOutlineModelService)
+  __param(1, IConfigurationService),
+  __param(2, ILanguageFeaturesService),
+  __param(3, IOutlineService),
+  __param(4, IOutlineModelService)
 ], GotoSymbolQuickAccessProvider);
 class GotoSymbolAction extends Action2 {
   static {

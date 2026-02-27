@@ -2,6 +2,13 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { binarySearch2 } from "../../../base/common/arrays.js";
 import { intersection } from "../../../base/common/collections.js";
+var PendingChangeKind;
+(function(PendingChangeKind2) {
+  PendingChangeKind2[PendingChangeKind2["InsertOrChange"] = 0] = "InsertOrChange";
+  PendingChangeKind2[PendingChangeKind2["Remove"] = 1] = "Remove";
+  PendingChangeKind2[PendingChangeKind2["LinesDeleted"] = 2] = "LinesDeleted";
+  PendingChangeKind2[PendingChangeKind2["LinesInserted"] = 3] = "LinesInserted";
+})(PendingChangeKind || (PendingChangeKind = {}));
 class CustomLine {
   static {
     __name(this, "CustomLine");
@@ -23,15 +30,12 @@ class LineHeightsManager {
   constructor(defaultLineHeight, customLineHeightData) {
     this._decorationIDToCustomLine = new ArrayMap();
     this._orderedCustomLines = [];
-    this._pendingSpecialLinesToInsert = [];
-    this._invalidIndex = 0;
+    this._pendingChanges = [];
+    this._invalidIndex = Infinity;
     this._hasPending = false;
     this._defaultLineHeight = defaultLineHeight;
-    if (customLineHeightData.length > 0) {
-      for (const data of customLineHeightData) {
-        this.insertOrChangeCustomLineHeight(data.decorationId, data.startLineNumber, data.endLineNumber, data.lineHeight);
-      }
-      this.commit();
+    for (const data of customLineHeightData) {
+      this.insertOrChangeCustomLineHeight(data.decorationId, data.startLineNumber, data.endLineNumber, data.lineHeight);
     }
   }
   set defaultLineHeight(defaultLineHeight) {
@@ -41,26 +45,15 @@ class LineHeightsManager {
     return this._defaultLineHeight;
   }
   removeCustomLineHeight(decorationID) {
-    const customLines = this._decorationIDToCustomLine.get(decorationID);
-    if (!customLines) {
-      return;
-    }
-    this._decorationIDToCustomLine.delete(decorationID);
-    for (const customLine of customLines) {
-      customLine.deleted = true;
-      this._invalidIndex = Math.min(this._invalidIndex, customLine.index);
-    }
+    this._pendingChanges.push({ kind: 1, decorationId: decorationID });
     this._hasPending = true;
   }
   insertOrChangeCustomLineHeight(decorationId, startLineNumber, endLineNumber, lineHeight) {
-    this.removeCustomLineHeight(decorationId);
-    for (let lineNumber = startLineNumber; lineNumber <= endLineNumber; lineNumber++) {
-      const customLine = new CustomLine(decorationId, -1, lineNumber, lineHeight, 0);
-      this._pendingSpecialLinesToInsert.push(customLine);
-    }
+    this._pendingChanges.push({ kind: 0, decorationId, startLineNumber, endLineNumber, lineHeight });
     this._hasPending = true;
   }
   heightForLineNumber(lineNumber) {
+    this._commit();
     const searchIndex = this._binarySearchOverOrderedCustomLinesArray(lineNumber);
     if (searchIndex >= 0) {
       return this._orderedCustomLines[searchIndex].maximumSpecialHeight;
@@ -68,6 +61,7 @@ class LineHeightsManager {
     return this._defaultLineHeight;
   }
   getAccumulatedLineHeightsIncludingLineNumber(lineNumber) {
+    this._commit();
     const searchIndex = this._binarySearchOverOrderedCustomLinesArray(lineNumber);
     if (searchIndex >= 0) {
       return this._orderedCustomLines[searchIndex].prefixSum + this._orderedCustomLines[searchIndex].maximumSpecialHeight;
@@ -80,6 +74,123 @@ class LineHeightsManager {
     return previousSpecialLine.prefixSum + previousSpecialLine.maximumSpecialHeight + this._defaultLineHeight * (lineNumber - previousSpecialLine.lineNumber);
   }
   onLinesDeleted(fromLineNumber, toLineNumber) {
+    this._pendingChanges.push({ kind: 2, fromLineNumber, toLineNumber });
+    this._hasPending = true;
+  }
+  onLinesInserted(fromLineNumber, toLineNumber) {
+    this._pendingChanges.push({ kind: 3, fromLineNumber, toLineNumber });
+    this._hasPending = true;
+  }
+  _commit() {
+    if (!this._hasPending) {
+      return;
+    }
+    const changes = this._pendingChanges;
+    this._pendingChanges = [];
+    this._hasPending = false;
+    const stagedInserts = [];
+    for (const change of changes) {
+      switch (change.kind) {
+        case 1:
+          this._doRemoveCustomLineHeight(change.decorationId, stagedInserts);
+          break;
+        case 0:
+          this._doInsertOrChangeCustomLineHeight(change.decorationId, change.startLineNumber, change.endLineNumber, change.lineHeight, stagedInserts);
+          break;
+        case 2:
+          this._flushStagedDecorationChanges(stagedInserts);
+          this._doLinesDeleted(change.fromLineNumber, change.toLineNumber);
+          break;
+        case 3:
+          this._flushStagedDecorationChanges(stagedInserts);
+          this._doLinesInserted(change.fromLineNumber, change.toLineNumber, stagedInserts);
+          break;
+      }
+    }
+    this._flushStagedDecorationChanges(stagedInserts);
+  }
+  _doRemoveCustomLineHeight(decorationID, stagedInserts) {
+    const customLines = this._decorationIDToCustomLine.get(decorationID);
+    if (customLines) {
+      this._decorationIDToCustomLine.delete(decorationID);
+      for (const customLine of customLines) {
+        customLine.deleted = true;
+        this._invalidIndex = Math.min(this._invalidIndex, customLine.index);
+      }
+    }
+    for (let i = stagedInserts.length - 1; i >= 0; i--) {
+      if (stagedInserts[i].decorationId === decorationID) {
+        stagedInserts.splice(i, 1);
+      }
+    }
+  }
+  _doInsertOrChangeCustomLineHeight(decorationId, startLineNumber, endLineNumber, lineHeight, stagedInserts) {
+    this._doRemoveCustomLineHeight(decorationId, stagedInserts);
+    for (let lineNumber = startLineNumber; lineNumber <= endLineNumber; lineNumber++) {
+      const customLine = new CustomLine(decorationId, -1, lineNumber, lineHeight, 0);
+      stagedInserts.push(customLine);
+    }
+  }
+  _flushStagedDecorationChanges(stagedInserts) {
+    if (stagedInserts.length === 0 && this._invalidIndex === Infinity) {
+      return;
+    }
+    for (const pendingChange of stagedInserts) {
+      const candidateInsertionIndex = this._binarySearchOverOrderedCustomLinesArray(pendingChange.lineNumber);
+      const insertionIndex = candidateInsertionIndex >= 0 ? candidateInsertionIndex : -(candidateInsertionIndex + 1);
+      this._orderedCustomLines.splice(insertionIndex, 0, pendingChange);
+      this._invalidIndex = Math.min(this._invalidIndex, insertionIndex);
+    }
+    stagedInserts.length = 0;
+    const newDecorationIDToSpecialLine = new ArrayMap();
+    const newOrderedSpecialLines = [];
+    for (let i = 0; i < this._invalidIndex; i++) {
+      const customLine = this._orderedCustomLines[i];
+      newOrderedSpecialLines.push(customLine);
+      newDecorationIDToSpecialLine.add(customLine.decorationId, customLine);
+    }
+    let numberOfDeletions = 0;
+    let previousSpecialLine = this._invalidIndex > 0 ? newOrderedSpecialLines[this._invalidIndex - 1] : void 0;
+    for (let i = this._invalidIndex; i < this._orderedCustomLines.length; i++) {
+      const customLine = this._orderedCustomLines[i];
+      if (customLine.deleted) {
+        numberOfDeletions++;
+        continue;
+      }
+      customLine.index = i - numberOfDeletions;
+      if (previousSpecialLine && previousSpecialLine.lineNumber === customLine.lineNumber) {
+        customLine.maximumSpecialHeight = previousSpecialLine.maximumSpecialHeight;
+        customLine.prefixSum = previousSpecialLine.prefixSum;
+      } else {
+        let maximumSpecialHeight = customLine.specialHeight;
+        for (let j = i; j < this._orderedCustomLines.length; j++) {
+          const nextSpecialLine = this._orderedCustomLines[j];
+          if (nextSpecialLine.deleted) {
+            continue;
+          }
+          if (nextSpecialLine.lineNumber !== customLine.lineNumber) {
+            break;
+          }
+          maximumSpecialHeight = Math.max(maximumSpecialHeight, nextSpecialLine.specialHeight);
+        }
+        customLine.maximumSpecialHeight = maximumSpecialHeight;
+        let prefixSum;
+        if (previousSpecialLine) {
+          prefixSum = previousSpecialLine.prefixSum + previousSpecialLine.maximumSpecialHeight + this._defaultLineHeight * (customLine.lineNumber - previousSpecialLine.lineNumber - 1);
+        } else {
+          prefixSum = this._defaultLineHeight * (customLine.lineNumber - 1);
+        }
+        customLine.prefixSum = prefixSum;
+      }
+      previousSpecialLine = customLine;
+      newOrderedSpecialLines.push(customLine);
+      newDecorationIDToSpecialLine.add(customLine.decorationId, customLine);
+    }
+    this._orderedCustomLines = newOrderedSpecialLines;
+    this._decorationIDToCustomLine = newDecorationIDToSpecialLine;
+    this._invalidIndex = Infinity;
+  }
+  _doLinesDeleted(fromLineNumber, toLineNumber) {
     const deleteCount = toLineNumber - fromLineNumber + 1;
     const numberOfCustomLines = this._orderedCustomLines.length;
     const candidateStartIndexOfDeletion = this._binarySearchOverOrderedCustomLinesArray(fromLineNumber);
@@ -172,7 +283,7 @@ class LineHeightsManager {
       }
     }
   }
-  onLinesInserted(fromLineNumber, toLineNumber, lineHeightsAdded) {
+  _doLinesInserted(fromLineNumber, toLineNumber, stagedInserts) {
     const insertCount = toLineNumber - fromLineNumber + 1;
     const candidateStartIndexOfInsertion = this._binarySearchOverOrderedCustomLinesArray(fromLineNumber);
     let startIndexOfInsertion;
@@ -188,16 +299,6 @@ class LineHeightsManager {
     } else {
       startIndexOfInsertion = -(candidateStartIndexOfInsertion + 1);
     }
-    const maxLineHeightPerLine = /* @__PURE__ */ new Map();
-    for (const lineHeightAdded of lineHeightsAdded) {
-      for (let lineNumber = lineHeightAdded.startLineNumber; lineNumber <= lineHeightAdded.endLineNumber; lineNumber++) {
-        if (lineNumber >= fromLineNumber && lineNumber <= toLineNumber) {
-          const currentMax = maxLineHeightPerLine.get(lineNumber) ?? this._defaultLineHeight;
-          maxLineHeightPerLine.set(lineNumber, Math.max(currentMax, lineHeightAdded.lineHeight));
-        }
-      }
-      this.insertOrChangeCustomLineHeight(lineHeightAdded.decorationId, lineHeightAdded.startLineNumber, lineHeightAdded.endLineNumber, lineHeightAdded.lineHeight);
-    }
     const toReAdd = [];
     const decorationsImmediatelyAfter = /* @__PURE__ */ new Set();
     for (let i = startIndexOfInsertion; i < this._orderedCustomLines.length; i++) {
@@ -212,9 +313,7 @@ class LineHeightsManager {
       }
     }
     const decorationsWithGaps = intersection(decorationsImmediatelyBefore, decorationsImmediatelyAfter);
-    const specialHeightToAdd = Array.from(maxLineHeightPerLine.values()).reduce((acc, height) => acc + height, 0);
-    const defaultHeightToAdd = (insertCount - maxLineHeightPerLine.size) * this._defaultLineHeight;
-    const prefixSumToAdd = specialHeightToAdd + defaultHeightToAdd;
+    const prefixSumToAdd = insertCount * this._defaultLineHeight;
     for (let i = startIndexOfInsertion; i < this._orderedCustomLines.length; i++) {
       this._orderedCustomLines[i].lineNumber += insertCount;
       this._orderedCustomLines[i].prefixSum += prefixSumToAdd;
@@ -235,70 +334,9 @@ class LineHeightsManager {
         }
       }
       for (const dec of toReAdd) {
-        this.insertOrChangeCustomLineHeight(dec.decorationId, dec.startLineNumber, dec.endLineNumber, dec.lineHeight);
+        this._doInsertOrChangeCustomLineHeight(dec.decorationId, dec.startLineNumber, dec.endLineNumber, dec.lineHeight, stagedInserts);
       }
     }
-    this.commit();
-  }
-  commit() {
-    if (!this._hasPending) {
-      return;
-    }
-    for (const pendingChange of this._pendingSpecialLinesToInsert) {
-      const candidateInsertionIndex = this._binarySearchOverOrderedCustomLinesArray(pendingChange.lineNumber);
-      const insertionIndex = candidateInsertionIndex >= 0 ? candidateInsertionIndex : -(candidateInsertionIndex + 1);
-      this._orderedCustomLines.splice(insertionIndex, 0, pendingChange);
-      this._invalidIndex = Math.min(this._invalidIndex, insertionIndex);
-    }
-    this._pendingSpecialLinesToInsert = [];
-    const newDecorationIDToSpecialLine = new ArrayMap();
-    const newOrderedSpecialLines = [];
-    for (let i = 0; i < this._invalidIndex; i++) {
-      const customLine = this._orderedCustomLines[i];
-      newOrderedSpecialLines.push(customLine);
-      newDecorationIDToSpecialLine.add(customLine.decorationId, customLine);
-    }
-    let numberOfDeletions = 0;
-    let previousSpecialLine = this._invalidIndex > 0 ? newOrderedSpecialLines[this._invalidIndex - 1] : void 0;
-    for (let i = this._invalidIndex; i < this._orderedCustomLines.length; i++) {
-      const customLine = this._orderedCustomLines[i];
-      if (customLine.deleted) {
-        numberOfDeletions++;
-        continue;
-      }
-      customLine.index = i - numberOfDeletions;
-      if (previousSpecialLine && previousSpecialLine.lineNumber === customLine.lineNumber) {
-        customLine.maximumSpecialHeight = previousSpecialLine.maximumSpecialHeight;
-        customLine.prefixSum = previousSpecialLine.prefixSum;
-      } else {
-        let maximumSpecialHeight = customLine.specialHeight;
-        for (let j = i; j < this._orderedCustomLines.length; j++) {
-          const nextSpecialLine = this._orderedCustomLines[j];
-          if (nextSpecialLine.deleted) {
-            continue;
-          }
-          if (nextSpecialLine.lineNumber !== customLine.lineNumber) {
-            break;
-          }
-          maximumSpecialHeight = Math.max(maximumSpecialHeight, nextSpecialLine.specialHeight);
-        }
-        customLine.maximumSpecialHeight = maximumSpecialHeight;
-        let prefixSum;
-        if (previousSpecialLine) {
-          prefixSum = previousSpecialLine.prefixSum + previousSpecialLine.maximumSpecialHeight + this._defaultLineHeight * (customLine.lineNumber - previousSpecialLine.lineNumber - 1);
-        } else {
-          prefixSum = this._defaultLineHeight * (customLine.lineNumber - 1);
-        }
-        customLine.prefixSum = prefixSum;
-      }
-      previousSpecialLine = customLine;
-      newOrderedSpecialLines.push(customLine);
-      newDecorationIDToSpecialLine.add(customLine.decorationId, customLine);
-    }
-    this._orderedCustomLines = newOrderedSpecialLines;
-    this._decorationIDToCustomLine = newDecorationIDToSpecialLine;
-    this._invalidIndex = Infinity;
-    this._hasPending = false;
   }
   _binarySearchOverOrderedCustomLinesArray(lineNumber) {
     return binarySearch2(this._orderedCustomLines.length, (index) => {

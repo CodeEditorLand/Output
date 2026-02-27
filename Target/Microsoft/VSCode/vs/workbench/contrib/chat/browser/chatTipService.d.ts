@@ -1,16 +1,29 @@
 import { Event } from '../../../../base/common/event.js';
 import { MarkdownString } from '../../../../base/common/htmlContent.js';
-import { ContextKeyExpression, IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
 import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
 import { IProductService } from '../../../../platform/product/common/productService.js';
 import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
 import { Disposable } from '../../../../base/common/lifecycle.js';
 import { ICommandService } from '../../../../platform/commands/common/commands.js';
 import { IStorageService } from '../../../../platform/storage/common/storage.js';
-import { AgentFileType, IPromptsService } from '../common/promptSyntax/service/promptsService.js';
-import { PromptsType } from '../common/promptSyntax/promptTypes.js';
 import { ILogService } from '../../../../platform/log/common/log.js';
-import { ILanguageModelToolsService } from '../common/tools/languageModelToolsService.js';
+import { IChatService } from '../common/chatService/chatService.js';
+import { IChatEntitlementService } from '../../../services/chat/common/chatEntitlementService.js';
+import { ITelemetryService } from '../../../../platform/telemetry/common/telemetry.js';
+import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
+import { TipTrackingCommands } from './chatTipStorageKeys.js';
+export { TipTrackingCommands, };
+/** @deprecated Use TipTrackingCommands.AttachFilesReferenceUsed */
+export declare const ATTACH_FILES_REFERENCE_TRACKING_COMMAND: "chat.tips.attachFiles.referenceUsed";
+/** @deprecated Use TipTrackingCommands.CreateAgentInstructionsUsed */
+export declare const CREATE_AGENT_INSTRUCTIONS_TRACKING_COMMAND: "chat.tips.createAgentInstructions.commandUsed";
+/** @deprecated Use TipTrackingCommands.CreatePromptUsed */
+export declare const CREATE_PROMPT_TRACKING_COMMAND: "chat.tips.createPrompt.commandUsed";
+/** @deprecated Use TipTrackingCommands.CreateAgentUsed */
+export declare const CREATE_AGENT_TRACKING_COMMAND: "chat.tips.createAgent.commandUsed";
+/** @deprecated Use TipTrackingCommands.CreateSkillUsed */
+export declare const CREATE_SKILL_TRACKING_COMMAND: "chat.tips.createSkill.commandUsed";
 export declare const IChatTipService: import("../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IChatTipService>;
 export interface IChatTip {
     readonly id: string;
@@ -68,104 +81,31 @@ export interface IChatTipService {
      */
     navigateToPreviousTip(): IChatTip | undefined;
     /**
+     * Gets the next eligible tip after the current one, without requiring multiple tips.
+     * Used after dismissing a tip to show the next available tip (even if it's the only one left).
+     */
+    getNextEligibleTip(): IChatTip | undefined;
+    /**
+     * Returns whether there are multiple eligible tips for navigation.
+     */
+    hasMultipleTips(): boolean;
+    /**
      * Clears all dismissed tips so they can be shown again.
      */
     clearDismissedTips(): void;
 }
-export interface ITipDefinition {
-    readonly id: string;
-    readonly message: string;
-    /**
-     * When clause expression that determines if this tip is eligible to be shown.
-     * If undefined, the tip is always eligible.
-     */
-    readonly when?: ContextKeyExpression;
-    /**
-     * Command IDs that are allowed to be executed from this tip's markdown.
-     */
-    readonly enabledCommands?: string[];
-    /**
-     * Chat model IDs for which this tip is eligible.
-     * Compared against the lowercased `chatModelId` context key.
-     */
-    readonly onlyWhenModelIds?: readonly string[];
-    /**
-     * Command IDs that, if ever executed in this workspace, make this tip ineligible.
-     * The tip won't be shown if the user has already performed the action it suggests.
-     */
-    readonly excludeWhenCommandsExecuted?: string[];
-    /**
-     * Chat mode names that, if ever used in this workspace, make this tip ineligible.
-     * The tip won't be shown if the user has already used the mode it suggests.
-     * Matches against both mode kind (e.g. 'agent') and mode name (e.g. 'Plan').
-     */
-    readonly excludeWhenModesUsed?: string[];
-    /**
-     * Tool IDs that, if ever invoked in this workspace, make this tip ineligible.
-     * The tip won't be shown if the tool it describes has already been used.
-     */
-    readonly excludeWhenToolsInvoked?: string[];
-    /**
-     * If set, exclude this tip when prompt files of the specified type exist in the workspace.
-     */
-    readonly excludeWhenPromptFilesExist?: {
-        readonly promptType: PromptsType;
-        /** Also check for this specific agent instruction file type. */
-        readonly agentFileType?: AgentFileType;
-        /** If true, exclude the tip until the async file check completes. Default: false. */
-        readonly excludeUntilChecked?: boolean;
-    };
-}
-/**
- * Tracks user-level signals that determine whether certain tips should be
- * excluded. Persists state to application storage and disposes listeners once all
- * signals of interest have been observed.
- */
-export declare class TipEligibilityTracker extends Disposable {
-    private readonly _storageService;
-    private readonly _promptsService;
-    private readonly _languageModelToolsService;
-    private readonly _logService;
-    private static readonly _COMMANDS_STORAGE_KEY;
-    private static readonly _MODES_STORAGE_KEY;
-    private static readonly _TOOLS_STORAGE_KEY;
-    private readonly _executedCommands;
-    private readonly _usedModes;
-    private readonly _invokedTools;
-    private readonly _pendingCommands;
-    private readonly _pendingModes;
-    private readonly _pendingTools;
-    private readonly _commandListener;
-    private readonly _toolListener;
-    /**
-     * Tip IDs excluded because prompt files of the required type exist in the workspace.
-     * Tips with `excludeUntilChecked` are pre-added and removed if no files are found.
-     */
-    private readonly _excludedByFiles;
-    /** Tips that have file-based exclusions, kept for re-checks. */
-    private readonly _tipsWithFileExclusions;
-    /** Generation counter per tip ID to discard stale async file-check results. */
-    private readonly _fileCheckGeneration;
-    constructor(tips: readonly ITipDefinition[], commandService: ICommandService, _storageService: IStorageService, _promptsService: IPromptsService, _languageModelToolsService: ILanguageModelToolsService, _logService: ILogService);
-    /**
-     * Records the current chat mode (kind + name) so future tip eligibility
-     * checks can exclude mode-related tips. No-ops once all tracked modes
-     * have been observed.
-     */
-    recordCurrentMode(contextKeyService: IContextKeyService): void;
-    /**
-     * Returns `true` when the tip should be **excluded** from the eligible set.
-     */
-    isExcluded(tip: ITipDefinition): boolean;
-    private _checkForPromptFiles;
-    private _persistSet;
-    private _readApplicationWithProfileFallback;
-}
+export type { ITipDefinition } from './chatTipCatalog.js';
+export { TipEligibilityTracker } from './chatTipEligibilityTracker.js';
 export declare class ChatTipService extends Disposable implements IChatTipService {
     private readonly _productService;
     private readonly _configurationService;
     private readonly _storageService;
+    private readonly _chatService;
     private readonly _logService;
+    private readonly _chatEntitlementService;
+    private readonly _commandService;
+    private readonly _telemetryService;
+    private readonly _keybindingService;
     readonly _serviceBrand: undefined;
     private readonly _onDidDismissTip;
     readonly onDidDismissTip: Event<void>;
@@ -189,10 +129,15 @@ export declare class ChatTipService extends Disposable implements IChatTipServic
      * can evaluate when-clause eligibility against the correct context.
      */
     private _contextKeyService;
-    private static readonly _DISMISSED_TIP_KEY;
-    private static readonly _LAST_TIP_ID_KEY;
     private readonly _tracker;
-    constructor(_productService: IProductService, _configurationService: IConfigurationService, _storageService: IStorageService, instantiationService: IInstantiationService, _logService: ILogService);
+    private readonly _createSlashCommandsUsageTracker;
+    private _yoloModeEverEnabled;
+    private _thinkingPhrasesEverModified;
+    private readonly _tipCommandListener;
+    constructor(_productService: IProductService, _configurationService: IConfigurationService, _storageService: IStorageService, _chatService: IChatService, instantiationService: IInstantiationService, _logService: ILogService, _chatEntitlementService: IChatEntitlementService, _commandService: ICommandService, _telemetryService: ITelemetryService, _keybindingService: IKeybindingService);
+    private _hasFileOrFolderReference;
+    private _getCreateSlashCommandTrackingId;
+    private _toCreateSlashCommandTrackingId;
     resetSession(): void;
     dismissTip(): void;
     clearDismissedTips(): void;
@@ -204,12 +149,19 @@ export declare class ChatTipService extends Disposable implements IChatTipServic
     private _pickTip;
     navigateToNextTip(): IChatTip | undefined;
     navigateToPreviousTip(): IChatTip | undefined;
+    getNextEligibleTip(): IChatTip | undefined;
+    hasMultipleTips(): boolean;
     private _navigateTip;
+    private _hasNavigableTip;
+    private _getNavigableTip;
     private _isEligible;
+    private _isSettingModified;
     private _getCurrentChatModelId;
     private _isChatLocation;
     private _isChatQuotaExceeded;
     private _isCopilotEnabled;
     private _createTip;
+    private _logTipTelemetry;
+    private _trackTipCommandClicks;
     private _readApplicationWithProfileFallback;
 }

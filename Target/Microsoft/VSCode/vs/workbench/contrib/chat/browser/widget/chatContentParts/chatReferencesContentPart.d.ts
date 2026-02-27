@@ -17,6 +17,7 @@ import { ChatCollapsibleContentPart } from './chatCollapsibleContentPart.js';
 import { IDisposableReference } from './chatCollections.js';
 import { IChatContentPartRenderContext } from './chatContentParts.js';
 import { IHoverService } from '../../../../../../platform/hover/browser/hover.js';
+import { IConfigurationService } from '../../../../../../platform/configuration/common/configuration.js';
 export interface IChatReferenceListItem extends IChatContentReference {
     title?: string;
     description?: string;
@@ -31,7 +32,7 @@ export declare class ChatCollapsibleListContentPart extends ChatCollapsibleConte
     private readonly menuService;
     private readonly instantiationService;
     private readonly contextMenuService;
-    constructor(data: ReadonlyArray<IChatCollapsibleListItem>, labelOverride: IMarkdownString | string | undefined, context: IChatContentPartRenderContext, contentReferencesListPool: CollapsibleListPool, hoverMessage: IMarkdownString | undefined, openerService: IOpenerService, menuService: IMenuService, instantiationService: IInstantiationService, contextMenuService: IContextMenuService, hoverService: IHoverService);
+    constructor(data: ReadonlyArray<IChatCollapsibleListItem>, labelOverride: IMarkdownString | string | undefined, context: IChatContentPartRenderContext, contentReferencesListPool: CollapsibleListPool, hoverMessage: IMarkdownString | undefined, openerService: IOpenerService, menuService: IMenuService, instantiationService: IInstantiationService, contextMenuService: IContextMenuService, hoverService: IHoverService, configurationService: IConfigurationService);
     protected initContent(): HTMLElement;
     hasSameContent(other: IChatRendererContent, followingContent: IChatRendererContent[], element: ChatTreeItem): boolean;
 }
@@ -40,7 +41,7 @@ export interface IChatUsedReferencesListOptions {
 }
 export declare class ChatUsedReferencesListContentPart extends ChatCollapsibleListContentPart {
     private readonly options;
-    constructor(data: ReadonlyArray<IChatCollapsibleListItem>, labelOverride: IMarkdownString | string | undefined, context: IChatContentPartRenderContext, contentReferencesListPool: CollapsibleListPool, options: IChatUsedReferencesListOptions, openerService: IOpenerService, menuService: IMenuService, instantiationService: IInstantiationService, contextMenuService: IContextMenuService, hoverService: IHoverService);
+    constructor(data: ReadonlyArray<IChatCollapsibleListItem>, labelOverride: IMarkdownString | string | undefined, context: IChatContentPartRenderContext, contentReferencesListPool: CollapsibleListPool, options: IChatUsedReferencesListOptions, openerService: IOpenerService, menuService: IMenuService, instantiationService: IInstantiationService, contextMenuService: IContextMenuService, hoverService: IHoverService, configurationService: IConfigurationService);
     protected isExpanded(): boolean;
     protected setExpanded(value: boolean): void;
 }

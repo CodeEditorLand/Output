@@ -66,6 +66,7 @@ import { isNumber, isString } from "../../../../../../base/common/types.js";
 import { ChatConfiguration } from "../../../../chat/common/constants.js";
 import { IChatWidgetService } from "../../../../chat/browser/chat.js";
 import { clamp } from "../../../../../../base/common/numbers.js";
+import { SandboxOutputAnalyzer } from "./sandboxOutputAnalyzer.js";
 const TOOL_REFERENCE_NAME = "runInTerminal";
 const LEGACY_TOOL_REFERENCE_FULL_NAMES = ["runCommands/runInTerminal"];
 function createPowerShellModelDescription(shell) {
@@ -334,6 +335,9 @@ let RunInTerminalTool = class RunInTerminalTool2 extends Disposable {
       new NodeCommandLinePresenter(),
       new PythonCommandLinePresenter(),
       new RubyCommandLinePresenter()
+    ];
+    this._outputAnalyzers = [
+      this._register(this._instantiationService.createInstance(SandboxOutputAnalyzer))
     ];
     this._register(Event.runAndSubscribe(this._configurationService.onDidChangeConfiguration, (e) => {
       if (!e || e.affectsConfiguration(
@@ -832,6 +836,18 @@ ${pollingResult.output}`;
     }
     if (didMoveToBackground && !args.isBackground) {
       resultText.push(`Note: This terminal execution was moved to the background using the ID ${termId}
+`);
+    }
+    let outputAnalyzerMessage;
+    for (const analyzer of this._outputAnalyzers) {
+      const message = await analyzer.analyze({ exitCode, exitResult: terminalResult, commandLine: command });
+      if (message) {
+        outputAnalyzerMessage = message;
+        break;
+      }
+    }
+    if (outputAnalyzerMessage) {
+      resultText.push(`${outputAnalyzerMessage}
 `);
     }
     resultText.push(terminalResult);

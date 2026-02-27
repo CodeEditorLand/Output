@@ -3,12 +3,16 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
 import { alert } from "../../../../../base/browser/ui/aria/aria.js";
 import { localize } from "../../../../../nls.js";
 import { Action2, registerAction2 } from "../../../../../platform/actions/common/actions.js";
+import { IStorageService } from "../../../../../platform/storage/common/storage.js";
 import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
 import { IChatWidgetService } from "../chat.js";
 import { ChatContextKeys } from "../../common/actions/chatContextKeys.js";
 import { isResponseVM } from "../../common/model/chatViewModel.js";
 import { CONTEXT_ACCESSIBILITY_MODE_ENABLED } from "../../../../../platform/accessibility/common/accessibility.js";
+import { accessibleViewCurrentProviderId, accessibleViewIsShown } from "../../../../contrib/accessibility/browser/accessibilityConfiguration.js";
+import { CHAT_ACCESSIBLE_VIEW_INCLUDE_THINKING_STORAGE_KEY, isThinkingContentIncludedInAccessibleView } from "../accessibility/chatResponseAccessibleView.js";
 const ACTION_ID_FOCUS_CHAT_CONFIRMATION = "workbench.action.chat.focusConfirmation";
+const ACTION_ID_TOGGLE_THINKING_CONTENT_ACCESSIBLE_VIEW = "workbench.action.chat.toggleThinkingContentAccessibleView";
 class AnnounceChatConfirmationAction extends Action2 {
   static {
     __name(this, "AnnounceChatConfirmationAction");
@@ -58,12 +62,50 @@ class AnnounceChatConfirmationAction extends Action2 {
     }
   }
 }
+class ToggleThinkingContentAccessibleViewAction extends Action2 {
+  static {
+    __name(this, "ToggleThinkingContentAccessibleViewAction");
+  }
+  constructor() {
+    super({
+      id: ACTION_ID_TOGGLE_THINKING_CONTENT_ACCESSIBLE_VIEW,
+      title: { value: localize("toggleThinkingContentAccessibleView", "Toggle Thinking Content in Accessible View"), original: "Toggle Thinking Content in Accessible View" },
+      category: { value: localize("chat.category", "Chat"), original: "Chat" },
+      precondition: ChatContextKeys.enabled,
+      f1: true,
+      keybinding: {
+        primary: 512 | 50,
+        weight: 200,
+        when: ContextKeyExpr.and(accessibleViewIsShown, ContextKeyExpr.equals(
+          accessibleViewCurrentProviderId.key,
+          "panelChat"
+          /* AccessibleViewProviderId.PanelChat */
+        ))
+      }
+    });
+  }
+  async run(accessor) {
+    const storageService = accessor.get(IStorageService);
+    const includeThinking = isThinkingContentIncludedInAccessibleView(storageService);
+    const updatedValue = !includeThinking;
+    storageService.store(
+      CHAT_ACCESSIBLE_VIEW_INCLUDE_THINKING_STORAGE_KEY,
+      updatedValue,
+      0,
+      0
+      /* StorageTarget.USER */
+    );
+    alert(updatedValue ? localize("thinkingContentShown", "Thinking content will be included in the accessible view.") : localize("thinkingContentHidden", "Thinking content will be hidden from the accessible view."));
+  }
+}
 function registerChatAccessibilityActions() {
   registerAction2(AnnounceChatConfirmationAction);
+  registerAction2(ToggleThinkingContentAccessibleViewAction);
 }
 __name(registerChatAccessibilityActions, "registerChatAccessibilityActions");
 export {
   ACTION_ID_FOCUS_CHAT_CONFIRMATION,
+  ACTION_ID_TOGGLE_THINKING_CONTENT_ACCESSIBLE_VIEW,
   registerChatAccessibilityActions
 };
 //# sourceMappingURL=chatAccessibilityActions.js.map

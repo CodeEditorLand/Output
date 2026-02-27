@@ -71,4 +71,5 @@ export declare namespace EditorContextKeys {
     const hasDocumentSelectionFormattingProvider: RawContextKey<boolean>;
     const hasMultipleDocumentFormattingProvider: RawContextKey<boolean>;
     const hasMultipleDocumentSelectionFormattingProvider: RawContextKey<boolean>;
+    const selectionHasDiagnostics: RawContextKey<boolean>;
 }

@@ -258,12 +258,20 @@ export interface ILanguageModelsService {
     /**
      * Records that a model was used, updating the recently used list.
      */
-    recordModelUsage(model: ILanguageModelChatMetadataAndIdentifier): void;
+    addToRecentlyUsedList(modelIdentifier: string): void;
     /**
-     * Returns the curated models from the models control manifest,
+     * Clears the recently used model list.
+     */
+    clearRecentlyUsedList(): void;
+    /**
+     * Returns the models from the control manifest,
      * separated into free and paid tiers.
      */
-    getCuratedModels(): ICuratedModels;
+    getModelsControlManifest(): IModelsControlManifest;
+    /**
+     * Fires when models control manifest changes.
+     */
+    readonly onDidChangeModelsControlManifest: Event<IModelsControlManifest>;
     /**
      * Observable map of restricted chat participant names to allowed extension publisher/IDs.
      * Fetched from the chat control manifest.
@@ -272,14 +280,15 @@ export interface ILanguageModelsService {
         [name: string]: string[];
     }>;
 }
-export interface ICuratedModel {
-    readonly id: string;
-    readonly isNew?: boolean;
+export interface IModelControlEntry {
+    readonly label: string;
+    readonly featured?: boolean;
     readonly minVSCodeVersion?: string;
+    readonly exists: boolean;
 }
-export interface ICuratedModels {
-    readonly free: ICuratedModel[];
-    readonly paid: ICuratedModel[];
+export interface IModelsControlManifest {
+    readonly free: IStringDictionary<IModelControlEntry>;
+    readonly paid: IStringDictionary<IModelControlEntry>;
 }
 declare const languageModelChatProviderType: {
     readonly type: "object";
@@ -379,7 +388,10 @@ export declare class LanguageModelsService implements ILanguageModelsService {
     private readonly _onLanguageModelChange;
     readonly onDidChangeLanguageModels: Event<string>;
     private _recentlyUsedModelIds;
-    private _curatedModels;
+    private readonly _onDidChangeModelsControlManifest;
+    readonly onDidChangeModelsControlManifest: Event<IModelsControlManifest>;
+    private _modelsControlManifest;
+    private _modelsControlRawResponse;
     private _chatControlUrl;
     private _chatControlDisposed;
     private readonly _restrictedChatParticipants;
@@ -427,9 +439,12 @@ export declare class LanguageModelsService implements ILanguageModelsService {
     private _readRecentlyUsedModels;
     private _saveRecentlyUsedModels;
     getRecentlyUsedModelIds(): string[];
-    recordModelUsage(model: ILanguageModelChatMetadataAndIdentifier): void;
-    getCuratedModels(): ICuratedModels;
-    private _setCuratedModels;
+    addToRecentlyUsedList(modelIdentifier: string): void;
+    clearRecentlyUsedList(): void;
+    getModelsControlManifest(): IModelsControlManifest;
+    private _setModelsControlManifest;
+    private _refreshModelsControlManifest;
+    private _modelExistsInCache;
     private _initChatControlData;
     private _refreshChatControlData;
     private _fetchChatControlData;

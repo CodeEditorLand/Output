@@ -23,6 +23,10 @@ export declare abstract class AbstractInlineChatAction extends EditorAction2 {
     runEditorCommand(accessor: ServicesAccessor, editor: ICodeEditor, ..._args: unknown[]): void;
     abstract runInlineChatCommand(accessor: ServicesAccessor, ctrl: InlineChatController, editor: ICodeEditor, ...args: unknown[]): void;
 }
+export declare class FixDiagnosticsAction extends AbstractInlineChatAction {
+    constructor();
+    runInlineChatCommand(_accessor: ServicesAccessor, ctrl: InlineChatController, _editor: ICodeEditor, ..._args: unknown[]): void;
+}
 declare class KeepOrUndoSessionAction extends AbstractInlineChatAction {
     private readonly _keep;
     constructor(_keep: boolean, desc: IAction2Options);
@@ -37,8 +41,23 @@ export declare class UndoSessionAction2 extends KeepOrUndoSessionAction {
 export declare class UndoAndCloseSessionAction2 extends KeepOrUndoSessionAction {
     constructor();
 }
+export declare class CancelSessionAction extends KeepOrUndoSessionAction {
+    constructor();
+}
 export declare class SubmitInlineChatInputAction extends AbstractInlineChatAction {
     constructor();
     runInlineChatCommand(_accessor: ServicesAccessor, ctrl: InlineChatController, _editor: ICodeEditor, ..._args: unknown[]): void;
+}
+export declare class HideInlineChatInputAction extends AbstractInlineChatAction {
+    constructor();
+    runInlineChatCommand(_accessor: ServicesAccessor, ctrl: InlineChatController, _editor: ICodeEditor, ..._args: unknown[]): void;
+}
+export declare class AskInChatAction extends EditorAction2 {
+    constructor();
+    runEditorCommand(accessor: ServicesAccessor, editor: ICodeEditor): Promise<void>;
+}
+export declare class QueueInChatAction extends AbstractInlineChatAction {
+    constructor();
+    runInlineChatCommand(accessor: ServicesAccessor, ctrl: InlineChatController, editor: ICodeEditor): Promise<void>;
 }
 export {};

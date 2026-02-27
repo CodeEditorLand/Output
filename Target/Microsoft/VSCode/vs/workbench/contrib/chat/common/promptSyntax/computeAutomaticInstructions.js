@@ -27,7 +27,6 @@ import { ChatRequestVariableSet, IChatRequestVariableEntry, isPromptFileVariable
 import { ILanguageModelToolsService, VSCodeToolReference } from "../tools/languageModelToolsService.js";
 import { PromptsConfig } from "./config/config.js";
 import { isInClaudeAgentsFolder, isInClaudeRulesFolder, isPromptOrInstructionsFile } from "./config/promptFileLocations.js";
-import { PromptsType } from "./promptTypes.js";
 import { AgentFileType, IPromptsService } from "./service/promptsService.js";
 import { OffsetRange } from "../../../../../editor/common/core/ranges/offsetRange.js";
 import { ChatConfiguration, ChatModeKind } from "../constants.js";
@@ -39,10 +38,11 @@ let ComputeAutomaticInstructions = class ComputeAutomaticInstructions2 {
   static {
     __name(this, "ComputeAutomaticInstructions");
   }
-  constructor(_modeKind, _enabledTools, _enabledSubagents, _promptsService, _logService, _labelService, _configurationService, _workspaceService, _fileService, _remoteAgentService, _telemetryService, _languageModelToolsService) {
+  constructor(_modeKind, _enabledTools, _enabledSubagents, _sessionResource, _promptsService, _logService, _labelService, _configurationService, _workspaceService, _fileService, _remoteAgentService, _telemetryService, _languageModelToolsService) {
     this._modeKind = _modeKind;
     this._enabledTools = _enabledTools;
     this._enabledSubagents = _enabledSubagents;
+    this._sessionResource = _sessionResource;
     this._promptsService = _promptsService;
     this._logService = _logService;
     this._labelService = _labelService;
@@ -68,7 +68,7 @@ let ComputeAutomaticInstructions = class ComputeAutomaticInstructions2 {
     }
   }
   async collect(variables, token) {
-    const instructionFiles = await this._promptsService.listPromptFiles(PromptsType.instructions, token);
+    const instructionFiles = await this._promptsService.getInstructionFiles(token, this._sessionResource);
     this._logService.trace(`[InstructionsContextComputer] ${instructionFiles.length} instruction files available.`);
     const telemetryEvent = newInstructionsCollectionEvent();
     const context = this._getContext(variables);
@@ -274,7 +274,7 @@ let ComputeAutomaticInstructions = class ComputeAutomaticInstructions2 {
       } else {
         entries.push("</instructions>", "", "");
       }
-      const agentSkills = await this._promptsService.findAgentSkills(token);
+      const agentSkills = await this._promptsService.findAgentSkills(token, this._sessionResource);
       const modelInvocableSkills = agentSkills?.filter((skill) => !skill.disableModelInvocation);
       if (modelInvocableSkills && modelInvocableSkills.length > 0) {
         const useSkillAdherencePrompt = this._configurationService.getValue(PromptsConfig.USE_SKILL_ADHERENCE_PROMPT);
@@ -318,7 +318,7 @@ let ComputeAutomaticInstructions = class ComputeAutomaticInstructions2 {
           return (agent) => subagents.includes(agent.name);
         }
       })();
-      const agents = await this._promptsService.getCustomAgents(token);
+      const agents = await this._promptsService.getCustomAgents(token, this._sessionResource);
       if (agents.length > 0) {
         entries.push("<agents>");
         entries.push("Here is a list of agents that can be used when running a subagent.");
@@ -411,15 +411,15 @@ let ComputeAutomaticInstructions = class ComputeAutomaticInstructions2 {
   }
 };
 ComputeAutomaticInstructions = __decorate([
-  __param(3, IPromptsService),
-  __param(4, ILogService),
-  __param(5, ILabelService),
-  __param(6, IConfigurationService),
-  __param(7, IWorkspaceContextService),
-  __param(8, IFileService),
-  __param(9, IRemoteAgentService),
-  __param(10, ITelemetryService),
-  __param(11, ILanguageModelToolsService)
+  __param(4, IPromptsService),
+  __param(5, ILogService),
+  __param(6, ILabelService),
+  __param(7, IConfigurationService),
+  __param(8, IWorkspaceContextService),
+  __param(9, IFileService),
+  __param(10, IRemoteAgentService),
+  __param(11, ITelemetryService),
+  __param(12, ILanguageModelToolsService)
 ], ComputeAutomaticInstructions);
 function getFilePath(uri, remoteOS) {
   if (uri.scheme === Schemas.file || uri.scheme === Schemas.vscodeRemote) {

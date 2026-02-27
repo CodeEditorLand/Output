@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import "../../workbench/browser/style.js";
-import "./style.css";
+import "./media/style.css";
 import { Disposable, toDisposable } from "../../base/common/lifecycle.js";
 import { Emitter, Event, setGlobalLeakWarningThreshold } from "../../base/common/event.js";
 import { getActiveDocument, getActiveElement, getClientArea, getWindowId, getWindows, isAncestorUsingFlowTo, size, Dimension, runWhenWindowIdle } from "../../base/browser/dom.js";
@@ -51,7 +51,6 @@ import { registerNotificationCommands } from "../../workbench/browser/parts/noti
 import { NotificationsToasts } from "../../workbench/browser/parts/notifications/notificationsToasts.js";
 import { IMarkdownRendererService } from "../../platform/markdown/browser/markdownRenderer.js";
 import { EditorMarkdownCodeBlockRenderer } from "../../editor/browser/widget/markdownRenderer/browser/editorMarkdownCodeBlockRenderer.js";
-import { EditorModal } from "./parts/editorModal.js";
 import { SyncDescriptor } from "../../platform/instantiation/common/descriptors.js";
 import { TitleService } from "./parts/titlebarPart.js";
 var LayoutClasses;
@@ -63,7 +62,6 @@ var LayoutClasses;
   LayoutClasses2["CHATBAR_HIDDEN"] = "nochatbar";
   LayoutClasses2["FULLSCREEN"] = "fullscreen";
   LayoutClasses2["MAXIMIZED"] = "maximized";
-  LayoutClasses2["EDITOR_MODAL_VISIBLE"] = "editor-modal-visible";
 })(LayoutClasses || (LayoutClasses = {}));
 class Workbench extends Disposable {
   static {
@@ -242,10 +240,6 @@ class Workbench extends Disposable {
     const instantiationService = new InstantiationService(serviceCollection, true);
     instantiationService.invokeFunction((accessor) => {
       const lifecycleService = accessor.get(ILifecycleService);
-      const configurationService = accessor.get(IConfigurationService);
-      if (configurationService && "acquireInstantiationService" in configurationService) {
-        configurationService.acquireInstantiationService(instantiationService);
-      }
       lifecycleService.phase = 2;
     });
     return instantiationService;
@@ -350,7 +344,7 @@ class Workbench extends Disposable {
       this.getPart(id).create(partContainer);
       mark(`code/didCreatePart/${id}`);
     }
-    this.createEditorModal();
+    this.createHiddenEditorPart();
     this.createNotificationsHandlers(instantiationService, notificationService);
     this.parent.appendChild(this.mainContainer);
   }
@@ -358,7 +352,7 @@ class Workbench extends Disposable {
     const notificationsCenter = this._register(instantiationService.createInstance(NotificationsCenter, this.mainContainer, notificationService.model));
     const notificationsToasts = this._register(instantiationService.createInstance(NotificationsToasts, this.mainContainer, notificationService.model));
     this._register(instantiationService.createInstance(NotificationsAlerts, notificationService.model));
-    const notificationsStatus = instantiationService.createInstance(NotificationsStatus, notificationService.model);
+    const notificationsStatus = this._register(instantiationService.createInstance(NotificationsStatus, notificationService.model));
     this._register(notificationsCenter.onDidChangeVisibility(() => {
       notificationsStatus.update(notificationsCenter.isVisible, notificationsToasts.isVisible);
       notificationsToasts.update(notificationsCenter.isVisible);
@@ -379,12 +373,19 @@ class Workbench extends Disposable {
     part.setAttribute("role", role);
     return part;
   }
-  createEditorModal() {
-    const editorPart = this.getPart(
+  createHiddenEditorPart() {
+    const editorPartContainer = document.createElement("div");
+    editorPartContainer.classList.add("part", "editor");
+    editorPartContainer.id = "workbench.parts.editor";
+    editorPartContainer.setAttribute("role", "main");
+    editorPartContainer.style.display = "none";
+    mark("code/willCreatePart/workbench.parts.editor");
+    this.getPart(
       "workbench.parts.editor"
       /* Parts.EDITOR_PART */
-    );
-    this.editorModal = this._register(new EditorModal(this.mainContainer, editorPart, this.editorGroupService));
+    ).create(editorPartContainer, { restorePreviousState: false });
+    mark("code/didCreatePart/workbench.parts.editor");
+    this.mainContainer.appendChild(editorPartContainer);
   }
   restore(lifecycleService) {
     mark("code/didStartWorkbench");
@@ -639,7 +640,6 @@ class Workbench extends Disposable {
     this.logService.trace(`Workbench#layout, height: ${this._mainContainerDimension.height}, width: ${this._mainContainerDimension.width}`);
     size(this.mainContainer, this._mainContainerDimension.width, this._mainContainerDimension.height);
     this.workbenchGrid.layout(this._mainContainerDimension.width, this._mainContainerDimension.height);
-    this.editorModal.layout(this._mainContainerDimension.width, this._mainContainerDimension.height);
     this.handleContainerDidLayout(this.mainContainer, this._mainContainerDimension);
   }
   handleContainerDidLayout(container, dimension) {
@@ -799,6 +799,15 @@ class Workbench extends Disposable {
     this.partVisibility.sidebar = !hidden;
     this.mainContainer.classList.toggle(LayoutClasses.SIDEBAR_HIDDEN, hidden);
     this.workbenchGrid.setViewVisible(this.sideBarPartView, !hidden);
+    if (hidden && this.paneCompositeService.getActivePaneComposite(
+      0
+      /* ViewContainerLocation.Sidebar */
+    )) {
+      this.paneCompositeService.hideActivePaneComposite(
+        0
+        /* ViewContainerLocation.Sidebar */
+      );
+    }
     if (!hidden && !this.paneCompositeService.getActivePaneComposite(
       0
       /* ViewContainerLocation.Sidebar */
@@ -806,7 +815,10 @@ class Workbench extends Disposable {
       const viewletToOpen = this.paneCompositeService.getLastActivePaneCompositeId(
         0
         /* ViewContainerLocation.Sidebar */
-      );
+      ) ?? this.viewDescriptorService.getDefaultViewContainer(
+        0
+        /* ViewContainerLocation.Sidebar */
+      )?.id;
       if (viewletToOpen) {
         this.paneCompositeService.openPaneComposite(
           viewletToOpen,
@@ -823,6 +835,15 @@ class Workbench extends Disposable {
     this.partVisibility.auxiliaryBar = !hidden;
     this.mainContainer.classList.toggle(LayoutClasses.AUXILIARYBAR_HIDDEN, hidden);
     this.workbenchGrid.setViewVisible(this.auxiliaryBarPartView, !hidden);
+    if (hidden && this.paneCompositeService.getActivePaneComposite(
+      2
+      /* ViewContainerLocation.AuxiliaryBar */
+    )) {
+      this.paneCompositeService.hideActivePaneComposite(
+        2
+        /* ViewContainerLocation.AuxiliaryBar */
+      );
+    }
     if (!hidden && !this.paneCompositeService.getActivePaneComposite(
       2
       /* ViewContainerLocation.AuxiliaryBar */
@@ -830,7 +851,10 @@ class Workbench extends Disposable {
       const paneCompositeToOpen = this.paneCompositeService.getLastActivePaneCompositeId(
         2
         /* ViewContainerLocation.AuxiliaryBar */
-      );
+      ) ?? this.viewDescriptorService.getDefaultViewContainer(
+        2
+        /* ViewContainerLocation.AuxiliaryBar */
+      )?.id;
       if (paneCompositeToOpen) {
         this.paneCompositeService.openPaneComposite(
           paneCompositeToOpen,
@@ -846,12 +870,6 @@ class Workbench extends Disposable {
     }
     this.partVisibility.editor = !hidden;
     this.mainContainer.classList.toggle(LayoutClasses.MAIN_EDITOR_AREA_HIDDEN, hidden);
-    this.mainContainer.classList.toggle(LayoutClasses.EDITOR_MODAL_VISIBLE, !hidden);
-    if (hidden) {
-      this.editorModal.hide();
-    } else {
-      this.editorModal.show();
-    }
   }
   setPanelHidden(hidden) {
     if (this.partVisibility.panel === !hidden) {
@@ -863,6 +881,15 @@ class Workbench extends Disposable {
     this.partVisibility.panel = !hidden;
     this.mainContainer.classList.toggle(LayoutClasses.PANEL_HIDDEN, hidden);
     this.workbenchGrid.setViewVisible(this.panelPartView, !hidden);
+    if (hidden && this.paneCompositeService.getActivePaneComposite(
+      1
+      /* ViewContainerLocation.Panel */
+    )) {
+      this.paneCompositeService.hideActivePaneComposite(
+        1
+        /* ViewContainerLocation.Panel */
+      );
+    }
     if (!hidden && !this.paneCompositeService.getActivePaneComposite(
       1
       /* ViewContainerLocation.Panel */
@@ -870,7 +897,10 @@ class Workbench extends Disposable {
       const panelToOpen = this.paneCompositeService.getLastActivePaneCompositeId(
         1
         /* ViewContainerLocation.Panel */
-      );
+      ) ?? this.viewDescriptorService.getDefaultViewContainer(
+        1
+        /* ViewContainerLocation.Panel */
+      )?.id;
       if (panelToOpen) {
         this.paneCompositeService.openPaneComposite(
           panelToOpen,

@@ -78,7 +78,7 @@ let InlineChatSessionServiceImpl = class InlineChatSessionServiceImpl2 {
       throw new Error("Session already exists");
     }
     this._onWillStartSession.fire(editor);
-    const chatModelRef = this._chatService.startSession(ChatAgentLocation.EditorInline, {
+    const chatModelRef = this._chatService.startNewLocalSession(ChatAgentLocation.EditorInline, {
       canUseTools: false
       /* SEE https://github.com/microsoft/vscode/issues/279946 */
     });
@@ -86,7 +86,7 @@ let InlineChatSessionServiceImpl = class InlineChatSessionServiceImpl2 {
     chatModel.startEditingSession(false);
     const store = new DisposableStore();
     store.add(toDisposable(() => {
-      this._chatService.cancelCurrentRequestForSession(chatModel.sessionResource);
+      this._chatService.cancelCurrentRequestForSession(chatModel.sessionResource, "inlineChatSession");
       chatModel.editingSession?.reject();
       this._sessions.delete(uri);
       this._onDidChangeSessions.fire(this);

@@ -202,7 +202,7 @@ const languageModelChatProviderExtensionPoint = ExtensionsRegistry.registerExten
 const CHAT_MODEL_PICKER_PREFERENCES_STORAGE_KEY = "chatModelPickerPreferences";
 const CHAT_MODEL_RECENTLY_USED_STORAGE_KEY = "chatModelRecentlyUsed";
 const CHAT_PARTICIPANT_NAME_REGISTRY_STORAGE_KEY = "chat.participantNameRegistry";
-const CHAT_CURATED_MODELS_STORAGE_KEY = "chat.curatedModels";
+const CHAT_MODELS_CONTROL_STORAGE_KEY = "chat.modelsControl";
 let LanguageModelsService = class LanguageModelsService2 {
   static {
     __name(this, "LanguageModelsService");
@@ -238,7 +238,9 @@ let LanguageModelsService = class LanguageModelsService2 {
     this._onLanguageModelChange = this._store.add(new Emitter());
     this.onDidChangeLanguageModels = this._onLanguageModelChange.event;
     this._recentlyUsedModelIds = [];
-    this._curatedModels = { free: [], paid: [] };
+    this._onDidChangeModelsControlManifest = this._store.add(new Emitter());
+    this.onDidChangeModelsControlManifest = this._onDidChangeModelsControlManifest.event;
+    this._modelsControlManifest = { free: {}, paid: {} };
     this._chatControlDisposed = false;
     this._restrictedChatParticipants = observableValue(this, /* @__PURE__ */ Object.create(null));
     this.restrictedChatParticipants = this._restrictedChatParticipants;
@@ -247,7 +249,10 @@ let LanguageModelsService = class LanguageModelsService2 {
     this._recentlyUsedModelIds = this._readRecentlyUsedModels();
     this._initChatControlData();
     this._store.add(this._storageService.onDidChangeValue(0, CHAT_MODEL_PICKER_PREFERENCES_STORAGE_KEY, this._store)(() => this._onDidChangeModelPickerPreferences()));
-    this._store.add(this.onDidChangeLanguageModels(() => this._hasUserSelectableModels.set(this._modelCache.size > 0 && Array.from(this._modelCache.values()).some((model) => model.isUserSelectable))));
+    this._store.add(this.onDidChangeLanguageModels(() => {
+      this._hasUserSelectableModels.set(this._modelCache.size > 0 && Array.from(this._modelCache.values()).some((model) => model.isUserSelectable));
+      this._refreshModelsControlManifest();
+    }));
     this._store.add(this._languageModelsConfigurationService.onDidChangeLanguageModelGroups((changedGroups) => this._onDidChangeLanguageModelGroups(changedGroups)));
     this._store.add(languageModelChatProviderExtensionPoint.setHandler((extensions, { added, removed }) => {
       const addedVendors = [];
@@ -947,43 +952,67 @@ let LanguageModelsService = class LanguageModelsService2 {
     );
   }
   getRecentlyUsedModelIds() {
-    return this._recentlyUsedModelIds.filter((id) => this._modelCache.has(id)).slice(0, 5);
+    return this._recentlyUsedModelIds.filter((id) => this._modelCache.has(id) && id !== "copilot/auto").slice(0, 4);
   }
-  recordModelUsage(model) {
-    if (model.metadata.id === "auto" && this._vendors.get(model.metadata.vendor)?.isDefault) {
+  addToRecentlyUsedList(modelIdentifier) {
+    if (modelIdentifier === "copilot/auto") {
       return;
     }
-    const index = this._recentlyUsedModelIds.indexOf(model.identifier);
+    const index = this._recentlyUsedModelIds.indexOf(modelIdentifier);
     if (index !== -1) {
       this._recentlyUsedModelIds.splice(index, 1);
     }
-    this._recentlyUsedModelIds.unshift(model.identifier);
+    this._recentlyUsedModelIds.unshift(modelIdentifier);
     if (this._recentlyUsedModelIds.length > 20) {
       this._recentlyUsedModelIds.length = 20;
     }
     this._saveRecentlyUsedModels();
   }
-  //#endregion
-  //#region Curated models
-  getCuratedModels() {
-    return this._curatedModels;
+  clearRecentlyUsedList() {
+    this._recentlyUsedModelIds = [];
+    this._saveRecentlyUsedModels();
   }
-  _setCuratedModels(free, paid) {
-    const toPublic = /* @__PURE__ */ __name((m) => ({ id: m.id, isNew: m.isNew, minVSCodeVersion: m.minVSCodeVersion }), "toPublic");
-    this._curatedModels = { free: [], paid: [] };
-    const newIds = /* @__PURE__ */ new Set();
-    for (const model of free) {
-      this._curatedModels.free.push(toPublic(model));
-      if (model.isNew) {
-        newIds.add(model.id);
+  //#endregion
+  //#region Models control manifest
+  getModelsControlManifest() {
+    return this._modelsControlManifest;
+  }
+  _setModelsControlManifest(response) {
+    this._modelsControlRawResponse = response;
+    this._refreshModelsControlManifest();
+  }
+  _refreshModelsControlManifest() {
+    const response = this._modelsControlRawResponse;
+    const free = {};
+    const paid = {};
+    if (response?.free) {
+      const freeEntries = Array.isArray(response.free) ? response.free : Object.values(response.free);
+      for (const entry of freeEntries) {
+        if (!entry || !isObject(entry)) {
+          continue;
+        }
+        free[entry.id] = { label: entry.label, featured: entry.featured, exists: this._modelExistsInCache(entry.id) };
       }
     }
-    for (const model of paid) {
-      this._curatedModels.paid.push(toPublic(model));
-      if (model.isNew) {
-        newIds.add(model.id);
+    if (response?.paid) {
+      const paidEntries = Array.isArray(response.paid) ? response.paid : Object.values(response.paid);
+      for (const entry of paidEntries) {
+        if (!entry || !isObject(entry)) {
+          continue;
+        }
+        paid[entry.id] = { label: entry.label, featured: entry.featured, minVSCodeVersion: entry.minVSCodeVersion, exists: this._modelExistsInCache(entry.id) };
       }
     }
+    this._modelsControlManifest = { free, paid };
+    this._onDidChangeModelsControlManifest.fire(this._modelsControlManifest);
+  }
+  _modelExistsInCache(metadataId) {
+    for (const model of this._modelCache.values()) {
+      if (model.id === metadataId) {
+        return true;
+      }
+    }
+    return false;
   }
   //#region Chat control data
   _initChatControlData() {
@@ -1005,19 +1034,19 @@ let LanguageModelsService = class LanguageModelsService2 {
         /* StorageScope.APPLICATION */
       );
     }
-    const rawCurated = this._storageService.get(
-      CHAT_CURATED_MODELS_STORAGE_KEY,
+    const rawModels = this._storageService.get(
+      CHAT_MODELS_CONTROL_STORAGE_KEY,
       -1
       /* StorageScope.APPLICATION */
     );
     try {
-      const curated = JSON.parse(rawCurated ?? "{}");
-      if (isObject(curated) && Array.isArray(curated.free) && Array.isArray(curated.paid)) {
-        this._setCuratedModels(curated.free, curated.paid);
+      const models = JSON.parse(rawModels ?? "{}");
+      if (isObject(models)) {
+        this._setModelsControlManifest(models);
       }
     } catch (err) {
       this._storageService.remove(
-        CHAT_CURATED_MODELS_STORAGE_KEY,
+        CHAT_MODELS_CONTROL_STORAGE_KEY,
         -1
         /* StorageScope.APPLICATION */
       );
@@ -1031,13 +1060,29 @@ let LanguageModelsService = class LanguageModelsService2 {
     this._fetchChatControlData().catch((err) => this._logService.warn("Failed to fetch chat control data", err)).then(() => timeout(5 * 60 * 1e3)).then(() => this._refreshChatControlData());
   }
   async _fetchChatControlData() {
-    const context = await this._requestService.request({ type: "GET", url: this._chatControlUrl }, CancellationToken.None);
-    if (context.res.statusCode !== 200) {
-      throw new Error("Could not get chat control data.");
+    this._logService.trace("[LM] Fetching chat control data from", this._chatControlUrl);
+    let context;
+    try {
+      context = await this._requestService.request({ type: "GET", url: this._chatControlUrl }, CancellationToken.None);
+    } catch (err) {
+      this._logService.warn("[LM] Failed to request chat control data", getErrorMessage(err));
+      return;
     }
-    const result = await asJson(context);
+    if (context.res.statusCode !== 200) {
+      this._logService.warn(`[LM] Chat control data request failed with status ${context.res.statusCode}`);
+      return;
+    }
+    let result;
+    try {
+      result = await asJson(context);
+    } catch (err) {
+      this._logService.warn("[LM] Failed to parse chat control response", getErrorMessage(err));
+      return;
+    }
+    this._logService.trace("[LM] Received chat control response", result ? Object.keys(result) : "null");
     if (!result || result.version !== 1) {
-      throw new Error("Unexpected chat control response.");
+      this._logService.warn("[LM] Unexpected chat control response version", result?.version);
+      return;
     }
     const registry = result.restrictedChatParticipants;
     this._restrictedChatParticipants.set(registry, void 0);
@@ -1048,11 +1093,12 @@ let LanguageModelsService = class LanguageModelsService2 {
       1
       /* StorageTarget.MACHINE */
     );
-    if (result.curatedModels) {
-      this._setCuratedModels(result.curatedModels?.free ?? [], result.curatedModels?.paid ?? []);
+    if (result.models) {
+      this._logService.trace("[LM] Updating models control manifest", { freeCount: Object.keys(result.models.free ?? {}).length, paidCount: Object.keys(result.models.paid ?? {}).length });
+      this._setModelsControlManifest(result.models);
       this._storageService.store(
-        CHAT_CURATED_MODELS_STORAGE_KEY,
-        JSON.stringify(result.curatedModels),
+        CHAT_MODELS_CONTROL_STORAGE_KEY,
+        JSON.stringify(result.models),
         -1,
         1
         /* StorageTarget.MACHINE */

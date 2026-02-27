@@ -45,7 +45,7 @@ let ChatBarPart = class ChatBarPart2 extends AbstractPaneCompositePart {
     this.pinnedViewsKey = "workbench.chatbar.pinnedPanels";
   }
   static {
-    this.placeholdeViewContainersKey = "workbench.chatbar.placeholderPanels";
+    this.placeholderViewContainersKey = "workbench.chatbar.placeholderPanels";
   }
   static {
     this.viewContainersWorkspaceStateKey = "workbench.chatbar.viewContainersWorkspaceState";
@@ -53,24 +53,13 @@ let ChatBarPart = class ChatBarPart2 extends AbstractPaneCompositePart {
   get preferredHeight() {
     return this.layoutService.mainContainerDimension.height * 0.4;
   }
-  get preferredWidth() {
-    const activeComposite = this.getActivePaneComposite();
-    if (!activeComposite) {
-      return void 0;
-    }
-    const width = activeComposite.getOptimalWidth();
-    if (typeof width !== "number") {
-      return void 0;
-    }
-    return Math.max(width, 300);
-  }
   constructor(notificationService, storageService, contextMenuService, layoutService, keybindingService, hoverService, instantiationService, themeService, viewDescriptorService, contextKeyService, extensionService, menuService) {
     super("workbench.parts.chatbar", {
       hasTitle: false,
       trailingSeparator: true,
       borderWidth: /* @__PURE__ */ __name(() => 0, "borderWidth")
     }, ChatBarPart_1.activeViewSettingsKey, ActiveChatBarContext.bindTo(contextKeyService), ChatBarFocusContext.bindTo(contextKeyService), "chatbar", "chatbar", void 0, SIDE_BAR_TITLE_BORDER, 3, Extensions.ChatBar, Menus.ChatBarTitle, void 0, notificationService, storageService, contextMenuService, layoutService, keybindingService, hoverService, instantiationService, themeService, viewDescriptorService, contextKeyService, extensionService, menuService);
-    this.minimumWidth = 170;
+    this.minimumWidth = 300;
     this.maximumWidth = Number.POSITIVE_INFINITY;
     this.minimumHeight = 0;
     this.maximumHeight = Number.POSITIVE_INFINITY;
@@ -86,7 +75,7 @@ let ChatBarPart = class ChatBarPart2 extends AbstractPaneCompositePart {
     return {
       partContainerClass: "chatbar",
       pinnedViewContainersKey: ChatBarPart_1.pinnedViewsKey,
-      placeholderViewContainersKey: ChatBarPart_1.placeholdeViewContainersKey,
+      placeholderViewContainersKey: ChatBarPart_1.placeholderViewContainersKey,
       viewContainersWorkspaceStateKey: ChatBarPart_1.viewContainersWorkspaceStateKey,
       icon: false,
       orientation: 0,

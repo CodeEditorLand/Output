@@ -23,7 +23,8 @@ export declare const enum AccessibilityWorkbenchSettingId {
     DimUnfocusedOpacity = "accessibility.dimUnfocused.opacity",
     HideAccessibleView = "accessibility.hideAccessibleView",
     AccessibleViewCloseOnKeyPress = "accessibility.accessibleView.closeOnKeyPress",
-    VerboseChatProgressUpdates = "accessibility.verboseChatProgressUpdates"
+    VerboseChatProgressUpdates = "accessibility.verboseChatProgressUpdates",
+    ShowChatCheckmarks = "accessibility.chat.showCheckmarks"
 }
 export declare const enum ViewDimUnfocusedOpacityProperties {
     Default = 0.75,

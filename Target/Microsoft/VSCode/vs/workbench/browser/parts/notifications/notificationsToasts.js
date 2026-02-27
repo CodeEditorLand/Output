@@ -14,8 +14,9 @@ var __param = function(paramIndex, decorator) {
 var NotificationsToasts_1;
 import "./media/notificationsToasts.css";
 import { localize } from "../../../../nls.js";
+import { getNotificationsPosition } from "../../../common/notifications.js";
 import { dispose, toDisposable, DisposableStore } from "../../../../base/common/lifecycle.js";
-import { addDisposableListener, EventType, Dimension, scheduleAtNextAnimationFrame, isAncestorOfActiveElement, getWindow, $, isElementInBottomRightQuarter, isHTMLElement, isEditableElement, getActiveElement } from "../../../../base/browser/dom.js";
+import { addDisposableListener, EventType, Dimension, scheduleAtNextAnimationFrame, isAncestorOfActiveElement, getWindow, $, isHTMLElement, isEditableElement, getActiveElement, getDomNodePagePosition, getClientArea } from "../../../../base/browser/dom.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { NotificationsList } from "./notificationsList.js";
 import { Event, Emitter } from "../../../../base/common/event.js";
@@ -33,6 +34,8 @@ import { assertReturnsDefined } from "../../../../base/common/types.js";
 import { NotificationsToastsVisibleContext } from "../../../common/contextkeys.js";
 import { mainWindow } from "../../../../base/browser/window.js";
 import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { DEFAULT_CUSTOM_TITLEBAR_HEIGHT } from "../../../../platform/window/common/window.js";
 var ToastVisibility;
 (function(ToastVisibility2) {
   ToastVisibility2[ToastVisibility2["HIDDEN_OR_VISIBLE"] = 0] = "HIDDEN_OR_VISIBLE";
@@ -70,7 +73,7 @@ let NotificationsToasts = class NotificationsToasts2 extends Themable {
   get isVisible() {
     return !!this._isVisible;
   }
-  constructor(container, model, instantiationService, layoutService, themeService, editorGroupService, contextKeyService, lifecycleService, hostService, environmentService) {
+  constructor(container, model, instantiationService, layoutService, themeService, editorGroupService, contextKeyService, lifecycleService, hostService, environmentService, configurationService) {
     super(themeService);
     this.container = container;
     this.model = model;
@@ -80,6 +83,7 @@ let NotificationsToasts = class NotificationsToasts2 extends Themable {
     this.lifecycleService = lifecycleService;
     this.hostService = hostService;
     this.environmentService = environmentService;
+    this.configurationService = configurationService;
     this._onDidChangeVisibility = this._register(new Emitter());
     this.onDidChangeVisibility = this._onDidChangeVisibility.event;
     this._isVisible = false;
@@ -91,6 +95,14 @@ let NotificationsToasts = class NotificationsToasts2 extends Themable {
   }
   registerListeners() {
     this._register(this.layoutService.onDidLayoutMainContainer((dimension) => this.layout(Dimension.lift(dimension))));
+    this._register(this.configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(
+        "workbench.notifications.position"
+        /* NotificationsSettings.NOTIFICATIONS_POSITION */
+      )) {
+        this.updateNotificationPosition();
+      }
+    }));
     this.lifecycleService.when(
       3
       /* LifecyclePhase.Restored */
@@ -109,6 +121,30 @@ let NotificationsToasts = class NotificationsToasts2 extends Themable {
         }
       }
     }));
+  }
+  updateNotificationPosition() {
+    if (!this.notificationsToastsContainer) {
+      return;
+    }
+    const position = getNotificationsPosition(this.configurationService);
+    this.notificationsToastsContainer.classList.remove("bottom-right", "bottom-left", "top-right");
+    this.notificationsToastsContainer.classList.add(position);
+    this.updateTopOffset();
+  }
+  updateTopOffset() {
+    if (!this.notificationsToastsContainer) {
+      return;
+    }
+    const position = getNotificationsPosition(this.configurationService);
+    if (position === "top-right") {
+      let topOffset = 3;
+      if (this.layoutService.isVisible("workbench.parts.titlebar", mainWindow)) {
+        topOffset += DEFAULT_CUSTOM_TITLEBAR_HEIGHT;
+      }
+      this.notificationsToastsContainer.style.top = `${topOffset}px`;
+    } else {
+      this.notificationsToastsContainer.style.top = "";
+    }
   }
   onDidChangeNotification(e) {
     switch (e.kind) {
@@ -130,7 +166,7 @@ let NotificationsToasts = class NotificationsToasts2 extends Themable {
     }
     if (item.priority === NotificationPriority.OPTIONAL) {
       const activeElement = getActiveElement();
-      if (isHTMLElement(activeElement) && isEditableElement(activeElement) && isElementInBottomRightQuarter(activeElement, this.layoutService.mainContainer)) {
+      if (isHTMLElement(activeElement) && isEditableElement(activeElement) && this.isElementInNotificationQuarter(activeElement)) {
         return;
       }
     }
@@ -141,12 +177,27 @@ let NotificationsToasts = class NotificationsToasts2 extends Themable {
     this.mapNotificationToDisposable.set(item, itemDisposables);
     itemDisposables.add(scheduleAtNextAnimationFrame(getWindow(this.container), () => this.doAddToast(item, itemDisposables)));
   }
+  isElementInNotificationQuarter(element) {
+    const position = getNotificationsPosition(this.configurationService);
+    const domPosition = getDomNodePagePosition(element);
+    const clientArea = getClientArea(this.layoutService.mainContainer);
+    switch (position) {
+      case "bottom-left":
+        return domPosition.left < clientArea.width / 2 && domPosition.top > clientArea.height / 2;
+      case "top-right":
+        return domPosition.left > clientArea.width / 2 && domPosition.top < clientArea.height / 2;
+      case "bottom-right":
+      default:
+        return domPosition.left > clientArea.width / 2 && domPosition.top > clientArea.height / 2;
+    }
+  }
   doAddToast(item, itemDisposables) {
     let notificationsToastsContainer = this.notificationsToastsContainer;
     if (!notificationsToastsContainer) {
       notificationsToastsContainer = this.notificationsToastsContainer = $(".notifications-toasts");
       this.container.appendChild(notificationsToastsContainer);
     }
+    this.updateNotificationPosition();
     notificationsToastsContainer.classList.add("visible");
     const notificationToastContainer = $(".notification-toast-container");
     const firstToast = notificationsToastsContainer.firstChild;
@@ -377,6 +428,7 @@ let NotificationsToasts = class NotificationsToasts2 extends Themable {
   layout(dimension) {
     this.workbenchDimensions = dimension;
     const maxDimensions = this.computeMaxDimensions();
+    this.updateTopOffset();
     if (maxDimensions.height) {
       this.layoutContainer(maxDimensions.height);
     }
@@ -449,7 +501,8 @@ NotificationsToasts = NotificationsToasts_1 = __decorate([
   __param(6, IContextKeyService),
   __param(7, ILifecycleService),
   __param(8, IHostService),
-  __param(9, IWorkbenchEnvironmentService)
+  __param(9, IWorkbenchEnvironmentService),
+  __param(10, IConfigurationService)
 ], NotificationsToasts);
 export {
   NotificationsToasts

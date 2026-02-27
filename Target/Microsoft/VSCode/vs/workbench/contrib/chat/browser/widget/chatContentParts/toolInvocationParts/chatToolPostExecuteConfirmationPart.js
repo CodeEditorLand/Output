@@ -40,7 +40,7 @@ let ChatToolPostExecuteConfirmationPart = class ChatToolPostExecuteConfirmationP
     this.render({
       allowActionId: AcceptToolPostConfirmationActionId,
       skipActionId: SkipToolPostConfirmationActionId,
-      allowLabel: localize("allow", "Allow"),
+      allowLabel: localize("allow", "Allow Once"),
       skipLabel: localize("skip.post", "Skip Results"),
       partType: "chatToolPostConfirmation",
       subtitle: typeof subtitle === "string" ? subtitle : subtitle?.value
@@ -77,6 +77,7 @@ let ChatToolPostExecuteConfirmationPart = class ChatToolPostExecuteConfirmationP
       actions.push({
         label: action.label,
         tooltip: action.detail,
+        scope: action.scope,
         data: /* @__PURE__ */ __name(async () => {
           const shouldConfirm = await action.select();
           if (shouldConfirm) {

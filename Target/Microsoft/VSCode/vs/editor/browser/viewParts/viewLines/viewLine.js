@@ -81,7 +81,7 @@ class ViewLine {
     const lineData = viewportData.getViewLineRenderingData(lineNumber);
     const options = this._options;
     const actualInlineDecorations = LineDecoration.filter(lineData.inlineDecorations, lineNumber, lineData.minColumn, lineData.maxColumn);
-    const renderWhitespace = lineData.hasVariableFonts || options.experimentalWhitespaceRendering === "off" ? options.renderWhitespace : "none";
+    const renderWhitespace = options.experimentalWhitespaceRendering === "off" ? options.renderWhitespace : "none";
     const allowFastRendering = !lineData.hasVariableFonts;
     let selectionsOnLine = null;
     if (isHighContrast(options.themeType) || renderWhitespace === "selection") {

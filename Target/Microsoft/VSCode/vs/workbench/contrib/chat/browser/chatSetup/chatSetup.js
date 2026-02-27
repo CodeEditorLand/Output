@@ -1,9 +1,12 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { ExtensionIdentifier } from "../../../../../platform/extensions/common/extensions.js";
 import product from "../../../../../platform/product/common/product.js";
+import { localize } from "../../../../../nls.js";
 const defaultChat = {
   completionsRefreshTokenCommand: product.defaultChatAgent?.completionsRefreshTokenCommand ?? "",
-  chatRefreshTokenCommand: product.defaultChatAgent?.chatRefreshTokenCommand ?? ""
+  chatRefreshTokenCommand: product.defaultChatAgent?.chatRefreshTokenCommand ?? "",
+  providerExtensionId: product.defaultChatAgent?.providerExtensionId ?? ""
 };
 var ChatSetupAnonymous;
 (function(ChatSetupAnonymous2) {
@@ -31,10 +34,37 @@ function refreshTokens(commandService) {
   commandService.executeCommand(defaultChat.chatRefreshTokenCommand);
 }
 __name(refreshTokens, "refreshTokens");
+async function maybeEnableAuthExtension(extensionsWorkbenchService, logService) {
+  if (!defaultChat.providerExtensionId) {
+    return false;
+  }
+  const providerExtension = extensionsWorkbenchService.local.find((e) => ExtensionIdentifier.equals(e.identifier.id, defaultChat.providerExtensionId));
+  if (!providerExtension) {
+    return false;
+  }
+  if (providerExtension.enablementState === 10 || providerExtension.enablementState === 11) {
+    logService.info(`[chat setup] auth provider extension '${defaultChat.providerExtensionId}' is disabled, re-enabling it`);
+    try {
+      await extensionsWorkbenchService.setEnablement(
+        [providerExtension],
+        12
+        /* EnablementState.EnabledGlobally */
+      );
+      await extensionsWorkbenchService.updateRunningExtensions(localize("enableAuthExtension", "Enabling GitHub Authentication"));
+      return true;
+    } catch (error) {
+      logService.error(`[chat setup] failed to re-enable auth provider extension '${defaultChat.providerExtensionId}'`, error);
+      return false;
+    }
+  }
+  return false;
+}
+__name(maybeEnableAuthExtension, "maybeEnableAuthExtension");
 export {
   ChatSetupAnonymous,
   ChatSetupStep,
   ChatSetupStrategy,
+  maybeEnableAuthExtension,
   refreshTokens
 };
 //# sourceMappingURL=chatSetup.js.map

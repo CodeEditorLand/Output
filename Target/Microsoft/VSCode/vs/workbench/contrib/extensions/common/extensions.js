@@ -97,6 +97,7 @@ const CONTEXT_EXTENSIONS_GALLERY_STATUS = new RawContextKey(
 );
 const ExtensionResultsListFocused = new RawContextKey("extensionResultListFocused ", true);
 const SearchMcpServersContext = new RawContextKey("searchMcpServers", false);
+const SearchAgentPluginsContext = new RawContextKey("searchAgentPlugins", false);
 const THEME_ACTIONS_GROUP = "_theme_";
 const INSTALL_ACTIONS_GROUP = "0_install";
 const UPDATE_ACTIONS_GROUP = "0_update";
@@ -124,6 +125,7 @@ export {
   LIST_WORKSPACE_UNSUPPORTED_EXTENSIONS_COMMAND_ID,
   OUTDATED_EXTENSIONS_VIEW_ID,
   SELECT_INSTALL_VSIX_EXTENSION_COMMAND_ID,
+  SearchAgentPluginsContext,
   SearchMcpServersContext,
   THEME_ACTIONS_GROUP,
   TOGGLE_IGNORE_EXTENSION_ACTION_ID,

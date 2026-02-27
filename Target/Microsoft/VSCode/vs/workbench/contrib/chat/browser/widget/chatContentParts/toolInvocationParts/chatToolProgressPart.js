@@ -35,6 +35,19 @@ let ChatToolProgressSubPart = class ChatToolProgressSubPart2 extends BaseChatToo
     this.configurationService = configurationService;
     this.codeblocks = [];
     this.domNode = this.createProgressPart();
+    const updateCheckmarks = /* @__PURE__ */ __name(() => this.domNode.classList.toggle("show-checkmarks", !!this.configurationService.getValue(
+      "accessibility.chat.showCheckmarks"
+      /* AccessibilityWorkbenchSettingId.ShowChatCheckmarks */
+    )), "updateCheckmarks");
+    updateCheckmarks();
+    this._register(this.configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(
+        "accessibility.chat.showCheckmarks"
+        /* AccessibilityWorkbenchSettingId.ShowChatCheckmarks */
+      )) {
+        updateCheckmarks();
+      }
+    }));
   }
   createProgressPart() {
     const isComplete = IChatToolInvocation.isComplete(this.toolInvocation);
@@ -92,7 +105,7 @@ let ChatToolProgressSubPart = class ChatToolProgressSubPart2 extends BaseChatToo
     if (shouldAnnounce) {
       this.provideScreenReaderStatus(content);
     }
-    const isAskQuestionsTool = this.toolInvocation.toolId === "copilot_askQuestions";
+    const isAskQuestionsTool = this.toolInvocation.toolId === "copilot_askQuestions" || this.toolInvocation.toolId === "vscode_askQuestions";
     return this.instantiationService.createInstance(ChatProgressContentPart, progressMessage, this.renderer, this.context, void 0, true, this.getIcon(), this.toolInvocation, isAskQuestionsTool ? void 0 : false);
   }
   getAnnouncementKey(kind) {

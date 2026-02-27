@@ -14,7 +14,7 @@ import { BracketGuideOptions, IActiveIndentGuideInfo, IndentGuide } from './text
 import { IViewLineTokens } from './tokens/lineTokens.js';
 import { ViewEventHandler } from './viewEventHandler.js';
 import { VerticalRevealType } from './viewEvents.js';
-import { InlineDecoration, SingleLineInlineDecoration } from './viewModel/inlineDecorations.js';
+import { InlineDecoration } from './viewModel/inlineDecorations.js';
 import { EditorOption, FindComputedEditorOptionValueById } from './config/editorOptions.js';
 export interface IViewModel extends ICursorSimpleModel, ISimpleModel {
     readonly model: ITextModel;
@@ -218,8 +218,8 @@ export declare class ViewLineData {
     /**
      * Additional inline decorations for this line.
     */
-    readonly inlineDecorations: readonly SingleLineInlineDecoration[] | null;
-    constructor(content: string, continuesWithWrappedLine: boolean, minColumn: number, maxColumn: number, startVisibleColumn: number, tokens: IViewLineTokens, inlineDecorations: readonly SingleLineInlineDecoration[] | null);
+    readonly inlineDecorations: readonly InlineDecoration[] | null;
+    constructor(content: string, continuesWithWrappedLine: boolean, minColumn: number, maxColumn: number, startVisibleColumn: number, tokens: IViewLineTokens, inlineDecorations: readonly InlineDecoration[] | null);
 }
 export declare class ViewLineRenderingData {
     /**

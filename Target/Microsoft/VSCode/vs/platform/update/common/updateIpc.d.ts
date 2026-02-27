@@ -23,6 +23,6 @@ export declare class UpdateChannelClient implements IUpdateService {
     quitAndInstall(): Promise<void>;
     isLatestVersion(): Promise<boolean | undefined>;
     _applySpecificUpdate(packagePath: string): Promise<void>;
-    disableProgressiveReleases(): Promise<void>;
+    setInternalOrg(internalOrg: string | undefined): Promise<void>;
     dispose(): void;
 }

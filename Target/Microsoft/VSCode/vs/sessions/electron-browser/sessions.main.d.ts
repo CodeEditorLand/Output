@@ -1,6 +1,6 @@
 import { INativeWindowConfiguration } from '../../platform/window/common/window.js';
 import { Disposable } from '../../base/common/lifecycle.js';
-export declare class AgenticMain extends Disposable {
+export declare class SessionsMain extends Disposable {
     private readonly configuration;
     constructor(configuration: INativeWindowConfiguration);
     private init;
@@ -10,8 +10,7 @@ export declare class AgenticMain extends Disposable {
     private getExtraClasses;
     private registerListeners;
     private initServices;
-    private resolveWorkspaceIdentifier;
-    private createWorkspaceService;
+    private createConfigurationService;
     private createStorageService;
     private createKeyboardLayoutService;
 }

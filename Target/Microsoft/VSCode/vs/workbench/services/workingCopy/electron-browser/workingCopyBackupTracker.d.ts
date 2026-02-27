@@ -13,7 +13,6 @@ import { IEditorService } from '../../editor/common/editorService.js';
 import { IEnvironmentService } from '../../../../platform/environment/common/environment.js';
 import { IProgressService } from '../../../../platform/progress/common/progress.js';
 import { IWorkingCopyEditorService } from '../common/workingCopyEditorService.js';
-import { IEditorGroupsService } from '../../editor/common/editorGroupsService.js';
 export declare class NativeWorkingCopyBackupTracker extends WorkingCopyBackupTracker implements IWorkbenchContribution {
     private readonly fileDialogService;
     private readonly dialogService;
@@ -22,7 +21,7 @@ export declare class NativeWorkingCopyBackupTracker extends WorkingCopyBackupTra
     private readonly environmentService;
     private readonly progressService;
     static readonly ID = "workbench.contrib.nativeWorkingCopyBackupTracker";
-    constructor(workingCopyBackupService: IWorkingCopyBackupService, filesConfigurationService: IFilesConfigurationService, workingCopyService: IWorkingCopyService, lifecycleService: ILifecycleService, fileDialogService: IFileDialogService, dialogService: IDialogService, contextService: IWorkspaceContextService, nativeHostService: INativeHostService, logService: ILogService, environmentService: IEnvironmentService, progressService: IProgressService, workingCopyEditorService: IWorkingCopyEditorService, editorService: IEditorService, editorGroupService: IEditorGroupsService);
+    constructor(workingCopyBackupService: IWorkingCopyBackupService, filesConfigurationService: IFilesConfigurationService, workingCopyService: IWorkingCopyService, lifecycleService: ILifecycleService, fileDialogService: IFileDialogService, dialogService: IDialogService, contextService: IWorkspaceContextService, nativeHostService: INativeHostService, logService: ILogService, environmentService: IEnvironmentService, progressService: IProgressService, workingCopyEditorService: IWorkingCopyEditorService, editorService: IEditorService);
     protected onFinalBeforeShutdown(reason: ShutdownReason): Promise<boolean>;
     protected onBeforeShutdownWithModified(reason: ShutdownReason, modifiedWorkingCopies: readonly IWorkingCopy[]): Promise<boolean>;
     private handleModifiedBeforeShutdown;

@@ -11,20 +11,23 @@ var __param = function(paramIndex, decorator) {
     decorator(target, key, paramIndex);
   };
 };
+import { getNotificationsPosition } from "../../../common/notifications.js";
 import { IStatusbarService } from "../../../services/statusbar/browser/statusbar.js";
 import { Disposable, dispose } from "../../../../base/common/lifecycle.js";
 import { HIDE_NOTIFICATIONS_CENTER, SHOW_NOTIFICATIONS_CENTER } from "./notificationsCommands.js";
 import { localize } from "../../../../nls.js";
 import { INotificationService, NotificationsFilter } from "../../../../platform/notification/common/notification.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 let NotificationsStatus = class NotificationsStatus2 extends Disposable {
   static {
     __name(this, "NotificationsStatus");
   }
-  constructor(model, statusbarService, notificationService) {
+  constructor(model, statusbarService, notificationService, configurationService) {
     super();
     this.model = model;
     this.statusbarService = statusbarService;
     this.notificationService = notificationService;
+    this.configurationService = configurationService;
     this.newNotificationsCount = 0;
     this.isNotificationsCenterVisible = false;
     this.isNotificationsToastsVisible = false;
@@ -38,6 +41,14 @@ let NotificationsStatus = class NotificationsStatus2 extends Disposable {
     this._register(this.model.onDidChangeNotification((e) => this.onDidChangeNotification(e)));
     this._register(this.model.onDidChangeStatusMessage((e) => this.onDidChangeStatusMessage(e)));
     this._register(this.notificationService.onDidChangeFilter(() => this.updateNotificationsCenterStatusItem()));
+    this._register(this.configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(
+        "workbench.notifications.position"
+        /* NotificationsSettings.NOTIFICATIONS_POSITION */
+      )) {
+        this.updateNotificationsCenterStatusItem();
+      }
+    }));
   }
   onDidChangeNotification(e) {
     if (!this.isNotificationsCenterVisible) {
@@ -74,16 +85,40 @@ let NotificationsStatus = class NotificationsStatus2 extends Disposable {
         tooltip: localize("status.doNotDisturbTooltip", "Do Not Disturb Mode is Enabled")
       };
     }
-    if (!this.notificationsCenterStatusItem) {
-      this.notificationsCenterStatusItem = this.statusbarService.addEntry(
-        statusProperties,
-        "status.notifications",
-        1,
-        Number.NEGATIVE_INFINITY
-        /* last entry */
-      );
+    const position = getNotificationsPosition(this.configurationService);
+    if (position === "top-right") {
+      this.notificationsCenterStatusItem?.dispose();
+      this.notificationsCenterStatusItem = void 0;
+      this.currentAlignment = void 0;
     } else {
-      this.notificationsCenterStatusItem.update(statusProperties);
+      const desiredAlignment = this.getDesiredAlignment();
+      if (this.currentAlignment !== desiredAlignment) {
+        this.notificationsCenterStatusItem?.dispose();
+        this.notificationsCenterStatusItem = void 0;
+        this.currentAlignment = desiredAlignment;
+      }
+      if (!this.notificationsCenterStatusItem) {
+        this.notificationsCenterStatusItem = this.statusbarService.addEntry(
+          statusProperties,
+          "status.notifications",
+          this.currentAlignment,
+          this.currentAlignment === 0 ? Number.MAX_SAFE_INTEGER : Number.NEGATIVE_INFINITY
+          // rightmost on the right side
+        );
+      } else {
+        this.notificationsCenterStatusItem.update(statusProperties);
+      }
+    }
+  }
+  getDesiredAlignment() {
+    const position = getNotificationsPosition(this.configurationService);
+    switch (position) {
+      case "bottom-left":
+        return 0;
+      case "top-right":
+      case "bottom-right":
+      default:
+        return 1;
     }
   }
   getTooltip(notificationsInProgress) {
@@ -183,7 +218,8 @@ let NotificationsStatus = class NotificationsStatus2 extends Disposable {
 };
 NotificationsStatus = __decorate([
   __param(1, IStatusbarService),
-  __param(2, INotificationService)
+  __param(2, INotificationService),
+  __param(3, IConfigurationService)
 ], NotificationsStatus);
 export {
   NotificationsStatus

@@ -20,6 +20,7 @@ export declare class ChatWindowNotifier extends Disposable implements IWorkbench
     constructor(_chatService: IChatService, _chatWidgetService: IChatWidgetService, _hostService: IHostService, _configurationService: IConfigurationService, _commandService: ICommandService);
     private _trackModel;
     private _notifyIfNeeded;
+    private _isQuestionCarouselPending;
     private _sanitizeOSToastText;
     private _clearNotification;
 }

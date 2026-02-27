@@ -10,19 +10,20 @@ import { IConfigurationService } from '../../../../../../platform/configuration/
 import { IChatRequestModel } from '../../../common/model/chatModel.js';
 import { ILanguageModelsService } from '../../../common/languageModels.js';
 /**
- * A reusable circular progress indicator that displays a pie chart.
- * The pie fills clockwise from the top based on the percentage value.
+ * A reusable circular progress indicator that displays a ring.
+ * The ring fills clockwise from the top based on the percentage value.
  */
 export declare class CircularProgressIndicator {
     readonly domNode: SVGSVGElement;
-    private readonly progressPie;
+    private readonly progressCircle;
+    private readonly circumference;
     private static readonly CENTER_X;
     private static readonly CENTER_Y;
     private static readonly RADIUS;
     constructor();
     /**
-     * Updates the pie chart to display the given percentage (0-100).
-     * @param percentage The percentage of the pie to fill (clamped to 0-100)
+     * Updates the ring to display the given percentage (0-100).
+     * @param percentage The percentage of the ring to fill (clamped to 0-100)
      */
     setProgress(percentage: number): void;
 }

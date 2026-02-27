@@ -11,7 +11,7 @@ import { IInstantiationService } from "../../../../../platform/instantiation/com
 import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
 import { ChatContextKeys } from "../../common/actions/chatContextKeys.js";
 import { isResponseVM } from "../../common/model/chatViewModel.js";
-import { ChatConfiguration, ChatModeKind } from "../../common/constants.js";
+import { ChatModeKind } from "../../common/constants.js";
 import { IChatWidgetService } from "../chat.js";
 import { ToolsScope } from "../widget/input/chatSelectedTools.js";
 import { CHAT_CATEGORY } from "./chatActions.js";
@@ -107,7 +107,7 @@ class ConfigureToolsAction extends Action2 {
       category: CHAT_CATEGORY,
       precondition: ChatContextKeys.chatModeKind.isEqualTo(ChatModeKind.Agent),
       menu: [{
-        when: ContextKeyExpr.and(ChatContextKeys.chatModeKind.isEqualTo(ChatModeKind.Agent), ChatContextKeys.lockedToCodingAgent.negate(), ContextKeyExpr.notEquals(`config.${ChatConfiguration.AlternativeToolAction}`, true)),
+        when: ContextKeyExpr.and(ChatContextKeys.chatModeKind.isEqualTo(ChatModeKind.Agent), ChatContextKeys.lockedToCodingAgent.negate()),
         id: MenuId.ChatInput,
         group: "navigation",
         order: 100

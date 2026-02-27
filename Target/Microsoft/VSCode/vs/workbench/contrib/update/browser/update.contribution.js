@@ -6,7 +6,7 @@ import { Registry } from "../../../../platform/registry/common/platform.js";
 import { Extensions as WorkbenchExtensions } from "../../../common/contributions.js";
 import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
 import { MenuId, registerAction2, Action2 } from "../../../../platform/actions/common/actions.js";
-import { ProductContribution, UpdateContribution, CONTEXT_UPDATE_STATE, SwitchProductQualityContribution, RELEASE_NOTES_URL, showReleaseNotesInEditor, DOWNLOAD_URL, DefaultAccountUpdateContribution } from "./update.js";
+import { ProductContribution, UpdateContribution, CONTEXT_UPDATE_STATE, SwitchProductQualityContribution, showReleaseNotesInEditor, DefaultAccountUpdateContribution } from "./update.js";
 import { UpdateStatusBarEntryContribution } from "./updateStatusBarEntry.js";
 import product from "../../../../platform/product/common/product.js";
 import { IUpdateService } from "../../../../platform/update/common/update.js";
@@ -19,7 +19,6 @@ import { IsWebContext } from "../../../../platform/contextkey/common/contextkeys
 import { IOpenerService } from "../../../../platform/opener/common/opener.js";
 import { IProductService } from "../../../../platform/product/common/productService.js";
 import { URI } from "../../../../base/common/uri.js";
-import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
 const workbench = Registry.as(WorkbenchExtensions.Workbench);
 workbench.registerWorkbenchContribution(
   ProductContribution,
@@ -50,6 +49,9 @@ class ShowReleaseNotesAction extends Action2 {
   static {
     __name(this, "ShowReleaseNotesAction");
   }
+  static {
+    this.AVAILABLE = !!product.releaseNotesUrl;
+  }
   constructor() {
     super({
       id: ShowCurrentReleaseNotesActionId,
@@ -59,12 +61,10 @@ class ShowReleaseNotesAction extends Action2 {
       },
       category: { value: product.nameShort, original: product.nameShort },
       f1: true,
-      precondition: RELEASE_NOTES_URL,
       menu: [{
         id: MenuId.MenubarHelpMenu,
         group: "1_welcome",
-        order: 5,
-        when: RELEASE_NOTES_URL
+        order: 5
       }]
     });
   }
@@ -109,7 +109,9 @@ class ShowCurrentReleaseNotesFromCurrentFileAction extends Action2 {
     }
   }
 }
-registerAction2(ShowReleaseNotesAction);
+if (ShowReleaseNotesAction.AVAILABLE) {
+  registerAction2(ShowReleaseNotesAction);
+}
 registerAction2(ShowCurrentReleaseNotesFromCurrentFileAction);
 class CheckForUpdateAction extends Action2 {
   static {
@@ -199,16 +201,19 @@ class DownloadAction extends Action2 {
   static {
     this.ID = "workbench.action.download";
   }
+  static {
+    this.AVAILABLE = !!product.downloadUrl;
+  }
   constructor() {
     super({
       id: DownloadAction.ID,
       title: localize2("openDownloadPage", "Download {0}", product.nameLong),
-      precondition: ContextKeyExpr.and(IsWebContext, DOWNLOAD_URL),
-      // Only show when running in a web browser and a download url is available
+      precondition: IsWebContext,
+      // Only show when running in a web browser
       f1: true,
       menu: [{
         id: MenuId.StatusBarWindowIndicatorMenu,
-        when: ContextKeyExpr.and(IsWebContext, DOWNLOAD_URL)
+        when: IsWebContext
       }]
     });
   }
@@ -220,7 +225,9 @@ class DownloadAction extends Action2 {
     }
   }
 }
-registerAction2(DownloadAction);
+if (DownloadAction.AVAILABLE) {
+  registerAction2(DownloadAction);
+}
 registerAction2(CheckForUpdateAction);
 registerAction2(DownloadUpdateAction);
 registerAction2(InstallUpdateAction);

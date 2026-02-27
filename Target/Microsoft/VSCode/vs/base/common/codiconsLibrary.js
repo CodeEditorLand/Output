@@ -645,7 +645,8 @@ const codiconsLibrary = {
   ask: register("ask", 60544),
   openai: register("openai", 60545),
   claude: register("claude", 60546),
-  openInWindow: register("open-in-window", 60547)
+  openInWindow: register("open-in-window", 60547),
+  newSession: register("new-session", 60548)
 };
 export {
   codiconsLibrary

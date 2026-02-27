@@ -222,7 +222,10 @@ let ChatImplicitContextContribution = class ChatImplicitContextContribution2 ext
       const setting = this._implicitContextEnablement[widget.location];
       const isFirstInteraction = widget.viewModel?.getItems().length === 0;
       if ((setting === "always" || setting === "first" && isFirstInteraction) && !isPromptFile) {
-        widget.input.implicitContext.setValues([{ value: newValue, isSelection }, { value: providerContext, isSelection: false }]);
+        const hasActiveEditor = !!this.editorService.activeEditor;
+        if (newValue !== void 0 || !widget.input.implicitContext.hasValue || !hasActiveEditor) {
+          widget.input.implicitContext.setValues([{ value: newValue, isSelection }, { value: providerContext, isSelection: false }]);
+        }
       } else {
         widget.input.implicitContext.setValues([]);
       }
@@ -256,6 +259,7 @@ class ChatImplicitContexts extends Disposable {
     this.onDidChangeValue = this._onDidChangeValue.event;
     this._values = this._register(new DisposableMap());
     this._valuesDisposables = this._register(new DisposableStore());
+    this._enabled = false;
   }
   setValues(values) {
     this._valuesDisposables.clear();
@@ -268,6 +272,7 @@ class ChatImplicitContexts extends Disposable {
     for (const value of definedValues) {
       const implicitContext = new ChatImplicitContext();
       implicitContext.setValue(value.value, value.isSelection);
+      implicitContext.enabled = this._enabled;
       const disposableStore = new DisposableStore();
       disposableStore.add(implicitContext.onDidChangeValue(() => {
         this._onDidChangeValue.fire();
@@ -284,6 +289,7 @@ class ChatImplicitContexts extends Disposable {
     return Array.from(this._values.keys()).some((v) => v.enabled);
   }
   setEnabled(enabled) {
+    this._enabled = enabled;
     this.values.forEach((v) => v.enabled = enabled);
   }
   get hasValue() {

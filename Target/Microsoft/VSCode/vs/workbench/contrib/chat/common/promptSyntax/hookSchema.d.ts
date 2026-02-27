@@ -15,6 +15,16 @@ export declare enum HookType {
     Stop = "Stop"
 }
 /**
+ * Maps Copilot CLI hook type names to our abstract HookType.
+ * Copilot CLI uses camelCase names.
+ */
+export declare const COPILOT_CLI_HOOK_TYPE_MAP: {
+    readonly sessionStart: HookType.SessionStart;
+    readonly userPromptSubmitted: HookType.UserPromptSubmit;
+    readonly preToolUse: HookType.PreToolUse;
+    readonly postToolUse: HookType.PostToolUse;
+};
+/**
  * String literal type derived from HookType enum values.
  */
 export type HookTypeValue = `${HookType}`;

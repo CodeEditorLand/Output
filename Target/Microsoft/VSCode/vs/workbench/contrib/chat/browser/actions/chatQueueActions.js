@@ -179,7 +179,7 @@ class ChatSendPendingImmediatelyAction extends Action2 {
       ...pendingRequests.filter((_, i) => i !== targetIndex).map((r) => ({ requestId: r.request.id, kind: r.kind }))
     ];
     chatService.setPendingRequests(context.sessionResource, reordered);
-    chatService.cancelCurrentRequestForSession(context.sessionResource);
+    chatService.cancelCurrentRequestForSession(context.sessionResource, "queueRunNext");
     chatService.processPendingRequests(context.sessionResource);
   }
 }

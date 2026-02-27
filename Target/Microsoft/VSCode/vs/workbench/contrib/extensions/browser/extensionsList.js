@@ -17,9 +17,9 @@ import { dispose, combinedDisposable } from "../../../../base/common/lifecycle.j
 import { ActionBar } from "../../../../base/browser/ui/actionbar/actionbar.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { ExtensionContainers, IExtensionsWorkbenchService } from "../common/extensions.js";
-import { ManageExtensionAction, ExtensionRuntimeStateAction, ExtensionStatusLabelAction, RemoteInstallAction, ExtensionStatusAction, LocalInstallAction, ButtonWithDropDownExtensionAction, InstallDropdownAction, InstallingLabelAction, ButtonWithDropdownExtensionActionViewItem, DropDownExtensionAction, WebInstallAction, MigrateDeprecatedExtensionAction, SetLanguageAction, ClearLanguageAction, UpdateAction } from "./extensionsActions.js";
+import { ManageExtensionAction, ExtensionStatusLabelAction, RemoteInstallAction, ExtensionStatusAction, LocalInstallAction, ButtonWithDropDownExtensionAction, InstallDropdownAction, InstallingLabelAction, ButtonWithDropdownExtensionActionViewItem, DropDownExtensionAction, WebInstallAction, MigrateDeprecatedExtensionAction, SetLanguageAction, ClearLanguageAction, UpdateAction } from "./extensionsActions.js";
 import { areSameExtensions } from "../../../../platform/extensionManagement/common/extensionManagementUtil.js";
-import { RatingsWidget, InstallCountWidget, RecommendationWidget, RemoteBadgeWidget, ExtensionPackCountWidget as ExtensionPackBadgeWidget, SyncIgnoredWidget, ExtensionHoverWidget, ExtensionRuntimeStatusWidget, PreReleaseBookmarkWidget, PublisherWidget, ExtensionKindIndicatorWidget, ExtensionIconWidget } from "./extensionsWidgets.js";
+import { RatingsWidget, InstallCountWidget, RecommendationWidget, RemoteBadgeWidget, ExtensionPackCountWidget as ExtensionPackBadgeWidget, SyncIgnoredWidget, ExtensionHoverWidget, ExtensionRuntimeStatusWidget, ExtensionRestartRequiredWidget, PreReleaseBookmarkWidget, PublisherWidget, ExtensionKindIndicatorWidget, ExtensionIconWidget } from "./extensionsWidgets.js";
 import { IExtensionService } from "../../../services/extensions/common/extensions.js";
 import { IWorkbenchExtensionEnablementService } from "../../../services/extensionManagement/common/extensionManagement.js";
 import { INotificationService } from "../../../../platform/notification/common/notification.js";
@@ -69,6 +69,7 @@ let Renderer = class Renderer2 {
     const headerContainer = append(details, $(".header-container"));
     const header = append(headerContainer, $(".header"));
     const name = append(header, $("span.name"));
+    const restartRequired = append(header, $("span.restart-required"));
     const installCount = append(header, $("span.install-count"));
     const ratings = append(header, $("span.ratings"));
     const syncIgnore = append(header, $("span.sync-ignored"));
@@ -101,7 +102,6 @@ let Renderer = class Renderer2 {
     const actions = [
       this.instantiationService.createInstance(ExtensionStatusLabelAction),
       this.instantiationService.createInstance(MigrateDeprecatedExtensionAction, true),
-      this.instantiationService.createInstance(ExtensionRuntimeStateAction),
       this.instantiationService.createInstance(UpdateAction, false),
       this.instantiationService.createInstance(InstallDropdownAction),
       this.instantiationService.createInstance(InstallingLabelAction),
@@ -123,6 +123,7 @@ let Renderer = class Renderer2 {
       publisherWidget,
       extensionHoverWidget,
       this.instantiationService.createInstance(SyncIgnoredWidget, syncIgnore),
+      this.instantiationService.createInstance(ExtensionRestartRequiredWidget, restartRequired),
       this.instantiationService.createInstance(ExtensionRuntimeStatusWidget, this.extensionViewState, activationStatus),
       this.instantiationService.createInstance(InstallCountWidget, installCount, true),
       this.instantiationService.createInstance(RatingsWidget, ratings, true),

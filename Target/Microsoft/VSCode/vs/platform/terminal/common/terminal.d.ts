@@ -602,6 +602,12 @@ export interface IShellLaunchConfig {
      * This allows extensions to control shell integration for terminals they create.
      */
     shellIntegrationNonce?: string;
+    /**
+     * A title template string that supports the same variables as the
+     * `terminal.integrated.tabs.title` setting. When set, this overrides the config-based
+     * title template for this terminal instance.
+     */
+    titleTemplate?: string;
 }
 export interface ITerminalTabAction {
     id: string;
@@ -622,6 +628,7 @@ export interface ICreateContributedTerminalProfileOptions {
         splitActiveTerminal: boolean;
     };
     cwd?: string | URI;
+    titleTemplate?: string;
 }
 export declare enum TerminalLocation {
     Panel = 1,
@@ -648,6 +655,7 @@ export interface IShellLaunchConfigDto {
     isFeatureTerminal?: boolean;
     tabActions?: ITerminalTabAction[];
     shellIntegrationEnvironmentReporting?: boolean;
+    titleTemplate?: string;
 }
 /**
  * A set of options for the terminal process. These differ from the shell launch config in that they
@@ -880,6 +888,7 @@ export interface ITerminalProfileContribution {
         dark: URI;
     } | string;
     color?: string;
+    titleTemplate?: string;
 }
 export interface IExtensionTerminalProfile extends ITerminalProfileContribution {
     extensionIdentifier: string;

@@ -19,11 +19,12 @@ export declare const ACTION_ID_OPEN_CHAT = "workbench.action.openChat";
 export declare const CHAT_OPEN_ACTION_ID = "workbench.action.chat.open";
 export declare const CHAT_SETUP_ACTION_ID = "workbench.action.chat.triggerSetup";
 export declare const CHAT_SETUP_SUPPORT_ANONYMOUS_ACTION_ID = "workbench.action.chat.triggerSetupSupportAnonymousAction";
-export declare const GENERATE_INSTRUCTIONS_COMMAND_ID = "workbench.action.chat.generateInstructions";
-export declare const GENERATE_INSTRUCTION_COMMAND_ID = "workbench.action.chat.generateInstruction";
+export declare const GENERATE_AGENT_INSTRUCTIONS_COMMAND_ID = "workbench.action.chat.generateAgentInstructions";
+export declare const GENERATE_ON_DEMAND_INSTRUCTIONS_COMMAND_ID = "workbench.action.chat.generateOnDemandInstructions";
 export declare const GENERATE_PROMPT_COMMAND_ID = "workbench.action.chat.generatePrompt";
 export declare const GENERATE_SKILL_COMMAND_ID = "workbench.action.chat.generateSkill";
 export declare const GENERATE_AGENT_COMMAND_ID = "workbench.action.chat.generateAgent";
+export declare const GENERATE_HOOK_COMMAND_ID = "workbench.action.chat.generateHook";
 export interface IChatViewOpenOptions {
     /**
      * The query for chat.

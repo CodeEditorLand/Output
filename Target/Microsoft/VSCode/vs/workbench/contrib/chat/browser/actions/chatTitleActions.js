@@ -21,6 +21,7 @@ import { isResponseVM } from "../../common/model/chatViewModel.js";
 import { ChatModeKind } from "../../common/constants.js";
 import { IChatAccessibilityService, IChatWidgetService } from "../chat.js";
 import { CHAT_CATEGORY } from "./chatActions.js";
+const MarkHelpfulActionId = "workbench.action.chat.markHelpful";
 const MarkUnhelpfulActionId = "workbench.action.chat.markUnhelpful";
 const enableFeedbackConfig = "config.telemetry.feedback.enabled";
 function registerChatTitleActions() {
@@ -336,6 +337,7 @@ function splitMarkdownAndCodeBlocks(markdown) {
 }
 __name(splitMarkdownAndCodeBlocks, "splitMarkdownAndCodeBlocks");
 export {
+  MarkHelpfulActionId,
   MarkUnhelpfulActionId,
   registerChatTitleActions
 };

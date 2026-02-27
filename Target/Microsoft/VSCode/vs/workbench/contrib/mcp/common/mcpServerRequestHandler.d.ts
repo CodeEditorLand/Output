@@ -27,8 +27,7 @@ export interface IMcpServerRequestHandlerOptions extends IMcpClientMethods {
  * handling of ping requests and typed client request methods.
  */
 export declare class McpServerRequestHandler extends Disposable {
-    private _nextRequestId;
-    private readonly _pendingRequests;
+    private readonly _rpc;
     private _hasAnnouncedRoots;
     private _roots;
     set roots(roots: MCP.Root[]);
@@ -84,18 +83,6 @@ export declare class McpServerRequestHandler extends Disposable {
     private sendRequestPaginated;
     private sendNotification;
     /**
-     * Handle incoming messages from the server
-     */
-    private handleMessage;
-    /**
-     * Handle successful responses
-     */
-    private handleResult;
-    /**
-     * Handle error responses
-     */
-    private handleError;
-    /**
      * Handle incoming server requests
      */
     private handleServerRequest;
@@ -105,10 +92,6 @@ export declare class McpServerRequestHandler extends Disposable {
     private handleServerNotification;
     private handleCancelledNotification;
     private handleLoggingNotification;
-    /**
-     * Send a generic response to a request
-     */
-    private respondToRequest;
     /**
      * Send a response to a ping request
      */

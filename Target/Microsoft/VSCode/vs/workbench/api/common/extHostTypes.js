@@ -3045,6 +3045,12 @@ var ChatTodoStatus;
   ChatTodoStatus2[ChatTodoStatus2["InProgress"] = 2] = "InProgress";
   ChatTodoStatus2[ChatTodoStatus2["Completed"] = 3] = "Completed";
 })(ChatTodoStatus || (ChatTodoStatus = {}));
+var ChatDebugSubagentStatus;
+(function(ChatDebugSubagentStatus2) {
+  ChatDebugSubagentStatus2[ChatDebugSubagentStatus2["Running"] = 0] = "Running";
+  ChatDebugSubagentStatus2[ChatDebugSubagentStatus2["Completed"] = 1] = "Completed";
+  ChatDebugSubagentStatus2[ChatDebugSubagentStatus2["Failed"] = 2] = "Failed";
+})(ChatDebugSubagentStatus || (ChatDebugSubagentStatus = {}));
 class ChatToolInvocationPart {
   static {
     __name(this, "ChatToolInvocationPart");
@@ -3106,6 +3112,132 @@ var ChatSessionStatus;
   ChatSessionStatus2[ChatSessionStatus2["InProgress"] = 2] = "InProgress";
   ChatSessionStatus2[ChatSessionStatus2["NeedsInput"] = 3] = "NeedsInput";
 })(ChatSessionStatus || (ChatSessionStatus = {}));
+var ChatDebugLogLevel;
+(function(ChatDebugLogLevel2) {
+  ChatDebugLogLevel2[ChatDebugLogLevel2["Trace"] = 0] = "Trace";
+  ChatDebugLogLevel2[ChatDebugLogLevel2["Info"] = 1] = "Info";
+  ChatDebugLogLevel2[ChatDebugLogLevel2["Warning"] = 2] = "Warning";
+  ChatDebugLogLevel2[ChatDebugLogLevel2["Error"] = 3] = "Error";
+})(ChatDebugLogLevel || (ChatDebugLogLevel = {}));
+var ChatDebugToolCallResult;
+(function(ChatDebugToolCallResult2) {
+  ChatDebugToolCallResult2[ChatDebugToolCallResult2["Success"] = 0] = "Success";
+  ChatDebugToolCallResult2[ChatDebugToolCallResult2["Error"] = 1] = "Error";
+})(ChatDebugToolCallResult || (ChatDebugToolCallResult = {}));
+class ChatDebugToolCallEvent {
+  static {
+    __name(this, "ChatDebugToolCallEvent");
+  }
+  constructor(toolName, created) {
+    this._kind = "toolCall";
+    this.toolName = toolName;
+    this.created = created;
+  }
+}
+class ChatDebugModelTurnEvent {
+  static {
+    __name(this, "ChatDebugModelTurnEvent");
+  }
+  constructor(created) {
+    this._kind = "modelTurn";
+    this.created = created;
+  }
+}
+class ChatDebugGenericEvent {
+  static {
+    __name(this, "ChatDebugGenericEvent");
+  }
+  constructor(name, level, created) {
+    this._kind = "generic";
+    this.name = name;
+    this.level = level;
+    this.created = created;
+  }
+}
+class ChatDebugSubagentInvocationEvent {
+  static {
+    __name(this, "ChatDebugSubagentInvocationEvent");
+  }
+  constructor(agentName, created) {
+    this._kind = "subagentInvocation";
+    this.agentName = agentName;
+    this.created = created;
+  }
+}
+class ChatDebugMessageSection {
+  static {
+    __name(this, "ChatDebugMessageSection");
+  }
+  constructor(name, content) {
+    this.name = name;
+    this.content = content;
+  }
+}
+class ChatDebugUserMessageEvent {
+  static {
+    __name(this, "ChatDebugUserMessageEvent");
+  }
+  constructor(message, created) {
+    this._kind = "userMessage";
+    this.message = message;
+    this.created = created;
+    this.sections = [];
+  }
+}
+class ChatDebugAgentResponseEvent {
+  static {
+    __name(this, "ChatDebugAgentResponseEvent");
+  }
+  constructor(message, created) {
+    this._kind = "agentResponse";
+    this.message = message;
+    this.created = created;
+    this.sections = [];
+  }
+}
+class ChatDebugEventTextContent {
+  static {
+    __name(this, "ChatDebugEventTextContent");
+  }
+  constructor(value) {
+    this._kind = "text";
+    this.value = value;
+  }
+}
+var ChatDebugMessageContentType;
+(function(ChatDebugMessageContentType2) {
+  ChatDebugMessageContentType2[ChatDebugMessageContentType2["User"] = 0] = "User";
+  ChatDebugMessageContentType2[ChatDebugMessageContentType2["Agent"] = 1] = "Agent";
+})(ChatDebugMessageContentType || (ChatDebugMessageContentType = {}));
+class ChatDebugEventMessageContent {
+  static {
+    __name(this, "ChatDebugEventMessageContent");
+  }
+  constructor(type, message, sections) {
+    this._kind = "messageContent";
+    this.type = type;
+    this.message = message;
+    this.sections = sections;
+  }
+}
+class ChatDebugEventToolCallContent {
+  static {
+    __name(this, "ChatDebugEventToolCallContent");
+  }
+  constructor(toolName) {
+    this._kind = "toolCallContent";
+    this.toolName = toolName;
+  }
+}
+class ChatDebugEventModelTurnContent {
+  static {
+    __name(this, "ChatDebugEventModelTurnContent");
+  }
+  constructor(requestName) {
+    this._kind = "modelTurnContent";
+    this.requestName = requestName;
+  }
+}
 class ChatSessionChangedFile {
   static {
     __name(this, "ChatSessionChangedFile");
@@ -3554,6 +3686,21 @@ export {
   CellErrorStackFrame,
   ChatCompletionItem,
   ChatCopyKind,
+  ChatDebugAgentResponseEvent,
+  ChatDebugEventMessageContent,
+  ChatDebugEventModelTurnContent,
+  ChatDebugEventTextContent,
+  ChatDebugEventToolCallContent,
+  ChatDebugGenericEvent,
+  ChatDebugLogLevel,
+  ChatDebugMessageContentType,
+  ChatDebugMessageSection,
+  ChatDebugModelTurnEvent,
+  ChatDebugSubagentInvocationEvent,
+  ChatDebugSubagentStatus,
+  ChatDebugToolCallEvent,
+  ChatDebugToolCallResult,
+  ChatDebugUserMessageEvent,
   ChatEditingSessionActionOutcome,
   ChatEditorTabInput,
   ChatErrorLevel,

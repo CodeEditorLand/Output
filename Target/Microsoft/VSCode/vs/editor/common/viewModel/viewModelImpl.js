@@ -288,6 +288,7 @@ class ViewModel extends Disposable {
       }
       const lineBreaks = lineBreaksComputer.finalize();
       const lineBreakQueue = new ArrayQueue(lineBreaks);
+      const customLineHeightRangesToInsert = [];
       for (const change of changes) {
         switch (change.changeType) {
           case 1: {
@@ -303,6 +304,7 @@ class ViewModel extends Disposable {
             if (linesDeletedEvent !== null) {
               eventsCollector.emitViewEvent(linesDeletedEvent);
               this.viewLayout.onLinesDeleted(linesDeletedEvent.fromLineNumber, linesDeletedEvent.toLineNumber);
+              customLineHeightRangesToInsert.push({ fromLineNumber: change.lastUntouchedLinePostEdit, toLineNumber: change.lastUntouchedLinePostEdit });
             }
             hadOtherModelChange = true;
             break;
@@ -312,7 +314,8 @@ class ViewModel extends Disposable {
             const linesInsertedEvent = this._lines.onModelLinesInserted(versionId, change.fromLineNumber, change.toLineNumber, insertedLineBreaks);
             if (linesInsertedEvent !== null) {
               eventsCollector.emitViewEvent(linesInsertedEvent);
-              this.viewLayout.onLinesInserted(linesInsertedEvent.fromLineNumber, linesInsertedEvent.toLineNumber, this._getCustomLineHeightsForLines(change.fromLineNumberPostEdit, change.toLineNumberPostEdit));
+              this.viewLayout.onLinesInserted(linesInsertedEvent.fromLineNumber, linesInsertedEvent.toLineNumber);
+              customLineHeightRangesToInsert.push({ fromLineNumber: change.fromLineNumberPostEdit, toLineNumber: change.toLineNumberPostEdit });
             }
             hadOtherModelChange = true;
             break;
@@ -326,11 +329,13 @@ class ViewModel extends Disposable {
             }
             if (linesInsertedEvent) {
               eventsCollector.emitViewEvent(linesInsertedEvent);
-              this.viewLayout.onLinesInserted(linesInsertedEvent.fromLineNumber, linesInsertedEvent.toLineNumber, this._getCustomLineHeightsForLines(change.lineNumberPostEdit, change.lineNumberPostEdit));
+              this.viewLayout.onLinesInserted(linesInsertedEvent.fromLineNumber, linesInsertedEvent.toLineNumber);
+              customLineHeightRangesToInsert.push({ fromLineNumber: change.lineNumberPostEdit, toLineNumber: change.lineNumberPostEdit });
             }
             if (linesDeletedEvent) {
               eventsCollector.emitViewEvent(linesDeletedEvent);
               this.viewLayout.onLinesDeleted(linesDeletedEvent.fromLineNumber, linesDeletedEvent.toLineNumber);
+              customLineHeightRangesToInsert.push({ fromLineNumber: change.lineNumberPostEdit, toLineNumber: change.lineNumberPostEdit });
             }
             break;
           }
@@ -341,6 +346,16 @@ class ViewModel extends Disposable {
       }
       if (versionId !== null) {
         this._lines.acceptVersionId(versionId);
+      }
+      if (customLineHeightRangesToInsert.length > 0) {
+        this.viewLayout.changeSpecialLineHeights((accessor) => {
+          for (const range of customLineHeightRangesToInsert) {
+            const customLineHeights = this._getCustomLineHeightsForLines(range.fromLineNumber, range.toLineNumber);
+            for (const data of customLineHeights) {
+              accessor.insertOrChangeCustomLineHeight(data.decorationId, data.startLineNumber, data.endLineNumber, data.lineHeight);
+            }
+          }
+        });
       }
       this.viewLayout.onHeightMaybeChanged();
       if (!hadOtherModelChange && hadModelLineChangeThatChangedLineMapping) {
@@ -660,9 +675,6 @@ class ViewModel extends Disposable {
    * Gives a hint that a lot of requests are about to come in for these line numbers.
    */
   setViewport(startLineNumber, endLineNumber, centeredLineNumber) {
-    if (this._lines.getViewLineCount() === 0) {
-      return;
-    }
     this._viewportStart.update(this, startLineNumber);
   }
   getActiveIndentGuide(lineNumber, minLineNumber, maxLineNumber) {
@@ -748,7 +760,7 @@ class ViewModel extends Disposable {
     if (lineData.inlineDecorations) {
       inlineDecorations = [
         ...inlineDecorations,
-        ...lineData.inlineDecorations.map((d) => d.toInlineDecoration(lineNumber))
+        ...lineData.inlineDecorations
       ];
     }
     return new ViewLineRenderingData(lineData.minColumn, lineData.maxColumn, lineData.content, lineData.continuesWithWrappedLine, mightContainRTL, mightContainNonBasicASCII, lineData.tokens, inlineDecorations, tabSize, lineData.startVisibleColumn, this._getTextDirection(lineNumber, decorations), hasVariableFonts);

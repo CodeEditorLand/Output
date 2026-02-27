@@ -130,6 +130,7 @@ import './contrib/search/browser/search.contribution.js';
 import './contrib/search/browser/searchView.js';
 import './contrib/searchEditor/browser/searchEditor.contribution.js';
 import './contrib/sash/browser/sash.contribution.js';
+import './contrib/git/browser/git.contributions.js';
 import './contrib/scm/browser/scm.contribution.js';
 import './contrib/debug/browser/debug.contribution.js';
 import './contrib/debug/browser/debugEditorContribution.js';

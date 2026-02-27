@@ -24,6 +24,7 @@ export declare class LinuxExternalTerminalService extends ExternalTerminalServic
     private static readonly WAIT_MESSAGE;
     openTerminal(configuration: IExternalTerminalSettings, cwd?: string): Promise<void>;
     runInTerminal(title: string, dir: string, args: string[], envVars: ITerminalEnvironment, settings: IExternalTerminalSettings): Promise<number | undefined>;
+    private static spawnTerminalWithEnv;
     private static _DEFAULT_TERMINAL_LINUX_READY;
     static getDefaultTerminalLinuxReady(): Promise<string>;
     spawnTerminal(spawner: typeof cp, configuration: IExternalTerminalSettings, cwd?: string): Promise<void>;

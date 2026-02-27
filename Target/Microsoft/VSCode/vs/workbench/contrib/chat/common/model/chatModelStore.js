@@ -12,10 +12,10 @@ var __param = function(paramIndex, decorator) {
   };
 };
 import { Emitter } from "../../../../../base/common/event.js";
-import { DisposableStore, ReferenceCollection } from "../../../../../base/common/lifecycle.js";
+import { Disposable, ReferenceCollection } from "../../../../../base/common/lifecycle.js";
 import { ObservableMap } from "../../../../../base/common/observable.js";
 import { ILogService } from "../../../../../platform/log/common/log.js";
-let ChatModelStore = class ChatModelStore2 extends ReferenceCollection {
+let ChatModelStore = class ChatModelStore2 extends Disposable {
   static {
     __name(this, "ChatModelStore");
   }
@@ -23,14 +23,22 @@ let ChatModelStore = class ChatModelStore2 extends ReferenceCollection {
     super();
     this.delegate = delegate;
     this.logService = logService;
-    this._store = new DisposableStore();
     this._models = new ObservableMap();
     this._modelsToDispose = /* @__PURE__ */ new Set();
     this._pendingDisposals = /* @__PURE__ */ new Set();
-    this._onDidDisposeModel = this._store.add(new Emitter());
+    this._onDidDisposeModel = this._register(new Emitter());
     this.onDidDisposeModel = this._onDidDisposeModel.event;
-    this._onDidCreateModel = this._store.add(new Emitter());
+    this._onDidCreateModel = this._register(new Emitter());
     this.onDidCreateModel = this._onDidCreateModel.event;
+    const self = this;
+    this._refCollection = new class extends ReferenceCollection {
+      createReferencedObject(key, props) {
+        return self.createReferencedObject(key, props);
+      }
+      destroyReferencedObject(key, object) {
+        return self.destroyReferencedObject(key, object);
+      }
+    }();
   }
   get observable() {
     return this._models.observable;
@@ -52,10 +60,10 @@ let ChatModelStore = class ChatModelStore2 extends ReferenceCollection {
     if (!this._models.has(key)) {
       return void 0;
     }
-    return this.acquire(key);
+    return this._refCollection.acquire(key);
   }
   acquireOrCreate(props) {
-    return this.acquire(this.toKey(props.sessionResource), props);
+    return this._refCollection.acquire(this.toKey(props.sessionResource), props);
   }
   createReferencedObject(key, props) {
     this._modelsToDispose.delete(key);
@@ -108,7 +116,7 @@ let ChatModelStore = class ChatModelStore2 extends ReferenceCollection {
     return uri.toString();
   }
   dispose() {
-    this._store.dispose();
+    super.dispose();
     this._models.forEach((model) => model.dispose());
   }
 };

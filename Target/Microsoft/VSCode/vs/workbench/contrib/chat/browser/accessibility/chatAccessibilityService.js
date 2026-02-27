@@ -23,7 +23,7 @@ import { IConfigurationService } from "../../../../../platform/configuration/com
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
 import { IHostService } from "../../../../services/host/browser/host.js";
 import { IChatService } from "../../common/chatService/chatService.js";
-import { ChatConfiguration } from "../../common/constants.js";
+import { ChatConfiguration, ChatNotificationMode } from "../../common/constants.js";
 import { IChatWidgetService } from "../chat.js";
 import { CancellationTokenSource } from "../../../../../base/common/cancellation.js";
 const CHAT_RESPONSE_PENDING_ALLOWANCE_MS = 4e3;
@@ -90,23 +90,27 @@ let ChatAccessibilityService = class ChatAccessibilityService2 extends Disposabl
     this._accessibilitySignalService.playSignal(AccessibilitySignal.chatUserActionRequired, { allowManyInParallel: true });
   }
   async _showOSNotification(widget, container, responseContent) {
-    if (!this._configurationService.getValue(ChatConfiguration.NotifyWindowOnResponseReceived)) {
+    const mode = this._configurationService.getValue(ChatConfiguration.NotifyWindowOnResponseReceived);
+    if (mode === ChatNotificationMode.Off) {
       return;
     }
     const targetWindow = dom.getWindow(container);
     if (!targetWindow) {
       return;
     }
-    if (targetWindow.document.hasFocus()) {
+    const isFocused = targetWindow.document.hasFocus();
+    if (mode !== ChatNotificationMode.Always && isFocused) {
       return;
     }
     if (!responseContent || !responseContent.trim()) {
       return;
     }
-    await this._hostService.focus(targetWindow, {
-      mode: 1
-      /* FocusMode.Notify */
-    });
+    if (!isFocused) {
+      await this._hostService.focus(targetWindow, {
+        mode: 1
+        /* FocusMode.Notify */
+      });
+    }
     this.toasts.clearAndDisposeAll();
     const title = widget?.viewModel?.model.title ? localize("chatTitle", "Chat: {0}", widget.viewModel.model.title) : localize("chat.untitledChat", "Untitled Chat");
     const cts = new CancellationTokenSource();

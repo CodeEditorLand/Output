@@ -584,12 +584,6 @@ function getDomNodePagePosition(domNode) {
   };
 }
 __name(getDomNodePagePosition, "getDomNodePagePosition");
-function isElementInBottomRightQuarter(element, container) {
-  const position2 = getDomNodePagePosition(element);
-  const clientArea = getClientArea(container);
-  return position2.left > clientArea.width / 2 && position2.top > clientArea.height / 2;
-}
-__name(isElementInBottomRightQuarter, "isElementInBottomRightQuarter");
 function getDomNodeZoomLevel(domNode) {
   let testElement = domNode;
   let zoom = 1;
@@ -2047,7 +2041,6 @@ export {
   isAncestorUsingFlowTo,
   isDragEvent,
   isEditableElement,
-  isElementInBottomRightQuarter,
   isEventLike,
   isHTMLAnchorElement,
   isHTMLButtonElement,

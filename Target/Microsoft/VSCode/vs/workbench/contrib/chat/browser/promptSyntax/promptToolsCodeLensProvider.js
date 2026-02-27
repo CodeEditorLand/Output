@@ -80,7 +80,7 @@ let PromptToolsCodeLensProvider = class PromptToolsCodeLensProvider2 extends Dis
       command: {
         title: localize("configure-tools.capitalized.ellipsis", "Configure Tools..."),
         id: this.cmdId,
-        arguments: [model, toolsAttr.range, toolsAttr.value.type === "scalar", selectedTools, target]
+        arguments: [model, toolsAttr.value.range, toolsAttr.value.type === "scalar", selectedTools, target]
       }
     };
     return { lenses: [codeLens] };

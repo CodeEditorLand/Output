@@ -82,7 +82,7 @@ export declare class ExtHostChatAgents2 extends Disposable implements ExtHostCha
     private _createRequest;
     private getModelForRequest;
     $setRequestTools(requestId: string, tools: UserSelectedTools): Promise<void>;
-    $setYieldRequested(requestId: string): void;
+    $setYieldRequested(requestId: string, value: boolean): void;
     $invokeAgent(handle: number, requestDto: Dto<IChatAgentRequest>, context: {
         history: IChatAgentHistoryEntryDto[];
         chatSessionContext?: IChatSessionContextDto;

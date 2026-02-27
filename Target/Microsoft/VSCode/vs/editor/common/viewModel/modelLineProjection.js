@@ -1,10 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { LineTokens } from "../tokens/lineTokens.js";
 import { Position } from "../core/position.js";
 import { LineInjectedText } from "../textModelEvents.js";
 import { ViewLineData } from "../viewModel.js";
-import { SingleLineInlineDecoration } from "./inlineDecorations.js";
+import { InjectedTextInlineDecorationsComputer } from "./inlineDecorations.js";
+import { getLineTokensWithInjections } from "../model/textModel.js";
 function createModelLineProjection(lineBreakData, isVisible) {
   if (lineBreakData === null) {
     if (isVisible) {
@@ -77,86 +77,34 @@ class ModelLineProjection {
   /**
    * Try using {@link getViewLinesData} instead.
   */
-  getViewLineData(model, modelLineNumber, outputLineIndex) {
+  getViewLineData(model, modelLineNumber, outputLineIndex, baseViewLineNumber) {
     const arr = new Array();
-    this.getViewLinesData(model, modelLineNumber, outputLineIndex, 1, 0, [true], arr);
+    this.getViewLinesData(model, modelLineNumber, outputLineIndex, 1, baseViewLineNumber, 0, [true], arr);
     return arr[0];
   }
-  getViewLinesData(model, modelLineNumber, outputLineIdx, lineCount, globalStartIndex, needed, result) {
+  getViewLinesData(model, modelLineNumber, outputLineIdx, lineCount, baseViewLineNumber, globalStartIndex, needed, result) {
     this._assertVisible();
     const lineBreakData = this._projectionData;
     const injectionOffsets = lineBreakData.injectionOffsets;
     const injectionOptions = lineBreakData.injectionOptions;
-    let inlineDecorationsPerOutputLine = null;
-    if (injectionOffsets) {
-      inlineDecorationsPerOutputLine = [];
-      let totalInjectedTextLengthBefore = 0;
-      let currentInjectedOffset = 0;
-      for (let outputLineIndex = 0; outputLineIndex < lineBreakData.getOutputLineCount(); outputLineIndex++) {
-        const inlineDecorations = new Array();
-        inlineDecorationsPerOutputLine[outputLineIndex] = inlineDecorations;
-        const lineStartOffsetInInputWithInjections = outputLineIndex > 0 ? lineBreakData.breakOffsets[outputLineIndex - 1] : 0;
-        const lineEndOffsetInInputWithInjections = lineBreakData.breakOffsets[outputLineIndex];
-        while (currentInjectedOffset < injectionOffsets.length) {
-          const length = injectionOptions[currentInjectedOffset].content.length;
-          const injectedTextStartOffsetInInputWithInjections = injectionOffsets[currentInjectedOffset] + totalInjectedTextLengthBefore;
-          const injectedTextEndOffsetInInputWithInjections = injectedTextStartOffsetInInputWithInjections + length;
-          if (injectedTextStartOffsetInInputWithInjections > lineEndOffsetInInputWithInjections) {
-            break;
-          }
-          if (lineStartOffsetInInputWithInjections < injectedTextEndOffsetInInputWithInjections) {
-            const options = injectionOptions[currentInjectedOffset];
-            if (options.inlineClassName) {
-              const offset = outputLineIndex > 0 ? lineBreakData.wrappedTextIndentLength : 0;
-              const start = offset + Math.max(injectedTextStartOffsetInInputWithInjections - lineStartOffsetInInputWithInjections, 0);
-              const end = offset + Math.min(injectedTextEndOffsetInInputWithInjections - lineStartOffsetInInputWithInjections, lineEndOffsetInInputWithInjections - lineStartOffsetInInputWithInjections);
-              if (start !== end) {
-                inlineDecorations.push(new SingleLineInlineDecoration(start, end, options.inlineClassName, options.inlineClassNameAffectsLetterSpacing));
-              }
-            }
-          }
-          if (injectedTextEndOffsetInInputWithInjections <= lineEndOffsetInInputWithInjections) {
-            totalInjectedTextLengthBefore += length;
-            currentInjectedOffset++;
-          } else {
-            break;
-          }
-        }
-      }
-    }
-    let lineWithInjections;
-    if (injectionOffsets) {
-      const tokensToInsert = [];
-      for (let idx = 0; idx < injectionOffsets.length; idx++) {
-        const offset = injectionOffsets[idx];
-        const tokens = injectionOptions[idx].tokens;
-        if (tokens) {
-          tokens.forEach((range, info) => {
-            tokensToInsert.push({
-              offset,
-              text: range.substring(injectionOptions[idx].content),
-              tokenMetadata: info.metadata
-            });
-          });
-        } else {
-          tokensToInsert.push({
-            offset,
-            text: injectionOptions[idx].content,
-            tokenMetadata: LineTokens.defaultTokenMetadata
-          });
-        }
-      }
-      lineWithInjections = model.tokenization.getLineTokens(modelLineNumber).withInserted(tokensToInsert);
-    } else {
-      lineWithInjections = model.tokenization.getLineTokens(modelLineNumber);
-    }
+    const context = {
+      getInjectionOptions: /* @__PURE__ */ __name(() => injectionOptions, "getInjectionOptions"),
+      getInjectionOffsets: /* @__PURE__ */ __name(() => injectionOffsets, "getInjectionOffsets"),
+      getBreakOffsets: /* @__PURE__ */ __name(() => lineBreakData.breakOffsets, "getBreakOffsets"),
+      getWrappedTextIndentLength: /* @__PURE__ */ __name(() => lineBreakData.wrappedTextIndentLength, "getWrappedTextIndentLength"),
+      getBaseViewLineNumber: /* @__PURE__ */ __name(() => baseViewLineNumber, "getBaseViewLineNumber")
+    };
+    const computer = new InjectedTextInlineDecorationsComputer(context);
+    const lineInlineDecorations = computer.getInlineDecorations(modelLineNumber);
+    const lineTokens = model.tokenization.getLineTokens(modelLineNumber);
+    const lineWithInjections = getLineTokensWithInjections(lineTokens, injectionOptions, injectionOffsets);
     for (let outputLineIndex = outputLineIdx; outputLineIndex < outputLineIdx + lineCount; outputLineIndex++) {
       const globalIndex = globalStartIndex + outputLineIndex - outputLineIdx;
       if (!needed[globalIndex]) {
         result[globalIndex] = null;
         continue;
       }
-      result[globalIndex] = this._getViewLineData(lineWithInjections, inlineDecorationsPerOutputLine ? inlineDecorationsPerOutputLine[outputLineIndex] : null, outputLineIndex);
+      result[globalIndex] = this._getViewLineData(lineWithInjections, lineInlineDecorations ? lineInlineDecorations[outputLineIndex] : null, outputLineIndex);
     }
   }
   _getViewLineData(lineWithInjections, inlineDecorations, outputLineIndex) {
@@ -241,17 +189,17 @@ class IdentityModelLineProjection {
   getViewLineMaxColumn(model, modelLineNumber, _outputLineIndex) {
     return model.getLineMaxColumn(modelLineNumber);
   }
-  getViewLineData(model, modelLineNumber, _outputLineIndex) {
+  getViewLineData(model, modelLineNumber, _outputLineIndex, _baseViewLineNumber) {
     const lineTokens = model.tokenization.getLineTokens(modelLineNumber);
     const lineContent = lineTokens.getLineContent();
     return new ViewLineData(lineContent, false, 1, lineContent.length + 1, 0, lineTokens.inflate(), null);
   }
-  getViewLinesData(model, modelLineNumber, _fromOuputLineIndex, _toOutputLineIndex, globalStartIndex, needed, result) {
+  getViewLinesData(model, modelLineNumber, _fromOuputLineIndex, _toOutputLineIndex, _baseViewLineNumber, globalStartIndex, needed, result) {
     if (!needed[globalStartIndex]) {
       result[globalStartIndex] = null;
       return;
     }
-    result[globalStartIndex] = this.getViewLineData(model, modelLineNumber, 0);
+    result[globalStartIndex] = this.getViewLineData(model, modelLineNumber, 0, _baseViewLineNumber);
   }
   getModelColumnOfViewPosition(_outputLineIndex, outputColumn) {
     return outputColumn;
@@ -305,10 +253,10 @@ class HiddenModelLineProjection {
   getViewLineMaxColumn(_model, _modelLineNumber, _outputLineIndex) {
     throw new Error("Not supported");
   }
-  getViewLineData(_model, _modelLineNumber, _outputLineIndex) {
+  getViewLineData(_model, _modelLineNumber, _outputLineIndex, _baseViewLineNumber) {
     throw new Error("Not supported");
   }
-  getViewLinesData(_model, _modelLineNumber, _fromOuputLineIndex, _toOutputLineIndex, _globalStartIndex, _needed, _result) {
+  getViewLinesData(_model, _modelLineNumber, _fromOuputLineIndex, _toOutputLineIndex, _baseViewLineNumber, _globalStartIndex, _needed, _result) {
     throw new Error("Not supported");
   }
   getModelColumnOfViewPosition(_outputLineIndex, _outputColumn) {

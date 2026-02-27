@@ -20,6 +20,8 @@ import { getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hover
 import { BaseActionViewItem } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { MenuRegistry, SubmenuItemAction } from "../../../../platform/actions/common/actions.js";
+import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { MenuWorkbenchToolBar } from "../../../../platform/actions/browser/toolbar.js";
 import { Menus } from "../../../browser/menus.js";
 import { IActionViewItemService } from "../../../../platform/actions/browser/actionViewItemService.js";
 import { IAgentSessionsService } from "../../../../workbench/contrib/chat/browser/agentSessions/agentSessionsService.js";
@@ -29,24 +31,21 @@ import { AgentSessionsPicker } from "../../../../workbench/contrib/chat/browser/
 import { autorun } from "../../../../base/common/observable.js";
 import { IChatService } from "../../../../workbench/contrib/chat/common/chatService/chatService.js";
 import { ThemeIcon } from "../../../../base/common/themables.js";
-import { Codicon } from "../../../../base/common/codicons.js";
-import { getAgentChangesSummary, hasValidDiff, isAgentSession } from "../../../../workbench/contrib/chat/browser/agentSessions/agentSessionsModel.js";
 import { getAgentSessionProvider, getAgentSessionProviderIcon } from "../../../../workbench/contrib/chat/browser/agentSessions/agentSessions.js";
 import { basename } from "../../../../base/common/resources.js";
-import { ICommandService } from "../../../../platform/commands/common/commands.js";
-import { ViewAllSessionChangesAction } from "../../../../workbench/contrib/chat/browser/chatEditing/chatEditingActions.js";
+import { IsAuxiliaryWindowContext } from "../../../../workbench/common/contextkeys.js";
+import { SessionsWelcomeVisibleContext } from "../../../common/contextkeys.js";
 let SessionsTitleBarWidget = class SessionsTitleBarWidget2 extends BaseActionViewItem {
   static {
     __name(this, "SessionsTitleBarWidget");
   }
-  constructor(action, options, instantiationService, hoverService, activeSessionService, chatService, agentSessionsService, commandService) {
+  constructor(action, options, instantiationService, hoverService, activeSessionService, chatService, agentSessionsService) {
     super(void 0, action, options);
     this.instantiationService = instantiationService;
     this.hoverService = hoverService;
     this.activeSessionService = activeSessionService;
     this.chatService = chatService;
     this.agentSessionsService = agentSessionsService;
-    this.commandService = commandService;
     this._dynamicDisposables = this._register(new DisposableStore());
     this._modelChangeListener = this._register(new MutableDisposable());
     this._isRendering = false;
@@ -85,8 +84,7 @@ let SessionsTitleBarWidget = class SessionsTitleBarWidget2 extends BaseActionVie
       const label = this._getActiveSessionLabel();
       const icon = this._getActiveSessionIcon();
       const repoLabel = this._getRepositoryLabel();
-      const changes = this._getChanges();
-      const renderState = `${icon?.id ?? ""}|${label}|${repoLabel ?? ""}|${changes?.insertions ?? ""}|${changes?.deletions ?? ""}`;
+      const renderState = `${icon?.id ?? ""}|${label}|${repoLabel ?? ""}`;
       if (this._lastRenderState === renderState) {
         return;
       }
@@ -96,6 +94,7 @@ let SessionsTitleBarWidget = class SessionsTitleBarWidget2 extends BaseActionVie
       this._container.setAttribute("role", "button");
       this._container.setAttribute("aria-label", localize("agentSessionsShowSessions", "Show Sessions"));
       this._container.tabIndex = 0;
+      const sessionPill = $("span.agent-sessions-titlebar-pill");
       const centerGroup = $("span.agent-sessions-titlebar-center");
       if (icon) {
         const iconEl = $("span.agent-sessions-titlebar-icon" + ThemeIcon.asCSSSelector(icon));
@@ -104,48 +103,32 @@ let SessionsTitleBarWidget = class SessionsTitleBarWidget2 extends BaseActionVie
       const labelEl = $("span.agent-sessions-titlebar-label");
       labelEl.textContent = label;
       centerGroup.appendChild(labelEl);
-      if (repoLabel || changes) {
-        if (repoLabel) {
-          const separator1 = $("span.agent-sessions-titlebar-separator");
-          separator1.textContent = "\xB7";
-          centerGroup.appendChild(separator1);
-          const repoEl = $("span.agent-sessions-titlebar-repo");
-          repoEl.textContent = repoLabel;
-          centerGroup.appendChild(repoEl);
-        }
-        if (changes) {
-          const separator2 = $("span.agent-sessions-titlebar-separator");
-          separator2.textContent = "\xB7";
-          centerGroup.appendChild(separator2);
-          const changesEl = $("span.agent-sessions-titlebar-changes");
-          const changesIconEl = $("span.agent-sessions-titlebar-changes-icon" + ThemeIcon.asCSSSelector(Codicon.diffMultiple));
-          changesEl.appendChild(changesIconEl);
-          const addedEl = $("span.agent-sessions-titlebar-added");
-          addedEl.textContent = `+${changes.insertions}`;
-          changesEl.appendChild(addedEl);
-          const removedEl = $("span.agent-sessions-titlebar-removed");
-          removedEl.textContent = `-${changes.deletions}`;
-          changesEl.appendChild(removedEl);
-          centerGroup.appendChild(changesEl);
-          this._dynamicDisposables.add(this.hoverService.setupManagedHover(getDefaultHoverDelegate("mouse"), changesEl, localize("agentSessions.viewChanges", "View All Changes")));
-          this._dynamicDisposables.add(addDisposableListener(changesEl, EventType.CLICK, (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            this._openChanges();
-          }));
-        }
+      if (repoLabel) {
+        const separator1 = $("span.agent-sessions-titlebar-separator");
+        separator1.textContent = "\xB7";
+        centerGroup.appendChild(separator1);
+        const repoEl = $("span.agent-sessions-titlebar-repo");
+        repoEl.textContent = repoLabel;
+        centerGroup.appendChild(repoEl);
       }
-      this._container.appendChild(centerGroup);
-      this._dynamicDisposables.add(this.hoverService.setupManagedHover(getDefaultHoverDelegate("mouse"), this._container, label));
-      this._dynamicDisposables.add(addDisposableListener(this._container, EventType.MOUSE_DOWN, (e) => {
+      sessionPill.appendChild(centerGroup);
+      this._dynamicDisposables.add(addDisposableListener(sessionPill, EventType.MOUSE_DOWN, (e) => {
         e.preventDefault();
         e.stopPropagation();
       }));
-      this._dynamicDisposables.add(addDisposableListener(this._container, EventType.CLICK, (e) => {
+      this._dynamicDisposables.add(addDisposableListener(sessionPill, EventType.CLICK, (e) => {
         e.preventDefault();
         e.stopPropagation();
         this._showSessionsPicker();
       }));
+      this._container.appendChild(sessionPill);
+      const actionsContainer = $("span.agent-sessions-titlebar-actions");
+      this._dynamicDisposables.add(this.instantiationService.createInstance(MenuWorkbenchToolBar, actionsContainer, Menus.SessionTitleActions, {
+        hiddenItemStrategy: -1,
+        toolbarOptions: { primaryGroup: /* @__PURE__ */ __name(() => true, "primaryGroup") }
+      }));
+      this._container.appendChild(actionsContainer);
+      this._dynamicDisposables.add(this.hoverService.setupManagedHover(getDefaultHoverDelegate("mouse"), sessionPill, label));
       this._dynamicDisposables.add(addDisposableListener(this._container, EventType.KEY_DOWN, (e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
@@ -227,38 +210,11 @@ let SessionsTitleBarWidget = class SessionsTitleBarWidget2 extends BaseActionVie
     }
     return basename(uri);
   }
-  /**
-   * Get the changes summary (insertions/deletions) for the active session.
-   */
-  _getChanges() {
-    const activeSession = this.activeSessionService.getActiveSession();
-    if (!activeSession) {
-      return void 0;
-    }
-    let changes;
-    if (isAgentSession(activeSession)) {
-      changes = activeSession.changes;
-    } else {
-      const agentSession = this.agentSessionsService.getSession(activeSession.resource);
-      changes = agentSession?.changes;
-    }
-    if (!changes || !hasValidDiff(changes)) {
-      return void 0;
-    }
-    return getAgentChangesSummary(changes) ?? void 0;
-  }
   _showSessionsPicker() {
     const picker = this.instantiationService.createInstance(AgentSessionsPicker, void 0, {
       overrideSessionOpen: /* @__PURE__ */ __name((session, openOptions) => this.activeSessionService.openSession(session.resource, openOptions), "overrideSessionOpen")
     });
     picker.pickAgentSession();
-  }
-  _openChanges() {
-    const activeSession = this.activeSessionService.getActiveSession();
-    if (!activeSession) {
-      return;
-    }
-    this.commandService.executeCommand(ViewAllSessionChangesAction.ID, activeSession.resource);
   }
 };
 SessionsTitleBarWidget = __decorate([
@@ -266,8 +222,7 @@ SessionsTitleBarWidget = __decorate([
   __param(3, IHoverService),
   __param(4, ISessionsManagementService),
   __param(5, IChatService),
-  __param(6, IAgentSessionsService),
-  __param(7, ICommandService)
+  __param(6, IAgentSessionsService)
 ], SessionsTitleBarWidget);
 let SessionsTitleBarContribution = class SessionsTitleBarContribution2 extends Disposable {
   static {
@@ -281,7 +236,8 @@ let SessionsTitleBarContribution = class SessionsTitleBarContribution2 extends D
     this._register(MenuRegistry.appendMenuItem(Menus.CommandCenter, {
       submenu: Menus.TitleBarControlMenu,
       title: localize("agentSessionsControl", "Agent Sessions"),
-      order: 101
+      order: 101,
+      when: ContextKeyExpr.and(IsAuxiliaryWindowContext.negate(), SessionsWelcomeVisibleContext.negate())
     }));
     this._register(MenuRegistry.appendMenuItem(Menus.TitleBarControlMenu, {
       command: {
@@ -289,7 +245,8 @@ let SessionsTitleBarContribution = class SessionsTitleBarContribution2 extends D
         title: localize("showSessions", "Show Sessions")
       },
       group: "a_sessions",
-      order: 1
+      order: 1,
+      when: IsAuxiliaryWindowContext.negate()
     }));
     this._register(actionViewItemService.register(Menus.CommandCenter, Menus.TitleBarControlMenu, (action, options) => {
       if (!(action instanceof SubmenuItemAction)) {

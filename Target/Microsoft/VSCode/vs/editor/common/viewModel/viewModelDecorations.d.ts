@@ -4,32 +4,13 @@ import { IEditorConfiguration } from '../config/editorConfiguration.js';
 import { ITextModel } from '../model.js';
 import { IViewModelLines } from './viewModelLines.js';
 import { ViewModelDecoration } from './viewModelDecoration.js';
-import { InlineDecoration } from './inlineDecorations.js';
+import { IViewDecorationsCollection } from './inlineDecorations.js';
 import { ICoordinatesConverter } from '../coordinatesConverter.js';
-/**
- * A collection of decorations in a range of lines.
- */
-export interface IViewDecorationsCollection {
-    /**
-     * decorations in the range of lines (ungrouped).
-     */
-    readonly decorations: ViewModelDecoration[];
-    /**
-     * inline decorations (grouped by each line in the range of lines).
-     */
-    readonly inlineDecorations: InlineDecoration[][];
-    /**
-     * Whether the decorations affect the fonts.
-     */
-    readonly hasVariableFonts: boolean[];
-}
 export declare class ViewModelDecorations implements IDisposable {
     private readonly editorId;
-    private readonly model;
     private readonly configuration;
     private readonly _linesCollection;
-    private readonly _coordinatesConverter;
-    private _decorationsCache;
+    private readonly _inlineDecorationsComputer;
     private _cachedModelDecorationsResolver;
     private _cachedModelDecorationsResolverViewRange;
     constructor(editorId: number, model: ITextModel, configuration: IEditorConfiguration, linesCollection: IViewModelLines, coordinatesConverter: ICoordinatesConverter);
@@ -38,9 +19,7 @@ export declare class ViewModelDecorations implements IDisposable {
     reset(): void;
     onModelDecorationsChanged(): void;
     onLineMappingChanged(): void;
-    private _getOrCreateViewModelDecoration;
     getMinimapDecorationsInRange(range: Range): ViewModelDecoration[];
     getDecorationsViewportData(viewRange: Range): IViewDecorationsCollection;
     getDecorationsOnLine(lineNumber: number, onlyMinimapDecorations?: boolean, onlyMarginDecorations?: boolean): IViewDecorationsCollection;
-    private _getDecorationsInRange;
 }

@@ -11,6 +11,7 @@ import { ITelemetryService } from '../../../../../platform/telemetry/common/tele
 import { IWorkspaceContextService } from '../../../../../platform/workspace/common/workspace.js';
 import { IExtensionService } from '../../../../services/extensions/common/extensions.js';
 import { IChatEntitlementService } from '../../../../services/chat/common/chatEntitlementService.js';
+import { IChatDebugService } from '../chatDebugService.js';
 import { IMcpService } from '../../../mcp/common/mcpTypes.js';
 import { IChatAgentService } from '../participants/chatAgents.js';
 import { ChatModel, IChatModel, IChatRequestModel, IChatRequestVariableData, IExportableChatData, ISerializableChatData } from '../model/chatModel.js';
@@ -20,6 +21,7 @@ import { IChatSessionsService } from '../chatSessionsService.js';
 import { IChatSlashCommandService } from '../participants/chatSlashCommands.js';
 import { IChatTransferService } from '../model/chatTransferService.js';
 import { ChatAgentLocation } from '../constants.js';
+import { ILanguageModelsService } from '../languageModels.js';
 import { IPromptsService } from '../promptSyntax/service/promptsService.js';
 export declare class ChatService extends Disposable implements IChatService {
     private readonly storageService;
@@ -36,6 +38,8 @@ export declare class ChatService extends Disposable implements IChatService {
     private readonly mcpService;
     private readonly promptsService;
     private readonly chatEntitlementService;
+    private readonly languageModelsService;
+    private readonly chatDebugService;
     _serviceBrand: undefined;
     private readonly _sessionModels;
     private readonly _pendingRequests;
@@ -46,6 +50,7 @@ export declare class ChatService extends Disposable implements IChatService {
     private readonly _onDidSubmitRequest;
     readonly onDidSubmitRequest: Event<{
         readonly chatSessionResource: URI;
+        readonly message?: IParsedChatRequest;
     }>;
     get onDidCreateModel(): Event<ChatModel>;
     private readonly _onDidPerformUserAction;
@@ -76,7 +81,7 @@ export declare class ChatService extends Disposable implements IChatService {
     waitForModelDisposals(): Promise<void>;
     get edits2Enabled(): boolean;
     private get isEmptyWindow();
-    constructor(storageService: IStorageService, logService: ILogService, telemetryService: ITelemetryService, extensionService: IExtensionService, instantiationService: IInstantiationService, workspaceContextService: IWorkspaceContextService, chatSlashCommandService: IChatSlashCommandService, chatAgentService: IChatAgentService, configurationService: IConfigurationService, chatTransferService: IChatTransferService, chatSessionService: IChatSessionsService, mcpService: IMcpService, promptsService: IPromptsService, chatEntitlementService: IChatEntitlementService);
+    constructor(storageService: IStorageService, logService: ILogService, telemetryService: ITelemetryService, extensionService: IExtensionService, instantiationService: IInstantiationService, workspaceContextService: IWorkspaceContextService, chatSlashCommandService: IChatSlashCommandService, chatAgentService: IChatAgentService, configurationService: IConfigurationService, chatTransferService: IChatTransferService, chatSessionService: IChatSessionsService, mcpService: IMcpService, promptsService: IPromptsService, chatEntitlementService: IChatEntitlementService, languageModelsService: ILanguageModelsService, chatDebugService: IChatDebugService);
     get editingSessions(): import("../editing/chatEditingService.js").IChatEditingSession[];
     isEnabled(location: ChatAgentLocation): boolean;
     private migrateData;
@@ -116,16 +121,17 @@ export declare class ChatService extends Disposable implements IChatService {
     private shouldBeInHistory;
     removeHistoryEntry(sessionResource: URI): Promise<void>;
     clearAllHistoryEntries(): Promise<void>;
-    startSession(location: ChatAgentLocation, options?: IChatSessionStartOptions): IChatModelReference;
+    startNewLocalSession(location: ChatAgentLocation, options?: IChatSessionStartOptions): IChatModelReference;
     private _startSession;
     private initializeSession;
     activateDefaultAgent(location: ChatAgentLocation): Promise<void>;
     getSession(sessionResource: URI): IChatModel | undefined;
-    getActiveSessionReference(sessionResource: URI): IChatModelReference | undefined;
-    getOrRestoreSession(sessionResource: URI): Promise<IChatModelReference | undefined>;
+    acquireExistingSession(sessionResource: URI): IChatModelReference | undefined;
+    private acquireOrRestoreLocalSession;
     getSessionTitle(sessionResource: URI): string | undefined;
-    loadSessionFromContent(data: IExportableChatData | ISerializableChatData): IChatModelReference | undefined;
-    loadSessionForResource(chatSessionResource: URI, location: ChatAgentLocation, token: CancellationToken): Promise<IChatModelReference | undefined>;
+    loadSessionFromData(data: IExportableChatData | ISerializableChatData): IChatModelReference;
+    acquireOrLoadSession(sessionResource: URI, location: ChatAgentLocation, token: CancellationToken): Promise<IChatModelReference | undefined>;
+    private loadRemoteSession;
     getChatSessionFromInternalUri(sessionResource: URI): IChatSessionContext | undefined;
     resendRequest(request: IChatRequestModel, options?: IChatSendRequestOptions): Promise<void>;
     private queuePendingRequest;
@@ -145,7 +151,7 @@ export declare class ChatService extends Disposable implements IChatService {
     removeRequest(sessionResource: URI, requestId: string): Promise<void>;
     adoptRequest(sessionResource: URI, request: IChatRequestModel): Promise<void>;
     addCompleteRequest(sessionResource: URI, message: IParsedChatRequest | string, variableData: IChatRequestVariableData | undefined, attempt: number | undefined, response: IChatCompleteResponse): Promise<void>;
-    cancelCurrentRequestForSession(sessionResource: URI): void;
+    cancelCurrentRequestForSession(sessionResource: URI, source?: string): void;
     setYieldRequested(sessionResource: URI): void;
     removePendingRequest(sessionResource: URI, requestId: string): void;
     setPendingRequests(sessionResource: URI, requests: readonly {
@@ -156,7 +162,7 @@ export declare class ChatService extends Disposable implements IChatService {
     transferChatSession(transferredSessionResource: URI, toWorkspace: URI): Promise<void>;
     getChatStorageFolder(): URI;
     logChatIndex(): void;
-    setTitle(sessionResource: URI, title: string): void;
+    setSessionTitle(sessionResource: URI, title: string): void;
     appendProgress(request: IChatRequestModel, progress: IChatProgress): void;
     private toLocalSessionId;
 }

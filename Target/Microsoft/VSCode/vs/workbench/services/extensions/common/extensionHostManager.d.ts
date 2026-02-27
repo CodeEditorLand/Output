@@ -31,6 +31,7 @@ export declare class ExtensionHostManager extends Disposable implements IExtensi
     private readonly _customers;
     private readonly _extensionHost;
     private _proxy;
+    private _hasStarted;
     get pid(): number | null;
     get kind(): ExtensionHostKind;
     get startup(): ExtensionHostStartup;
@@ -39,6 +40,7 @@ export declare class ExtensionHostManager extends Disposable implements IExtensi
     disconnect(): Promise<void>;
     dispose(): void;
     private measure;
+    get isReady(): boolean;
     ready(): Promise<void>;
     private _measureLatency;
     private static _convert;

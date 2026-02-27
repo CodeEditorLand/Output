@@ -12,7 +12,7 @@ var __param = function(paramIndex, decorator) {
   };
 };
 import { reverseOrder, compareBy, numberComparator, sumBy } from "../../../../../base/common/arrays.js";
-import { IntervalTimer, TimeoutTimer } from "../../../../../base/common/async.js";
+import { IntervalTimer } from "../../../../../base/common/async.js";
 import { toDisposable, Disposable } from "../../../../../base/common/lifecycle.js";
 import { mapObservableArrayCached, derived, observableSignal, runOnChange, autorun } from "../../../../../base/common/observable.js";
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
@@ -109,14 +109,14 @@ let TrackedDocumentInfo = class TrackedDocumentInfo2 extends Disposable {
         return void 0;
       }
       resetSignal.read(reader);
-      reader.store.add(new TimeoutTimer(() => {
+      reader.store.add(this._userAttentionService.fireAfterGivenFocusTimePassed(10 * 60 * 1e3, () => {
         resetSignal.trigger(void 0);
-      }, 5 * 60 * 1e3));
+      }));
       const t = reader.store.add(new DocumentEditSourceTracker(docWithJustReason, void 0));
       const startFocusTime = this._userAttentionService.totalFocusTimeMs;
       const startTime = Date.now();
       reader.store.add(toDisposable(async () => {
-        this.sendTelemetry("5minWindow", "time", t, this._userAttentionService.totalFocusTimeMs - startFocusTime, Date.now() - startTime);
+        this.sendTelemetry("10minFocusWindow", "time", t, this._userAttentionService.totalFocusTimeMs - startFocusTime, Date.now() - startTime);
         t.dispose();
       }));
       return t;

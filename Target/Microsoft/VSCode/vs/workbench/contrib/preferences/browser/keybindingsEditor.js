@@ -23,6 +23,7 @@ import { HighlightedLabel } from "../../../../base/browser/ui/highlightedlabel/h
 import { KeybindingLabel } from "../../../../base/browser/ui/keybindingLabel/keybindingLabel.js";
 import { Action, Separator } from "../../../../base/common/actions.js";
 import { ActionBar } from "../../../../base/browser/ui/actionbar/actionbar.js";
+import { Button } from "../../../../base/browser/ui/button/button.js";
 import { EditorPane } from "../../../browser/parts/editor/editorPane.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
 import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
@@ -45,9 +46,10 @@ import { IStorageService } from "../../../../platform/storage/common/storage.js"
 import { Emitter, Event } from "../../../../base/common/event.js";
 import { MenuRegistry, MenuId, isIMenuItem } from "../../../../platform/actions/common/actions.js";
 import { WORKBENCH_BACKGROUND } from "../../../common/theme.js";
+import { IPreferencesService } from "../../../services/preferences/common/preferences.js";
 import { keybindingsRecordKeysIcon, keybindingsSortIcon, keybindingsAddIcon, preferencesClearInputIcon, keybindingsEditIcon } from "./preferencesIcons.js";
 import { ToolBar } from "../../../../base/browser/ui/toolbar/toolbar.js";
-import { defaultKeybindingLabelStyles, defaultToggleStyles, getInputBoxStyle } from "../../../../platform/theme/browser/defaultStyles.js";
+import { defaultButtonStyles, defaultKeybindingLabelStyles, defaultToggleStyles, getInputBoxStyle } from "../../../../platform/theme/browser/defaultStyles.js";
 import { IExtensionsWorkbenchService } from "../../extensions/common/extensions.js";
 import { StandardKeyboardEvent } from "../../../../base/browser/keyboardEvent.js";
 import { isString } from "../../../../base/common/types.js";
@@ -69,7 +71,7 @@ let KeybindingsEditor = class KeybindingsEditor2 extends EditorPane {
   static {
     this.ID = "workbench.editor.keybindings";
   }
-  constructor(group, telemetryService, themeService, keybindingsService, contextMenuService, keybindingEditingService, contextKeyService, notificationService, clipboardService, instantiationService, editorService, storageService, configurationService, accessibilityService) {
+  constructor(group, telemetryService, themeService, keybindingsService, contextMenuService, keybindingEditingService, contextKeyService, notificationService, clipboardService, instantiationService, editorService, storageService, configurationService, accessibilityService, preferencesService) {
     super(KeybindingsEditor_1.ID, group, telemetryService, themeService, storageService);
     this.keybindingsService = keybindingsService;
     this.contextMenuService = contextMenuService;
@@ -81,6 +83,7 @@ let KeybindingsEditor = class KeybindingsEditor2 extends EditorPane {
     this.editorService = editorService;
     this.configurationService = configurationService;
     this.accessibilityService = accessibilityService;
+    this.preferencesService = preferencesService;
     this._onDefineWhenExpression = this._register(new Emitter());
     this.onDefineWhenExpression = this._onDefineWhenExpression.event;
     this._onRejectWhenExpression = this._register(new Emitter());
@@ -289,7 +292,8 @@ let KeybindingsEditor = class KeybindingsEditor2 extends EditorPane {
     const fullTextSearchPlaceholder = localize("SearchKeybindings.FullTextSearchPlaceholder", "Type to search in keybindings");
     const keybindingsSearchPlaceholder = localize("SearchKeybindings.KeybindingsSearchPlaceholder", "Recording Keys. Press Escape to exit");
     const clearInputAction = this._register(new Action(KEYBINDINGS_EDITOR_COMMAND_CLEAR_SEARCH_RESULTS, localize("clearInput", "Clear Keybindings Search Input"), ThemeIcon.asClassName(preferencesClearInputIcon), false, async () => this.clearSearchResults()));
-    const searchContainer = DOM.append(this.headerContainer, $(".search-container"));
+    const searchRowContainer = DOM.append(this.headerContainer, $(".search-row-container"));
+    const searchContainer = DOM.append(searchRowContainer, $(".search-container"));
     this.searchWidget = this._register(this.instantiationService.createInstance(KeybindingsSearchWidget, searchContainer, {
       ariaLabel: fullTextSearchPlaceholder,
       placeholder: fullTextSearchPlaceholder,
@@ -351,6 +355,10 @@ let KeybindingsEditor = class KeybindingsEditor2 extends EditorPane {
     }));
     toolBar.setActions(actions);
     this._register(this.keybindingsService.onDidUpdateKeybindings(() => toolBar.setActions(actions)));
+    const openKeybindingsJsonContainer = DOM.append(searchRowContainer, $(".open-keybindings-json"));
+    const openKeybindingsJsonButton = this._register(new Button(openKeybindingsJsonContainer, { secondary: true, title: true, ...defaultButtonStyles }));
+    openKeybindingsJsonButton.label = localize("openKeybindingsJson", "Edit as JSON");
+    this._register(openKeybindingsJsonButton.onDidClick(() => this.preferencesService.openGlobalKeybindingSettings(true, { groupId: this.group.id })));
   }
   updateSearchOptions() {
     const keybindingsEditorInput = this.input;
@@ -739,7 +747,8 @@ KeybindingsEditor = KeybindingsEditor_1 = __decorate([
   __param(10, IEditorService),
   __param(11, IStorageService),
   __param(12, IConfigurationService),
-  __param(13, IAccessibilityService)
+  __param(13, IAccessibilityService),
+  __param(14, IPreferencesService)
 ], KeybindingsEditor);
 class Delegate {
   static {

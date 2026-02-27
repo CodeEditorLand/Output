@@ -27,6 +27,7 @@ import { IQuickInputService } from "../../../../../platform/quickinput/common/qu
 import { coalesce } from "../../../../../base/common/arrays.js";
 import { IStorageService } from "../../../../../platform/storage/common/storage.js";
 import { IPaneCompositePartService } from "../../../../services/panecomposite/browser/panecomposite.js";
+import { IWorkbenchEnvironmentService } from "../../../../services/environment/common/environmentService.js";
 const AGENT_SESSIONS_CATEGORY = localize2("chatSessions", "Chat Agent Sessions");
 class ToggleShowAgentSessionsAction extends Action2 {
   static {
@@ -462,14 +463,17 @@ class ArchiveAgentSessionAction extends BaseAgentSessionAction {
   async runWithSessions(sessions, accessor) {
     const chatService = accessor.get(IChatService);
     const dialogService = accessor.get(IDialogService);
+    const environmentService = accessor.get(IWorkbenchEnvironmentService);
     for (const session of sessions) {
-      const chatModel = chatService.getSession(session.resource);
-      if (chatModel && !await showClearEditingSessionConfirmation(chatModel, dialogService, {
-        isArchiveAction: true,
-        titleOverride: localize("archiveSession", "Archive chat with pending edits?"),
-        messageOverride: localize("archiveSessionDescription", "You have pending changes in this chat session.")
-      })) {
-        return;
+      if (!environmentService.isSessionsWindow) {
+        const chatModel = chatService.getSession(session.resource);
+        if (chatModel && !await showClearEditingSessionConfirmation(chatModel, dialogService, {
+          isArchiveAction: true,
+          titleOverride: localize("archiveSession", "Archive chat with pending edits?"),
+          messageOverride: localize("archiveSessionDescription", "You have pending changes in this chat session.")
+        })) {
+          return;
+        }
       }
       session.setArchived(true);
     }

@@ -16,6 +16,12 @@ var HookType;
   HookType2["SubagentStop"] = "SubagentStop";
   HookType2["Stop"] = "Stop";
 })(HookType || (HookType = {}));
+const COPILOT_CLI_HOOK_TYPE_MAP = {
+  "sessionStart": HookType.SessionStart,
+  "userPromptSubmitted": HookType.UserPromptSubmit,
+  "preToolUse": HookType.PreToolUse,
+  "postToolUse": HookType.PostToolUse
+};
 const HOOK_TYPES = [
   {
     id: HookType.SessionStart,
@@ -113,6 +119,101 @@ const hookArraySchema = {
   type: "array",
   items: hookCommandSchema
 };
+const vscodeHookProperties = {
+  SessionStart: {
+    ...hookArraySchema,
+    description: nls.localize("hookFile.sessionStart", "Executed when a new agent session begins. Use to initialize environments, log session starts, validate project state, or set up temporary resources.")
+  },
+  UserPromptSubmit: {
+    ...hookArraySchema,
+    description: nls.localize("hookFile.userPromptSubmit", "Executed when the user submits a prompt to the agent. Use to log user requests for auditing and usage analysis.")
+  },
+  PreToolUse: {
+    ...hookArraySchema,
+    description: nls.localize("hookFile.preToolUse", "Executed before the agent uses any tool. This is the most powerful hook as it can approve or deny tool executions. Use to block dangerous commands, enforce security policies, require approval for sensitive operations, or log tool usage.")
+  },
+  PostToolUse: {
+    ...hookArraySchema,
+    description: nls.localize("hookFile.postToolUse", "Executed after a tool completes execution successfully. Use to log execution results, track usage statistics, generate audit trails, or monitor performance.")
+  },
+  PreCompact: {
+    ...hookArraySchema,
+    description: nls.localize("hookFile.preCompact", "Executed before the agent compacts the conversation context. Use to save conversation state, export important information, or prepare for context reduction.")
+  },
+  SubagentStart: {
+    ...hookArraySchema,
+    description: nls.localize("hookFile.subagentStart", "Executed when a subagent is started. Use to log subagent spawning, track nested agent usage, or initialize subagent-specific resources.")
+  },
+  SubagentStop: {
+    ...hookArraySchema,
+    description: nls.localize("hookFile.subagentStop", "Executed when a subagent stops. Use to log subagent completion, cleanup subagent resources, or aggregate subagent results.")
+  },
+  Stop: {
+    ...hookArraySchema,
+    description: nls.localize("hookFile.stop", "Executed when the agent session stops. Use to cleanup resources, generate final reports, or send completion notifications.")
+  }
+};
+const copilotCliHookCommandSchema = {
+  type: "object",
+  additionalProperties: true,
+  required: ["type"],
+  anyOf: [
+    { required: ["bash"] },
+    { required: ["powershell"] }
+  ],
+  errorMessage: nls.localize("hook.cliCommandRequired", 'At least one of "bash" or "powershell" must be specified.'),
+  properties: {
+    type: {
+      type: "string",
+      enum: ["command"],
+      description: nls.localize("hook.type", 'Must be "command".')
+    },
+    bash: {
+      type: "string",
+      description: nls.localize("hook.bash", "Bash command for Linux and macOS.")
+    },
+    powershell: {
+      type: "string",
+      description: nls.localize("hook.powershell", "PowerShell command for Windows.")
+    },
+    cwd: {
+      type: "string",
+      description: nls.localize("hook.cwd", "Working directory for the script (relative to repository root).")
+    },
+    env: {
+      type: "object",
+      additionalProperties: { type: "string" },
+      description: nls.localize("hook.env", "Additional environment variables that are merged with the existing environment.")
+    },
+    timeoutSec: {
+      type: "number",
+      default: 10,
+      description: nls.localize("hook.timeoutSec", "Maximum execution time in seconds (default: 10).")
+    }
+  }
+};
+const copilotCliHookArraySchema = {
+  type: "array",
+  items: copilotCliHookCommandSchema
+};
+const copilotCliHookProperties = {
+  sessionStart: {
+    ...copilotCliHookArraySchema,
+    description: nls.localize("hookFile.cli.sessionStart", "Executed when a new agent session begins.")
+  },
+  userPromptSubmitted: {
+    ...copilotCliHookArraySchema,
+    description: nls.localize("hookFile.cli.userPromptSubmitted", "Executed when the user submits a prompt to the agent.")
+  },
+  preToolUse: {
+    ...copilotCliHookArraySchema,
+    description: nls.localize("hookFile.cli.preToolUse", "Executed before the agent uses any tool. Can approve or deny tool executions.")
+  },
+  postToolUse: {
+    ...copilotCliHookArraySchema,
+    description: nls.localize("hookFile.cli.postToolUse", "Executed after a tool completes execution successfully.")
+  }
+};
 const hookFileSchema = {
   $schema: "http://json-schema.org/draft-07/schema#",
   type: "object",
@@ -123,40 +224,34 @@ const hookFileSchema = {
     hooks: {
       type: "object",
       description: nls.localize("hookFile.hooks", "Hook definitions organized by type."),
-      additionalProperties: true,
-      properties: {
-        SessionStart: {
-          ...hookArraySchema,
-          description: nls.localize("hookFile.sessionStart", "Executed when a new agent session begins. Use to initialize environments, log session starts, validate project state, or set up temporary resources.")
-        },
-        UserPromptSubmit: {
-          ...hookArraySchema,
-          description: nls.localize("hookFile.userPromptSubmit", "Executed when the user submits a prompt to the agent. Use to log user requests for auditing and usage analysis.")
-        },
-        PreToolUse: {
-          ...hookArraySchema,
-          description: nls.localize("hookFile.preToolUse", "Executed before the agent uses any tool. This is the most powerful hook as it can approve or deny tool executions. Use to block dangerous commands, enforce security policies, require approval for sensitive operations, or log tool usage.")
-        },
-        PostToolUse: {
-          ...hookArraySchema,
-          description: nls.localize("hookFile.postToolUse", "Executed after a tool completes execution successfully. Use to log execution results, track usage statistics, generate audit trails, or monitor performance.")
-        },
-        PreCompact: {
-          ...hookArraySchema,
-          description: nls.localize("hookFile.preCompact", "Executed before the agent compacts the conversation context. Use to save conversation state, export important information, or prepare for context reduction.")
-        },
-        SubagentStart: {
-          ...hookArraySchema,
-          description: nls.localize("hookFile.subagentStart", "Executed when a subagent is started. Use to log subagent spawning, track nested agent usage, or initialize subagent-specific resources.")
-        },
-        SubagentStop: {
-          ...hookArraySchema,
-          description: nls.localize("hookFile.subagentStop", "Executed when a subagent stops. Use to log subagent completion, cleanup subagent resources, or aggregate subagent results.")
-        },
-        Stop: {
-          ...hookArraySchema,
-          description: nls.localize("hookFile.stop", "Executed when the agent session stops. Use to cleanup resources, generate final reports, or send completion notifications.")
-        }
+      additionalProperties: true
+    }
+  },
+  // Conditionally apply PascalCase or camelCase hook properties based on
+  // whether the file uses the Copilot CLI format (detected by the "version" field).
+  if: {
+    required: ["version"],
+    properties: {
+      version: { type: "number" }
+    }
+  },
+  then: {
+    // Copilot CLI format: camelCase hook names, bash/powershell/timeoutSec fields
+    properties: {
+      version: {
+        type: "number",
+        description: nls.localize("hookFile.version", "Hook configuration format version.")
+      },
+      hooks: {
+        properties: copilotCliHookProperties
+      }
+    }
+  },
+  else: {
+    // VS Code / PascalCase format
+    properties: {
+      hooks: {
+        properties: vscodeHookProperties
       }
     }
   },
@@ -284,10 +379,6 @@ function formatHookCommandLabel(hook, os) {
   if (!command) {
     return "";
   }
-  if (isUsingPlatformOverride(hook, os)) {
-    const platformLabel = getPlatformLabel(os);
-    return `[${platformLabel}] ${command}`;
-  }
   return command;
 }
 __name(formatHookCommandLabel, "formatHookCommandLabel");
@@ -323,6 +414,7 @@ function resolveHookCommand(raw, workspaceRootUri, userHome) {
 }
 __name(resolveHookCommand, "resolveHookCommand");
 export {
+  COPILOT_CLI_HOOK_TYPE_MAP,
   HOOK_FILE_GLOB,
   HOOK_SCHEMA_URI,
   HOOK_TYPES,

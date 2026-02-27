@@ -32,6 +32,7 @@ import { timeout } from "../../../../../../../base/common/async.js";
 import { ITerminalChatService, ITerminalConfigurationService, ITerminalEditorService, ITerminalGroupService, ITerminalService } from "../../../../../terminal/browser/terminal.js";
 import { Disposable, DisposableStore, MutableDisposable, toDisposable } from "../../../../../../../base/common/lifecycle.js";
 import { Emitter } from "../../../../../../../base/common/event.js";
+import { autorun } from "../../../../../../../base/common/observable.js";
 import { ThemeIcon } from "../../../../../../../base/common/themables.js";
 import { getTerminalCommandDecorationState, getTerminalCommandDecorationTooltip } from "../../../../../terminal/browser/xterm/decorationStyles.js";
 import * as dom from "../../../../../../../base/browser/dom.js";
@@ -55,6 +56,10 @@ import { editorBackground } from "../../../../../../../platform/theme/common/col
 import { IThemeService } from "../../../../../../../platform/theme/common/themeService.js";
 const MIN_OUTPUT_ROWS = 1;
 const MAX_OUTPUT_ROWS = 10;
+const MAX_COMMAND_TITLE_LENGTH = 50;
+const MAX_OUTPUT_POLL_RETRIES = 10;
+const OUTPUT_POLL_DELAY_MS = 100;
+const MIN_DATA_EVENTS_FOR_REAL_OUTPUT = 2;
 const expandedStateByInvocation = /* @__PURE__ */ new WeakMap();
 let TerminalCommandDecoration = class TerminalCommandDecoration2 extends Disposable {
   static {
@@ -181,6 +186,7 @@ let ChatTerminalToolProgressPart = class ChatTerminalToolProgressPart2 extends B
     this._continueInBackgroundAction = this._register(new MutableDisposable());
     this._userToggledOutput = false;
     this._isInThinkingContainer = false;
+    this._usesCollapsibleWrapper = false;
     this._elementIndex = context.elementIndex;
     this._contentIndex = context.contentIndex;
     this._sessionResource = context.element.sessionResource;
@@ -260,12 +266,27 @@ let ChatTerminalToolProgressPart = class ChatTerminalToolProgressPart2 extends B
     const progressPart = this._register(_instantiationService.createInstance(ChatProgressSubPart, elements.container, this.getIcon(), terminalData.autoApproveInfo));
     this._decoration.update();
     const terminalToolsInThinking = this._configurationService.getValue(ChatConfiguration.TerminalToolsInThinking);
+    const isSimpleTerminal = this._configurationService.getValue(ChatConfiguration.SimpleTerminalCollapsible);
     const requiresConfirmation = toolInvocation.kind === "toolInvocation" && IChatToolInvocation.getConfirmationMessages(toolInvocation);
-    if (terminalToolsInThinking && !requiresConfirmation) {
-      this._isInThinkingContainer = true;
-      this.domNode = this._createCollapsibleWrapper(progressPart.domNode, command, toolInvocation, context);
+    this._isInThinkingContainer = terminalToolsInThinking && !requiresConfirmation;
+    this._usesCollapsibleWrapper = this._isInThinkingContainer || isSimpleTerminal;
+    if (this._usesCollapsibleWrapper) {
+      this.domNode = this._createCollapsibleWrapper(progressPart.domNode, displayCommand, toolInvocation, context);
     } else {
       this.domNode = progressPart.domNode;
+      const updateCheckmarks = /* @__PURE__ */ __name(() => this.domNode.classList.toggle("show-checkmarks", !!this._configurationService.getValue(
+        "accessibility.chat.showCheckmarks"
+        /* AccessibilityWorkbenchSettingId.ShowChatCheckmarks */
+      )), "updateCheckmarks");
+      updateCheckmarks();
+      this._register(this._configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration(
+          "accessibility.chat.showCheckmarks"
+          /* AccessibilityWorkbenchSettingId.ShowChatCheckmarks */
+        )) {
+          updateCheckmarks();
+        }
+      }));
     }
     const hasStoredOutput = !!terminalData.terminalCommandOutput;
     if (expandedStateByInvocation.get(toolInvocation) || this._isInThinkingContainer && IChatToolInvocation.isComplete(toolInvocation) && hasStoredOutput) {
@@ -274,14 +295,22 @@ let ChatTerminalToolProgressPart = class ChatTerminalToolProgressPart2 extends B
     this._register(this._terminalChatService.registerProgressPart(this));
   }
   _createCollapsibleWrapper(contentElement, commandText, toolInvocation, context) {
-    const maxCommandLength = 50;
-    const truncatedCommand = commandText.length > maxCommandLength ? commandText.substring(0, maxCommandLength) + "..." : commandText;
+    const truncatedCommand = commandText.length > MAX_COMMAND_TITLE_LENGTH ? commandText.substring(0, MAX_COMMAND_TITLE_LENGTH) + "..." : commandText;
     const isComplete = IChatToolInvocation.isComplete(toolInvocation);
     const autoExpandFailures = this._configurationService.getValue(ChatConfiguration.AutoExpandToolFailures);
     const hasError = autoExpandFailures && this._terminalData.terminalCommandState?.exitCode !== void 0 && this._terminalData.terminalCommandState.exitCode !== 0;
     const initialExpanded = !isComplete || hasError;
     const wrapper = this._register(this._instantiationService.createInstance(ChatTerminalThinkingCollapsibleWrapper, truncatedCommand, contentElement, context, initialExpanded, isComplete));
     this._thinkingCollapsibleWrapper = wrapper;
+    let isFirstRun = true;
+    this._register(autorun((r) => {
+      const expanded = wrapper.expanded.read(r);
+      if (isFirstRun) {
+        isFirstRun = false;
+        return;
+      }
+      this._toggleOutput(expanded);
+    }));
     return wrapper.domNode;
   }
   expandCollapsibleWrapper() {
@@ -380,7 +409,7 @@ let ChatTerminalToolProgressPart = class ChatTerminalToolProgressPart2 extends B
     if (this._store.isDisposed) {
       return;
     }
-    if (this._isInThinkingContainer) {
+    if (this._usesCollapsibleWrapper) {
       return;
     }
     const resolvedCommand = command ?? this._getResolvedCommand();
@@ -428,6 +457,23 @@ let ChatTerminalToolProgressPart = class ChatTerminalToolProgressPart2 extends B
     }
     this._decoration.update();
   }
+  /**
+   * Determines whether the terminal output should auto-expand.
+   * Returns false if already expanded, user has manually toggled, component is disposed,
+   * or if the invocation was previously expanded (to preserve state across re-renders).
+   */
+  _shouldAutoExpand() {
+    return !this._outputView.isExpanded && !this._userToggledOutput && !this._store.isDisposed && !expandedStateByInvocation.get(this.toolInvocation);
+  }
+  /**
+   * Registers event listeners on the terminal instance to track command execution,
+   * manage auto-expansion of output, and handle command completion.
+   *
+   * This method sets up:
+   * - Command detection listeners for tracking command lifecycle
+   * - Auto-expand logic based on command output and duration
+   * - Instance disposal handling to clean up actions and state
+   */
   _registerInstanceListener(terminalInstance) {
     const commandDetectionListener = this._register(new MutableDisposable());
     const tryResolveCommand = /* @__PURE__ */ __name(async () => {
@@ -459,16 +505,16 @@ let ChatTerminalToolProgressPart = class ChatTerminalToolProgressPart2 extends B
         if (cursorLine > command.executedMarker.line) {
           return true;
         }
-        return receivedDataCount > 2;
+        return receivedDataCount > MIN_DATA_EVENTS_FOR_REAL_OUTPUT;
       }, "hasRealOutput");
       const autoExpand = store.add(new TerminalToolAutoExpand({
         commandDetection,
         onWillData: terminalInstance.onWillData,
-        shouldAutoExpand: /* @__PURE__ */ __name(() => !this._outputView.isExpanded && !this._userToggledOutput && !this._store.isDisposed && !expandedStateByInvocation.get(this.toolInvocation), "shouldAutoExpand"),
+        shouldAutoExpand: /* @__PURE__ */ __name(() => this._shouldAutoExpand(), "shouldAutoExpand"),
         hasRealOutput
       }));
       store.add(autoExpand.onDidRequestExpand(() => {
-        if (this._isInThinkingContainer) {
+        if (this._usesCollapsibleWrapper) {
           this.expandCollapsibleWrapper();
         }
         this._toggleOutput(true);
@@ -482,14 +528,7 @@ let ChatTerminalToolProgressPart = class ChatTerminalToolProgressPart2 extends B
       store.add(commandDetection.onCommandFinished(() => {
         this._addActions(terminalInstance, this._terminalData.terminalToolSessionId);
         const resolvedCommand = this._getResolvedCommand(terminalInstance);
-        this.markCollapsibleWrapperComplete();
-        if (resolvedCommand?.exitCode === 0 && this._outputView.isExpanded && !this._userToggledOutput) {
-          this._toggleOutput(false);
-        }
-        const autoExpandFailures = this._configurationService.getValue(ChatConfiguration.AutoExpandToolFailures);
-        if (autoExpandFailures && resolvedCommand?.exitCode !== void 0 && resolvedCommand.exitCode !== 0 && this._thinkingCollapsibleWrapper) {
-          this.expandCollapsibleWrapper();
-        }
+        this._handleCommandCompletion(resolvedCommand);
         if (resolvedCommand?.endMarker) {
           commandDetectionListener.clear();
         }
@@ -498,14 +537,7 @@ let ChatTerminalToolProgressPart = class ChatTerminalToolProgressPart2 extends B
       const resolvedImmediately = await tryResolveCommand();
       if (resolvedImmediately?.endMarker) {
         commandDetectionListener.clear();
-        this.markCollapsibleWrapperComplete();
-        if (resolvedImmediately.exitCode === 0 && this._outputView.isExpanded && !this._userToggledOutput) {
-          this._toggleOutput(false);
-        }
-        const autoExpandFailures = this._configurationService.getValue(ChatConfiguration.AutoExpandToolFailures);
-        if (autoExpandFailures && resolvedImmediately.exitCode !== void 0 && resolvedImmediately.exitCode !== 0 && this._thinkingCollapsibleWrapper) {
-          this.expandCollapsibleWrapper();
-        }
+        this._handleCommandCompletion(resolvedImmediately);
         return;
       }
     }, "attachCommandDetection");
@@ -557,6 +589,23 @@ let ChatTerminalToolProgressPart = class ChatTerminalToolProgressPart2 extends B
       }
     }
     this._continueInBackgroundAction.clear();
+  }
+  /**
+   * Handles the completion of a terminal command by updating the UI state.
+   * This includes marking the collapsible wrapper as complete, auto-collapsing
+   * successful commands, and keeping failed commands expanded.
+   *
+   * @param resolvedCommand The completed terminal command with exit code information.
+   */
+  _handleCommandCompletion(resolvedCommand) {
+    this.markCollapsibleWrapperComplete();
+    if (resolvedCommand?.exitCode === 0 && this._outputView.isExpanded && !this._userToggledOutput) {
+      this._toggleOutput(false);
+    }
+    const autoExpandFailures = this._configurationService.getValue(ChatConfiguration.AutoExpandToolFailures);
+    if (autoExpandFailures && resolvedCommand?.exitCode !== void 0 && resolvedCommand.exitCode !== 0 && this._thinkingCollapsibleWrapper) {
+      this.expandCollapsibleWrapper();
+    }
   }
   async _toggleOutput(expanded) {
     const didChange = await this._outputView.toggle(expanded);
@@ -904,9 +953,8 @@ ${outputText}`;
     let commandFinished = !!command.endMarker;
     let hasOutput = result && result.lineCount && result.lineCount > 0;
     if (!hasOutput) {
-      const maxRetries = 10;
-      for (let retry = 0; retry < maxRetries && !hasOutput; retry++) {
-        await timeout(100);
+      for (let retry = 0; retry < MAX_OUTPUT_POLL_RETRIES && !hasOutput; retry++) {
+        await timeout(OUTPUT_POLL_DELAY_MS);
         if (this._store.isDisposed) {
           return true;
         }
@@ -1230,13 +1278,16 @@ let ChatTerminalThinkingCollapsibleWrapper = class ChatTerminalThinkingCollapsib
   static {
     __name(this, "ChatTerminalThinkingCollapsibleWrapper");
   }
-  constructor(commandText, contentElement, context, initialExpanded, isComplete, hoverService) {
+  constructor(commandText, contentElement, context, initialExpanded, isComplete, hoverService, configurationService) {
     const title = isComplete ? `Ran \`${commandText}\`` : `Running \`${commandText}\``;
-    super(title, context, void 0, hoverService);
+    super(title, context, void 0, hoverService, configurationService);
     this._terminalContentElement = contentElement;
     this._commandText = commandText;
     this._isComplete = isComplete;
     this.domNode.classList.add("chat-terminal-thinking-collapsible");
+    if (isComplete) {
+      this.icon = Codicon.check;
+    }
     this._setCodeFormattedTitle();
     this.setExpanded(initialExpanded);
   }
@@ -1258,6 +1309,7 @@ let ChatTerminalThinkingCollapsibleWrapper = class ChatTerminalThinkingCollapsib
       return;
     }
     this._isComplete = true;
+    this.icon = Codicon.check;
     this._setCodeFormattedTitle();
   }
   initContent() {
@@ -1273,7 +1325,8 @@ let ChatTerminalThinkingCollapsibleWrapper = class ChatTerminalThinkingCollapsib
   }
 };
 ChatTerminalThinkingCollapsibleWrapper = __decorate([
-  __param(5, IHoverService)
+  __param(5, IHoverService),
+  __param(6, IConfigurationService)
 ], ChatTerminalThinkingCollapsibleWrapper);
 export {
   ChatTerminalToolProgressPart,

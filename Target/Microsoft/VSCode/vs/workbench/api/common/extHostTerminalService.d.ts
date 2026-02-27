@@ -78,7 +78,7 @@ export declare class ExtHostTerminal extends Disposable {
     constructor(_proxy: MainThreadTerminalServiceShape, _id: ExtHostTerminalIdentifier, _creationOptions: vscode.TerminalOptions | vscode.ExtensionTerminalOptions, _name?: string | undefined);
     dispose(): void;
     create(options: vscode.TerminalOptions, internalOptions?: ITerminalInternalOptions): Promise<void>;
-    createExtensionTerminal(location?: TerminalLocation | vscode.TerminalEditorLocationOptions | vscode.TerminalSplitLocationOptions, internalOptions?: ITerminalInternalOptions, parentTerminal?: ExtHostTerminalIdentifier, iconPath?: TerminalIcon, color?: ThemeColor, shellIntegrationNonce?: string): Promise<number>;
+    createExtensionTerminal(location?: TerminalLocation | vscode.TerminalEditorLocationOptions | vscode.TerminalSplitLocationOptions, internalOptions?: ITerminalInternalOptions, parentTerminal?: ExtHostTerminalIdentifier, iconPath?: TerminalIcon, color?: ThemeColor, shellIntegrationNonce?: string, titleTemplate?: string): Promise<number>;
     private _serializeParentTerminal;
     private _checkDisposed;
     set name(name: string);

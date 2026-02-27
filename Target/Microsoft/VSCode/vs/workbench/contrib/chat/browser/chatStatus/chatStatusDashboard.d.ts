@@ -53,4 +53,5 @@ export declare class ChatStatusDashboard extends DomWidget {
     private createNextEditSuggestionsSetting;
     private createCompletionsSnooze;
     private showModelPicker;
+    private showProviderOptionPicker;
 }

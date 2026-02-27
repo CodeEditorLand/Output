@@ -1172,7 +1172,7 @@ let ChatModel = ChatModel_1 = class ChatModel2 extends Disposable {
         const needsInput = this.requestNeedsInput.read(r);
         const shouldStayAlive = inProgress || !!needsInput;
         if (shouldStayAlive && !selfRef.value) {
-          selfRef.value = chatService.getActiveSessionReference(this._sessionResource);
+          selfRef.value = chatService.acquireExistingSession(this._sessionResource);
         } else if (!shouldStayAlive && selfRef.value) {
           selfRef.clear();
         }
@@ -1189,7 +1189,7 @@ let ChatModel = ChatModel_1 = class ChatModel2 extends Disposable {
           /* ModifiedFileEntryState.Modified */
         );
         if (hasModified && !selfRef.value) {
-          selfRef.value = this.chatService.getActiveSessionReference(this._sessionResource);
+          selfRef.value = this.chatService.acquireExistingSession(this._sessionResource);
         } else if (!hasModified && selfRef.value) {
           selfRef.clear();
         }

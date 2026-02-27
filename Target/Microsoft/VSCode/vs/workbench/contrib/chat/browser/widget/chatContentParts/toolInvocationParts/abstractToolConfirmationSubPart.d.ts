@@ -16,7 +16,10 @@ export interface IToolConfirmationConfig {
     partType: string;
     subtitle?: string;
 }
-type AbstractToolPrimaryAction = IChatConfirmationButton<(() => void)> | Separator;
+export interface IAbstractToolPrimaryAction extends IChatConfirmationButton<(() => void)> {
+    scope?: 'session' | 'workspace' | 'profile';
+}
+type AbstractToolPrimaryAction = IAbstractToolPrimaryAction | Separator;
 /**
  * Base class for a tool confirmation.
  *

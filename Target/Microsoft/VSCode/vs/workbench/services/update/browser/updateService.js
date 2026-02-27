@@ -74,7 +74,7 @@ let BrowserUpdateService = class BrowserUpdateService2 extends Disposable {
   }
   async _applySpecificUpdate(packagePath) {
   }
-  async disableProgressiveReleases() {
+  async setInternalOrg(_internalOrg) {
   }
 };
 BrowserUpdateService = __decorate([

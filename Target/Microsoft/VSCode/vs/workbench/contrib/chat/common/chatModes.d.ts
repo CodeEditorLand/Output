@@ -141,6 +141,9 @@ type IChatModeSourceData = {
     type?: ExtensionAgentSourceType;
 } | {
     readonly storage: PromptsStorage.local | PromptsStorage.user;
+} | {
+    readonly storage: PromptsStorage.plugin;
+    readonly pluginUri: URI;
 };
 export declare class BuiltinChatMode implements IChatMode {
     readonly kind: ChatModeKind;
@@ -163,4 +166,9 @@ export declare namespace ChatMode {
     const Agent: BuiltinChatMode;
 }
 export declare function isBuiltinChatMode(mode: IChatMode): boolean;
+/**
+ * Returns a telemetry-safe mode name. User/local mode names are hashed
+ * to avoid leaking PII; builtin and extension mode names are returned as-is.
+ */
+export declare function getModeNameForTelemetry(mode: IChatMode): string;
 export {};

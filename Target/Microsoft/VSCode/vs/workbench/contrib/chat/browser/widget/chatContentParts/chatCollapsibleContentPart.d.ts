@@ -2,6 +2,7 @@ import { ButtonWithIcon } from '../../../../../../base/browser/ui/button/button.
 import { IMarkdownString, MarkdownString } from '../../../../../../base/common/htmlContent.js';
 import { Disposable, IDisposable } from '../../../../../../base/common/lifecycle.js';
 import { IObservable } from '../../../../../../base/common/observable.js';
+import { IConfigurationService } from '../../../../../../platform/configuration/common/configuration.js';
 import { IHoverService } from '../../../../../../platform/hover/browser/hover.js';
 import { IChatRendererContent } from '../../../common/model/chatViewModel.js';
 import { ChatTreeItem } from '../../chat.js';
@@ -20,12 +21,13 @@ export declare abstract class ChatCollapsibleContentPart extends Disposable impl
     protected _isExpanded: import("../../../../../../base/common/observable.js").ISettableObservable<boolean, void>;
     protected _collapseButton: ButtonWithIcon | undefined;
     private readonly _overrideIcon;
+    protected readonly _showCheckmarks: IObservable<boolean>;
     private _contentElement?;
     private _contentInitialized;
     get icon(): ThemeIcon | undefined;
     set icon(value: ThemeIcon | undefined);
     protected readonly element: ChatTreeItem;
-    constructor(title: IMarkdownString | string, context: IChatContentPartRenderContext, hoverMessage: IMarkdownString | undefined, hoverService: IHoverService);
+    constructor(title: IMarkdownString | string, context: IChatContentPartRenderContext, hoverMessage: IMarkdownString | undefined, hoverService: IHoverService, configurationService: IConfigurationService);
     get domNode(): HTMLElement;
     protected init(): HTMLElement;
     protected abstract initContent(): HTMLElement;

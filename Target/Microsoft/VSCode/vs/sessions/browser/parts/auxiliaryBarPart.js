@@ -50,7 +50,7 @@ let AuxiliaryBarPart = class AuxiliaryBarPart2 extends AbstractPaneCompositePart
     this.pinnedViewsKey = "workbench.agentsession.auxiliarybar.pinnedPanels";
   }
   static {
-    this.placeholdeViewContainersKey = "workbench.agentsession.auxiliarybar.placeholderPanels";
+    this.placeholderViewContainersKey = "workbench.agentsession.auxiliarybar.placeholderPanels";
   }
   static {
     this.viewContainersWorkspaceStateKey = "workbench.agentsession.auxiliarybar.viewContainersWorkspaceState";
@@ -118,7 +118,7 @@ let AuxiliaryBarPart = class AuxiliaryBarPart2 extends AbstractPaneCompositePart
     return {
       partContainerClass: "auxiliarybar",
       pinnedViewContainersKey: AuxiliaryBarPart_1.pinnedViewsKey,
-      placeholderViewContainersKey: AuxiliaryBarPart_1.placeholdeViewContainersKey,
+      placeholderViewContainersKey: AuxiliaryBarPart_1.placeholderViewContainersKey,
       viewContainersWorkspaceStateKey: AuxiliaryBarPart_1.viewContainersWorkspaceStateKey,
       icon: false,
       orientation: 0,

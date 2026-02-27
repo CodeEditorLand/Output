@@ -1,4 +1,5 @@
 import './media/chatSetup.css';
+import { ThemeIcon } from '../../../../../base/common/themables.js';
 import { Lazy } from '../../../../../base/common/lazy.js';
 import { ICommandService } from '../../../../../platform/commands/common/commands.js';
 import { IInstantiationService } from '../../../../../platform/instantiation/common/instantiation.js';
@@ -30,6 +31,9 @@ export declare class ChatSetup {
         forceSignInDialog?: boolean;
         additionalScopes?: readonly string[];
         forceAnonymous?: ChatSetupAnonymous;
+        dialogIcon?: ThemeIcon;
+        dialogTitle?: string;
+        dialogHideSkip?: boolean;
     }): Promise<IChatSetupResult>;
     private doRun;
     private showDialog;

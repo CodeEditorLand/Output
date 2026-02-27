@@ -1,7 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Codicon } from "../../../../../base/common/codicons.js";
-import { hash } from "../../../../../base/common/hash.js";
 import { basename } from "../../../../../base/common/resources.js";
 import { ThemeIcon } from "../../../../../base/common/themables.js";
 import { assertType } from "../../../../../base/common/types.js";
@@ -17,12 +16,11 @@ import { ILogService } from "../../../../../platform/log/common/log.js";
 import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
 import { IViewsService } from "../../../../services/views/common/viewsService.js";
 import { ChatContextKeys } from "../../common/actions/chatContextKeys.js";
-import { IChatModeService } from "../../common/chatModes.js";
+import { getModeNameForTelemetry, IChatModeService } from "../../common/chatModes.js";
 import { chatVariableLeader } from "../../common/requestParser/chatParserTypes.js";
 import { ChatStopCancellationNoopEventName, IChatService } from "../../common/chatService/chatService.js";
 import { ChatAgentLocation, ChatConfiguration, ChatModeKind } from "../../common/constants.js";
 import { ILanguageModelToolsService } from "../../common/tools/languageModelToolsService.js";
-import { PromptsStorage } from "../../common/promptSyntax/service/promptsService.js";
 import { isInClaudeAgentsFolder } from "../../common/promptSyntax/config/promptFileLocations.js";
 import { IChatSessionsService } from "../../common/chatSessionsService.js";
 import { IChatWidgetService } from "../chat.js";
@@ -31,6 +29,7 @@ import { getEditingSessionContext } from "../chatEditing/chatEditingActions.js";
 import { ctxHasEditorModification, ctxHasRequestInProgress, ctxIsGlobalEditingSession } from "../chatEditing/chatEditingEditorContextKeys.js";
 import { ACTION_ID_NEW_CHAT, CHAT_CATEGORY, clearChatSessionPreservingType, handleCurrentEditingSession, handleModeSwitch } from "./chatActions.js";
 import { CreateRemoteAgentJobAction } from "./chatContinueInAction.js";
+import { CTX_HOVER_MODE } from "../../../inlineChat/common/inlineChat.js";
 class SubmitAction extends Action2 {
   static {
     __name(this, "SubmitAction");
@@ -127,7 +126,7 @@ class SubmitAction extends Action2 {
     return new CreateRemoteAgentJobAction().run(accessor, targetContribution, widget);
   }
 }
-const requestInProgressOrPendingToolCall = ContextKeyExpr.or(ChatContextKeys.requestInProgress, ChatContextKeys.Editing.hasToolConfirmation);
+const requestInProgressOrPendingToolCall = ContextKeyExpr.or(ChatContextKeys.requestInProgress, ChatContextKeys.Editing.hasToolConfirmation, ChatContextKeys.Editing.hasQuestionCarousel);
 const whenNotInProgress = ChatContextKeys.requestInProgress.negate();
 class ChatSubmitAction extends SubmitAction {
   static {
@@ -228,13 +227,6 @@ class ToggleChatModeAction extends Action2 {
     const extensionId = switchToMode.source?.storage === "extension" ? switchToMode.source.extensionId.value : void 0;
     const toolsCount = switchToMode.customTools?.get()?.length ?? 0;
     const handoffsCount = switchToMode.handOffs?.get()?.length ?? 0;
-    const getModeNameForTelemetry = /* @__PURE__ */ __name((mode) => {
-      const modeStorage = mode.source?.storage;
-      if (modeStorage === PromptsStorage.local || modeStorage === PromptsStorage.user) {
-        return String(hash(mode.name.get()));
-      }
-      return mode.name.get();
-    }, "getModeNameForTelemetry");
     const modeUri = switchToMode.uri?.get();
     const isClaudeAgent = modeUri ? isInClaudeAgentsFolder(modeUri) : void 0;
     telemetryService.publicLog2("chat.modeChange", {
@@ -670,7 +662,7 @@ class SendToNewChatAction extends Action2 {
     }
     const inputBeforeClear = widget.getInput();
     if (widget.viewModel) {
-      chatService.cancelCurrentRequestForSession(widget.viewModel.sessionResource);
+      chatService.cancelCurrentRequestForSession(widget.viewModel.sessionResource, "newSessionAction");
     }
     if (widget.viewModel?.model) {
       if (!await handleCurrentEditingSession(widget.viewModel.model, void 0, dialogService)) {
@@ -706,7 +698,7 @@ class CancelAction extends Action2 {
         },
         {
           id: MenuId.ChatEditorInlineExecute,
-          when: ContextKeyExpr.and(ctxIsGlobalEditingSession.negate(), ctxHasRequestInProgress),
+          when: ContextKeyExpr.and(ctxIsGlobalEditingSession.negate(), ctxHasRequestInProgress, CTX_HOVER_MODE.negate()),
           order: 4,
           group: "navigation"
         }
@@ -740,7 +732,7 @@ class CancelAction extends Action2 {
     }
     const chatService = accessor.get(IChatService);
     if (widget.viewModel) {
-      chatService.cancelCurrentRequestForSession(widget.viewModel.sessionResource);
+      chatService.cancelCurrentRequestForSession(widget.viewModel.sessionResource, "cancelAction");
     } else {
       telemetryService.publicLog2(ChatStopCancellationNoopEventName, {
         source: "cancelAction",

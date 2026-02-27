@@ -551,10 +551,10 @@ class ExtHostChatAgents2 extends Disposable {
     }
     this._onDidChangeChatRequestTools.fire(request.extRequest);
   }
-  $setYieldRequested(requestId) {
+  $setYieldRequested(requestId, value) {
     const request = [...this._inFlightRequests].find((r) => r.requestId === requestId);
     if (request) {
-      request.yieldRequested = true;
+      request.yieldRequested = value;
     }
   }
   async $invokeAgent(handle, requestDto, context, token) {

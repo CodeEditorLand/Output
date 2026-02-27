@@ -10,8 +10,10 @@ export declare class EmergencyAlert extends Disposable implements IWorkbenchCont
     private readonly productService;
     private readonly logService;
     static readonly ID = "workbench.contrib.emergencyAlert";
-    private readonly pollingTimer;
+    private currentAlertMessage;
+    private currentAlertActions;
     constructor(bannerService: IBannerService, requestService: IRequestService, productService: IProductService, logService: ILogService);
     private fetchAlerts;
     private doFetchAlerts;
+    private dismissAlert;
 }

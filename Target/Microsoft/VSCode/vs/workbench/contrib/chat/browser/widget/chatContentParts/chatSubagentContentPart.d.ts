@@ -1,6 +1,7 @@
 import { IDisposable } from '../../../../../../base/common/lifecycle.js';
 import { IHoverService } from '../../../../../../platform/hover/browser/hover.js';
 import { IInstantiationService } from '../../../../../../platform/instantiation/common/instantiation.js';
+import { IConfigurationService } from '../../../../../../platform/configuration/common/configuration.js';
 import { IMarkdownRenderer } from '../../../../../../platform/markdown/browser/markdownRenderer.js';
 import { IChatHookPart, IChatMarkdownContent, IChatToolInvocation, IChatToolInvocationSerialized } from '../../../common/chatService/chatService.js';
 import { IChatRendererContent } from '../../../common/model/chatViewModel.js';
@@ -60,7 +61,7 @@ export declare class ChatSubagentContentPart extends ChatCollapsibleContentPart 
      * Extracts subagent info (description, agentName, prompt) from a tool invocation.
      */
     private static extractSubagentInfo;
-    constructor(subAgentInvocationId: string, toolInvocation: IChatToolInvocation | IChatToolInvocationSerialized, context: IChatContentPartRenderContext, chatContentMarkdownRenderer: IMarkdownRenderer, listPool: CollapsibleListPool, editorPool: EditorPool, currentWidthDelegate: () => number, codeBlockModelCollection: CodeBlockModelCollection, announcedToolProgressKeys: Set<string>, instantiationService: IInstantiationService, chatMarkdownAnchorService: IChatMarkdownAnchorService, hoverService: IHoverService);
+    constructor(subAgentInvocationId: string, toolInvocation: IChatToolInvocation | IChatToolInvocationSerialized, context: IChatContentPartRenderContext, chatContentMarkdownRenderer: IMarkdownRenderer, listPool: CollapsibleListPool, editorPool: EditorPool, currentWidthDelegate: () => number, codeBlockModelCollection: CodeBlockModelCollection, announcedToolProgressKeys: Set<string>, instantiationService: IInstantiationService, chatMarkdownAnchorService: IChatMarkdownAnchorService, hoverService: IHoverService, configurationService: IConfigurationService);
     protected initContent(): HTMLElement;
     /**
      * Renders the prompt as a collapsible section at the start of the content.

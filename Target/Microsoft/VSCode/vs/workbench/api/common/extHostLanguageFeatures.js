@@ -1294,6 +1294,9 @@ class InlineCompletionAdapter {
   get supportsSetModelId() {
     return isProposedApiEnabled(this._extension, "inlineCompletionsAdditions") && typeof this._provider.setCurrentModelId === "function";
   }
+  get supportsSetProviderOption() {
+    return isProposedApiEnabled(this._extension, "inlineCompletionsAdditions") && typeof this._provider.setProviderOptionValue === "function";
+  }
   get modelInfo() {
     if (!this._isAdditionsProposedApiEnabled) {
       return void 0;
@@ -1308,6 +1311,23 @@ class InlineCompletionAdapter {
       return;
     }
     this._provider.setCurrentModelId?.(modelId);
+  }
+  get providerOptions() {
+    if (!this._isAdditionsProposedApiEnabled) {
+      return void 0;
+    }
+    return this._provider.providerOptions?.map((o) => ({
+      id: o.id,
+      label: o.label,
+      values: o.values.map((v) => ({ id: v.id, label: v.label })),
+      currentValueId: o.currentValueId
+    }));
+  }
+  setProviderOption(optionId, valueId) {
+    if (!this._isAdditionsProposedApiEnabled) {
+      return;
+    }
+    this._provider.setProviderOptionValue?.(optionId, valueId);
   }
   async provideInlineCompletions(resource, position, context, token) {
     const doc = this._documents.getDocument(resource);
@@ -2343,7 +2363,12 @@ class ExtHostLanguageFeatures extends CoreDisposable {
       const subscription = provider.onDidChangeModelInfo((_) => this._proxy.$emitInlineCompletionModelInfoChange(handle, adapter.modelInfo));
       result = Disposable.from(result, subscription);
     }
-    this._proxy.$registerInlineCompletionsSupport(handle, this._transformDocumentSelector(selector, extension), adapter.supportsHandleEvents, ExtensionIdentifier.toKey(extension.identifier.value), extension.version, metadata?.groupId ? ExtensionIdentifier.toKey(metadata.groupId) : void 0, metadata?.yieldTo?.map((extId) => ExtensionIdentifier.toKey(extId)) || [], metadata?.displayName, metadata?.debounceDelayMs, metadata?.excludes?.map((extId) => ExtensionIdentifier.toKey(extId)) || [], supportsOnDidChange, adapter.supportsSetModelId, adapter.modelInfo, supportsOnDidChangeModelInfo);
+    const supportsOnDidChangeProviderOptions = isProposedApiEnabled(extension, "inlineCompletionsAdditions") && typeof provider.onDidChangeProviderOptions === "function";
+    if (supportsOnDidChangeProviderOptions) {
+      const subscription = provider.onDidChangeProviderOptions((_) => this._proxy.$emitInlineCompletionProviderOptionsChange(handle, adapter.providerOptions));
+      result = Disposable.from(result, subscription);
+    }
+    this._proxy.$registerInlineCompletionsSupport(handle, this._transformDocumentSelector(selector, extension), adapter.supportsHandleEvents, ExtensionIdentifier.toKey(extension.identifier.value), extension.version, metadata?.groupId ? ExtensionIdentifier.toKey(metadata.groupId) : void 0, metadata?.yieldTo?.map((extId) => ExtensionIdentifier.toKey(extId)) || [], metadata?.displayName, metadata?.debounceDelayMs, metadata?.excludes?.map((extId) => ExtensionIdentifier.toKey(extId)) || [], supportsOnDidChange, adapter.supportsSetModelId, adapter.modelInfo, supportsOnDidChangeModelInfo, adapter.supportsSetProviderOption, adapter.providerOptions, supportsOnDidChangeProviderOptions);
     return result;
   }
   $provideInlineCompletions(handle, resource, position, context, token) {
@@ -2381,6 +2406,11 @@ class ExtHostLanguageFeatures extends CoreDisposable {
   $handleInlineCompletionSetCurrentModelId(handle, modelId) {
     this._withAdapter(handle, InlineCompletionAdapter, async (adapter) => {
       adapter.setCurrentModelId(modelId);
+    }, void 0, void 0);
+  }
+  $handleInlineCompletionSetProviderOption(handle, optionId, valueId) {
+    this._withAdapter(handle, InlineCompletionAdapter, async (adapter) => {
+      adapter.setProviderOption(optionId, valueId);
     }, void 0, void 0);
   }
   // --- parameter hints

@@ -11,9 +11,14 @@ var __param = function(paramIndex, decorator) {
     decorator(target, key, paramIndex);
   };
 };
+var BrowserViewModel_1;
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
 import { Emitter } from "../../../../base/common/event.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IPlaywrightService } from "../../../../platform/browserView/common/playwrightService.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { localize } from "../../../../nls.js";
 import { BrowserViewStorageScope } from "../../../../platform/browserView/common/browserView.js";
 import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
@@ -25,7 +30,10 @@ let BrowserViewModel = class BrowserViewModel2 extends Disposable {
   static {
     __name(this, "BrowserViewModel");
   }
-  constructor(id, browserViewService, workspaceContextService, workspaceTrustManagementService, telemetryService, configurationService) {
+  static {
+    BrowserViewModel_1 = this;
+  }
+  constructor(id, browserViewService, workspaceContextService, workspaceTrustManagementService, telemetryService, configurationService, playwrightService, dialogService, storageService) {
     super();
     this.id = id;
     this.browserViewService = browserViewService;
@@ -33,6 +41,9 @@ let BrowserViewModel = class BrowserViewModel2 extends Disposable {
     this.workspaceTrustManagementService = workspaceTrustManagementService;
     this.telemetryService = telemetryService;
     this.configurationService = configurationService;
+    this.playwrightService = playwrightService;
+    this.dialogService = dialogService;
+    this.storageService = storageService;
     this._url = "";
     this._title = "";
     this._favicon = void 0;
@@ -45,6 +56,9 @@ let BrowserViewModel = class BrowserViewModel2 extends Disposable {
     this._canGoForward = false;
     this._error = void 0;
     this._storageScope = BrowserViewStorageScope.Ephemeral;
+    this._sharedWithAgent = false;
+    this._onDidChangeSharedWithAgent = this._register(new Emitter());
+    this.onDidChangeSharedWithAgent = this._onDidChangeSharedWithAgent.event;
     this._onWillDispose = this._register(new Emitter());
     this.onWillDispose = this._onWillDispose.event;
   }
@@ -83,6 +97,9 @@ let BrowserViewModel = class BrowserViewModel2 extends Disposable {
   }
   get storageScope() {
     return this._storageScope;
+  }
+  get sharedWithAgent() {
+    return this._sharedWithAgent;
   }
   get onDidNavigate() {
     return this.browserViewService.onDynamicDidNavigate(this.id);
@@ -139,11 +156,13 @@ let BrowserViewModel = class BrowserViewModel2 extends Disposable {
     this._favicon = state.lastFavicon;
     this._error = state.lastError;
     this._storageScope = state.storageScope;
+    this._sharedWithAgent = await this.playwrightService.isPageTracked(this.id);
     this._register(this.onDidNavigate((e) => {
       if (URL.parse(e.url)?.host !== URL.parse(this._url)?.host) {
         this._favicon = void 0;
       }
       this._url = e.url;
+      this._title = e.title;
       this._canGoBack = e.canGoBack;
       this._canGoForward = e.canGoForward;
     }));
@@ -165,6 +184,9 @@ let BrowserViewModel = class BrowserViewModel2 extends Disposable {
     }));
     this._register(this.onDidChangeVisibility(({ visible }) => {
       this._visible = visible;
+    }));
+    this._register(this.playwrightService.onDidChangeTrackedPages((ids) => {
+      this._setSharedWithAgent(ids.includes(this.id));
     }));
   }
   async layout(bounds) {
@@ -218,6 +240,59 @@ let BrowserViewModel = class BrowserViewModel2 extends Disposable {
   async clearStorage() {
     return this.browserViewService.clearStorage(this.id);
   }
+  static {
+    this.SHARE_DONT_ASK_KEY = "browserView.shareWithAgent.dontAskAgain";
+  }
+  async setSharedWithAgent(shared) {
+    if (shared) {
+      const storedChoice = this.storageService.getBoolean(
+        BrowserViewModel_1.SHARE_DONT_ASK_KEY,
+        0
+        /* StorageScope.PROFILE */
+      );
+      if (!storedChoice) {
+        const result = await this.dialogService.confirm({
+          type: "question",
+          title: localize("browserView.shareWithAgent.title", "Share with Agent?"),
+          message: localize("browserView.shareWithAgent.message", "Share this browser page with the agent?"),
+          detail: localize("browserView.shareWithAgent.detail", "The agent will be able to read and modify browser content and saved data, including cookies."),
+          primaryButton: localize("browserView.shareWithAgent.allow", "&&Allow"),
+          cancelButton: localize("browserView.shareWithAgent.deny", "Deny"),
+          checkbox: { label: localize("browserView.shareWithAgent.dontAskAgain", "Don't ask again"), checked: false }
+        });
+        if (result.confirmed && result.checkboxChecked) {
+          this.storageService.store(
+            BrowserViewModel_1.SHARE_DONT_ASK_KEY,
+            result.confirmed,
+            0,
+            0
+            /* StorageTarget.USER */
+          );
+        }
+        this.telemetryService.publicLog2("integratedBrowser.shareWithAgent", {
+          shared: result.confirmed,
+          dontAskAgain: result.checkboxChecked ?? false
+        });
+        if (!result.confirmed) {
+          return;
+        }
+      } else {
+        this.telemetryService.publicLog2("integratedBrowser.shareWithAgent", {
+          shared: true,
+          dontAskAgain: true
+        });
+      }
+      await this.playwrightService.startTrackingPage(this.id);
+    } else {
+      await this.playwrightService.stopTrackingPage(this.id);
+    }
+  }
+  _setSharedWithAgent(isShared) {
+    if (isShared !== this._sharedWithAgent) {
+      this._sharedWithAgent = isShared;
+      this._onDidChangeSharedWithAgent.fire(isShared);
+    }
+  }
   /**
    * Log navigation telemetry event
    */
@@ -239,11 +314,14 @@ let BrowserViewModel = class BrowserViewModel2 extends Disposable {
     super.dispose();
   }
 };
-BrowserViewModel = __decorate([
+BrowserViewModel = BrowserViewModel_1 = __decorate([
   __param(2, IWorkspaceContextService),
   __param(3, IWorkspaceTrustManagementService),
   __param(4, ITelemetryService),
-  __param(5, IConfigurationService)
+  __param(5, IConfigurationService),
+  __param(6, IPlaywrightService),
+  __param(7, IDialogService),
+  __param(8, IStorageService)
 ], BrowserViewModel);
 export {
   BrowserViewModel,

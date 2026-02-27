@@ -11,7 +11,7 @@ var __param = function(paramIndex, decorator) {
     decorator(target, key, paramIndex);
   };
 };
-var ProductContribution_1;
+var ProductContribution_1, DefaultAccountUpdateContribution_1;
 import * as nls from "../../../../nls.js";
 import severity from "../../../../base/common/severity.js";
 import { Disposable, MutableDisposable } from "../../../../base/common/lifecycle.js";
@@ -34,19 +34,18 @@ import { IHostService } from "../../../services/host/browser/host.js";
 import { IProductService } from "../../../../platform/product/common/productService.js";
 import { IUserDataSyncEnablementService, IUserDataSyncService, IUserDataSyncStoreManagementService } from "../../../../platform/userDataSync/common/userDataSync.js";
 import { IsWebContext } from "../../../../platform/contextkey/common/contextkeys.js";
-import { Promises } from "../../../../base/common/async.js";
+import { Promises, Throttler } from "../../../../base/common/async.js";
 import { IUserDataSyncWorkbenchService } from "../../../services/userDataSync/common/userDataSync.js";
 import { Event } from "../../../../base/common/event.js";
 import { toAction } from "../../../../base/common/actions.js";
 import { IDefaultAccountService } from "../../../../platform/defaultAccount/common/defaultAccount.js";
+import { getInternalOrg } from "../../../../platform/assignment/common/assignment.js";
 const CONTEXT_UPDATE_STATE = new RawContextKey(
   "updateState",
   "uninitialized"
   /* StateType.Uninitialized */
 );
 const MAJOR_MINOR_UPDATE_AVAILABLE = new RawContextKey("majorMinorUpdateAvailable", false);
-const RELEASE_NOTES_URL = new RawContextKey("releaseNotesUrl", "");
-const DOWNLOAD_URL = new RawContextKey("downloadUrl", "");
 let releaseNotesManager = void 0;
 function showReleaseNotesInEditor(instantiationService, version, useCurrentFile) {
   if (!releaseNotesManager) {
@@ -189,15 +188,7 @@ let ProductContribution = class ProductContribution2 {
   static {
     this.KEY = "releaseNotes/lastVersion";
   }
-  constructor(storageService, instantiationService, notificationService, environmentService, openerService, configurationService, hostService, productService, contextKeyService) {
-    if (productService.releaseNotesUrl) {
-      const releaseNotesUrlKey = RELEASE_NOTES_URL.bindTo(contextKeyService);
-      releaseNotesUrlKey.set(productService.releaseNotesUrl);
-    }
-    if (productService.downloadUrl) {
-      const downloadUrlKey = DOWNLOAD_URL.bindTo(contextKeyService);
-      downloadUrlKey.set(productService.downloadUrl);
-    }
+  constructor(storageService, instantiationService, notificationService, environmentService, openerService, configurationService, hostService, productService) {
     if (isWeb) {
       return;
     }
@@ -238,8 +229,7 @@ ProductContribution = ProductContribution_1 = __decorate([
   __param(4, IOpenerService),
   __param(5, IConfigurationService),
   __param(6, IHostService),
-  __param(7, IProductService),
-  __param(8, IContextKeyService)
+  __param(7, IProductService)
 ], ProductContribution);
 let UpdateContribution = class UpdateContribution2 extends Disposable {
   static {
@@ -673,41 +663,69 @@ let DefaultAccountUpdateContribution = class DefaultAccountUpdateContribution2 e
   static {
     __name(this, "DefaultAccountUpdateContribution");
   }
-  constructor(updateService, defaultAccountService) {
+  static {
+    DefaultAccountUpdateContribution_1 = this;
+  }
+  static {
+    this.STORAGE_KEY = "update/internalOrg";
+  }
+  #internalOrg;
+  constructor(updateService, defaultAccountService, storageService) {
     super();
     this.updateService = updateService;
     this.defaultAccountService = defaultAccountService;
+    this.storageService = storageService;
+    this.#internalOrg = void 0;
+    this.throttler = this._register(new Throttler());
     if (isWeb) {
       return;
     }
-    this.checkDefaultAccount();
-    this._register(this.defaultAccountService.onDidChangeDefaultAccount(() => {
-      this.checkDefaultAccount();
-    }));
+    this.#internalOrg = this.storageService.get(DefaultAccountUpdateContribution_1.STORAGE_KEY, -1, void 0);
+    this.throttler.queue(() => this.updateService.setInternalOrg(this.#internalOrg));
+    this.refresh();
+    this._register(this.defaultAccountService.onDidChangeDefaultAccount(() => this.refresh()));
   }
-  async checkDefaultAccount() {
+  refresh() {
+    this.throttler.queue(() => this.doRefresh());
+  }
+  async doRefresh() {
     try {
       const defaultAccount = await this.defaultAccountService.getDefaultAccount();
-      const shouldDisable = defaultAccount?.entitlementsData?.organization_login_list?.some((org) => org.toLowerCase() === "visual-studio-code") ?? false;
-      if (shouldDisable) {
-        await this.updateService.disableProgressiveReleases();
-        this.dispose();
+      const internalOrg = getInternalOrg(defaultAccount?.entitlementsData?.organization_login_list);
+      if (internalOrg === this.#internalOrg) {
+        return;
+      }
+      this.#internalOrg = internalOrg;
+      await this.updateService.setInternalOrg(this.#internalOrg);
+      if (this.#internalOrg) {
+        this.storageService.store(
+          DefaultAccountUpdateContribution_1.STORAGE_KEY,
+          internalOrg,
+          -1,
+          1
+          /* StorageTarget.MACHINE */
+        );
+      } else {
+        this.storageService.remove(
+          DefaultAccountUpdateContribution_1.STORAGE_KEY,
+          -1
+          /* StorageScope.APPLICATION */
+        );
       }
     } catch (error) {
     }
   }
 };
-DefaultAccountUpdateContribution = __decorate([
+DefaultAccountUpdateContribution = DefaultAccountUpdateContribution_1 = __decorate([
   __param(0, IUpdateService),
-  __param(1, IDefaultAccountService)
+  __param(1, IDefaultAccountService),
+  __param(2, IStorageService)
 ], DefaultAccountUpdateContribution);
 export {
   CONTEXT_UPDATE_STATE,
-  DOWNLOAD_URL,
   DefaultAccountUpdateContribution,
   MAJOR_MINOR_UPDATE_AVAILABLE,
   ProductContribution,
-  RELEASE_NOTES_URL,
   SwitchProductQualityContribution,
   UpdateContribution,
   appendUpdateMenuItems,

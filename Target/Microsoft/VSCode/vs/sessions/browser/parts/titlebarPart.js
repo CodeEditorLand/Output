@@ -22,10 +22,11 @@ import { StandardMouseEvent } from "../../../base/browser/mouseEvent.js";
 import { IConfigurationService } from "../../../platform/configuration/common/configuration.js";
 import { DisposableStore } from "../../../base/common/lifecycle.js";
 import { IThemeService } from "../../../platform/theme/common/themeService.js";
-import { TITLE_BAR_ACTIVE_BACKGROUND, TITLE_BAR_ACTIVE_FOREGROUND, TITLE_BAR_INACTIVE_FOREGROUND, TITLE_BAR_INACTIVE_BACKGROUND, TITLE_BAR_BORDER, WORKBENCH_BACKGROUND } from "../../../workbench/common/theme.js";
+import { WORKBENCH_BACKGROUND } from "../../../workbench/common/theme.js";
+import { chatBarTitleBackground, chatBarTitleForeground } from "../../common/theme.js";
 import { isMacintosh, isWeb, isNative, platformLocale } from "../../../base/common/platform.js";
 import { Color } from "../../../base/common/color.js";
-import { EventType, EventHelper, Dimension, append, $, addDisposableListener, prepend, getWindow, getWindowId } from "../../../base/browser/dom.js";
+import { EventType, EventHelper, append, $, addDisposableListener, prepend, getWindow, getWindowId } from "../../../base/browser/dom.js";
 import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
 import { Emitter, Event } from "../../../base/common/event.js";
 import { IStorageService } from "../../../platform/storage/common/storage.js";
@@ -88,7 +89,7 @@ let TitlebarPart = class TitlebarPart2 extends Part {
   }
   createContentArea(parent) {
     this.element = parent;
-    this.rootContainer = append(parent, $(".titlebar-container.has-center"));
+    this.rootContainer = append(parent, $(".titlebar-container.sessions-titlebar-container.has-center"));
     prepend(this.rootContainer, $("div.titlebar-drag-region"));
     this.leftContent = append(this.rootContainer, $(".titlebar-left"));
     this.centerContent = append(this.rootContainer, $(".titlebar-center"));
@@ -158,7 +159,7 @@ let TitlebarPart = class TitlebarPart2 extends Part {
     super.updateStyles();
     if (this.element) {
       this.element.classList.toggle("inactive", this.isInactive);
-      const titleBackground = this.getColor(this.isInactive ? TITLE_BAR_INACTIVE_BACKGROUND : TITLE_BAR_ACTIVE_BACKGROUND, (color, theme) => {
+      const titleBackground = this.getColor(chatBarTitleBackground, (color, theme) => {
         return color.isOpaque() ? color : color.makeOpaque(WORKBENCH_BACKGROUND(theme));
       }) || "";
       this.element.style.backgroundColor = titleBackground;
@@ -167,10 +168,8 @@ let TitlebarPart = class TitlebarPart2 extends Part {
       } else {
         this.element.classList.remove("light");
       }
-      const titleForeground = this.getColor(this.isInactive ? TITLE_BAR_INACTIVE_FOREGROUND : TITLE_BAR_ACTIVE_FOREGROUND);
+      const titleForeground = this.getColor(chatBarTitleForeground);
       this.element.style.color = titleForeground || "";
-      const titleBorder = this.getColor(TITLE_BAR_BORDER);
-      this.element.style.borderBottom = titleBorder ? `1px solid ${titleBorder}` : "";
     }
   }
   onContextMenu(e) {
@@ -189,7 +188,6 @@ let TitlebarPart = class TitlebarPart2 extends Part {
     return getZoomFactor(getWindow(this.element)) < 1 || !this.hasZoomableElements;
   }
   layout(width, height) {
-    this.lastLayoutDimension = new Dimension(width, height);
     this.updateLayout();
     super.layoutContents(width, height);
   }
@@ -200,17 +198,6 @@ let TitlebarPart = class TitlebarPart2 extends Part {
     const zoomFactor = getZoomFactor(getWindow(this.element));
     this.element.style.setProperty("--zoom-factor", zoomFactor.toString());
     this.rootContainer.classList.toggle("counter-zoom", this.preventZoom);
-    this.updateCenterOffset();
-  }
-  updateCenterOffset() {
-    if (!this.centerContent || !this.lastLayoutDimension) {
-      return;
-    }
-    const windowWidth = this.layoutService.mainContainerDimension.width;
-    const titlebarWidth = this.lastLayoutDimension.width;
-    const leftOffset = windowWidth - titlebarWidth;
-    this.centerContent.style.marginLeft = leftOffset > 0 ? `${-leftOffset / 2}px` : "";
-    this.centerContent.style.marginRight = leftOffset > 0 ? `${leftOffset / 2}px` : "";
   }
   focus() {
     this.element.querySelector('[tabindex]:not([tabindex="-1"])')?.focus();
@@ -267,7 +254,7 @@ let AuxiliaryTitlebarPart = class AuxiliaryTitlebarPart2 extends TitlebarPart {
   get height() {
     return this.minimumHeight;
   }
-  constructor(container, editorGroupsContainer, mainTitlebar, contextMenuService, configurationService, instantiationService, themeService, storageService, layoutService, contextKeyService, hostService) {
+  constructor(container, mainTitlebar, contextMenuService, configurationService, instantiationService, themeService, storageService, layoutService, contextKeyService, hostService) {
     const id = AuxiliaryTitlebarPart_1.COUNTER++;
     super(`workbench.parts.auxiliaryTitle.${id}`, getWindow(container), contextMenuService, configurationService, instantiationService, themeService, storageService, layoutService, contextKeyService, hostService);
     this.container = container;
@@ -278,14 +265,14 @@ let AuxiliaryTitlebarPart = class AuxiliaryTitlebarPart2 extends TitlebarPart {
   }
 };
 AuxiliaryTitlebarPart = AuxiliaryTitlebarPart_1 = __decorate([
-  __param(3, IContextMenuService),
-  __param(4, IConfigurationService),
-  __param(5, IInstantiationService),
-  __param(6, IThemeService),
-  __param(7, IStorageService),
-  __param(8, IWorkbenchLayoutService),
-  __param(9, IContextKeyService),
-  __param(10, IHostService)
+  __param(2, IContextMenuService),
+  __param(3, IConfigurationService),
+  __param(4, IInstantiationService),
+  __param(5, IThemeService),
+  __param(6, IStorageService),
+  __param(7, IWorkbenchLayoutService),
+  __param(8, IContextKeyService),
+  __param(9, IHostService)
 ], AuxiliaryTitlebarPart);
 let TitleService = class TitleService2 extends MultiWindowParts {
   static {
@@ -314,8 +301,8 @@ let TitleService = class TitleService2 extends MultiWindowParts {
     Event.once(titlebarPart.onWillDispose)(() => disposables.dispose());
     return titlebarPart;
   }
-  doCreateAuxiliaryTitlebarPart(container, editorGroupsContainer, instantiationService) {
-    return instantiationService.createInstance(AuxiliaryTitlebarPart, container, editorGroupsContainer, this.mainPart);
+  doCreateAuxiliaryTitlebarPart(container, _editorGroupsContainer, instantiationService) {
+    return instantiationService.createInstance(AuxiliaryTitlebarPart, container, this.mainPart);
   }
   updateProperties(properties) {
     for (const part of this.parts) {

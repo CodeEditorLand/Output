@@ -41,6 +41,11 @@ export declare class ChatContinueInSessionActionItem extends ActionWidgetDropdow
 export declare class CreateRemoteAgentJobAction {
     constructor();
     private openUntitledEditor;
+    /**
+     * Extracts the GitHub "owner/repo" NWO from the source session by checking
+     * multiple data sources: chat model repoData, session metadata, and session options.
+     */
+    private extractRepoNwoFromSession;
     run(accessor: ServicesAccessor, continuationTarget: IChatSessionsExtensionPoint, _widget?: IChatWidget): Promise<void>;
 }
 export declare class ContinueChatInSessionActionRendering extends Disposable implements IWorkbenchContribution {

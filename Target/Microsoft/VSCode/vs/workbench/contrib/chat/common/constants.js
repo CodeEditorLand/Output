@@ -6,6 +6,9 @@ import { RawContextKey } from "../../../../platform/contextkey/common/contextkey
 var ChatConfiguration;
 (function(ChatConfiguration2) {
   ChatConfiguration2["AIDisabled"] = "chat.disableAIFeatures";
+  ChatConfiguration2["PluginsEnabled"] = "chat.plugins.enabled";
+  ChatConfiguration2["PluginPaths"] = "chat.plugins.paths";
+  ChatConfiguration2["PluginMarketplaces"] = "chat.plugins.marketplaces";
   ChatConfiguration2["AgentEnabled"] = "chat.agent.enabled";
   ChatConfiguration2["PlanAgentDefaultModel"] = "chat.planAgent.defaultModel";
   ChatConfiguration2["ExploreAgentDefaultModel"] = "chat.exploreAgent.defaultModel";
@@ -15,7 +18,6 @@ var ChatConfiguration;
   ChatConfiguration2["UnifiedAgentsBar"] = "chat.unifiedAgentsBar.enabled";
   ChatConfiguration2["AgentSessionProjectionEnabled"] = "chat.agentSessionProjection.enabled";
   ChatConfiguration2["EditModeHidden"] = "chat.editMode.hidden";
-  ChatConfiguration2["AlternativeToolAction"] = "chat.alternativeToolAction.enabled";
   ChatConfiguration2["Edits2Enabled"] = "chat.edits2.enabled";
   ChatConfiguration2["ExtensionToolsEnabled"] = "chat.extensionTools.enabled";
   ChatConfiguration2["RepoInfoEnabled"] = "chat.repoInfo.enabled";
@@ -31,8 +33,11 @@ var ChatConfiguration;
   ChatConfiguration2["ThinkingStyle"] = "chat.agent.thinkingStyle";
   ChatConfiguration2["ThinkingGenerateTitles"] = "chat.agent.thinking.generateTitles";
   ChatConfiguration2["TerminalToolsInThinking"] = "chat.agent.thinking.terminalTools";
+  ChatConfiguration2["SimpleTerminalCollapsible"] = "chat.tools.terminal.simpleCollapsible";
+  ChatConfiguration2["ThinkingPhrases"] = "chat.agent.thinking.phrases";
   ChatConfiguration2["AutoExpandToolFailures"] = "chat.tools.autoExpandFailures";
   ChatConfiguration2["TodosShowWidget"] = "chat.tools.todos.showWidget";
+  ChatConfiguration2["NotifyWindowOnConfirmation"] = "chat.notifyWindowOnConfirmation";
   ChatConfiguration2["NotifyWindowOnResponseReceived"] = "chat.notifyWindowOnResponseReceived";
   ChatConfiguration2["ChatViewSessionsEnabled"] = "chat.viewSessions.enabled";
   ChatConfiguration2["ChatViewSessionsGrouping"] = "chat.viewSessions.grouping";
@@ -46,6 +51,7 @@ var ChatConfiguration;
   ChatConfiguration2["AgentsControlClickBehavior"] = "chat.agentsControl.clickBehavior";
   ChatConfiguration2["ExplainChangesEnabled"] = "chat.editing.explainChanges.enabled";
   ChatConfiguration2["GrowthNotificationEnabled"] = "chat.growthNotification.enabled";
+  ChatConfiguration2["ChatCustomizationMenuEnabled"] = "chat.customizationsMenu.enabled";
 })(ChatConfiguration || (ChatConfiguration = {}));
 var ChatModeKind;
 (function(ChatModeKind2) {
@@ -80,6 +86,12 @@ var CollapsedToolsDisplayMode;
   CollapsedToolsDisplayMode2["WithThinking"] = "withThinking";
   CollapsedToolsDisplayMode2["Always"] = "always";
 })(CollapsedToolsDisplayMode || (CollapsedToolsDisplayMode = {}));
+var ChatNotificationMode;
+(function(ChatNotificationMode2) {
+  ChatNotificationMode2["Off"] = "off";
+  ChatNotificationMode2["WindowNotFocused"] = "windowNotFocused";
+  ChatNotificationMode2["Always"] = "always";
+})(ChatNotificationMode || (ChatNotificationMode = {}));
 var AgentsControlClickBehavior;
 (function(AgentsControlClickBehavior2) {
   AgentsControlClickBehavior2["Default"] = "default";
@@ -146,6 +158,7 @@ export {
   ChatConfiguration,
   ChatEditorTitleMaxLength,
   ChatModeKind,
+  ChatNotificationMode,
   CollapsedToolsDisplayMode,
   MANAGE_CHAT_COMMAND_ID,
   ThinkingDisplayMode,

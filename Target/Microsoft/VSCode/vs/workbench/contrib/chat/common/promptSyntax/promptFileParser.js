@@ -77,6 +77,7 @@ var PromptHeaderAttributes;
 var GithubPromptHeaderAttributes;
 (function(GithubPromptHeaderAttributes2) {
   GithubPromptHeaderAttributes2.mcpServers = "mcp-servers";
+  GithubPromptHeaderAttributes2.github = "github";
 })(GithubPromptHeaderAttributes || (GithubPromptHeaderAttributes = {}));
 var ClaudeHeaderAttributes;
 (function(ClaudeHeaderAttributes2) {

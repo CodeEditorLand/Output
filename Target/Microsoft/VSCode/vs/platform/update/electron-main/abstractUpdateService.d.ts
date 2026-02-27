@@ -10,13 +10,17 @@ import { IRequestService } from '../../request/common/request.js';
 import { AvailableForDownload, IUpdateService, State, UpdateType } from '../common/update.js';
 export interface IUpdateURLOptions {
     readonly background?: boolean;
+    readonly internalOrg?: string;
 }
 export declare function createUpdateURL(baseUpdateUrl: string, platform: string, quality: string, commit: string, options?: IUpdateURLOptions): string;
 /**
- * Builds common headers for macOS update requests, including those issued
+ * Builds common headers for update requests, including those issued
  * via Electron's auto-updater (e.g. setFeedURL({ url, headers })) and
- * manual HTTP requests that bypass the auto-updater. On macOS, this includes
- * the Darwin kernel version which the update server uses for EOL detection.
+ * manual HTTP requests that bypass the auto-updater. The headers include
+ * OS version information which the update server uses for EOL detection.
+ *
+ * On macOS, the User-Agent includes the Darwin kernel version.
+ * On Windows, the User-Agent includes accurate Windows version from the registry.
  */
 export declare function getUpdateRequestHeaders(productVersion: string): Record<string, string> | undefined;
 export type UpdateErrorClassification = {
@@ -43,7 +47,7 @@ export declare abstract class AbstractUpdateService implements IUpdateService {
     protected _overwrite: boolean;
     private _hasCheckedForOverwriteOnQuit;
     private readonly overwriteUpdatesCheckInterval;
-    private _disableProgressiveReleases;
+    private _internalOrg;
     private readonly _onStateChange;
     readonly onStateChange: Event<State>;
     get state(): State;
@@ -66,8 +70,8 @@ export declare abstract class AbstractUpdateService implements IUpdateService {
     private checkForOverwriteUpdates;
     isLatestVersion(commit?: string, token?: CancellationToken): Promise<boolean | undefined>;
     _applySpecificUpdate(packagePath: string): Promise<void>;
-    disableProgressiveReleases(): Promise<void>;
-    protected shouldDisableProgressiveReleases(): boolean;
+    setInternalOrg(internalOrg: string | undefined): Promise<void>;
+    protected getInternalOrg(): string | undefined;
     protected getUpdateType(): UpdateType;
     protected doQuitAndInstall(): void;
     protected postInitialize(): Promise<void>;

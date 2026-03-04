@@ -1,6 +1,6 @@
 export const Browser = (await import("../../ESBuild.js")).Browser;
 
-// TODO: FINISH COMPILING FROM ELECTRON-WISE BINARIES
+// FUTURE: FINISH COMPILING FROM ELECTRON-WISE BINARIES
 export default (Prefix: string) =>
 	Browser
 		? [

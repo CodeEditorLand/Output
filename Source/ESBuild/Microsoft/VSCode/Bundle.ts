@@ -11,7 +11,7 @@ export default (await import("deepmerge-ts")).deepmerge(
 		bundle: true,
 
 		external: [
-			// TODO: LOG WHERE THEY'RE USED
+			// FUTURE: LOG WHERE THEY'RE USED - Add logging to track external module usage
 
 			// Local project files related to terminal functionality and webview messaging
 			"../../../terminal/browser/xterm-private.js",

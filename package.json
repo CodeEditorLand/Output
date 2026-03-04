@@ -50,7 +50,7 @@
 		"deepmerge-ts": "7.1.5",
 		"mocha": "11.7.5",
 		"semver": "7.7.4",
-		"sinon": "21.0.1",
+		"sinon": "21.0.2",
 		"trusted-types": "2.0.0",
 		"typescript": "5.9.3",
 		"winreg": "1.2.5"

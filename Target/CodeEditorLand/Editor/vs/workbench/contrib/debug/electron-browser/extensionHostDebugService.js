@@ -1,1 +1,1 @@
-import{$Ew as m}from"../../../../platform/debug/common/extensionHostDebug.js";import{$mSc as o}from"../../../../platform/ipc/electron-browser/services.js";import{$Gw as r,$Fw as n}from"../../../../platform/debug/common/extensionHostDebugIpc.js";o(m,n.ChannelName,{channelClientCtor:r});
+import{$Kw as m}from"../../../../platform/debug/common/extensionHostDebug.js";import{$tWc as o}from"../../../../platform/ipc/electron-browser/services.js";import{$Mw as r,$Lw as t}from"../../../../platform/debug/common/extensionHostDebugIpc.js";o(m,t.ChannelName,{channelClientCtor:r});

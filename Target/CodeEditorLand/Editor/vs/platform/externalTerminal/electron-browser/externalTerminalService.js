@@ -1,1 +1,1 @@
-import{$Nj as r}from"../../instantiation/common/instantiation.js";import{$mSc as e}from"../../ipc/electron-browser/services.js";const m=r("externalTerminal");e(m,"externalTerminal");export{m as $iXc};
+import{$Nj as r}from"../../instantiation/common/instantiation.js";import{$tWc as e}from"../../ipc/electron-browser/services.js";const t=r("externalTerminal");e(t,"externalTerminal");export{t as $p2c};

@@ -1,1 +1,1 @@
-const s=()=>({msLoopTime:-1,msDelayTime:-1,dispose:()=>{}});let i=s;function c(e){i=e}function r(e,o){return i(e,o)}export{c as $pbb,r as $qbb};
+const i=()=>({msLoopTime:-1,msDelayTime:-1,dispose:()=>{}});let o=i;function s(e){o=e}function r(e,c){return o(e,c)}export{s as $ncb,r as $ocb};

@@ -1,1 +1,1 @@
-import{$Gn as r}from"../../../../base/common/hash.js";function i(t){return{id:n(t),configPath:t}}function u(t){return{id:n(t),uri:t}}function n(t){return r(t.toString()).toString(16)}export{i as $3Oc,u as $4Oc};
+import{$Mn as r}from"../../../../base/common/hash.js";function i(t){return{id:n(t),configPath:t}}function u(t){return{id:n(t),uri:t}}function n(t){return r(t.toString()).toString(16)}export{u as $$Sc,i as $0Sc};

@@ -1,4 +1,6 @@
-import type { BuildOptions } from "esbuild";
+import type { BuildOptions, Plugin } from "esbuild";
+
+import { createRestPluginIfEnabled } from "./RestPlugin.js";
 
 export const Clean = process.env["Clean"] === "true";
 
@@ -76,7 +78,10 @@ export default {
 				}
 			},
 		},
-	],
+
+		// Conditionally add Rest plugin when Compiler=Rest
+		...(createRestPluginIfEnabled() ? [createRestPluginIfEnabled()!] : []),
+	].filter((plugin): plugin is Plugin => plugin !== null),
 
 	loader: {
 		".json": "copy",

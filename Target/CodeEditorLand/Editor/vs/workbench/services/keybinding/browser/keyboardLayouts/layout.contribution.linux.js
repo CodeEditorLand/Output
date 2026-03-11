@@ -1,1 +1,1 @@
-import"./en.linux.js";import"./es.linux.js";import"./de.linux.js";import"./fr.linux.js";import"./ru.linux.js";import{$Z9c as b}from"./_.contribution.js";export{b as KeyboardLayoutContribution};
+import"./en.linux.js";import"./es.linux.js";import"./de.linux.js";import"./fr.linux.js";import"./ru.linux.js";import{$3bd as b}from"./_.contribution.js";export{b as KeyboardLayoutContribution};

@@ -3,15 +3,15 @@ import{$uk as l}from"../../../../../base/common/htmlContent.js";import{$Yf as o}
 <checklist>
 	<checkbox on-checked="${c("default")}" checked-on="config.notebook.cellFocusIndicator == 'border' && config.notebook.insertToolbarLocation == 'both' && config.notebook.globalToolbar == false && config.notebook.compactView == true && config.notebook.showCellStatusBar == 'visible'">
 		<img width="${t}" src="./notebookThemes/default.png"/>
-		${o(e(16224,null))}
+		${o(e(17078,null))}
 	</checkbox>
 	<checkbox on-checked="${c("jupyter")}" checked-on="config.notebook.cellFocusIndicator == 'gutter' && config.notebook.insertToolbarLocation == 'notebookToolbar' && config.notebook.globalToolbar == true && config.notebook.compactView == true  && config.notebook.showCellStatusBar == 'visible'">
 		<img width="${t}" src="./notebookThemes/jupyter.png"/>
-		${o(e(16225,null))}
+		${o(e(17079,null))}
 	</checkbox>
 	<checkbox on-checked="${c("colab")}" checked-on="config.notebook.cellFocusIndicator == 'border' && config.notebook.insertToolbarLocation == 'betweenCells' && config.notebook.globalToolbar == false && config.notebook.compactView == false && config.notebook.showCellStatusBar == 'hidden'">
 		<img width="${t}" src="./notebookThemes/colab.png"/>
-		${o(e(16226,null))}
+		${o(e(17080,null))}
 	</checkbox>
 </checklist>
 </vertically-centered>

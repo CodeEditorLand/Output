@@ -1,1 +1,1 @@
-import{$qDb as t}from"./quickInputTreeRenderer.js";class l{getHeight(e){return 22}getTemplateId(e){return t.ID}}export{l as $rDb};
+import{$mEb as t}from"./quickInputTreeRenderer.js";class n{getHeight(e){return 22}getTemplateId(e){return t.ID}}export{n as $nEb};

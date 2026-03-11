@@ -1,1 +1,1 @@
-class t{constructor(s){this.message=s}}export{t as $m8c};
+class a{constructor(s){this.message=s}}export{a as $pad};

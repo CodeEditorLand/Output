@@ -1,1 +1,0 @@
-import{URI as t}from"../../../../../base/common/uri.js";import{$DO as o,SideBySideEditor as s}from"../../../../common/editor.js";function u(e){const i=[],r=o.getOriginalUri(e,{supportSideBySide:s.BOTH});return r?t.isUri(r)?(i.push(r),i):(r.secondary&&i.push(r.secondary),r.primary&&i.push(r.primary),i):i}export{u as $btc};

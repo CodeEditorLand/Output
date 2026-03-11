@@ -1,1 +1,1 @@
-import{$Nj as e}from"../../../../platform/instantiation/common/instantiation.js";const r=e("workspaceEditingService");export{r as $eCb};
+import{$Nj as o}from"../../../../platform/instantiation/common/instantiation.js";const e=o("workspaceEditingService");export{e as $aDb};

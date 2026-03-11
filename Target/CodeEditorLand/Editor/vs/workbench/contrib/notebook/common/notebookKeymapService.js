@@ -1,1 +1,1 @@
-import{$Nj as o}from"../../../../platform/instantiation/common/instantiation.js";const r=o("notebookKeymapService");export{r as $6nc};
+import{$Nj as o}from"../../../../platform/instantiation/common/instantiation.js";const p=o("notebookKeymapService");export{p as $Ppc};

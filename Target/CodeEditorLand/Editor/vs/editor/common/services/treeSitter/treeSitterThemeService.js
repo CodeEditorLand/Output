@@ -1,1 +1,1 @@
-import{$Nj as e}from"../../../../platform/instantiation/common/instantiation.js";const t=e("treeSitterThemeService");export{t as $SL};
+import{$Nj as e}from"../../../../platform/instantiation/common/instantiation.js";const t=e("treeSitterThemeService");export{t as $5L};

@@ -1,1 +1,1 @@
-class l{constructor(o){this.esmModuleLocation=o.esmModuleLocation,this.esmModuleLocationBundler=o.esmModuleLocationBundler,this.label=o.label}}export{l as $egb};
+class l{constructor(o){this.esmModuleLocation=o.esmModuleLocation,this.esmModuleLocationBundler=o.esmModuleLocationBundler,this.label=o.label}}export{l as $chb};

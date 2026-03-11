@@ -1,1 +1,1 @@
-import{$BPc as r}from"../common/integrity.js";import{$oD as o}from"../../../../platform/instantiation/common/extensions.js";class e{async isPure(){return{isPure:!0,proof:[]}}}o(r,e,1);export{e as $CPc};
+import{$ITc as r}from"../common/integrity.js";import{$vD as o}from"../../../../platform/instantiation/common/extensions.js";class e{async isPure(){return{isPure:!0,proof:[]}}}o(r,e,1);export{e as $JTc};

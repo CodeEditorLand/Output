@@ -1,1 +1,1 @@
-import{$oD as o}from"../../platform/instantiation/common/extensions.js";import{$X_b as m}from"../../workbench/services/title/browser/titleService.js";import{$4Xc as r}from"./parts/titlebarPart.js";o(m,r,0);
+import{$vD as m}from"../../platform/instantiation/common/extensions.js";import{$Nbc as o}from"../../workbench/services/title/browser/titleService.js";import{$P3c as r}from"./parts/titlebarPart.js";m(o,r,0);

@@ -1,1 +1,1 @@
-import{$Nj as e}from"../../../../platform/instantiation/common/instantiation.js";const r=e("INotebookRendererMessagingService");export{r as $nIb};
+import{$Nj as e}from"../../../../platform/instantiation/common/instantiation.js";const r=e("INotebookRendererMessagingService");export{r as $lJb};

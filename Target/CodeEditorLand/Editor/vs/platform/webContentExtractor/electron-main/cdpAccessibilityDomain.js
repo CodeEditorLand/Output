@@ -31,4 +31,4 @@ import{URI as I}from"../../../base/common/uri.js";function L(t){if(t.length===0)
 `)}}e.push(`
 `)}function y(t,e,n,s){const c=[];for(const i of e.children)d(t,i,c,s+1,!1);if(c.some(i=>i.includes(`
 `)))n.push("\n```\n"),n.push(c.join("")),n.push("\n```\n");else{n.push("`");let i=0;for(const r of c)i+=r.length,i>g&&(n.push(`
-`),i=0),n.push(r),n.push("`")}}function D(t){const e=[];return N(t,e),e}function N(t,e){if(h(t.node)==="link"&&v(t)){const s=a(t.node,!0),c=f(t.node),o=t.node.description?.value||"";e.push(`- [${s}](${c})${o?" - "+o:""}`)}for(const s of t.children)N(s,e)}export{A as $hC};
+`),i=0),n.push(r),n.push("`")}}function D(t){const e=[];return N(t,e),e}function N(t,e){if(h(t.node)==="link"&&v(t)){const s=a(t.node,!0),c=f(t.node),o=t.node.description?.value||"";e.push(`- [${s}](${c})${o?" - "+o:""}`)}for(const s of t.children)N(s,e)}export{A as $oC};

@@ -1,0 +1,1 @@
+import{$Nj as i}from"../../../../../platform/instantiation/common/instantiation.js";const c=i("chatAttachmentWidgetRegistry");class n{constructor(){this.a=new Map}registerFactory(t,e){return this.a.set(t,e),{dispose:()=>{this.a.get(t)===e&&this.a.delete(t)}}}createWidget(t,e,s){const r=this.a.get(t.kind);if(r)return r(t,e,s)}}export{c as $I3b,n as $J3b};

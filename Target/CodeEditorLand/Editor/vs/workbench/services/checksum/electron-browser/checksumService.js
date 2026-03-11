@@ -1,1 +1,1 @@
-import{$MSc as m}from"../../../../platform/checksum/common/checksumService.js";import{$oSc as o}from"../../../../platform/ipc/electron-browser/services.js";o(m,"checksum");
+import{$TWc as m}from"../../../../platform/checksum/common/checksumService.js";import{$vWc as c}from"../../../../platform/ipc/electron-browser/services.js";c(m,"checksum");

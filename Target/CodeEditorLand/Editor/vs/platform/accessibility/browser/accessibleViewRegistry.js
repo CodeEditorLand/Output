@@ -1,1 +1,1 @@
-const i=new class{constructor(){this._implementations=[]}register(t){return this._implementations.push(t),{dispose:()=>{const e=this._implementations.indexOf(t);e!==-1&&this._implementations.splice(e,1)}}}getImplementations(){return this._implementations}};export{i as $xwb};
+const i=new class{constructor(){this._implementations=[]}register(s){return this._implementations.push(s),{dispose:()=>{const t=this._implementations.indexOf(s);t!==-1&&this._implementations.splice(t,1)}}}getImplementations(){return this._implementations}};export{i as $sxb};

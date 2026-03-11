@@ -1,3 +1,4 @@
+import { createRestPluginIfEnabled } from "./RestPlugin.js";
 export const Clean = process.env["Clean"] === "true";
 export const Meta = process.env["Meta"] === "true";
 export const On = process.env["NODE_ENV"] === "development" ||
@@ -49,7 +50,9 @@ export default {
                 }
             },
         },
-    ],
+        // Conditionally add Rest plugin when Compiler=Rest
+        ...(createRestPluginIfEnabled() ? [createRestPluginIfEnabled()] : []),
+    ].filter((plugin) => plugin !== null),
     loader: {
         ".json": "copy",
         ".sh": "copy",

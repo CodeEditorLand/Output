@@ -1,1 +1,1 @@
-import{$Nj as i}from"../../instantiation/common/instantiation.js";const r=i("auxiliaryWindowsMainService");export{r as $Ww};
+import{$Nj as i}from"../../instantiation/common/instantiation.js";const r=i("auxiliaryWindowsMainService");export{r as $3w};

@@ -1,1 +1,1 @@
-import{$Nj as r}from"../../instantiation/common/instantiation.js";const o=r("playwrightService");export{o as $iTc};
+import{$Nj as r}from"../../instantiation/common/instantiation.js";const t=r("playwrightService");export{t as $qXc};

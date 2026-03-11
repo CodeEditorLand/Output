@@ -1,1 +1,1 @@
-import{$OEc as o}from"./environmentVariableService.js";import{$oD as m}from"../../../../platform/instantiation/common/extensions.js";import{$M7 as r}from"./environmentVariable.js";m(r,o,1);
+import{$PIc as m}from"./environmentVariableService.js";import{$vD as o}from"../../../../platform/instantiation/common/extensions.js";import{$F8 as r}from"./environmentVariable.js";o(r,m,1);

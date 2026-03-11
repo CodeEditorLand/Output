@@ -1,1 +1,1 @@
-import{$RIc as m}from"./terminalVoiceActions.js";m();
+import{$TMc as m}from"./terminalVoiceActions.js";m();

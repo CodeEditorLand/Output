@@ -1,1 +1,1 @@
-import{$oD as o}from"../../../../platform/instantiation/common/extensions.js";import{$e3c as m}from"../../../electron-browser/parts/titlebar/titlebarPart.js";import{$X_b as r}from"../browser/titleService.js";o(r,m,0);
+import{$vD as m}from"../../../../platform/instantiation/common/extensions.js";import{$E9c as o}from"../../../electron-browser/parts/titlebar/titlebarPart.js";import{$Nbc as r}from"../browser/titleService.js";m(r,o,0);

@@ -1,1 +1,1 @@
-import{$Nj as e}from"../../instantiation/common/instantiation.js";const r=e("themeMainService");export{r as $vv};
+import{$Nj as e}from"../../instantiation/common/instantiation.js";const r=e("themeMainService");export{r as $Bv};

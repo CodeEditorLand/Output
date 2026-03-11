@@ -1,1 +1,1 @@
-function i(t,l){let o=0;for(let r=0;r<t.length;r++)t.charAt(r)==="	"?o+=l:o++;return o}function u(t,l,o){t=t<0?0:t;let r="";if(!o){const f=Math.floor(t/l);t=t%l;for(let e=0;e<f;e++)r+="	"}for(let f=0;f<t;f++)r+=" ";return r}export{i as $$qb,u as $_qb};
+function i(r,l){let o=0;for(let t=0;t<r.length;t++)r.charAt(t)==="	"?o+=l:o++;return o}function u(r,l,o){r=r<0?0:r;let t="";if(!o){const f=Math.floor(r/l);r=r%l;for(let e=0;e<f;e++)t+="	"}for(let f=0;f<r;f++)t+=" ";return t}export{i as $6rb,u as $7rb};

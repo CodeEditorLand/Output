@@ -1,1 +1,1 @@
-import{localize as l}from"../../../../nls.js";const n={showLanguagePackExtensions:l(10652,null),searchMarketplace:l(10653,null),installAndRestartMessage:l(10654,null),installAndRestart:l(10655,null)};export{n as $_Yc};
+import{localize as l}from"../../../../nls.js";const n={showLanguagePackExtensions:l(11481,null),searchMarketplace:l(11482,null),installAndRestartMessage:l(11483,null),installAndRestart:l(11484,null)};export{n as $q4c};

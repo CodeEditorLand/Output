@@ -1,1 +1,1 @@
-import{$oD as o}from"../../../../platform/instantiation/common/extensions.js";import{$AW as m}from"../common/search.js";import{$DPc as r}from"../common/searchService.js";o(m,r,1);
+import{$vD as m}from"../../../../platform/instantiation/common/extensions.js";import{$$W as o}from"../common/search.js";import{$KTc as r}from"../common/searchService.js";m(o,r,1);

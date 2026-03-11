@@ -1,1 +1,1 @@
-import{$DE as n}from"../../../../../editor/common/core/range.js";function l(e){return e&&e.getFullRange&&e.getFullRange()instanceof n}export{l as $Jlc};
+import{$KE as t}from"../../../../../editor/common/core/range.js";function r(n){return n&&n.getFullRange&&n.getFullRange()instanceof t}export{r as $tnc};

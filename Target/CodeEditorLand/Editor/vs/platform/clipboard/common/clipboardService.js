@@ -1,1 +1,1 @@
-import{$Nj as o}from"../../instantiation/common/instantiation.js";const c=o("clipboardService");export{c as $$jb};
+import{$Nj as o}from"../../instantiation/common/instantiation.js";const c=o("clipboardService");export{c as $5kb};

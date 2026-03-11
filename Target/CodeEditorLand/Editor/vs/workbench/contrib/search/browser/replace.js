@@ -1,1 +1,1 @@
-import{$Nj as e}from"../../../../platform/instantiation/common/instantiation.js";const c=e("replaceService");export{c as $jmc};
+import{$Nj as e}from"../../../../platform/instantiation/common/instantiation.js";const c=e("replaceService");export{c as $6nc};

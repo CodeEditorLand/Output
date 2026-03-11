@@ -6,10 +6,10 @@ ${e.icon?`$(${e.icon?.id}) `:""}`+(e.detailedTooltip??e.tooltip??"")):e.tooltip&
 
 ---
 
-${e.icon?`$(${e.icon?.id}) `:""}`+(e.tooltip??"")),e.hoverActions&&o.push(...e.hoverActions);o.push({commandId:"toggleDetailedInfo",label:n?r(14206,null):r(14207,null),run(){s.store("terminal.integrated.tabs.showDetailed",(n+1)%2,-1,0)}});const c=f(t,!!n);return{content:new a(t.title+c+l,{supportThemeIcons:!0}),actions:o}}function f(t,s){const n=[];if(t.processId&&t.processId>0&&n.push(r(14208,null,"PID",t.processId)+`
-`),t.shellLaunchConfig.executable){let l="";if(!s&&t.shellLaunchConfig.executable.length>32){const o=p(t.shellLaunchConfig.executable),c=t.shellLaunchConfig.executable.length-o.length-1,u=t.shellLaunchConfig.executable.substring(c,c+1);l+=`\u2026${u}${o}`}else l+=t.shellLaunchConfig.executable;const i=h(t.injectedArgs||t.shellLaunchConfig.args||[]).map(o=>o.match(/\s/)?`'${o}'`:o).join(" ");i&&(l+=` ${i}`),n.push(r(14209,null,l))}return n.length?`
+${e.icon?`$(${e.icon?.id}) `:""}`+(e.tooltip??"")),e.hoverActions&&o.push(...e.hoverActions);o.push({commandId:"toggleDetailedInfo",label:n?r(15056,null):r(15057,null),run(){s.store("terminal.integrated.tabs.showDetailed",(n+1)%2,-1,0)}});const c=f(t,!!n);return{content:new a(t.title+c+l,{supportThemeIcons:!0}),actions:o}}function f(t,s){const n=[];if(t.processId&&t.processId>0&&n.push(r(15058,null,"PID",t.processId)+`
+`),t.shellLaunchConfig.executable){let l="";if(!s&&t.shellLaunchConfig.executable.length>32){const o=p(t.shellLaunchConfig.executable),c=t.shellLaunchConfig.executable.length-o.length-1,u=t.shellLaunchConfig.executable.substring(c,c+1);l+=`\u2026${u}${o}`}else l+=t.shellLaunchConfig.executable;const i=h(t.injectedArgs||t.shellLaunchConfig.args||[]).map(o=>o.match(/\s/)?`'${o}'`:o).join(" ");i&&(l+=` ${i}`),n.push(r(15059,null,l))}return n.length?`
 
 ---
 
 ${n.join(`
-`)}`:""}export{b as $TDc,f as $UDc};
+`)}`:""}export{b as $UHc,f as $VHc};

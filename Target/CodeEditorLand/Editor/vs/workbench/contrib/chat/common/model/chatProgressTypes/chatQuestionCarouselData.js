@@ -1,0 +1,1 @@
+import{$ui as h}from"../../../../../../base/common/async.js";class a{constructor(s,i,t,o,e){this.questions=s,this.allowSkip=i,this.resolveId=t,this.data=o,this.isUsed=e,this.kind="questionCarousel",this.completion=new h}toJSON(){return{kind:this.kind,questions:this.questions,allowSkip:this.allowSkip,resolveId:this.resolveId,data:this.data,isUsed:this.isUsed}}}export{a as $BTb};

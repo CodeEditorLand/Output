@@ -3,21 +3,21 @@ import{$Yf as c}from"../../../../../base/common/strings.js";import{localize as h
 	<div class="theme-picker-row">
 		<checkbox when-checked="setTheme:${e.COLOR_THEME_DARK}" checked-on="config.workbench.colorTheme == '${e.COLOR_THEME_DARK}'">
 			<img width="150" src="./dark.png"/>
-			${c(h(16227,null))}
+			${c(h(17081,null))}
 		</checkbox>
 		<checkbox when-checked="setTheme:${e.COLOR_THEME_LIGHT}" checked-on="config.workbench.colorTheme == '${e.COLOR_THEME_LIGHT}'">
 			<img width="150" src="./light.png"/>
-			${c(h(16228,null))}
+			${c(h(17082,null))}
 		</checkbox>
 	</div>
 	<div class="theme-picker-row">
 		<checkbox when-checked="setTheme:${e.COLOR_THEME_HC_DARK}" checked-on="config.workbench.colorTheme == '${e.COLOR_THEME_HC_DARK}'">
 			<img width="150" src="./dark-hc.png"/>
-			${c(h(16229,null))}
+			${c(h(17083,null))}
 		</checkbox>
 		<checkbox when-checked="setTheme:${e.COLOR_THEME_HC_LIGHT}" checked-on="config.workbench.colorTheme == '${e.COLOR_THEME_HC_LIGHT}'">
 			<img width="150" src="./light-hc.png"/>
-			${c(h(16230,null))}
+			${c(h(17084,null))}
 		</checkbox>
 	</div>
 </checklist>

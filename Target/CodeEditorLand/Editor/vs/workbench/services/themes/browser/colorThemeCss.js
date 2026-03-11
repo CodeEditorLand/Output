@@ -1,3 +1,3 @@
-import{$Vp as f,$3p as l}from"../../../../platform/theme/common/colorRegistry.js";import{$scc as $,$Ccc as d,$ycc as u}from"../../../../platform/theme/common/sizeRegistry.js";function R(c,t,n,a){const r=new Set,i={addRule:o=>{r.has(o)||r.add(o)}};if(i.addRule(`${t} { forced-color-adjust: none; }`),n&&a)for(const o of n)o(c,i,a);const e=[];for(const o of l().getColors()){const s=c.getColor(o.id,!0);s&&e.push(`${f(o.id)}: ${s.toString()};`)}for(const o of d().getSizes()){const s=d().resolveDefaultSize(o.id,c);s&&e.push(`${$(o.id)}: ${u(s)};`)}return i.addRule(`${t} { ${e.join(`
-`)} }`),new p([...r].join(`
-`))}class p{constructor(t){this.code=t}}export{R as $Pcc,p as $Qcc};
+import{$2p as f,$9p as l}from"../../../../platform/theme/common/colorRegistry.js";import{$iec as $,$sec as d,$oec as u}from"../../../../platform/theme/common/sizeRegistry.js";function R(e,t,n,a){const i=new Set,r={addRule:o=>{i.has(o)||i.add(o)}};if(r.addRule(`${t} { forced-color-adjust: none; }`),n&&a)for(const o of n)o(e,r,a);const c=[];for(const o of l().getColors()){const s=e.getColor(o.id,!0);s&&c.push(`${f(o.id)}: ${s.toString()};`)}for(const o of d().getSizes()){const s=d().resolveDefaultSize(o.id,e);s&&c.push(`${$(o.id)}: ${u(s)};`)}return r.addRule(`${t} { ${c.join(`
+`)} }`),new p([...i].join(`
+`))}class p{constructor(t){this.code=t}}export{R as $Fec,p as $Gec};

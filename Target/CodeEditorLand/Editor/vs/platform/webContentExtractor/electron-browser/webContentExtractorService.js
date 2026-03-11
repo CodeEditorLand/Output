@@ -1,1 +1,1 @@
-import{$mSc as t,$oSc as o}from"../../ipc/electron-browser/services.js";import{$_B as r,$$B as e}from"../common/webContentExtractor.js";t(e,"webContentExtractor");o(r,"sharedWebContentExtractor");
+import{$tWc as t,$vWc as r}from"../../ipc/electron-browser/services.js";import{$gC as o,$fC as e}from"../common/webContentExtractor.js";t(e,"webContentExtractor");r(o,"sharedWebContentExtractor");

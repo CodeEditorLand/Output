@@ -1,1 +1,1 @@
-import{$hF as e}from"./legacyLinesDiffComputer.js";import{$3fb as t}from"./defaultLinesDiffComputer/defaultLinesDiffComputer.js";const r={getLegacy:()=>new e,getDefault:()=>new t};export{r as $4fb};
+import{$oF as e}from"./legacyLinesDiffComputer.js";import{$1gb as o}from"./defaultLinesDiffComputer/defaultLinesDiffComputer.js";const r={getLegacy:()=>new e,getDefault:()=>new o};export{r as $2gb};

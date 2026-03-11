@@ -1,1 +1,1 @@
-import{$oD as o}from"../../../../platform/instantiation/common/extensions.js";import{$MEb as m}from"./webview.js";import{$PRc as r}from"./webviewService.js";o(m,r,1);
+import{$vD as m}from"../../../../platform/instantiation/common/extensions.js";import{$IFb as o}from"./webview.js";import{$WVc as r}from"./webviewService.js";m(o,r,1);

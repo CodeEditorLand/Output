@@ -1,1 +1,1 @@
-import{$Nj as o}from"../../../../../platform/instantiation/common/instantiation.js";const r=o("chatLayoutService");export{r as $dQb};
+import{$Nj as o}from"../../../../../platform/instantiation/common/instantiation.js";const r=o("chatLayoutService");export{r as $jRb};

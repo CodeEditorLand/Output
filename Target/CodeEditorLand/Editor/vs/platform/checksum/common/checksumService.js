@@ -1,1 +1,1 @@
-import{$Nj as c}from"../../instantiation/common/instantiation.js";const o=c("checksumService");export{o as $MSc};
+import{$Nj as c}from"../../instantiation/common/instantiation.js";const o=c("checksumService");export{o as $TWc};

@@ -1,1 +1,1 @@
-import{$3y as m}from"../../../../platform/update/common/update.js";import{$mSc as o}from"../../../../platform/ipc/electron-browser/services.js";import{$tz as r}from"../../../../platform/update/common/updateIpc.js";o(m,"update",{channelClientCtor:r});
+import{$0y as o}from"../../../../platform/update/common/update.js";import{$tWc as r}from"../../../../platform/ipc/electron-browser/services.js";import{$Az as t}from"../../../../platform/update/common/updateIpc.js";r(o,"update",{channelClientCtor:t});

@@ -1,3 +1,239 @@
-import{spawnSync as P}from"node:child_process";import{existsSync as m,mkdtempSync as y,readFileSync as h}from"node:fs";import{tmpdir as T}from"node:os";import{basename as $,dirname as F,extname as S,join as r}from"node:path";import{fileURLToPath as A}from"node:url";const c=F(A(import.meta.url)),x=process.env.REST_VERBOSE==="true",d=process.env.Compiler?.toLowerCase()==="rest",n=process.env.REST_BINARY_PATH||(()=>{const a=[r(c,"..","..","node_modules","@codeeditorland/rest","bin","rest"),r(c,"..","..","node_modules","@codeeditorland/rest","bin","rest.exe"),r(c,"..","..","..","Rest","bin","rest"),r(c,"..","..","..","Rest","bin","rest.exe"),r(c,"..","..","..","Rest","Target","release","rest"),r(c,"..","..","..","Rest","Target","release","rest.exe"),"rest"];for(const i of a)if(m(i))return i;return"rest"})(),L=process.env.REST_OPTIONS?.split(" ").filter(Boolean)||[],g=process.env.NODE_ENV==="development"||process.env.TAURI_ENV_DEBUG==="true"||process.env.RestSourcemap==="true";function v(){return{name:"rest",setup(a){if(!d)return;const i=(...t)=>{(a.initialOptions.logLevel!=="silent"||x)&&console.log("[Rest]",...t)};i("Plugin activated - Using Rest compiler"),i("Binary path:",n),g&&i("Source maps: enabled");try{!m(n)&&n!=="rest"&&(console.warn(`[Rest] Binary not found at: ${n}`),console.warn("[Rest] Falling back to global installation or esbuild default"))}catch{}const _=async(t,e)=>{const s=await import("node:fs/promises"),f=y(r(T(),"rest-input-")),R=y(r(T(),"rest-output-"));try{const o=$(t),b=r(f,o);await s.copyFile(t,b);const p=["compile","--input",f,"--output",R];g&&p.push("--sourcemap"),p.push(...L),x&&console.log("[Rest] Executing:",n,p.join(" "));const l=P(n,p,{encoding:"utf8",stdio:["pipe","pipe","pipe"],env:{...process.env}});if(l.status!==0){const I=l.stderr||"",N=l.stdout||"";throw new Error(`Rest compilation failed (exit code ${l.status}):
-${N}
-${I}`)}const O=e===".ts"||e===".tsx"?".js":e,u=r(R,o.replace(S(o),O));if(!m(u))throw new Error(`Rest compiler did not produce output file: ${u}`);const B=h(u,"utf8");let E;const w=u+".map";return g&&m(w)&&(E=h(w,"utf8")),{contents:B,loader:"js",watchFiles:[t],...E&&{pluginData:{map:E}}}}finally{try{const{rmSync:o}=await import("node:fs");o(f,{recursive:!0,force:!0}),o(R,{recursive:!0,force:!0})}catch{}}};a.onLoad({filter:/\.tsx?$/,namespace:"file"},async({path:t})=>{try{const e=S(t),s=await _(t,e);if(s)return s}catch(e){const s=e.message;console.warn(`[Rest] Failed to compile ${t} with Rest:`,s),console.warn("[Rest] Falling back to esbuild TypeScript loader")}return null}),a.onLoad({filter:/\.jsx?$/,namespace:"file"},async({path:t})=>{if(!d)return null;try{const e=S(t),s=await _(t,e);if(s)return s}catch(e){console.warn(`[Rest] Failed to compile ${t} with Rest:`,e.message)}return null})}}}function k(){return d}function M(){return n}function H(){return d?v():null}export{H as createRestPluginIfEnabled,v as default,M as getRestBinaryPath,k as isRestEnabled};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { spawnSync } from "node:child_process";
+import { existsSync, mkdtempSync, readFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { basename, dirname, extname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const REST_VERBOSE = process.env["REST_VERBOSE"] === "true";
+const USE_REST_COMPILER = process.env["Compiler"]?.toLowerCase() === "rest";
+const REST_BINARY_PATH = process.env["REST_BINARY_PATH"] || (() => {
+  const possiblePaths = [
+    // From @codeeditorland/rest package
+    join(
+      __dirname,
+      "..",
+      "..",
+      "node_modules",
+      "@codeeditorland/rest",
+      "bin",
+      "rest"
+    ),
+    join(
+      __dirname,
+      "..",
+      "..",
+      "node_modules",
+      "@codeeditorland/rest",
+      "bin",
+      "rest.exe"
+    ),
+    // From Element/Rest directory
+    join(__dirname, "..", "..", "..", "Rest", "bin", "rest"),
+    join(__dirname, "..", "..", "..", "Rest", "bin", "rest.exe"),
+    // From Target/release (local build)
+    join(
+      __dirname,
+      "..",
+      "..",
+      "..",
+      "Rest",
+      "Target",
+      "release",
+      "rest"
+    ),
+    join(
+      __dirname,
+      "..",
+      "..",
+      "..",
+      "Rest",
+      "Target",
+      "release",
+      "rest.exe"
+    ),
+    // Global installation
+    "rest"
+  ];
+  for (const path of possiblePaths) {
+    if (existsSync(path)) {
+      return path;
+    }
+  }
+  return "rest";
+})();
+const REST_OPTIONS = process.env["REST_OPTIONS"]?.split(" ").filter(Boolean) || [];
+const ENABLE_SOURCE_MAPS = process.env["NODE_ENV"] === "development" || process.env["TAURI_ENV_DEBUG"] === "true" || process.env["RestSourcemap"] === "true";
+function RestPlugin() {
+  return {
+    name: "rest",
+    setup(build) {
+      if (!USE_REST_COMPILER) {
+        return;
+      }
+      const log = /* @__PURE__ */ __name((...args) => {
+        if (build.initialOptions.logLevel !== "silent" || REST_VERBOSE) {
+          console.log("[Rest]", ...args);
+        }
+      }, "log");
+      log("Plugin activated - Using Rest compiler");
+      log("Binary path:", REST_BINARY_PATH);
+      if (ENABLE_SOURCE_MAPS) {
+        log("Source maps: enabled");
+      }
+      try {
+        if (!existsSync(REST_BINARY_PATH) && REST_BINARY_PATH !== "rest") {
+          console.warn(
+            `[Rest] Binary not found at: ${REST_BINARY_PATH}`
+          );
+          console.warn(
+            "[Rest] Falling back to global installation or esbuild default"
+          );
+        }
+      } catch (_error) {
+      }
+      const compileWithRest = /* @__PURE__ */ __name(async (filePath, ext) => {
+        const fs = await import("node:fs/promises");
+        const tempInputDir = mkdtempSync(join(tmpdir(), "rest-input-"));
+        const tempOutputDir = mkdtempSync(
+          join(tmpdir(), "rest-output-")
+        );
+        try {
+          const inputFileName = basename(filePath);
+          const tempInputPath = join(tempInputDir, inputFileName);
+          await fs.copyFile(filePath, tempInputPath);
+          const args = [
+            "compile",
+            "--input",
+            tempInputDir,
+            "--output",
+            tempOutputDir
+          ];
+          if (ENABLE_SOURCE_MAPS) {
+            args.push("--sourcemap");
+          }
+          args.push(...REST_OPTIONS);
+          if (REST_VERBOSE) {
+            console.log(
+              "[Rest] Executing:",
+              REST_BINARY_PATH,
+              args.join(" ")
+            );
+          }
+          const result = spawnSync(REST_BINARY_PATH, args, {
+            encoding: "utf8",
+            stdio: ["pipe", "pipe", "pipe"],
+            env: { ...process.env }
+          });
+          if (result.status !== 0) {
+            const stderr = result.stderr || "";
+            const stdout = result.stdout || "";
+            throw new Error(
+              `Rest compilation failed (exit code ${result.status}):
+${stdout}
+${stderr}`
+            );
+          }
+          const outputExt = ext === ".ts" || ext === ".tsx" ? ".js" : ext;
+          const tempOutputPath = join(
+            tempOutputDir,
+            inputFileName.replace(
+              extname(inputFileName),
+              outputExt
+            )
+          );
+          if (!existsSync(tempOutputPath)) {
+            throw new Error(
+              `Rest compiler did not produce output file: ${tempOutputPath}`
+            );
+          }
+          const contents = readFileSync(tempOutputPath, "utf8");
+          let mapContents;
+          const mapPath = tempOutputPath + ".map";
+          if (ENABLE_SOURCE_MAPS && existsSync(mapPath)) {
+            mapContents = readFileSync(mapPath, "utf8");
+          }
+          return {
+            contents,
+            loader: "js",
+            watchFiles: [filePath],
+            ...mapContents && {
+              pluginData: { map: mapContents }
+            }
+          };
+        } finally {
+          try {
+            const { rmSync } = await import("node:fs");
+            rmSync(tempInputDir, { recursive: true, force: true });
+            rmSync(tempOutputDir, { recursive: true, force: true });
+          } catch (_error) {
+          }
+        }
+      }, "compileWithRest");
+      build.onLoad(
+        { filter: /\.tsx?$/, namespace: "file" },
+        async ({ path: filePath }) => {
+          try {
+            const ext = extname(filePath);
+            const result = await compileWithRest(filePath, ext);
+            if (result) {
+              return result;
+            }
+          } catch (error) {
+            const errorMsg = error.message;
+            console.warn(
+              `[Rest] Failed to compile ${filePath} with Rest:`,
+              errorMsg
+            );
+            console.warn(
+              `[Rest] Falling back to esbuild TypeScript loader`
+            );
+          }
+          return null;
+        }
+      );
+      build.onLoad(
+        { filter: /\.jsx?$/, namespace: "file" },
+        async ({ path: filePath }) => {
+          if (!USE_REST_COMPILER) {
+            return null;
+          }
+          try {
+            const ext = extname(filePath);
+            const result = await compileWithRest(filePath, ext);
+            if (result) {
+              return result;
+            }
+          } catch (error) {
+            console.warn(
+              `[Rest] Failed to compile ${filePath} with Rest:`,
+              error.message
+            );
+          }
+          return null;
+        }
+      );
+    }
+  };
+}
+__name(RestPlugin, "RestPlugin");
+function isRestEnabled() {
+  return USE_REST_COMPILER;
+}
+__name(isRestEnabled, "isRestEnabled");
+function getRestBinaryPath() {
+  return REST_BINARY_PATH;
+}
+__name(getRestBinaryPath, "getRestBinaryPath");
+function createRestPluginIfEnabled() {
+  return USE_REST_COMPILER ? RestPlugin() : null;
+}
+__name(createRestPluginIfEnabled, "createRestPluginIfEnabled");
+export {
+  createRestPluginIfEnabled,
+  RestPlugin as default,
+  getRestBinaryPath,
+  isRestEnabled
+};
+//# sourceMappingURL=RestPlugin.js.map

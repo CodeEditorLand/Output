@@ -1,1 +1,0 @@
-import{$vD as e}from"../../../../platform/instantiation/common/extensions.js";import{$uN as o}from"../common/elevatedFileService.js";class t{isSupported(r){return!1}async writeFileElevated(r,p,u){throw new Error("Unsupported")}}e(o,t,1);export{t as $9Uc};

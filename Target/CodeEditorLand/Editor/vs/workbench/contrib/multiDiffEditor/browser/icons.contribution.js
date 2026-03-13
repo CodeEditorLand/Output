@@ -1,1 +1,0 @@
-import{$bk as o}from"../../../../base/common/codicons.js";import{localize as i}from"../../../../nls.js";import{$mu as l}from"../../../../platform/theme/common/iconRegistry.js";const f=l("multi-diff-editor-label-icon",o.diffMultiple,i(12268,null));export{f as $L3b};

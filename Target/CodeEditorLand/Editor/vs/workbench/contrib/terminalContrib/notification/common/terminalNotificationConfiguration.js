@@ -1,1 +1,0 @@
-import{localize as e}from"../../../../../nls.js";var t;(function(i){i.EnableNotifications="terminal.integrated.enableNotifications"})(t||(t={}));const o={"terminal.integrated.enableNotifications":{description:e(15699,null),type:"boolean",default:!0}};export{o as $T8,t as TerminalOscNotificationsSettingId};

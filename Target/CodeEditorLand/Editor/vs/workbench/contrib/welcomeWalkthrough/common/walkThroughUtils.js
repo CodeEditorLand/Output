@@ -1,1 +1,0 @@
-import{$8p as o}from"../../../../platform/theme/common/colorRegistry.js";import{localize as r}from"../../../../nls.js";import{$1p as l,$Xp as t}from"../../../../base/common/color.js";const n=o("walkThrough.embeddedEditorBackground",{dark:new l(new t(0,0,0,.4)),light:"#f4f4f4",hcDark:null,hcLight:null},r(17116,null));export{n as $VOc};

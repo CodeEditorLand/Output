@@ -1,1 +1,0 @@
-import{localize as e}from"../../nls.js";import{$wo as o}from"../../platform/contextkey/common/contextkey.js";const s=new o("activeChatBar","",e(2884,null)),t=new o("chatBarFocus",!1,e(2885,null)),n=new o("chatBarVisible",!1,e(2886,null)),a=new o("sessionsWelcomeVisible",!1,e(2887,null));export{a as $16c,s as $X6c,t as $Y6c,n as $Z6c};

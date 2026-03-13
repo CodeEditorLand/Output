@@ -1,1 +1,0 @@
-import{$vD as m}from"../../platform/instantiation/common/extensions.js";import{$Nbc as o}from"../../workbench/services/title/browser/titleService.js";import{$P3c as r}from"./parts/titlebarPart.js";m(o,r,0);

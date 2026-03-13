@@ -1,1 +1,0 @@
-import{Event as e}from"../../../base/common/event.js";import{$Nj as n}from"../../instantiation/common/instantiation.js";const p=n("dataChannelService");class d{get onDidSendData(){return e.None}getDataChannel(a){return{sendData:()=>{}}}}export{p as $8pb,d as $9pb};

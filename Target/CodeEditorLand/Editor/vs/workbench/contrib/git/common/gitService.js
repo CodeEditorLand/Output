@@ -1,1 +1,0 @@
-import{$Nj as r}from"../../../../platform/instantiation/common/instantiation.js";var a;(function(o){o[o.Head=0]="Head",o[o.RemoteHead=1]="RemoteHead",o[o.Tag=2]="Tag"})(a||(a={}));const d=r("gitService");export{d as $Bbc,a as GitRefType};

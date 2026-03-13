@@ -1,1 +1,0 @@
-const r="editor.semanticHighlighting";function g(e,i,n){const t=n.getValue(r,{overrideIdentifier:e.getLanguageId(),resource:e.uri})?.enabled;return typeof t=="boolean"?t:i.getColorTheme().semanticHighlighting}export{g as $$yb,r as $0yb};

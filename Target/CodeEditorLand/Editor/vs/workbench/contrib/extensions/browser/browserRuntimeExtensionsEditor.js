@@ -1,1 +1,0 @@
-import{$Bxc as n}from"./abstractRuntimeExtensionsEditor.js";import{$XVc as r}from"../common/reportExtensionIssueAction.js";class c extends n{mb(){return null}nb(e){}ob(e){return null}pb(e){return e.marketplaceInfo?this.y.createInstance(r,e.description):null}}export{c as $YVc};

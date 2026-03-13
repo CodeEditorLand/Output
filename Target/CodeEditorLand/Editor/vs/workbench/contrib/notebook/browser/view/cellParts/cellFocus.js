@@ -1,1 +1,0 @@
-import*as t from"../../../../../../base/browser/dom.js";import{$MIb as c}from"../cellPart.js";class r extends c{constructor(o,s,i){super(),this.D(t.$O0(o,t.$K$.FOCUS,()=>{this.c&&i.focusElement(this.c)},!0)),s&&this.D(t.$O0(s,t.$K$.FOCUS,()=>{this.c&&this.c.outputsViewModels.length&&i.focusNotebookCell(this.c,"output")}))}}export{r as $aLb};

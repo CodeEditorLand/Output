@@ -1,1 +1,0 @@
-import{$Nj as i}from"../../../../platform/instantiation/common/instantiation.js";const e=100;var n;(function(o){o[o.Disconnected=1]="Disconnected",o[o.Connected=2]="Connected",o[o.Initializing=3]="Initializing"})(n||(n={}));const t=i("INotebookKernelService"),s=i("INotebookKernelHistoryService");export{e as $mR,t as $nR,s as $oR,n as ProxyKernelState};

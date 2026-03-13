@@ -1,1 +1,0 @@
-import{$lm as i}from"../../../../platform/configuration/common/configurationRegistry.js";import{$jm as t}from"../../../../platform/registry/common/platform.js";import{$jP as m}from"../../../common/contributions.js";import{$lRc as o}from"./commands.js";import{$nRc as r,$mRc as f}from"./configurationSchema.js";m(o.ID,o,4);m(r.ID,r,4);t.as(i.Configuration).registerConfiguration(f);

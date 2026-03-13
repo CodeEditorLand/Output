@@ -1,1 +1,0 @@
-import{localize as l}from"../../../../nls.js";const n={showLanguagePackExtensions:l(11481,null),searchMarketplace:l(11482,null),installAndRestartMessage:l(11483,null),installAndRestart:l(11484,null)};export{n as $q4c};

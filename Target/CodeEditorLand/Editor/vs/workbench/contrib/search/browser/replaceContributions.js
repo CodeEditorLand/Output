@@ -1,1 +1,0 @@
-import{$vD as r}from"../../../../platform/instantiation/common/extensions.js";import{$6nc as m}from"./replace.js";import{$yEc as t,$xEc as o}from"./replaceService.js";import{$jP as $}from"../../../common/contributions.js";function n(){r(m,t,1),$(o.ID,o,1)}export{n as $zEc};

@@ -1,1 +1,0 @@
-import*as u from"../../../../base/browser/dom.js";var f;(function(t){t[t.VALUE=3]="VALUE"})(f||(f={}));function i(t,e,n){const r=u.$_0(t);return!(e<r.left+3||e>r.left+r.width-3||n<r.top+3||n>r.top+r.height-3)}function c(t,e,n){return t==="on"?!0:t==="off"?!1:o(e,n.event)}function o(t,e){return t==="altKey"?e.ctrlKey||e.metaKey:e.altKey}export{i as $Mvb,c as $Nvb,o as $Ovb};

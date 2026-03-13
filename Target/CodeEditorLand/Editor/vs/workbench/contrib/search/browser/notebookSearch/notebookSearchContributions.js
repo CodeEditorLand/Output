@@ -1,1 +1,0 @@
-import{$vD as o}from"../../../../../platform/instantiation/common/extensions.js";import{$5nc as r}from"../../common/notebookSearch.js";import{$AEc as m}from"./notebookSearchService.js";function i(){o(r,m,1)}export{i as $BEc};

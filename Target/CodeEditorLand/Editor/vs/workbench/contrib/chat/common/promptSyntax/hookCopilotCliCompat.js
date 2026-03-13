@@ -1,1 +1,0 @@
-import{$$R as r}from"./hookTypes.js";import{Target as n}from"./promptTypes.js";const e=r[n.GitHubCopilot];let t;function p(){if(!t){t=new Map;for(const[o,i]of Object.entries(e))t.set(i,o)}return t}function l(o){return e[o]}function C(o){return p().get(o)}export{l as $8qc,C as $9qc};

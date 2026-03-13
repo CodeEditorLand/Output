@@ -1,1 +1,0 @@
-import{$Nj as o}from"../../../../platform/instantiation/common/instantiation.js";import{$TM as r}from"./editorGroupsService.js";const p=o("editorService"),$=-1,i=-2,M=-3,s=-4;function x(t){return typeof t=="number"||r(t)}export{x as $1M,p as $VM,$ as $WM,i as $XM,M as $YM,s as $ZM};

@@ -1,2 +1,0 @@
-var a;(function(t){t[t.Piece=1]="Piece",t[t.Text=2]="Text"})(a||(a={}));var s;(function(t){t[t.BaseChatMessage=1]="BaseChatMessage",t[t.Other=2]="Other",t[t.ImageChatMessage=3]="ImageChatMessage"})(s||(s={}));function i(t){const e=[];return f(t.node,e),e.join("")}function f(t,e){if(t.type===2)t.lineBreakBefore&&e.push(`
-`),typeof t.text=="string"&&e.push(t.text);else if(t.ctor===3)e.push("<image>");else if(t.ctor===1||t.ctor===2)for(const h of t.children)f(h,e)}export{i as $1V,s as PieceCtorKind,a as PromptNodeType};

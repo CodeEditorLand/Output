@@ -1,1 +1,0 @@
-import{$Czc as m}from"../../../../platform/imageResize/common/imageResizeService.js";import{$ZUc as o}from"../../../../platform/imageResize/browser/imageResizeService.js";import{$vD as r}from"../../../../platform/instantiation/common/extensions.js";r(m,o,1);

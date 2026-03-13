@@ -1,23 +1,17 @@
 export default (Prefix: string) => [
-	"out/bootstrap-cli.js",
+	// When compiling from src/, bootstrap files are at the root of out/
+	// (not in a "out" subdirectory since we're not using VSCode's prebuilt structure)
+	"bootstrap-cli.js",
+	"bootstrap-fork.js",
+	"bootstrap-node.js",
+	"bootstrap-server.js",
+	"cli.js",
+	"main.js",
+	"server-cli.js",
+	"server-main.js",
 
-	"out/bootstrap-fork.js",
-
-	"out/bootstrap-node.js",
-
-	"out/bootstrap-server.js",
-
-	"out/cli.js",
-
-	"out/main.js",
-
-	"out/server-cli.js",
-
-	"out/server-main.js",
-
+	// These are specific to VSCode's output structure, keep them
 	`${Prefix}/code/node/cli.js`,
-
 	`${Prefix}/code/node/cliProcessMain.js`,
-
 	`${Prefix}/workbench/workbench.desktop.main.js`,
 ];

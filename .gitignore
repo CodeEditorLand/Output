@@ -1,0 +1,52 @@
+# Output package - Ephemeral build artifacts
+# Target directory contains all build outputs and should be ignored
+/Target/*
+!/Target/release
+!/Target/debug
+
+# Preserve release binaries (they are built artifacts but needed for distribution)
+!/Target/release/*.deb
+!/Target/release/*.exe
+!/Target/release/BinaryRest
+!/Target/release/Rest
+
+# Preserve debug bundle directory (for development)
+!/Target/debug/bundle
+!/Target/debug/bundle/nsis
+!/Target/debug/bundle/nsis/*.exe
+!/Target/debug/bundle/msi
+!/Target/debug/bundle/msi/*.msi
+!/Target/debug/bundle/appimage
+!/Target/debug/bundle/appimage/*.AppImage
+
+# Ignore large build artifacts that exceed GitHub's 100MB limit
+Target/debug/bundle/dmg
+Target/debug/bundle/macos
+Target/release/bundle/dmg
+Target/release/bundle/macos
+
+# Allow executables (should be under 100MB)
+!/Target/debug/*.exe
+!/Target/debug/Mountain
+!/Target/debug/Mountain.exe
+!/Target/release/*.exe
+!/Target/release/Mountain
+!/Target/release/Mountain.exe
+
+# Configuration files that may be generated
+Configuration/*.js
+Configuration/*.js.map
+!Configuration/esbuild.config.mjs
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Node modules
+node_modules/
+
+# Logs
+*.log
+
+# IDE
+.vscode/
+.idea/

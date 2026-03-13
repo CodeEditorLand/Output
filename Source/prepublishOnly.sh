@@ -10,11 +10,13 @@ fi
 # shellcheck disable=SC2154
 case "$Dependency" in
 "Microsoft/VSCode")
-	BuildDir="out-build"
+	# Compile directly from VSCode source using Rest compiler
+	# This avoids test package.json conflicts from prebuilt out/
+	VSCodeSourceDir="../../Dependency/Microsoft/Dependency/Editor/src"
 	;;
 
 "CodeEditorLand/Editor")
-	BuildDir="Source"
+	VSCodeSourceDir="../../Dependency/CodeEditorLand/Editor/Source"
 	;;
 
 *)
@@ -23,25 +25,28 @@ case "$Dependency" in
 
 esac
 
-if [[ "$Dependency" = "Microsoft/VSCode" && "$NODE_ENV" = "development" ]]; then
-    BuildDir="out"
-fi
-
-# Always use standard VSCode build output (esbuild/tsc compiled)
-# Rest compiler is disabled due to OXC segmentation fault issues
-VSCodeSourceDir="../../Dependency/Microsoft/Dependency/Editor/$BuildDir"
-if [[ -d "$VSCodeSourceDir" ]]; then
-    echo "[prepublishOnly] Using standard VSCode build output from: $VSCodeSourceDir"
-else
-    echo "[prepublishOnly] ERROR: VSCode build output not found at: $VSCodeSourceDir"
-    echo "[prepublishOnly] Please build VSCode first: cd Dependency/Microsoft/Dependency/Editor && npm run compile"
+# Verify source directory exists
+if [[ ! -d "$VSCodeSourceDir" ]]; then
+    echo "[prepublishOnly] ERROR: VSCode source directory not found at: $VSCodeSourceDir"
     exit 1
 fi
+
+echo "[prepublishOnly] Compiling VSCode from source using Rest: $VSCodeSourceDir"
 
 # Build Output package TypeScript sources
 Build "Source/**/*.{ts,json}" \
 	--ESBuild Source/ESBuild/Output.ts
 
-# Copy VSCode artifacts (from Rest output or standard build)
-Build "$VSCodeSourceDir/**/*.{css,fish,html,js,json,jsx,cjs,mjs,md,mp3,png,ps1,psm1,scm,scpt,sh,svg,ts,tsx,ttf,zsh}" \
-	--ESBuild Configuration/ESBuild/"$Dependency".js
+# Compile VSCode TypeScript sources directly from src/ using Rest compiler
+# Set Compiler=Rest to enable Rest compiler integration
+# Set NODE_ENV=development to avoid console stripping and preserve sourcemaps
+export Compiler="Rest"
+export NODE_ENV="development"
+
+# Build the entire VSCode source tree
+Build "$VSCodeSourceDir/**/*.{ts,tsx,js,json}" \
+	--ESBuild Configuration/ESBuild/"$Dependency".js \
+	--outdir "Target/Microsoft/VSCode/vs" \
+	--outbase "$VSCodeSourceDir/vs"
+
+echo "[prepublishOnly] ✓ VSCode compilation complete"

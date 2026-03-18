@@ -8,9 +8,12 @@
  *
  * Usage:
  *   import RestPlugin from './RestPlugin';
+ *
  *   import esbuildConfig from './Output';
  *
+ *
  *   esbuildConfig.plugins?.push(RestPlugin());
+ *
  *
  * Environment Variables:
  * Compiler - Set to "Rest" to enable the Rest compiler
@@ -45,60 +48,179 @@ const REST_BINARY_PATH =
 			// From @codeeditorland/rest package
 			join(
 				__dirname,
+
 				"..",
+
 				"..",
+
 				"node_modules",
+
 				"@codeeditorland/rest",
+
 				"bin",
+
 				"rest",
 			),
+
 			join(
 				__dirname,
+
 				"..",
+
 				"..",
+
 				"node_modules",
+
 				"@codeeditorland/rest",
+
 				"bin",
+
 				"rest.exe",
 			),
 
-			// From Element/Rest directory
+			// From Element/Rest directory (cargo install --bin=rest location)
 			join(__dirname, "..", "..", "..", "Rest", "bin", "rest"),
+
+			join(__dirname, "..", "..", "..", "Rest", "bin", "Rest"),
+
 			join(__dirname, "..", "..", "..", "Rest", "bin", "rest.exe"),
 
-			// From Target/release (local build)
+			join(__dirname, "..", "..", "..", "Rest", "bin", "Rest.exe"),
+
+			// From Target/release (local cargo build)
 			join(
 				__dirname,
+
 				"..",
+
 				"..",
+
 				"..",
+
 				"Rest",
+
 				"Target",
+
 				"release",
+
 				"rest",
 			),
+
 			join(
 				__dirname,
+
 				"..",
+
 				"..",
+
 				"..",
+
 				"Rest",
+
 				"Target",
+
 				"release",
+
+				"Rest",
+			),
+
+			join(
+				__dirname,
+
+				"..",
+
+				"..",
+
+				"..",
+
+				"Rest",
+
+				"Target",
+
+				"release",
+
 				"rest.exe",
+			),
+
+			join(
+				__dirname,
+
+				"..",
+
+				"..",
+
+				"..",
+
+				"Rest",
+
+				"Target",
+
+				"release",
+
+				"Rest.exe",
+			),
+
+			// Also check debug build (debug directory)
+			join(
+				__dirname,
+
+				"..",
+
+				"..",
+
+				"..",
+
+				"Rest",
+
+				"Target",
+
+				"debug",
+
+				"rest",
+			),
+
+			join(
+				__dirname,
+
+				"..",
+
+				"..",
+
+				"..",
+
+				"Rest",
+
+				"Target",
+
+				"debug",
+
+				"Rest",
 			),
 
 			// Global installation
 			"rest",
 		];
 
+		// Debug: log all paths if REST_VERBOSE
+		if (REST_VERBOSE) {
+			console.log("[Rest] Checking binary paths:");
+
+			for (const p of possiblePaths) {
+				console.log(`  ${p} -> ${existsSync(p) ? "FOUND" : "not found"}`);
+			}
+		}
+
 		for (const path of possiblePaths) {
 			if (existsSync(path)) {
+				console.log(`[Rest] Found binary at: ${path}`);
+
 				return path;
 			}
 		}
 
 		// Default fallback
+		console.log("[Rest] Falling back to 'rest' from PATH");
+
 		return "rest";
 	})();
 
@@ -138,7 +260,51 @@ export default function RestPlugin(): Plugin {
 			};
 
 			log("Plugin activated - Using Rest compiler");
+
 			log("Binary path:", REST_BINARY_PATH);
+
+			// Always log debug info when REST_VERBOSE is true
+			console.log("[Rest] REST_VERBOSE is:", REST_VERBOSE);
+
+			console.log("[Rest] __dirname:", __dirname);
+
+			console.log(
+				"[Rest] Checking for binary at resolved path:",
+				REST_BINARY_PATH,
+			);
+
+			const explicitlyCheck = [
+				join(
+					__dirname,
+					"..",
+					"..",
+					"..",
+					"Rest",
+					"Target",
+					"release",
+					"Rest",
+				),
+
+				join(
+					__dirname,
+					"..",
+					"..",
+					"..",
+					"Rest",
+					"Target",
+					"release",
+					"rest",
+				),
+
+				join(__dirname, "..", "..", "..", "Rest", "bin", "Rest"),
+
+				join(__dirname, "..", "..", "..", "Rest", "bin", "rest"),
+			];
+
+			for (const p of explicitlyCheck) {
+				console.log(`  Candidate: ${p} exists: ${existsSync(p)}`);
+			}
+
 			if (ENABLE_SOURCE_MAPS) {
 				log("Source maps: enabled");
 			}
@@ -152,6 +318,7 @@ export default function RestPlugin(): Plugin {
 					console.warn(
 						`[Rest] Binary not found at: ${REST_BINARY_PATH}`,
 					);
+
 					console.warn(
 						"[Rest] Falling back to global installation or esbuild default",
 					);
@@ -163,12 +330,14 @@ export default function RestPlugin(): Plugin {
 			// Helper function to compile a single file with Rest
 			const compileWithRest = async (
 				filePath: string,
+
 				ext: string,
 			): Promise<OnLoadResult | null> => {
 				const fs = await import("node:fs/promises");
 
 				// Rest CLI uses directory-based compilation, so we need to create temp dirs
 				const tempInputDir = mkdtempSync(join(tmpdir(), "rest-input-"));
+
 				const tempOutputDir = mkdtempSync(
 					join(tmpdir(), "rest-output-"),
 				);
@@ -176,6 +345,7 @@ export default function RestPlugin(): Plugin {
 				try {
 					// Copy input file to temp input directory with same name
 					const inputFileName = basename(filePath);
+
 					const tempInputPath = join(tempInputDir, inputFileName);
 
 					await fs.copyFile(filePath, tempInputPath);
@@ -183,9 +353,13 @@ export default function RestPlugin(): Plugin {
 					// Build Rest compiler command arguments
 					const args: string[] = [
 						"compile",
+
 						"--input",
+
 						tempInputDir,
+
 						"--output",
+
 						tempOutputDir,
 					];
 
@@ -200,7 +374,9 @@ export default function RestPlugin(): Plugin {
 					if (REST_VERBOSE) {
 						console.log(
 							"[Rest] Executing:",
+
 							REST_BINARY_PATH,
+
 							args.join(" "),
 						);
 					}
@@ -208,13 +384,17 @@ export default function RestPlugin(): Plugin {
 					// Execute Rest compiler using spawnSync for better error capture
 					const result = spawnSync(REST_BINARY_PATH, args, {
 						encoding: "utf8",
+
 						stdio: ["pipe", "pipe", "pipe"],
+
 						env: { ...process.env },
 					});
 
 					if (result.status !== 0) {
 						const stderr = result.stderr || "";
+
 						const stdout = result.stdout || "";
+
 						throw new Error(
 							`Rest compilation failed (exit code ${result.status}):\n${stdout}\n${stderr}`,
 						);
@@ -223,10 +403,13 @@ export default function RestPlugin(): Plugin {
 					// Read the compiled output file
 					const outputExt =
 						ext === ".ts" || ext === ".tsx" ? ".js" : ext;
+
 					const tempOutputPath = join(
 						tempOutputDir,
+
 						inputFileName.replace(
 							extname(inputFileName),
+
 							outputExt,
 						),
 					);
@@ -241,15 +424,20 @@ export default function RestPlugin(): Plugin {
 
 					// Handle source maps if generated
 					let mapContents: string | undefined;
+
 					const mapPath = tempOutputPath + ".map";
+
 					if (ENABLE_SOURCE_MAPS && existsSync(mapPath)) {
 						mapContents = readFileSync(mapPath, "utf8");
 					}
 
 					return {
 						contents,
+
 						loader: "js",
+
 						watchFiles: [filePath],
+
 						...(mapContents && {
 							pluginData: { map: mapContents },
 						}),
@@ -258,7 +446,9 @@ export default function RestPlugin(): Plugin {
 					// Clean up temp directories (best effort)
 					try {
 						const { rmSync } = await import("node:fs");
+
 						rmSync(tempInputDir, { recursive: true, force: true });
+
 						rmSync(tempOutputDir, { recursive: true, force: true });
 					} catch (_error) {
 						// Ignore cleanup errors
@@ -269,9 +459,11 @@ export default function RestPlugin(): Plugin {
 			// Intercept TypeScript files
 			build.onLoad(
 				{ filter: /\.tsx?$/, namespace: "file" },
+
 				async ({ path: filePath }) => {
 					try {
 						const ext = extname(filePath);
+
 						const result = await compileWithRest(filePath, ext);
 
 						if (result) {
@@ -280,10 +472,13 @@ export default function RestPlugin(): Plugin {
 					} catch (error) {
 						// On error, fall back to esbuild's default TypeScript handling
 						const errorMsg = (error as Error).message;
+
 						console.warn(
 							`[Rest] Failed to compile ${filePath} with Rest:`,
+
 							errorMsg,
 						);
+
 						console.warn(
 							`[Rest] Falling back to esbuild TypeScript loader`,
 						);
@@ -297,6 +492,7 @@ export default function RestPlugin(): Plugin {
 			// Handle JavaScript files (pass through or compile if needed)
 			build.onLoad(
 				{ filter: /\.jsx?$/, namespace: "file" },
+
 				async ({ path: filePath }) => {
 					if (!USE_REST_COMPILER) {
 						return null;
@@ -304,6 +500,7 @@ export default function RestPlugin(): Plugin {
 
 					try {
 						const ext = extname(filePath);
+
 						const result = await compileWithRest(filePath, ext);
 
 						if (result) {
@@ -312,6 +509,7 @@ export default function RestPlugin(): Plugin {
 					} catch (error) {
 						console.warn(
 							`[Rest] Failed to compile ${filePath} with Rest:`,
+
 							(error as Error).message,
 						);
 					}

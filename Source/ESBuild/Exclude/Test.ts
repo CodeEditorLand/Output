@@ -14,6 +14,7 @@ export default (Prefix: string) => [
 
 	`${Prefix}/base/test`,
 	`${Prefix}/base/test/*`,
+	`${Prefix}/base/test/**`,
 
 	`${Prefix}/editor/contrib/**/test`,
 	`${Prefix}/editor/contrib/**/test/*`,
@@ -53,4 +54,15 @@ export default (Prefix: string) => [
 	// This prevents pnpm workspace detection conflicts
 	`**/test/**/package.json`,
 	`**/test/package.json`,
+
+	// Catch-all: exclude all files recursively under any test directory
+	`${Prefix}**/test/**`,
+	`${Prefix}test/**`,
+	`**/test/**`,
+
+	// Also exclude fixtures and examples directories (often contain test-like code)
+	`${Prefix}**/fixtures/**`,
+	`${Prefix}**/examples/**`,
+	`**/fixtures/**`,
+	`**/examples/**`,
 ];

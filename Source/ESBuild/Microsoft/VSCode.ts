@@ -4,7 +4,8 @@ export const On = (await import("../../ESBuild.js")).On;
 
 // When compiling from source, output goes directly to Target/Microsoft/VSCode/vs
 // No intermediate "out" or "out-build" directory
-export const Prefix = "";
+// Prefix "vs" matches the VSCode source root directory structure
+export const Prefix = "vs";
 
 export const Dependency = (await import("../../ESBuild.js")).Dependency;
 

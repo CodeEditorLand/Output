@@ -294,7 +294,8 @@ Element/Output/
 
 ### ESBuild Configuration
 
-[`Source/ESBuild/Output.ts`](Source/ESBuild/Output.ts) configures esbuild with:
+[`Source/ESBuild/Output.ts`](https://github.com/CodeEditorLand/Output/tree/Current/Source/ESBuild/Output.ts)
+configures esbuild with:
 
 - ESM format output
 - Node.js platform
@@ -303,7 +304,8 @@ Element/Output/
 
 ### Rest Plugin
 
-[`Source/ESBuild/RestPlugin.ts`](Source/ESBuild/RestPlugin.ts) provides:
+[`Source/ESBuild/RestPlugin.ts`](https://github.com/CodeEditorLand/Output/tree/Current/Source/ESBuild/RestPlugin.ts)
+provides:
 
 - TypeScript file interception
 - Rest compiler invocation
@@ -335,7 +337,10 @@ npm run prepublishOnly
 
 ## Development Tools 🔧
 
-This project leverages the **Depth-Aware Skill System** for efficient development workflows. The system adapts skill behavior based on usage frequency, providing quick initial checks and progressively more comprehensive analysis.
+This project leverages the **Depth-Aware Skill System** for efficient
+development workflows. The system adapts skill behavior based on usage
+frequency, providing quick initial checks and progressively more comprehensive
+analysis.
 
 ### Quick Start with Skills
 
@@ -345,17 +350,20 @@ This project leverages the **Depth-Aware Skill System** for efficient developmen
 - **Level 4 (Fourth+ Run):** Strategic analysis - system-wide patterns
 
 For detailed guidance on using the depth-aware skill system, see:
-- [`Documentation/SkillSystem.md`](../../Documentation/SkillSystem.md) - Complete system overview
-- [`.roo/skills/DEPTH-MANAGEMENT.md`](../../.roo/skills/DEPTH-MANAGEMENT.md) - Technical management guide
+
+- [`Documentation/SkillSystem.md`](../../Documentation/SkillSystem.md) -
+  Complete system overview
+- [`.roo/skills/DEPTH-MANAGEMENT.md`](../../.roo/skills/DEPTH-MANAGEMENT.md) -
+  Technical management guide
 
 ### Common Development Tasks
 
-| Task | Command | Depth Level |
-|------|---------|-------------|
-| Quick build verification | `workflow-check-build-status` | Level 1 |
-| Rest compiler integration | `workflow-rest-compiler-integration` | Level 2 |
-| Output directory structure review | `history-output-directory-structure` | Level 3 |
-| Architecture documentation sync | `knowledge-element-architecture` | Level 4 |
+| Task                              | Command                              | Depth Level |
+| --------------------------------- | ------------------------------------ | ----------- |
+| Quick build verification          | `workflow-check-build-status`        | Level 1     |
+| Rest compiler integration         | `workflow-rest-compiler-integration` | Level 2     |
+| Output directory structure review | `history-output-directory-structure` | Level 3     |
+| Architecture documentation sync   | `knowledge-element-architecture`     | Level 4     |
 
 ---
 

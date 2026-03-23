@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["../../../Source/ESBuild/Exclude/Bootstrap.ts"],
-  "sourcesContent": ["export default (Prefix: string) => [\n\t\"out/bootstrap-cli.js\",\n\n\t\"out/bootstrap-fork.js\",\n\n\t\"out/bootstrap-node.js\",\n\n\t\"out/bootstrap-server.js\",\n\n\t\"out/cli.js\",\n\n\t\"out/main.js\",\n\n\t\"out/server-cli.js\",\n\n\t\"out/server-main.js\",\n\n\t`${Prefix}/code/node/cli.js`,\n\n\t`${Prefix}/code/node/cliProcessMain.js`,\n\n\t`${Prefix}/workbench/workbench.desktop.main.js`,\n];\n"],
-  "mappings": ";;AAAA,IAAO,oBAAQ,wBAAC,WAAmB;AAAA,EAClC;AAAA,EAEA;AAAA,EAEA;AAAA,EAEA;AAAA,EAEA;AAAA,EAEA;AAAA,EAEA;AAAA,EAEA;AAAA,EAEA,GAAG,MAAM;AAAA,EAET,GAAG,MAAM;AAAA,EAET,GAAG,MAAM;AACV,GAtBe;",
+  "sourcesContent": ["export default (Prefix: string) => [\n\t// When compiling from src/, bootstrap files are at the root of out/\n\t// (not in a \"out\" subdirectory since we're not using VSCode's prebuilt structure)\n\t\"bootstrap-cli.js\",\n\t\"bootstrap-fork.js\",\n\t\"bootstrap-node.js\",\n\t\"bootstrap-server.js\",\n\t\"cli.js\",\n\t\"main.js\",\n\t\"server-cli.js\",\n\t\"server-main.js\",\n\n\t// These are specific to VSCode's output structure, keep them\n\t`${Prefix}/code/node/cli.js`,\n\t`${Prefix}/code/node/cliProcessMain.js`,\n\t`${Prefix}/workbench/workbench.desktop.main.js`,\n];\n"],
+  "mappings": ";;AAAA,IAAO,oBAAQ,wBAAC,WAAmB;AAAA;AAAA;AAAA,EAGlC;AAAA,EACA;AAAA,EACA;AAAA,EACA;AAAA,EACA;AAAA,EACA;AAAA,EACA;AAAA,EACA;AAAA;AAAA,EAGA,GAAG,MAAM;AAAA,EACT,GAAG,MAAM;AAAA,EACT,GAAG,MAAM;AACV,GAhBe;",
   "names": []
 }

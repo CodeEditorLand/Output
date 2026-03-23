@@ -1,5 +1,5 @@
 export default (Prefix: string) => [
-	`${Prefix}/platform/profiling/*`,
+	// `${Prefix}/platform/profiling/*`, // Removed: profiling.js is needed by extensions.js
 
 	`${Prefix}/platform/cssDev/*`,
 

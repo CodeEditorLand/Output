@@ -206,7 +206,9 @@ const REST_BINARY_PATH =
 			console.log("[Rest] Checking binary paths:");
 
 			for (const p of possiblePaths) {
-				console.log(`  ${p} -> ${existsSync(p) ? "FOUND" : "not found"}`);
+				console.log(
+					`  ${p} -> ${existsSync(p) ? "FOUND" : "not found"}`,
+				);
 			}
 		}
 

@@ -35,7 +35,7 @@ Land
 
 ---
 
-# **Output** ⚫  The Build Output & Artifact Management for Land 🏞️
+# **Output** ⚫ The Build Output & Artifact Management for Land 🏞️
 
 [![License: CC0-1.0](https://img.shields.io/badge/License-CC0_1.0-lightgrey.svg)](https://github.com/CodeEditorLand/Land/tree/Current/LICENSE)
 [![NPM Version](https://img.shields.io/npm/v/@codeeditorland/output.svg)](https://www.npmjs.com/package/@codeeditorland/output)
@@ -95,7 +95,7 @@ The Rest compiler integration enables OXC-based TypeScript compilation as an
 alternative or complement to esbuild. This section provides an overview of the
 integration architecture, usage patterns, and comparison with esbuild.
 
-### Overview of OXC-Based Compilation
+### Overview of OXC-Based Compilation 📖
 
 Rest leverages the **OXC (Oxidation Compiler)** ecosystem, a high-performance
 JavaScript/TypeScript toolchain written in Rust. The OXC stack provides:
@@ -126,7 +126,7 @@ Source/ → esbuild → Configuration/ → Target/
 Dependency/ → Rest → Target/Rest/ → Configuration/ → Target/
 ```
 
-### Usage Instructions
+### Usage Instructions 🚀
 
 #### Enabling Rest Compiler
 
@@ -209,7 +209,7 @@ Target/Microsoft/VSCode/
 > - You need mature plugin ecosystem support
 > - Build speed is less critical than compatibility
 
-### Troubleshooting Rest Compiler
+### Troubleshooting Rest Compiler 🔍
 
 #### Rest Binary Not Found
 
@@ -256,7 +256,7 @@ Dependency/ → Rest → Target/Rest/ → Configuration/ → Target/
 
 ---
 
-## Directory Structure
+## Directory Structure 📁
 
 ```
 Element/Output/
@@ -281,7 +281,7 @@ Element/Output/
 
 ---
 
-## Scripts
+## Scripts 📝
 
 | Script                   | Description                     |
 | :----------------------- | :------------------------------ |
@@ -316,13 +316,13 @@ provides:
 
 ## Getting Started 🚀
 
-### Installation
+### Installation 📥
 
 ```sh
 pnpm add @codeeditorland/output
 ```
 
-### Basic Usage
+### Basic Usage 🚀
 
 ```bash
 # Default esbuild build
@@ -335,7 +335,7 @@ npm run prepublishOnly
 
 ---
 
-## Development Tools 🔧
+## Development Tools 🔧
 
 This project leverages the **Depth-Aware Skill System** for efficient
 development workflows. The system adapts skill behavior based on usage
@@ -367,7 +367,7 @@ For detailed guidance on using the depth-aware skill system, see:
 
 ---
 
-## References
+## References 📚
 
 - [Rest Compiler Documentation](../Rest/README.md)
 - [OXC Documentation](https://oxc.rs/)

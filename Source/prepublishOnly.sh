@@ -7,9 +7,7 @@ fi
 # shellcheck disable=SC2154
 case "$Dependency" in
 	"Microsoft/VSCode")
-		# Compile directly from VSCode source using Rest compiler
-		# This avoids test package.json conflicts from prebuilt out/
-		VSCodeSourceDir="../../Dependency/Microsoft/Dependency/Editor/src"
+		VSCodeSourceDir="../../../Dependency/Microsoft/Dependency/Editor/src"
 		;;
 
 	"CodeEditorLand/Editor")
@@ -21,28 +19,12 @@ case "$Dependency" in
 		;;
 esac
 
-# Verify source directory exists
-if [[ ! -d "$VSCodeSourceDir" ]]; then
-	echo "[prepublishOnly] ERROR: VSCode source directory not found at: $VSCodeSourceDir"
-	exit 1
+if [[ "$Dependency" = "Microsoft/VSCode" && "$NODE_ENV" = "development" ]]; then
+	Build="out"
 fi
 
-echo "[prepublishOnly] Compiling VSCode from source using Rest: $VSCodeSourceDir"
-
-# Build Output package TypeScript sources
-Build "Source/**/*.{ts,json}" \
+Build "Source/**/*.{ts,tsx,js,json,css}" \
 	--ESBuild Source/ESBuild/Output.ts
 
-# Compile VSCode TypeScript sources directly from src/ using Rest compiler
-# Set Compiler=Rest to enable Rest compiler integration
-# Set NODE_ENV=development to avoid console stripping and preserve sourcemaps
-export Compiler="Rest"
-export NODE_ENV="development"
-export Dependency="Microsoft/VSCode"
-
-# Build the entire VSCode source tree
-# Note: Output directory is configured in ESBuild/Microsoft/VSCode.ts as outdir: `Target/${Dependency}`
-Build "$VSCodeSourceDir/**/*.{ts,tsx,js,json}" \
+Build "$VSCodeSourceDir/**/*.{ts,tsx,js,json,css}" \
 	--ESBuild Configuration/ESBuild/"$Dependency".js
-
-echo "[prepublishOnly] ✓ VSCode compilation complete"

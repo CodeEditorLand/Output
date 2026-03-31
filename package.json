@@ -45,7 +45,7 @@
 		"@types/wicg-file-system-access": "2023.10.7",
 		"@types/winreg": "1.2.36",
 		"@webgpu/types": "0.1.69",
-		"browserslist": "4.28.1",
+		"browserslist": "4.28.2",
 		"cross-env": "10.1.0",
 		"deepmerge-ts": "7.1.5",
 		"mocha": "11.7.5",

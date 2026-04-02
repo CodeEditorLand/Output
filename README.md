@@ -35,9 +35,9 @@ Land
 
 ---
 
-# **Output** ⚫
+# **Output** ⚫
 
-The Build Output & Artifact Management for Land 🏞️
+The Build Output & Artifact Management for Land 🏞️
 
 [![License: CC0-1.0](https://img.shields.io/badge/License-CC0_1.0-lightgrey.svg)](https://github.com/CodeEditorLand/Land/tree/Current/LICENSE)
 [![NPM Version](https://img.shields.io/npm/v/@codeeditorland/output.svg)](https://www.npmjs.com/package/@codeeditorland/output)
@@ -61,7 +61,7 @@ code from VSCode, CodeEditorLand Editor, and the Rest compiler pipeline.
 
 ---
 
-## Key Features 🔐
+## Key Features 🔐
 
 - **Dual-Compiler Support:** Seamlessly switch between esbuild (default) and
   Rest (OXC-powered) compilers via environment variables.
@@ -90,13 +90,13 @@ code from VSCode, CodeEditorLand Editor, and the Rest compiler pipeline.
 
 ---
 
-## Rest Compiler Integration ⛱️
+## Rest Compiler Integration ⛱️
 
 The Rest compiler integration enables OXC-based TypeScript compilation as an
 alternative or complement to esbuild. This section provides an overview of the
 integration architecture, usage patterns, and comparison with esbuild.
 
-### Overview of OXC-Based Compilation 📖
+### Overview of OXC-Based Compilation 📖
 
 Rest leverages the **OXC (Oxidation Compiler)** ecosystem, a high-performance
 JavaScript/TypeScript toolchain written in Rust. The OXC stack provides:
@@ -127,7 +127,7 @@ Source/ → esbuild → Configuration/ → Target/
 Dependency/ → Rest → Target/Rest/ → Configuration/ → Target/
 ```
 
-### Usage Instructions 🚀
+### Usage Instructions 🚀
 
 #### Enabling Rest Compiler
 
@@ -210,7 +210,7 @@ Target/Microsoft/VSCode/
 > - You need mature plugin ecosystem support
 > - Build speed is less critical than compatibility
 
-### Troubleshooting Rest Compiler 🔍
+### Troubleshooting Rest Compiler 🔍
 
 #### Rest Binary Not Found
 
@@ -257,7 +257,7 @@ Dependency/ → Rest → Target/Rest/ → Configuration/ → Target/
 
 ---
 
-## Directory Structure 📁
+## Directory Structure 📁
 
 ```
 Element/Output/
@@ -282,7 +282,7 @@ Element/Output/
 
 ---
 
-## Scripts 📝
+## Scripts 📝
 
 | Script                   | Description                     |
 | :----------------------- | :------------------------------ |
@@ -315,15 +315,15 @@ provides:
 
 ---
 
-## Getting Started 🚀
+## Getting Started 🚀
 
-### Installation 📥
+### Installation 📥
 
 ```sh
 pnpm add @codeeditorland/output
 ```
 
-### Basic Usage 🚀
+### Basic Usage 🚀
 
 ```bash
 # Default esbuild build
@@ -368,7 +368,7 @@ For detailed guidance on using the depth-aware skill system, see:
 
 ---
 
-## References 📚
+## References 📚
 
 - [Rest Compiler Documentation](../Rest/README.md)
 - [OXC Documentation](https://oxc.rs/)

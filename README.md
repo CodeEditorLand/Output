@@ -35,17 +35,18 @@ Land
 
 ---
 
-# **Output** ⚫ The Build Output & Artifact Management for Land 🏞️
+# **Output** ⚫
+
+The Build Output & Artifact Management for Land 🏞️
 
 [![License: CC0-1.0](https://img.shields.io/badge/License-CC0_1.0-lightgrey.svg)](https://github.com/CodeEditorLand/Land/tree/Current/LICENSE)
 [![NPM Version](https://img.shields.io/npm/v/@codeeditorland/output.svg)](https://www.npmjs.com/package/@codeeditorland/output)
 [![esbuild Version](https://img.shields.io/badge/esbuild-0.25.x-blue.svg)](https://esbuild.github.io/)
 [![Rest Compiler](https://img.shields.io/badge/Rest-OXC-orange.svg)](https://oxc.rs/)
 
-Welcome to **Output**, the build output and artifact management package for the
-**Land Code Editor**. Output handles the compilation, processing, and
-distribution of source code from various dependencies including VSCode,
-CodeEditorLand Editor, and the Rest compiler pipeline.
+**Output** is the build output and artifact management package for the **Land
+Code Editor**. It handles compilation, processing, and distribution of source
+code from VSCode, CodeEditorLand Editor, and the Rest compiler pipeline.
 
 **Output** is engineered to:
 
@@ -60,7 +61,7 @@ CodeEditorLand Editor, and the Rest compiler pipeline.
 
 ---
 
-## Key Features 🔐
+## Key Features 🔐
 
 - **Dual-Compiler Support:** Seamlessly switch between esbuild (default) and
   Rest (OXC-powered) compilers via environment variables.
@@ -89,13 +90,13 @@ CodeEditorLand Editor, and the Rest compiler pipeline.
 
 ---
 
-## Rest Compiler Integration ⛱️
+## Rest Compiler Integration ⛱️
 
 The Rest compiler integration enables OXC-based TypeScript compilation as an
 alternative or complement to esbuild. This section provides an overview of the
 integration architecture, usage patterns, and comparison with esbuild.
 
-### Overview of OXC-Based Compilation 📖
+### Overview of OXC-Based Compilation 📖
 
 Rest leverages the **OXC (Oxidation Compiler)** ecosystem, a high-performance
 JavaScript/TypeScript toolchain written in Rust. The OXC stack provides:
@@ -126,7 +127,7 @@ Source/ → esbuild → Configuration/ → Target/
 Dependency/ → Rest → Target/Rest/ → Configuration/ → Target/
 ```
 
-### Usage Instructions 🚀
+### Usage Instructions 🚀
 
 #### Enabling Rest Compiler
 
@@ -209,7 +210,7 @@ Target/Microsoft/VSCode/
 > - You need mature plugin ecosystem support
 > - Build speed is less critical than compatibility
 
-### Troubleshooting Rest Compiler 🔍
+### Troubleshooting Rest Compiler 🔍
 
 #### Rest Binary Not Found
 
@@ -256,7 +257,7 @@ Dependency/ → Rest → Target/Rest/ → Configuration/ → Target/
 
 ---
 
-## Directory Structure 📁
+## Directory Structure 📁
 
 ```
 Element/Output/
@@ -281,7 +282,7 @@ Element/Output/
 
 ---
 
-## Scripts 📝
+## Scripts 📝
 
 | Script                   | Description                     |
 | :----------------------- | :------------------------------ |
@@ -314,15 +315,15 @@ provides:
 
 ---
 
-## Getting Started 🚀
+## Getting Started 🚀
 
-### Installation 📥
+### Installation 📥
 
 ```sh
 pnpm add @codeeditorland/output
 ```
 
-### Basic Usage 🚀
+### Basic Usage 🚀
 
 ```bash
 # Default esbuild build
@@ -344,16 +345,16 @@ analysis.
 
 ### Quick Start with Skills
 
-- **Level 1 (First Run):** Quick scan - fastest execution, focused scope
-- **Level 2 (Second Run):** Detailed analysis - broader coverage
-- **Level 3 (Third Run):** Deep dive - comprehensive review
-- **Level 4 (Fourth+ Run):** Strategic analysis - system-wide patterns
+- **Level 1 (First Run):** Quick scan — fastest execution, focused scope
+- **Level 2 (Second Run):** Detailed analysis — broader coverage
+- **Level 3 (Third Run):** Deep dive — comprehensive review
+- **Level 4 (Fourth+ Run):** Strategic analysis — system-wide patterns
 
 For detailed guidance on using the depth-aware skill system, see:
 
-- [`Documentation/SkillSystem.md`](../../Documentation/SkillSystem.md) -
+- [`Documentation/SkillSystem.md`](../../Documentation/SkillSystem.md) —
   Complete system overview
-- [`.roo/skills/DEPTH-MANAGEMENT.md`](../../.roo/skills/DEPTH-MANAGEMENT.md) -
+- [`.roo/skills/DEPTH-MANAGEMENT.md`](../../.roo/skills/DEPTH-MANAGEMENT.md) —
   Technical management guide
 
 ### Common Development Tasks
@@ -367,7 +368,7 @@ For detailed guidance on using the depth-aware skill system, see:
 
 ---
 
-## References 📚
+## References 📚
 
 - [Rest Compiler Documentation](../Rest/README.md)
 - [OXC Documentation](https://oxc.rs/)
@@ -377,11 +378,9 @@ For detailed guidance on using the depth-aware skill system, see:
 
 ## License ⚖️
 
-This project is released into the public domain under the **Creative Commons CC0
-Universal** license. You are free to use, modify, distribute, and build upon
-this work for any purpose, without any restrictions. For the full legal text,
-see the [`LICENSE`](https://github.com/CodeEditorLand/Land/tree/Current/LICENSE)
-file.
+This project is licensed under Creative Commons CC0.
+
+See the LICENSE file for details.
 
 ---
 
@@ -394,11 +393,14 @@ history of changes specific to **Output**.
 
 ## Funding & Acknowledgements 🙏🏻
 
-**Output** is a core element of the **Land** ecosystem. This project is funded
-through [NGI0 Commons Fund](https://NLnet.NL/commonsfund), a fund established by
-[NLnet](https://NLnet.NL) with financial support from the European Commission's
-[Next Generation Internet](https://ngi.eu) program. Learn more at the
-[NLnet project page](https://NLnet.NL/project/Land).
+Code Editor Land is funded through the NGI0 Commons Fund, established by NLnet
+with financial support from the European Commission's Next Generation Internet
+programme, under grant agreement No. 101135429.
+
+The project is operated by PlayForm, based in Sofia, Bulgaria.
+
+PlayForm acts as the open-source steward for Code Editor Land under the NGI0
+Commons Fund grant.
 
 <table>
 <thead>

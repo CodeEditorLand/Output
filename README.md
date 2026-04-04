@@ -48,16 +48,16 @@ The Build Output & Artifact Management for Land 🏞️
 Code Editor**. It handles compilation, processing, and distribution of source
 code from VSCode, CodeEditorLand Editor, and the Rest compiler pipeline.
 
-**Output** is engineered to:
+**What Output gives you:**
 
-1. **Orchestrate Multi-Compiler Builds:** Support both esbuild and Rest
-   (OXC-based) compilation pipelines with seamless integration.
-2. **Manage Build Artifacts:** Organize and deliver optimized JavaScript
-   artifacts for consumption by `Sky`, `Wind`, and `Cocoon`.
-3. **Provide Hybrid Workflows:** Enable incremental migration from esbuild to
-   Rest through conditional compilation and plugin-based architecture.
-4. **Ensure Build Reproducibility:** Maintain consistent output through
-   deterministic build configurations and artifact verification.
+1. **Two compilers, one pipeline.** Both esbuild and Rest (OXC) produce
+   artifacts through the same build system. Migrate incrementally.
+2. **Ready-to-run bundles.** Sky, Wind, and Cocoon consume Output's JavaScript
+   artifacts directly. No post-processing, no manual wiring.
+3. **Incremental migration.** Switch individual modules from esbuild to Rest
+   one at a time. The plugin architecture handles the routing.
+4. **Reproducible output.** Deterministic build configs and artifact checksums.
+   Same commit always produces the same bundles.
 
 ---
 

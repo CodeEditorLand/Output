@@ -391,6 +391,13 @@ history of changes specific to **Output**.
 
 ---
 
+
+## See Also
+
+- [Architecture Overview](https://editor.land/Doc/architecture)
+- [Rest](https://github.com/CodeEditorLand/Rest)
+- [Cocoon](https://github.com/CodeEditorLand/Cocoon)
+
 ## Funding & Acknowledgements 🙏🏻
 
 Code Editor Land is funded through the NGI0 Commons Fund, established by NLnet

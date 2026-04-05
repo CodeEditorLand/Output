@@ -4,7 +4,7 @@
 
 		"outDir": "Target",
 
-		"rootDir": ".",
+		"rootDir": "./Source",
 
 		"declarationMap": true,
 

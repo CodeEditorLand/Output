@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
 if [ -z "$Dependency" ]; then
 	Dependency="Microsoft/VSCode"
@@ -19,7 +19,7 @@ case "$Dependency" in
 		;;
 esac
 
-if [[ "$Dependency" = "Microsoft/VSCode" && "$NODE_ENV" = "development" ]]; then
+if [ "$Dependency" = "Microsoft/VSCode" ] && [ "$NODE_ENV" = "development" ]; then
 	Build="out"
 fi
 

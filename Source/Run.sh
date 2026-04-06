@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
 if [ -z "$Dependency" ]; then
 	Dependency="CodeEditorLand/Editor"
@@ -6,18 +6,17 @@ fi
 
 # shellcheck disable=SC2154
 case "$Dependency" in
-"Microsoft/VSCode")
-	Build="out"
-	;;
+	"Microsoft/VSCode")
+		Build="out"
+		;;
 
-"CodeEditorLand/Editor")
-	Build="Source"
-	;;
+	"CodeEditorLand/Editor")
+		Build="Source"
+		;;
 
-*)
-	exit 1
-	;;
-
+	*)
+		exit 1
+		;;
 esac
 
 Build "Source/**/*.{ts,json}" \

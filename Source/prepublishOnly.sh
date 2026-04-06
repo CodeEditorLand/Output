@@ -6,25 +6,25 @@ fi
 
 # shellcheck disable=SC2154
 case "$Dependency" in
-	"Microsoft/VSCode")
-		VSCodeSourceDir="../../../Dependency/Microsoft/Dependency/Editor/src"
-		;;
+"Microsoft/VSCode")
+	Build="out-build"
+	;;
 
-	"CodeEditorLand/Editor")
-		VSCodeSourceDir="../../Dependency/CodeEditorLand/Editor/Source"
-		;;
+"CodeEditorLand/Editor")
+	Build="Source"
+	;;
 
-	*)
-		exit 1
-		;;
+*)
+	exit 1
+	;;
 esac
 
 if [ "$Dependency" = "Microsoft/VSCode" ] && [ "$NODE_ENV" = "development" ]; then
 	Build="out"
 fi
 
-Build "Source/**/*.{ts,tsx,js,json,css}" \
+Build "Source/**/*.{ts,json}" \
 	--ESBuild Source/ESBuild/Output.ts
 
-Build "$VSCodeSourceDir/**/*.{ts,tsx,js,json,css}" \
+Build "../../Dependency/Microsoft/Dependency/Editor/$Build/**/*.{css,fish,html,js,json,jsx,cjs,mjs,md,mp3,png,ps1,psm1,scm,scpt,sh,svg,ts,tsx,ttf,zsh}" \
 	--ESBuild Configuration/ESBuild/"$Dependency".js

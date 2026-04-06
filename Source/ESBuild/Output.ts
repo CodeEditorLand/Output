@@ -1,6 +1,11 @@
-import type { BuildOptions, Plugin } from "esbuild";
+import type { BuildOptions } from "esbuild";
 
-import { createRestPluginIfEnabled } from "./RestPlugin.js";
+// RestPlugin is loaded lazily only when Compiler=Rest is set.
+// Enable via: Compiler=Rest dum prepublishOnly --filter=@codeeditorland/output
+const RestPlugin =
+	process.env["Compiler"]?.toLowerCase() === "rest"
+		? await import("./RestPlugin.js").then((M) => M.createRestPluginIfEnabled())
+		: null;
 
 export const Clean = process.env["Clean"] === "true";
 
@@ -79,9 +84,9 @@ export default {
 			},
 		},
 
-		// Conditionally add Rest plugin when Compiler=Rest
-		...(createRestPluginIfEnabled() ? [createRestPluginIfEnabled()!] : []),
-	].filter((plugin): plugin is Plugin => plugin !== null),
+		// RestPlugin activated only when Compiler=Rest env var is set.
+		...(RestPlugin ? [RestPlugin] : []),
+	].filter(Boolean),
 
 	loader: {
 		".json": "copy",

@@ -1,9 +1,9 @@
 # Output — Deep Dive
 
 This document provides the technical foundation for the Output build artifact
-management package within the Land ecosystem. **Output** orchestrates compilation
-of VSCode's TypeScript source and CodeEditorLand editor code into JavaScript
-bundles consumed by Sky, Wind, and Cocoon.
+management package within the Land ecosystem. **Output** orchestrates
+compilation of VSCode's TypeScript source and CodeEditorLand editor code into
+JavaScript bundles consumed by Sky, Wind, and Cocoon.
 
 ---
 
@@ -52,18 +52,18 @@ graph TB
 
 ## Key Modules
 
-| Path | Description |
-| :--- | :--- |
-| `Source/prepublishOnly.sh` | Main build script; sets environment and invokes esbuild configuration |
-| `Source/Run.sh` | Development watch script for incremental builds |
-| `Source/ESBuild/Output.ts` | esbuild programmatic configuration: format, platform, target, plugin wiring |
-| `Source/ESBuild/RestPlugin.ts` | esbuild plugin that intercepts TypeScript files and delegates to Rest binary |
-| `Source/ESBuild/Microsoft/` | esbuild entry point configurations for VSCode platform bundles |
-| `Source/ESBuild/CodeEditorLand/` | esbuild entry point configurations for editor customization bundles |
-| `Source/ESBuild/Exclude/` | Module exclusion rules for platform-incompatible VSCode code paths |
-| `Configuration/ESBuild/Microsoft/VSCode.js` | esbuild config for the Microsoft/VSCode dependency |
-| `Configuration/ESBuild/CodeEditorLand/Editor.js` | esbuild config for the CodeEditorLand/Editor dependency |
-| `Target/Microsoft/VSCode/` | Final merged JavaScript artifacts consumed at runtime |
+| Path                                             | Description                                                                  |
+| :----------------------------------------------- | :--------------------------------------------------------------------------- |
+| `Source/prepublishOnly.sh`                       | Main build script; sets environment and invokes esbuild configuration        |
+| `Source/Run.sh`                                  | Development watch script for incremental builds                              |
+| `Source/ESBuild/Output.ts`                       | esbuild programmatic configuration: format, platform, target, plugin wiring  |
+| `Source/ESBuild/RestPlugin.ts`                   | esbuild plugin that intercepts TypeScript files and delegates to Rest binary |
+| `Source/ESBuild/Microsoft/`                      | esbuild entry point configurations for VSCode platform bundles               |
+| `Source/ESBuild/CodeEditorLand/`                 | esbuild entry point configurations for editor customization bundles          |
+| `Source/ESBuild/Exclude/`                        | Module exclusion rules for platform-incompatible VSCode code paths           |
+| `Configuration/ESBuild/Microsoft/VSCode.js`      | esbuild config for the Microsoft/VSCode dependency                           |
+| `Configuration/ESBuild/CodeEditorLand/Editor.js` | esbuild config for the CodeEditorLand/Editor dependency                      |
+| `Target/Microsoft/VSCode/`                       | Final merged JavaScript artifacts consumed at runtime                        |
 
 ---
 
@@ -103,25 +103,25 @@ sequenceDiagram
 
 ## Integration Points
 
-| Connecting Element | Direction | Mechanism | Description |
-| :--- | :--- | :--- | :--- |
-| **Rest** | Consumer | Process invocation | `RestPlugin.ts` spawns the Rest binary as a child process per TypeScript file |
-| **Sky** | Provider | `@codeeditorland/output` npm package | Sky imports VSCode core UI components from the Output package artifacts |
-| **Wind** | Provider | `@codeeditorland/output` npm package | Wind imports VSCode workbench service implementations from Output artifacts |
-| **Cocoon** | Provider | File path reference | Cocoon loads JavaScript modules from `Target/Microsoft/VSCode/` at startup |
+| Connecting Element | Direction | Mechanism                            | Description                                                                   |
+| :----------------- | :-------- | :----------------------------------- | :---------------------------------------------------------------------------- |
+| **Rest**           | Consumer  | Process invocation                   | `RestPlugin.ts` spawns the Rest binary as a child process per TypeScript file |
+| **Sky**            | Provider  | `@codeeditorland/output` npm package | Sky imports VSCode core UI components from the Output package artifacts       |
+| **Wind**           | Provider  | `@codeeditorland/output` npm package | Wind imports VSCode workbench service implementations from Output artifacts   |
+| **Cocoon**         | Provider  | File path reference                  | Cocoon loads JavaScript modules from `Target/Microsoft/VSCode/` at startup    |
 
 ---
 
 ## Configuration
 
-| Variable | Default | Description |
-| :--- | :--- | :--- |
-| `Compiler` | `esbuild` | Set to `Rest` to enable OXC-based TypeScript compilation |
-| `REST_BINARY_PATH` | auto-detect | Override path to the Rest compiler binary |
-| `REST_OPTIONS` | empty | Additional flags passed to the Rest compiler |
-| `REST_VERBOSE` | `false` | Enable verbose Rest compiler logging for troubleshooting |
-| `Dependency` | `Microsoft/VSCode` | Source dependency directory to process |
-| `NODE_ENV` | `production` | Controls source map generation (`development` enables maps) |
+| Variable           | Default            | Description                                                 |
+| :----------------- | :----------------- | :---------------------------------------------------------- |
+| `Compiler`         | `esbuild`          | Set to `Rest` to enable OXC-based TypeScript compilation    |
+| `REST_BINARY_PATH` | auto-detect        | Override path to the Rest compiler binary                   |
+| `REST_OPTIONS`     | empty              | Additional flags passed to the Rest compiler                |
+| `REST_VERBOSE`     | `false`            | Enable verbose Rest compiler logging for troubleshooting    |
+| `Dependency`       | `Microsoft/VSCode` | Source dependency directory to process                      |
+| `NODE_ENV`         | `production`       | Controls source map generation (`development` enables maps) |
 
 The `Compiler=Rest` path produces identical JavaScript semantics to the esbuild
 path while running 2-3x faster on TypeScript-heavy codebases, at the cost of

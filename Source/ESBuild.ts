@@ -2,6 +2,8 @@ import type { BuildOptions, LogLevel } from "esbuild";
 
 export const Browser = process.env["Browser"] === "true";
 
+export const Electron = process.env["Electron"] === "true";
+
 export const Clean = process.env["Clean"] === "true";
 
 export const Dependency = process.env["Dependency"] ?? "CodeEditorLand/Editor";

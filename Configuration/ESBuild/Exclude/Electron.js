@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-const Browser = (await import("../../ESBuild.js")).Browser;
-var Electron_default = /* @__PURE__ */ __name((Prefix) => Browser ? [
+const { Browser, Electron } = await import("../../ESBuild.js");
+var Electron_default = /* @__PURE__ */ __name((Prefix) => Browser && !Electron ? [
   `${Prefix}/base/parts/contextmenu/electron-main/*`,
   `${Prefix}/base/parts/contextmenu/electron-browser/*`,
   `${Prefix}/base/parts/ipc/electron-main/*`,
@@ -54,6 +54,7 @@ var Electron_default = /* @__PURE__ */ __name((Prefix) => Browser ? [
 ] : [], "default");
 export {
   Browser,
+  Electron,
   Electron_default as default
 };
 //# sourceMappingURL=Electron.js.map

@@ -1,5 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+const Electron = (await import("../../ESBuild.js")).Electron;
 var Bootstrap_default = /* @__PURE__ */ __name((Prefix) => [
   // When compiling from src/, bootstrap files are at the root of out/
   // (not in a "out" subdirectory since we're not using VSCode's prebuilt structure)
@@ -14,9 +15,11 @@ var Bootstrap_default = /* @__PURE__ */ __name((Prefix) => [
   // These are specific to VSCode's output structure, keep them
   `${Prefix}/code/node/cli.js`,
   `${Prefix}/code/node/cliProcessMain.js`,
-  `${Prefix}/workbench/workbench.desktop.main.js`
+  // Only exclude the desktop workbench when NOT building for Electron
+  ...Electron ? [] : [`${Prefix}/workbench/workbench.desktop.main.js`]
 ], "default");
 export {
+  Electron,
   Bootstrap_default as default
 };
 //# sourceMappingURL=Bootstrap.js.map

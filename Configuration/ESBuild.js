@@ -1,4 +1,5 @@
 const Browser = process.env["Browser"] === "true";
+const Electron = process.env["Electron"] === "true";
 const Clean = process.env["Clean"] === "true";
 const Dependency = process.env["Dependency"] ?? "CodeEditorLand/Editor";
 const Level = process.env["Level"] ?? "debug";
@@ -69,6 +70,7 @@ export {
   Browser,
   Clean,
   Dependency,
+  Electron,
   Level,
   Meta,
   On,

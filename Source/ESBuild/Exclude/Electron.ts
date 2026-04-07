@@ -1,8 +1,10 @@
-export const Browser = (await import("../../ESBuild.js")).Browser;
+export const { Browser, Electron } = await import("../../ESBuild.js");
 
-// FUTURE: FINISH COMPILING FROM ELECTRON-WISE BINARIES
+// When Electron=true, include all electron-browser paths (no exclusions).
+// When Browser=true, exclude electron-browser paths (browser-only build).
+// When neither, no exclusions (default).
 export default (Prefix: string) =>
-	Browser
+	Browser && !Electron
 		? [
 				`${Prefix}/base/parts/contextmenu/electron-main/*`,
 

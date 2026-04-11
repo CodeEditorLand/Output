@@ -1,4 +1,12 @@
-const RestPlugin = process.env["Compiler"]?.toLowerCase() === "rest" ? await import("./RestPlugin.js").then((M) => M.createRestPluginIfEnabled()) : null;
+let RestPlugin = null;
+if (process.env["Compiler"]?.toLowerCase() === "rest") {
+  try {
+    const { createRestPluginIfEnabled } = await import("./RestPlugin.js");
+    RestPlugin = createRestPluginIfEnabled();
+  } catch {
+    console.warn("[Output] RestPlugin.js not found \u2014 falling back to esbuild TS loader");
+  }
+}
 const Clean = process.env["Clean"] === "true";
 const Meta = process.env["Meta"] === "true";
 const On = process.env["NODE_ENV"] === "development" || process.env["TAURI_ENV_DEBUG"] === "true";

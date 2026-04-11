@@ -22,10 +22,24 @@
 		"./*": {
 			"import": "./Target/Microsoft/VSCode/*.js",
 			"types": "./Target/Microsoft/VSCode/*.d.ts"
+		},
+		"./Polyfill/*": {
+			"import": "./Configuration/Polyfill/*.js",
+			"types": "./Configuration/Polyfill/*.d.ts"
+		},
+		"./Service/*": {
+			"import": "./Configuration/Service/*.js",
+			"types": "./Configuration/Service/*.d.ts"
 		}
 	},
 	"typesVersions": {
 		"*": {
+			"Polyfill/*": [
+				"./Configuration/Polyfill/*"
+			],
+			"Service/*": [
+				"./Configuration/Service/*"
+			],
 			"*": [
 				"./Target/Microsoft/VSCode/*"
 			]

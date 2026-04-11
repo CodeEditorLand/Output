@@ -1,8 +1,16 @@
 // RestPlugin is loaded lazily only when Compiler=Rest is set.
-// Enable via: Compiler=Rest dum prepublishOnly --filter=@codeeditorland/output
-const RestPlugin = process.env["Compiler"]?.toLowerCase() === "rest"
-    ? await import("./RestPlugin.js").then((M) => M.createRestPluginIfEnabled())
-    : null;
+// The dynamic import must be inside the conditional body — not a ternary —
+// so ESM module evaluation does not resolve the specifier when Compiler != Rest.
+let RestPlugin = null;
+if (process.env["Compiler"]?.toLowerCase() === "rest") {
+    try {
+        const { createRestPluginIfEnabled } = await import("./RestPlugin.js");
+        RestPlugin = createRestPluginIfEnabled();
+    }
+    catch {
+        console.warn("[Output] RestPlugin.js not found — falling back to esbuild TS loader");
+    }
+}
 export const Clean = process.env["Clean"] === "true";
 export const Meta = process.env["Meta"] === "true";
 export const On = process.env["NODE_ENV"] === "development" ||

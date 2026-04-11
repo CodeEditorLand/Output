@@ -230,7 +230,7 @@ npm run Run
 export REST_BINARY_PATH=/usr/local/bin/rest
 ```
 
-**Compilation Errors — enable verbose logging:**
+**Compilation Errors - enable verbose logging:**
 
 ```bash
 export REST_VERBOSE=true

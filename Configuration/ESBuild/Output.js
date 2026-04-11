@@ -52,8 +52,8 @@ var Output_default = {
     },
     // RestPlugin activated only when Compiler=Rest env var is set.
     ...RestPlugin ? [RestPlugin] : [],
-    // PostHog build telemetry — fire-and-forget on build end
-    {
+    // PostHog build telemetry — debug only, skipped in production
+    ...process.env["NODE_ENV"] !== "production" ? [{
       name: "PostHogBuildTelemetry",
       setup({ onEnd }) {
         const StartTime = performance.now();
@@ -86,7 +86,7 @@ var Output_default = {
           }
         });
       }
-    }
+    }] : []
   ].filter(Boolean),
   loader: {
     ".json": "copy",

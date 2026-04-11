@@ -93,10 +93,10 @@ export default {
 		// RestPlugin activated only when Compiler=Rest env var is set.
 		...(RestPlugin ? [RestPlugin] : []),
 
-		// PostHog build telemetry — fire-and-forget on build end
-		{
+		// PostHog build telemetry — debug only, skipped in production
+		...(process.env["NODE_ENV"] !== "production" ? [{
 			name: "PostHogBuildTelemetry",
-			setup({ onEnd }) {
+			setup({ onEnd }: { onEnd: (Callback: (Result: { errors: unknown[]; warnings: unknown[] }) => Promise<void>) => void }) {
 				const StartTime = performance.now();
 				onEnd(async (Result) => {
 					const DurationMs = Math.round(performance.now() - StartTime);
@@ -125,7 +125,7 @@ export default {
 					} catch {}
 				});
 			},
-		},
+		}] : []),
 	].filter(Boolean),
 
 	loader: {

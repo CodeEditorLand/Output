@@ -110,6 +110,55 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 		setInternalOrg: undefined,
 		_getInitialState: { type: 0 },
 	},
+
+	// Fix: webview — IWebviewManagerService stub (prevents webview IPC errors)
+	webview: {
+		setIgnoreMenuShortcuts: undefined,
+		setContextMenuVisible: undefined,
+		hideReference: undefined,
+		showReference: undefined,
+	},
+
+	// Fix: watcher — IFileWatcherService stub (prevents file watch IPC errors)
+	watcher: {
+		watch: undefined,
+		unwatch: undefined,
+		setVerboseLogging: undefined,
+	},
+
+	// Fix: diagnostics — IDiagnosticsService stub (prevents diagnostics errors)
+	diagnostics: {
+		getPerformanceInfo: {
+			processInfo: {},
+			workspaceInfo: {},
+		},
+		getSystemInfo: {},
+		getDiagnostics: "",
+		reportWorkspaceStats: undefined,
+	},
+
+	// Fix: urlHandler — IURLService stub (prevents vscode:// protocol errors)
+	urlHandler: {
+		registerHandler: undefined,
+		open: false,
+		create: undefined,
+	},
+
+	// Fix: userDataAutoSync — IUserDataAutoSyncService stub
+	userDataAutoSync: {
+		isEnabled: false,
+		canToggleEnablement: false,
+		turnOn: undefined,
+		turnOff: undefined,
+	},
+
+	// Fix: download — IDownloadService stub (prevents extension gallery errors)
+	download: {
+		download: undefined,
+	},
+
+	// Fix: extensionGalleryManifest — stub for gallery metadata
+	extensionGalleryManifest: {},
 };
 
 // ============================================================================

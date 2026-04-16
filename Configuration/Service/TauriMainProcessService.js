@@ -1,11 +1,9 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-const _Trace = /* @__PURE__ */ __name((Tag, Message) => {
+const _Trace = (Tag, Message) => {
   try {
     performance.mark(`land:${Tag}:${Message}`);
   } catch {
   }
-}, "_Trace");
+};
 const ChannelRouteMap = {
   localFilesystem: "file",
   storage: "storage",
@@ -102,7 +100,49 @@ const StubChannels = {
     isLatestVersion: true,
     setInternalOrg: void 0,
     _getInitialState: { type: 0 }
-  }
+  },
+  // Fix: webview — IWebviewManagerService stub (prevents webview IPC errors)
+  webview: {
+    setIgnoreMenuShortcuts: void 0,
+    setContextMenuVisible: void 0,
+    hideReference: void 0,
+    showReference: void 0
+  },
+  // Fix: watcher — IFileWatcherService stub (prevents file watch IPC errors)
+  watcher: {
+    watch: void 0,
+    unwatch: void 0,
+    setVerboseLogging: void 0
+  },
+  // Fix: diagnostics — IDiagnosticsService stub (prevents diagnostics errors)
+  diagnostics: {
+    getPerformanceInfo: {
+      processInfo: {},
+      workspaceInfo: {}
+    },
+    getSystemInfo: {},
+    getDiagnostics: "",
+    reportWorkspaceStats: void 0
+  },
+  // Fix: urlHandler — IURLService stub (prevents vscode:// protocol errors)
+  urlHandler: {
+    registerHandler: void 0,
+    open: false,
+    create: void 0
+  },
+  // Fix: userDataAutoSync — IUserDataAutoSyncService stub
+  userDataAutoSync: {
+    isEnabled: false,
+    canToggleEnablement: false,
+    turnOn: void 0,
+    turnOff: void 0
+  },
+  // Fix: download — IDownloadService stub (prevents extension gallery errors)
+  download: {
+    download: void 0
+  },
+  // Fix: extensionGalleryManifest — stub for gallery metadata
+  extensionGalleryManifest: {}
 };
 async function InvokeMountain(Method, Params) {
   const Invoke = window.__TAURI__?.core?.invoke ?? window.__TAURI__?.invoke;
@@ -112,7 +152,6 @@ async function InvokeMountain(Method, Params) {
     params: Params
   });
 }
-__name(InvokeMountain, "InvokeMountain");
 class TauriChannel {
   constructor(ChannelName, RoutePrefix) {
     this.ChannelName = ChannelName;
@@ -120,9 +159,6 @@ class TauriChannel {
   }
   ChannelName;
   RoutePrefix;
-  static {
-    __name(this, "TauriChannel");
-  }
   async call(Command, Arg, _CancellationToken) {
     _Trace("ipc", `${this.ChannelName}.${Command}`);
     if (FireAndForgetChannels.has(this.ChannelName)) {
@@ -203,18 +239,15 @@ class TauriChannel {
         }).catch((Err) => {
           Listener(Err);
         });
-        return { dispose: /* @__PURE__ */ __name(() => {
-        }, "dispose") };
+        return { dispose: () => {
+        } };
       });
     }
-    return (() => ({ dispose: /* @__PURE__ */ __name(() => {
-    }, "dispose") }));
+    return (() => ({ dispose: () => {
+    } }));
   }
 }
 class TauriMainProcessService {
-  static {
-    __name(this, "TauriMainProcessService");
-  }
   Channels = /* @__PURE__ */ new Map();
   constructor(_WindowId) {
     _Trace("ipc", `TauriMainProcessService:window=${_WindowId}`);
@@ -239,4 +272,3 @@ export {
   TauriMainProcessService,
   TauriMainProcessService_default as default
 };
-//# sourceMappingURL=TauriMainProcessService.js.map

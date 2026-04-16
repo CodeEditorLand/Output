@@ -1,9 +1,11 @@
-const _Trace = (Tag, Message) => {
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+const _Trace = /* @__PURE__ */ __name((Tag, Message) => {
   try {
     performance.mark(`land:${Tag}:${Message}`);
   } catch {
   }
-};
+}, "_Trace");
 const ChannelRouteMap = {
   localFilesystem: "file",
   storage: "storage",
@@ -152,6 +154,7 @@ async function InvokeMountain(Method, Params) {
     params: Params
   });
 }
+__name(InvokeMountain, "InvokeMountain");
 class TauriChannel {
   constructor(ChannelName, RoutePrefix) {
     this.ChannelName = ChannelName;
@@ -159,6 +162,9 @@ class TauriChannel {
   }
   ChannelName;
   RoutePrefix;
+  static {
+    __name(this, "TauriChannel");
+  }
   async call(Command, Arg, _CancellationToken) {
     _Trace("ipc", `${this.ChannelName}.${Command}`);
     if (FireAndForgetChannels.has(this.ChannelName)) {
@@ -239,15 +245,18 @@ class TauriChannel {
         }).catch((Err) => {
           Listener(Err);
         });
-        return { dispose: () => {
-        } };
+        return { dispose: /* @__PURE__ */ __name(() => {
+        }, "dispose") };
       });
     }
-    return (() => ({ dispose: () => {
-    } }));
+    return (() => ({ dispose: /* @__PURE__ */ __name(() => {
+    }, "dispose") }));
   }
 }
 class TauriMainProcessService {
+  static {
+    __name(this, "TauriMainProcessService");
+  }
   Channels = /* @__PURE__ */ new Map();
   constructor(_WindowId) {
     _Trace("ipc", `TauriMainProcessService:window=${_WindowId}`);
@@ -272,3 +281,4 @@ export {
   TauriMainProcessService,
   TauriMainProcessService_default as default
 };
+//# sourceMappingURL=TauriMainProcessService.js.map

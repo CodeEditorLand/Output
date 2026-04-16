@@ -1,93 +1,103 @@
 # Changelog
 
-All notable changes to the Output element are documented in this file.
+All notable changes to Output (Bundled VS Code Artifacts) are documented here.
+Format: [Keep a Changelog](https://keepachangelog.com/).
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [v2.0] — Q1 2026: Editor Launch Sprint
 
-## [0.5.0] — 2026 Q2
+### April 11: Polyfill Layer (Pivotal)
 
-### Added
+#### Added
 
-- ESBuild configuration for Output component
-- ESBuild configuration with Tauri IPC stubs for VS Code compatibility
-- Comprehensive Electron-to-Tauri polyfill layer
-- PostHog build telemetry integration with complete polyfill layer
-- Electron environment variable for build targeting
-- Comprehensive technical documentation in README
+- 6 Electron-to-Tauri polyfill modules in `Source/Polyfill/` (~5,200 lines):
+  - `ProcessPolyfill.ts` — Node.js process API for Tauri
+  - `FileSystemPolyfill.ts` — fs module → Mountain file:invoke
+  - `FileProtocolShim.ts` — protocol handler interception
+  - `ChildProcessPolyfill.ts` — child_process → Mountain electron:
+  - `IPCRendererShim.ts` — Electron ipcRenderer simulation
+  - `NativeModulePolyfill.ts` — require('electron') stub
+- `Source/Service/TauriMainProcessService.ts` — Electron→Tauri IPC adapter
+- `Source/Service/DevLog.ts` — tag-filtered development logging
+- `Source/Service/Trace.ts`
+- PostHog telemetry integration
 
-### Changed
+### April 6-7: ESBuild Configuration Framework
 
-- Lazy-load RestPlugin only when Compiler=Rest env var is set
-- Reformatted ESBuild configuration files with consistent style
-- Made shell scripts POSIX-compliant
+#### Added
 
-## [0.4.0] — 2026 Q1
+- `Source/ESBuild.ts` — main ESBuild configuration entry
+- `Source/ESBuild/CodeEditorLand/Editor.ts` + `Bundle.ts`
+- `Source/ESBuild/Microsoft/VSCode.ts` + `Bundle.ts` + `Declaration.ts`
+- `Source/ESBuild/RestPlugin.ts` — optional Rest bundler integration (loads
+  when `Compiler=Rest` env var set)
+- `Source/ESBuild/Output.ts` — output element build config
+- 12 exclusion pattern modules in `Source/ESBuild/Exclude/`: Bootstrap.ts,
+  BuiltIn.ts, Electron.ts, NLS.ts, Node.ts, Potential.ts, Server.ts,
+  Standalone.ts, Telemetry.ts, Test.ts, Types.ts, WebWorker.ts
 
-### Added
+### March 13: Source Compilation Migration (Pivotal)
 
-- ESM build output generation
+#### Changed
 
-### Changed
+- Switched from prebuilt VS Code `out/` artifacts to compiling from
+  `Dependency/Microsoft/Dependency/Editor/src`
+- Eliminates test package.json conflicts
+- Removed ephemeral Target/ artifacts
 
-- Migrated from prebuilt VS Code output to source compilation with Rest
-- Configurable logging and streamlined declaration generation
-- Updated TODO comments to FUTURE naming convention
-- Removed ephemeral Target/ build artifacts from tracking
-- Upgraded TypeScript from 5.9.3 to 6.0.2
-- Updated @playform/build to v0.2.6, then v0.3.0
-- Updated homepage URL
-- Updated dependencies
+### Build Architecture
 
-## [0.3.0] — 2025 Q4
+Two-stage compilation pipeline:
+1. TypeScript → ESBuild config: `Source/ESBuild.ts` → `Configuration/ESBuild/*.js`
+2. ESBuild/Rest bundling: VS Code source → `Target/Microsoft/VSCode/vs/`
+   (4,287 .js files, 169MB)
 
-### Changed
-
-- Updated dependencies (TypeScript 5.9.2 to 5.9.3, browserslist, sinon, mocha,
-  @types/node, @webgpu/types, @types/sinon)
-- Upgraded CI actions (actions/upload-artifact 5.0, actions/checkout 6.x,
-  actions/setup-node 6.x)
-
-## [0.2.0] — 2025 Q3
-
-### Added
-
-- VS Code platform bundling with incremental builds and optimized declarations
-- TypeScript configuration for VS Code platform bundling
-- Browser environment check for Electron exclusion
-- Telemetry exclusions and browser targets configuration
+## [v1.3] — Q4 2025: Dependency Maintenance
 
 ### Changed
 
-- Refactored ESBuild configuration and enhanced exclusion patterns
-- Minified ESBuild configuration files and removed source maps
-- Removed Electron-specific VS Code platform artifacts
-- Replaced internal exclusion modules with @playform/build package
-- Refined exclusion patterns for test and platform-specific code
-- Streamlined ESBuild configuration and output
-- Conditionally set build output paths for VS Code dependencies in development
-- Relicensed project under CC0-1.0, then adopted Land Public License v1.0
+- TypeScript, browserslist updates
+- No source changes
 
-### Fixed
-
-- Corrected build output path condition for VS Code bundling
-- Corrected trailing spaces in ESBuild exclusion paths
-
-## [0.1.0] — 2025 Q2
-
-### Added
-
-- ESBuild configuration type definitions
-- Initial VS Code artifact bundling pipeline
+## [v1.2] — Q3 2025: Full Stack Integration
 
 ### Changed
 
-- Updated dependencies
+- TypeScript 5.9.2 → 5.9.3
+- @types/node 24.x updates
+- Build artifact management
 
-## [0.0.1] — 2025 Q1
+## [v1.1] — Q2 2025: Architecture Buildout
 
 ### Added
 
-- Initial bundled JS artifact generation from VS Code source
-- ESBuild-based build pipeline consumed by Cocoon at runtime
-- CI/CD workflows with GitHub Actions
-- Dependabot configuration for automated dependency updates
+- VS Code platform code bundled from source for Cocoon consumption
+- 35K+ .js files, 14K source maps per build cycle
+
+### Changed
+
+- @playform/build updated to 0.2.x → 0.3.x series
+
+## [v1.0] — Q1 2025: Integration Phase
+
+### Added
+
+- 4,051 new files in January (VS Code module compilation)
+- Source maps, CSS (248 files), SVG (30), MP3 (28) assets
+
+## [v0.2] — Q4 2024: Architecture Solidification
+
+### Added
+
+- Initial Output repository created (October 2024)
+- First VS Code artifact batch: 32K+ .js files
+- 1,028 insertions establishing compilation pipeline
+
+### Removed
+
+- December 17: massive inline Assets (~500+ files) cleaned up
+
+### Dependencies (First Release)
+
+- @playform/build, typescript, @types/node, mocha, sinon, deepmerge-ts,
+  semver, cross-env, browserslist
+- Optional: @codeeditorland/rest (OXC bundler)

@@ -1,4 +1,4 @@
-# Output — Deep Dive
+# Output - Deep Dive
 
 This document provides the technical foundation for the Output build artifact
 management package within the Land ecosystem. **Output** orchestrates
@@ -10,12 +10,12 @@ JavaScript bundles consumed by Sky, Wind, and Cocoon.
 ## Architecture
 
 Output is a JavaScript/TypeScript build package that wraps esbuild. It supports
-two compiler modes — the default esbuild pipeline and an optional Rest
-(OXC-based) pipeline — selectable at build time through environment variables.
+two compiler modes - the default esbuild pipeline and an optional Rest
+(OXC-based) pipeline - selectable at build time through environment variables.
 
 ```mermaid
 graph TB
-    subgraph "Output — Build Orchestration"
+    subgraph "Output - Build Orchestration"
         PrepublishSh["prepublishOnly.sh\nBuild entry script"]
         RunSh["Run.sh\nDevelopment watch script"]
         OutputTS["Source/ESBuild/Output.ts\nesbuild configuration"]

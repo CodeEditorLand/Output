@@ -34,13 +34,13 @@ const ChannelRouteMap: Record<string, string> = {
 	// calls `extensionManagementService.getInstalled(...)`, which bridges
 	// to the `extensionManagement` Electron IPC channel. Route it to the
 	// same Mountain `extensions:*` prefix as the raw `extensions` channel
-	// — Mountain's `extensions:getInstalled` handler returns the scan
+	// - Mountain's `extensions:getInstalled` handler returns the scan
 	// registry, which is exactly what `@builtin` in the sidebar needs.
 	// Without this mapping the channel fell through TauriChannel with no
 	// RoutePrefix, every call returned `undefined`, and the Extensions
 	// view stayed empty despite 94 extensions being scanned.
 	extensionManagement: "extensions",
-	// Extension gallery reads go to the same route — Mountain doesn't
+	// Extension gallery reads go to the same route - Mountain doesn't
 	// implement a gallery backend yet, so the handler returns an empty
 	// array which the sidebar renders as "no results", matching what a
 	// user on an offline/air-gapped VS Code install sees.
@@ -63,7 +63,7 @@ const ChannelRouteMap: Record<string, string> = {
 	model: "model",
 	nativeHost: "nativeHost",
 	localPty: "localPty",
-	// update: stubbed — Mountain doesn't implement IUpdateService yet
+	// update: stubbed - Mountain doesn't implement IUpdateService yet
 	url: "url",
 	menubar: "menubar",
 	encryption: "encryption",
@@ -106,7 +106,7 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 	mcpGateway: {},
 	browserViewGroup: {},
 
-	// Fix: terminals.windows — IExternalTerminalService.getDefaultTerminalForPlatforms()
+	// Fix: terminals.windows - IExternalTerminalService.getDefaultTerminalForPlatforms()
 	externalTerminal: {
 		getDefaultTerminalForPlatforms: {
 			windows: "cmd.exe",
@@ -115,7 +115,7 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 		},
 	},
 
-	// Fix: update.setInternalOrg — IUpdateService methods
+	// Fix: update.setInternalOrg - IUpdateService methods
 	update: {
 		checkForUpdates: { updateType: 0 },
 		downloadUpdate: undefined,
@@ -126,7 +126,7 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 		_getInitialState: { type: 0 },
 	},
 
-	// Fix: webview — IWebviewManagerService stub (prevents webview IPC errors)
+	// Fix: webview - IWebviewManagerService stub (prevents webview IPC errors)
 	webview: {
 		setIgnoreMenuShortcuts: undefined,
 		setContextMenuVisible: undefined,
@@ -134,14 +134,14 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 		showReference: undefined,
 	},
 
-	// Fix: watcher — IFileWatcherService stub (prevents file watch IPC errors)
+	// Fix: watcher - IFileWatcherService stub (prevents file watch IPC errors)
 	watcher: {
 		watch: undefined,
 		unwatch: undefined,
 		setVerboseLogging: undefined,
 	},
 
-	// Fix: diagnostics — IDiagnosticsService stub (prevents diagnostics errors)
+	// Fix: diagnostics - IDiagnosticsService stub (prevents diagnostics errors)
 	diagnostics: {
 		getPerformanceInfo: {
 			processInfo: {},
@@ -152,14 +152,14 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 		reportWorkspaceStats: undefined,
 	},
 
-	// Fix: urlHandler — IURLService stub (prevents vscode:// protocol errors)
+	// Fix: urlHandler - IURLService stub (prevents vscode:// protocol errors)
 	urlHandler: {
 		registerHandler: undefined,
 		open: false,
 		create: undefined,
 	},
 
-	// Fix: userDataAutoSync — IUserDataAutoSyncService stub
+	// Fix: userDataAutoSync - IUserDataAutoSyncService stub
 	userDataAutoSync: {
 		isEnabled: false,
 		canToggleEnablement: false,
@@ -167,12 +167,12 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 		turnOff: undefined,
 	},
 
-	// Fix: download — IDownloadService stub (prevents extension gallery errors)
+	// Fix: download - IDownloadService stub (prevents extension gallery errors)
 	download: {
 		download: undefined,
 	},
 
-	// Fix: extensionGalleryManifest — stub for gallery metadata
+	// Fix: extensionGalleryManifest - stub for gallery metadata
 	extensionGalleryManifest: {},
 };
 

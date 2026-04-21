@@ -52,7 +52,7 @@ var Output_default = {
     },
     // RestPlugin activated only when Compiler=Rest env var is set.
     ...RestPlugin ? [RestPlugin] : [],
-    // PostHog build telemetry — debug only, skipped in production
+    // PostHog build telemetry - debug only, skipped in production
     ...process.env["NODE_ENV"] !== "production" ? [{
       name: "PostHogBuildTelemetry",
       setup({ onEnd }) {

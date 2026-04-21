@@ -13,6 +13,21 @@ const ChannelRouteMap = {
   configuration: "configuration",
   textFile: "textFile",
   extensions: "extensions",
+  // VS Code's Extensions sidebar (`extensionsWorkbenchService.ts:815`)
+  // calls `extensionManagementService.getInstalled(...)`, which bridges
+  // to the `extensionManagement` Electron IPC channel. Route it to the
+  // same Mountain `extensions:*` prefix as the raw `extensions` channel
+  // — Mountain's `extensions:getInstalled` handler returns the scan
+  // registry, which is exactly what `@builtin` in the sidebar needs.
+  // Without this mapping the channel fell through TauriChannel with no
+  // RoutePrefix, every call returned `undefined`, and the Extensions
+  // view stayed empty despite 94 extensions being scanned.
+  extensionManagement: "extensions",
+  // Extension gallery reads go to the same route — Mountain doesn't
+  // implement a gallery backend yet, so the handler returns an empty
+  // array which the sidebar renders as "no results", matching what a
+  // user on an offline/air-gapped VS Code install sees.
+  extensionGallery: "extensions",
   commands: "commands",
   terminal: "terminal",
   output: "output",

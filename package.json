@@ -30,6 +30,14 @@
 		"./Service/*": {
 			"import": "./Configuration/Service/*.js",
 			"types": "./Configuration/Service/*.d.ts"
+		},
+		"./Plugin": {
+			"import": "./Configuration/Plugin/Index.js",
+			"types": "./Configuration/Plugin/Index.d.ts"
+		},
+		"./Plugin/*": {
+			"import": "./Configuration/Plugin/*.js",
+			"types": "./Configuration/Plugin/*.d.ts"
 		}
 	},
 	"typesVersions": {
@@ -39,6 +47,12 @@
 			],
 			"Service/*": [
 				"./Configuration/Service/*"
+			],
+			"Plugin": [
+				"./Configuration/Plugin/Index"
+			],
+			"Plugin/*": [
+				"./Configuration/Plugin/*"
 			],
 			"*": [
 				"./Target/Microsoft/VSCode/*"

@@ -22,6 +22,17 @@
  *  11. StaticToDynamicImport    (Step 10)
  *  12. StripDanglingSourceMap   (Step 11b)
  *  13. ExtensionScannerIPC      (Step 14)
+ *
+ * CopyNodeModules → StripDanglingSourceMap is a logically-paired duo
+ * (copy freshly shipped JS; strip any now-dangling sourcemap comments),
+ * but **the pair is expressed via role-scoped transforms, not
+ * `CopyPlugin.AfterCopy`**. StripDanglingSourceMap's `Match` is scoped
+ * to `Role === "app"` and CopyNodeModules writes into the app root, so
+ * the transform pass naturally covers every file the copy emits. The
+ * `AfterCopy` hook on `CopyPlugin` is intentionally unused here -
+ * leaving it plumbed means a future sibling (e.g. a copy that produces
+ * files outside the app root and still needs strip) can opt in without
+ * a runner change.
  */
 
 export * from "./Type.js";

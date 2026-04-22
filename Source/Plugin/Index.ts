@@ -22,6 +22,7 @@
  *  11. StaticToDynamicImport    (Step 10)
  *  12. StripDanglingSourceMap   (Step 11b)
  *  13. ExtensionScannerIPC      (Step 14)
+ *  14. CatchOutputFolderRejection (Step 15)
  *
  * CopyNodeModules → StripDanglingSourceMap is a logically-paired duo
  * (copy freshly shipped JS; strip any now-dangling sourcemap comments),
@@ -46,6 +47,7 @@ export { default as ReplaceSharedProcess } from "./Transform/ReplaceSharedProces
 export { default as StaticToDynamicImport } from "./Transform/StaticToDynamicImport.js";
 export { default as StripDanglingSourceMap } from "./Transform/StripDanglingSourceMap.js";
 export { default as ExtensionScannerIPC } from "./Transform/ExtensionScannerIPC.js";
+export { default as CatchOutputFolderRejection } from "./Transform/CatchOutputFolderRejection.js";
 
 export {
 	CopyVSOutput,
@@ -95,6 +97,7 @@ import ReplaceSharedProcess from "./Transform/ReplaceSharedProcess.js";
 import StaticToDynamicImport from "./Transform/StaticToDynamicImport.js";
 import StripDanglingSourceMap from "./Transform/StripDanglingSourceMap.js";
 import ExtensionScannerIPC from "./Transform/ExtensionScannerIPC.js";
+import CatchOutputFolderRejection from "./Transform/CatchOutputFolderRejection.js";
 
 import {
 	CopyVSOutput as CopyVSOutputFactory,
@@ -154,6 +157,7 @@ export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => [
 	StaticToDynamicImport,
 	StripDanglingSourceMap,
 	ExtensionScannerIPC,
+	CatchOutputFolderRejection,
 ];
 
 export default BuildPipeline;

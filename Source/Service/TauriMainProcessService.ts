@@ -174,6 +174,71 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 
 	// Fix: extensionGalleryManifest - stub for gallery metadata
 	extensionGalleryManifest: {},
+
+	// Fix: `IExtensionTipsService` - `exeBasedRecommendations.ts:54` assigns
+	// `this._importantTips = await this.extensionTipsService.getImportantExecutableBasedTips()`
+	// and then calls `.forEach` on the result. Without a stub the IPC call
+	// reaches no handler, returns undefined, and crashes the renderer with
+	// `TypeError: undefined is not an object (evaluating 'this._importantTips.forEach')`.
+	// Empty arrays = "no recommendations" (Land doesn't host an exe-based tips backend).
+	extensionTipsService: {
+		getImportantExecutableBasedTips: [],
+		getOtherExecutableBasedTips: [],
+		getAllWorkspacesTips: [],
+		getConfigBasedTips: [],
+		getImportantExecutableBasedTipsForExecutable: [],
+	},
+
+	// Fix: `IMcpManagementService` - `mcpManagementIpc.ts:167` does
+	// `.then(servers => servers.map(…))` expecting an array. Without a
+	// stub the missing handler gives undefined and `.map` throws
+	// `undefined is not an object (evaluating 'servers.map')`. Empty = no MCP servers.
+	mcpManagement: {
+		getInstalled: [],
+		install: undefined,
+		uninstall: undefined,
+		getGalleryServers: [],
+		getLatest: undefined,
+	},
+	mcpWorkbenchManagement: {
+		getInstalled: [],
+		getLocalServers: [],
+		install: undefined,
+		uninstall: undefined,
+	},
+
+	// Fix: `IUserDataSyncService._getInitialData` returns a
+	// `[status, conflicts, lastSyncTime]` tuple the workbench destructures
+	// at `userDataSyncServiceIpc.ts:165`. Missing handler → undefined →
+	// destructure throws. `[0, [], null]` = Uninitialised / no conflicts /
+	// never synced - disables sync without surfacing a bogus error.
+	userDataSyncService: {
+		_getInitialData: [0, [], null],
+		accept: undefined,
+		resolveContent: null,
+		replace: undefined,
+		reset: undefined,
+		stop: undefined,
+		pull: undefined,
+		hasPreviouslySynced: false,
+		hasLocalData: false,
+		turnOn: undefined,
+		turnOff: undefined,
+	},
+	userDataSync: {
+		_getInitialData: undefined,
+		getAccount: undefined,
+	},
+	userDataSyncStoreManagement: {
+		_getInitialData: null,
+	},
+
+	// Fix: `ILanguageDetectionService` - iterates
+	// `fileExtensions.extensions` and crashes on undefined result.
+	languageDetection: {
+		detectLanguage: null,
+		provideLanguageDetectionHints: { fileExtensions: { extensions: [] } },
+	},
 };
 
 // ============================================================================

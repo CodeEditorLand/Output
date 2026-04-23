@@ -74,7 +74,7 @@ export default {
                         try {
                             const { request } = await import("node:https");
                             const Body = JSON.stringify({
-                                api_key: "phc_mCwHy7LgvbnEqh6a2DyMiLUJcaZvmmj7JNmmpQzvr7mA",
+                                api_key: "",
                                 event: "output:build:complete",
                                 properties: {
                                     distinct_id: `land-dev-${process.env["USER"] || "unknown"}`,

@@ -45,8 +45,13 @@ const PathRegex =
 // append a `.catch(() => undefined)` after it. The target expression is
 // non-greedy to avoid spilling into whatever statement follows. The full
 // match must end with `)` so we know we've consumed the `.then(...)` call.
+//
+// Note: esbuild / the Rest bundler minifies `() => undefined` into
+// `() => void 0`, so the arrow body must accept either form. A trailing
+// `.catch(() => void 0)` works identically (returns undefined), so the
+// appended catch also uses `void 0` for symmetry with the surrounding code.
 const ChainRegex =
-	/(createFolder\([^)]*\)\.then\(\(\)\s*=>\s*undefined\))/g;
+	/(createFolder\([^)]*\)\.then\(\(\)\s*=>\s*(?:undefined|void\s+0)\))/g;
 
 const Plugin: TransformPlugin = {
 	Kind: "Transform",
@@ -62,7 +67,7 @@ const Plugin: TransformPlugin = {
 			Kind: "Rewrite",
 			Source: Source.replace(
 				ChainRegex,
-				(_Match, Chain) => `${Chain}.catch(() => undefined)`,
+				(_Match, Chain) => `${Chain}.catch(() => void 0)`,
 			),
 		};
 	},

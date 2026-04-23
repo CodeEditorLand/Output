@@ -192,10 +192,12 @@ const StubChannels = {
   },
   // Fix: `IUserDataSyncService._getInitialData` returns a
   // `[status, conflicts, lastSyncTime]` tuple the workbench destructures
-  // at `userDataSyncServiceIpc.ts:165`. Missing handler → undefined →
-  // destructure throws. `[0, [], null]` = Uninitialised / no conflicts /
+  // at `userDataSyncServiceIpc.ts:165`. Channel name is `userDataSync`
+  // (registered in
+  // `workbench/services/userDataSync/electron-browser/userDataSyncService.ts:13`),
+  // not `userDataSyncService`. `[0, [], null]` = Uninitialised / no conflicts /
   // never synced - disables sync without surfacing a bogus error.
-  userDataSyncService: {
+  userDataSync: {
     _getInitialData: [0, [], null],
     accept: void 0,
     resolveContent: null,
@@ -208,7 +210,7 @@ const StubChannels = {
     turnOn: void 0,
     turnOff: void 0
   },
-  userDataSync: {
+  userDataSyncAccount: {
     _getInitialData: void 0,
     getAccount: void 0
   },

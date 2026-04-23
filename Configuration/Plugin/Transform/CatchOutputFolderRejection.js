@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 const PathRegex = /\/workbench\/contrib\/output\/browser\/outputServices\.js$/;
-const ChainRegex = /(createFolder\([^)]*\)\.then\(\(\)\s*=>\s*undefined\))/g;
+const ChainRegex = /(createFolder\([^)]*\)\.then\(\(\)\s*=>\s*(?:undefined|void\s+0)\))/g;
 const Plugin = {
   Kind: "Transform",
   Name: "CatchOutputFolderRejection",
@@ -16,7 +16,7 @@ const Plugin = {
       Kind: "Rewrite",
       Source: Source.replace(
         ChainRegex,
-        (_Match, Chain) => `${Chain}.catch(() => undefined)`
+        (_Match, Chain) => `${Chain}.catch(() => void 0)`
       )
     };
   }

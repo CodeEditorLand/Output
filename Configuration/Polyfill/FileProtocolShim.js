@@ -27,12 +27,10 @@ const VSCodeFileHandler = {
       const decodedPath = decodeURIComponent(req.path);
       const method = req.headers?.get("X-Http-Method") || "GET";
       if (method === "GET" || !method) {
-        const content = await invokeTauri("file:read", {
-          path: decodedPath,
-          encoding: "utf8"
-        });
+        const Raw = await invokeTauri("file:read", [decodedPath]);
+        const Bytes = UnwrapReadResult(Raw);
         return {
-          content,
+          content: Bytes,
           metadata: {
             mime: inferMimeType(decodedPath),
             lastModified: (/* @__PURE__ */ new Date()).toISOString()
@@ -50,6 +48,29 @@ const VSCodeFileHandler = {
     }
   }
 };
+function UnwrapReadResult(Raw) {
+  if (Raw === null || Raw === void 0) {
+    return new Uint8Array(0);
+  }
+  if (typeof Raw === "string") {
+    return Raw;
+  }
+  if (Raw instanceof Uint8Array) {
+    return Raw;
+  }
+  if (Array.isArray(Raw)) {
+    return new Uint8Array(Raw);
+  }
+  const Buffer2 = Raw.buffer;
+  if (Buffer2 instanceof Uint8Array) {
+    return Buffer2;
+  }
+  if (Array.isArray(Buffer2)) {
+    return new Uint8Array(Buffer2);
+  }
+  return new Uint8Array(0);
+}
+__name(UnwrapReadResult, "UnwrapReadResult");
 const VSCodeUserDataHandler = {
   matches(req) {
     return req.protocol === "vscode-userdata";
@@ -61,12 +82,9 @@ const VSCodeUserDataHandler = {
         {}
       );
       const fullPath = `${userDataPath}/${req.path.replace(/^\//, "")}`;
-      const content = await invokeTauri("file:read", {
-        path: fullPath,
-        encoding: "utf8"
-      });
+      const Raw = await invokeTauri("file:read", [fullPath]);
       return {
-        content,
+        content: UnwrapReadResult(Raw),
         metadata: {
           mime: inferMimeType(req.path),
           lastModified: (/* @__PURE__ */ new Date()).toISOString()
@@ -145,12 +163,9 @@ const FileHandler = {
   async handle(req) {
     try {
       const decodedPath = decodeURIComponent(req.path);
-      const content = await invokeTauri("file:read", {
-        path: decodedPath,
-        encoding: "utf8"
-      });
+      const Raw = await invokeTauri("file:read", [decodedPath]);
       return {
-        content,
+        content: UnwrapReadResult(Raw),
         metadata: {
           mime: inferMimeType(decodedPath),
           lastModified: (/* @__PURE__ */ new Date()).toISOString()

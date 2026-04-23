@@ -27,7 +27,15 @@ interface FileSystemRequest {
 }
 
 interface FileSystemResponse {
-	content: string | Blob | null;
+	/**
+	 * Body for the synthetic `Response`. `Uint8Array` is the canonical
+	 * binary shape (WASM, fonts, images); `string` is used for text
+	 * where a text/plain fallback is acceptable. Never return a raw
+	 * object here - `new Response(object)` coerces to `"[object Object]"`
+	 * which corrupts every binary consumer (breaks TextMate's WASM
+	 * load with "module doesn't start with '\0asm'").
+	 */
+	content: Uint8Array | string | Blob | null;
 	error?: Error;
 	metadata?: {
 		mime?: string;
@@ -115,14 +123,35 @@ const VSCodeFileHandler: ProtocolHandler = {
 				(req.headers?.get("X-Http-Method") as string) || "GET";
 
 			if (method === "GET" || !method) {
-				// Read file from Mountain
-				const content = await invokeTauri<string>("file:read", {
-					path: decodedPath,
-					encoding: "utf8",
-				});
+				// Mountain's `file:read` expects positional args (`Vec<Value>`)
+				// and returns `{ buffer: number[] }`. The previous shape here
+				// (`{ path, encoding: "utf8" }` as a named-object arg) was
+				// wrong on TWO axes:
+				//
+				//   1. `MountainIPCInvoke` deserialises `params` into
+				//      `Vec<Value>`, so a single path/URI value must be the
+				//      first array element - not an object of named fields.
+				//   2. Mountain ignores an `encoding` arg; it always returns
+				//      raw bytes. The `encoding: "utf8"` hint was already a
+				//      no-op, but its presence implied that `content` would
+				//      be a UTF-8 string. For binary files like
+				//      `onig.wasm` that lie is catastrophic: the WASM
+				//      loader gets `new Response("[object Object]")` and
+				//      throws `WebAssembly.Module doesn't parse at byte 0:
+				//      module doesn't start with '\0asm'`, which is exactly
+				//      the TextMate syntax-highlighting regression.
+				//
+				// Fix: invoke with positional array args, receive the
+				// `{ buffer: number[] }` envelope, and return a Uint8Array
+				// so `new Response(content, …)` emits the correct bytes.
+				const Raw = await invokeTauri<
+					{ buffer?: number[] | Uint8Array } | number[] | string | null | undefined
+				>("file:read", [decodedPath]);
+
+				const Bytes = UnwrapReadResult(Raw);
 
 				return {
-					content,
+					content: Bytes,
 					metadata: {
 						mime: inferMimeType(decodedPath),
 						lastModified: new Date().toISOString(),
@@ -146,6 +175,50 @@ const VSCodeFileHandler: ProtocolHandler = {
 };
 
 /**
+ * Unwrap the shape Mountain's `file:read` handler returns into a raw
+ * `Uint8Array` suitable for `new Response(bytes, …)`. Shapes accepted
+ * (in priority order):
+ *
+ *   - `{ buffer: number[] }`       - canonical `handle_file_read_native` output
+ *   - `{ buffer: Uint8Array }`     - already-unwrapped envelope
+ *   - `number[]`                   - raw byte array (older stub paths)
+ *   - `Uint8Array`                 - already a typed array
+ *   - `string`                     - legacy text return (text files only)
+ *   - `null | undefined`           - treated as empty-file
+ *
+ * Returning a string for a binary file would corrupt the body - callers
+ * must handle string-vs-bytes themselves based on the MIME type, or
+ * pass a path that we know Mountain returns binary for (WASM, fonts).
+ */
+function UnwrapReadResult(
+	Raw: { buffer?: number[] | Uint8Array } | number[] | string | null | undefined,
+): Uint8Array | string {
+	if (Raw === null || Raw === undefined) {
+		return new Uint8Array(0);
+	}
+	if (typeof Raw === "string") {
+		return Raw;
+	}
+	if (Raw instanceof Uint8Array) {
+		return Raw;
+	}
+	if (Array.isArray(Raw)) {
+		return new Uint8Array(Raw);
+	}
+	const Buffer = (Raw as { buffer?: number[] | Uint8Array }).buffer;
+	if (Buffer instanceof Uint8Array) {
+		return Buffer;
+	}
+	if (Array.isArray(Buffer)) {
+		return new Uint8Array(Buffer);
+	}
+	// Unknown shape - return an empty buffer rather than a stringified
+	// object. A failing WASM load is easier to diagnose as "zero bytes"
+	// than as "corrupt [object Object]".
+	return new Uint8Array(0);
+}
+
+/**
  * Handle vscode-userdata:// protocol requests
  * Routes to user data directory in Mountain
  */
@@ -163,13 +236,17 @@ const VSCodeUserDataHandler: ProtocolHandler = {
 			);
 			const fullPath = `${userDataPath}/${req.path.replace(/^\//, "")}`;
 
-			const content = await invokeTauri<string>("file:read", {
-				path: fullPath,
-				encoding: "utf8",
-			});
+			// Positional-array args + binary-safe unwrap - see the
+			// `VSCodeFileHandler` comment for the reasoning. The
+			// user-data tier serves JSON/plain-text more often than
+			// binary, but the same invariant holds: never let a raw
+			// `{ buffer: … }` envelope reach `new Response(…)`.
+			const Raw = await invokeTauri<
+				{ buffer?: number[] | Uint8Array } | number[] | string | null | undefined
+			>("file:read", [fullPath]);
 
 			return {
-				content,
+				content: UnwrapReadResult(Raw),
 				metadata: {
 					mime: inferMimeType(req.path),
 					lastModified: new Date().toISOString(),
@@ -279,13 +356,14 @@ const FileHandler: ProtocolHandler = {
 		try {
 			const decodedPath = decodeURIComponent(req.path);
 
-			const content = await invokeTauri<string>("file:read", {
-				path: decodedPath,
-				encoding: "utf8",
-			});
+			// Positional-array args + binary-safe unwrap - see the
+			// `VSCodeFileHandler` comment for the full reasoning.
+			const Raw = await invokeTauri<
+				{ buffer?: number[] | Uint8Array } | number[] | string | null | undefined
+			>("file:read", [decodedPath]);
 
 			return {
-				content,
+				content: UnwrapReadResult(Raw),
 				metadata: {
 					mime: inferMimeType(decodedPath),
 					lastModified: new Date().toISOString(),

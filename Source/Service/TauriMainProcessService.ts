@@ -142,14 +142,18 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 	},
 
 	// Fix: diagnostics - IDiagnosticsService stub (prevents diagnostics errors)
+	// Must include `getWorkspaceFileExtensions` - `languageDetectionWorker
+	// ServiceImpl.resolveWorkspaceLanguageIds` iterates
+	// `fileExtensions.extensions` directly and throws without this stub.
 	diagnostics: {
+		getWorkspaceFileExtensions: { extensions: [] },
 		getPerformanceInfo: {
 			processInfo: {},
 			workspaceInfo: {},
 		},
 		getSystemInfo: {},
 		getDiagnostics: "",
-		reportWorkspaceStats: undefined,
+		reportWorkspaceStats: { configFiles: [], fileTypes: [], launchConfigFiles: [] },
 	},
 
 	// Fix: urlHandler - IURLService stub (prevents vscode:// protocol errors)

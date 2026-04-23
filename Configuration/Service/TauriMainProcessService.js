@@ -132,14 +132,18 @@ const StubChannels = {
     setVerboseLogging: void 0
   },
   // Fix: diagnostics - IDiagnosticsService stub (prevents diagnostics errors)
+  // Must include `getWorkspaceFileExtensions` - `languageDetectionWorker
+  // ServiceImpl.resolveWorkspaceLanguageIds` iterates
+  // `fileExtensions.extensions` directly and throws without this stub.
   diagnostics: {
+    getWorkspaceFileExtensions: { extensions: [] },
     getPerformanceInfo: {
       processInfo: {},
       workspaceInfo: {}
     },
     getSystemInfo: {},
     getDiagnostics: "",
-    reportWorkspaceStats: void 0
+    reportWorkspaceStats: { configFiles: [], fileTypes: [], launchConfigFiles: [] }
   },
   // Fix: urlHandler - IURLService stub (prevents vscode:// protocol errors)
   urlHandler: {

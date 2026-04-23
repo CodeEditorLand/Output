@@ -388,6 +388,11 @@ const StubChannels = {
   // All methods return no-op values that let the UI render "playwright
   // unavailable" rather than throw.
   playwright: {
+    // `PlaywrightChannelClient` posts `__initialize` on construction to
+    // negotiate protocol version; surfaced as `disposition=drift` in
+    // the previous boot. No-op acknowledgement leaves the client in
+    // its default disconnected state.
+    __initialize: void 0,
     click: void 0,
     hover: void 0,
     drag: void 0,
@@ -466,9 +471,13 @@ class TauriChannel {
     if (Stubs !== void 0) {
       _Trace("ipc", `stub:${this.ChannelName}.${Command}`);
       const StubValue = Stubs[Command];
+      const Disposition = Object.prototype.hasOwnProperty.call(
+        Stubs,
+        Command
+      ) ? StubValue === void 0 ? "noop" : "value" : "drift";
       _DevLogForward(
         "channel-stub",
-        `stub-hit channel=${this.ChannelName} cmd=${Command} present=${StubValue !== void 0}`
+        `stub-hit channel=${this.ChannelName} cmd=${Command} disposition=${Disposition}`
       );
       return StubValue !== void 0 ? StubValue : void 0;
     }

@@ -234,8 +234,12 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 		download: undefined,
 	},
 
-	// Fix: extensionGalleryManifest - stub for gallery metadata
-	extensionGalleryManifest: {},
+	// Fix: extensionGalleryManifest - workbench seeds gallery metadata
+	// via `setExtensionGalleryManifest({...})` once at boot. No-op stub
+	// because Land doesn't host an extension gallery.
+	extensionGalleryManifest: {
+		setExtensionGalleryManifest: undefined,
+	},
 
 	// Fix: `IExtensionTipsService` - `exeBasedRecommendations.ts:54` assigns
 	// `this._importantTips = await this.extensionTipsService.getImportantExecutableBasedTips()`
@@ -431,6 +435,11 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 	// All methods return no-op values that let the UI render "playwright
 	// unavailable" rather than throw.
 	playwright: {
+		// `PlaywrightChannelClient` posts `__initialize` on construction to
+		// negotiate protocol version; surfaced as `disposition=drift` in
+		// the previous boot. No-op acknowledgement leaves the client in
+		// its default disconnected state.
+		__initialize: undefined,
 		click: undefined,
 		hover: undefined,
 		drag: undefined,
@@ -540,9 +549,26 @@ class TauriChannel implements IChannel {
 		if (Stubs !== undefined) {
 			_Trace("ipc", `stub:${this.ChannelName}.${Command}`);
 			const StubValue = Stubs[Command];
+			// Three-state disposition so the tag stops conflating
+			// "stub present but value is intentionally undefined (no-op sink)"
+			// with "key missing from stub object (drift - should be added)":
+			//   - `value`: stub key maps to a real return payload
+			//   - `noop`: stub key maps to `undefined` on purpose
+			//     (telemetryAppender.log, webview.setIgnoreMenuShortcuts, …)
+			//   - `drift`: channel is stubbed but THIS command isn't -
+			//     worth investigating. Treated equivalently to miss here
+			//     because renderer gets undefined either way.
+			const Disposition = Object.prototype.hasOwnProperty.call(
+				Stubs,
+				Command,
+			)
+				? StubValue === undefined
+					? "noop"
+					: "value"
+				: "drift";
 			_DevLogForward(
 				"channel-stub",
-				`stub-hit channel=${this.ChannelName} cmd=${Command} present=${StubValue !== undefined}`,
+				`stub-hit channel=${this.ChannelName} cmd=${Command} disposition=${Disposition}`,
 			);
 			return (StubValue !== undefined ? StubValue : undefined) as T;
 		}

@@ -24,8 +24,8 @@ class ExtensionsScannerService {
 		_w('Constructed');
 	}
 
-	async _fetchFromMountain() {
-		_t('scanner:fetch:start');
+	async _fetchFromMountain(Method, ForceBuiltin) {
+		_t('scanner:fetch:start', { method: Method });
 		try {
 			const Invoke = globalThis.__TAURI__?.core?.invoke ?? globalThis.__TAURI__?.invoke;
 			if (typeof Invoke !== 'function') {
@@ -34,18 +34,18 @@ class ExtensionsScannerService {
 				return [];
 			}
 			const RawResult = await Invoke('MountainIPCInvoke', {
-				method: 'extensions:getAll',
+				method: Method,
 				params: [],
 			});
 			let Extensions = Array.isArray(RawResult) ? RawResult : [];
-			_t('scanner:fetch:result', { count: Extensions.length, type: typeof RawResult, isArray: Array.isArray(RawResult) });
-			_w('IPC returned', Extensions.length, 'extensions');
+			_t('scanner:fetch:result', { method: Method, count: Extensions.length, type: typeof RawResult, isArray: Array.isArray(RawResult) });
+			_w('IPC', Method, 'returned', Extensions.length, 'extensions');
 
-			if (Extensions.length === 0) {
+			if (Extensions.length === 0 && Method === 'extensions:scanSystemExtensions') {
 				for (let Retry = 1; Retry <= 5; Retry++) {
-					_w('0 extensions, retry', Retry, '/5 in 1000ms');
+					_w('0 system extensions, retry', Retry, '/5 in 1000ms');
 					await new Promise(R => setTimeout(R, 1000));
-					const RetryResult = await Invoke('MountainIPCInvoke', { method: 'extensions:getAll', params: [] });
+					const RetryResult = await Invoke('MountainIPCInvoke', { method: Method, params: [] });
 					Extensions = Array.isArray(RetryResult) ? RetryResult : [];
 					_t('scanner:fetch:retry', { retry: Retry, count: Extensions.length });
 					_w('Retry', Retry, 'returned', Extensions.length, 'extensions');
@@ -65,8 +65,15 @@ class ExtensionsScannerService {
 					const id = ext.identifier?.value
 						|| (ext.publisher ? ext.publisher + '.' + ext.name : ext.name)
 						|| 'unknown';
+					// Mountain's ILocalExtension envelope includes per-path
+					// isBuiltin + type + source. Honour the server-side
+					// classification so @installed / @builtin split correctly.
+					// Fall back to ForceBuiltin when Mountain didn't stamp a
+					// value (older envelopes, or the unified getAll path).
+					const ExtType = typeof ext.type === 'number' ? ext.type : (ForceBuiltin ? 0 : 1);
+					const IsBuiltin = typeof ext.isBuiltin === 'boolean' ? ext.isBuiltin : ForceBuiltin;
 					Mapped.push({
-						type: 0,
+						type: ExtType,
 						identifier: { id },
 						manifest: {
 							name: ext.name || '',
@@ -82,7 +89,7 @@ class ExtensionsScannerService {
 							enabledApiProposals: [],
 						},
 						location,
-						isBuiltin: true,
+						isBuiltin: IsBuiltin,
 						targetPlatform: 'undefined',
 						isValid: true,
 						validationMessages: [],
@@ -92,14 +99,14 @@ class ExtensionsScannerService {
 					if (Errors <= 3) _w('Map error for ext', I, ':', String(e).slice(0, 100));
 				}
 			}
-			_t('scanner:fetch:mapped', { mapped: Mapped.length, errors: Errors });
+			_t('scanner:fetch:mapped', { method: Method, mapped: Mapped.length, errors: Errors });
 			_w('Mapped', Mapped.length, 'extensions,', Errors, 'errors');
 			if (Mapped.length > 0) {
 				_w('First:', Mapped[0].identifier.id, 'name:', Mapped[0].manifest.name, 'pub:', Mapped[0].manifest.publisher, 'loc:', Mapped[0].location?.toString?.()?.slice(0, 80));
 			}
 			return Mapped;
 		} catch (e) {
-			_t('scanner:fetch:error', { message: String(e).slice(0, 200) });
+			_t('scanner:fetch:error', { method: Method, message: String(e).slice(0, 200) });
 			_w('Fetch error:', String(e).slice(0, 200));
 			return [];
 		}
@@ -117,7 +124,7 @@ class ExtensionsScannerService {
 
 	async scanSystemExtensions(scanOptions) {
 		_t('scanner:scanSystem:start');
-		const result = await this._fetchFromMountain();
+		const result = await this._fetchFromMountain('extensions:scanSystemExtensions', true);
 		_t('scanner:scanSystem:done', { count: result.length });
 		_w('scanSystemExtensions returning', result.length);
 		return result;
@@ -125,13 +132,15 @@ class ExtensionsScannerService {
 
 	async scanUserExtensions(scanOptions) {
 		_t('scanner:scanUser:start');
-		_w('scanUserExtensions returning 0');
-		return [];
+		const result = await this._fetchFromMountain('extensions:scanUserExtensions', false);
+		_t('scanner:scanUser:done', { count: result.length });
+		_w('scanUserExtensions returning', result.length);
+		return result;
 	}
 
 	getTargetPlatform() { return Promise.resolve('undefined'); }
 	getProductVersion() { return { version: '0.0.1', date: undefined }; }
-	async scanAllUserExtensions(scanOptions) { return []; }
+	async scanAllUserExtensions(scanOptions) { return await this.scanUserExtensions(scanOptions); }
 	async scanExtensionsUnderDevelopment(existingExtensions, scanOptions) { _t('scanner:scanDev'); return []; }
 	async scanExistingExtension(extensionLocation, extensionType, scanOptions) { return null; }
 	async scanOneOrMultipleExtensions(extensionLocation, extensionType, scanOptions) { return []; }

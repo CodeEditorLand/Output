@@ -23,6 +23,7 @@
  *  12. StripDanglingSourceMap   (Step 11b)
  *  13. ExtensionScannerIPC      (Step 14)
  *  14. CatchOutputFolderRejection (Step 15)
+ *  15. StripWebviewIframeSandbox (Step 16 - WKWebView custom-protocol fix)
  *
  * CopyNodeModules → StripDanglingSourceMap is a logically-paired duo
  * (copy freshly shipped JS; strip any now-dangling sourcemap comments),
@@ -48,6 +49,7 @@ export { default as StaticToDynamicImport } from "./Transform/StaticToDynamicImp
 export { default as StripDanglingSourceMap } from "./Transform/StripDanglingSourceMap.js";
 export { default as ExtensionScannerIPC } from "./Transform/ExtensionScannerIPC.js";
 export { default as CatchOutputFolderRejection } from "./Transform/CatchOutputFolderRejection.js";
+export { default as StripWebviewIframeSandbox } from "./Transform/StripWebviewIframeSandbox.js";
 
 export {
 	CopyVSOutput,
@@ -98,6 +100,7 @@ import StaticToDynamicImport from "./Transform/StaticToDynamicImport.js";
 import StripDanglingSourceMap from "./Transform/StripDanglingSourceMap.js";
 import ExtensionScannerIPC from "./Transform/ExtensionScannerIPC.js";
 import CatchOutputFolderRejection from "./Transform/CatchOutputFolderRejection.js";
+import StripWebviewIframeSandbox from "./Transform/StripWebviewIframeSandbox.js";
 
 import {
 	CopyVSOutput as CopyVSOutputFactory,
@@ -158,6 +161,7 @@ export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => [
 	StripDanglingSourceMap,
 	ExtensionScannerIPC,
 	CatchOutputFolderRejection,
+	StripWebviewIframeSandbox,
 ];
 
 export default BuildPipeline;

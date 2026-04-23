@@ -10,36 +10,37 @@ import { default as default7 } from "./Transform/StaticToDynamicImport.js";
 import { default as default8 } from "./Transform/StripDanglingSourceMap.js";
 import { default as default9 } from "./Transform/ExtensionScannerIPC.js";
 import { default as default10 } from "./Transform/CatchOutputFolderRejection.js";
+import { default as default11 } from "./Transform/StripWebviewIframeSandbox.js";
 import {
   CopyVSOutput,
-  default as default11
+  default as default12
 } from "./Copy/CopyVSOutput.js";
 import {
   CopyVSRootFiles,
-  default as default12
+  default as default13
 } from "./Copy/CopyVSRootFiles.js";
 import {
   SupplementFromDependency,
-  default as default13
+  default as default14
 } from "./Copy/SupplementFromDependency.js";
 import {
   CopyWorker,
-  default as default14
+  default as default15
 } from "./Copy/CopyWorker.js";
 import {
   CopyNodeModules,
   DefaultPackages,
-  default as default15
+  default as default16
 } from "./Copy/CopyNodeModules.js";
 import {
   StubUnpublishedAddons,
   DefaultStubs,
   StubDataPrefix,
-  default as default16
+  default as default17
 } from "./Copy/StubUnpublishedAddons.js";
 import {
   CopyTauriMainProcessService,
-  default as default17
+  default as default18
 } from "./Copy/CopyTauriMainProcessService.js";
 import StripCSSImport from "./Transform/StripCSSImport.js";
 import InjectNameShim from "./Transform/InjectNameShim.js";
@@ -49,6 +50,7 @@ import StaticToDynamicImport from "./Transform/StaticToDynamicImport.js";
 import StripDanglingSourceMap from "./Transform/StripDanglingSourceMap.js";
 import ExtensionScannerIPC from "./Transform/ExtensionScannerIPC.js";
 import CatchOutputFolderRejection from "./Transform/CatchOutputFolderRejection.js";
+import StripWebviewIframeSandbox from "./Transform/StripWebviewIframeSandbox.js";
 import {
   CopyVSOutput as CopyVSOutputFactory
 } from "./Copy/CopyVSOutput.js";
@@ -85,7 +87,8 @@ const BuildPipeline = /* @__PURE__ */ __name((Input) => [
   StaticToDynamicImport,
   StripDanglingSourceMap,
   ExtensionScannerIPC,
-  CatchOutputFolderRejection
+  CatchOutputFolderRejection,
+  StripWebviewIframeSandbox
 ], "BuildPipeline");
 var Index_default = BuildPipeline;
 export {
@@ -93,15 +96,15 @@ export {
   BuildPipeline,
   default10 as CatchOutputFolderRejection,
   CopyNodeModules,
-  default15 as CopyNodeModulesDefault,
+  default16 as CopyNodeModulesDefault,
   CopyTauriMainProcessService,
-  default17 as CopyTauriMainProcessServiceDefault,
+  default18 as CopyTauriMainProcessServiceDefault,
   CopyVSOutput,
-  default11 as CopyVSOutputDefault,
+  default12 as CopyVSOutputDefault,
   CopyVSRootFiles,
-  default12 as CopyVSRootFilesDefault,
+  default13 as CopyVSRootFilesDefault,
   CopyWorker,
-  default14 as CopyWorkerDefault,
+  default15 as CopyWorkerDefault,
   DefaultPackages as DefaultNodeModulePackages,
   DefaultStubs,
   default9 as ExtensionScannerIPC,
@@ -111,11 +114,12 @@ export {
   default7 as StaticToDynamicImport,
   default3 as StripCSSImport,
   default8 as StripDanglingSourceMap,
+  default11 as StripWebviewIframeSandbox,
   StubDataPrefix,
   StubUnpublishedAddons,
-  default16 as StubUnpublishedAddonsDefault,
+  default17 as StubUnpublishedAddonsDefault,
   SupplementFromDependency,
-  default13 as SupplementFromDependencyDefault,
+  default14 as SupplementFromDependencyDefault,
   Index_default as default
 };
 //# sourceMappingURL=Index.js.map

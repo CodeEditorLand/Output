@@ -19,6 +19,21 @@ const _Trace = (Tag: string, Message: string): void => {
 	try { performance.mark(`land:${Tag}:${Message}`); } catch {}
 };
 
+// Mirror a tagged line into Mountain's dev-log file sink so
+// `LAND_DEV_LOG=<tag> tail -f Mountain.dev.log` picks up TS-originated
+// traffic alongside Rust `dev_log!` output. Fire-and-forget - never
+// awaits, never throws. Mountain short-circuits cheaply when the tag
+// isn't enabled. Mirror of the helper in Wind's TauriMainProcessService.
+const _DevLogForward = (Tag: string, Message: string): void => {
+	try {
+		const Invoke =
+			(window as any).__TAURI__?.core?.invoke ??
+			(window as any).__TAURI__?.invoke;
+		if (typeof Invoke !== "function") return;
+		Invoke("RenderDevLog", { Tag, Message }).catch(() => {});
+	} catch {}
+};
+
 // ============================================================================
 // Channel → Mountain Route Mapping
 // ============================================================================
@@ -291,6 +306,10 @@ class TauriChannel implements IChannel {
 					Arg !== undefined ? (Array.isArray(Arg) ? Arg : [Arg]) : [],
 				).catch(() => {});
 			}
+			_DevLogForward(
+				"channel-stub",
+				`fire-and-forget channel=${this.ChannelName} cmd=${Command} route=${this.RoutePrefix ?? "<none>"}`,
+			);
 			return undefined as T;
 		}
 
@@ -298,6 +317,10 @@ class TauriChannel implements IChannel {
 		if (Stubs !== undefined) {
 			_Trace("ipc", `stub:${this.ChannelName}.${Command}`);
 			const StubValue = Stubs[Command];
+			_DevLogForward(
+				"channel-stub",
+				`stub-hit channel=${this.ChannelName} cmd=${Command} present=${StubValue !== undefined}`,
+			);
 			return (StubValue !== undefined ? StubValue : undefined) as T;
 		}
 
@@ -367,6 +390,10 @@ class TauriChannel implements IChannel {
 		}
 
 		_Trace("ipc", `unknown:${this.ChannelName}.${Command}`);
+		_DevLogForward(
+			"channel-stub",
+			`miss channel=${this.ChannelName} cmd=${Command} (no route, no stub)`,
+		);
 		return undefined as T;
 	}
 

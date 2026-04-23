@@ -6,6 +6,15 @@ const _Trace = /* @__PURE__ */ __name((Tag, Message) => {
   } catch {
   }
 }, "_Trace");
+const _DevLogForward = /* @__PURE__ */ __name((Tag, Message) => {
+  try {
+    const Invoke = window.__TAURI__?.core?.invoke ?? window.__TAURI__?.invoke;
+    if (typeof Invoke !== "function") return;
+    Invoke("RenderDevLog", { Tag, Message }).catch(() => {
+    });
+  } catch {
+  }
+}, "_DevLogForward");
 const ChannelRouteMap = {
   localFilesystem: "file",
   storage: "storage",
@@ -257,12 +266,20 @@ class TauriChannel {
         ).catch(() => {
         });
       }
+      _DevLogForward(
+        "channel-stub",
+        `fire-and-forget channel=${this.ChannelName} cmd=${Command} route=${this.RoutePrefix ?? "<none>"}`
+      );
       return void 0;
     }
     const Stubs = StubChannels[this.ChannelName];
     if (Stubs !== void 0) {
       _Trace("ipc", `stub:${this.ChannelName}.${Command}`);
       const StubValue = Stubs[Command];
+      _DevLogForward(
+        "channel-stub",
+        `stub-hit channel=${this.ChannelName} cmd=${Command} present=${StubValue !== void 0}`
+      );
       return StubValue !== void 0 ? StubValue : void 0;
     }
     if (this.RoutePrefix) {
@@ -305,6 +322,10 @@ class TauriChannel {
       }
     }
     _Trace("ipc", `unknown:${this.ChannelName}.${Command}`);
+    _DevLogForward(
+      "channel-stub",
+      `miss channel=${this.ChannelName} cmd=${Command} (no route, no stub)`
+    );
     return void 0;
   }
   listen(Event, Arg) {

@@ -94,6 +94,15 @@ const ChannelRouteMap: Record<string, string> = {
 	encryption: "encryption",
 	extensionHostStarter: "extensionHostStarter",
 	extensionhostdebugservice: "extensionhostdebugservice",
+	// Git: the built-in `git` extension's `MainProcessService.getChannel("localGit")`
+	// path. Stock VS Code backs this with `ILocalGitService` in the shared
+	// process; Land routes every method (`exec`, `clone`, `pull`, `checkout`,
+	// `revParse`, `fetch`, `revListCount`, `cancel`, `isAvailable`) to
+	// Mountain's `git:*` subprocess handlers (see
+	// `Mountain/Source/IPC/WindServiceHandlers/Git.rs`). Unmapped before
+	// Batch 4, which fired `InvokeMountain("undefined:exec")` and left
+	// SourceControl panel forever loading.
+	localGit: "git",
 };
 
 const FireAndForgetChannels = new Set(["logger", "output"]);
@@ -294,6 +303,157 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 		detectLanguage: null,
 		provideLanguageDetectionHints: { fileExtensions: { extensions: [] } },
 	},
+
+	// --- Batch 6: medium-priority channels stock VS Code exposes via the
+	// shared/main process that Land doesn't have. Each stub lines up with
+	// a `registerSharedProcessRemoteService` callsite in the stock tree
+	// (grep returned the authoritative list). Shapes track the matching
+	// `I*Service` interface under `vs/platform/**/common/*.ts` so the
+	// renderer-side proxy's `.then(...)` / `.forEach` / destructure paths
+	// don't crash on undefined.
+
+	// ITestResultStorage-backed channel is in-process (not an IPC), but
+	// stock code in
+	// `vs/workbench/contrib/testing/common/testResultService.ts` does
+	// `await testResultStorage.read()` and iterates - having an explicit
+	// stub is cheaper than letting it fall through.
+	test: {
+		getResults: [],
+		addResult: undefined,
+		clearResults: undefined,
+	},
+
+	// Profile-storage change notifier - emits on profile switch. Workbench
+	// subscribes at boot and a missing handler surfaces as
+	// `undefined.event` TypeError before any profile changes fire.
+	profileStorageListener: {
+		onDidChange: undefined,
+	},
+
+	// IChecksumService - single method returning a hex digest string.
+	// Workbench computes checksums of builtin extension bundles at boot.
+	// Empty string keeps the hash-compare path silent (never equal, so
+	// caching is disabled rather than asserting bogus equality).
+	checksum: {
+		checksum: "",
+	},
+
+	// ILanguagePackService - UI localisation gallery. Empty arrays =
+	// "only en-US installed, no other packs available", which matches
+	// Land's current non-localised state.
+	languagePacks: {
+		getAvailableLanguages: [],
+		getInstalledLanguages: [],
+		getBuiltInExtensionTranslationsUri: undefined,
+	},
+
+	// IUserDataSyncUtilService - workbench-internal helper for sync conflict
+	// resolution. Shape: { resolveDefaultIgnoredSettings, resolveUserKeybindings, resolveFormattingOptions }.
+	userDataSyncUtil: {
+		resolveDefaultIgnoredSettings: [],
+		resolveUserKeybindings: {},
+		resolveFormattingOptions: {
+			eol: "\n",
+			insertSpaces: true,
+			tabSize: 4,
+		},
+	},
+
+	// IUserDataSyncMachinesService - list of machines syncing with
+	// the backend. `getMachines` returns the array the UI iterates.
+	userDataSyncMachines: {
+		getMachines: [],
+		addCurrentMachine: undefined,
+		removeCurrentMachine: undefined,
+		renameMachine: undefined,
+		setEnablements: undefined,
+	},
+
+	// IUserDataSyncResourceProviderService - resource enumeration for the
+	// sync settings UI. The channel name is the interface name verbatim
+	// (unlike the others) because VS Code didn't pick a wire-short
+	// identifier here. Empty arrays = "no sync resources configured".
+	IUserDataSyncResourceProviderService: {
+		getRemoteSyncedProfiles: [],
+		getLocalSyncedProfiles: [],
+		getRemoteSyncResourceHandles: [],
+		getLocalSyncResourceHandles: [],
+		getAssociatedResources: [],
+		getMachineId: undefined,
+		getLocalSyncedMachines: [],
+		resolveContent: null,
+	},
+
+	// ICustomEndpointTelemetryService - third-party telemetry sinks. Land
+	// centralises telemetry through Mountain's PostHog bridge, so both
+	// methods are no-ops.
+	customEndpointTelemetry: {
+		publicLog: undefined,
+		publicLogError: undefined,
+	},
+
+	// ISharedProcessTunnelService wire name is `sharedProcessTunnel` -
+	// exposed here under `process` because that's the string the shared
+	// process registers internally in Electron. createTunnel must return
+	// an object with `id` so the workbench destructure doesn't throw.
+	process: {
+		createTunnel: { id: "" },
+		startTunnel: {},
+		setAddress: undefined,
+		setTunnelInUse: undefined,
+		destroyTunnel: undefined,
+	},
+
+	// IRemoteTunnelService - GitHub/Microsoft Dev-Tunnels integration.
+	// Methods return shapes the workbench's tunnel status UI iterates.
+	// `getMode: { active: false }` flags the feature as off so no toggles
+	// try to spin up a tunnel session.
+	remoteTunnel: {
+		getTunnelStatus: { type: "disconnected" },
+		getMode: { active: false },
+		initialize: { type: "disconnected" },
+		startTunnel: { type: "disconnected" },
+		stopTunnel: undefined,
+		getTunnelName: null,
+		getAccount: null,
+		getSessionToken: null,
+	},
+
+	// ISharedWebContentExtractorService - extracts image bytes for
+	// chat/image contribution. Returns undefined on every request =
+	// "image unavailable", which the workbench renders as a placeholder
+	// rather than crashing.
+	sharedWebContentExtractor: {
+		readImage: undefined,
+	},
+
+	// IPlaywrightService - Browser-View contrib for automation tooling.
+	// All methods return no-op values that let the UI render "playwright
+	// unavailable" rather than throw.
+	playwright: {
+		click: undefined,
+		hover: undefined,
+		drag: undefined,
+		fill: undefined,
+		select: undefined,
+		screenshot: null,
+		snapshot: null,
+		evaluate: null,
+	},
+
+	// IV8InspectProfilingService - dev profiling used by the command
+	// `Developer: Start Profiling`. `startProfiling` must return a session
+	// id string; empty = "no active session" which the UI disables.
+	v8InspectProfiling: {
+		startProfiling: "",
+		stopProfiling: {
+			nodes: [],
+			samples: [],
+			timeDeltas: [],
+			startTime: 0,
+			endTime: 0,
+		},
+	},
 };
 
 // ============================================================================
@@ -310,10 +470,39 @@ async function InvokeMountain(
 
 	if (typeof Invoke !== "function") return undefined;
 
-	return await Invoke("MountainIPCInvoke", {
-		method: Method,
-		params: Params,
-	});
+	// `tauri-invoke` tag: per-invoke duration + ok/fail in ms. Stock
+	// `ipc` tag already logs the paired invoke/done from the Rust side
+	// with nanosecond precision; this TS-side line captures round-trip
+	// time *including* Tauri transport overhead, which lets us tell a
+	// slow Rust handler (`ipc done t_ns` large) apart from a starved
+	// webview message channel (`tauri-invoke elapsed_ms` large but
+	// Rust-side `t_ns` small). Both tags are silent unless explicitly
+	// enabled, so there's no cost when off.
+	const Start =
+		typeof performance !== "undefined" ? performance.now() : Date.now();
+	try {
+		const Value = await Invoke("MountainIPCInvoke", {
+			method: Method,
+			params: Params,
+		});
+		const Elapsed = (
+			typeof performance !== "undefined" ? performance.now() : Date.now()
+		) - Start;
+		_DevLogForward(
+			"tauri-invoke",
+			`[TauriInvoke] method=${Method} ok=true elapsed_ms=${Elapsed.toFixed(2)}`,
+		);
+		return Value;
+	} catch (Error) {
+		const Elapsed = (
+			typeof performance !== "undefined" ? performance.now() : Date.now()
+		) - Start;
+		_DevLogForward(
+			"tauri-invoke",
+			`[TauriInvoke] method=${Method} ok=false elapsed_ms=${Elapsed.toFixed(2)} err=${String(Error)}`,
+		);
+		throw Error;
+	}
 }
 
 // ============================================================================

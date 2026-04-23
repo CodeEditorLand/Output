@@ -78,11 +78,23 @@ class ExtensionsScannerService {
 			for (let I = 0; I < Extensions.length; I++) {
 				const ext = Extensions[I];
 				try {
-					const location = ext.extensionLocation
-						? (typeof ext.extensionLocation === 'string' ? URI.parse(ext.extensionLocation) : URI.revive(ext.extensionLocation))
-						: URI.file('/extensions/' + (ext.name || 'unknown'));
-					const id = ext.identifier?.value
-						|| (ext.publisher ? ext.publisher + '.' + ext.name : ext.name)
+					// Mountain scanSystem/UserExtensions return an
+					// ILocalExtension-WRAPPED shape with identifier.id,
+					// manifest.{name,publisher,version,...}, location,
+					// isBuiltin, type. The older extensions:getAll path
+					// returned a FLAT manifest (name/publisher/version at
+					// top level with extensionLocation). Read nested first,
+					// fall back to flat so a future backend shape swap does
+					// not silently collapse every extension to id='unknown'
+					// / name='' / publisher=''.
+					const m = (ext.manifest && typeof ext.manifest === 'object') ? ext.manifest : ext;
+					const rawLoc = ext.location ?? ext.extensionLocation;
+					const location = rawLoc
+						? (typeof rawLoc === 'string' ? URI.parse(rawLoc) : URI.revive(rawLoc))
+						: URI.file('/extensions/' + (m.name || 'unknown'));
+					const id = ext.identifier?.id
+						|| ext.identifier?.value
+						|| (m.publisher && m.name ? m.publisher + '.' + m.name : m.name)
 						|| 'unknown';
 					// Mountain's ILocalExtension envelope includes per-path
 					// isBuiltin + type + source. Honour the server-side
@@ -95,23 +107,23 @@ class ExtensionsScannerService {
 						type: ExtType,
 						identifier: { id },
 						manifest: {
-							name: ext.name || '',
-							publisher: ext.publisher || '',
-							version: ext.version || '0.0.0',
-							engines: ext.engines || { vscode: '*' },
-							main: ext.main || undefined,
-							browser: ext.browser || undefined,
-							activationEvents: ext.activationEvents || [],
-							contributes: ext.contributes || {},
-							extensionDependencies: [],
-							extensionPack: [],
-							enabledApiProposals: [],
+							name: m.name || '',
+							publisher: m.publisher || '',
+							version: m.version || '0.0.0',
+							engines: m.engines || { vscode: '*' },
+							main: m.main || undefined,
+							browser: m.browser || undefined,
+							activationEvents: m.activationEvents || [],
+							contributes: m.contributes || {},
+							extensionDependencies: m.extensionDependencies || [],
+							extensionPack: m.extensionPack || [],
+							enabledApiProposals: m.enabledApiProposals || [],
 						},
 						location,
 						isBuiltin: IsBuiltin,
-						targetPlatform: 'undefined',
-						isValid: true,
-						validationMessages: [],
+						targetPlatform: ext.targetPlatform || 'undefined',
+						isValid: ext.isValid !== false,
+						validationMessages: ext.validationMessages || [],
 					});
 				} catch (e) {
 					Errors++;

@@ -8,9 +8,15 @@ const _Trace = /* @__PURE__ */ __name((Tag, Message) => {
 }, "_Trace");
 const _DevLogForward = /* @__PURE__ */ __name((Tag, Message) => {
   try {
-    const Invoke = window.__TAURI__?.core?.invoke ?? window.__TAURI__?.invoke;
+    const Internals = window.__TAURI_INTERNALS__;
+    const Invoke = window.__TAURI__?.core?.invoke ?? window.__TAURI__?.invoke ?? Internals?.invoke;
     if (typeof Invoke !== "function") return;
-    Invoke("RenderDevLog", { Tag, Message }).catch(() => {
+    Invoke("RenderDevLog", {
+      Tag,
+      Message,
+      tag: Tag,
+      message: Message
+    }).catch(() => {
     });
   } catch {
   }
@@ -139,6 +145,28 @@ const StubChannels = {
     watch: void 0,
     unwatch: void 0,
     setVerboseLogging: void 0
+  },
+  // Fix: `telemetryAppender` channel - stock VS Code's
+  // TelemetryChannelAppender posts every single event through the
+  // shared-process `telemetryAppender` IPC channel. Land has no
+  // shared process and no telemetry backend, so every call falls
+  // through to `InvokeMountain("undefined:log")`. Observed at 155
+  // calls per boot in `channel-stub` tag output - by far the hottest
+  // miss. Stub with the expected `log`/`flush` no-ops so the
+  // appender short-circuits in the stub path instead of chewing
+  // a Tauri round-trip each time.
+  telemetryAppender: {
+    log: void 0,
+    flush: void 0
+  },
+  // Fix: `mcpGalleryManifest` channel - MCP extension marketplace
+  // manifest bootstrap. `channel-stub` tag surfaced this as the sole
+  // remaining `miss` per session. The workbench calls
+  // `setMcpGalleryManifest({...})` once at boot to seed the MCP
+  // gallery state; a no-op stub is sufficient until Land has an MCP
+  // registry of its own to wire in.
+  mcpGalleryManifest: {
+    setMcpGalleryManifest: void 0
   },
   // Fix: diagnostics - IDiagnosticsService stub (prevents diagnostics errors)
   // Must include `getWorkspaceFileExtensions` - `languageDetectionWorker

@@ -54,6 +54,7 @@ export { default as ExtensionScannerIPC } from "./Transform/ExtensionScannerIPC.
 export { default as CatchOutputFolderRejection } from "./Transform/CatchOutputFolderRejection.js";
 export { default as StripWebviewIframeSandbox } from "./Transform/StripWebviewIframeSandbox.js";
 export { default as ExposeWorkbenchAccessor } from "./Transform/ExposeWorkbenchAccessor.js";
+export { default as DisableUnusedServices } from "./Transform/DisableUnusedServices.js";
 
 export {
 	CopyVSOutput,

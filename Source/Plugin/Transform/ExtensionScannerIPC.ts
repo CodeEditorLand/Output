@@ -17,12 +17,14 @@
 
 import type { TransformPlugin } from "../Type.js";
 
-const Marker =
-	"workbench/services/extensions/electron-browser/extensionsScannerService.js".replaceAll(
-		"/",
-		"\\/",
-	);
-const PathRegex = new RegExp(`${Marker}$`);
+// Match BOTH the electron-browser and browser variants. Stock VS Code
+// ships parallel implementations of the scanner service - the
+// electron-browser one is loaded by `desktop.main.js`, the browser
+// one by `web.main.js`. Both file paths sit at the same depth under
+// `vs/` so the body's `../../../../base/...` import resolution works
+// from either location.
+const PathRegex =
+	/workbench\/services\/extensions\/(?:electron-browser|browser)\/extensionsScannerService\.js$/;
 
 const Body = `import { URI } from '../../../../base/common/uri.js';
 import { IExtensionsScannerService } from '../../../../platform/extensionManagement/common/extensionsScannerService.js';

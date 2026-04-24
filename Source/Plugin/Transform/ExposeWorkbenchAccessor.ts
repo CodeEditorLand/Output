@@ -37,16 +37,16 @@
 
 import type { TransformPlugin } from "../Type.js";
 
-// Static-import marker: the existing `mark` import line is the very
-// first ES import statement in the file and is stable across upstream
-// VS Code releases. We piggyback our service-decorator imports onto
-// that line so they enter scope at module evaluation time - no runtime
-// `require()`, no async race against the workbench startup, no failed
-// dynamic-import resolution against the WKWebView's URL base.
-const WebMainImportMarker =
-	"import { mark } from '../../base/common/performance.js';";
-const WebMainImportReplacement =
-	"import { mark } from '../../base/common/performance.js';\n" +
+// Static imports of service decorator symbols. The patched file's
+// existing first import line is the marker we replace; the relative
+// paths below are written from each file's own location:
+//
+//   - web.main.js     → vs/workbench/browser/web.main.js          (depth 3)
+//   - desktop.main.js → vs/workbench/electron-browser/desktop.main.js (depth 3)
+//
+// Both directories sit at the same depth under `vs/`, so the same
+// relative paths work for both. Only the *marker* string differs.
+const SharedImportLines =
 	"// [Land] Static imports of the service decorators + ViewsRegistry\n" +
 	"// symbols used by the `__CEL_SERVICES__` patch below. ESM\n" +
 	"// imports must be at the top of the module - injecting them here\n" +
@@ -57,6 +57,16 @@ const WebMainImportReplacement =
 	"import { ISearchService as __CEL_ISearchService } from '../services/search/common/search.js';\n" +
 	"import { IViewsService as __CEL_IViewsService } from '../services/views/common/viewsService.js';\n" +
 	"import { Registry as __CEL_Registry } from '../../platform/registry/common/platform.js';";
+
+const WebMainImportMarker =
+	"import { mark } from '../../base/common/performance.js';";
+const WebMainImportReplacement =
+	WebMainImportMarker + "\n" + SharedImportLines;
+
+// `desktop.main.js`'s first import line. Stable across upstream releases.
+const DesktopMainImportMarker = "import { localize } from '../../nls.js';";
+const DesktopMainImportReplacement =
+	DesktopMainImportMarker + "\n" + SharedImportLines;
 
 const WebMainMarker = "const instantiationService = workbench.startup();";
 const WebMainReplacement =
@@ -117,19 +127,32 @@ const Plugin: TransformPlugin = {
 	Name: "ExposeWorkbenchAccessor",
 	Match: ({ Path }) =>
 		/\/vs\/workbench\/browser\/web\.main\.js$/.test(Path) ||
-		/\/vs\/workbench\/browser\/web\.factory\.js$/.test(Path),
+		/\/vs\/workbench\/browser\/web\.factory\.js$/.test(Path) ||
+		/\/vs\/workbench\/electron-browser\/desktop\.main\.js$/.test(Path),
 	Transform({ Path, Source }) {
 		if (Source.includes("__CEL_INSTANTIATION_SERVICE__")) {
 			// Already patched in a previous build pass.
 			return { Kind: "Unchanged" };
 		}
-		if (/web\.main\.js$/.test(Path)) {
+		// `web.main.js` covers the web profile; `desktop.main.js` covers
+		// the debug-electron / release-electron profile actually used at
+		// runtime. Both files contain the identical
+		// `const instantiationService = workbench.startup();` line - the
+		// only difference is the first-import marker the static-imports
+		// piggyback on. The replacement body is identical across both.
+		if (
+			/web\.main\.js$/.test(Path) ||
+			/desktop\.main\.js$/.test(Path)
+		) {
 			if (!Source.includes(WebMainMarker)) return { Kind: "Unchanged" };
-			if (!Source.includes(WebMainImportMarker)) return { Kind: "Unchanged" };
-			let Next = Source.replace(
-				WebMainImportMarker,
-				WebMainImportReplacement,
-			);
+			const ImportMarker = /desktop\.main\.js$/.test(Path)
+				? DesktopMainImportMarker
+				: WebMainImportMarker;
+			const ImportReplacement = /desktop\.main\.js$/.test(Path)
+				? DesktopMainImportReplacement
+				: WebMainImportReplacement;
+			if (!Source.includes(ImportMarker)) return { Kind: "Unchanged" };
+			let Next = Source.replace(ImportMarker, ImportReplacement);
 			Next = Next.replace(WebMainMarker, WebMainReplacement);
 			return Next === Source
 				? { Kind: "Unchanged" }

@@ -1,0 +1,19 @@
+{
+	"compilerOptions": {
+		"baseUrl": "../../../../../Dependency/Microsoft/Dependency/Editor/Source",
+
+		"outDir": "../../../Target/CodeEditorLand/Editor",
+
+		"rootDir": "../../../../../Dependency/Microsoft/Dependency/Editor/Source",
+
+		"experimentalDecorators": true,
+
+		"emitDecoratorMetadata": true
+	},
+
+	"extends": "@playform/build/tsconfig",
+
+	"include": ["../../../../../Dependency/Microsoft/Dependency/Editor/Source"],
+
+	"exclude": ["**/node_modules/**", "**/Target/**"]
+}

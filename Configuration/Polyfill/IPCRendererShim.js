@@ -269,6 +269,101 @@ function ParseIPCMessage(Buffer2) {
   return { Header, Body };
 }
 __name(ParseIPCMessage, "ParseIPCMessage");
+function MapChannelMethodToTauri(Channel, Method) {
+  const Prefix = MapChannelToMountainPrefix(Channel);
+  if (!Prefix) {
+    return null;
+  }
+  return `${Prefix}:${Method}`;
+}
+__name(MapChannelMethodToTauri, "MapChannelMethodToTauri");
+function MapChannelToMountainPrefix(Channel) {
+  switch (Channel) {
+    case "localFilesystem":
+    case "localFileSystem":
+      return "file";
+    case "storage":
+      return "storage";
+    case "configuration":
+      return "configuration";
+    case "commands":
+      return "commands";
+    case "search":
+      return "search";
+    case "workspaces":
+      return "workspaces";
+    case "terminal":
+      return "terminal";
+    case "textFile":
+      return "textFile";
+    case "output":
+      return "output";
+    case "notification":
+      return "notification";
+    case "progress":
+      return "progress";
+    case "quickInput":
+      return "quickInput";
+    case "environment":
+      return "environment";
+    case "decorations":
+      return "decorations";
+    case "workingCopy":
+      return "workingCopy";
+    case "label":
+      return "label";
+    case "model":
+      return "model";
+    case "extensions":
+    case "extensionManagement":
+    case "extensionGallery":
+      return "extensions";
+    case "extensionHostStarter":
+      return "extensionHostStarter";
+    case "localPty":
+      return "localPty";
+    case "nativeHost":
+      return "nativeHost";
+    case "themes":
+      return "themes";
+    case "keybinding":
+      return "keybinding";
+    case "lifecycle":
+      return "lifecycle";
+    case "url":
+      return "url";
+    case "menubar":
+      return "menubar";
+    case "encryption":
+      return "encryption";
+    case "localGit":
+      return "git";
+    default:
+      return null;
+  }
+}
+__name(MapChannelToMountainPrefix, "MapChannelToMountainPrefix");
+function CoerceTauriParameters(_Channel, _Method, Body) {
+  if (Body === void 0 || Body === null) {
+    return [];
+  }
+  if (Array.isArray(Body)) {
+    return Body;
+  }
+  return [Body];
+}
+__name(CoerceTauriParameters, "CoerceTauriParameters");
+async function InvokeMountainRaw(Method, Parameters) {
+  const Invoke = window.__TAURI__?.core?.invoke ?? window.__TAURI__?.invoke ?? window.TAURI?.invoke;
+  if (typeof Invoke !== "function") {
+    throw new Error(`Tauri invoke not available for method: ${Method}`);
+  }
+  return await Invoke("MountainIPCInvoke", {
+    method: Method,
+    params: Parameters
+  });
+}
+__name(InvokeMountainRaw, "InvokeMountainRaw");
 class IPCRendererImpl {
   static {
     __name(this, "IPCRendererImpl");
@@ -303,6 +398,13 @@ class IPCRendererImpl {
   /**
    * Handle the VS Code binary IPC protocol (loopback responder).
    * Parses incoming binary requests and sends back stub responses.
+   *
+   * Three response paths:
+   * 1. Routable channel (`localFilesystem`, `storage`, `configuration`):
+   *    invoke Tauri asynchronously, emit PromiseSuccess/PromiseError
+   *    from the callback with the real result.
+   * 2. Sync stub with data: emit PromiseSuccess with the stub value.
+   * 3. Sync stub with `__IPC_ERROR__<msg>` sentinel: emit PromiseError.
    */
   handleBinaryIPC(Buffer2) {
     try {
@@ -314,6 +416,32 @@ class IPCRendererImpl {
         const RequestId = HeaderArr[1];
         const ChannelName = HeaderArr[2];
         const MethodName = HeaderArr[3];
+        const TauriCommand = MapChannelMethodToTauri(
+          ChannelName,
+          MethodName
+        );
+        if (TauriCommand !== null) {
+          const TauriParameters = CoerceTauriParameters(
+            ChannelName,
+            MethodName,
+            Body
+          );
+          InvokeMountainRaw(TauriCommand, TauriParameters).then((Result) => {
+            const Response = BuildIPCMessage(
+              [201, RequestId],
+              Result
+            );
+            this.emitMessage(Response);
+          }).catch((Error2) => {
+            const Message = Error2 instanceof Error2 ? Error2.message : String(Error2);
+            const Response = BuildIPCMessage(
+              [202, RequestId],
+              Message
+            );
+            this.emitMessage(Response);
+          });
+          return;
+        }
         const StubResponse = this.getStubResponse(
           ChannelName,
           MethodName,
@@ -370,21 +498,17 @@ class IPCRendererImpl {
           };
         }
         return void 0;
-      case "storage":
-        if (Method === "getItems") return [];
-        if (Method === "updateItems") return void 0;
-        if (Method === "optimize") return void 0;
-        if (Method === "close") return void 0;
-        return void 0;
-      case "configuration":
-        if (Method === "getValue") return {};
-        if (Method === "updateValue") return void 0;
-        return void 0;
+      // `storage` and `configuration` channels: routed live via
+      // `MapChannelMethodToTauri` so the workbench persists UI state
+      // and settings through Mountain instead of an in-memory stub.
       case "sharedProcess":
         return void 0;
-      case "localFilesystem":
-      case "localFileSystem":
-        return "__IPC_ERROR__FileNotFound";
+      // NOTE: `localFilesystem`, `storage`, `configuration` used to
+      // return sentinel stubs here. They are now routed live to
+      // Mountain via `MapChannelMethodToTauri` in `handleBinaryIPC`
+      // so the explorer, search, settings, and workspace-storage
+      // paths reach the real filesystem instead of receiving a
+      // synthetic FileNotFound.
       default:
         return void 0;
     }

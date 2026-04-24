@@ -409,6 +409,141 @@ function ParseIPCMessage(Buffer: ArrayBuffer): {
 }
 
 // ============================================================================
+// Channel → Tauri routing (binary IPC path)
+// ============================================================================
+
+/**
+ * Map a VS Code ChannelClient `(channel, method)` pair to a Mountain
+ * Tauri command name. Returns `null` when the pair should fall through
+ * to the sync stub table in `getStubResponse`.
+ *
+ * The workbench reaches this code path when it invokes `getChannel(X)`
+ * on its `MainProcessService` (bundled by VS Code, uses Electron-style
+ * binary IPC). Without this routing, filesystem, storage, and
+ * configuration ops all resolved to synthetic stubs - the explorer
+ * showed nothing, search never left the workbench, and workspace
+ * state was not persisted.
+ *
+ * Kept in lockstep with `Wind/Source/Service/TauriMainProcessService.ts`
+ * and `Output/Source/Service/TauriMainProcessService.ts` ChannelRouteMap.
+ */
+function MapChannelMethodToTauri(Channel: string, Method: string): string | null {
+	const Prefix = MapChannelToMountainPrefix(Channel);
+	if (!Prefix) {
+		return null;
+	}
+	return `${Prefix}:${Method}`;
+}
+
+function MapChannelToMountainPrefix(Channel: string): string | null {
+	switch (Channel) {
+		case "localFilesystem":
+		case "localFileSystem":
+			return "file";
+		case "storage":
+			return "storage";
+		case "configuration":
+			return "configuration";
+		case "commands":
+			return "commands";
+		case "search":
+			return "search";
+		case "workspaces":
+			return "workspaces";
+		case "terminal":
+			return "terminal";
+		case "textFile":
+			return "textFile";
+		case "output":
+			return "output";
+		case "notification":
+			return "notification";
+		case "progress":
+			return "progress";
+		case "quickInput":
+			return "quickInput";
+		case "environment":
+			return "environment";
+		case "decorations":
+			return "decorations";
+		case "workingCopy":
+			return "workingCopy";
+		case "label":
+			return "label";
+		case "model":
+			return "model";
+		case "extensions":
+		case "extensionManagement":
+		case "extensionGallery":
+			return "extensions";
+		case "extensionHostStarter":
+			return "extensionHostStarter";
+		case "localPty":
+			return "localPty";
+		case "nativeHost":
+			return "nativeHost";
+		case "themes":
+			return "themes";
+		case "keybinding":
+			return "keybinding";
+		case "lifecycle":
+			return "lifecycle";
+		case "url":
+			return "url";
+		case "menubar":
+			return "menubar";
+		case "encryption":
+			return "encryption";
+		case "localGit":
+			return "git";
+		default:
+			return null;
+	}
+}
+
+/**
+ * Mountain's `MountainIPCInvoke` expects a positional `Vec<Value>` in
+ * the `params` field. VS Code's ChannelClient sends the single `arg`
+ * object as the body - wrap it in a one-element array so the Mountain
+ * handler receives the argument at index 0. Methods whose handler
+ * takes no arguments collapse to `[]`.
+ */
+function CoerceTauriParameters(
+	_Channel: string,
+	_Method: string,
+	Body: unknown,
+): unknown[] {
+	if (Body === undefined || Body === null) {
+		return [];
+	}
+	if (Array.isArray(Body)) {
+		return Body;
+	}
+	return [Body];
+}
+
+/**
+ * Direct `MountainIPCInvoke` call that bypasses `invokeTauri`'s
+ * named-record convention. Sends `{ method, params: [...] }` in the
+ * shape Mountain's dispatcher expects. Used by the binary IPC bridge
+ * where VS Code's ChannelClient has already produced the positional
+ * argument list.
+ */
+async function InvokeMountainRaw<T>(Method: string, Parameters: unknown[]): Promise<T> {
+	const Invoke =
+		(window as any).__TAURI__?.core?.invoke ??
+		(window as any).__TAURI__?.invoke ??
+		(window as any).TAURI?.invoke;
+	if (typeof Invoke !== "function") {
+		throw new Error(`Tauri invoke not available for method: ${Method}`);
+	}
+	return (await Invoke("MountainIPCInvoke", {
+		method: Method,
+		params: Parameters,
+	})) as T;
+}
+
+// ============================================================================
 // IPC Renderer Implementation
 // ============================================================================
 
@@ -457,6 +592,13 @@ class IPCRendererImpl implements IpcRenderer {
 	/**
 	 * Handle the VS Code binary IPC protocol (loopback responder).
 	 * Parses incoming binary requests and sends back stub responses.
+	 *
+	 * Three response paths:
+	 * 1. Routable channel (`localFilesystem`, `storage`, `configuration`):
+	 *    invoke Tauri asynchronously, emit PromiseSuccess/PromiseError
+	 *    from the callback with the real result.
+	 * 2. Sync stub with data: emit PromiseSuccess with the stub value.
+	 * 3. Sync stub with `__IPC_ERROR__<msg>` sentinel: emit PromiseError.
 	 */
 	private handleBinaryIPC(Buffer: ArrayBuffer): void {
 		try {
@@ -471,6 +613,40 @@ class IPCRendererImpl implements IpcRenderer {
 				const RequestId = HeaderArr[1] as number;
 				const ChannelName = HeaderArr[2] as string;
 				const MethodName = HeaderArr[3] as string;
+
+				const TauriCommand = MapChannelMethodToTauri(
+					ChannelName,
+					MethodName,
+				);
+				if (TauriCommand !== null) {
+					// Routable channel: forward to Mountain via Tauri and
+					// relay the real response through the binary IPC.
+					const TauriParameters = CoerceTauriParameters(
+						ChannelName,
+						MethodName,
+						Body,
+					);
+					InvokeMountainRaw(TauriCommand, TauriParameters)
+						.then((Result) => {
+							const Response = BuildIPCMessage(
+								[201, RequestId],
+								Result,
+							);
+							this.emitMessage(Response);
+						})
+						.catch((Error) => {
+							const Message =
+								Error instanceof Error
+									? Error.message
+									: String(Error);
+							const Response = BuildIPCMessage(
+								[202, RequestId],
+								Message,
+							);
+							this.emitMessage(Response);
+						});
+					return;
+				}
 
 				const StubResponse = this.getStubResponse(
 					ChannelName,
@@ -549,29 +725,18 @@ class IPCRendererImpl implements IpcRenderer {
 					};
 				}
 				return undefined;
-			case "storage":
-				// RemoteStorageService → ApplicationStorageDatabaseClient
-				// Methods: getItems, updateItems, optimize, close
-				if (Method === "getItems") return [];
-				if (Method === "updateItems") return undefined;
-				if (Method === "optimize") return undefined;
-				if (Method === "close") return undefined;
-				return undefined;
-			case "configuration":
-				// ConfigurationService: getValue, updateValue
-				if (Method === "getValue") return {};
-				if (Method === "updateValue") return undefined;
-				return undefined;
+			// `storage` and `configuration` channels: routed live via
+			// `MapChannelMethodToTauri` so the workbench persists UI state
+			// and settings through Mountain instead of an in-memory stub.
 			case "sharedProcess":
 				// SharedProcessService: when, dispose
 				return undefined;
-			case "localFilesystem":
-			case "localFileSystem":
-				// DiskFileSystemProviderClient (channel: localFilesystem)
-				// Return FileNotFound errors for stat/readFile so the workbench
-				// gracefully handles missing files instead of hanging.
-				// The error format matches FileSystemProviderErrorCode.FileNotFound.
-				return "__IPC_ERROR__FileNotFound";
+			// NOTE: `localFilesystem`, `storage`, `configuration` used to
+			// return sentinel stubs here. They are now routed live to
+			// Mountain via `MapChannelMethodToTauri` in `handleBinaryIPC`
+			// so the explorer, search, settings, and workspace-storage
+			// paths reach the real filesystem instead of receiving a
+			// synthetic FileNotFound.
 
 			default:
 				return undefined;

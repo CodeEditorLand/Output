@@ -11,36 +11,37 @@ import { default as default8 } from "./Transform/StripDanglingSourceMap.js";
 import { default as default9 } from "./Transform/ExtensionScannerIPC.js";
 import { default as default10 } from "./Transform/CatchOutputFolderRejection.js";
 import { default as default11 } from "./Transform/StripWebviewIframeSandbox.js";
+import { default as default12 } from "./Transform/ExposeWorkbenchAccessor.js";
 import {
   CopyVSOutput,
-  default as default12
+  default as default13
 } from "./Copy/CopyVSOutput.js";
 import {
   CopyVSRootFiles,
-  default as default13
+  default as default14
 } from "./Copy/CopyVSRootFiles.js";
 import {
   SupplementFromDependency,
-  default as default14
+  default as default15
 } from "./Copy/SupplementFromDependency.js";
 import {
   CopyWorker,
-  default as default15
+  default as default16
 } from "./Copy/CopyWorker.js";
 import {
   CopyNodeModules,
   DefaultPackages,
-  default as default16
+  default as default17
 } from "./Copy/CopyNodeModules.js";
 import {
   StubUnpublishedAddons,
   DefaultStubs,
   StubDataPrefix,
-  default as default17
+  default as default18
 } from "./Copy/StubUnpublishedAddons.js";
 import {
   CopyTauriMainProcessService,
-  default as default18
+  default as default19
 } from "./Copy/CopyTauriMainProcessService.js";
 import StripCSSImport from "./Transform/StripCSSImport.js";
 import InjectNameShim from "./Transform/InjectNameShim.js";
@@ -51,6 +52,7 @@ import StripDanglingSourceMap from "./Transform/StripDanglingSourceMap.js";
 import ExtensionScannerIPC from "./Transform/ExtensionScannerIPC.js";
 import CatchOutputFolderRejection from "./Transform/CatchOutputFolderRejection.js";
 import StripWebviewIframeSandbox from "./Transform/StripWebviewIframeSandbox.js";
+import ExposeWorkbenchAccessor from "./Transform/ExposeWorkbenchAccessor.js";
 import {
   CopyVSOutput as CopyVSOutputFactory
 } from "./Copy/CopyVSOutput.js";
@@ -88,7 +90,16 @@ const BuildPipeline = /* @__PURE__ */ __name((Input) => [
   StripDanglingSourceMap,
   ExtensionScannerIPC,
   CatchOutputFolderRejection,
-  StripWebviewIframeSandbox
+  StripWebviewIframeSandbox,
+  // Expose the IWorkbench facade + IInstantiationService on
+  // `globalThis` as `__CEL_WORKBENCH__` / `__CEL_INSTANTIATION_SERVICE__`
+  // / `__CEL_SERVICES__` so Sky's bridge code (SkyBridge,
+  // tree-view attachment, command forwarding, status-bar sync) can
+  // call into the live workbench without re-implementing a parallel
+  // UI. Without this patch, every tree view an extension registers
+  // surfaces as `attach-give-up (no workbench tree descriptor)` on
+  // the renderer and the entire Sky→workbench integration is dead.
+  ExposeWorkbenchAccessor
 ], "BuildPipeline");
 var Index_default = BuildPipeline;
 export {
@@ -96,17 +107,18 @@ export {
   BuildPipeline,
   default10 as CatchOutputFolderRejection,
   CopyNodeModules,
-  default16 as CopyNodeModulesDefault,
+  default17 as CopyNodeModulesDefault,
   CopyTauriMainProcessService,
-  default18 as CopyTauriMainProcessServiceDefault,
+  default19 as CopyTauriMainProcessServiceDefault,
   CopyVSOutput,
-  default12 as CopyVSOutputDefault,
+  default13 as CopyVSOutputDefault,
   CopyVSRootFiles,
-  default13 as CopyVSRootFilesDefault,
+  default14 as CopyVSRootFilesDefault,
   CopyWorker,
-  default15 as CopyWorkerDefault,
+  default16 as CopyWorkerDefault,
   DefaultPackages as DefaultNodeModulePackages,
   DefaultStubs,
+  default12 as ExposeWorkbenchAccessor,
   default9 as ExtensionScannerIPC,
   default4 as InjectNameShim,
   default5 as ReplaceElectronIPCService,
@@ -117,9 +129,9 @@ export {
   default11 as StripWebviewIframeSandbox,
   StubDataPrefix,
   StubUnpublishedAddons,
-  default17 as StubUnpublishedAddonsDefault,
+  default18 as StubUnpublishedAddonsDefault,
   SupplementFromDependency,
-  default14 as SupplementFromDependencyDefault,
+  default15 as SupplementFromDependencyDefault,
   Index_default as default
 };
 //# sourceMappingURL=Index.js.map

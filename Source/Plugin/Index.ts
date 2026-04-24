@@ -24,6 +24,9 @@
  *  13. ExtensionScannerIPC      (Step 14)
  *  14. CatchOutputFolderRejection (Step 15)
  *  15. StripWebviewIframeSandbox (Step 16 - WKWebView custom-protocol fix)
+ *  16. ExposeWorkbenchAccessor (Step 17 - globalThis.__CEL_SERVICES__ +
+ *      __CEL_WORKBENCH__ + __CEL_INSTANTIATION_SERVICE__ + the
+ *      `cel:workbench-ready` DOM event consumed by SkyBridge)
  *
  * CopyNodeModules → StripDanglingSourceMap is a logically-paired duo
  * (copy freshly shipped JS; strip any now-dangling sourcemap comments),
@@ -50,6 +53,7 @@ export { default as StripDanglingSourceMap } from "./Transform/StripDanglingSour
 export { default as ExtensionScannerIPC } from "./Transform/ExtensionScannerIPC.js";
 export { default as CatchOutputFolderRejection } from "./Transform/CatchOutputFolderRejection.js";
 export { default as StripWebviewIframeSandbox } from "./Transform/StripWebviewIframeSandbox.js";
+export { default as ExposeWorkbenchAccessor } from "./Transform/ExposeWorkbenchAccessor.js";
 
 export {
 	CopyVSOutput,
@@ -101,6 +105,7 @@ import StripDanglingSourceMap from "./Transform/StripDanglingSourceMap.js";
 import ExtensionScannerIPC from "./Transform/ExtensionScannerIPC.js";
 import CatchOutputFolderRejection from "./Transform/CatchOutputFolderRejection.js";
 import StripWebviewIframeSandbox from "./Transform/StripWebviewIframeSandbox.js";
+import ExposeWorkbenchAccessor from "./Transform/ExposeWorkbenchAccessor.js";
 
 import {
 	CopyVSOutput as CopyVSOutputFactory,
@@ -162,6 +167,15 @@ export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => [
 	ExtensionScannerIPC,
 	CatchOutputFolderRejection,
 	StripWebviewIframeSandbox,
+	// Expose the IWorkbench facade + IInstantiationService on
+	// `globalThis` as `__CEL_WORKBENCH__` / `__CEL_INSTANTIATION_SERVICE__`
+	// / `__CEL_SERVICES__` so Sky's bridge code (SkyBridge,
+	// tree-view attachment, command forwarding, status-bar sync) can
+	// call into the live workbench without re-implementing a parallel
+	// UI. Without this patch, every tree view an extension registers
+	// surfaces as `attach-give-up (no workbench tree descriptor)` on
+	// the renderer and the entire Sky→workbench integration is dead.
+	ExposeWorkbenchAccessor,
 ];
 
 export default BuildPipeline;

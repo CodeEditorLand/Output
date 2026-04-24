@@ -1,10 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-const Marker = "workbench/services/extensions/electron-browser/extensionsScannerService.js".replaceAll(
-  "/",
-  "\\/"
-);
-const PathRegex = new RegExp(`${Marker}$`);
+const PathRegex = /workbench\/services\/extensions\/(?:electron-browser|browser)\/extensionsScannerService\.js$/;
 const Body = `import { URI } from '../../../../base/common/uri.js';
 import { IExtensionsScannerService } from '../../../../platform/extensionManagement/common/extensionsScannerService.js';
 import { InstantiationType, registerSingleton } from '../../../../platform/instantiation/common/extensions.js';

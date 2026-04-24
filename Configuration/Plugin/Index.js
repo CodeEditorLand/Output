@@ -12,36 +12,37 @@ import { default as default9 } from "./Transform/ExtensionScannerIPC.js";
 import { default as default10 } from "./Transform/CatchOutputFolderRejection.js";
 import { default as default11 } from "./Transform/StripWebviewIframeSandbox.js";
 import { default as default12 } from "./Transform/ExposeWorkbenchAccessor.js";
+import { default as default13 } from "./Transform/DisableUnusedServices.js";
 import {
   CopyVSOutput,
-  default as default13
+  default as default14
 } from "./Copy/CopyVSOutput.js";
 import {
   CopyVSRootFiles,
-  default as default14
+  default as default15
 } from "./Copy/CopyVSRootFiles.js";
 import {
   SupplementFromDependency,
-  default as default15
+  default as default16
 } from "./Copy/SupplementFromDependency.js";
 import {
   CopyWorker,
-  default as default16
+  default as default17
 } from "./Copy/CopyWorker.js";
 import {
   CopyNodeModules,
   DefaultPackages,
-  default as default17
+  default as default18
 } from "./Copy/CopyNodeModules.js";
 import {
   StubUnpublishedAddons,
   DefaultStubs,
   StubDataPrefix,
-  default as default18
+  default as default19
 } from "./Copy/StubUnpublishedAddons.js";
 import {
   CopyTauriMainProcessService,
-  default as default19
+  default as default20
 } from "./Copy/CopyTauriMainProcessService.js";
 import StripCSSImport from "./Transform/StripCSSImport.js";
 import InjectNameShim from "./Transform/InjectNameShim.js";
@@ -53,6 +54,7 @@ import ExtensionScannerIPC from "./Transform/ExtensionScannerIPC.js";
 import CatchOutputFolderRejection from "./Transform/CatchOutputFolderRejection.js";
 import StripWebviewIframeSandbox from "./Transform/StripWebviewIframeSandbox.js";
 import ExposeWorkbenchAccessor from "./Transform/ExposeWorkbenchAccessor.js";
+import DisableUnusedServices from "./Transform/DisableUnusedServices.js";
 import {
   CopyVSOutput as CopyVSOutputFactory
 } from "./Copy/CopyVSOutput.js";
@@ -99,7 +101,14 @@ const BuildPipeline = /* @__PURE__ */ __name((Input) => [
   // UI. Without this patch, every tree view an extension registers
   // surfaces as `attach-give-up (no workbench tree descriptor)` on
   // the renderer and the entire Sky→workbench integration is dead.
-  ExposeWorkbenchAccessor
+  ExposeWorkbenchAccessor,
+  // Replace upstream contribution barrels for features Land
+  // intentionally does not back (auto-update, issue reporter, MS
+  // account / settings sync, welcome walkthrough, process explorer,
+  // experiments) with an empty default export. Removes broken UI,
+  // silences the "service not registered" warnings, and shortens
+  // boot. List lives in the transform itself.
+  DisableUnusedServices
 ], "BuildPipeline");
 var Index_default = BuildPipeline;
 export {
@@ -107,17 +116,18 @@ export {
   BuildPipeline,
   default10 as CatchOutputFolderRejection,
   CopyNodeModules,
-  default17 as CopyNodeModulesDefault,
+  default18 as CopyNodeModulesDefault,
   CopyTauriMainProcessService,
-  default19 as CopyTauriMainProcessServiceDefault,
+  default20 as CopyTauriMainProcessServiceDefault,
   CopyVSOutput,
-  default13 as CopyVSOutputDefault,
+  default14 as CopyVSOutputDefault,
   CopyVSRootFiles,
-  default14 as CopyVSRootFilesDefault,
+  default15 as CopyVSRootFilesDefault,
   CopyWorker,
-  default16 as CopyWorkerDefault,
+  default17 as CopyWorkerDefault,
   DefaultPackages as DefaultNodeModulePackages,
   DefaultStubs,
+  default13 as DisableUnusedServices,
   default12 as ExposeWorkbenchAccessor,
   default9 as ExtensionScannerIPC,
   default4 as InjectNameShim,
@@ -129,9 +139,9 @@ export {
   default11 as StripWebviewIframeSandbox,
   StubDataPrefix,
   StubUnpublishedAddons,
-  default18 as StubUnpublishedAddonsDefault,
+  default19 as StubUnpublishedAddonsDefault,
   SupplementFromDependency,
-  default15 as SupplementFromDependencyDefault,
+  default16 as SupplementFromDependencyDefault,
   Index_default as default
 };
 //# sourceMappingURL=Index.js.map

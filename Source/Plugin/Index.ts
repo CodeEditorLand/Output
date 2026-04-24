@@ -107,6 +107,7 @@ import ExtensionScannerIPC from "./Transform/ExtensionScannerIPC.js";
 import CatchOutputFolderRejection from "./Transform/CatchOutputFolderRejection.js";
 import StripWebviewIframeSandbox from "./Transform/StripWebviewIframeSandbox.js";
 import ExposeWorkbenchAccessor from "./Transform/ExposeWorkbenchAccessor.js";
+import DisableUnusedServices from "./Transform/DisableUnusedServices.js";
 
 import {
 	CopyVSOutput as CopyVSOutputFactory,
@@ -177,6 +178,13 @@ export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => [
 	// surfaces as `attach-give-up (no workbench tree descriptor)` on
 	// the renderer and the entire Sky→workbench integration is dead.
 	ExposeWorkbenchAccessor,
+	// Replace upstream contribution barrels for features Land
+	// intentionally does not back (auto-update, issue reporter, MS
+	// account / settings sync, welcome walkthrough, process explorer,
+	// experiments) with an empty default export. Removes broken UI,
+	// silences the "service not registered" warnings, and shortens
+	// boot. List lives in the transform itself.
+	DisableUnusedServices,
 ];
 
 export default BuildPipeline;

@@ -44,7 +44,22 @@ const WebMainReplacement =
 	"// bridges can resolve internal services (IStatusbarService, ISCMService,\n" +
 	"// ICommandService, …) via\n" +
 	"//   __CEL_INSTANTIATION_SERVICE__.invokeFunction(a => a.get(I…))\n" +
-	"globalThis.__CEL_INSTANTIATION_SERVICE__ = instantiationService;";
+	"globalThis.__CEL_INSTANTIATION_SERVICE__ = instantiationService;\n" +
+	"// [Land] Resolve the concrete service instances up-front so Sky-side\n" +
+	"// bridges can call method surfaces directly without re-entering the\n" +
+	"// workbench's AMD loader. All three symbols are available in the stock\n" +
+	"// web.main.js closure via the bundler's require map. Wrapped in a try\n" +
+	"// so a rename in upstream VS Code does not wedge boot - the raw\n" +
+	"// instantiation service above still covers the fallback path.\n" +
+	"try {\n" +
+	"  var __CEL_StatusbarMod = require('vs/workbench/services/statusbar/browser/statusbar');\n" +
+	"  var __CEL_CommandsMod = require('vs/platform/commands/common/commands');\n" +
+	"  globalThis.__CEL_SERVICES__ = {\n" +
+	"    Statusbar: instantiationService.invokeFunction(function(a){ return a.get(__CEL_StatusbarMod.IStatusbarService); }),\n" +
+	"    Commands: instantiationService.invokeFunction(function(a){ return a.get(__CEL_CommandsMod.ICommandService); }),\n" +
+	"    CommandRegistry: __CEL_CommandsMod.CommandsRegistry,\n" +
+	"  };\n" +
+	"} catch (e) { console.warn('[Land] __CEL_SERVICES__ resolve failed', e); }";
 
 const WebFactoryMarker = "workbenchPromise.complete(workbench);";
 const WebFactoryReplacement =

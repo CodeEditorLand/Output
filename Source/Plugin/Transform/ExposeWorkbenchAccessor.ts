@@ -54,10 +54,12 @@ const WebMainReplacement =
 	"try {\n" +
 	"  var __CEL_StatusbarMod = require('vs/workbench/services/statusbar/browser/statusbar');\n" +
 	"  var __CEL_CommandsMod = require('vs/platform/commands/common/commands');\n" +
+	"  var __CEL_SearchMod = require('vs/workbench/services/search/common/search');\n" +
 	"  globalThis.__CEL_SERVICES__ = {\n" +
 	"    Statusbar: instantiationService.invokeFunction(function(a){ return a.get(__CEL_StatusbarMod.IStatusbarService); }),\n" +
 	"    Commands: instantiationService.invokeFunction(function(a){ return a.get(__CEL_CommandsMod.ICommandService); }),\n" +
 	"    CommandRegistry: __CEL_CommandsMod.CommandsRegistry,\n" +
+	"    Search: instantiationService.invokeFunction(function(a){ return a.get(__CEL_SearchMod.ISearchService); }),\n" +
 	"  };\n" +
 	"} catch (e) { console.warn('[Land] __CEL_SERVICES__ resolve failed', e); }";
 

@@ -497,6 +497,10 @@ async function InvokeMountain(
 		const Elapsed = (
 			typeof performance !== "undefined" ? performance.now() : Date.now()
 		) - Start;
+		// Success line is per-call and the Rust-side `ipc:done` already
+		// carries the same data at ns precision. Only forward when the
+		// caller explicitly opts into `tauri-invoke` via LAND_DEV_LOG so
+		// normal runs stay quiet. Failures always forward.
 		_DevLogForward(
 			"tauri-invoke",
 			`[TauriInvoke] method=${Method} ok=true elapsed_ms=${Elapsed.toFixed(2)}`,
@@ -507,7 +511,7 @@ async function InvokeMountain(
 			typeof performance !== "undefined" ? performance.now() : Date.now()
 		) - Start;
 		_DevLogForward(
-			"tauri-invoke",
+			"tauri-invoke-error",
 			`[TauriInvoke] method=${Method} ok=false elapsed_ms=${Elapsed.toFixed(2)} err=${String(Error)}`,
 		);
 		throw Error;

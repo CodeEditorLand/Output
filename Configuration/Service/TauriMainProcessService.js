@@ -438,7 +438,7 @@ async function InvokeMountain(Method, Params) {
   } catch (Error2) {
     const Elapsed = (typeof performance !== "undefined" ? performance.now() : Date.now()) - Start;
     _DevLogForward(
-      "tauri-invoke",
+      "tauri-invoke-error",
       `[TauriInvoke] method=${Method} ok=false elapsed_ms=${Elapsed.toFixed(2)} err=${String(Error2)}`
     );
     throw Error2;

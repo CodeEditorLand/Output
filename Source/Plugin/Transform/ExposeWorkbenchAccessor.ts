@@ -55,11 +55,31 @@ const WebMainReplacement =
 	"  var __CEL_StatusbarMod = require('vs/workbench/services/statusbar/browser/statusbar');\n" +
 	"  var __CEL_CommandsMod = require('vs/platform/commands/common/commands');\n" +
 	"  var __CEL_SearchMod = require('vs/workbench/services/search/common/search');\n" +
+	"  var __CEL_ViewsMod = require('vs/workbench/services/views/common/viewsService');\n" +
+	"  var __CEL_RegistryMod = require('vs/platform/registry/common/platform');\n" +
+	"  // `Extensions.ViewsRegistry` = 'workbench.registry.view'. Kept as a\n" +
+	"  // literal to avoid importing the whole views.js module (which pulls\n" +
+	"  // in markdown / codicon machinery) into the transform closure.\n" +
+	"  var __CEL_ViewsRegistryId = 'workbench.registry.view';\n" +
 	"  globalThis.__CEL_SERVICES__ = {\n" +
 	"    Statusbar: instantiationService.invokeFunction(function(a){ return a.get(__CEL_StatusbarMod.IStatusbarService); }),\n" +
 	"    Commands: instantiationService.invokeFunction(function(a){ return a.get(__CEL_CommandsMod.ICommandService); }),\n" +
 	"    CommandRegistry: __CEL_CommandsMod.CommandsRegistry,\n" +
 	"    Search: instantiationService.invokeFunction(function(a){ return a.get(__CEL_SearchMod.ISearchService); }),\n" +
+	"    Views: instantiationService.invokeFunction(function(a){ return a.get(__CEL_ViewsMod.IViewsService); }),\n" +
+	"    // `TreeViewByViewId(id)` resolves the workbench's ITreeView instance\n" +
+	"    // for a registered tree view. Setting `.dataProvider` on the\n" +
+	"    // returned value is what makes the view actually display content -\n" +
+	"    // mirrors `MainThreadTreeViews.getTreeView()` in stock VS Code.\n" +
+	"    // Returns null when the viewId isn't a tree view or hasn't been\n" +
+	"    // registered in the ViewsRegistry yet.\n" +
+	"    TreeViewByViewId: function(ViewId) {\n" +
+	"      try {\n" +
+	"        var Reg = __CEL_RegistryMod.Registry.as(__CEL_ViewsRegistryId);\n" +
+	"        var Desc = Reg && Reg.getView ? Reg.getView(ViewId) : null;\n" +
+	"        return Desc && Desc.treeView ? Desc.treeView : null;\n" +
+	"      } catch (E) { return null; }\n" +
+	"    },\n" +
 	"  };\n" +
 	"} catch (e) { console.warn('[Land] __CEL_SERVICES__ resolve failed', e); }";
 

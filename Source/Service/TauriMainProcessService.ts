@@ -510,10 +510,26 @@ async function InvokeMountain(
 		const Elapsed = (
 			typeof performance !== "undefined" ? performance.now() : Date.now()
 		) - Start;
-		_DevLogForward(
-			"tauri-invoke-error",
-			`[TauriInvoke] method=${Method} ok=false elapsed_ms=${Elapsed.toFixed(2)} err=${String(Error)}`,
-		);
+		// ENOENT on the file:*  methods is expected - extensions probe
+		// for optional workspace files (`.vscode/settings.json`,
+		// `.vscode/tasks.json`, etc.) that don't exist on fresh installs.
+		// Cocoon's own `readFile` converts the rejection into
+		// `FileSystemError.FileNotFound` which extensions handle. The
+		// Tauri-side error forwarder firing for every probe turns the
+		// `short` log into a distraction. Suppress benign ENOENTs on the
+		// filesystem methods; everything else still forwards.
+		const Message = String(Error);
+		const IsBenignEnoent =
+			(Method === "file:stat" || Method === "file:readFile") &&
+			(Message.includes("No such file or directory") ||
+				Message.includes("os error 2") ||
+				/Resource not found/i.test(Message));
+		if (!IsBenignEnoent) {
+			_DevLogForward(
+				"tauri-invoke-error",
+				`[TauriInvoke] method=${Method} ok=false elapsed_ms=${Elapsed.toFixed(2)} err=${Message}`,
+			);
+		}
 		throw Error;
 	}
 }

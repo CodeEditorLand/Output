@@ -437,10 +437,14 @@ async function InvokeMountain(Method, Params) {
     return Value;
   } catch (Error2) {
     const Elapsed = (typeof performance !== "undefined" ? performance.now() : Date.now()) - Start;
-    _DevLogForward(
-      "tauri-invoke-error",
-      `[TauriInvoke] method=${Method} ok=false elapsed_ms=${Elapsed.toFixed(2)} err=${String(Error2)}`
-    );
+    const Message = String(Error2);
+    const IsBenignEnoent = (Method === "file:stat" || Method === "file:readFile") && (Message.includes("No such file or directory") || Message.includes("os error 2") || /Resource not found/i.test(Message));
+    if (!IsBenignEnoent) {
+      _DevLogForward(
+        "tauri-invoke-error",
+        `[TauriInvoke] method=${Method} ok=false elapsed_ms=${Elapsed.toFixed(2)} err=${Message}`
+      );
+    }
     throw Error2;
   }
 }

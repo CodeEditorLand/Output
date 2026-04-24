@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../Source/ESBuild/Exclude/Standalone.ts"],
-  "sourcesContent": ["export default (Prefix: string) => [\n\t`${Prefix}/editor/standalone/*`,\n\n\t`${Prefix}/editor/editor.main.js`,\n\n\t`${Prefix}/editor/contrib/snippet/browser/snippet.md`,\n];\n"],
-  "mappings": ";;AAAA,IAAO,qBAAQ,wBAAC,WAAmB;AAAA,EAClC,GAAG,MAAM;AAAA,EAET,GAAG,MAAM;AAAA,EAET,GAAG,MAAM;AACV,GANe;",
-  "names": []
-}

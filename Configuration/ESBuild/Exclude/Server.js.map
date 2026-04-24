@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../Source/ESBuild/Exclude/Server.ts"],
-  "sourcesContent": ["export default (Prefix: string) => [`${Prefix}/server/`];\n"],
-  "mappings": ";;AAAA,IAAO,iBAAQ,wBAAC,WAAmB,CAAC,GAAG,MAAM,UAAU,GAAxC;",
-  "names": []
-}

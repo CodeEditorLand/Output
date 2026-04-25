@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../Source/ESBuild/Exclude/Bootstrap.ts"],
+  "sourcesContent": ["export const Electron = (await import(\"../../ESBuild.js\")).Electron;\n\nexport default (Prefix: string) => [\n\t// When compiling from src/, bootstrap files are at the root of out/\n\t// (not in a \"out\" subdirectory since we're not using VSCode's prebuilt structure)\n\t\"bootstrap-cli.js\",\n\t\"bootstrap-fork.js\",\n\t\"bootstrap-node.js\",\n\t\"bootstrap-server.js\",\n\t\"cli.js\",\n\t\"main.js\",\n\t\"server-cli.js\",\n\t\"server-main.js\",\n\n\t// These are specific to VSCode's output structure, keep them\n\t`${Prefix}/code/node/cli.js`,\n\t`${Prefix}/code/node/cliProcessMain.js`,\n\n\t// Only exclude the desktop workbench when NOT building for Electron\n\t...(Electron\n\t\t? []\n\t\t: [`${Prefix}/workbench/workbench.desktop.main.js`]),\n];\n"],
+  "mappings": ";;AAAO,MAAM,YAAY,MAAM,OAAO,kBAAkB,GAAG;AAE3D,IAAO,oBAAQ,wBAAC,WAAmB;AAAA;AAAA;AAAA,EAGlC;AAAA,EACA;AAAA,EACA;AAAA,EACA;AAAA,EACA;AAAA,EACA;AAAA,EACA;AAAA,EACA;AAAA;AAAA,EAGA,GAAG,MAAM;AAAA,EACT,GAAG,MAAM;AAAA;AAAA,EAGT,GAAI,WACD,CAAC,IACD,CAAC,GAAG,MAAM,sCAAsC;AACpD,GApBe;",
+  "names": []
+}

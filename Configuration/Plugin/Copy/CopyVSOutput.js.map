@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../Source/Plugin/Copy/CopyVSOutput.ts"],
-  "sourcesContent": ["/**\n * Step 1: Copy `Output/Target/Microsoft/VSCode/vs/**` into the consumer's\n * `Static/Application/vs/` tree.\n *\n * The consumer supplies the absolute source (Output's published `/vs` dir)\n * and destination (their own `Static/Application/vs`) via a factory - the\n * plugin instance is a pure data bag so it stays identical whether invoked\n * from Sky, a future desktop shell, or a test harness.\n */\n\nimport type { CopyPlugin } from \"../Type.js\";\n\nexport interface CopyVSOutputInput {\n\treadonly From: string;\n\treadonly To: string;\n}\n\nexport const CopyVSOutput = ({\n\tFrom,\n\tTo,\n}: CopyVSOutputInput): CopyPlugin => ({\n\tKind: \"Copy\",\n\tName: \"CopyVSOutput\",\n\tEntries: [{ From: [From], To, Recursive: true, Force: true }],\n\tRequired: false,\n});\n\nexport default CopyVSOutput;\n"],
-  "mappings": ";;AAiBO,MAAM,eAAe,wBAAC;AAAA,EAC5B;AAAA,EACA;AACD,OAAsC;AAAA,EACrC,MAAM;AAAA,EACN,MAAM;AAAA,EACN,SAAS,CAAC,EAAE,MAAM,CAAC,IAAI,GAAG,IAAI,WAAW,MAAM,OAAO,KAAK,CAAC;AAAA,EAC5D,UAAU;AACX,IAR4B;AAU5B,IAAO,uBAAQ;",
-  "names": []
-}

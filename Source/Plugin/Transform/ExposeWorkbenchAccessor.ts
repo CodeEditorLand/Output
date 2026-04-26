@@ -56,7 +56,13 @@ const SharedImportLines =
 	"import { ICommandService as __CEL_ICommandService, CommandsRegistry as __CEL_CommandsRegistry } from '../../platform/commands/common/commands.js';\n" +
 	"import { ISearchService as __CEL_ISearchService } from '../services/search/common/search.js';\n" +
 	"import { IViewsService as __CEL_IViewsService } from '../services/views/common/viewsService.js';\n" +
-	"import { Registry as __CEL_Registry } from '../../platform/registry/common/platform.js';";
+	"import { Registry as __CEL_Registry } from '../../platform/registry/common/platform.js';\n" +
+	"// [Land] `URI` (`vscode-uri` flavour as bundled by VS Code) is needed\n" +
+	"// by SkyBridge's search provider so result rows carry real URI\n" +
+	"// instances - the workbench's SearchService dedups results by\n" +
+	"// `getComparisonKey(uri)` which calls `uri.with(...)`. Returning\n" +
+	"// raw `URIComponents` POJOs throws `uri.with is not a function`.\n" +
+	"import { URI as __CEL_URI } from '../../base/common/uri.js';";
 
 const WebMainImportMarker =
 	"import { mark } from '../../base/common/performance.js';";
@@ -86,6 +92,10 @@ const WebMainReplacement =
 	"    CommandRegistry: __CEL_CommandsRegistry,\n" +
 	"    Search: instantiationService.invokeFunction(function(a){ return a.get(__CEL_ISearchService); }),\n" +
 	"    Views: instantiationService.invokeFunction(function(a){ return a.get(__CEL_IViewsService); }),\n" +
+	"    // `URI` (real class with `.with()`, `.fsPath`, `.toString()`)\n" +
+	"    // exposed so Sky-side bridges can build resource objects the\n" +
+	"    // workbench accepts directly (no `URI.revive` round-trip).\n" +
+	"    URI: __CEL_URI,\n" +
 	"    // `TreeViewByViewId(id)` resolves the workbench's ITreeView\n" +
 	"    // instance for a registered tree view. Setting `.dataProvider`\n" +
 	"    // on the returned value makes the view render its data.\n" +

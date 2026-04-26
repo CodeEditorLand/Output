@@ -1,2 +1,29 @@
-import{stat as e}from"node:fs/promises";const r=/\n?\/\/[#@][ \t]*sourceMappingURL=[^\n]*\n?$/,i=async n=>{try{return await e(`${n}.map`),!0}catch{return!1}},s={Kind:"Transform",Name:"StripDanglingSourceMap",Match:({Path:n,Role:t})=>t==="app"&&/\.js$/.test(n),async Transform({Path:n,Source:t}){if(!r.test(t))return{Kind:"Unchanged"};if(await i(n))return{Kind:"Unchanged"};r.lastIndex=0;const a=t.replace(r,`
-`);return a===t?{Kind:"Unchanged"}:{Kind:"Rewrite",Source:a}}};var c=s;export{c as default};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { stat } from "node:fs/promises";
+const SourceMapComment = /\n?\/\/[#@][ \t]*sourceMappingURL=[^\n]*\n?$/;
+const HasSibling = /* @__PURE__ */ __name(async (Path) => {
+  try {
+    await stat(`${Path}.map`);
+    return true;
+  } catch {
+    return false;
+  }
+}, "HasSibling");
+const Plugin = {
+  Kind: "Transform",
+  Name: "StripDanglingSourceMap",
+  Match: /* @__PURE__ */ __name(({ Path, Role }) => Role === "app" && /\.js$/.test(Path), "Match"),
+  async Transform({ Path, Source }) {
+    if (!SourceMapComment.test(Source)) return { Kind: "Unchanged" };
+    if (await HasSibling(Path)) return { Kind: "Unchanged" };
+    SourceMapComment.lastIndex = 0;
+    const Next = Source.replace(SourceMapComment, "\n");
+    return Next === Source ? { Kind: "Unchanged" } : { Kind: "Rewrite", Source: Next };
+  }
+};
+var StripDanglingSourceMap_default = Plugin;
+export {
+  StripDanglingSourceMap_default as default
+};
+//# sourceMappingURL=StripDanglingSourceMap.js.map

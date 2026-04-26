@@ -1,1 +1,22 @@
-const t=/\/workbench\/contrib\/webview\/browser\/pre\/index\.html$/,r=/newFrame\.setAttribute\(\s*['"]sandbox['"]\s*,\s*Array\.from\(sandboxRules\)\.join\(\s*['"] ['"]\s*\)\s*\);/,o="/* Land: sandbox attribute stripped - WKWebView blocks custom-protocol main-resource loads from sandboxed iframes. */",s={Kind:"Transform",Name:"StripWebviewIframeSandbox",Match:({Path:e})=>t.test(e),Transform({Source:e}){if(!r.test(e))return{Kind:"Unchanged"};const n=e.replace(r,o);return n===e?{Kind:"Unchanged"}:{Kind:"Rewrite",Source:n}}};var a=s;export{a as default};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+const PathRegex = /\/workbench\/contrib\/webview\/browser\/pre\/index\.html$/;
+const SandboxSetCall = /newFrame\.setAttribute\(\s*['"]sandbox['"]\s*,\s*Array\.from\(sandboxRules\)\.join\(\s*['"] ['"]\s*\)\s*\);/;
+const SandboxReplacement = `/* Land: sandbox attribute stripped - WKWebView blocks custom-protocol main-resource loads from sandboxed iframes. */`;
+const Plugin = {
+  Kind: "Transform",
+  Name: "StripWebviewIframeSandbox",
+  Match: /* @__PURE__ */ __name(({ Path }) => PathRegex.test(Path), "Match"),
+  Transform({ Source }) {
+    if (!SandboxSetCall.test(Source)) {
+      return { Kind: "Unchanged" };
+    }
+    const Next = Source.replace(SandboxSetCall, SandboxReplacement);
+    return Next === Source ? { Kind: "Unchanged" } : { Kind: "Rewrite", Source: Next };
+  }
+};
+var StripWebviewIframeSandbox_default = Plugin;
+export {
+  StripWebviewIframeSandbox_default as default
+};
+//# sourceMappingURL=StripWebviewIframeSandbox.js.map

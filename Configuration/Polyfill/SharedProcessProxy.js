@@ -1,1 +1,522 @@
-async function i(e,n={}){try{const r=window.__TAURI__?.core?.invoke??window.__TAURI__?.invoke??window.TAURI?.invoke;if(typeof r=="function")return e.includes(":")?await r("MountainIPCInvoke",{method:e,params:n}):await r(e,n);throw new Error(`Tauri invoke not available for command: ${e}`)}catch(r){throw r}}function m(e,n){if(typeof window.__TAURI__?.event?.listen=="function"){const r=window.__TAURI__.event.listen(e,({payload:a})=>{n(a)}).catch(()=>{});return()=>{r.then(a=>a?.())}}if(typeof window.TAURI?.event?.listen=="function"){const r=window.TAURI.event.listen(e,({payload:a})=>{n(a)}).catch(()=>{});return()=>{r.then(a=>a?.())}}return()=>{}}function l(e){const n=new Map,r=new Map;let a=!1;const I=m(`shared_process:response:${e}`,s=>{const t=s;if(t.correlationId&&r.has(t.correlationId)){const o=r.get(t.correlationId);t.success?o.resolve(t.data):o.reject(new Error(t.error??"Unknown error")),r.delete(t.correlationId)}}),x=m(`shared_process:event:${e}`,s=>{const t=s;f(t.event,...t.args)});function f(s,...t){const o=n.get(s);o&&o.forEach(c=>{try{c(...t)}catch{}})}function _(){return`${e}_${Date.now()}_${Math.random().toString(36).substring(7)}`}return{service:e,get ready(){return a},set ready(s){a=s},async healthCheck(){try{return e==="extension-host"?await i("cocoon_extension_host_health",{}):e==="search"?await i("cocoon_search_service_health",{}):e==="debug"?await i("cocoon_debug_service_health",{}):await i("shared_process_service_health",{service:e})}catch{return!1}},async invoke(s,...t){const o=_(),c={service:e,method:s,args:t,correlationId:o};return new Promise((y,P)=>{r.set(o,{resolve:y,reject:P}),i("shared_process:invoke",c).catch(b=>{r.delete(o),P(b)})})},on(s,t){n.has(s)||n.set(s,new Set),n.get(s).add(t)},once(s,t){const o=(...c)=>{t(...c),this.removeListener(s,o)};this.on(s,o)},removeListener(s,t){const o=n.get(s);o&&(o.delete(t),o.size===0&&n.delete(s))},removeAllListeners(s){s?n.delete(s):n.clear()}}}const d=Object.assign(l("extension-host"),{async start(e){return await this.invoke("start",e)},async stop(e){return await this.invoke("stop",e)},async restart(e){return await this.invoke("restart",e)},async callExtensionAPI(e,n,...r){return await this.invoke("callAPI",e,n,...r)},async getStatus(){return await this.invoke("getStatus")}}),u=Object.assign(l("search"),{async search(e,n){return await this.invoke("search",e,n)},async getIndexStatus(){return await this.invoke("getIndexStatus")},async clearIndex(){return await this.invoke("clearIndex")}}),h=Object.assign(l("debug"),{async startSession(e){return await this.invoke("startSession",e)},async stopSession(e){return await this.invoke("stopSession",e)},async sendCommand(e,n,...r){return await this.invoke("sendCommand",e,n,...r)},async getActiveSessions(){return await this.invoke("getActiveSessions")}}),v=Object.assign(l("storage"),{async getItem(e){return await i("storage:get_item",{key:e})},async setItem(e,n){return await i("storage:set_item",{key:e,value:n})},async removeItem(e){return await i("storage:remove_item",{key:e})},async getAllItems(){return await i("storage:get_all_items",{})},async clear(){return await i("storage:clear",{})}}),g=Object.assign(l("update"),{async checkForUpdates(){return await i("update:check",{})},async downloadUpdate(){return await i("update:download",{})},async installUpdate(){return await i("update:install",{})},async getStatus(){return await i("update:get_status",{})}});class S{services=new Map;healthCheckInterval=null;constructor(){this.registerService(d),this.registerService(u),this.registerService(h),this.registerService(v),this.registerService(g)}registerService(n){this.services.set(n.service,n)}getService(n){return this.services.get(n)}getAllServices(){return new Map(this.services)}startHealthChecks(n=3e4){this.healthCheckInterval===null&&(this.healthCheckInterval=window.setInterval(async()=>{for(const[,r]of this.services.entries())try{r.ready=await r.healthCheck()}catch{r.ready=!1}},n))}stopHealthChecks(){this.healthCheckInterval!==null&&(clearInterval(this.healthCheckInterval),this.healthCheckInterval=null)}async initialize(){for(const[n,r]of this.services.entries())try{const a=await r.healthCheck();r.ready=a}catch{r.ready=!1}this.startHealthChecks()}async shutdown(){this.stopHealthChecks();for(const n of this.services.values())n.removeAllListeners()}}let w=null;function k(){return w||(w=new S),w}async function p(){if(typeof window>"u"||window.__SHARED_PROCESS_PROXY_INSTALLED__)return;window.__SHARED_PROCESS_PROXY_INSTALLED__=!0;const e=k();await e.initialize(),typeof window.vscode<"u"&&(window.vscode.sharedProcess={manager:e,ExtensionHostService:d,SearchService:u,DebugService:h,StorageService:v,UpdateService:g}),window.__SHARED_PROCESS__={manager:e,ExtensionHostService:d,SearchService:u,DebugService:h,StorageService:v,UpdateService:g}}var A={install:p,getManager:k,ExtensionHostService:d,SearchService:u,DebugService:h,StorageService:v,UpdateService:g,SharedProcessManager:S};typeof window<"u"&&p().catch(e=>{});export{h as DebugService,d as ExtensionHostService,u as SearchService,v as StorageService,g as UpdateService,A as default,k as getSharedProcessManager,p as installSharedProcessProxy};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+async function invokeTauri(command, args = {}) {
+  try {
+    const Invoke = window.__TAURI__?.core?.invoke ?? window.__TAURI__?.invoke ?? window.TAURI?.invoke;
+    if (typeof Invoke === "function") {
+      if (command.includes(":")) {
+        return await Invoke("MountainIPCInvoke", {
+          method: command,
+          params: args
+        });
+      }
+      return await Invoke(command, args);
+    }
+    throw new Error(`Tauri invoke not available for command: ${command}`);
+  } catch (error) {
+    throw error;
+  }
+}
+__name(invokeTauri, "invokeTauri");
+function listenToTauri(event, handler) {
+  if (typeof window.__TAURI__?.event?.listen === "function") {
+    const unlistenPromise = window.__TAURI__.event.listen(event, ({ payload }) => {
+      handler(payload);
+    }).catch(() => {
+    });
+    return () => {
+      unlistenPromise.then(
+        (unlisten) => unlisten?.()
+      );
+    };
+  }
+  if (typeof window.TAURI?.event?.listen === "function") {
+    const unlistenPromise = window.TAURI.event.listen(event, ({ payload }) => {
+      handler(payload);
+    }).catch(() => {
+    });
+    return () => {
+      unlistenPromise.then(
+        (unlisten) => unlisten?.()
+      );
+    };
+  }
+  return () => {
+  };
+}
+__name(listenToTauri, "listenToTauri");
+function createServiceProxy(service) {
+  const listeners = /* @__PURE__ */ new Map();
+  const pendingRequests = /* @__PURE__ */ new Map();
+  let isReady = false;
+  const unlistenResponse = listenToTauri(
+    `shared_process:response:${service}`,
+    (payload) => {
+      const response = payload;
+      if (response.correlationId && pendingRequests.has(response.correlationId)) {
+        const pending = pendingRequests.get(response.correlationId);
+        if (response.success) {
+          pending.resolve(response.data);
+        } else {
+          pending.reject(
+            new Error(response.error ?? "Unknown error")
+          );
+        }
+        pendingRequests.delete(response.correlationId);
+      }
+    }
+  );
+  const unlistenEvent = listenToTauri(
+    `shared_process:event:${service}`,
+    (payload) => {
+      const event = payload;
+      emitEvent(event.event, ...event.args);
+    }
+  );
+  function emitEvent(event, ...args) {
+    const eventListeners = listeners.get(event);
+    if (eventListeners) {
+      eventListeners.forEach((listener) => {
+        try {
+          listener(...args);
+        } catch (error) {
+        }
+      });
+    }
+  }
+  __name(emitEvent, "emitEvent");
+  function generateCorrelationId() {
+    return `${service}_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+  }
+  __name(generateCorrelationId, "generateCorrelationId");
+  return {
+    service,
+    get ready() {
+      return isReady;
+    },
+    set ready(value) {
+      isReady = value;
+    },
+    /**
+     * Health check for the service
+     */
+    async healthCheck() {
+      try {
+        if (service === "extension-host") {
+          return await invokeTauri(
+            "cocoon_extension_host_health",
+            {}
+          );
+        } else if (service === "search") {
+          return await invokeTauri(
+            "cocoon_search_service_health",
+            {}
+          );
+        } else if (service === "debug") {
+          return await invokeTauri(
+            "cocoon_debug_service_health",
+            {}
+          );
+        } else {
+          return await invokeTauri(
+            "shared_process_service_health",
+            { service }
+          );
+        }
+      } catch {
+        return false;
+      }
+    },
+    /**
+     * Invoke a method on the service
+     */
+    async invoke(method, ...args) {
+      const correlationId = generateCorrelationId();
+      const request = {
+        service,
+        method,
+        args,
+        correlationId
+      };
+      return new Promise((resolve, reject) => {
+        pendingRequests.set(correlationId, { resolve, reject });
+        invokeTauri("shared_process:invoke", request).catch((error) => {
+          pendingRequests.delete(correlationId);
+          reject(error);
+        });
+      });
+    },
+    /**
+     * Register event listener
+     */
+    on(event, handler) {
+      if (!listeners.has(event)) {
+        listeners.set(event, /* @__PURE__ */ new Set());
+      }
+      listeners.get(event).add(handler);
+    },
+    /**
+     * Register one-time event listener
+     */
+    once(event, handler) {
+      const wrappedHandler = /* @__PURE__ */ __name((...args) => {
+        handler(...args);
+        this.removeListener(event, wrappedHandler);
+      }, "wrappedHandler");
+      this.on(event, wrappedHandler);
+    },
+    /**
+     * Remove event listener
+     */
+    removeListener(event, handler) {
+      const eventListeners = listeners.get(event);
+      if (eventListeners) {
+        eventListeners.delete(handler);
+        if (eventListeners.size === 0) {
+          listeners.delete(event);
+        }
+      }
+    },
+    /**
+     * Remove all event listeners
+     */
+    removeAllListeners(event) {
+      if (event) {
+        listeners.delete(event);
+      } else {
+        listeners.clear();
+      }
+    }
+  };
+}
+__name(createServiceProxy, "createServiceProxy");
+const ExtensionHostService = Object.assign(
+  createServiceProxy("extension-host"),
+  {
+    /**
+     * Start extension host
+     */
+    async start(extensionId) {
+      return await this.invoke(
+        "start",
+        extensionId
+      );
+    },
+    /**
+     * Stop extension host
+     */
+    async stop(extensionId) {
+      return await this.invoke("stop", extensionId);
+    },
+    /**
+     * Restart extension host
+     */
+    async restart(extensionId) {
+      return await this.invoke(
+        "restart",
+        extensionId
+      );
+    },
+    /**
+     * Call extension API
+     */
+    async callExtensionAPI(extensionId, method, ...args) {
+      return await this.invoke("callAPI", extensionId, method, ...args);
+    },
+    /**
+     * Get extension host status
+     */
+    async getStatus() {
+      return await this.invoke("getStatus");
+    }
+  }
+);
+const SearchService = Object.assign(
+  createServiceProxy("search"),
+  {
+    /**
+     * Perform search
+     */
+    async search(query, options) {
+      return await this.invoke("search", query, options);
+    },
+    /**
+     * Get search index status
+     */
+    async getIndexStatus() {
+      return await this.invoke("getIndexStatus");
+    },
+    /**
+     * Clear search index
+     */
+    async clearIndex() {
+      return await this.invoke("clearIndex");
+    }
+  }
+);
+const DebugService = Object.assign(
+  createServiceProxy("debug"),
+  {
+    /**
+     * Start debug session
+     */
+    async startSession(configuration) {
+      return await this.invoke(
+        "startSession",
+        configuration
+      );
+    },
+    /**
+     * Stop debug session
+     */
+    async stopSession(sessionId) {
+      return await this.invoke(
+        "stopSession",
+        sessionId
+      );
+    },
+    /**
+     * Send debug command
+     */
+    async sendCommand(sessionId, command, ...args) {
+      return await this.invoke(
+        "sendCommand",
+        sessionId,
+        command,
+        ...args
+      );
+    },
+    /**
+     * Get active debug sessions
+     */
+    async getActiveSessions() {
+      return await this.invoke("getActiveSessions");
+    }
+  }
+);
+const StorageService = Object.assign(
+  createServiceProxy("storage"),
+  {
+    /**
+     * Get item from storage
+     */
+    async getItem(key) {
+      return await invokeTauri("storage:get_item", {
+        key
+      });
+    },
+    /**
+     * Set item in storage
+     */
+    async setItem(key, value) {
+      return await invokeTauri("storage:set_item", {
+        key,
+        value
+      });
+    },
+    /**
+     * Remove item from storage
+     */
+    async removeItem(key) {
+      return await invokeTauri("storage:remove_item", { key });
+    },
+    /**
+     * Get all items in storage
+     */
+    async getAllItems() {
+      return await invokeTauri(
+        "storage:get_all_items",
+        {}
+      );
+    },
+    /**
+     * Clear all storage
+     */
+    async clear() {
+      return await invokeTauri("storage:clear", {});
+    }
+  }
+);
+const UpdateService = Object.assign(
+  createServiceProxy("update"),
+  {
+    /**
+     * Check for updates
+     */
+    async checkForUpdates() {
+      return await invokeTauri(
+        "update:check",
+        {}
+      );
+    },
+    /**
+     * Download update
+     */
+    async downloadUpdate() {
+      return await invokeTauri("update:download", {});
+    },
+    /**
+     * Install update
+     */
+    async installUpdate() {
+      return await invokeTauri("update:install", {});
+    },
+    /**
+     * Get update status
+     */
+    async getStatus() {
+      return await invokeTauri(
+        "update:get_status",
+        {}
+      );
+    }
+  }
+);
+class SharedProcessManager {
+  static {
+    __name(this, "SharedProcessManager");
+  }
+  // Service proxies
+  services = /* @__PURE__ */ new Map();
+  // Health check interval
+  healthCheckInterval = null;
+  constructor() {
+    this.registerService(ExtensionHostService);
+    this.registerService(SearchService);
+    this.registerService(DebugService);
+    this.registerService(StorageService);
+    this.registerService(UpdateService);
+  }
+  /**
+   * Register a service proxy
+   */
+  registerService(proxy) {
+    this.services.set(proxy.service, proxy);
+  }
+  /**
+   * Get service proxy
+   */
+  getService(service) {
+    return this.services.get(service);
+  }
+  /**
+   * Get all services
+   */
+  getAllServices() {
+    return new Map(this.services);
+  }
+  /**
+   * Start health checks
+   */
+  startHealthChecks(intervalMs = 3e4) {
+    if (this.healthCheckInterval !== null) {
+      return;
+    }
+    this.healthCheckInterval = window.setInterval(async () => {
+      for (const [, proxy] of this.services.entries()) {
+        try {
+          proxy.ready = await proxy.healthCheck();
+        } catch {
+          proxy.ready = false;
+        }
+      }
+    }, intervalMs);
+  }
+  /**
+   * Stop health checks
+   */
+  stopHealthChecks() {
+    if (this.healthCheckInterval !== null) {
+      clearInterval(this.healthCheckInterval);
+      this.healthCheckInterval = null;
+    }
+  }
+  /**
+   * Initialize all services
+   */
+  async initialize() {
+    for (const [serviceName, proxy] of this.services.entries()) {
+      try {
+        const isHealthy = await proxy.healthCheck();
+        proxy.ready = isHealthy;
+      } catch (error) {
+        proxy.ready = false;
+      }
+    }
+    this.startHealthChecks();
+  }
+  /**
+   * Shutdown all services
+   */
+  async shutdown() {
+    this.stopHealthChecks();
+    for (const proxy of this.services.values()) {
+      proxy.removeAllListeners();
+    }
+  }
+}
+let sharedProcessManager = null;
+function getSharedProcessManager() {
+  if (!sharedProcessManager) {
+    sharedProcessManager = new SharedProcessManager();
+  }
+  return sharedProcessManager;
+}
+__name(getSharedProcessManager, "getSharedProcessManager");
+async function installSharedProcessProxy() {
+  if (typeof window === "undefined") {
+    return;
+  }
+  if (window.__SHARED_PROCESS_PROXY_INSTALLED__) {
+    return;
+  }
+  window.__SHARED_PROCESS_PROXY_INSTALLED__ = true;
+  const manager = getSharedProcessManager();
+  await manager.initialize();
+  if (typeof window.vscode !== "undefined") {
+    window.vscode.sharedProcess = {
+      manager,
+      ExtensionHostService,
+      SearchService,
+      DebugService,
+      StorageService,
+      UpdateService
+    };
+  }
+  window.__SHARED_PROCESS__ = {
+    manager,
+    ExtensionHostService,
+    SearchService,
+    DebugService,
+    StorageService,
+    UpdateService
+  };
+}
+__name(installSharedProcessProxy, "installSharedProcessProxy");
+var SharedProcessProxy_default = {
+  install: installSharedProcessProxy,
+  getManager: getSharedProcessManager,
+  // Service exports
+  ExtensionHostService,
+  SearchService,
+  DebugService,
+  StorageService,
+  UpdateService,
+  // Types
+  SharedProcessManager
+};
+if (typeof window !== "undefined") {
+  installSharedProcessProxy().catch((error) => {
+  });
+}
+export {
+  DebugService,
+  ExtensionHostService,
+  SearchService,
+  StorageService,
+  UpdateService,
+  SharedProcessProxy_default as default,
+  getSharedProcessManager,
+  installSharedProcessProxy
+};
+//# sourceMappingURL=SharedProcessProxy.js.map

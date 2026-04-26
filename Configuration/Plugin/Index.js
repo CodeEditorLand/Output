@@ -12,37 +12,38 @@ import { default as default9 } from "./Transform/ExtensionScannerIPC.js";
 import { default as default10 } from "./Transform/CatchOutputFolderRejection.js";
 import { default as default11 } from "./Transform/StripWebviewIframeSandbox.js";
 import { default as default12 } from "./Transform/ExposeWorkbenchAccessor.js";
-import { default as default13 } from "./Transform/DisableUnusedServices.js";
+import { default as default13 } from "./Transform/InstrumentVscodeGit.js";
+import { default as default14 } from "./Transform/DisableUnusedServices.js";
 import {
   CopyVSOutput,
-  default as default14
+  default as default15
 } from "./Copy/CopyVSOutput.js";
 import {
   CopyVSRootFiles,
-  default as default15
+  default as default16
 } from "./Copy/CopyVSRootFiles.js";
 import {
   SupplementFromDependency,
-  default as default16
+  default as default17
 } from "./Copy/SupplementFromDependency.js";
 import {
   CopyWorker,
-  default as default17
+  default as default18
 } from "./Copy/CopyWorker.js";
 import {
   CopyNodeModules,
   DefaultPackages,
-  default as default18
+  default as default19
 } from "./Copy/CopyNodeModules.js";
 import {
   StubUnpublishedAddons,
   DefaultStubs,
   StubDataPrefix,
-  default as default19
+  default as default20
 } from "./Copy/StubUnpublishedAddons.js";
 import {
   CopyTauriMainProcessService,
-  default as default20
+  default as default21
 } from "./Copy/CopyTauriMainProcessService.js";
 import StripCSSImport from "./Transform/StripCSSImport.js";
 import InjectNameShim from "./Transform/InjectNameShim.js";
@@ -55,6 +56,7 @@ import CatchOutputFolderRejection from "./Transform/CatchOutputFolderRejection.j
 import StripWebviewIframeSandbox from "./Transform/StripWebviewIframeSandbox.js";
 import ExposeWorkbenchAccessor from "./Transform/ExposeWorkbenchAccessor.js";
 import DisableUnusedServices from "./Transform/DisableUnusedServices.js";
+import InstrumentVscodeGit from "./Transform/InstrumentVscodeGit.js";
 import {
   CopyVSOutput as CopyVSOutputFactory
 } from "./Copy/CopyVSOutput.js";
@@ -102,6 +104,15 @@ const BuildPipeline = /* @__PURE__ */ __name((Input) => [
   // surfaces as `attach-give-up (no workbench tree descriptor)` on
   // the renderer and the entire Sky→workbench integration is dead.
   ExposeWorkbenchAccessor,
+  // Instrument the bundled vscode.git extension's `out/main.js` +
+  // `out/model.js` with `process.stdout.write('[GIT-MARK-X] ...')`
+  // markers at strategic activation-pipeline points. Bypasses the
+  // outputChannel routing entirely so progress is visible even when
+  // the channel-name dev_log filter is muted. Drives the F6
+  // diagnostic - whichever marker is the LAST visible one identifies
+  // the exact bail point in vscode.git's silent activation. Self-
+  // idempotent (skips the inject if marker already present).
+  InstrumentVscodeGit,
   // Replace upstream contribution barrels for features Land
   // intentionally does not back (auto-update, issue reporter, MS
   // account / settings sync, welcome walkthrough, process explorer,
@@ -116,21 +127,22 @@ export {
   BuildPipeline,
   default10 as CatchOutputFolderRejection,
   CopyNodeModules,
-  default18 as CopyNodeModulesDefault,
+  default19 as CopyNodeModulesDefault,
   CopyTauriMainProcessService,
-  default20 as CopyTauriMainProcessServiceDefault,
+  default21 as CopyTauriMainProcessServiceDefault,
   CopyVSOutput,
-  default14 as CopyVSOutputDefault,
+  default15 as CopyVSOutputDefault,
   CopyVSRootFiles,
-  default15 as CopyVSRootFilesDefault,
+  default16 as CopyVSRootFilesDefault,
   CopyWorker,
-  default17 as CopyWorkerDefault,
+  default18 as CopyWorkerDefault,
   DefaultPackages as DefaultNodeModulePackages,
   DefaultStubs,
-  default13 as DisableUnusedServices,
+  default14 as DisableUnusedServices,
   default12 as ExposeWorkbenchAccessor,
   default9 as ExtensionScannerIPC,
   default4 as InjectNameShim,
+  default13 as InstrumentVscodeGit,
   default5 as ReplaceElectronIPCService,
   default6 as ReplaceSharedProcess,
   default7 as StaticToDynamicImport,
@@ -139,9 +151,9 @@ export {
   default11 as StripWebviewIframeSandbox,
   StubDataPrefix,
   StubUnpublishedAddons,
-  default19 as StubUnpublishedAddonsDefault,
+  default20 as StubUnpublishedAddonsDefault,
   SupplementFromDependency,
-  default16 as SupplementFromDependencyDefault,
+  default17 as SupplementFromDependencyDefault,
   Index_default as default
 };
 //# sourceMappingURL=Index.js.map

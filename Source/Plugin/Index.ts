@@ -108,6 +108,7 @@ import CatchOutputFolderRejection from "./Transform/CatchOutputFolderRejection.j
 import StripWebviewIframeSandbox from "./Transform/StripWebviewIframeSandbox.js";
 import ExposeWorkbenchAccessor from "./Transform/ExposeWorkbenchAccessor.js";
 import DisableUnusedServices from "./Transform/DisableUnusedServices.js";
+import InstrumentVscodeGit from "./Transform/InstrumentVscodeGit.js";
 
 import {
 	CopyVSOutput as CopyVSOutputFactory,
@@ -178,6 +179,15 @@ export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => [
 	// surfaces as `attach-give-up (no workbench tree descriptor)` on
 	// the renderer and the entire Sky→workbench integration is dead.
 	ExposeWorkbenchAccessor,
+	// Instrument the bundled vscode.git extension's `out/main.js` +
+	// `out/model.js` with `process.stdout.write('[GIT-MARK-X] ...')`
+	// markers at strategic activation-pipeline points. Bypasses the
+	// outputChannel routing entirely so progress is visible even when
+	// the channel-name dev_log filter is muted. Drives the F6
+	// diagnostic - whichever marker is the LAST visible one identifies
+	// the exact bail point in vscode.git's silent activation. Self-
+	// idempotent (skips the inject if marker already present).
+	InstrumentVscodeGit,
 	// Replace upstream contribution barrels for features Land
 	// intentionally does not back (auto-update, issue reporter, MS
 	// account / settings sync, welcome walkthrough, process explorer,

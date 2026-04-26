@@ -62,12 +62,39 @@ const SharedImportLines =
 	"// instances - the workbench's SearchService dedups results by\n" +
 	"// `getComparisonKey(uri)` which calls `uri.with(...)`. Returning\n" +
 	"// raw `URIComponents` POJOs throws `uri.with is not a function`.\n" +
-	"import { URI as __CEL_URI } from '../../base/common/uri.js';";
+	"import { URI as __CEL_URI } from '../../base/common/uri.js';\n" +
+	"// [Land] SCM, Debug, CustomEditor service decorators - exposed so\n" +
+	"// SkyBridge can register in-process providers that mirror the\n" +
+	"// extension-host registrations Cocoon emits via `sky://scm/*`,\n" +
+	"// `sky://debug/*`, `sky://customEditor/*` events. Without this,\n" +
+	"// the workbench's MainThread* class never sees the extension\n" +
+	"// registration and the corresponding viewlet (SCM panel, debug\n" +
+	"// configurations dropdown, custom editor type) stays empty.\n" +
+	"import { ISCMService as __CEL_ISCMService } from '../contrib/scm/common/scm.js';\n" +
+	"import { IDebugService as __CEL_IDebugService } from '../contrib/debug/common/debug.js';\n" +
+	"import { ICustomEditorService as __CEL_ICustomEditorService } from '../contrib/customEditor/common/customEditor.js';\n" +
+	"import { Emitter as __CEL_Emitter } from '../../base/common/event.js';\n" +
+	"import { Disposable as __CEL_Disposable, toDisposable as __CEL_toDisposable } from '../../base/common/lifecycle.js';\n" +
+	"// [Land] IModelService + ILanguageService - needed by the SkyBridge\n" +
+	"// SCM provider shim's `inputBoxTextModel`. Workbench's\n" +
+	"// MainThreadSCMProvider requires a real `ITextModel` (constructed\n" +
+	"// here via `modelService.createModel('', langSelection, uri)`).\n" +
+	"// Without these, the shim's `inputBoxTextModel: null` makes\n" +
+	"// `__CEL_SERVICES__.SCM.registerSCMProvider(...)` throw and the\n" +
+	"// bridge silently falls back to CustomEvent dispatch.\n" +
+	"import { IModelService as __CEL_IModelService } from '../../editor/common/services/model.js';\n" +
+	"import { ILanguageService as __CEL_ILanguageService } from '../../editor/common/languages/language.js';\n" +
+	"// [Land] ResourceTree class - needed by the SkyBridge SCM provider\n" +
+	"// shim's `group.resourceTree` getter. Workbench's SCM repository\n" +
+	"// pane reads this to render hierarchical group children. Without\n" +
+	"// a real instance the panel crashes on grouped-tree mode; a fresh\n" +
+	"// empty ResourceTree per group renders cleanly.\n" +
+	"import { ResourceTree as __CEL_ResourceTree } from '../../base/common/resourceTree.js';\n" +
+	"import { IUriIdentityService as __CEL_IUriIdentityService } from '../../platform/uriIdentity/common/uriIdentity.js';";
 
 const WebMainImportMarker =
 	"import { mark } from '../../base/common/performance.js';";
-const WebMainImportReplacement =
-	WebMainImportMarker + "\n" + SharedImportLines;
+const WebMainImportReplacement = WebMainImportMarker + "\n" + SharedImportLines;
 
 // `desktop.main.js`'s first import line. Stable across upstream releases.
 const DesktopMainImportMarker = "import { localize } from '../../nls.js';";
@@ -106,6 +133,36 @@ const WebMainReplacement =
 	"        return Desc && Desc.treeView ? Desc.treeView : null;\n" +
 	"      } catch (E) { return null; }\n" +
 	"    },\n" +
+	"    // SCM/Debug/CustomEditor service handles. Each may be `null`\n" +
+	"    // if the contrib failed to load (e.g. headless web profile).\n" +
+	"    // SkyBridge null-checks before each call so missing services\n" +
+	"    // degrade silently instead of crashing the bridge.\n" +
+	"    SCM: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_ISCMService); }); } catch (E) { return null; } })(),\n" +
+	"    Debug: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IDebugService); }); } catch (E) { return null; } })(),\n" +
+	"    CustomEditor: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_ICustomEditorService); }); } catch (E) { return null; } })(),\n" +
+	"    // `Emitter` + `Disposable`/`toDisposable` are needed by the\n" +
+	"    // SCM provider shim in SkyBridge - the workbench's ISCMService\n" +
+	"    // expects providers to expose `onDidChange*: Event<T>` whose\n" +
+	"    // shape matches `vs/base/common/event.js::Emitter`'s `event`\n" +
+	"    // property. Re-creating those classes outside the bundled\n" +
+	"    // module would not interop because instanceof checks fail.\n" +
+	"    Emitter: __CEL_Emitter,\n" +
+	"    Disposable: __CEL_Disposable,\n" +
+	"    ToDisposable: __CEL_toDisposable,\n" +
+	"    // Model + language services - the SCM provider shim uses these\n" +
+	"    // to build a real `ITextModel` for the inputBox before calling\n" +
+	"    // `SCM.registerSCMProvider`. `Languages` may be `null` if the\n" +
+	"    // language registry hasn't booted; SkyBridge falls back to\n" +
+	"    // plaintext (`null` languageSelection) in that case.\n" +
+	"    Models: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IModelService); }); } catch (E) { return null; } })(),\n" +
+	"    Languages: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_ILanguageService); }); } catch (E) { return null; } })(),\n" +
+	"    // ResourceTree class + UriIdentity for the SCM shim's group\n" +
+	"    // resourceTree getter. ResourceTree's constructor signature is\n" +
+	"    // `new ResourceTree(context, rootUri, extUri)` where extUri is\n" +
+	"    // `IUriIdentityService.extUri`. We expose both so SkyBridge\n" +
+	"    // can construct an instance without re-resolving the service.\n" +
+	"    ResourceTree: __CEL_ResourceTree,\n" +
+	"    UriIdentity: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IUriIdentityService); }); } catch (E) { return null; } })(),\n" +
 	"  };\n" +
 	"  try { window.dispatchEvent(new Event('cel:services-ready')); } catch {}\n" +
 	"  try {\n" +
@@ -150,10 +207,7 @@ const Plugin: TransformPlugin = {
 		// `const instantiationService = workbench.startup();` line - the
 		// only difference is the first-import marker the static-imports
 		// piggyback on. The replacement body is identical across both.
-		if (
-			/web\.main\.js$/.test(Path) ||
-			/desktop\.main\.js$/.test(Path)
-		) {
+		if (/web\.main\.js$/.test(Path) || /desktop\.main\.js$/.test(Path)) {
 			if (!Source.includes(WebMainMarker)) return { Kind: "Unchanged" };
 			const ImportMarker = /desktop\.main\.js$/.test(Path)
 				? DesktopMainImportMarker
@@ -169,8 +223,12 @@ const Plugin: TransformPlugin = {
 				: { Kind: "Rewrite", Source: Next };
 		}
 		if (/web\.factory\.js$/.test(Path)) {
-			if (!Source.includes(WebFactoryMarker)) return { Kind: "Unchanged" };
-			const Next = Source.replace(WebFactoryMarker, WebFactoryReplacement);
+			if (!Source.includes(WebFactoryMarker))
+				return { Kind: "Unchanged" };
+			const Next = Source.replace(
+				WebFactoryMarker,
+				WebFactoryReplacement,
+			);
 			return Next === Source
 				? { Kind: "Unchanged" }
 				: { Kind: "Rewrite", Source: Next };

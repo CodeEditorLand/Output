@@ -90,7 +90,16 @@ const SharedImportLines =
 	"// a real instance the panel crashes on grouped-tree mode; a fresh\n" +
 	"// empty ResourceTree per group renders cleanly.\n" +
 	"import { ResourceTree as __CEL_ResourceTree } from '../../base/common/resourceTree.js';\n" +
-	"import { IUriIdentityService as __CEL_IUriIdentityService } from '../../platform/uriIdentity/common/uriIdentity.js';";
+	"import { IUriIdentityService as __CEL_IUriIdentityService } from '../../platform/uriIdentity/common/uriIdentity.js';\n" +
+	"// [Land] IWebviewViewService - the workbench's resolver registry\n" +
+	"// for sidebar/panel webview content. Exposing this lets\n" +
+	"// `SkyBridge.ts:Register('sky://webview/registerView', ...)`\n" +
+	"// register a resolver per Cocoon-registered view; when the user\n" +
+	"// reveals an extension's sidebar panel the workbench invokes\n" +
+	"// the resolver, the resolver fires `webview.resolveView`\n" +
+	"// reverse-RPC into Cocoon, and the extension's\n" +
+	"// `resolveWebviewView(view, ctx)` callback paints the panel.\n" +
+	"import { IWebviewViewService as __CEL_IWebviewViewService } from '../contrib/webviewView/browser/webviewViewService.js';";
 
 const WebMainImportMarker =
 	"import { mark } from '../../base/common/performance.js';";
@@ -163,6 +172,11 @@ const WebMainReplacement =
 	"    // can construct an instance without re-resolving the service.\n" +
 	"    ResourceTree: __CEL_ResourceTree,\n" +
 	"    UriIdentity: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IUriIdentityService); }); } catch (E) { return null; } })(),\n" +
+	"    // WebviewViews resolver registry - SkyBridge's\n" +
+	"    // `sky://webview/registerView` listener calls\n" +
+	"    // `WebviewViews.register(viewType, resolver)` so the workbench\n" +
+	"    // knows how to populate the panel when the user reveals it.\n" +
+	"    WebviewViews: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IWebviewViewService); }); } catch (E) { return null; } })(),\n" +
 	"  };\n" +
 	"  try { window.dispatchEvent(new Event('cel:services-ready')); } catch {}\n" +
 	"  try {\n" +

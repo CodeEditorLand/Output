@@ -57,6 +57,7 @@ export { default as ExposeWorkbenchAccessor } from "./Transform/ExposeWorkbenchA
 export { default as InstrumentVscodeGit } from "./Transform/InstrumentVscodeGit.js";
 export { default as DisableUnusedServices } from "./Transform/DisableUnusedServices.js";
 export { default as ReplaceSearchService } from "./Transform/ReplaceSearchService.js";
+export { default as PatchLocalTerminalBackend } from "./Transform/PatchLocalTerminalBackend.js";
 
 export {
 	CopyVSOutput,
@@ -112,6 +113,7 @@ import ExposeWorkbenchAccessor from "./Transform/ExposeWorkbenchAccessor.js";
 import DisableUnusedServices from "./Transform/DisableUnusedServices.js";
 import InstrumentVscodeGit from "./Transform/InstrumentVscodeGit.js";
 import ReplaceSearchService from "./Transform/ReplaceSearchService.js";
+import PatchLocalTerminalBackend from "./Transform/PatchLocalTerminalBackend.js";
 
 import {
 	CopyVSOutput as CopyVSOutputFactory,
@@ -208,6 +210,18 @@ export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => [
 	// honour `.gitignore` so `Target/` / `node_modules/` appear in
 	// results.
 	ReplaceSearchService,
+	// Patch `LocalTerminalBackend._connectToDirectProxy` so it stops
+	// calling `acquirePort('vscode:createPtyHostMessageChannel', ...)`,
+	// which never resolves under Tauri (no Electron utility-process
+	// MessagePort). Without this, every `createTerminal` /
+	// `attachToProcess` / `listProcesses` call hangs forever because
+	// `_connectToDirectProxy()` never resolves; the user clicks
+	// "open terminal" and the panel sits empty with no PTY ever
+	// spawning. The patched body routes everything through the
+	// already-functional `_localPtyService` channel proxy
+	// (`mainProcessService.getChannel('localPty')` →
+	// Mountain's `localPty:*` handlers).
+	PatchLocalTerminalBackend,
 ];
 
 export default BuildPipeline;

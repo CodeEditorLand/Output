@@ -56,6 +56,7 @@ export { default as StripWebviewIframeSandbox } from "./Transform/StripWebviewIf
 export { default as ExposeWorkbenchAccessor } from "./Transform/ExposeWorkbenchAccessor.js";
 export { default as InstrumentVscodeGit } from "./Transform/InstrumentVscodeGit.js";
 export { default as DisableUnusedServices } from "./Transform/DisableUnusedServices.js";
+export { default as ReplaceSearchService } from "./Transform/ReplaceSearchService.js";
 
 export {
 	CopyVSOutput,
@@ -110,6 +111,7 @@ import StripWebviewIframeSandbox from "./Transform/StripWebviewIframeSandbox.js"
 import ExposeWorkbenchAccessor from "./Transform/ExposeWorkbenchAccessor.js";
 import DisableUnusedServices from "./Transform/DisableUnusedServices.js";
 import InstrumentVscodeGit from "./Transform/InstrumentVscodeGit.js";
+import ReplaceSearchService from "./Transform/ReplaceSearchService.js";
 
 import {
 	CopyVSOutput as CopyVSOutputFactory,
@@ -196,6 +198,16 @@ export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => [
 	// silences the "service not registered" warnings, and shortens
 	// boot. List lives in the transform itself.
 	DisableUnusedServices,
+	// Replace `RemoteSearchService`'s web-worker-backed file/text
+	// search provider with a Tauri-IPC client that delegates to
+	// Mountain's `search:findFiles` / `search:findInFiles` (Rust
+	// `ignore::WalkBuilder` + `grep-searcher`, `.gitignore`-aware by
+	// default). Without this, the workbench search panel shows files
+	// in the explorer pane but the match counter stays at 0 because
+	// no text-search backend ever runs, AND the file walker doesn't
+	// honour `.gitignore` so `Target/` / `node_modules/` appear in
+	// results.
+	ReplaceSearchService,
 ];
 
 export default BuildPipeline;

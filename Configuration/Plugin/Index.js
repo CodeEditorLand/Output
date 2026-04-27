@@ -14,36 +14,37 @@ import { default as default11 } from "./Transform/StripWebviewIframeSandbox.js";
 import { default as default12 } from "./Transform/ExposeWorkbenchAccessor.js";
 import { default as default13 } from "./Transform/InstrumentVscodeGit.js";
 import { default as default14 } from "./Transform/DisableUnusedServices.js";
+import { default as default15 } from "./Transform/ReplaceSearchService.js";
 import {
   CopyVSOutput,
-  default as default15
+  default as default16
 } from "./Copy/CopyVSOutput.js";
 import {
   CopyVSRootFiles,
-  default as default16
+  default as default17
 } from "./Copy/CopyVSRootFiles.js";
 import {
   SupplementFromDependency,
-  default as default17
+  default as default18
 } from "./Copy/SupplementFromDependency.js";
 import {
   CopyWorker,
-  default as default18
+  default as default19
 } from "./Copy/CopyWorker.js";
 import {
   CopyNodeModules,
   DefaultPackages,
-  default as default19
+  default as default20
 } from "./Copy/CopyNodeModules.js";
 import {
   StubUnpublishedAddons,
   DefaultStubs,
   StubDataPrefix,
-  default as default20
+  default as default21
 } from "./Copy/StubUnpublishedAddons.js";
 import {
   CopyTauriMainProcessService,
-  default as default21
+  default as default22
 } from "./Copy/CopyTauriMainProcessService.js";
 import StripCSSImport from "./Transform/StripCSSImport.js";
 import InjectNameShim from "./Transform/InjectNameShim.js";
@@ -57,6 +58,7 @@ import StripWebviewIframeSandbox from "./Transform/StripWebviewIframeSandbox.js"
 import ExposeWorkbenchAccessor from "./Transform/ExposeWorkbenchAccessor.js";
 import DisableUnusedServices from "./Transform/DisableUnusedServices.js";
 import InstrumentVscodeGit from "./Transform/InstrumentVscodeGit.js";
+import ReplaceSearchService from "./Transform/ReplaceSearchService.js";
 import {
   CopyVSOutput as CopyVSOutputFactory
 } from "./Copy/CopyVSOutput.js";
@@ -119,7 +121,17 @@ const BuildPipeline = /* @__PURE__ */ __name((Input) => [
   // experiments) with an empty default export. Removes broken UI,
   // silences the "service not registered" warnings, and shortens
   // boot. List lives in the transform itself.
-  DisableUnusedServices
+  DisableUnusedServices,
+  // Replace `RemoteSearchService`'s web-worker-backed file/text
+  // search provider with a Tauri-IPC client that delegates to
+  // Mountain's `search:findFiles` / `search:findInFiles` (Rust
+  // `ignore::WalkBuilder` + `grep-searcher`, `.gitignore`-aware by
+  // default). Without this, the workbench search panel shows files
+  // in the explorer pane but the match counter stays at 0 because
+  // no text-search backend ever runs, AND the file walker doesn't
+  // honour `.gitignore` so `Target/` / `node_modules/` appear in
+  // results.
+  ReplaceSearchService
 ], "BuildPipeline");
 var Index_default = BuildPipeline;
 export {
@@ -127,15 +139,15 @@ export {
   BuildPipeline,
   default10 as CatchOutputFolderRejection,
   CopyNodeModules,
-  default19 as CopyNodeModulesDefault,
+  default20 as CopyNodeModulesDefault,
   CopyTauriMainProcessService,
-  default21 as CopyTauriMainProcessServiceDefault,
+  default22 as CopyTauriMainProcessServiceDefault,
   CopyVSOutput,
-  default15 as CopyVSOutputDefault,
+  default16 as CopyVSOutputDefault,
   CopyVSRootFiles,
-  default16 as CopyVSRootFilesDefault,
+  default17 as CopyVSRootFilesDefault,
   CopyWorker,
-  default18 as CopyWorkerDefault,
+  default19 as CopyWorkerDefault,
   DefaultPackages as DefaultNodeModulePackages,
   DefaultStubs,
   default14 as DisableUnusedServices,
@@ -144,6 +156,7 @@ export {
   default4 as InjectNameShim,
   default13 as InstrumentVscodeGit,
   default5 as ReplaceElectronIPCService,
+  default15 as ReplaceSearchService,
   default6 as ReplaceSharedProcess,
   default7 as StaticToDynamicImport,
   default3 as StripCSSImport,
@@ -151,9 +164,9 @@ export {
   default11 as StripWebviewIframeSandbox,
   StubDataPrefix,
   StubUnpublishedAddons,
-  default20 as StubUnpublishedAddonsDefault,
+  default21 as StubUnpublishedAddonsDefault,
   SupplementFromDependency,
-  default17 as SupplementFromDependencyDefault,
+  default18 as SupplementFromDependencyDefault,
   Index_default as default
 };
 //# sourceMappingURL=Index.js.map

@@ -11,6 +11,22 @@ const Body = `// [Land] ReplaceSearchService transform
 // Original: vs/workbench/services/search/browser/searchService.ts
 // Replacement: Tauri-IPC backed ISearchService \u2192 Mountain search:* handlers.
 
+// TypeScript-compiled decorator helpers. Required for parameter-decorator
+// based DI metadata. Without these, the IInstantiationService binds the
+// constructor positionally with NO knowledge of which service goes where,
+// so every dependency arrives as \`undefined\` and the first method call
+// (\`this.uriIdentityService.extUri\`) crashes. Mirrored verbatim from
+// VS Code's compiled output (\`out/.../searchService.js\` lines 5-13).
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+	var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+	if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+	else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+	return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+	return function (target, key) { decorator(target, key, paramIndex); }
+};
+
 import { Schemas } from '../../../../base/common/network.js';
 import { URI } from '../../../../base/common/uri.js';
 import { Disposable } from '../../../../base/common/lifecycle.js';
@@ -23,6 +39,7 @@ import { ITelemetryService } from '../../../../platform/telemetry/common/telemet
 import { ILogService } from '../../../../platform/log/common/log.js';
 import { IExtensionService } from '../../extensions/common/extensions.js';
 import { IFileService } from '../../../../platform/files/common/files.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
 import { IUriIdentityService } from '../../../../platform/uriIdentity/common/uriIdentity.js';
 
 const TauriInvoke = (Channel, Args) => {
@@ -147,14 +164,34 @@ class MountainTauriSearchProvider extends Disposable {
 	}
 }
 
-export class RemoteSearchService extends SearchService {
+// \`let class = ...\` (not \`export class\`) so the post-decorate reassignment
+// can replace the binding with the decorated class. TypeScript emits this
+// shape for every class with parameter decorators - mirroring it keeps
+// the DI metadata wiring identical to upstream.
+let RemoteSearchService = class RemoteSearchService extends SearchService {
 	constructor(modelService, editorService, telemetryService, logService, extensionService, fileService, instantiationService, uriIdentityService) {
 		super(modelService, editorService, telemetryService, logService, extensionService, fileService, uriIdentityService);
+		this.instantiationService = instantiationService;
 		const Provider = new MountainTauriSearchProvider();
 		this.registerSearchResultProvider(Schemas.file, SearchProviderType.file, Provider);
 		this.registerSearchResultProvider(Schemas.file, SearchProviderType.text, Provider);
 	}
-}
+};
+// Parameter-decorator metadata. Slot order MUST match the constructor
+// signature above. Mirrors the upstream
+// \`out/.../browser/searchService.js\` block exactly so the DI container
+// resolves each \`@IService\` binding the same way it does for stock VS Code.
+RemoteSearchService = __decorate([
+	__param(0, IModelService),
+	__param(1, IEditorService),
+	__param(2, ITelemetryService),
+	__param(3, ILogService),
+	__param(4, IExtensionService),
+	__param(5, IFileService),
+	__param(6, IInstantiationService),
+	__param(7, IUriIdentityService),
+], RemoteSearchService);
+export { RemoteSearchService };
 
 // Preserve the upstream DI registration so consumers binding ISearchService
 // receive the Mountain-backed implementation transparently.

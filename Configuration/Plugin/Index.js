@@ -15,36 +15,37 @@ import { default as default12 } from "./Transform/ExposeWorkbenchAccessor.js";
 import { default as default13 } from "./Transform/InstrumentVscodeGit.js";
 import { default as default14 } from "./Transform/DisableUnusedServices.js";
 import { default as default15 } from "./Transform/ReplaceSearchService.js";
+import { default as default16 } from "./Transform/PatchLocalTerminalBackend.js";
 import {
   CopyVSOutput,
-  default as default16
+  default as default17
 } from "./Copy/CopyVSOutput.js";
 import {
   CopyVSRootFiles,
-  default as default17
+  default as default18
 } from "./Copy/CopyVSRootFiles.js";
 import {
   SupplementFromDependency,
-  default as default18
+  default as default19
 } from "./Copy/SupplementFromDependency.js";
 import {
   CopyWorker,
-  default as default19
+  default as default20
 } from "./Copy/CopyWorker.js";
 import {
   CopyNodeModules,
   DefaultPackages,
-  default as default20
+  default as default21
 } from "./Copy/CopyNodeModules.js";
 import {
   StubUnpublishedAddons,
   DefaultStubs,
   StubDataPrefix,
-  default as default21
+  default as default22
 } from "./Copy/StubUnpublishedAddons.js";
 import {
   CopyTauriMainProcessService,
-  default as default22
+  default as default23
 } from "./Copy/CopyTauriMainProcessService.js";
 import StripCSSImport from "./Transform/StripCSSImport.js";
 import InjectNameShim from "./Transform/InjectNameShim.js";
@@ -59,6 +60,7 @@ import ExposeWorkbenchAccessor from "./Transform/ExposeWorkbenchAccessor.js";
 import DisableUnusedServices from "./Transform/DisableUnusedServices.js";
 import InstrumentVscodeGit from "./Transform/InstrumentVscodeGit.js";
 import ReplaceSearchService from "./Transform/ReplaceSearchService.js";
+import PatchLocalTerminalBackend from "./Transform/PatchLocalTerminalBackend.js";
 import {
   CopyVSOutput as CopyVSOutputFactory
 } from "./Copy/CopyVSOutput.js";
@@ -131,7 +133,19 @@ const BuildPipeline = /* @__PURE__ */ __name((Input) => [
   // no text-search backend ever runs, AND the file walker doesn't
   // honour `.gitignore` so `Target/` / `node_modules/` appear in
   // results.
-  ReplaceSearchService
+  ReplaceSearchService,
+  // Patch `LocalTerminalBackend._connectToDirectProxy` so it stops
+  // calling `acquirePort('vscode:createPtyHostMessageChannel', ...)`,
+  // which never resolves under Tauri (no Electron utility-process
+  // MessagePort). Without this, every `createTerminal` /
+  // `attachToProcess` / `listProcesses` call hangs forever because
+  // `_connectToDirectProxy()` never resolves; the user clicks
+  // "open terminal" and the panel sits empty with no PTY ever
+  // spawning. The patched body routes everything through the
+  // already-functional `_localPtyService` channel proxy
+  // (`mainProcessService.getChannel('localPty')` →
+  // Mountain's `localPty:*` handlers).
+  PatchLocalTerminalBackend
 ], "BuildPipeline");
 var Index_default = BuildPipeline;
 export {
@@ -139,15 +153,15 @@ export {
   BuildPipeline,
   default10 as CatchOutputFolderRejection,
   CopyNodeModules,
-  default20 as CopyNodeModulesDefault,
+  default21 as CopyNodeModulesDefault,
   CopyTauriMainProcessService,
-  default22 as CopyTauriMainProcessServiceDefault,
+  default23 as CopyTauriMainProcessServiceDefault,
   CopyVSOutput,
-  default16 as CopyVSOutputDefault,
+  default17 as CopyVSOutputDefault,
   CopyVSRootFiles,
-  default17 as CopyVSRootFilesDefault,
+  default18 as CopyVSRootFilesDefault,
   CopyWorker,
-  default19 as CopyWorkerDefault,
+  default20 as CopyWorkerDefault,
   DefaultPackages as DefaultNodeModulePackages,
   DefaultStubs,
   default14 as DisableUnusedServices,
@@ -155,6 +169,7 @@ export {
   default9 as ExtensionScannerIPC,
   default4 as InjectNameShim,
   default13 as InstrumentVscodeGit,
+  default16 as PatchLocalTerminalBackend,
   default5 as ReplaceElectronIPCService,
   default15 as ReplaceSearchService,
   default6 as ReplaceSharedProcess,
@@ -164,9 +179,9 @@ export {
   default11 as StripWebviewIframeSandbox,
   StubDataPrefix,
   StubUnpublishedAddons,
-  default21 as StubUnpublishedAddonsDefault,
+  default22 as StubUnpublishedAddonsDefault,
   SupplementFromDependency,
-  default18 as SupplementFromDependencyDefault,
+  default19 as SupplementFromDependencyDefault,
   Index_default as default
 };
 //# sourceMappingURL=Index.js.map

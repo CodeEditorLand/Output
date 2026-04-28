@@ -205,8 +205,7 @@ async function getProcessConfiguration(): Promise<ProcessConfig> {
 				...(pid.status === "fulfilled" && { pid: pid.value }),
 			};
 		}
-	} catch (error) {
-	}
+	} catch (error) {}
 
 	return DEFAULT_PROCESS_CONFIG;
 }
@@ -501,7 +500,6 @@ class ProcessPolyfill {
 	 * Kill a process
 	 */
 	kill(pid: number, signal?: string | number): boolean {
-
 		try {
 			// Try to kill via Tauri
 			invokeTauri("process_kill", { pid, signal }).catch(() => {
@@ -609,8 +607,7 @@ class ProcessPolyfill {
 		listeners.forEach((listener) => {
 			try {
 				listener(...args);
-			} catch (error) {
-			}
+			} catch (error) {}
 		});
 
 		return true;
@@ -694,8 +691,7 @@ export async function installProcessPolyfill(): Promise<void> {
 		if (typeof (window as any).vscode !== "undefined") {
 			(window as any).vscode.process = proc;
 		}
-	} catch (error) {
-	}
+	} catch (error) {}
 }
 
 /**

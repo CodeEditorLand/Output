@@ -38,8 +38,7 @@
 
 import type { TransformPlugin } from "../Type.js";
 
-const PathRegex =
-	/\/workbench\/contrib\/output\/browser\/outputServices\.js$/;
+const PathRegex = /\/workbench\/contrib\/output\/browser\/outputServices\.js$/;
 
 // Capture the `createFolder(<target>).then(() => undefined)` chain so we can
 // append a `.catch(() => undefined)` after it. The target expression is

@@ -17,7 +17,5 @@ export default (Prefix: string) => [
 	`${Prefix}/code/node/cliProcessMain.js`,
 
 	// Only exclude the desktop workbench when NOT building for Electron
-	...(Electron
-		? []
-		: [`${Prefix}/workbench/workbench.desktop.main.js`]),
+	...(Electron ? [] : [`${Prefix}/workbench/workbench.desktop.main.js`]),
 ];

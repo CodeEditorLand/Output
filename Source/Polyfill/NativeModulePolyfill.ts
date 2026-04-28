@@ -447,8 +447,7 @@ function createDialog(): Dialog {
 						canceled: !selected,
 					};
 				}
-			} catch (error) {
-			}
+			} catch (error) {}
 
 			// Fallback: return empty
 			return { filePaths: [], canceled: true };
@@ -469,8 +468,7 @@ function createDialog(): Dialog {
 						canceled: !filePath,
 					};
 				}
-			} catch (error) {
-			}
+			} catch (error) {}
 
 			// Fallback: return empty
 			return { filePath: undefined, canceled: true };
@@ -529,8 +527,7 @@ function createClipboard(): Clipboard {
 				if (typeof clipboard?.readText === "function") {
 					return await clipboard.readText();
 				}
-			} catch (error) {
-			}
+			} catch (error) {}
 
 			// Fallback to browser clipboard
 			return await navigator.clipboard.readText();
@@ -546,8 +543,7 @@ function createClipboard(): Clipboard {
 			return undefined;
 		},
 
-		clear(): void {
-		},
+		clear(): void {},
 	};
 }
 
@@ -681,7 +677,6 @@ function installRequireShim(): void {
 
 	// Create shim function
 	(window as any).require = function (id: string): unknown {
-
 		// Intercept electron module
 		if (id === "electron") {
 			return createElectronModule();

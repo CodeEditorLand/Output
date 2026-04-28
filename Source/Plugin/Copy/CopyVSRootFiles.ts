@@ -106,8 +106,12 @@ const BuildCandidates = (
 	DependencyOut: string,
 	OnDevelopment: boolean,
 ): string[] => {
-	const PrimaryDependency = OnDevelopment ? DependencyOut : DependencyOutBuild;
-	const SecondaryDependency = OnDevelopment ? DependencyOutBuild : DependencyOut;
+	const PrimaryDependency = OnDevelopment
+		? DependencyOut
+		: DependencyOutBuild;
+	const SecondaryDependency = OnDevelopment
+		? DependencyOutBuild
+		: DependencyOut;
 	const Candidates = [
 		join(OutputRoot, File),
 		join(OutputRoot, "vs", File),
@@ -134,7 +138,13 @@ export const CopyVSRootFiles = ({
 		Kind: "Copy",
 		Name: "CopyVSRootFiles",
 		Entries: Files.map((File) => ({
-			From: BuildCandidates(File, OutputRoot, DependencyOutBuild, DependencyOut, Dev),
+			From: BuildCandidates(
+				File,
+				OutputRoot,
+				DependencyOutBuild,
+				DependencyOut,
+				Dev,
+			),
 			To: join(Destination, File),
 		})),
 	};

@@ -29,8 +29,7 @@ export interface StubUnpublishedAddonsInput {
 export const DefaultStubs = [
 	{
 		Package: "@xterm/addon-progress",
-		Body:
-			"define([],function(){var n=function(){};var P=function(){this.activate=n;this.dispose=n;this.onChange=function(){return{dispose:n}}};return{ProgressAddon:P}})",
+		Body: "define([],function(){var n=function(){};var P=function(){this.activate=n;this.dispose=n;this.onChange=function(){return{dispose:n}}};return{ProgressAddon:P}})",
 	},
 ] as const;
 

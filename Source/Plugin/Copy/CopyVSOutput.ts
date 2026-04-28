@@ -15,10 +15,7 @@ export interface CopyVSOutputInput {
 	readonly To: string;
 }
 
-export const CopyVSOutput = ({
-	From,
-	To,
-}: CopyVSOutputInput): CopyPlugin => ({
+export const CopyVSOutput = ({ From, To }: CopyVSOutputInput): CopyPlugin => ({
 	Kind: "Copy",
 	Name: "CopyVSOutput",
 	Entries: [{ From: [From], To, Recursive: true, Force: true }],

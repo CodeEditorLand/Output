@@ -65,39 +65,55 @@ export default {
         // RestPlugin activated only when Compiler=Rest env var is set.
         ...(RestPlugin ? [RestPlugin] : []),
         // PostHog build telemetry - debug only, skipped in production
-        ...(process.env["NODE_ENV"] !== "production" ? [{
-                name: "PostHogBuildTelemetry",
-                setup({ onEnd }) {
-                    const StartTime = performance.now();
-                    onEnd(async (Result) => {
-                        const DurationMs = Math.round(performance.now() - StartTime);
-                        try {
-                            const { request } = await import("node:https");
-                            const Body = JSON.stringify({
-                                api_key: "",
-                                event: "output:build:complete",
-                                properties: {
-                                    distinct_id: `land-dev-${process.env["USER"] || "unknown"}`,
-                                    $app: "land-editor",
-                                    $component: "output",
-                                    $build_mode: On ? "development" : "production",
-                                    duration_ms: DurationMs,
-                                    errors: Result.errors.length,
-                                    warnings: Result.warnings.length,
-                                    compiler: process.env["Compiler"] || "esbuild",
-                                },
-                                timestamp: new Date().toISOString(),
-                            });
-                            const Url = new URL("https://eu.i.posthog.com/capture/");
-                            const Req = request({ hostname: Url.hostname, port: 443, path: Url.pathname, method: "POST", headers: { "Content-Type": "application/json", "Content-Length": Buffer.byteLength(Body) } });
-                            Req.on("error", () => { });
-                            Req.write(Body);
-                            Req.end();
-                        }
-                        catch { }
-                    });
+        ...(process.env["NODE_ENV"] !== "production"
+            ? [
+                {
+                    name: "PostHogBuildTelemetry",
+                    setup({ onEnd, }) {
+                        const StartTime = performance.now();
+                        onEnd(async (Result) => {
+                            const DurationMs = Math.round(performance.now() - StartTime);
+                            try {
+                                const { request } = await import("node:https");
+                                const Body = JSON.stringify({
+                                    api_key: "",
+                                    event: "output:build:complete",
+                                    properties: {
+                                        distinct_id: `land-dev-${process.env["USER"] || "unknown"}`,
+                                        $app: "land-editor",
+                                        $component: "output",
+                                        $build_mode: On
+                                            ? "development"
+                                            : "production",
+                                        duration_ms: DurationMs,
+                                        errors: Result.errors.length,
+                                        warnings: Result.warnings.length,
+                                        compiler: process.env["Compiler"] ||
+                                            "esbuild",
+                                    },
+                                    timestamp: new Date().toISOString(),
+                                });
+                                const Url = new URL("https://eu.i.posthog.com/capture/");
+                                const Req = request({
+                                    hostname: Url.hostname,
+                                    port: 443,
+                                    path: Url.pathname,
+                                    method: "POST",
+                                    headers: {
+                                        "Content-Type": "application/json",
+                                        "Content-Length": Buffer.byteLength(Body),
+                                    },
+                                });
+                                Req.on("error", () => { });
+                                Req.write(Body);
+                                Req.end();
+                            }
+                            catch { }
+                        });
+                    },
                 },
-            }] : []),
+            ]
+            : []),
     ].filter(Boolean),
     loader: {
         ".json": "copy",

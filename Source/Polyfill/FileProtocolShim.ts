@@ -145,7 +145,11 @@ const VSCodeFileHandler: ProtocolHandler = {
 				// `{ buffer: number[] }` envelope, and return a Uint8Array
 				// so `new Response(content, …)` emits the correct bytes.
 				const Raw = await invokeTauri<
-					{ buffer?: number[] | Uint8Array } | number[] | string | null | undefined
+					| { buffer?: number[] | Uint8Array }
+					| number[]
+					| string
+					| null
+					| undefined
 				>("file:read", [decodedPath]);
 
 				const Bytes = UnwrapReadResult(Raw);
@@ -191,7 +195,12 @@ const VSCodeFileHandler: ProtocolHandler = {
  * pass a path that we know Mountain returns binary for (WASM, fonts).
  */
 function UnwrapReadResult(
-	Raw: { buffer?: number[] | Uint8Array } | number[] | string | null | undefined,
+	Raw:
+		| { buffer?: number[] | Uint8Array }
+		| number[]
+		| string
+		| null
+		| undefined,
 ): Uint8Array | string {
 	if (Raw === null || Raw === undefined) {
 		return new Uint8Array(0);
@@ -242,7 +251,11 @@ const VSCodeUserDataHandler: ProtocolHandler = {
 			// binary, but the same invariant holds: never let a raw
 			// `{ buffer: … }` envelope reach `new Response(…)`.
 			const Raw = await invokeTauri<
-				{ buffer?: number[] | Uint8Array } | number[] | string | null | undefined
+				| { buffer?: number[] | Uint8Array }
+				| number[]
+				| string
+				| null
+				| undefined
 			>("file:read", [fullPath]);
 
 			return {
@@ -359,7 +372,11 @@ const FileHandler: ProtocolHandler = {
 			// Positional-array args + binary-safe unwrap - see the
 			// `VSCodeFileHandler` comment for the full reasoning.
 			const Raw = await invokeTauri<
-				{ buffer?: number[] | Uint8Array } | number[] | string | null | undefined
+				| { buffer?: number[] | Uint8Array }
+				| number[]
+				| string
+				| null
+				| undefined
 			>("file:read", [decodedPath]);
 
 			return {

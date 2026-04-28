@@ -18,7 +18,11 @@ const Format = (Message: string): string =>
  * Emit a trace event via performance.mark().
  * OTELBridge collects all `land:*` marks automatically.
  */
-const Trace = (Tag: string, Message: string, Detail?: Record<string, unknown>): void => {
+const Trace = (
+	Tag: string,
+	Message: string,
+	Detail?: Record<string, unknown>,
+): void => {
 	try {
 		performance.mark(`land:${Tag}:${Message}`, {
 			detail: Detail ? { ...Detail, Tag } : { Tag },
@@ -32,10 +36,14 @@ const Trace = (Tag: string, Message: string, Detail?: Record<string, unknown>): 
  */
 const TraceSpan = (Tag: string, SpanName: string): (() => void) => {
 	const MarkName = `land:${Tag}:${SpanName}:start`;
-	try { performance.mark(MarkName); } catch {}
+	try {
+		performance.mark(MarkName);
+	} catch {}
 
 	return () => {
-		try { performance.measure(`land:${Tag}:${SpanName}`, MarkName); } catch {}
+		try {
+			performance.measure(`land:${Tag}:${SpanName}`, MarkName);
+		} catch {}
 	};
 };
 

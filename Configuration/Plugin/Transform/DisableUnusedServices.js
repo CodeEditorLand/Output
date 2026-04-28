@@ -20,7 +20,9 @@ const DisablePathSegments = [
   "workbench/contrib/processExplorer/electron-browser/processExplorer.contribution.js"
 ];
 const PathRegex = new RegExp(
-  `(?:${DisablePathSegments.map((P) => P.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})$`
+  `(?:${DisablePathSegments.map(
+    (P) => P.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+  ).join("|")})$`
 );
 const Plugin = {
   Kind: "Transform",

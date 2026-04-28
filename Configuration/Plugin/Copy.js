@@ -1,8 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { cp, copyFile, stat, writeFile } from "node:fs/promises";
+import { copyFile, cp, mkdir, stat, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
-import { mkdir } from "node:fs/promises";
 const DataPrefix = "data:text/javascript,";
 const Exists = /* @__PURE__ */ __name(async (Path) => {
   try {

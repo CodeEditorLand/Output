@@ -63,15 +63,13 @@ const MainPatches: MainPatch[] = [
 	},
 	{
 		Letter: "B",
-		Anchor:
-			"context.subscriptions.push(new vscode_1.Disposable(() => vscode_1.Disposable.from(...disposables).dispose()));",
+		Anchor: "context.subscriptions.push(new vscode_1.Disposable(() => vscode_1.Disposable.from(...disposables).dispose()));",
 		Position: "after",
 		Note: "_activate Disposable ctor returned",
 	},
 	{
 		Letter: "C",
-		Anchor:
-			"const logger = vscode_1.window.createOutputChannel('Git', { log: true });",
+		Anchor: "const logger = vscode_1.window.createOutputChannel('Git', { log: true });",
 		Position: "after",
 		Note: "_activate createOutputChannel returned",
 	},
@@ -83,8 +81,7 @@ const MainPatches: MainPatch[] = [
 	},
 	{
 		Letter: "E",
-		Anchor:
-			"const { model, cloneManager } = await createModel(context, logger, telemetryReporter, disposables);",
+		Anchor: "const { model, cloneManager } = await createModel(context, logger, telemetryReporter, disposables);",
 		Position: "before",
 		Note: "_activate await createModel start",
 	},
@@ -102,8 +99,7 @@ const MainPatches: MainPatch[] = [
 	},
 	{
 		Letter: "I",
-		Anchor:
-			"const model = new model_1.Model(git, askpass, context.globalState, context.workspaceState, logger, telemetryReporter);",
+		Anchor: "const model = new model_1.Model(git, askpass, context.globalState, context.workspaceState, logger, telemetryReporter);",
 		Position: "after",
 		Note: "createModel new Model done",
 	},

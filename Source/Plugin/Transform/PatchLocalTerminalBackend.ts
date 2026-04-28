@@ -121,7 +121,10 @@ const Plugin: TransformPlugin = {
 		if (!FunctionRegex.test(Source)) {
 			return { Kind: "Unchanged" };
 		}
-		return { Kind: "Rewrite", Source: Source.replace(FunctionRegex, LandBody) };
+		return {
+			Kind: "Rewrite",
+			Source: Source.replace(FunctionRegex, LandBody),
+		};
 	},
 };
 

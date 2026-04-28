@@ -36,8 +36,7 @@ const HasSibling = async (Path: string): Promise<boolean> => {
 const Plugin: TransformPlugin = {
 	Kind: "Transform",
 	Name: "StripDanglingSourceMap",
-	Match: ({ Path, Role }) =>
-		Role === "app" && /\.js$/.test(Path),
+	Match: ({ Path, Role }) => Role === "app" && /\.js$/.test(Path),
 	async Transform({ Path, Source }) {
 		if (!SourceMapComment.test(Source)) return { Kind: "Unchanged" };
 		if (await HasSibling(Path)) return { Kind: "Unchanged" };

@@ -62,7 +62,13 @@ const CopyVSRootFiles = /* @__PURE__ */ __name(({
     Kind: "Copy",
     Name: "CopyVSRootFiles",
     Entries: Files.map((File) => ({
-      From: BuildCandidates(File, OutputRoot, DependencyOutBuild, DependencyOut, Dev),
+      From: BuildCandidates(
+        File,
+        OutputRoot,
+        DependencyOutBuild,
+        DependencyOut,
+        Dev
+      ),
       To: join(Destination, File)
     }))
   };

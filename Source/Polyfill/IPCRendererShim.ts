@@ -131,8 +131,7 @@ function sendTauri(command: string, args: Record<string, unknown> = {}): void {
 				: Invoke(command, args);
 			Call.catch((_error: Error) => {});
 		}
-	} catch (error) {
-	}
+	} catch (error) {}
 }
 
 // ============================================================================
@@ -427,7 +426,10 @@ function ParseIPCMessage(Buffer: ArrayBuffer): {
  * Kept in lockstep with `Wind/Source/Service/TauriMainProcessService.ts`
  * and `Output/Source/Service/TauriMainProcessService.ts` ChannelRouteMap.
  */
-function MapChannelMethodToTauri(Channel: string, Method: string): string | null {
+function MapChannelMethodToTauri(
+	Channel: string,
+	Method: string,
+): string | null {
 	const Prefix = MapChannelToMountainPrefix(Channel);
 	if (!Prefix) {
 		return null;
@@ -529,7 +531,10 @@ function CoerceTauriParameters(
  * where VS Code's ChannelClient has already produced the positional
  * argument list.
  */
-async function InvokeMountainRaw<T>(Method: string, Parameters: unknown[]): Promise<T> {
+async function InvokeMountainRaw<T>(
+	Method: string,
+	Parameters: unknown[],
+): Promise<T> {
 	const Invoke =
 		(window as any).__TAURI__?.core?.invoke ??
 		(window as any).__TAURI__?.invoke ??
@@ -583,8 +588,7 @@ class IPCRendererImpl implements IpcRenderer {
 			for (const Listener of Listeners) {
 				try {
 					Listener(Event, Data);
-				} catch (Error) {
-				}
+				} catch (Error) {}
 			}
 		}
 	}
@@ -683,8 +687,7 @@ class IPCRendererImpl implements IpcRenderer {
 				// Event subscriptions don't need immediate response.
 				// The server fires EventFire (204) when events occur.
 			}
-		} catch (Error) {
-		}
+		} catch (Error) {}
 	}
 
 	/**

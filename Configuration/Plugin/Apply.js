@@ -63,9 +63,7 @@ const RunTransforms = /* @__PURE__ */ __name(async (Roots, Transforms) => {
   for (const T of Transforms) {
     Counters.set(T.Name, { Rewritten: 0, Stubbed: 0 });
   }
-  const Active = Transforms.filter(
-    (T) => !(T.Enabled && !T.Enabled())
-  );
+  const Active = Transforms.filter((T) => !(T.Enabled && !T.Enabled()));
   if (Active.length === 0) {
     return [...Counters.entries()].map(([Name, Count]) => ({
       Name,

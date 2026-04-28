@@ -16,7 +16,9 @@ import type {
 
 // Inline trace - performance.mark() collected by build-baked OTELBridge.
 const _Trace = (Tag: string, Message: string): void => {
-	try { performance.mark(`land:${Tag}:${Message}`); } catch {}
+	try {
+		performance.mark(`land:${Tag}:${Message}`);
+	} catch {}
 };
 
 // Mirror a tagged line into Mountain's dev-log file sink so
@@ -109,9 +111,20 @@ const FireAndForgetChannels = new Set(["logger", "output"]);
 
 const FileSystemChannels = new Set(["localFilesystem"]);
 const FileSystemThrowCommands = new Set([
-	"stat", "readFile", "writeFile", "readdir", "mkdir",
-	"delete", "rename", "copy", "open", "close",
-	"read", "write", "realpath", "cloneFile",
+	"stat",
+	"readFile",
+	"writeFile",
+	"readdir",
+	"mkdir",
+	"delete",
+	"rename",
+	"copy",
+	"open",
+	"close",
+	"read",
+	"write",
+	"realpath",
+	"cloneFile",
 ]);
 
 const StubChannels: Record<string, Record<string, unknown>> = {
@@ -121,8 +134,11 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 	keyboardLayout: {
 		getKeyboardLayoutData: {
 			keyboardLayoutInfo: {
-				model: "pc105", layout: "us", variant: "",
-				options: "", rules: "",
+				model: "pc105",
+				layout: "us",
+				variant: "",
+				options: "",
+				rules: "",
 			},
 			keyboardMapping: {},
 		},
@@ -211,7 +227,11 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 		},
 		getSystemInfo: {},
 		getDiagnostics: "",
-		reportWorkspaceStats: { configFiles: [], fileTypes: [], launchConfigFiles: [] },
+		reportWorkspaceStats: {
+			configFiles: [],
+			fileTypes: [],
+			launchConfigFiles: [],
+		},
 	},
 
 	// Fix: urlHandler - IURLService stub (prevents vscode:// protocol errors)
@@ -494,9 +514,10 @@ async function InvokeMountain(
 			method: Method,
 			params: Params,
 		});
-		const Elapsed = (
-			typeof performance !== "undefined" ? performance.now() : Date.now()
-		) - Start;
+		const Elapsed =
+			(typeof performance !== "undefined"
+				? performance.now()
+				: Date.now()) - Start;
 		// Success line is per-call and the Rust-side `ipc:done` already
 		// carries the same data at ns precision. Only forward when the
 		// caller explicitly opts into `tauri-invoke` via LAND_DEV_LOG so
@@ -507,9 +528,10 @@ async function InvokeMountain(
 		);
 		return Value;
 	} catch (Error) {
-		const Elapsed = (
-			typeof performance !== "undefined" ? performance.now() : Date.now()
-		) - Start;
+		const Elapsed =
+			(typeof performance !== "undefined"
+				? performance.now()
+				: Date.now()) - Start;
 		// ENOENT on the file:*  methods is expected - extensions probe
 		// for optional workspace files (`.vscode/settings.json`,
 		// `.vscode/tasks.json`, etc.) that don't exist on fresh installs.

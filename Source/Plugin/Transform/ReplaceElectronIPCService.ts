@@ -15,11 +15,10 @@
 
 import type { TransformPlugin } from "../Type.js";
 
-const Marker =
-	"platform/ipc/electron-browser/mainProcessService.js".replaceAll(
-		"/",
-		"\\/",
-	);
+const Marker = "platform/ipc/electron-browser/mainProcessService.js".replaceAll(
+	"/",
+	"\\/",
+);
 const PathRegex = new RegExp(`${Marker}$`);
 
 const ReExport =

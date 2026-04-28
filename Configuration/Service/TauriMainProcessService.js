@@ -189,7 +189,11 @@ const StubChannels = {
     },
     getSystemInfo: {},
     getDiagnostics: "",
-    reportWorkspaceStats: { configFiles: [], fileTypes: [], launchConfigFiles: [] }
+    reportWorkspaceStats: {
+      configFiles: [],
+      fileTypes: [],
+      launchConfigFiles: []
+    }
   },
   // Fix: urlHandler - IURLService stub (prevents vscode:// protocol errors)
   urlHandler: {

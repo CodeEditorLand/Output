@@ -1,66 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-export * from "./Type.js";
-import { default as default2 } from "./Apply.js";
-import { default as default3 } from "./Transform/StripCSSImport.js";
-import { default as default4 } from "./Transform/InjectNameShim.js";
-import { default as default5 } from "./Transform/ReplaceElectronIPCService.js";
-import { default as default6 } from "./Transform/ReplaceSharedProcess.js";
-import { default as default7 } from "./Transform/StaticToDynamicImport.js";
-import { default as default8 } from "./Transform/StripDanglingSourceMap.js";
-import { default as default9 } from "./Transform/ExtensionScannerIPC.js";
-import { default as default10 } from "./Transform/CatchOutputFolderRejection.js";
-import { default as default11 } from "./Transform/StripWebviewIframeSandbox.js";
-import { default as default12 } from "./Transform/ExposeWorkbenchAccessor.js";
-import { default as default13 } from "./Transform/InstrumentVscodeGit.js";
-import { default as default14 } from "./Transform/DisableUnusedServices.js";
-import { default as default15 } from "./Transform/ReplaceSearchService.js";
-import { default as default16 } from "./Transform/PatchLocalTerminalBackend.js";
 import {
-  CopyVSOutput,
-  default as default17
-} from "./Copy/CopyVSOutput.js";
-import {
-  CopyVSRootFiles,
-  default as default18
-} from "./Copy/CopyVSRootFiles.js";
-import {
-  SupplementFromDependency,
-  default as default19
-} from "./Copy/SupplementFromDependency.js";
-import {
-  CopyWorker,
-  default as default20
-} from "./Copy/CopyWorker.js";
-import {
-  CopyNodeModules,
-  DefaultPackages,
-  default as default21
+  CopyNodeModules as CopyNodeModulesFactory
 } from "./Copy/CopyNodeModules.js";
 import {
-  StubUnpublishedAddons,
-  DefaultStubs,
-  StubDataPrefix,
-  default as default22
-} from "./Copy/StubUnpublishedAddons.js";
-import {
-  CopyTauriMainProcessService,
-  default as default23
+  CopyTauriMainProcessService as CopyTauriMainProcessServiceFactory
 } from "./Copy/CopyTauriMainProcessService.js";
-import StripCSSImport from "./Transform/StripCSSImport.js";
-import InjectNameShim from "./Transform/InjectNameShim.js";
-import ReplaceElectronIPCService from "./Transform/ReplaceElectronIPCService.js";
-import ReplaceSharedProcess from "./Transform/ReplaceSharedProcess.js";
-import StaticToDynamicImport from "./Transform/StaticToDynamicImport.js";
-import StripDanglingSourceMap from "./Transform/StripDanglingSourceMap.js";
-import ExtensionScannerIPC from "./Transform/ExtensionScannerIPC.js";
-import CatchOutputFolderRejection from "./Transform/CatchOutputFolderRejection.js";
-import StripWebviewIframeSandbox from "./Transform/StripWebviewIframeSandbox.js";
-import ExposeWorkbenchAccessor from "./Transform/ExposeWorkbenchAccessor.js";
-import DisableUnusedServices from "./Transform/DisableUnusedServices.js";
-import InstrumentVscodeGit from "./Transform/InstrumentVscodeGit.js";
-import ReplaceSearchService from "./Transform/ReplaceSearchService.js";
-import PatchLocalTerminalBackend from "./Transform/PatchLocalTerminalBackend.js";
 import {
   CopyVSOutput as CopyVSOutputFactory
 } from "./Copy/CopyVSOutput.js";
@@ -68,120 +13,179 @@ import {
   CopyVSRootFiles as CopyVSRootFilesFactory
 } from "./Copy/CopyVSRootFiles.js";
 import {
-  SupplementFromDependency as SupplementFromDependencyFactory
-} from "./Copy/SupplementFromDependency.js";
-import {
   CopyWorker as CopyWorkerFactory
 } from "./Copy/CopyWorker.js";
-import {
-  CopyNodeModules as CopyNodeModulesFactory
-} from "./Copy/CopyNodeModules.js";
 import {
   StubUnpublishedAddons as StubUnpublishedAddonsFactory
 } from "./Copy/StubUnpublishedAddons.js";
 import {
-  CopyTauriMainProcessService as CopyTauriMainProcessServiceFactory
+  SupplementFromDependency as SupplementFromDependencyFactory
+} from "./Copy/SupplementFromDependency.js";
+import CatchOutputFolderRejection from "./Transform/CatchOutputFolderRejection.js";
+import DisableUnusedServices from "./Transform/DisableUnusedServices.js";
+import ExposeWorkbenchAccessor from "./Transform/ExposeWorkbenchAccessor.js";
+import ExtensionScannerIPC from "./Transform/ExtensionScannerIPC.js";
+import InjectNameShim from "./Transform/InjectNameShim.js";
+import InlineCSSImport from "./Transform/InlineCSSImport.js";
+import InstrumentVscodeGit from "./Transform/InstrumentVscodeGit.js";
+import PatchLocalTerminalBackend from "./Transform/PatchLocalTerminalBackend.js";
+import ReplaceElectronIPCService from "./Transform/ReplaceElectronIPCService.js";
+import ReplaceSearchService from "./Transform/ReplaceSearchService.js";
+import ReplaceSharedProcess from "./Transform/ReplaceSharedProcess.js";
+import StaticToDynamicImport from "./Transform/StaticToDynamicImport.js";
+import StripCSSImport from "./Transform/StripCSSImport.js";
+import StripDanglingSourceMap from "./Transform/StripDanglingSourceMap.js";
+import StripWebviewIframeSandbox from "./Transform/StripWebviewIframeSandbox.js";
+export * from "./Type.js";
+import { default as default2 } from "./Apply.js";
+import { default as default3 } from "./Transform/StripCSSImport.js";
+import { default as default4 } from "./Transform/InlineCSSImport.js";
+import { default as default5 } from "./Transform/InjectNameShim.js";
+import { default as default6 } from "./Transform/ReplaceElectronIPCService.js";
+import { default as default7 } from "./Transform/ReplaceSharedProcess.js";
+import { default as default8 } from "./Transform/StaticToDynamicImport.js";
+import { default as default9 } from "./Transform/StripDanglingSourceMap.js";
+import { default as default10 } from "./Transform/ExtensionScannerIPC.js";
+import { default as default11 } from "./Transform/CatchOutputFolderRejection.js";
+import { default as default12 } from "./Transform/StripWebviewIframeSandbox.js";
+import { default as default13 } from "./Transform/ExposeWorkbenchAccessor.js";
+import { default as default14 } from "./Transform/InstrumentVscodeGit.js";
+import { default as default15 } from "./Transform/DisableUnusedServices.js";
+import { default as default16 } from "./Transform/ReplaceSearchService.js";
+import { default as default17 } from "./Transform/PatchLocalTerminalBackend.js";
+import {
+  CopyVSOutput,
+  default as default18
+} from "./Copy/CopyVSOutput.js";
+import {
+  CopyVSRootFiles,
+  default as default19
+} from "./Copy/CopyVSRootFiles.js";
+import {
+  SupplementFromDependency,
+  default as default20
+} from "./Copy/SupplementFromDependency.js";
+import { CopyWorker, default as default21 } from "./Copy/CopyWorker.js";
+import {
+  CopyNodeModules,
+  DefaultPackages,
+  default as default22
+} from "./Copy/CopyNodeModules.js";
+import {
+  StubUnpublishedAddons,
+  DefaultStubs,
+  StubDataPrefix,
+  default as default23
+} from "./Copy/StubUnpublishedAddons.js";
+import {
+  CopyTauriMainProcessService,
+  default as default24
 } from "./Copy/CopyTauriMainProcessService.js";
-const BuildPipeline = /* @__PURE__ */ __name((Input) => [
-  CopyVSOutputFactory(Input.VSOutput),
-  CopyVSRootFilesFactory(Input.VSRootFiles),
-  SupplementFromDependencyFactory(Input.Supplement),
-  CopyWorkerFactory(Input.Worker),
-  CopyNodeModulesFactory(Input.NodeModules),
-  StubUnpublishedAddonsFactory(Input.Addons),
-  CopyTauriMainProcessServiceFactory(Input.TauriMainProcessService),
-  StripCSSImport,
-  InjectNameShim,
-  ReplaceElectronIPCService,
-  ReplaceSharedProcess,
-  StaticToDynamicImport,
-  StripDanglingSourceMap,
-  ExtensionScannerIPC,
-  CatchOutputFolderRejection,
-  StripWebviewIframeSandbox,
-  // Expose the IWorkbench facade + IInstantiationService on
-  // `globalThis` as `__CEL_WORKBENCH__` / `__CEL_INSTANTIATION_SERVICE__`
-  // / `__CEL_SERVICES__` so Sky's bridge code (SkyBridge,
-  // tree-view attachment, command forwarding, status-bar sync) can
-  // call into the live workbench without re-implementing a parallel
-  // UI. Without this patch, every tree view an extension registers
-  // surfaces as `attach-give-up (no workbench tree descriptor)` on
-  // the renderer and the entire Sky→workbench integration is dead.
-  ExposeWorkbenchAccessor,
-  // Instrument the bundled vscode.git extension's `out/main.js` +
-  // `out/model.js` with `process.stdout.write('[GIT-MARK-X] ...')`
-  // markers at strategic activation-pipeline points. Bypasses the
-  // outputChannel routing entirely so progress is visible even when
-  // the channel-name dev_log filter is muted. Drives the F6
-  // diagnostic - whichever marker is the LAST visible one identifies
-  // the exact bail point in vscode.git's silent activation. Self-
-  // idempotent (skips the inject if marker already present).
-  InstrumentVscodeGit,
-  // Replace upstream contribution barrels for features Land
-  // intentionally does not back (auto-update, issue reporter, MS
-  // account / settings sync, welcome walkthrough, process explorer,
-  // experiments) with an empty default export. Removes broken UI,
-  // silences the "service not registered" warnings, and shortens
-  // boot. List lives in the transform itself.
-  DisableUnusedServices,
-  // Replace `RemoteSearchService`'s web-worker-backed file/text
-  // search provider with a Tauri-IPC client that delegates to
-  // Mountain's `search:findFiles` / `search:findInFiles` (Rust
-  // `ignore::WalkBuilder` + `grep-searcher`, `.gitignore`-aware by
-  // default). Without this, the workbench search panel shows files
-  // in the explorer pane but the match counter stays at 0 because
-  // no text-search backend ever runs, AND the file walker doesn't
-  // honour `.gitignore` so `Target/` / `node_modules/` appear in
-  // results.
-  ReplaceSearchService,
-  // Patch `LocalTerminalBackend._connectToDirectProxy` so it stops
-  // calling `acquirePort('vscode:createPtyHostMessageChannel', ...)`,
-  // which never resolves under Tauri (no Electron utility-process
-  // MessagePort). Without this, every `createTerminal` /
-  // `attachToProcess` / `listProcesses` call hangs forever because
-  // `_connectToDirectProxy()` never resolves; the user clicks
-  // "open terminal" and the panel sits empty with no PTY ever
-  // spawning. The patched body routes everything through the
-  // already-functional `_localPtyService` channel proxy
-  // (`mainProcessService.getChannel('localPty')` →
-  // Mountain's `localPty:*` handlers).
-  PatchLocalTerminalBackend
-], "BuildPipeline");
+const BuildPipeline = /* @__PURE__ */ __name((Input) => {
+  const IsRelease = (Input.Profile ?? "").startsWith("release");
+  const CSSStrategy = IsRelease ? InlineCSSImport : StripCSSImport;
+  return [
+    CopyVSOutputFactory(Input.VSOutput),
+    CopyVSRootFilesFactory(Input.VSRootFiles),
+    SupplementFromDependencyFactory(Input.Supplement),
+    CopyWorkerFactory(Input.Worker),
+    CopyNodeModulesFactory(Input.NodeModules),
+    StubUnpublishedAddonsFactory(Input.Addons),
+    CopyTauriMainProcessServiceFactory(Input.TauriMainProcessService),
+    CSSStrategy,
+    InjectNameShim,
+    ReplaceElectronIPCService,
+    ReplaceSharedProcess,
+    StaticToDynamicImport,
+    StripDanglingSourceMap,
+    ExtensionScannerIPC,
+    CatchOutputFolderRejection,
+    StripWebviewIframeSandbox,
+    // Expose the IWorkbench facade + IInstantiationService on
+    // `globalThis` as `__CEL_WORKBENCH__` / `__CEL_INSTANTIATION_SERVICE__`
+    // / `__CEL_SERVICES__` so Sky's bridge code (SkyBridge,
+    // tree-view attachment, command forwarding, status-bar sync) can
+    // call into the live workbench without re-implementing a parallel
+    // UI. Without this patch, every tree view an extension registers
+    // surfaces as `attach-give-up (no workbench tree descriptor)` on
+    // the renderer and the entire Sky→workbench integration is dead.
+    ExposeWorkbenchAccessor,
+    // Instrument the bundled vscode.git extension's `out/main.js` +
+    // `out/model.js` with `process.stdout.write('[GIT-MARK-X] ...')`
+    // markers at strategic activation-pipeline points. Bypasses the
+    // outputChannel routing entirely so progress is visible even when
+    // the channel-name dev_log filter is muted. Drives the F6
+    // diagnostic - whichever marker is the LAST visible one identifies
+    // the exact bail point in vscode.git's silent activation. Self-
+    // idempotent (skips the inject if marker already present).
+    InstrumentVscodeGit,
+    // Replace upstream contribution barrels for features Land
+    // intentionally does not back (auto-update, issue reporter, MS
+    // account / settings sync, welcome walkthrough, process explorer,
+    // experiments) with an empty default export. Removes broken UI,
+    // silences the "service not registered" warnings, and shortens
+    // boot. List lives in the transform itself.
+    DisableUnusedServices,
+    // Replace `RemoteSearchService`'s web-worker-backed file/text
+    // search provider with a Tauri-IPC client that delegates to
+    // Mountain's `search:findFiles` / `search:findInFiles` (Rust
+    // `ignore::WalkBuilder` + `grep-searcher`, `.gitignore`-aware by
+    // default). Without this, the workbench search panel shows files
+    // in the explorer pane but the match counter stays at 0 because
+    // no text-search backend ever runs, AND the file walker doesn't
+    // honour `.gitignore` so `Target/` / `node_modules/` appear in
+    // results.
+    ReplaceSearchService,
+    // Patch `LocalTerminalBackend._connectToDirectProxy` so it stops
+    // calling `acquirePort('vscode:createPtyHostMessageChannel', ...)`,
+    // which never resolves under Tauri (no Electron utility-process
+    // MessagePort). Without this, every `createTerminal` /
+    // `attachToProcess` / `listProcesses` call hangs forever because
+    // `_connectToDirectProxy()` never resolves; the user clicks
+    // "open terminal" and the panel sits empty with no PTY ever
+    // spawning. The patched body routes everything through the
+    // already-functional `_localPtyService` channel proxy
+    // (`mainProcessService.getChannel('localPty')` →
+    // Mountain's `localPty:*` handlers).
+    PatchLocalTerminalBackend
+  ];
+}, "BuildPipeline");
 var Index_default = BuildPipeline;
 export {
   default2 as ApplyPlugins,
   BuildPipeline,
-  default10 as CatchOutputFolderRejection,
+  default11 as CatchOutputFolderRejection,
   CopyNodeModules,
-  default21 as CopyNodeModulesDefault,
+  default22 as CopyNodeModulesDefault,
   CopyTauriMainProcessService,
-  default23 as CopyTauriMainProcessServiceDefault,
+  default24 as CopyTauriMainProcessServiceDefault,
   CopyVSOutput,
-  default17 as CopyVSOutputDefault,
+  default18 as CopyVSOutputDefault,
   CopyVSRootFiles,
-  default18 as CopyVSRootFilesDefault,
+  default19 as CopyVSRootFilesDefault,
   CopyWorker,
-  default20 as CopyWorkerDefault,
+  default21 as CopyWorkerDefault,
   DefaultPackages as DefaultNodeModulePackages,
   DefaultStubs,
-  default14 as DisableUnusedServices,
-  default12 as ExposeWorkbenchAccessor,
-  default9 as ExtensionScannerIPC,
-  default4 as InjectNameShim,
-  default13 as InstrumentVscodeGit,
-  default16 as PatchLocalTerminalBackend,
-  default5 as ReplaceElectronIPCService,
-  default15 as ReplaceSearchService,
-  default6 as ReplaceSharedProcess,
-  default7 as StaticToDynamicImport,
+  default15 as DisableUnusedServices,
+  default13 as ExposeWorkbenchAccessor,
+  default10 as ExtensionScannerIPC,
+  default5 as InjectNameShim,
+  default4 as InlineCSSImport,
+  default14 as InstrumentVscodeGit,
+  default17 as PatchLocalTerminalBackend,
+  default6 as ReplaceElectronIPCService,
+  default16 as ReplaceSearchService,
+  default7 as ReplaceSharedProcess,
+  default8 as StaticToDynamicImport,
   default3 as StripCSSImport,
-  default8 as StripDanglingSourceMap,
-  default11 as StripWebviewIframeSandbox,
+  default9 as StripDanglingSourceMap,
+  default12 as StripWebviewIframeSandbox,
   StubDataPrefix,
   StubUnpublishedAddons,
-  default22 as StubUnpublishedAddonsDefault,
+  default23 as StubUnpublishedAddonsDefault,
   SupplementFromDependency,
-  default19 as SupplementFromDependencyDefault,
+  default20 as SupplementFromDependencyDefault,
   Index_default as default
 };
 //# sourceMappingURL=Index.js.map

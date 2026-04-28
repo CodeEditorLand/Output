@@ -1,3 +1,48 @@
+import {
+	CopyNodeModules as CopyNodeModulesFactory,
+	type CopyNodeModulesInput,
+} from "./Copy/CopyNodeModules.js";
+import {
+	CopyTauriMainProcessService as CopyTauriMainProcessServiceFactory,
+	type CopyTauriMainProcessServiceInput,
+} from "./Copy/CopyTauriMainProcessService.js";
+import {
+	CopyVSOutput as CopyVSOutputFactory,
+	type CopyVSOutputInput,
+} from "./Copy/CopyVSOutput.js";
+import {
+	CopyVSRootFiles as CopyVSRootFilesFactory,
+	type CopyVSRootFilesInput,
+} from "./Copy/CopyVSRootFiles.js";
+import {
+	CopyWorker as CopyWorkerFactory,
+	type CopyWorkerInput,
+} from "./Copy/CopyWorker.js";
+import {
+	StubUnpublishedAddons as StubUnpublishedAddonsFactory,
+	type StubUnpublishedAddonsInput,
+} from "./Copy/StubUnpublishedAddons.js";
+import {
+	SupplementFromDependency as SupplementFromDependencyFactory,
+	type SupplementFromDependencyInput,
+} from "./Copy/SupplementFromDependency.js";
+import CatchOutputFolderRejection from "./Transform/CatchOutputFolderRejection.js";
+import DisableUnusedServices from "./Transform/DisableUnusedServices.js";
+import ExposeWorkbenchAccessor from "./Transform/ExposeWorkbenchAccessor.js";
+import ExtensionScannerIPC from "./Transform/ExtensionScannerIPC.js";
+import InjectNameShim from "./Transform/InjectNameShim.js";
+import InlineCSSImport from "./Transform/InlineCSSImport.js";
+import InstrumentVscodeGit from "./Transform/InstrumentVscodeGit.js";
+import PatchLocalTerminalBackend from "./Transform/PatchLocalTerminalBackend.js";
+import ReplaceElectronIPCService from "./Transform/ReplaceElectronIPCService.js";
+import ReplaceSearchService from "./Transform/ReplaceSearchService.js";
+import ReplaceSharedProcess from "./Transform/ReplaceSharedProcess.js";
+import StaticToDynamicImport from "./Transform/StaticToDynamicImport.js";
+import StripCSSImport from "./Transform/StripCSSImport.js";
+import StripDanglingSourceMap from "./Transform/StripDanglingSourceMap.js";
+import StripWebviewIframeSandbox from "./Transform/StripWebviewIframeSandbox.js";
+import type { Plugin } from "./Type.js";
+
 /**
  * Plugin/Index - single entry point for consumers.
  *
@@ -15,7 +60,8 @@
  *   5. CopyNodeModules          (Step 11)
  *   6. StubUnpublishedAddons    (Step 12)
  *   -- transforms run after every copy settles --
- *   7. StripCSSImport           (Step 4)
+ *   7. StripCSSImport / InlineCSSImport (Step 4 - profile-gated:
+ *      `release-*` inlines CSS bytes, others delegate to Worker SW)
  *   8. InjectNameShim           (Step 6)
  *   9. ReplaceElectronIPCService(Step 7)
  *  10. ReplaceSharedProcess     (Step 7b)
@@ -45,6 +91,7 @@ export { default as ApplyPlugins } from "./Apply.js";
 export type { ApplyInput, ApplyOutcome } from "./Apply.js";
 
 export { default as StripCSSImport } from "./Transform/StripCSSImport.js";
+export { default as InlineCSSImport } from "./Transform/InlineCSSImport.js";
 export { default as InjectNameShim } from "./Transform/InjectNameShim.js";
 export { default as ReplaceElectronIPCService } from "./Transform/ReplaceElectronIPCService.js";
 export { default as ReplaceSharedProcess } from "./Transform/ReplaceSharedProcess.js";
@@ -74,10 +121,7 @@ export {
 	default as SupplementFromDependencyDefault,
 } from "./Copy/SupplementFromDependency.js";
 export type { SupplementFromDependencyInput } from "./Copy/SupplementFromDependency.js";
-export {
-	CopyWorker,
-	default as CopyWorkerDefault,
-} from "./Copy/CopyWorker.js";
+export { CopyWorker, default as CopyWorkerDefault } from "./Copy/CopyWorker.js";
 export type { CopyWorkerInput } from "./Copy/CopyWorker.js";
 export {
 	CopyNodeModules,
@@ -98,52 +142,6 @@ export {
 } from "./Copy/CopyTauriMainProcessService.js";
 export type { CopyTauriMainProcessServiceInput } from "./Copy/CopyTauriMainProcessService.js";
 
-import type { Plugin } from "./Type.js";
-
-import StripCSSImport from "./Transform/StripCSSImport.js";
-import InjectNameShim from "./Transform/InjectNameShim.js";
-import ReplaceElectronIPCService from "./Transform/ReplaceElectronIPCService.js";
-import ReplaceSharedProcess from "./Transform/ReplaceSharedProcess.js";
-import StaticToDynamicImport from "./Transform/StaticToDynamicImport.js";
-import StripDanglingSourceMap from "./Transform/StripDanglingSourceMap.js";
-import ExtensionScannerIPC from "./Transform/ExtensionScannerIPC.js";
-import CatchOutputFolderRejection from "./Transform/CatchOutputFolderRejection.js";
-import StripWebviewIframeSandbox from "./Transform/StripWebviewIframeSandbox.js";
-import ExposeWorkbenchAccessor from "./Transform/ExposeWorkbenchAccessor.js";
-import DisableUnusedServices from "./Transform/DisableUnusedServices.js";
-import InstrumentVscodeGit from "./Transform/InstrumentVscodeGit.js";
-import ReplaceSearchService from "./Transform/ReplaceSearchService.js";
-import PatchLocalTerminalBackend from "./Transform/PatchLocalTerminalBackend.js";
-
-import {
-	CopyVSOutput as CopyVSOutputFactory,
-	type CopyVSOutputInput,
-} from "./Copy/CopyVSOutput.js";
-import {
-	CopyVSRootFiles as CopyVSRootFilesFactory,
-	type CopyVSRootFilesInput,
-} from "./Copy/CopyVSRootFiles.js";
-import {
-	SupplementFromDependency as SupplementFromDependencyFactory,
-	type SupplementFromDependencyInput,
-} from "./Copy/SupplementFromDependency.js";
-import {
-	CopyWorker as CopyWorkerFactory,
-	type CopyWorkerInput,
-} from "./Copy/CopyWorker.js";
-import {
-	CopyNodeModules as CopyNodeModulesFactory,
-	type CopyNodeModulesInput,
-} from "./Copy/CopyNodeModules.js";
-import {
-	StubUnpublishedAddons as StubUnpublishedAddonsFactory,
-	type StubUnpublishedAddonsInput,
-} from "./Copy/StubUnpublishedAddons.js";
-import {
-	CopyTauriMainProcessService as CopyTauriMainProcessServiceFactory,
-	type CopyTauriMainProcessServiceInput,
-} from "./Copy/CopyTauriMainProcessService.js";
-
 export interface BuildPipelineInput {
 	readonly VSOutput: CopyVSOutputInput;
 	readonly VSRootFiles: CopyVSRootFilesInput;
@@ -152,76 +150,91 @@ export interface BuildPipelineInput {
 	readonly NodeModules: CopyNodeModulesInput;
 	readonly Addons: StubUnpublishedAddonsInput;
 	readonly TauriMainProcessService: CopyTauriMainProcessServiceInput;
+	/**
+	 * Build profile name (e.g. "release-electron"). Controls the CSS-handling
+	 * strategy: `release-*` profiles inline CSS at build time via
+	 * `InlineCSSImport` (bytes embedded as `<style>` inserts, zero runtime
+	 * dependency on the Worker SW or `vscode-file://` scheme handler);
+	 * everything else falls back to runtime `_LOAD_CSS_WORKER` injection via
+	 * `StripCSSImport`. The original `.css` files are left on disk regardless,
+	 * so `vscode-file://` requests still resolve through Mountain's scheme
+	 * handler if anything bypasses the inlined version.
+	 */
+	readonly Profile?: string;
 }
 
 /**
  * Compose the full default pipeline in the canonical order. Consumers can
  * still hand-assemble their own arrays if they want to skip / reorder.
  */
-export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => [
-	CopyVSOutputFactory(Input.VSOutput),
-	CopyVSRootFilesFactory(Input.VSRootFiles),
-	SupplementFromDependencyFactory(Input.Supplement),
-	CopyWorkerFactory(Input.Worker),
-	CopyNodeModulesFactory(Input.NodeModules),
-	StubUnpublishedAddonsFactory(Input.Addons),
-	CopyTauriMainProcessServiceFactory(Input.TauriMainProcessService),
-	StripCSSImport,
-	InjectNameShim,
-	ReplaceElectronIPCService,
-	ReplaceSharedProcess,
-	StaticToDynamicImport,
-	StripDanglingSourceMap,
-	ExtensionScannerIPC,
-	CatchOutputFolderRejection,
-	StripWebviewIframeSandbox,
-	// Expose the IWorkbench facade + IInstantiationService on
-	// `globalThis` as `__CEL_WORKBENCH__` / `__CEL_INSTANTIATION_SERVICE__`
-	// / `__CEL_SERVICES__` so Sky's bridge code (SkyBridge,
-	// tree-view attachment, command forwarding, status-bar sync) can
-	// call into the live workbench without re-implementing a parallel
-	// UI. Without this patch, every tree view an extension registers
-	// surfaces as `attach-give-up (no workbench tree descriptor)` on
-	// the renderer and the entire Sky→workbench integration is dead.
-	ExposeWorkbenchAccessor,
-	// Instrument the bundled vscode.git extension's `out/main.js` +
-	// `out/model.js` with `process.stdout.write('[GIT-MARK-X] ...')`
-	// markers at strategic activation-pipeline points. Bypasses the
-	// outputChannel routing entirely so progress is visible even when
-	// the channel-name dev_log filter is muted. Drives the F6
-	// diagnostic - whichever marker is the LAST visible one identifies
-	// the exact bail point in vscode.git's silent activation. Self-
-	// idempotent (skips the inject if marker already present).
-	InstrumentVscodeGit,
-	// Replace upstream contribution barrels for features Land
-	// intentionally does not back (auto-update, issue reporter, MS
-	// account / settings sync, welcome walkthrough, process explorer,
-	// experiments) with an empty default export. Removes broken UI,
-	// silences the "service not registered" warnings, and shortens
-	// boot. List lives in the transform itself.
-	DisableUnusedServices,
-	// Replace `RemoteSearchService`'s web-worker-backed file/text
-	// search provider with a Tauri-IPC client that delegates to
-	// Mountain's `search:findFiles` / `search:findInFiles` (Rust
-	// `ignore::WalkBuilder` + `grep-searcher`, `.gitignore`-aware by
-	// default). Without this, the workbench search panel shows files
-	// in the explorer pane but the match counter stays at 0 because
-	// no text-search backend ever runs, AND the file walker doesn't
-	// honour `.gitignore` so `Target/` / `node_modules/` appear in
-	// results.
-	ReplaceSearchService,
-	// Patch `LocalTerminalBackend._connectToDirectProxy` so it stops
-	// calling `acquirePort('vscode:createPtyHostMessageChannel', ...)`,
-	// which never resolves under Tauri (no Electron utility-process
-	// MessagePort). Without this, every `createTerminal` /
-	// `attachToProcess` / `listProcesses` call hangs forever because
-	// `_connectToDirectProxy()` never resolves; the user clicks
-	// "open terminal" and the panel sits empty with no PTY ever
-	// spawning. The patched body routes everything through the
-	// already-functional `_localPtyService` channel proxy
-	// (`mainProcessService.getChannel('localPty')` →
-	// Mountain's `localPty:*` handlers).
-	PatchLocalTerminalBackend,
-];
+export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => {
+	const IsRelease = (Input.Profile ?? "").startsWith("release");
+	const CSSStrategy = IsRelease ? InlineCSSImport : StripCSSImport;
+	return [
+		CopyVSOutputFactory(Input.VSOutput),
+		CopyVSRootFilesFactory(Input.VSRootFiles),
+		SupplementFromDependencyFactory(Input.Supplement),
+		CopyWorkerFactory(Input.Worker),
+		CopyNodeModulesFactory(Input.NodeModules),
+		StubUnpublishedAddonsFactory(Input.Addons),
+		CopyTauriMainProcessServiceFactory(Input.TauriMainProcessService),
+		CSSStrategy,
+		InjectNameShim,
+		ReplaceElectronIPCService,
+		ReplaceSharedProcess,
+		StaticToDynamicImport,
+		StripDanglingSourceMap,
+		ExtensionScannerIPC,
+		CatchOutputFolderRejection,
+		StripWebviewIframeSandbox,
+		// Expose the IWorkbench facade + IInstantiationService on
+		// `globalThis` as `__CEL_WORKBENCH__` / `__CEL_INSTANTIATION_SERVICE__`
+		// / `__CEL_SERVICES__` so Sky's bridge code (SkyBridge,
+		// tree-view attachment, command forwarding, status-bar sync) can
+		// call into the live workbench without re-implementing a parallel
+		// UI. Without this patch, every tree view an extension registers
+		// surfaces as `attach-give-up (no workbench tree descriptor)` on
+		// the renderer and the entire Sky→workbench integration is dead.
+		ExposeWorkbenchAccessor,
+		// Instrument the bundled vscode.git extension's `out/main.js` +
+		// `out/model.js` with `process.stdout.write('[GIT-MARK-X] ...')`
+		// markers at strategic activation-pipeline points. Bypasses the
+		// outputChannel routing entirely so progress is visible even when
+		// the channel-name dev_log filter is muted. Drives the F6
+		// diagnostic - whichever marker is the LAST visible one identifies
+		// the exact bail point in vscode.git's silent activation. Self-
+		// idempotent (skips the inject if marker already present).
+		InstrumentVscodeGit,
+		// Replace upstream contribution barrels for features Land
+		// intentionally does not back (auto-update, issue reporter, MS
+		// account / settings sync, welcome walkthrough, process explorer,
+		// experiments) with an empty default export. Removes broken UI,
+		// silences the "service not registered" warnings, and shortens
+		// boot. List lives in the transform itself.
+		DisableUnusedServices,
+		// Replace `RemoteSearchService`'s web-worker-backed file/text
+		// search provider with a Tauri-IPC client that delegates to
+		// Mountain's `search:findFiles` / `search:findInFiles` (Rust
+		// `ignore::WalkBuilder` + `grep-searcher`, `.gitignore`-aware by
+		// default). Without this, the workbench search panel shows files
+		// in the explorer pane but the match counter stays at 0 because
+		// no text-search backend ever runs, AND the file walker doesn't
+		// honour `.gitignore` so `Target/` / `node_modules/` appear in
+		// results.
+		ReplaceSearchService,
+		// Patch `LocalTerminalBackend._connectToDirectProxy` so it stops
+		// calling `acquirePort('vscode:createPtyHostMessageChannel', ...)`,
+		// which never resolves under Tauri (no Electron utility-process
+		// MessagePort). Without this, every `createTerminal` /
+		// `attachToProcess` / `listProcesses` call hangs forever because
+		// `_connectToDirectProxy()` never resolves; the user clicks
+		// "open terminal" and the panel sits empty with no PTY ever
+		// spawning. The patched body routes everything through the
+		// already-functional `_localPtyService` channel proxy
+		// (`mainProcessService.getChannel('localPty')` →
+		// Mountain's `localPty:*` handlers).
+		PatchLocalTerminalBackend,
+	];
+};
 
 export default BuildPipeline;

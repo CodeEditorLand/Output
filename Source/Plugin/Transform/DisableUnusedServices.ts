@@ -37,7 +37,8 @@
 
 import type { TransformPlugin } from "../Type.js";
 
-const InertBody = "// [Land] disabled by DisableUnusedServices transform.\nexport default {};\n";
+const InertBody =
+	"// [Land] disabled by DisableUnusedServices transform.\nexport default {};\n";
 
 // Path patterns that should be replaced. Each entry is anchored by
 // `<path>.js$` so the regex matches the bundled output (which keeps the
@@ -79,9 +80,9 @@ const DisablePathSegments: string[] = [
 ];
 
 const PathRegex = new RegExp(
-	`(?:${DisablePathSegments
-		.map((P) => P.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
-		.join("|")})$`,
+	`(?:${DisablePathSegments.map((P) =>
+		P.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
+	).join("|")})$`,
 );
 
 const Plugin: TransformPlugin = {

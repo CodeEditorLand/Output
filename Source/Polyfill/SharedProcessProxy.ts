@@ -216,8 +216,7 @@ function createServiceProxy(service: SharedProcessService): ServiceProxy {
 			eventListeners.forEach((listener) => {
 				try {
 					listener(...args);
-				} catch (error) {
-				}
+				} catch (error) {}
 			});
 		}
 	}
@@ -797,6 +796,5 @@ export default {
 
 // Auto-install on import
 if (typeof window !== "undefined") {
-	installSharedProcessProxy().catch((error) => {
-	});
+	installSharedProcessProxy().catch((error) => {});
 }

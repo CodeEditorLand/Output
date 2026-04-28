@@ -26,8 +26,7 @@
 
 import type { TransformPlugin } from "../Type.js";
 
-const PathRegex =
-	/\/workbench\/contrib\/webview\/browser\/pre\/index\.html$/;
+const PathRegex = /\/workbench\/contrib\/webview\/browser\/pre\/index\.html$/;
 
 // The upstream line (index.html:1054):
 //   newFrame.setAttribute('sandbox', Array.from(sandboxRules).join(' '));
@@ -37,8 +36,7 @@ const PathRegex =
 const SandboxSetCall =
 	/newFrame\.setAttribute\(\s*['"]sandbox['"]\s*,\s*Array\.from\(sandboxRules\)\.join\(\s*['"] ['"]\s*\)\s*\);/;
 
-const SandboxReplacement =
-	`/* Land: sandbox attribute stripped - WKWebView blocks custom-protocol main-resource loads from sandboxed iframes. */`;
+const SandboxReplacement = `/* Land: sandbox attribute stripped - WKWebView blocks custom-protocol main-resource loads from sandboxed iframes. */`;
 
 const Plugin: TransformPlugin = {
 	Kind: "Transform",

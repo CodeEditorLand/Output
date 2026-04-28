@@ -6,9 +6,8 @@
  * none matched) so the caller can emit telemetry / warnings.
  */
 
-import { cp, copyFile, stat, writeFile } from "node:fs/promises";
+import { copyFile, cp, mkdir, stat, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
-import { mkdir } from "node:fs/promises";
 
 /**
  * Marker prefix used by `StubUnpublishedAddons` to inline a body into a

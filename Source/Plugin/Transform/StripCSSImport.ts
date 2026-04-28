@@ -10,7 +10,7 @@
 
 import type { TransformPlugin } from "../Type.js";
 
-const CSSImport = /^import\s+(['"])([^'"]+\.css)\1\s*;?\s*$/gm;
+const CSSImport = /import\s*(['"])([^'"]+\.css)\1\s*;?/g;
 
 const Plugin: TransformPlugin = {
 	Kind: "Transform",

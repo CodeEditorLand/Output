@@ -283,8 +283,7 @@ function createMockStream(direction: "read" | "write"): Stream {
 				eventListeners.forEach((listener) => {
 					try {
 						listener(...args);
-					} catch (error) {
-					}
+					} catch (error) {}
 				});
 			}
 		},
@@ -471,8 +470,7 @@ class ChildProcess {
 		listeners.forEach((listener) => {
 			try {
 				listener(...args);
-			} catch (error) {
-			}
+			} catch (error) {}
 		});
 
 		return true;
@@ -496,8 +494,7 @@ class ChildProcess {
 		invokeTauri("child_process:kill", {
 			spawn_id: this._sPid,
 			signal,
-		}).catch((error) => {
-		});
+		}).catch((error) => {});
 
 		// Note: We don't immediately mark as killed; wait for exit event from Tauri
 		return true;
@@ -514,8 +511,7 @@ class ChildProcess {
 		invokeTauri("child_process:send", {
 			spawn_id: this._sPid,
 			message,
-		}).catch((error) => {
-		});
+		}).catch((error) => {});
 
 		return true;
 	}
@@ -564,7 +560,6 @@ function spawn(
 	args?: string[],
 	options?: SpawnOptions,
 ): ChildProcess {
-
 	// Generate unique spawn ID
 	const spawnId = `spawn_${Date.now()}_${Math.random().toString(36).substring(7)}`;
 

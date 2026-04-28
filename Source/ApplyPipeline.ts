@@ -61,21 +61,33 @@ await mkdir(dirname(Destination), { recursive: true });
 await copyFile(Source, Destination);
 console.log(`[Output/Pipeline] Copied TauriMainProcessService.js -> ${Destination}`);
 
-const Profile = process.env["Profile"] ?? "";
-const IsRelease = Profile.startsWith("release");
-const CSSStrategy = IsRelease
-	? Configuration.InlineCSSImport
-	: Configuration.StripCSSImport;
-
+// `StaticToDynamicImport` and `StripCSSImport` / `InlineCSSImport` are
+// INTENTIONALLY excluded from this Output-side pipeline.
+//
+// They both rewrite static `import "./foo.{js,css}"` statements into
+// runtime forms (`await import(...)` for JS, `_LOAD_CSS_WORKER(...)`
+// for CSS). Those forms suit the existing `/Static/Application/` path
+// where every file is served as a separate HTTP asset and loaded
+// individually via the Worker SW.
+//
+// For the bundled tree (Vite walks Output's Target), we WANT static
+// imports so Rollup can follow the module graph and emit a single
+// hashed chunk. Same for CSS - Vite's native pipeline extracts and
+// hashes CSS assets into `_astro/`, with `cssCodeSplit: false` set
+// in `astro.config.ts` to fold every CSS module into one file.
+//
+// Sky's `astro:build:done` hook still runs the full `BuildPipeline`
+// (which DOES include StaticToDynamicImport + CSSStrategy) over
+// Sky/Target/Static/Application/, so the existing path keeps its
+// runtime-load behaviour. The two output trees diverge here on
+// purpose.
 const Pipeline: Array<Plugin> = [
-	CSSStrategy,
 	Configuration.InjectNameShim,
 	Configuration.InjectWebViewPolyfills,
 	Configuration.RewriteWorkerURLs,
 	Configuration.RewriteWorkbenchBaseURL,
 	Configuration.ReplaceElectronIPCService,
 	Configuration.ReplaceSharedProcess,
-	Configuration.StaticToDynamicImport,
 	Configuration.StripDanglingSourceMap,
 	Configuration.ExtensionScannerIPC,
 	Configuration.CatchOutputFolderRejection,

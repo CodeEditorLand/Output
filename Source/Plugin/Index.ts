@@ -31,12 +31,15 @@ import DisableUnusedServices from "./Transform/DisableUnusedServices.js";
 import ExposeWorkbenchAccessor from "./Transform/ExposeWorkbenchAccessor.js";
 import ExtensionScannerIPC from "./Transform/ExtensionScannerIPC.js";
 import InjectNameShim from "./Transform/InjectNameShim.js";
+import InjectWebViewPolyfills from "./Transform/InjectWebViewPolyfills.js";
 import InlineCSSImport from "./Transform/InlineCSSImport.js";
 import InstrumentVscodeGit from "./Transform/InstrumentVscodeGit.js";
 import PatchLocalTerminalBackend from "./Transform/PatchLocalTerminalBackend.js";
 import ReplaceElectronIPCService from "./Transform/ReplaceElectronIPCService.js";
 import ReplaceSearchService from "./Transform/ReplaceSearchService.js";
 import ReplaceSharedProcess from "./Transform/ReplaceSharedProcess.js";
+import RewriteWorkbenchBaseURL from "./Transform/RewriteWorkbenchBaseURL.js";
+import RewriteWorkerURLs from "./Transform/RewriteWorkerURLs.js";
 import StaticToDynamicImport from "./Transform/StaticToDynamicImport.js";
 import StripCSSImport from "./Transform/StripCSSImport.js";
 import StripDanglingSourceMap from "./Transform/StripDanglingSourceMap.js";
@@ -93,6 +96,9 @@ export type { ApplyInput, ApplyOutcome } from "./Apply.js";
 export { default as StripCSSImport } from "./Transform/StripCSSImport.js";
 export { default as InlineCSSImport } from "./Transform/InlineCSSImport.js";
 export { default as InjectNameShim } from "./Transform/InjectNameShim.js";
+export { default as InjectWebViewPolyfills } from "./Transform/InjectWebViewPolyfills.js";
+export { default as RewriteWorkerURLs } from "./Transform/RewriteWorkerURLs.js";
+export { default as RewriteWorkbenchBaseURL } from "./Transform/RewriteWorkbenchBaseURL.js";
 export { default as ReplaceElectronIPCService } from "./Transform/ReplaceElectronIPCService.js";
 export { default as ReplaceSharedProcess } from "./Transform/ReplaceSharedProcess.js";
 export { default as StaticToDynamicImport } from "./Transform/StaticToDynamicImport.js";
@@ -180,6 +186,24 @@ export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => {
 		CopyTauriMainProcessServiceFactory(Input.TauriMainProcessService),
 		CSSStrategy,
 		InjectNameShim,
+		// Inject WKWebView polyfills + Blob worker URL rewrite into VS
+		// Code's Electron workbench entry. Runs at module-eval time so
+		// `window.requestIdleCallback` / `queryLocalFonts` are present
+		// before any contribution touches them. Idempotent.
+		InjectWebViewPolyfills,
+		// Rewrite `new URL("./worker.html", import.meta.url)` patterns
+		// to absolute origin-pinned `/Static/Application/...` URLs so
+		// they resolve regardless of where the bundled chunk lives.
+		// Without this, Vite-bundled chunks resolve worker scripts
+		// relative to `_astro/` and the dev server returns 404 HTML
+		// (browser parses it as JS, crashes with "Unexpected token <").
+		RewriteWorkerURLs,
+		// Rewrite the workbench loader's base URL from `vscode-file://`
+		// (which only resolves when Mountain's custom scheme handler is
+		// registered with the webview - not the case in dev profiles)
+		// to a plain `${location.origin}/Static/Application/` URL that
+		// resolves through the normal HTTP path Sky's pipeline serves.
+		RewriteWorkbenchBaseURL,
 		ReplaceElectronIPCService,
 		ReplaceSharedProcess,
 		StaticToDynamicImport,

@@ -18,47 +18,6 @@
 		"url": "https://Editor.Land"
 	},
 	"type": "module",
-	"exports": {
-		"./*": {
-			"import": "./Target/Microsoft/VSCode/*.js",
-			"types": "./Target/Microsoft/VSCode/*.d.ts"
-		},
-		"./Polyfill/*": {
-			"import": "./Configuration/Polyfill/*.js",
-			"types": "./Configuration/Polyfill/*.d.ts"
-		},
-		"./Service/*": {
-			"import": "./Configuration/Service/*.js",
-			"types": "./Configuration/Service/*.d.ts"
-		},
-		"./Plugin": {
-			"import": "./Configuration/Plugin/Index.js",
-			"types": "./Configuration/Plugin/Index.d.ts"
-		},
-		"./Plugin/*": {
-			"import": "./Configuration/Plugin/*.js",
-			"types": "./Configuration/Plugin/*.d.ts"
-		}
-	},
-	"typesVersions": {
-		"*": {
-			"Polyfill/*": [
-				"./Configuration/Polyfill/*"
-			],
-			"Service/*": [
-				"./Configuration/Service/*"
-			],
-			"Plugin": [
-				"./Configuration/Plugin/Index"
-			],
-			"Plugin/*": [
-				"./Configuration/Plugin/*"
-			],
-			"*": [
-				"./Target/Microsoft/VSCode/*"
-			]
-		}
-	},
 	"scripts": {
 		"Run": "sh Source/Run.sh",
 		"prepublishOnly": "sh Source/prepublishOnly.sh"

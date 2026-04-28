@@ -7,7 +7,7 @@
  *
  * The extension's own `logger.info(...)` calls go through Cocoon's
  * `outputChannel.append` IPC, which is routed to the `output-verbose`
- * dev_log tag (muted in `LAND_DEV_LOG=short`). Even with the channel-
+ * dev_log tag (muted in `Trace=short`). Even with the channel-
  * name routing fix in `OutputChannelAppend.rs`, individual `logger.X`
  * calls happen INSIDE the extension after `createOutputChannel` returns
  * a wrapper - if `createOutputChannel` itself was never reached (e.g.
@@ -16,7 +16,7 @@
  *
  * Bypassing the outputChannel layer entirely with `process.stdout.write`
  * markers gives us unambiguous progress signals visible in any
- * `LAND_DEV_LOG` mode. Each marker is a distinct prefix the watcher can
+ * `Trace` mode. Each marker is a distinct prefix the watcher can
  * grep with no ambiguity:
  *
  *   [GIT-MARK-A] activate() entered

@@ -4,7 +4,7 @@ let CachedTags = null;
 let CachedShort = null;
 const GetEnabledTags = /* @__PURE__ */ __name(() => {
   if (CachedTags !== null) return CachedTags;
-  const Raw = window.__LAND_DEV_LOG ?? (typeof localStorage !== "undefined" ? localStorage.getItem("LAND_DEV_LOG") : null);
+  const Raw = window.__Trace ?? (typeof localStorage !== "undefined" ? localStorage.getItem("Trace") : null);
   CachedTags = Raw ? String(Raw).split(",").map((S) => S.trim().toLowerCase()) : [];
   return CachedTags;
 }, "GetEnabledTags");

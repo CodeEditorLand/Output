@@ -26,12 +26,15 @@ import DisableUnusedServices from "./Transform/DisableUnusedServices.js";
 import ExposeWorkbenchAccessor from "./Transform/ExposeWorkbenchAccessor.js";
 import ExtensionScannerIPC from "./Transform/ExtensionScannerIPC.js";
 import InjectNameShim from "./Transform/InjectNameShim.js";
+import InjectWebViewPolyfills from "./Transform/InjectWebViewPolyfills.js";
 import InlineCSSImport from "./Transform/InlineCSSImport.js";
 import InstrumentVscodeGit from "./Transform/InstrumentVscodeGit.js";
 import PatchLocalTerminalBackend from "./Transform/PatchLocalTerminalBackend.js";
 import ReplaceElectronIPCService from "./Transform/ReplaceElectronIPCService.js";
 import ReplaceSearchService from "./Transform/ReplaceSearchService.js";
 import ReplaceSharedProcess from "./Transform/ReplaceSharedProcess.js";
+import RewriteWorkbenchBaseURL from "./Transform/RewriteWorkbenchBaseURL.js";
+import RewriteWorkerURLs from "./Transform/RewriteWorkerURLs.js";
 import StaticToDynamicImport from "./Transform/StaticToDynamicImport.js";
 import StripCSSImport from "./Transform/StripCSSImport.js";
 import StripDanglingSourceMap from "./Transform/StripDanglingSourceMap.js";
@@ -41,45 +44,48 @@ import { default as default2 } from "./Apply.js";
 import { default as default3 } from "./Transform/StripCSSImport.js";
 import { default as default4 } from "./Transform/InlineCSSImport.js";
 import { default as default5 } from "./Transform/InjectNameShim.js";
-import { default as default6 } from "./Transform/ReplaceElectronIPCService.js";
-import { default as default7 } from "./Transform/ReplaceSharedProcess.js";
-import { default as default8 } from "./Transform/StaticToDynamicImport.js";
-import { default as default9 } from "./Transform/StripDanglingSourceMap.js";
-import { default as default10 } from "./Transform/ExtensionScannerIPC.js";
-import { default as default11 } from "./Transform/CatchOutputFolderRejection.js";
-import { default as default12 } from "./Transform/StripWebviewIframeSandbox.js";
-import { default as default13 } from "./Transform/ExposeWorkbenchAccessor.js";
-import { default as default14 } from "./Transform/InstrumentVscodeGit.js";
-import { default as default15 } from "./Transform/DisableUnusedServices.js";
-import { default as default16 } from "./Transform/ReplaceSearchService.js";
-import { default as default17 } from "./Transform/PatchLocalTerminalBackend.js";
+import { default as default6 } from "./Transform/InjectWebViewPolyfills.js";
+import { default as default7 } from "./Transform/RewriteWorkerURLs.js";
+import { default as default8 } from "./Transform/RewriteWorkbenchBaseURL.js";
+import { default as default9 } from "./Transform/ReplaceElectronIPCService.js";
+import { default as default10 } from "./Transform/ReplaceSharedProcess.js";
+import { default as default11 } from "./Transform/StaticToDynamicImport.js";
+import { default as default12 } from "./Transform/StripDanglingSourceMap.js";
+import { default as default13 } from "./Transform/ExtensionScannerIPC.js";
+import { default as default14 } from "./Transform/CatchOutputFolderRejection.js";
+import { default as default15 } from "./Transform/StripWebviewIframeSandbox.js";
+import { default as default16 } from "./Transform/ExposeWorkbenchAccessor.js";
+import { default as default17 } from "./Transform/InstrumentVscodeGit.js";
+import { default as default18 } from "./Transform/DisableUnusedServices.js";
+import { default as default19 } from "./Transform/ReplaceSearchService.js";
+import { default as default20 } from "./Transform/PatchLocalTerminalBackend.js";
 import {
   CopyVSOutput,
-  default as default18
+  default as default21
 } from "./Copy/CopyVSOutput.js";
 import {
   CopyVSRootFiles,
-  default as default19
+  default as default22
 } from "./Copy/CopyVSRootFiles.js";
 import {
   SupplementFromDependency,
-  default as default20
+  default as default23
 } from "./Copy/SupplementFromDependency.js";
-import { CopyWorker, default as default21 } from "./Copy/CopyWorker.js";
+import { CopyWorker, default as default24 } from "./Copy/CopyWorker.js";
 import {
   CopyNodeModules,
   DefaultPackages,
-  default as default22
+  default as default25
 } from "./Copy/CopyNodeModules.js";
 import {
   StubUnpublishedAddons,
   DefaultStubs,
   StubDataPrefix,
-  default as default23
+  default as default26
 } from "./Copy/StubUnpublishedAddons.js";
 import {
   CopyTauriMainProcessService,
-  default as default24
+  default as default27
 } from "./Copy/CopyTauriMainProcessService.js";
 const BuildPipeline = /* @__PURE__ */ __name((Input) => {
   const IsRelease = (Input.Profile ?? "").startsWith("release");
@@ -94,6 +100,24 @@ const BuildPipeline = /* @__PURE__ */ __name((Input) => {
     CopyTauriMainProcessServiceFactory(Input.TauriMainProcessService),
     CSSStrategy,
     InjectNameShim,
+    // Inject WKWebView polyfills + Blob worker URL rewrite into VS
+    // Code's Electron workbench entry. Runs at module-eval time so
+    // `window.requestIdleCallback` / `queryLocalFonts` are present
+    // before any contribution touches them. Idempotent.
+    InjectWebViewPolyfills,
+    // Rewrite `new URL("./worker.html", import.meta.url)` patterns
+    // to absolute origin-pinned `/Static/Application/...` URLs so
+    // they resolve regardless of where the bundled chunk lives.
+    // Without this, Vite-bundled chunks resolve worker scripts
+    // relative to `_astro/` and the dev server returns 404 HTML
+    // (browser parses it as JS, crashes with "Unexpected token <").
+    RewriteWorkerURLs,
+    // Rewrite the workbench loader's base URL from `vscode-file://`
+    // (which only resolves when Mountain's custom scheme handler is
+    // registered with the webview - not the case in dev profiles)
+    // to a plain `${location.origin}/Static/Application/` URL that
+    // resolves through the normal HTTP path Sky's pipeline serves.
+    RewriteWorkbenchBaseURL,
     ReplaceElectronIPCService,
     ReplaceSharedProcess,
     StaticToDynamicImport,
@@ -154,38 +178,41 @@ var Index_default = BuildPipeline;
 export {
   default2 as ApplyPlugins,
   BuildPipeline,
-  default11 as CatchOutputFolderRejection,
+  default14 as CatchOutputFolderRejection,
   CopyNodeModules,
-  default22 as CopyNodeModulesDefault,
+  default25 as CopyNodeModulesDefault,
   CopyTauriMainProcessService,
-  default24 as CopyTauriMainProcessServiceDefault,
+  default27 as CopyTauriMainProcessServiceDefault,
   CopyVSOutput,
-  default18 as CopyVSOutputDefault,
+  default21 as CopyVSOutputDefault,
   CopyVSRootFiles,
-  default19 as CopyVSRootFilesDefault,
+  default22 as CopyVSRootFilesDefault,
   CopyWorker,
-  default21 as CopyWorkerDefault,
+  default24 as CopyWorkerDefault,
   DefaultPackages as DefaultNodeModulePackages,
   DefaultStubs,
-  default15 as DisableUnusedServices,
-  default13 as ExposeWorkbenchAccessor,
-  default10 as ExtensionScannerIPC,
+  default18 as DisableUnusedServices,
+  default16 as ExposeWorkbenchAccessor,
+  default13 as ExtensionScannerIPC,
   default5 as InjectNameShim,
+  default6 as InjectWebViewPolyfills,
   default4 as InlineCSSImport,
-  default14 as InstrumentVscodeGit,
-  default17 as PatchLocalTerminalBackend,
-  default6 as ReplaceElectronIPCService,
-  default16 as ReplaceSearchService,
-  default7 as ReplaceSharedProcess,
-  default8 as StaticToDynamicImport,
+  default17 as InstrumentVscodeGit,
+  default20 as PatchLocalTerminalBackend,
+  default9 as ReplaceElectronIPCService,
+  default19 as ReplaceSearchService,
+  default10 as ReplaceSharedProcess,
+  default8 as RewriteWorkbenchBaseURL,
+  default7 as RewriteWorkerURLs,
+  default11 as StaticToDynamicImport,
   default3 as StripCSSImport,
-  default9 as StripDanglingSourceMap,
-  default12 as StripWebviewIframeSandbox,
+  default12 as StripDanglingSourceMap,
+  default15 as StripWebviewIframeSandbox,
   StubDataPrefix,
   StubUnpublishedAddons,
-  default23 as StubUnpublishedAddonsDefault,
+  default26 as StubUnpublishedAddonsDefault,
   SupplementFromDependency,
-  default20 as SupplementFromDependencyDefault,
+  default23 as SupplementFromDependencyDefault,
   Index_default as default
 };
 //# sourceMappingURL=Index.js.map

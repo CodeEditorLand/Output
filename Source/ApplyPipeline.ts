@@ -1,0 +1,107 @@
+/**
+ * Output-side transform runner.
+ *
+ * Runs at the tail of `Source/prepublishOnly.sh`, AFTER `Build` has
+ * populated `Target/Microsoft/VSCode/` from the upstream VS Code
+ * source. Applies the transform plugins from `Plugin/Index.ts` to
+ * Output's own Target so every consumer (Sky's `/Static/Application/`
+ * copy AND Sky's bundled Vite walk) sees pre-transformed files.
+ *
+ * Why here and not in Sky's `astro:build:done`:
+ *   • Sky's bundled tree (Vite) walks `@codeeditorland/output/Target/...`
+ *     BEFORE astro:build:done fires. Running transforms in Sky leaves
+ *     the bundled output un-shimmed.
+ *   • Putting transforms here means Output ships a single canonical
+ *     pre-transformed tree. Both consumers benefit, no duplication.
+ *
+ * Only TRANSFORM plugins run here - copy plugins (CopyVSOutput,
+ * CopyWorker, etc.) belong in Sky because they target Sky's output
+ * dir, not Output's. The Mountain-coupled inline patches (workbench.js
+ * error surfacing, desktop.main.js perf marks, built-in extension
+ * copy + npm install) stay in Sky for the same reason.
+ *
+ * Idempotent: every transform's `Match` filter narrows to specific
+ * paths and most check for a marker before patching, so re-running
+ * the script (or re-running Sky's pipeline on top of these changes)
+ * is safe.
+ */
+
+import { mkdir, copyFile } from "node:fs/promises";
+import { dirname, resolve } from "node:path";
+
+import ApplyPlugins from "./Plugin/Apply.js";
+import type { Plugin } from "./Plugin/Type.js";
+
+const Configuration = await import("./Plugin/Index.js");
+
+// -----------------------------------------------------------------------------
+// COPY STEP: TauriMainProcessService.js into Target tree
+// -----------------------------------------------------------------------------
+// `ReplaceElectronIPCService` transform rewrites VS Code's
+// `vs/platform/ipc/electron-browser/mainProcessService.js` to
+// `import "./TauriMainProcessService.js"`. Sky's astro:build:done
+// pipeline copies the file into Sky/Target/Static/Application/ AFTER
+// Vite has finished walking modules - so the bundled tree (Vite) finds
+// the rewritten import but no sibling file, and fails with
+// `Could not resolve "./TauriMainProcessService.js"`.
+//
+// Fix: copy the compiled service into Output's own Target as the
+// canonical source, BEFORE transforms run. Both Sky paths (the
+// `/Static/Application/` copy and the bundled Vite walk) consume
+// Output's Target, so the file is available everywhere.
+const Source = resolve(
+	process.cwd(),
+	"Configuration/Service/TauriMainProcessService.js",
+);
+const Destination = resolve(
+	process.cwd(),
+	"Target/Microsoft/VSCode/vs/platform/ipc/electron-browser/TauriMainProcessService.js",
+);
+await mkdir(dirname(Destination), { recursive: true });
+await copyFile(Source, Destination);
+console.log(`[Output/Pipeline] Copied TauriMainProcessService.js -> ${Destination}`);
+
+const Profile = process.env["Profile"] ?? "";
+const IsRelease = Profile.startsWith("release");
+const CSSStrategy = IsRelease
+	? Configuration.InlineCSSImport
+	: Configuration.StripCSSImport;
+
+const Pipeline: Array<Plugin> = [
+	CSSStrategy,
+	Configuration.InjectNameShim,
+	Configuration.InjectWebViewPolyfills,
+	Configuration.RewriteWorkerURLs,
+	Configuration.RewriteWorkbenchBaseURL,
+	Configuration.ReplaceElectronIPCService,
+	Configuration.ReplaceSharedProcess,
+	Configuration.StaticToDynamicImport,
+	Configuration.StripDanglingSourceMap,
+	Configuration.ExtensionScannerIPC,
+	Configuration.CatchOutputFolderRejection,
+	Configuration.StripWebviewIframeSandbox,
+	Configuration.ExposeWorkbenchAccessor,
+	Configuration.InstrumentVscodeGit,
+	Configuration.DisableUnusedServices,
+	Configuration.ReplaceSearchService,
+	Configuration.PatchLocalTerminalBackend,
+];
+
+const Target = resolve(process.cwd(), "Target/Microsoft/VSCode");
+
+const Outcome = await ApplyPlugins({
+	Plugins: Pipeline,
+	Roots: [{ Path: Target, Role: "app" }],
+	Log: (Message) => console.log(`[Output/Pipeline] ${Message}`),
+});
+
+const RewrittenTotal = Outcome.Transform.reduce(
+	(Sum, Item) => Sum + Item.Rewritten,
+	0,
+);
+
+console.log(
+	`[Output/Pipeline] Done: ${Outcome.Transform.length} transforms, ${RewrittenTotal} files rewritten.`,
+);
+
+export default {} as const;

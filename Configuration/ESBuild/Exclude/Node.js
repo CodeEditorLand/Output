@@ -17,7 +17,14 @@ var Node_default = /* @__PURE__ */ __name((Prefix) => [
   `${Prefix}/platform/lifecycle/node/*`,
   `${Prefix}/platform/log/node/*`,
   `${Prefix}/platform/mcp/node/*`,
-  `${Prefix}/platform/native/*`,
+  // Node-only: `electron-main/` (Electron main process) and `node/` (raw
+  // Node platform). The `common/` subdir is browser-safe (re-exports the
+  // IPC contract surface) and MUST NOT be excluded - the workbench's
+  // `desktop.contribution` imports `vs/platform/native/common/native.js`,
+  // and excluding it breaks Vite's bundled-tree resolution chain. The
+  // previous wildcard `${Prefix}/platform/native/*` was over-broad.
+  `${Prefix}/platform/native/electron-main/*`,
+  `${Prefix}/platform/native/node/*`,
   `${Prefix}/platform/policy/node/*`,
   `${Prefix}/platform/remote/node/*`,
   `${Prefix}/platform/remoteTunnel/node/*`,

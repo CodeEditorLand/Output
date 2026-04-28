@@ -99,7 +99,15 @@ const SharedImportLines =
 	"// the resolver, the resolver fires `webview.resolveView`\n" +
 	"// reverse-RPC into Cocoon, and the extension's\n" +
 	"// `resolveWebviewView(view, ctx)` callback paints the panel.\n" +
-	"import { IWebviewViewService as __CEL_IWebviewViewService } from '../contrib/webviewView/browser/webviewViewService.js';";
+	"import { IWebviewViewService as __CEL_IWebviewViewService } from '../contrib/webviewView/browser/webviewViewService.js';\n" +
+	"// [Land] IMarkerService - the workbench's diagnostic store. Mountain\n" +
+	"// emits `sky://diagnostics/changed` after each `Diagnostic.Set` from\n" +
+	"// Cocoon; SkyBridge needs to call `Markers.changeOne(owner, uri,\n" +
+	"// markers)` to push into this service so red squiggles paint in the\n" +
+	"// editor and the Problems panel populates. Without this exposure,\n" +
+	"// every diagnostic from every language extension (rust-analyzer,\n" +
+	"// TypeScript, ESLint, ...) is invisible.\n" +
+	"import { IMarkerService as __CEL_IMarkerService } from '../../platform/markers/common/markers.js';";
 
 const WebMainImportMarker =
 	"import { mark } from '../../base/common/performance.js';";
@@ -177,6 +185,12 @@ const WebMainReplacement =
 	"    // `WebviewViews.register(viewType, resolver)` so the workbench\n" +
 	"    // knows how to populate the panel when the user reveals it.\n" +
 	"    WebviewViews: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IWebviewViewService); }); } catch (E) { return null; } })(),\n" +
+	"    // IMarkerService - SkyBridge wires `cel:diagnostics:changed` ->\n" +
+	"    // `Markers.changeOne(owner, uri, markers)` so extension-supplied\n" +
+	"    // diagnostics paint in the editor + Problems panel. Null-safe\n" +
+	"    // because the marker contrib may not have loaded in headless\n" +
+	"    // profiles.\n" +
+	"    Markers: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IMarkerService); }); } catch (E) { return null; } })(),\n" +
 	"  };\n" +
 	"  try { window.dispatchEvent(new Event('cel:services-ready')); } catch {}\n" +
 	"  try {\n" +

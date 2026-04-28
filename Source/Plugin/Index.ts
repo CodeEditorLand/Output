@@ -34,6 +34,7 @@ import InjectNameShim from "./Transform/InjectNameShim.js";
 import InjectWebViewPolyfills from "./Transform/InjectWebViewPolyfills.js";
 import InjectWorkerBootstrapShim from "./Transform/InjectWorkerBootstrapShim.js";
 import RewriteNestedWorkerBootstrap from "./Transform/RewriteNestedWorkerBootstrap.js";
+import RewriteNodeModulesPath from "./Transform/RewriteNodeModulesPath.js";
 import InlineCSSImport from "./Transform/InlineCSSImport.js";
 import InstrumentVscodeGit from "./Transform/InstrumentVscodeGit.js";
 import PatchLocalTerminalBackend from "./Transform/PatchLocalTerminalBackend.js";
@@ -103,6 +104,7 @@ export { default as InjectNameShim } from "./Transform/InjectNameShim.js";
 export { default as InjectWebViewPolyfills } from "./Transform/InjectWebViewPolyfills.js";
 export { default as InjectWorkerBootstrapShim } from "./Transform/InjectWorkerBootstrapShim.js";
 export { default as RewriteNestedWorkerBootstrap } from "./Transform/RewriteNestedWorkerBootstrap.js";
+export { default as RewriteNodeModulesPath } from "./Transform/RewriteNodeModulesPath.js";
 export { default as RewriteWorkerURLs } from "./Transform/RewriteWorkerURLs.js";
 export { default as RewriteWorkbenchBaseURL } from "./Transform/RewriteWorkbenchBaseURL.js";
 export { default as RewriteStaticBlockSelfRef } from "./Transform/RewriteStaticBlockSelfRef.js";
@@ -215,6 +217,16 @@ export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => {
 		// eval with `ReferenceError: Can't find variable: $4e`. The
 		// literal-string replacement is mangler-immune.
 		RewriteNestedWorkerBootstrap,
+		// Patch `vs/base/common/network.js`'s `nodeModulesPath` from
+		// `vs/../../node_modules` (over-resolves to `Static/node_modules`)
+		// to `vs/../node_modules` (resolves to `Static/Application/
+		// node_modules` where files actually exist after the build's
+		// CopyNodeModules step). Without this, every textmate / oniguruma
+		// / language-detection import returns the SPA `index.html`
+		// fallback, the browser parses HTML as JS, and ALL grammar /
+		// tokenization / syntax-highlighting silently breaks across
+		// every extension. Idempotent.
+		RewriteNodeModulesPath,
 		// Inject WKWebView polyfills + Blob worker URL rewrite into VS
 		// Code's Electron workbench entry. Runs at module-eval time so
 		// `window.requestIdleCallback` / `queryLocalFonts` are present

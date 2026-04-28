@@ -38,18 +38,29 @@
  * references to *that* class - so a static block in class A that
  * legitimately references class B is left alone.
  *
- * Whitelist of files known to have this pattern. Extend as new ones
- * surface in `partsSplash` / workbench evaluation.
+ * Applied to every `vs/**/*.js` file - the auto-detection only fires
+ * when a class with the offending pattern is actually present, so
+ * unaffected files are walked-and-skipped with no rewrite. A single
+ * scan of `out-build/` surfaced 15 affected files (counts in `[]`):
+ *
+ *     accessibilitySignalService.js [66]   breadcrumbs.js [10]
+ *     files.js [6]                          mcpServerActions.js [4]
+ *     extensionsActions.js [3]              localHistoryFileSystemProvider.js [3]
+ *     terminalTaskSystem.js [3]             async.js [2]
+ *     smallImmutableSet.js [1]              folding.js [1]
+ *     suggestWidgetRenderer.js [1]          browserSession.js [1]
+ *     editor.js [1]                         markersViewActions.js [1]
+ *     workingCopyService.js [1]
+ *
+ * Hand-maintaining a whitelist invited drift - the previous version
+ * listed 2 files but `editor.js`'s declared `EditorPaneDescriptor`
+ * never matched the mangled `$ZXb` actually emitted by VS Code's
+ * out-build mangler, so the rewrite silently ran on no files.
  */
 
 import type { TransformPlugin } from "../Type.js";
 
 const Marker = "/* __LAND_STATIC_BLOCK_SELFREF_REWRITTEN__ */";
-
-const FilePaths: ReadonlyArray<string> = [
-	"vs/workbench/browser/editor.js",
-	"vs/workbench/contrib/tasks/browser/terminalTaskSystem.js",
-];
 
 interface StaticBlock {
 	readonly ClassName: string;
@@ -229,7 +240,7 @@ function FindStaticBlocks(Source: string): StaticBlock[] {
 const Plugin: TransformPlugin = {
 	Kind: "Transform",
 	Name: "RewriteStaticBlockSelfRef",
-	Match: ({ Path }) => FilePaths.some((P) => Path.endsWith(P)),
+	Match: ({ Path }) => /\/vs\/.*\.js$/.test(Path) && !/\.d\.ts\.map$/.test(Path),
 	Transform({ Source }) {
 		if (Source.includes(Marker)) return { Kind: "Unchanged" };
 

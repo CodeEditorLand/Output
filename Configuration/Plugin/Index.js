@@ -33,6 +33,8 @@ import PatchLocalTerminalBackend from "./Transform/PatchLocalTerminalBackend.js"
 import ReplaceElectronIPCService from "./Transform/ReplaceElectronIPCService.js";
 import ReplaceSearchService from "./Transform/ReplaceSearchService.js";
 import ReplaceSharedProcess from "./Transform/ReplaceSharedProcess.js";
+import HoistFunctionDeclarations from "./Transform/HoistFunctionDeclarations.js";
+import RewriteStaticBlockSelfRef from "./Transform/RewriteStaticBlockSelfRef.js";
 import RewriteWorkbenchBaseURL from "./Transform/RewriteWorkbenchBaseURL.js";
 import RewriteWorkerURLs from "./Transform/RewriteWorkerURLs.js";
 import StaticToDynamicImport from "./Transform/StaticToDynamicImport.js";
@@ -47,45 +49,47 @@ import { default as default5 } from "./Transform/InjectNameShim.js";
 import { default as default6 } from "./Transform/InjectWebViewPolyfills.js";
 import { default as default7 } from "./Transform/RewriteWorkerURLs.js";
 import { default as default8 } from "./Transform/RewriteWorkbenchBaseURL.js";
-import { default as default9 } from "./Transform/ReplaceElectronIPCService.js";
-import { default as default10 } from "./Transform/ReplaceSharedProcess.js";
-import { default as default11 } from "./Transform/StaticToDynamicImport.js";
-import { default as default12 } from "./Transform/StripDanglingSourceMap.js";
-import { default as default13 } from "./Transform/ExtensionScannerIPC.js";
-import { default as default14 } from "./Transform/CatchOutputFolderRejection.js";
-import { default as default15 } from "./Transform/StripWebviewIframeSandbox.js";
-import { default as default16 } from "./Transform/ExposeWorkbenchAccessor.js";
-import { default as default17 } from "./Transform/InstrumentVscodeGit.js";
-import { default as default18 } from "./Transform/DisableUnusedServices.js";
-import { default as default19 } from "./Transform/ReplaceSearchService.js";
-import { default as default20 } from "./Transform/PatchLocalTerminalBackend.js";
+import { default as default9 } from "./Transform/RewriteStaticBlockSelfRef.js";
+import { default as default10 } from "./Transform/HoistFunctionDeclarations.js";
+import { default as default11 } from "./Transform/ReplaceElectronIPCService.js";
+import { default as default12 } from "./Transform/ReplaceSharedProcess.js";
+import { default as default13 } from "./Transform/StaticToDynamicImport.js";
+import { default as default14 } from "./Transform/StripDanglingSourceMap.js";
+import { default as default15 } from "./Transform/ExtensionScannerIPC.js";
+import { default as default16 } from "./Transform/CatchOutputFolderRejection.js";
+import { default as default17 } from "./Transform/StripWebviewIframeSandbox.js";
+import { default as default18 } from "./Transform/ExposeWorkbenchAccessor.js";
+import { default as default19 } from "./Transform/InstrumentVscodeGit.js";
+import { default as default20 } from "./Transform/DisableUnusedServices.js";
+import { default as default21 } from "./Transform/ReplaceSearchService.js";
+import { default as default22 } from "./Transform/PatchLocalTerminalBackend.js";
 import {
   CopyVSOutput,
-  default as default21
+  default as default23
 } from "./Copy/CopyVSOutput.js";
 import {
   CopyVSRootFiles,
-  default as default22
+  default as default24
 } from "./Copy/CopyVSRootFiles.js";
 import {
   SupplementFromDependency,
-  default as default23
+  default as default25
 } from "./Copy/SupplementFromDependency.js";
-import { CopyWorker, default as default24 } from "./Copy/CopyWorker.js";
+import { CopyWorker, default as default26 } from "./Copy/CopyWorker.js";
 import {
   CopyNodeModules,
   DefaultPackages,
-  default as default25
+  default as default27
 } from "./Copy/CopyNodeModules.js";
 import {
   StubUnpublishedAddons,
   DefaultStubs,
   StubDataPrefix,
-  default as default26
+  default as default28
 } from "./Copy/StubUnpublishedAddons.js";
 import {
   CopyTauriMainProcessService,
-  default as default27
+  default as default29
 } from "./Copy/CopyTauriMainProcessService.js";
 const BuildPipeline = /* @__PURE__ */ __name((Input) => {
   const IsRelease = (Input.Profile ?? "").startsWith("release");
@@ -178,41 +182,43 @@ var Index_default = BuildPipeline;
 export {
   default2 as ApplyPlugins,
   BuildPipeline,
-  default14 as CatchOutputFolderRejection,
+  default16 as CatchOutputFolderRejection,
   CopyNodeModules,
-  default25 as CopyNodeModulesDefault,
+  default27 as CopyNodeModulesDefault,
   CopyTauriMainProcessService,
-  default27 as CopyTauriMainProcessServiceDefault,
+  default29 as CopyTauriMainProcessServiceDefault,
   CopyVSOutput,
-  default21 as CopyVSOutputDefault,
+  default23 as CopyVSOutputDefault,
   CopyVSRootFiles,
-  default22 as CopyVSRootFilesDefault,
+  default24 as CopyVSRootFilesDefault,
   CopyWorker,
-  default24 as CopyWorkerDefault,
+  default26 as CopyWorkerDefault,
   DefaultPackages as DefaultNodeModulePackages,
   DefaultStubs,
-  default18 as DisableUnusedServices,
-  default16 as ExposeWorkbenchAccessor,
-  default13 as ExtensionScannerIPC,
+  default20 as DisableUnusedServices,
+  default18 as ExposeWorkbenchAccessor,
+  default15 as ExtensionScannerIPC,
+  default10 as HoistFunctionDeclarations,
   default5 as InjectNameShim,
   default6 as InjectWebViewPolyfills,
   default4 as InlineCSSImport,
-  default17 as InstrumentVscodeGit,
-  default20 as PatchLocalTerminalBackend,
-  default9 as ReplaceElectronIPCService,
-  default19 as ReplaceSearchService,
-  default10 as ReplaceSharedProcess,
+  default19 as InstrumentVscodeGit,
+  default22 as PatchLocalTerminalBackend,
+  default11 as ReplaceElectronIPCService,
+  default21 as ReplaceSearchService,
+  default12 as ReplaceSharedProcess,
+  default9 as RewriteStaticBlockSelfRef,
   default8 as RewriteWorkbenchBaseURL,
   default7 as RewriteWorkerURLs,
-  default11 as StaticToDynamicImport,
+  default13 as StaticToDynamicImport,
   default3 as StripCSSImport,
-  default12 as StripDanglingSourceMap,
-  default15 as StripWebviewIframeSandbox,
+  default14 as StripDanglingSourceMap,
+  default17 as StripWebviewIframeSandbox,
   StubDataPrefix,
   StubUnpublishedAddons,
-  default26 as StubUnpublishedAddonsDefault,
+  default28 as StubUnpublishedAddonsDefault,
   SupplementFromDependency,
-  default23 as SupplementFromDependencyDefault,
+  default25 as SupplementFromDependencyDefault,
   Index_default as default
 };
 //# sourceMappingURL=Index.js.map

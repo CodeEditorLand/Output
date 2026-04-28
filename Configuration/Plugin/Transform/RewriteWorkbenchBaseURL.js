@@ -3,8 +3,8 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
 const Marker = "/* __LAND_WORKBENCH_BASE_URL_REWRITTEN__ */";
 const SearchPattern = /const baseUrl = new URL\(`\$\{fileUriFromPath\([^`]+`\);/;
 const Replacement = 'const baseUrl = new URL(location.origin + "/Static/Application/");';
-const ConditionalSearchPattern = /let workbenchUrl;\s*if \(!!safeProcess\.env\["VSCODE_DEV"\] && globalThis\._VSCODE_USE_RELATIVE_IMPORTS\) \{[^}]+\} else \{[^}]+\}/;
-const ConditionalReplacement = "const workbenchUrl = new URL(`vs/workbench/workbench.desktop.main.js`, baseUrl).href;";
+const ConditionalSearchPattern = /let workbenchUrl;\s*if \(!!safeProcess\.env\["VSCODE_DEV"\] && globalThis\._VSCODE_USE_RELATIVE_IMPORTS\) \{[^}]+\} else \{[^}]+\}\s*const result2 = await import\(workbenchUrl\);/;
+const ConditionalReplacement = 'const result2 = await import("../../../workbench/workbench.desktop.main.js");';
 const Plugin = {
   Kind: "Transform",
   Name: "RewriteWorkbenchBaseURL",

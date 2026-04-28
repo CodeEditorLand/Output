@@ -86,6 +86,8 @@ const Pipeline: Array<Plugin> = [
 	Configuration.InjectWebViewPolyfills,
 	Configuration.RewriteWorkerURLs,
 	Configuration.RewriteWorkbenchBaseURL,
+	Configuration.RewriteStaticBlockSelfRef,
+	Configuration.HoistFunctionDeclarations,
 	Configuration.ReplaceElectronIPCService,
 	Configuration.ReplaceSharedProcess,
 	Configuration.StripDanglingSourceMap,

@@ -38,6 +38,8 @@ import PatchLocalTerminalBackend from "./Transform/PatchLocalTerminalBackend.js"
 import ReplaceElectronIPCService from "./Transform/ReplaceElectronIPCService.js";
 import ReplaceSearchService from "./Transform/ReplaceSearchService.js";
 import ReplaceSharedProcess from "./Transform/ReplaceSharedProcess.js";
+import HoistFunctionDeclarations from "./Transform/HoistFunctionDeclarations.js";
+import RewriteStaticBlockSelfRef from "./Transform/RewriteStaticBlockSelfRef.js";
 import RewriteWorkbenchBaseURL from "./Transform/RewriteWorkbenchBaseURL.js";
 import RewriteWorkerURLs from "./Transform/RewriteWorkerURLs.js";
 import StaticToDynamicImport from "./Transform/StaticToDynamicImport.js";
@@ -99,6 +101,8 @@ export { default as InjectNameShim } from "./Transform/InjectNameShim.js";
 export { default as InjectWebViewPolyfills } from "./Transform/InjectWebViewPolyfills.js";
 export { default as RewriteWorkerURLs } from "./Transform/RewriteWorkerURLs.js";
 export { default as RewriteWorkbenchBaseURL } from "./Transform/RewriteWorkbenchBaseURL.js";
+export { default as RewriteStaticBlockSelfRef } from "./Transform/RewriteStaticBlockSelfRef.js";
+export { default as HoistFunctionDeclarations } from "./Transform/HoistFunctionDeclarations.js";
 export { default as ReplaceElectronIPCService } from "./Transform/ReplaceElectronIPCService.js";
 export { default as ReplaceSharedProcess } from "./Transform/ReplaceSharedProcess.js";
 export { default as StaticToDynamicImport } from "./Transform/StaticToDynamicImport.js";

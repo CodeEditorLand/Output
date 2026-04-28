@@ -240,7 +240,12 @@ class ChildProcess {
     invokeTauri("child_process:kill", {
       spawn_id: this._sPid,
       signal
-    }).catch((error) => {
+    }).catch((Error2) => {
+      globalThis.__LAND_POLYFILL_TELEMETRY__?.On(
+        "ipc.fire-and-forget",
+        Error2,
+        { Command: "child_process:kill", SpawnId: this._sPid, Signal: signal }
+      );
     });
     return true;
   }
@@ -251,7 +256,12 @@ class ChildProcess {
     invokeTauri("child_process:send", {
       spawn_id: this._sPid,
       message
-    }).catch((error) => {
+    }).catch((Error2) => {
+      globalThis.__LAND_POLYFILL_TELEMETRY__?.On(
+        "ipc.fire-and-forget",
+        Error2,
+        { Command: "child_process:send", SpawnId: this._sPid }
+      );
     });
     return true;
   }

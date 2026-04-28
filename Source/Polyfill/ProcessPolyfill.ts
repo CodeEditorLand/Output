@@ -730,8 +730,16 @@ export default {
 
 // Auto-install on import (async)
 if (typeof window !== "undefined") {
-	installProcessPolyfill().catch((error) => {
-		// Fallback to sync installation
+	installProcessPolyfill().catch((Error: unknown) => {
+		// Fallback to sync installation. The async path is preferred
+		// (it queries Tauri for env / cwd / argv); the sync path uses
+		// window-level defaults. Report the async failure so we can
+		// see when the env-bridge degrades silently.
+		(globalThis as any).__LAND_POLYFILL_TELEMETRY__?.On(
+			"polyfill.install",
+			Error,
+			{ Polyfill: "ProcessPolyfill", Phase: "async-fallback-to-sync" },
+		);
 		installProcessPolyfillSync();
 	});
 }

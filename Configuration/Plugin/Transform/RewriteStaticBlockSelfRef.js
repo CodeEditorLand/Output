@@ -1,10 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 const Marker = "/* __LAND_STATIC_BLOCK_SELFREF_REWRITTEN__ */";
-const FilePaths = [
-  "vs/workbench/browser/editor.js",
-  "vs/workbench/contrib/tasks/browser/terminalTaskSystem.js"
-];
 function EscapeRegex(Value) {
   return Value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
@@ -143,7 +139,7 @@ __name(FindStaticBlocks, "FindStaticBlocks");
 const Plugin = {
   Kind: "Transform",
   Name: "RewriteStaticBlockSelfRef",
-  Match: /* @__PURE__ */ __name(({ Path }) => FilePaths.some((P) => Path.endsWith(P)), "Match"),
+  Match: /* @__PURE__ */ __name(({ Path }) => /\/vs\/.*\.js$/.test(Path) && !/\.d\.ts\.map$/.test(Path), "Match"),
   Transform({ Source }) {
     if (Source.includes(Marker)) return { Kind: "Unchanged" };
     const Blocks = FindStaticBlocks(Source);

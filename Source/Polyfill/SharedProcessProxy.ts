@@ -796,5 +796,11 @@ export default {
 
 // Auto-install on import
 if (typeof window !== "undefined") {
-	installSharedProcessProxy().catch((error) => {});
+	installSharedProcessProxy().catch((Error: unknown) => {
+		(globalThis as any).__LAND_POLYFILL_TELEMETRY__?.On(
+			"polyfill.install",
+			Error,
+			{ Polyfill: "SharedProcessProxy" },
+		);
+	});
 }

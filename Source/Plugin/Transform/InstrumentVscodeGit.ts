@@ -86,6 +86,17 @@ const MainPatches: MainPatch[] = [
 		Note: "_activate await createModel start",
 	},
 	{
+		// F = `_activate await createModel done`. Fires only on the
+		// success branch of the `try` - if createModel rejects, the
+		// `catch` runs and F never appears, disambiguating "createModel
+		// rejected silently" (E without F) from "model created"
+		// (E + F + I).
+		Letter: "F",
+		Anchor: "return new extension_1.GitExtensionImpl({ model, cloneManager });",
+		Position: "before",
+		Note: "_activate await createModel done",
+	},
+	{
 		Letter: "G",
 		Anchor: "async function createModel(context, logger, telemetryReporter, disposables) {",
 		Position: "after",
@@ -117,6 +128,18 @@ const ModelPatches: MainPatch[] = [
 		Anchor: "async openRepository(repoPath, openIfClosed = false, openIfParent = false) {",
 		Position: "after",
 		Note: "Model openRepository entered",
+	},
+	{
+		// L = `Model openRepository getRepositoryRoot done`. Fires after
+		// the `await this.getRepositoryRoot(repoPath)` resolves so we can
+		// distinguish "openRepository entered but spawn hangs" (K only)
+		// from "found repository root, proceeding to status() / scan
+		// pipeline" (K + L). Anchor is the `logger.trace` line that
+		// always immediately follows the await on the success path.
+		Letter: "L",
+		Anchor: "this.logger.trace(`[Model][openRepository] Repository root for path",
+		Position: "before",
+		Note: "Model openRepository getRepositoryRoot done",
 	},
 ];
 

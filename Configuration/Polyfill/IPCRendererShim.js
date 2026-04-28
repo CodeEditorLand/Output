@@ -26,10 +26,20 @@ function sendTauri(command, args = {}) {
         method: command,
         params: args
       }) : Invoke(command, args);
-      Call.catch((_error) => {
+      Call.catch((Error2) => {
+        globalThis.__LAND_POLYFILL_TELEMETRY__?.On(
+          "ipc.fire-and-forget",
+          Error2,
+          { Command: command }
+        );
       });
     }
-  } catch (error) {
+  } catch (Error2) {
+    globalThis.__LAND_POLYFILL_TELEMETRY__?.On(
+      "ipc.fire-and-forget",
+      Error2,
+      { Command: command, Phase: "invoke-resolve" }
+    );
   }
 }
 __name(sendTauri, "sendTauri");

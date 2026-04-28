@@ -27,6 +27,8 @@ import ExposeWorkbenchAccessor from "./Transform/ExposeWorkbenchAccessor.js";
 import ExtensionScannerIPC from "./Transform/ExtensionScannerIPC.js";
 import InjectNameShim from "./Transform/InjectNameShim.js";
 import InjectWebViewPolyfills from "./Transform/InjectWebViewPolyfills.js";
+import InjectWorkerBootstrapShim from "./Transform/InjectWorkerBootstrapShim.js";
+import RewriteNestedWorkerBootstrap from "./Transform/RewriteNestedWorkerBootstrap.js";
 import InlineCSSImport from "./Transform/InlineCSSImport.js";
 import InstrumentVscodeGit from "./Transform/InstrumentVscodeGit.js";
 import PatchLocalTerminalBackend from "./Transform/PatchLocalTerminalBackend.js";
@@ -47,49 +49,51 @@ import { default as default3 } from "./Transform/StripCSSImport.js";
 import { default as default4 } from "./Transform/InlineCSSImport.js";
 import { default as default5 } from "./Transform/InjectNameShim.js";
 import { default as default6 } from "./Transform/InjectWebViewPolyfills.js";
-import { default as default7 } from "./Transform/RewriteWorkerURLs.js";
-import { default as default8 } from "./Transform/RewriteWorkbenchBaseURL.js";
-import { default as default9 } from "./Transform/RewriteStaticBlockSelfRef.js";
-import { default as default10 } from "./Transform/HoistFunctionDeclarations.js";
-import { default as default11 } from "./Transform/ReplaceElectronIPCService.js";
-import { default as default12 } from "./Transform/ReplaceSharedProcess.js";
-import { default as default13 } from "./Transform/StaticToDynamicImport.js";
-import { default as default14 } from "./Transform/StripDanglingSourceMap.js";
-import { default as default15 } from "./Transform/ExtensionScannerIPC.js";
-import { default as default16 } from "./Transform/CatchOutputFolderRejection.js";
-import { default as default17 } from "./Transform/StripWebviewIframeSandbox.js";
-import { default as default18 } from "./Transform/ExposeWorkbenchAccessor.js";
-import { default as default19 } from "./Transform/InstrumentVscodeGit.js";
-import { default as default20 } from "./Transform/DisableUnusedServices.js";
-import { default as default21 } from "./Transform/ReplaceSearchService.js";
-import { default as default22 } from "./Transform/PatchLocalTerminalBackend.js";
+import { default as default7 } from "./Transform/InjectWorkerBootstrapShim.js";
+import { default as default8 } from "./Transform/RewriteNestedWorkerBootstrap.js";
+import { default as default9 } from "./Transform/RewriteWorkerURLs.js";
+import { default as default10 } from "./Transform/RewriteWorkbenchBaseURL.js";
+import { default as default11 } from "./Transform/RewriteStaticBlockSelfRef.js";
+import { default as default12 } from "./Transform/HoistFunctionDeclarations.js";
+import { default as default13 } from "./Transform/ReplaceElectronIPCService.js";
+import { default as default14 } from "./Transform/ReplaceSharedProcess.js";
+import { default as default15 } from "./Transform/StaticToDynamicImport.js";
+import { default as default16 } from "./Transform/StripDanglingSourceMap.js";
+import { default as default17 } from "./Transform/ExtensionScannerIPC.js";
+import { default as default18 } from "./Transform/CatchOutputFolderRejection.js";
+import { default as default19 } from "./Transform/StripWebviewIframeSandbox.js";
+import { default as default20 } from "./Transform/ExposeWorkbenchAccessor.js";
+import { default as default21 } from "./Transform/InstrumentVscodeGit.js";
+import { default as default22 } from "./Transform/DisableUnusedServices.js";
+import { default as default23 } from "./Transform/ReplaceSearchService.js";
+import { default as default24 } from "./Transform/PatchLocalTerminalBackend.js";
 import {
   CopyVSOutput,
-  default as default23
+  default as default25
 } from "./Copy/CopyVSOutput.js";
 import {
   CopyVSRootFiles,
-  default as default24
+  default as default26
 } from "./Copy/CopyVSRootFiles.js";
 import {
   SupplementFromDependency,
-  default as default25
+  default as default27
 } from "./Copy/SupplementFromDependency.js";
-import { CopyWorker, default as default26 } from "./Copy/CopyWorker.js";
+import { CopyWorker, default as default28 } from "./Copy/CopyWorker.js";
 import {
   CopyNodeModules,
   DefaultPackages,
-  default as default27
+  default as default29
 } from "./Copy/CopyNodeModules.js";
 import {
   StubUnpublishedAddons,
   DefaultStubs,
   StubDataPrefix,
-  default as default28
+  default as default30
 } from "./Copy/StubUnpublishedAddons.js";
 import {
   CopyTauriMainProcessService,
-  default as default29
+  default as default31
 } from "./Copy/CopyTauriMainProcessService.js";
 const BuildPipeline = /* @__PURE__ */ __name((Input) => {
   const IsRelease = (Input.Profile ?? "").startsWith("release");
@@ -104,6 +108,27 @@ const BuildPipeline = /* @__PURE__ */ __name((Input) => {
     CopyTauriMainProcessServiceFactory(Input.TauriMainProcessService),
     CSSStrategy,
     InjectNameShim,
+    // Inject the same `__name` / `__defProp` shim into the
+    // `webWorkerServiceImpl.js::getWorkerBootstrapUrl` blob factory
+    // so Monaco's editor language workers (TS/CSS/HTML/JSON
+    // services), semantic-token workers, and any other worker spawned
+    // via `defaultWorkerFactory` inherit the helpers in their module
+    // scope. Without this the workers crash at module-eval time with
+    // `ReferenceError: Can't find variable: $4e` (the mangled name
+    // for `__name`) the moment they reach a `__name(fn, "label")`
+    // call site - typically before the first language feature ever
+    // activates.
+    InjectWorkerBootstrapShim,
+    // Rewrite `polyfillNestedWorker.js`'s `_bootstrapFnSource =
+    // (function _bootstrapFn(...)).toString()` pattern with a literal
+    // string equivalent that omits the cosmetic `__name(...)`
+    // decorations. Without this, after Vite/OXC mangling the parent
+    // chunk's `__name` becomes (e.g.) `$4e`; `_bootstrapFn.toString()`
+    // returns the mangled source as a string; the resulting blob
+    // worker has no `$4e` defined in its scope and crashes at module
+    // eval with `ReferenceError: Can't find variable: $4e`. The
+    // literal-string replacement is mangler-immune.
+    RewriteNestedWorkerBootstrap,
     // Inject WKWebView polyfills + Blob worker URL rewrite into VS
     // Code's Electron workbench entry. Runs at module-eval time so
     // `window.requestIdleCallback` / `queryLocalFonts` are present
@@ -182,43 +207,45 @@ var Index_default = BuildPipeline;
 export {
   default2 as ApplyPlugins,
   BuildPipeline,
-  default16 as CatchOutputFolderRejection,
+  default18 as CatchOutputFolderRejection,
   CopyNodeModules,
-  default27 as CopyNodeModulesDefault,
+  default29 as CopyNodeModulesDefault,
   CopyTauriMainProcessService,
-  default29 as CopyTauriMainProcessServiceDefault,
+  default31 as CopyTauriMainProcessServiceDefault,
   CopyVSOutput,
-  default23 as CopyVSOutputDefault,
+  default25 as CopyVSOutputDefault,
   CopyVSRootFiles,
-  default24 as CopyVSRootFilesDefault,
+  default26 as CopyVSRootFilesDefault,
   CopyWorker,
-  default26 as CopyWorkerDefault,
+  default28 as CopyWorkerDefault,
   DefaultPackages as DefaultNodeModulePackages,
   DefaultStubs,
-  default20 as DisableUnusedServices,
-  default18 as ExposeWorkbenchAccessor,
-  default15 as ExtensionScannerIPC,
-  default10 as HoistFunctionDeclarations,
+  default22 as DisableUnusedServices,
+  default20 as ExposeWorkbenchAccessor,
+  default17 as ExtensionScannerIPC,
+  default12 as HoistFunctionDeclarations,
   default5 as InjectNameShim,
   default6 as InjectWebViewPolyfills,
+  default7 as InjectWorkerBootstrapShim,
   default4 as InlineCSSImport,
-  default19 as InstrumentVscodeGit,
-  default22 as PatchLocalTerminalBackend,
-  default11 as ReplaceElectronIPCService,
-  default21 as ReplaceSearchService,
-  default12 as ReplaceSharedProcess,
-  default9 as RewriteStaticBlockSelfRef,
-  default8 as RewriteWorkbenchBaseURL,
-  default7 as RewriteWorkerURLs,
-  default13 as StaticToDynamicImport,
+  default21 as InstrumentVscodeGit,
+  default24 as PatchLocalTerminalBackend,
+  default13 as ReplaceElectronIPCService,
+  default23 as ReplaceSearchService,
+  default14 as ReplaceSharedProcess,
+  default8 as RewriteNestedWorkerBootstrap,
+  default11 as RewriteStaticBlockSelfRef,
+  default10 as RewriteWorkbenchBaseURL,
+  default9 as RewriteWorkerURLs,
+  default15 as StaticToDynamicImport,
   default3 as StripCSSImport,
-  default14 as StripDanglingSourceMap,
-  default17 as StripWebviewIframeSandbox,
+  default16 as StripDanglingSourceMap,
+  default19 as StripWebviewIframeSandbox,
   StubDataPrefix,
   StubUnpublishedAddons,
-  default28 as StubUnpublishedAddonsDefault,
+  default30 as StubUnpublishedAddonsDefault,
   SupplementFromDependency,
-  default25 as SupplementFromDependencyDefault,
+  default27 as SupplementFromDependencyDefault,
   Index_default as default
 };
 //# sourceMappingURL=Index.js.map

@@ -83,6 +83,8 @@ console.log(`[Output/Pipeline] Copied TauriMainProcessService.js -> ${Destinatio
 // purpose.
 const Pipeline: Array<Plugin> = [
 	Configuration.InjectNameShim,
+	Configuration.InjectWorkerBootstrapShim,
+	Configuration.RewriteNestedWorkerBootstrap,
 	Configuration.InjectWebViewPolyfills,
 	Configuration.RewriteWorkerURLs,
 	Configuration.RewriteWorkbenchBaseURL,

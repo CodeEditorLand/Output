@@ -32,6 +32,8 @@ import ExposeWorkbenchAccessor from "./Transform/ExposeWorkbenchAccessor.js";
 import ExtensionScannerIPC from "./Transform/ExtensionScannerIPC.js";
 import InjectNameShim from "./Transform/InjectNameShim.js";
 import InjectWebViewPolyfills from "./Transform/InjectWebViewPolyfills.js";
+import InjectWorkerBootstrapShim from "./Transform/InjectWorkerBootstrapShim.js";
+import RewriteNestedWorkerBootstrap from "./Transform/RewriteNestedWorkerBootstrap.js";
 import InlineCSSImport from "./Transform/InlineCSSImport.js";
 import InstrumentVscodeGit from "./Transform/InstrumentVscodeGit.js";
 import PatchLocalTerminalBackend from "./Transform/PatchLocalTerminalBackend.js";
@@ -99,6 +101,8 @@ export { default as StripCSSImport } from "./Transform/StripCSSImport.js";
 export { default as InlineCSSImport } from "./Transform/InlineCSSImport.js";
 export { default as InjectNameShim } from "./Transform/InjectNameShim.js";
 export { default as InjectWebViewPolyfills } from "./Transform/InjectWebViewPolyfills.js";
+export { default as InjectWorkerBootstrapShim } from "./Transform/InjectWorkerBootstrapShim.js";
+export { default as RewriteNestedWorkerBootstrap } from "./Transform/RewriteNestedWorkerBootstrap.js";
 export { default as RewriteWorkerURLs } from "./Transform/RewriteWorkerURLs.js";
 export { default as RewriteWorkbenchBaseURL } from "./Transform/RewriteWorkbenchBaseURL.js";
 export { default as RewriteStaticBlockSelfRef } from "./Transform/RewriteStaticBlockSelfRef.js";
@@ -190,6 +194,27 @@ export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => {
 		CopyTauriMainProcessServiceFactory(Input.TauriMainProcessService),
 		CSSStrategy,
 		InjectNameShim,
+		// Inject the same `__name` / `__defProp` shim into the
+		// `webWorkerServiceImpl.js::getWorkerBootstrapUrl` blob factory
+		// so Monaco's editor language workers (TS/CSS/HTML/JSON
+		// services), semantic-token workers, and any other worker spawned
+		// via `defaultWorkerFactory` inherit the helpers in their module
+		// scope. Without this the workers crash at module-eval time with
+		// `ReferenceError: Can't find variable: $4e` (the mangled name
+		// for `__name`) the moment they reach a `__name(fn, "label")`
+		// call site - typically before the first language feature ever
+		// activates.
+		InjectWorkerBootstrapShim,
+		// Rewrite `polyfillNestedWorker.js`'s `_bootstrapFnSource =
+		// (function _bootstrapFn(...)).toString()` pattern with a literal
+		// string equivalent that omits the cosmetic `__name(...)`
+		// decorations. Without this, after Vite/OXC mangling the parent
+		// chunk's `__name` becomes (e.g.) `$4e`; `_bootstrapFn.toString()`
+		// returns the mangled source as a string; the resulting blob
+		// worker has no `$4e` defined in its scope and crashes at module
+		// eval with `ReferenceError: Can't find variable: $4e`. The
+		// literal-string replacement is mangler-immune.
+		RewriteNestedWorkerBootstrap,
 		// Inject WKWebView polyfills + Blob worker URL rewrite into VS
 		// Code's Electron workbench entry. Runs at module-eval time so
 		// `window.requestIdleCallback` / `queryLocalFonts` are present

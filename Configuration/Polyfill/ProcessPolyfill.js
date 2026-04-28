@@ -444,7 +444,12 @@ var ProcessPolyfill_default = {
   getSync: getProcessSync
 };
 if (typeof window !== "undefined") {
-  installProcessPolyfill().catch((error) => {
+  installProcessPolyfill().catch((Error2) => {
+    globalThis.__LAND_POLYFILL_TELEMETRY__?.On(
+      "polyfill.install",
+      Error2,
+      { Polyfill: "ProcessPolyfill", Phase: "async-fallback-to-sync" }
+    );
     installProcessPolyfillSync();
   });
 }

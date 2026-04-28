@@ -38,7 +38,7 @@
  * references to *that* class - so a static block in class A that
  * legitimately references class B is left alone.
  *
- * Applied to every `vs/**/*.js` file - the auto-detection only fires
+ * Applied to every JS file under `vs/` - the auto-detection only fires
  * when a class with the offending pattern is actually present, so
  * unaffected files are walked-and-skipped with no rewrite. A single
  * scan of `out-build/` surfaced 15 affected files (counts in `[]`):

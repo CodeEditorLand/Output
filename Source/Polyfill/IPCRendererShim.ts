@@ -129,9 +129,21 @@ function sendTauri(command: string, args: Record<string, unknown> = {}): void {
 						params: args,
 					})
 				: Invoke(command, args);
-			Call.catch((_error: Error) => {});
+			Call.catch((Error: unknown) => {
+				(globalThis as any).__LAND_POLYFILL_TELEMETRY__?.On(
+					"ipc.fire-and-forget",
+					Error,
+					{ Command: command },
+				);
+			});
 		}
-	} catch (error) {}
+	} catch (Error) {
+		(globalThis as any).__LAND_POLYFILL_TELEMETRY__?.On(
+			"ipc.fire-and-forget",
+			Error,
+			{ Command: command, Phase: "invoke-resolve" },
+		);
+	}
 }
 
 // ============================================================================

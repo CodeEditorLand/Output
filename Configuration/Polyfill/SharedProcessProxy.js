@@ -506,7 +506,12 @@ var SharedProcessProxy_default = {
   SharedProcessManager
 };
 if (typeof window !== "undefined") {
-  installSharedProcessProxy().catch((error) => {
+  installSharedProcessProxy().catch((Error2) => {
+    globalThis.__LAND_POLYFILL_TELEMETRY__?.On(
+      "polyfill.install",
+      Error2,
+      { Polyfill: "SharedProcessProxy" }
+    );
   });
 }
 export {

@@ -224,13 +224,17 @@ const BuildPipeline = /* @__PURE__ */ __name((Input) => {
     // already-functional `_localPtyService` channel proxy
     // (`mainProcessService.getChannel('localPty')` →
     // Mountain's `localPty:*` handlers).
-    PatchLocalTerminalBackend,
-    // Force `terminal.integrated.gpuAcceleration` default to `'off'`.
-    // xterm's WebGL renderer mis-renders glyphs in WKWebView (atlas
-    // built before Menlo loads → wrong cell widths; texImage2D
-    // premultiplication mismatch → halos around antialiased edges).
-    // The DOM renderer routes through CoreText and renders correctly.
-    PatchTerminalGpuAcceleration
+    PatchLocalTerminalBackend
+    // `PatchTerminalGpuAcceleration` is intentionally NOT registered
+    // here. Forcing the DOM renderer fixed the WebGL atlas font
+    // glitches but introduced a "black shadow over text" visual
+    // artifact (xterm's DOM-renderer cursor / accessibility layer
+    // in WKWebView). Keep the transform file on disk so it can be
+    // re-enabled if we settle on DOM, but default-on it makes the
+    // terminal worse, not better. Re-evaluate after the input race
+    // fix lands and we know whether the original "broken fonts"
+    // symptom was actually WebGL atlas drift or a deferred-create
+    // race side-effect.
   ];
 }, "BuildPipeline");
 var Index_default = BuildPipeline;

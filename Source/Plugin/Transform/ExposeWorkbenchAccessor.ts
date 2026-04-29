@@ -165,6 +165,44 @@ const WebMainReplacement =
 	"        return Desc && Desc.treeView ? Desc.treeView : null;\n" +
 	"      } catch (E) { return null; }\n" +
 	"    },\n" +
+	"    // `ViewRegistrySnapshot()` returns counts + sample IDs for the\n" +
+	"    // workbench's ViewContainersRegistry and ViewsRegistry. Used by\n" +
+	"    // SkyBridge's diagnostic probe to confirm extension manifests\n" +
+	"    // (Roo, Claude, gitlens, ...) reached `viewsExtensionPoint`'s\n" +
+	"    // setHandler - if extension panels don't open, the most common\n" +
+	"    // cause is that contributions never made it through\n" +
+	"    // `IExtensionService` to the registry, so the activity bar has\n" +
+	"    // no clickable entry point. This accessor lives where\n" +
+	"    // `__CEL_Registry` is in scope; SkyBridge can't reach the same\n" +
+	"    // Registry instance from its own module graph.\n" +
+	"    ViewRegistrySnapshot: function() {\n" +
+	"      try {\n" +
+	"        var ContainersReg = __CEL_Registry.as('workbench.view.containersRegistry');\n" +
+	"        var ViewsReg = __CEL_Registry.as(__CEL_ViewsRegistryId);\n" +
+	"        var Locations = (ContainersReg && ContainersReg.all) ? ContainersReg.all : [];\n" +
+	"        var ContainerIds = [];\n" +
+	"        for (var I = 0; I < Locations.length; I++) {\n" +
+	"          ContainerIds.push(String((Locations[I] && Locations[I].id) || '<no-id>'));\n" +
+	"        }\n" +
+	"        var ViewIds = [];\n" +
+	"        try {\n" +
+	"          for (var J = 0; J < Locations.length; J++) {\n" +
+	"            var Views = (ViewsReg && ViewsReg.getViews) ? ViewsReg.getViews(Locations[J]) : [];\n" +
+	"            for (var K = 0; K < Views.length; K++) {\n" +
+	"              ViewIds.push(String((Views[K] && Views[K].id) || '<no-id>'));\n" +
+	"            }\n" +
+	"          }\n" +
+	"        } catch (E2) { /* swallow per-container failure */ }\n" +
+	"        return {\n" +
+	"          containers: ContainerIds.length,\n" +
+	"          views: ViewIds.length,\n" +
+	"          containerSample: ContainerIds.slice(0, 16),\n" +
+	"          viewSample: ViewIds.slice(0, 16),\n" +
+	"        };\n" +
+	"      } catch (E) {\n" +
+	"        return { containers: -1, views: -1, error: String(E && E.message ? E.message : E) };\n" +
+	"      }\n" +
+	"    },\n" +
 	"    // SCM/Debug/CustomEditor service handles. Each may be `null`\n" +
 	"    // if the contrib failed to load (e.g. headless web profile).\n" +
 	"    // SkyBridge null-checks before each call so missing services\n" +

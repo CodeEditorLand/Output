@@ -464,6 +464,9 @@ class TauriChannel {
     __name(this, "TauriChannel");
   }
   async call(Command, Arg, _CancellationToken) {
+    if (Command === "then" || Command === "catch" || Command === "finally" || Command === "constructor" || Command === "valueOf" || Command === "toString" || Command === "toJSON" || Command === "@@iterator" || Command === "@@asyncIterator") {
+      return void 0;
+    }
     _Trace("ipc", `${this.ChannelName}.${Command}`);
     if (FireAndForgetChannels.has(this.ChannelName)) {
       if (this.RoutePrefix) {

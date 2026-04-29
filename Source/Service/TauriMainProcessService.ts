@@ -571,6 +571,32 @@ class TauriChannel implements IChannel {
 		Arg?: unknown,
 		_CancellationToken?: unknown,
 	): Promise<T> {
+		// Promise-protocol probe short-circuit. When VS Code resolves a
+		// channel-returned thenable, the JS runtime accesses `.then`,
+		// `.catch`, `.finally`, and (rarely) `Symbol.toPrimitive` on the
+		// proxy to determine if it's a Promise. Each access becomes a
+		// channel call with the property name, which Mountain has no
+		// handler for - surfacing as `Unknown IPC command:
+		// localPty:then` (and friends) on every workbench wake. Returning
+		// `undefined` synchronously matches stock VS Code's IChannel
+		// behaviour for unknown methods on connected channels: the
+		// runtime sees a non-thenable and stops probing. Saves ~15-25 ms
+		// of round-trip per probe and removes the noisiest IPC error in
+		// the dev log.
+		if (
+			Command === "then" ||
+			Command === "catch" ||
+			Command === "finally" ||
+			Command === "constructor" ||
+			Command === "valueOf" ||
+			Command === "toString" ||
+			Command === "toJSON" ||
+			Command === "@@iterator" ||
+			Command === "@@asyncIterator"
+		) {
+			return undefined as T;
+		}
+
 		_Trace("ipc", `${this.ChannelName}.${Command}`);
 
 		if (FireAndForgetChannels.has(this.ChannelName)) {

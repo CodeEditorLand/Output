@@ -37,14 +37,33 @@ class ExtensionsScannerService {
 			_t('scanner:fetch:result', { method: Method, count: Extensions.length, type: typeof RawResult, isArray: Array.isArray(RawResult) });
 			_w('IPC', Method, 'returned', Extensions.length, 'extensions');
 
-			if (Extensions.length === 0 && Method === 'extensions:scanSystemExtensions') {
-				for (let Retry = 1; Retry <= 5; Retry++) {
-					_w('0 system extensions, retry', Retry, '/5 in 1000ms');
-					await new Promise(R => setTimeout(R, 1000));
+			// Both scan paths (system + user) need retry parity. Mountain
+			// runs the disk scan asynchronously - the workbench's
+			// IExtensionService calls scanAllExtensions = Promise.all([
+			// scanSystemExtensions, scanUserExtensions]) at boot. Without
+			// the retry on the user-side path, an empty initial response
+			// silently passes 0 user extensions through to
+			// viewsExtensionPoint and ExtensionsRegistry, which means
+			// every user-extension contribution (gitlens panes, clangd
+			// views, dependencies trees, contributes.{commands,
+			// configuration,languages}) stays unregistered for the rest
+			// of the session. The system path was retried; mirror that.
+			//
+			// 5 retries * exponential backoff capped at 1500 ms - tighter
+			// than the original 5 * 1000 ms because Mountain's scan
+			// usually finishes in ~500 ms; long retries were padding boot.
+			if (Extensions.length === 0 && (
+				Method === 'extensions:scanSystemExtensions' ||
+				Method === 'extensions:scanUserExtensions'
+			)) {
+				const Schedule = [100, 200, 400, 800, 1500];
+				for (let Retry = 0; Retry < Schedule.length; Retry++) {
+					_w('0 extensions for', Method, '- retry', Retry + 1, '/' + Schedule.length, 'in', Schedule[Retry], 'ms');
+					await new Promise(R => setTimeout(R, Schedule[Retry]));
 					const RetryResult = await Invoke('MountainIPCInvoke', { method: Method, params: [] });
 					Extensions = Array.isArray(RetryResult) ? RetryResult : [];
-					_t('scanner:fetch:retry', { retry: Retry, count: Extensions.length });
-					_w('Retry', Retry, 'returned', Extensions.length, 'extensions');
+					_t('scanner:fetch:retry', { method: Method, retry: Retry + 1, count: Extensions.length });
+					_w('Retry', Retry + 1, 'returned', Extensions.length, 'extensions for', Method);
 					if (Extensions.length > 0) break;
 				}
 			}

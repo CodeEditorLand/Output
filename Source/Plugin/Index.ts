@@ -35,6 +35,7 @@ import InjectWebViewPolyfills from "./Transform/InjectWebViewPolyfills.js";
 import InjectWorkerBootstrapShim from "./Transform/InjectWorkerBootstrapShim.js";
 import RewriteNestedWorkerBootstrap from "./Transform/RewriteNestedWorkerBootstrap.js";
 import RewriteNodeModulesPath from "./Transform/RewriteNodeModulesPath.js";
+import RewritePerfBaselineWorker from "./Transform/RewritePerfBaselineWorker.js";
 import InlineCSSImport from "./Transform/InlineCSSImport.js";
 import InstrumentVscodeGit from "./Transform/InstrumentVscodeGit.js";
 import PatchLocalTerminalBackend from "./Transform/PatchLocalTerminalBackend.js";
@@ -105,6 +106,7 @@ export { default as InjectWebViewPolyfills } from "./Transform/InjectWebViewPoly
 export { default as InjectWorkerBootstrapShim } from "./Transform/InjectWorkerBootstrapShim.js";
 export { default as RewriteNestedWorkerBootstrap } from "./Transform/RewriteNestedWorkerBootstrap.js";
 export { default as RewriteNodeModulesPath } from "./Transform/RewriteNodeModulesPath.js";
+export { default as RewritePerfBaselineWorker } from "./Transform/RewritePerfBaselineWorker.js";
 export { default as RewriteWorkerURLs } from "./Transform/RewriteWorkerURLs.js";
 export { default as RewriteWorkbenchBaseURL } from "./Transform/RewriteWorkbenchBaseURL.js";
 export { default as RewriteStaticBlockSelfRef } from "./Transform/RewriteStaticBlockSelfRef.js";
@@ -217,6 +219,14 @@ export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => {
 		// eval with `ReferenceError: Can't find variable: $4e`. The
 		// literal-string replacement is mangler-immune.
 		RewriteNestedWorkerBootstrap,
+		// Replace `timerService.js`'s `(function() { ... __name(fib,
+		// "fib"); ... }).toString()` perfBaseline worker source with a
+		// literal-string equivalent that omits the cosmetic `__name(...)`
+		// decoration. Same OXC-mangling-truth fix as
+		// `RewriteNestedWorkerBootstrap` - the IIFE source captured by
+		// `.toString()` carried the mangled `$4e` reference; the worker
+		// scope had no `$4e` defined and crashed at line 7 of the blob URL.
+		RewritePerfBaselineWorker,
 		// Patch `vs/base/common/network.js`'s `nodeModulesPath` from
 		// `vs/../../node_modules` (over-resolves to `Static/node_modules`)
 		// to `vs/../node_modules` (resolves to `Static/Application/

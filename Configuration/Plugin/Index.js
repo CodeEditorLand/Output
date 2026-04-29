@@ -30,6 +30,7 @@ import InjectWebViewPolyfills from "./Transform/InjectWebViewPolyfills.js";
 import InjectWorkerBootstrapShim from "./Transform/InjectWorkerBootstrapShim.js";
 import RewriteNestedWorkerBootstrap from "./Transform/RewriteNestedWorkerBootstrap.js";
 import RewriteNodeModulesPath from "./Transform/RewriteNodeModulesPath.js";
+import RewritePerfBaselineWorker from "./Transform/RewritePerfBaselineWorker.js";
 import InlineCSSImport from "./Transform/InlineCSSImport.js";
 import InstrumentVscodeGit from "./Transform/InstrumentVscodeGit.js";
 import PatchLocalTerminalBackend from "./Transform/PatchLocalTerminalBackend.js";
@@ -53,49 +54,50 @@ import { default as default6 } from "./Transform/InjectWebViewPolyfills.js";
 import { default as default7 } from "./Transform/InjectWorkerBootstrapShim.js";
 import { default as default8 } from "./Transform/RewriteNestedWorkerBootstrap.js";
 import { default as default9 } from "./Transform/RewriteNodeModulesPath.js";
-import { default as default10 } from "./Transform/RewriteWorkerURLs.js";
-import { default as default11 } from "./Transform/RewriteWorkbenchBaseURL.js";
-import { default as default12 } from "./Transform/RewriteStaticBlockSelfRef.js";
-import { default as default13 } from "./Transform/HoistFunctionDeclarations.js";
-import { default as default14 } from "./Transform/ReplaceElectronIPCService.js";
-import { default as default15 } from "./Transform/ReplaceSharedProcess.js";
-import { default as default16 } from "./Transform/StaticToDynamicImport.js";
-import { default as default17 } from "./Transform/StripDanglingSourceMap.js";
-import { default as default18 } from "./Transform/ExtensionScannerIPC.js";
-import { default as default19 } from "./Transform/CatchOutputFolderRejection.js";
-import { default as default20 } from "./Transform/StripWebviewIframeSandbox.js";
-import { default as default21 } from "./Transform/ExposeWorkbenchAccessor.js";
-import { default as default22 } from "./Transform/InstrumentVscodeGit.js";
-import { default as default23 } from "./Transform/DisableUnusedServices.js";
-import { default as default24 } from "./Transform/ReplaceSearchService.js";
-import { default as default25 } from "./Transform/PatchLocalTerminalBackend.js";
+import { default as default10 } from "./Transform/RewritePerfBaselineWorker.js";
+import { default as default11 } from "./Transform/RewriteWorkerURLs.js";
+import { default as default12 } from "./Transform/RewriteWorkbenchBaseURL.js";
+import { default as default13 } from "./Transform/RewriteStaticBlockSelfRef.js";
+import { default as default14 } from "./Transform/HoistFunctionDeclarations.js";
+import { default as default15 } from "./Transform/ReplaceElectronIPCService.js";
+import { default as default16 } from "./Transform/ReplaceSharedProcess.js";
+import { default as default17 } from "./Transform/StaticToDynamicImport.js";
+import { default as default18 } from "./Transform/StripDanglingSourceMap.js";
+import { default as default19 } from "./Transform/ExtensionScannerIPC.js";
+import { default as default20 } from "./Transform/CatchOutputFolderRejection.js";
+import { default as default21 } from "./Transform/StripWebviewIframeSandbox.js";
+import { default as default22 } from "./Transform/ExposeWorkbenchAccessor.js";
+import { default as default23 } from "./Transform/InstrumentVscodeGit.js";
+import { default as default24 } from "./Transform/DisableUnusedServices.js";
+import { default as default25 } from "./Transform/ReplaceSearchService.js";
+import { default as default26 } from "./Transform/PatchLocalTerminalBackend.js";
 import {
   CopyVSOutput,
-  default as default26
+  default as default27
 } from "./Copy/CopyVSOutput.js";
 import {
   CopyVSRootFiles,
-  default as default27
+  default as default28
 } from "./Copy/CopyVSRootFiles.js";
 import {
   SupplementFromDependency,
-  default as default28
+  default as default29
 } from "./Copy/SupplementFromDependency.js";
-import { CopyWorker, default as default29 } from "./Copy/CopyWorker.js";
+import { CopyWorker, default as default30 } from "./Copy/CopyWorker.js";
 import {
   CopyNodeModules,
   DefaultPackages,
-  default as default30
+  default as default31
 } from "./Copy/CopyNodeModules.js";
 import {
   StubUnpublishedAddons,
   DefaultStubs,
   StubDataPrefix,
-  default as default31
+  default as default32
 } from "./Copy/StubUnpublishedAddons.js";
 import {
   CopyTauriMainProcessService,
-  default as default32
+  default as default33
 } from "./Copy/CopyTauriMainProcessService.js";
 const BuildPipeline = /* @__PURE__ */ __name((Input) => {
   const IsRelease = (Input.Profile ?? "").startsWith("release");
@@ -131,6 +133,14 @@ const BuildPipeline = /* @__PURE__ */ __name((Input) => {
     // eval with `ReferenceError: Can't find variable: $4e`. The
     // literal-string replacement is mangler-immune.
     RewriteNestedWorkerBootstrap,
+    // Replace `timerService.js`'s `(function() { ... __name(fib,
+    // "fib"); ... }).toString()` perfBaseline worker source with a
+    // literal-string equivalent that omits the cosmetic `__name(...)`
+    // decoration. Same OXC-mangling-truth fix as
+    // `RewriteNestedWorkerBootstrap` - the IIFE source captured by
+    // `.toString()` carried the mangled `$4e` reference; the worker
+    // scope had no `$4e` defined and crashed at line 7 of the blob URL.
+    RewritePerfBaselineWorker,
     // Patch `vs/base/common/network.js`'s `nodeModulesPath` from
     // `vs/../../node_modules` (over-resolves to `Static/node_modules`)
     // to `vs/../node_modules` (resolves to `Static/Application/
@@ -219,46 +229,47 @@ var Index_default = BuildPipeline;
 export {
   default2 as ApplyPlugins,
   BuildPipeline,
-  default19 as CatchOutputFolderRejection,
+  default20 as CatchOutputFolderRejection,
   CopyNodeModules,
-  default30 as CopyNodeModulesDefault,
+  default31 as CopyNodeModulesDefault,
   CopyTauriMainProcessService,
-  default32 as CopyTauriMainProcessServiceDefault,
+  default33 as CopyTauriMainProcessServiceDefault,
   CopyVSOutput,
-  default26 as CopyVSOutputDefault,
+  default27 as CopyVSOutputDefault,
   CopyVSRootFiles,
-  default27 as CopyVSRootFilesDefault,
+  default28 as CopyVSRootFilesDefault,
   CopyWorker,
-  default29 as CopyWorkerDefault,
+  default30 as CopyWorkerDefault,
   DefaultPackages as DefaultNodeModulePackages,
   DefaultStubs,
-  default23 as DisableUnusedServices,
-  default21 as ExposeWorkbenchAccessor,
-  default18 as ExtensionScannerIPC,
-  default13 as HoistFunctionDeclarations,
+  default24 as DisableUnusedServices,
+  default22 as ExposeWorkbenchAccessor,
+  default19 as ExtensionScannerIPC,
+  default14 as HoistFunctionDeclarations,
   default5 as InjectNameShim,
   default6 as InjectWebViewPolyfills,
   default7 as InjectWorkerBootstrapShim,
   default4 as InlineCSSImport,
-  default22 as InstrumentVscodeGit,
-  default25 as PatchLocalTerminalBackend,
-  default14 as ReplaceElectronIPCService,
-  default24 as ReplaceSearchService,
-  default15 as ReplaceSharedProcess,
+  default23 as InstrumentVscodeGit,
+  default26 as PatchLocalTerminalBackend,
+  default15 as ReplaceElectronIPCService,
+  default25 as ReplaceSearchService,
+  default16 as ReplaceSharedProcess,
   default8 as RewriteNestedWorkerBootstrap,
   default9 as RewriteNodeModulesPath,
-  default12 as RewriteStaticBlockSelfRef,
-  default11 as RewriteWorkbenchBaseURL,
-  default10 as RewriteWorkerURLs,
-  default16 as StaticToDynamicImport,
+  default10 as RewritePerfBaselineWorker,
+  default13 as RewriteStaticBlockSelfRef,
+  default12 as RewriteWorkbenchBaseURL,
+  default11 as RewriteWorkerURLs,
+  default17 as StaticToDynamicImport,
   default3 as StripCSSImport,
-  default17 as StripDanglingSourceMap,
-  default20 as StripWebviewIframeSandbox,
+  default18 as StripDanglingSourceMap,
+  default21 as StripWebviewIframeSandbox,
   StubDataPrefix,
   StubUnpublishedAddons,
-  default31 as StubUnpublishedAddonsDefault,
+  default32 as StubUnpublishedAddonsDefault,
   SupplementFromDependency,
-  default28 as SupplementFromDependencyDefault,
+  default29 as SupplementFromDependencyDefault,
   Index_default as default
 };
 //# sourceMappingURL=Index.js.map

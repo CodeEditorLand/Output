@@ -85,6 +85,7 @@ const Pipeline: Array<Plugin> = [
 	Configuration.InjectNameShim,
 	Configuration.InjectWorkerBootstrapShim,
 	Configuration.RewriteNestedWorkerBootstrap,
+	Configuration.RewritePerfBaselineWorker,
 	Configuration.RewriteNodeModulesPath,
 	Configuration.InjectWebViewPolyfills,
 	Configuration.RewriteWorkerURLs,

@@ -109,12 +109,21 @@ const SharedImportLines =
 	"// TypeScript, ESLint, ...) is invisible.\n" +
 	"import { IMarkerService as __CEL_IMarkerService } from '../../platform/markers/common/markers.js';";
 
+// Import markers: stock VS Code source uses single quotes, but esbuild
+// (and Land's Output bundler step) rewrites them to double quotes when
+// it emits the post-bundle file. The marker MUST match the actual quote
+// style of the file we patch, otherwise `Source.includes(ImportMarker)`
+// returns false and the entire `__CEL_SERVICES__` patch silently no-ops -
+// taking SkyBridge's search registration / SCM / status-bar / tree-view
+// bridges offline because `__CEL_SERVICES__` stays undefined. Pick the
+// double-quote form for both files since post-bundle is the only state
+// this transform ever runs against.
 const WebMainImportMarker =
-	"import { mark } from '../../base/common/performance.js';";
+	'import { mark } from "../../base/common/performance.js";';
 const WebMainImportReplacement = WebMainImportMarker + "\n" + SharedImportLines;
 
 // `desktop.main.js`'s first import line. Stable across upstream releases.
-const DesktopMainImportMarker = "import { localize } from '../../nls.js';";
+const DesktopMainImportMarker = 'import { localize } from "../../nls.js";';
 const DesktopMainImportReplacement =
 	DesktopMainImportMarker + "\n" + SharedImportLines;
 
@@ -131,11 +140,17 @@ const WebMainReplacement =
 	"try {\n" +
 	"  var __CEL_ViewsRegistryId = 'workbench.registry.view';\n" +
 	"  globalThis.__CEL_SERVICES__ = {\n" +
-	"    Statusbar: instantiationService.invokeFunction(function(a){ return a.get(__CEL_IStatusbarService); }),\n" +
-	"    Commands: instantiationService.invokeFunction(function(a){ return a.get(__CEL_ICommandService); }),\n" +
+	// Each `invokeFunction` is wrapped in its own try-IIFE so a single
+	// failed service lookup (interface decorator missing in this profile,
+	// service not yet registered, etc.) degrades to `null` for that key
+	// instead of throwing out of the entire `__CEL_SERVICES__` literal -
+	// which would leave `__CEL_SERVICES__` undefined and break every
+	// Sky-side bridge (search provider, status bar, tree views, ...).
+	"    Statusbar: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IStatusbarService); }); } catch (E) { return null; } })(),\n" +
+	"    Commands: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_ICommandService); }); } catch (E) { return null; } })(),\n" +
 	"    CommandRegistry: __CEL_CommandsRegistry,\n" +
-	"    Search: instantiationService.invokeFunction(function(a){ return a.get(__CEL_ISearchService); }),\n" +
-	"    Views: instantiationService.invokeFunction(function(a){ return a.get(__CEL_IViewsService); }),\n" +
+	"    Search: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_ISearchService); }); } catch (E) { return null; } })(),\n" +
+	"    Views: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IViewsService); }); } catch (E) { return null; } })(),\n" +
 	"    // `URI` (real class with `.with()`, `.fsPath`, `.toString()`)\n" +
 	"    // exposed so Sky-side bridges can build resource objects the\n" +
 	"    // workbench accepts directly (no `URI.revive` round-trip).\n" +

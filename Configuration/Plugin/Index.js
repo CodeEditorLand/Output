@@ -33,6 +33,8 @@ import RewriteNodeModulesPath from "./Transform/RewriteNodeModulesPath.js";
 import RewritePerfBaselineWorker from "./Transform/RewritePerfBaselineWorker.js";
 import InlineCSSImport from "./Transform/InlineCSSImport.js";
 import InstrumentVscodeGit from "./Transform/InstrumentVscodeGit.js";
+import InjectEditorGPULayerCSS from "./Transform/InjectEditorGPULayerCSS.js";
+import InjectTerminalGPULayerCSS from "./Transform/InjectTerminalGPULayerCSS.js";
 import PatchLocalTerminalBackend from "./Transform/PatchLocalTerminalBackend.js";
 import PatchTerminalGpuAcceleration from "./Transform/PatchTerminalGpuAcceleration.js";
 import ReplaceElectronIPCService from "./Transform/ReplaceElectronIPCService.js";
@@ -71,35 +73,37 @@ import { default as default22 } from "./Transform/ExposeWorkbenchAccessor.js";
 import { default as default23 } from "./Transform/InstrumentVscodeGit.js";
 import { default as default24 } from "./Transform/DisableUnusedServices.js";
 import { default as default25 } from "./Transform/ReplaceSearchService.js";
-import { default as default26 } from "./Transform/PatchLocalTerminalBackend.js";
-import { default as default27 } from "./Transform/PatchTerminalGpuAcceleration.js";
+import { default as default26 } from "./Transform/InjectEditorGPULayerCSS.js";
+import { default as default27 } from "./Transform/InjectTerminalGPULayerCSS.js";
+import { default as default28 } from "./Transform/PatchLocalTerminalBackend.js";
+import { default as default29 } from "./Transform/PatchTerminalGpuAcceleration.js";
 import {
   CopyVSOutput,
-  default as default28
+  default as default30
 } from "./Copy/CopyVSOutput.js";
 import {
   CopyVSRootFiles,
-  default as default29
+  default as default31
 } from "./Copy/CopyVSRootFiles.js";
 import {
   SupplementFromDependency,
-  default as default30
+  default as default32
 } from "./Copy/SupplementFromDependency.js";
-import { CopyWorker, default as default31 } from "./Copy/CopyWorker.js";
+import { CopyWorker, default as default33 } from "./Copy/CopyWorker.js";
 import {
   CopyNodeModules,
   DefaultPackages,
-  default as default32
+  default as default34
 } from "./Copy/CopyNodeModules.js";
 import {
   StubUnpublishedAddons,
   DefaultStubs,
   StubDataPrefix,
-  default as default33
+  default as default35
 } from "./Copy/StubUnpublishedAddons.js";
 import {
   CopyTauriMainProcessService,
-  default as default34
+  default as default36
 } from "./Copy/CopyTauriMainProcessService.js";
 const BuildPipeline = /* @__PURE__ */ __name((Input) => {
   const IsRelease = (Input.Profile ?? "").startsWith("release");
@@ -224,7 +228,18 @@ const BuildPipeline = /* @__PURE__ */ __name((Input) => {
     // already-functional `_localPtyService` channel proxy
     // (`mainProcessService.getChannel('localPty')` →
     // Mountain's `localPty:*` handlers).
-    PatchLocalTerminalBackend
+    PatchLocalTerminalBackend,
+    // Pin the xterm canvas to its own GPU compositor layer so
+    // WKWebView's compositor flush between `xterm.refresh()` cycles
+    // doesn't expose the cleared canvas (the "terminal flashes on
+    // every click" symptom). CSS-only - degrades to inert hints if
+    // WebKit ever fixes the underlying compositor behaviour.
+    InjectTerminalGPULayerCSS,
+    // Same GPU-layer hint applied to Monaco's editor canvases.
+    // Targets the "underscore/cursor at a different place" symptom
+    // where WKWebView's compositor lifts the cursor onto a layer
+    // whose baseline diverges from the text layer during reflow.
+    InjectEditorGPULayerCSS
     // `PatchTerminalGpuAcceleration` is intentionally NOT registered
     // here. Forcing the DOM renderer fixed the WebGL atlas font
     // glitches but introduced a "black shadow over text" visual
@@ -243,28 +258,30 @@ export {
   BuildPipeline,
   default20 as CatchOutputFolderRejection,
   CopyNodeModules,
-  default32 as CopyNodeModulesDefault,
+  default34 as CopyNodeModulesDefault,
   CopyTauriMainProcessService,
-  default34 as CopyTauriMainProcessServiceDefault,
+  default36 as CopyTauriMainProcessServiceDefault,
   CopyVSOutput,
-  default28 as CopyVSOutputDefault,
+  default30 as CopyVSOutputDefault,
   CopyVSRootFiles,
-  default29 as CopyVSRootFilesDefault,
+  default31 as CopyVSRootFilesDefault,
   CopyWorker,
-  default31 as CopyWorkerDefault,
+  default33 as CopyWorkerDefault,
   DefaultPackages as DefaultNodeModulePackages,
   DefaultStubs,
   default24 as DisableUnusedServices,
   default22 as ExposeWorkbenchAccessor,
   default19 as ExtensionScannerIPC,
   default14 as HoistFunctionDeclarations,
+  default26 as InjectEditorGPULayerCSS,
   default5 as InjectNameShim,
+  default27 as InjectTerminalGPULayerCSS,
   default6 as InjectWebViewPolyfills,
   default7 as InjectWorkerBootstrapShim,
   default4 as InlineCSSImport,
   default23 as InstrumentVscodeGit,
-  default26 as PatchLocalTerminalBackend,
-  default27 as PatchTerminalGpuAcceleration,
+  default28 as PatchLocalTerminalBackend,
+  default29 as PatchTerminalGpuAcceleration,
   default15 as ReplaceElectronIPCService,
   default25 as ReplaceSearchService,
   default16 as ReplaceSharedProcess,
@@ -280,9 +297,9 @@ export {
   default21 as StripWebviewIframeSandbox,
   StubDataPrefix,
   StubUnpublishedAddons,
-  default33 as StubUnpublishedAddonsDefault,
+  default35 as StubUnpublishedAddonsDefault,
   SupplementFromDependency,
-  default30 as SupplementFromDependencyDefault,
+  default32 as SupplementFromDependencyDefault,
   Index_default as default
 };
 //# sourceMappingURL=Index.js.map

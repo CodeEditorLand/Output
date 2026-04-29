@@ -204,8 +204,13 @@ const WebMainReplacement =
 	"        return {\n" +
 	"          containers: ContainerIds.length,\n" +
 	"          views: ViewIds.length,\n" +
-	"          containerSample: ContainerIds.slice(0, 16),\n" +
-	"          viewSample: ViewIds.slice(0, 16),\n" +
+	"          // Bumped from 16 to all - 35 containers / 79 views\n" +
+	"          // is small enough to log in full, and sampling at 16\n" +
+	"          // hid Roo / other extension contributions past the\n" +
+	"          // first chunk so triage couldn't tell whether they\n" +
+	"          // were registered or missing.\n" +
+	"          containerSample: ContainerIds,\n" +
+	"          viewSample: ViewIds,\n" +
 	"        };\n" +
 	"      } catch (E) {\n" +
 	"        return { containers: -1, views: -1, error: String(E && E.message ? E.message : E) };\n" +

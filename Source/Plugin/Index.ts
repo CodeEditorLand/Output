@@ -38,6 +38,8 @@ import RewriteNodeModulesPath from "./Transform/RewriteNodeModulesPath.js";
 import RewritePerfBaselineWorker from "./Transform/RewritePerfBaselineWorker.js";
 import InlineCSSImport from "./Transform/InlineCSSImport.js";
 import InstrumentVscodeGit from "./Transform/InstrumentVscodeGit.js";
+import InjectEditorGPULayerCSS from "./Transform/InjectEditorGPULayerCSS.js";
+import InjectTerminalGPULayerCSS from "./Transform/InjectTerminalGPULayerCSS.js";
 import PatchLocalTerminalBackend from "./Transform/PatchLocalTerminalBackend.js";
 import PatchTerminalGpuAcceleration from "./Transform/PatchTerminalGpuAcceleration.js";
 import ReplaceElectronIPCService from "./Transform/ReplaceElectronIPCService.js";
@@ -123,6 +125,8 @@ export { default as ExposeWorkbenchAccessor } from "./Transform/ExposeWorkbenchA
 export { default as InstrumentVscodeGit } from "./Transform/InstrumentVscodeGit.js";
 export { default as DisableUnusedServices } from "./Transform/DisableUnusedServices.js";
 export { default as ReplaceSearchService } from "./Transform/ReplaceSearchService.js";
+export { default as InjectEditorGPULayerCSS } from "./Transform/InjectEditorGPULayerCSS.js";
+export { default as InjectTerminalGPULayerCSS } from "./Transform/InjectTerminalGPULayerCSS.js";
 export { default as PatchLocalTerminalBackend } from "./Transform/PatchLocalTerminalBackend.js";
 export { default as PatchTerminalGpuAcceleration } from "./Transform/PatchTerminalGpuAcceleration.js";
 
@@ -311,6 +315,17 @@ export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => {
 		// (`mainProcessService.getChannel('localPty')` →
 		// Mountain's `localPty:*` handlers).
 		PatchLocalTerminalBackend,
+		// Pin the xterm canvas to its own GPU compositor layer so
+		// WKWebView's compositor flush between `xterm.refresh()` cycles
+		// doesn't expose the cleared canvas (the "terminal flashes on
+		// every click" symptom). CSS-only - degrades to inert hints if
+		// WebKit ever fixes the underlying compositor behaviour.
+		InjectTerminalGPULayerCSS,
+		// Same GPU-layer hint applied to Monaco's editor canvases.
+		// Targets the "underscore/cursor at a different place" symptom
+		// where WKWebView's compositor lifts the cursor onto a layer
+		// whose baseline diverges from the text layer during reflow.
+		InjectEditorGPULayerCSS,
 		// `PatchTerminalGpuAcceleration` is intentionally NOT registered
 		// here. Forcing the DOM renderer fixed the WebGL atlas font
 		// glitches but introduced a "black shadow over text" visual

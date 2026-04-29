@@ -39,6 +39,7 @@ import RewritePerfBaselineWorker from "./Transform/RewritePerfBaselineWorker.js"
 import InlineCSSImport from "./Transform/InlineCSSImport.js";
 import InstrumentVscodeGit from "./Transform/InstrumentVscodeGit.js";
 import PatchLocalTerminalBackend from "./Transform/PatchLocalTerminalBackend.js";
+import PatchTerminalGpuAcceleration from "./Transform/PatchTerminalGpuAcceleration.js";
 import ReplaceElectronIPCService from "./Transform/ReplaceElectronIPCService.js";
 import ReplaceSearchService from "./Transform/ReplaceSearchService.js";
 import ReplaceSharedProcess from "./Transform/ReplaceSharedProcess.js";
@@ -123,6 +124,7 @@ export { default as InstrumentVscodeGit } from "./Transform/InstrumentVscodeGit.
 export { default as DisableUnusedServices } from "./Transform/DisableUnusedServices.js";
 export { default as ReplaceSearchService } from "./Transform/ReplaceSearchService.js";
 export { default as PatchLocalTerminalBackend } from "./Transform/PatchLocalTerminalBackend.js";
+export { default as PatchTerminalGpuAcceleration } from "./Transform/PatchTerminalGpuAcceleration.js";
 
 export {
 	CopyVSOutput,
@@ -309,6 +311,16 @@ export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => {
 		// (`mainProcessService.getChannel('localPty')` →
 		// Mountain's `localPty:*` handlers).
 		PatchLocalTerminalBackend,
+		// `PatchTerminalGpuAcceleration` is intentionally NOT registered
+		// here. Forcing the DOM renderer fixed the WebGL atlas font
+		// glitches but introduced a "black shadow over text" visual
+		// artifact (xterm's DOM-renderer cursor / accessibility layer
+		// in WKWebView). Keep the transform file on disk so it can be
+		// re-enabled if we settle on DOM, but default-on it makes the
+		// terminal worse, not better. Re-evaluate after the input race
+		// fix lands and we know whether the original "broken fonts"
+		// symptom was actually WebGL atlas drift or a deferred-create
+		// race side-effect.
 	];
 };
 

@@ -34,6 +34,7 @@ import RewritePerfBaselineWorker from "./Transform/RewritePerfBaselineWorker.js"
 import InlineCSSImport from "./Transform/InlineCSSImport.js";
 import InstrumentVscodeGit from "./Transform/InstrumentVscodeGit.js";
 import PatchLocalTerminalBackend from "./Transform/PatchLocalTerminalBackend.js";
+import PatchTerminalGpuAcceleration from "./Transform/PatchTerminalGpuAcceleration.js";
 import ReplaceElectronIPCService from "./Transform/ReplaceElectronIPCService.js";
 import ReplaceSearchService from "./Transform/ReplaceSearchService.js";
 import ReplaceSharedProcess from "./Transform/ReplaceSharedProcess.js";
@@ -71,33 +72,34 @@ import { default as default23 } from "./Transform/InstrumentVscodeGit.js";
 import { default as default24 } from "./Transform/DisableUnusedServices.js";
 import { default as default25 } from "./Transform/ReplaceSearchService.js";
 import { default as default26 } from "./Transform/PatchLocalTerminalBackend.js";
+import { default as default27 } from "./Transform/PatchTerminalGpuAcceleration.js";
 import {
   CopyVSOutput,
-  default as default27
+  default as default28
 } from "./Copy/CopyVSOutput.js";
 import {
   CopyVSRootFiles,
-  default as default28
+  default as default29
 } from "./Copy/CopyVSRootFiles.js";
 import {
   SupplementFromDependency,
-  default as default29
+  default as default30
 } from "./Copy/SupplementFromDependency.js";
-import { CopyWorker, default as default30 } from "./Copy/CopyWorker.js";
+import { CopyWorker, default as default31 } from "./Copy/CopyWorker.js";
 import {
   CopyNodeModules,
   DefaultPackages,
-  default as default31
+  default as default32
 } from "./Copy/CopyNodeModules.js";
 import {
   StubUnpublishedAddons,
   DefaultStubs,
   StubDataPrefix,
-  default as default32
+  default as default33
 } from "./Copy/StubUnpublishedAddons.js";
 import {
   CopyTauriMainProcessService,
-  default as default33
+  default as default34
 } from "./Copy/CopyTauriMainProcessService.js";
 const BuildPipeline = /* @__PURE__ */ __name((Input) => {
   const IsRelease = (Input.Profile ?? "").startsWith("release");
@@ -222,7 +224,13 @@ const BuildPipeline = /* @__PURE__ */ __name((Input) => {
     // already-functional `_localPtyService` channel proxy
     // (`mainProcessService.getChannel('localPty')` →
     // Mountain's `localPty:*` handlers).
-    PatchLocalTerminalBackend
+    PatchLocalTerminalBackend,
+    // Force `terminal.integrated.gpuAcceleration` default to `'off'`.
+    // xterm's WebGL renderer mis-renders glyphs in WKWebView (atlas
+    // built before Menlo loads → wrong cell widths; texImage2D
+    // premultiplication mismatch → halos around antialiased edges).
+    // The DOM renderer routes through CoreText and renders correctly.
+    PatchTerminalGpuAcceleration
   ];
 }, "BuildPipeline");
 var Index_default = BuildPipeline;
@@ -231,15 +239,15 @@ export {
   BuildPipeline,
   default20 as CatchOutputFolderRejection,
   CopyNodeModules,
-  default31 as CopyNodeModulesDefault,
+  default32 as CopyNodeModulesDefault,
   CopyTauriMainProcessService,
-  default33 as CopyTauriMainProcessServiceDefault,
+  default34 as CopyTauriMainProcessServiceDefault,
   CopyVSOutput,
-  default27 as CopyVSOutputDefault,
+  default28 as CopyVSOutputDefault,
   CopyVSRootFiles,
-  default28 as CopyVSRootFilesDefault,
+  default29 as CopyVSRootFilesDefault,
   CopyWorker,
-  default30 as CopyWorkerDefault,
+  default31 as CopyWorkerDefault,
   DefaultPackages as DefaultNodeModulePackages,
   DefaultStubs,
   default24 as DisableUnusedServices,
@@ -252,6 +260,7 @@ export {
   default4 as InlineCSSImport,
   default23 as InstrumentVscodeGit,
   default26 as PatchLocalTerminalBackend,
+  default27 as PatchTerminalGpuAcceleration,
   default15 as ReplaceElectronIPCService,
   default25 as ReplaceSearchService,
   default16 as ReplaceSharedProcess,
@@ -267,9 +276,9 @@ export {
   default21 as StripWebviewIframeSandbox,
   StubDataPrefix,
   StubUnpublishedAddons,
-  default32 as StubUnpublishedAddonsDefault,
+  default33 as StubUnpublishedAddonsDefault,
   SupplementFromDependency,
-  default29 as SupplementFromDependencyDefault,
+  default30 as SupplementFromDependencyDefault,
   Index_default as default
 };
 //# sourceMappingURL=Index.js.map

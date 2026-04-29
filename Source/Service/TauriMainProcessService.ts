@@ -109,6 +109,69 @@ const ChannelRouteMap: Record<string, string> = {
 
 const FireAndForgetChannels = new Set(["logger", "output"]);
 
+// Channel-event → `sky://` Tauri event mapping.
+//
+// Stock VS Code's `Channel.listen("foo")` returns a streaming `Event<T>`
+// fed by the channel server. We don't run a channel server - Tauri's
+// `app.emit("sky://X", payload)` is the wire substrate. To make
+// `localPty.onProcessData(cb)` fire when Mountain's PTY reader emits
+// `sky://terminal/data`, register the event name → `sky://` channel
+// mapping below and (optionally) a `Map` function that reshapes the
+// Tauri payload into the shape stock VS Code's renderer-side service
+// expects.
+//
+// **CRITICAL:** without this, the entire async-event side of every
+// channel (terminal data, terminal exit, terminal ready, lifecycle
+// events for SCM/debug/custom-editor that the workbench subscribes via
+// `channel.listen()`) is silently no-op'd. The terminal's xterm panel
+// stays blank, debug-adapter events never reach the debug viewlet, etc.
+type ChannelEventBridgeEntry = {
+	Channel: string;
+	Map?: (Payload: unknown) => unknown;
+};
+const ChannelEventBridge: Record<string, Record<string, ChannelEventBridgeEntry>> = {
+	localPty: {
+		// VS Code's `IPtyService.onProcessData` expects
+		// `{ id: number, event: IProcessDataEvent | string }` per
+		// `vs/platform/terminal/common/terminal.ts`. Mountain emits
+		// `{ id, data }` from `Environment/TerminalProvider.rs::PTYReader`.
+		// Re-key `data` → `event` to match.
+		onProcessData: {
+			Channel: "sky://terminal/data",
+			Map: (P) => {
+				const Obj = P as { id?: number; data?: string } | undefined;
+				if (!Obj || typeof Obj.id !== "number") return undefined;
+				return { id: Obj.id, event: Obj.data ?? "" };
+			},
+		},
+		// Listen on `sky://terminal/create` because that's when Mountain
+		// spawns the PTY (same moment the process is "ready" from the
+		// renderer's POV - the workbench uses this event to drive xterm
+		// MOUNT and start consuming `onProcessData`). The `processId`
+		// channel exists separately for extension-host PID notifications
+		// from Cocoon - not the same signal.
+		onProcessReady: {
+			Channel: "sky://terminal/create",
+			Map: (P) => {
+				const Obj = P as { id?: number; pid?: number } | undefined;
+				if (!Obj || typeof Obj.id !== "number") return undefined;
+				return {
+					id: Obj.id,
+					event: { pid: Obj.pid ?? 0, cwd: "", windowsPty: undefined },
+				};
+			},
+		},
+		onProcessExit: {
+			Channel: "sky://terminal/exit",
+			Map: (P) => {
+				const Obj = P as { id?: number; code?: number } | undefined;
+				if (!Obj || typeof Obj.id !== "number") return undefined;
+				return { id: Obj.id, event: Obj.code ?? 0 };
+			},
+		},
+	},
+};
+
 const FileSystemChannels = new Set(["localFilesystem"]);
 const FileSystemThrowCommands = new Set([
 	"stat",
@@ -716,6 +779,51 @@ class TauriChannel implements IChannel {
 
 	listen<T>(Event: string, Arg?: unknown): VSCodeEvent<T> {
 		_Trace("ipc", `listen:${this.ChannelName}.${Event}`);
+
+		// Channel-event subscriptions that route through Tauri's event
+		// system. Stock VS Code wires `Channel.listen("foo")` to the
+		// channel server's `Event<T>` stream; we have no channel server
+		// (Tauri uses native events), so each channel-event the workbench
+		// expects must be explicitly mapped to a `sky://` Tauri event
+		// channel + an optional shape remap.
+		//
+		// **WHY THIS MATTERS:** the no-op fallback below silently
+		// disconnects every channel.listen() subscription. The terminal's
+		// xterm.js panel calls `localPty.onProcessData(cb)` to receive
+		// shell output - with the no-op, cb never fires and the panel
+		// stays blank even though Mountain's PTY reader is emitting
+		// `sky://terminal/data` 100s of times. Same for `onProcessReady`,
+		// `onProcessExit`, and the entire async-channel-event surface.
+		const SkyEventBridge = ChannelEventBridge[this.ChannelName]?.[Event];
+		if (SkyEventBridge) {
+			return ((Listener: (Payload: unknown) => void) => {
+				let Disposed = false;
+				let Unlisten: (() => void) | null = null;
+				import("@tauri-apps/api/event")
+					.then(({ listen }) => {
+						if (Disposed) return;
+						return listen(SkyEventBridge.Channel, (TauriEvent) => {
+							const Mapped = SkyEventBridge.Map
+								? SkyEventBridge.Map(TauriEvent.payload)
+								: TauriEvent.payload;
+							if (Mapped !== undefined) Listener(Mapped);
+						});
+					})
+					.then((Result) => {
+						if (typeof Result === "function") {
+							if (Disposed) Result();
+							else Unlisten = Result;
+						}
+					})
+					.catch(() => {});
+				return {
+					dispose: () => {
+						Disposed = true;
+						Unlisten?.();
+					},
+				};
+			}) as unknown as VSCodeEvent<T>;
+		}
 
 		if (
 			FileSystemChannels.has(this.ChannelName) &&

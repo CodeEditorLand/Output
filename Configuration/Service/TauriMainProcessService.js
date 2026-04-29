@@ -78,6 +78,48 @@ const ChannelRouteMap = {
   localGit: "git"
 };
 const FireAndForgetChannels = /* @__PURE__ */ new Set(["logger", "output"]);
+const ChannelEventBridge = {
+  localPty: {
+    // VS Code's `IPtyService.onProcessData` expects
+    // `{ id: number, event: IProcessDataEvent | string }` per
+    // `vs/platform/terminal/common/terminal.ts`. Mountain emits
+    // `{ id, data }` from `Environment/TerminalProvider.rs::PTYReader`.
+    // Re-key `data` → `event` to match.
+    onProcessData: {
+      Channel: "sky://terminal/data",
+      Map: /* @__PURE__ */ __name((P) => {
+        const Obj = P;
+        if (!Obj || typeof Obj.id !== "number") return void 0;
+        return { id: Obj.id, event: Obj.data ?? "" };
+      }, "Map")
+    },
+    // Listen on `sky://terminal/create` because that's when Mountain
+    // spawns the PTY (same moment the process is "ready" from the
+    // renderer's POV - the workbench uses this event to drive xterm
+    // MOUNT and start consuming `onProcessData`). The `processId`
+    // channel exists separately for extension-host PID notifications
+    // from Cocoon - not the same signal.
+    onProcessReady: {
+      Channel: "sky://terminal/create",
+      Map: /* @__PURE__ */ __name((P) => {
+        const Obj = P;
+        if (!Obj || typeof Obj.id !== "number") return void 0;
+        return {
+          id: Obj.id,
+          event: { pid: Obj.pid ?? 0, cwd: "", windowsPty: void 0 }
+        };
+      }, "Map")
+    },
+    onProcessExit: {
+      Channel: "sky://terminal/exit",
+      Map: /* @__PURE__ */ __name((P) => {
+        const Obj = P;
+        if (!Obj || typeof Obj.id !== "number") return void 0;
+        return { id: Obj.id, event: Obj.code ?? 0 };
+      }, "Map")
+    }
+  }
+};
 const FileSystemChannels = /* @__PURE__ */ new Set(["localFilesystem"]);
 const FileSystemThrowCommands = /* @__PURE__ */ new Set([
   "stat",
@@ -544,6 +586,32 @@ class TauriChannel {
   }
   listen(Event, Arg) {
     _Trace("ipc", `listen:${this.ChannelName}.${Event}`);
+    const SkyEventBridge = ChannelEventBridge[this.ChannelName]?.[Event];
+    if (SkyEventBridge) {
+      return ((Listener) => {
+        let Disposed = false;
+        let Unlisten = null;
+        import("@tauri-apps/api/event").then(({ listen }) => {
+          if (Disposed) return;
+          return listen(SkyEventBridge.Channel, (TauriEvent) => {
+            const Mapped = SkyEventBridge.Map ? SkyEventBridge.Map(TauriEvent.payload) : TauriEvent.payload;
+            if (Mapped !== void 0) Listener(Mapped);
+          });
+        }).then((Result) => {
+          if (typeof Result === "function") {
+            if (Disposed) Result();
+            else Unlisten = Result;
+          }
+        }).catch(() => {
+        });
+        return {
+          dispose: /* @__PURE__ */ __name(() => {
+            Disposed = true;
+            Unlisten?.();
+          }, "dispose")
+        };
+      });
+    }
     if (FileSystemChannels.has(this.ChannelName) && Event === "readFileStream") {
       return ((Listener) => {
         const Params = Arg !== void 0 ? Array.isArray(Arg) ? Arg : [Arg] : [];

@@ -177,7 +177,15 @@ const WebMainReplacement =
 	"    // Registry instance from its own module graph.\n" +
 	"    ViewRegistrySnapshot: function() {\n" +
 	"      try {\n" +
-	"        var ContainersReg = __CEL_Registry.as('workbench.view.containersRegistry');\n" +
+	"        // Stock VS Code's registry IDs (see\n" +
+	"        // `vs/workbench/common/views.ts:35` -\n" +
+	"        // `'workbench.registry.view.containers'` /\n" +
+	"        // `'workbench.registry.view'`). The previous attempt at\n" +
+	"        // `'workbench.view.containersRegistry'` was a guessed\n" +
+	"        // dotted name; `Registry.as` returned null and the probe\n" +
+	"        // reported `containers=0` even though the workbench had\n" +
+	"        // dozens of contributions.\n" +
+	"        var ContainersReg = __CEL_Registry.as('workbench.registry.view.containers');\n" +
 	"        var ViewsReg = __CEL_Registry.as(__CEL_ViewsRegistryId);\n" +
 	"        var Locations = (ContainersReg && ContainersReg.all) ? ContainersReg.all : [];\n" +
 	"        var ContainerIds = [];\n" +

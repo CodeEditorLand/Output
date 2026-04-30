@@ -110,6 +110,11 @@ const Pipeline: Array<Plugin> = [
 	// `globalThis.__CEL_OVERRIDE_STORAGE__` consult on every typed
 	// read of `AbstractStorageService`. Composite key `<scope>:<key>`.
 	Configuration.InjectStorageOverlay,
+	// Wrap `iconsStyleSheet.js`'s `getCSS()` to rewrite emitted
+	// `@font-face` `vscode-file://vscode-app` URLs to same-origin
+	// paths the WKWebView can fetch. Fixes blank-glyph activity-bar
+	// icons for every extension-contributed codicon font.
+	Configuration.RewriteIconsStyleSheetURLs,
 ];
 
 const Target = resolve(process.cwd(), "Target/Microsoft/VSCode");

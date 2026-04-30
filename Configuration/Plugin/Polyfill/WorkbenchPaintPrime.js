@@ -1,1 +1,80 @@
-const s="__LAND_WORKBENCH_PAINT_PRIME__";function m(){if(typeof window>"u")return;const r=window;if(r[s])return;r[s]=!0;const d=[".monaco-workbench .activitybar",".monaco-workbench .sidebar",".monaco-workbench .auxiliarybar",".monaco-workbench .panel",".monaco-workbench .editor",".monaco-workbench .titlebar",".monaco-workbench .statusbar",".monaco-workbench .banner",".monaco-workbench .part",".monaco-workbench .composite"],a=new WeakSet;function i(t){if(!(!t||a.has(t))){a.add(t),t.offsetHeight;try{t.getBoundingClientRect()}catch{}}}function o(){for(const t of d){const n=document.querySelectorAll(t);for(const u of Array.from(n))i(u)}}function l(t){let n=t;for(;n&&n!==document.body;){if(n.classList&&(n.classList.contains("part")||n.classList.contains("composite")||n.classList.contains("activitybar")||n.classList.contains("sidebar")||n.classList.contains("auxiliarybar")||n.classList.contains("panel")||n.classList.contains("pane")||n.classList.contains("editor")))return n;n=n.parentElement}return null}function e(t){const n=l(t.target);n&&i(n)}function c(){o(),setTimeout(o,200),setTimeout(o,800),document.addEventListener("click",e,!0),document.addEventListener("keydown",e,!0),document.addEventListener("pointerdown",e,!0),document.addEventListener("focus",e,!0)}document.readyState==="loading"?document.addEventListener("DOMContentLoaded",c,{once:!0}):c()}export{s as Marker,m as default};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+const Marker = "__LAND_WORKBENCH_PAINT_PRIME__";
+function WorkbenchPaintPrime() {
+  if (typeof window === "undefined") return;
+  const Land = window;
+  if (Land[Marker]) return;
+  Land[Marker] = true;
+  const PartSelectors = [
+    ".monaco-workbench .activitybar",
+    ".monaco-workbench .sidebar",
+    ".monaco-workbench .auxiliarybar",
+    ".monaco-workbench .panel",
+    ".monaco-workbench .editor",
+    ".monaco-workbench .titlebar",
+    ".monaco-workbench .statusbar",
+    ".monaco-workbench .banner",
+    ".monaco-workbench .part",
+    ".monaco-workbench .composite"
+  ];
+  const Primed = /* @__PURE__ */ new WeakSet();
+  function PrimeElement(Element) {
+    if (!Element || Primed.has(Element)) return;
+    Primed.add(Element);
+    void Element.offsetHeight;
+    try {
+      Element.getBoundingClientRect();
+    } catch {
+    }
+  }
+  __name(PrimeElement, "PrimeElement");
+  function PrimeAllParts() {
+    for (const Selector of PartSelectors) {
+      const Nodes = document.querySelectorAll(Selector);
+      for (const Node of Array.from(Nodes)) {
+        PrimeElement(Node);
+      }
+    }
+  }
+  __name(PrimeAllParts, "PrimeAllParts");
+  function FindPartAncestor(Target) {
+    let Cursor = Target;
+    while (Cursor && Cursor !== document.body) {
+      if (Cursor.classList) {
+        if (Cursor.classList.contains("part") || Cursor.classList.contains("composite") || Cursor.classList.contains("activitybar") || Cursor.classList.contains("sidebar") || Cursor.classList.contains("auxiliarybar") || Cursor.classList.contains("panel") || Cursor.classList.contains("pane") || Cursor.classList.contains("editor")) {
+          return Cursor;
+        }
+      }
+      Cursor = Cursor.parentElement;
+    }
+    return null;
+  }
+  __name(FindPartAncestor, "FindPartAncestor");
+  function HandleEvent(Event) {
+    const Part = FindPartAncestor(Event.target);
+    if (Part) PrimeElement(Part);
+  }
+  __name(HandleEvent, "HandleEvent");
+  function Install() {
+    PrimeAllParts();
+    setTimeout(PrimeAllParts, 200);
+    setTimeout(PrimeAllParts, 800);
+    document.addEventListener("click", HandleEvent, true);
+    document.addEventListener("keydown", HandleEvent, true);
+    document.addEventListener("pointerdown", HandleEvent, true);
+    document.addEventListener("focus", HandleEvent, true);
+  }
+  __name(Install, "Install");
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", Install, { once: true });
+  } else {
+    Install();
+  }
+}
+__name(WorkbenchPaintPrime, "WorkbenchPaintPrime");
+export {
+  Marker,
+  WorkbenchPaintPrime as default
+};
+//# sourceMappingURL=WorkbenchPaintPrime.js.map

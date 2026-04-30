@@ -1,1 +1,31 @@
-const i='var __defProp=Object.defineProperty;var __name=(t,v)=>__defProp(t,"name",{value:v,configurable:true});',t="`/*extensionHostWorker*/`,",c="`/*extensionHostWorker*/${NameShim}`,",a=/script-src ([^;]+);/,s={Kind:"Transform",Name:"InjectNameShim",Match:({Path:e})=>/webWorkerExtensionHostIframe\.html$/.test(e),Transform({Source:e}){if(!e.includes(t))return{Kind:"Unchanged"};let r=e.replace(t,c.replace("${NameShim}",i));const n=r.match(a);return n&&!n[1].includes("'unsafe-inline'")&&(r=r.replace(a,"script-src 'unsafe-inline' $1;")),r===e?{Kind:"Unchanged"}:{Kind:"Rewrite",Source:r}}};var o=s;export{o as default};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+const NameShim = `var __defProp=Object.defineProperty;var __name=(t,v)=>__defProp(t,"name",{value:v,configurable:true});`;
+const IframeMarker = "`/*extensionHostWorker*/`,";
+const IframeReplacement = "`/*extensionHostWorker*/${NameShim}`,";
+const CSPScriptSrcMatcher = /script-src ([^;]+);/;
+const Plugin = {
+  Kind: "Transform",
+  Name: "InjectNameShim",
+  Match: /* @__PURE__ */ __name(({ Path }) => /webWorkerExtensionHostIframe\.html$/.test(Path), "Match"),
+  Transform({ Source }) {
+    if (!Source.includes(IframeMarker)) return { Kind: "Unchanged" };
+    let Next = Source.replace(
+      IframeMarker,
+      IframeReplacement.replace("${NameShim}", NameShim)
+    );
+    const CSPMatch = Next.match(CSPScriptSrcMatcher);
+    if (CSPMatch && !CSPMatch[1].includes("'unsafe-inline'")) {
+      Next = Next.replace(
+        CSPScriptSrcMatcher,
+        `script-src 'unsafe-inline' $1;`
+      );
+    }
+    return Next === Source ? { Kind: "Unchanged" } : { Kind: "Rewrite", Source: Next };
+  }
+};
+var InjectNameShim_default = Plugin;
+export {
+  InjectNameShim_default as default
+};
+//# sourceMappingURL=InjectNameShim.js.map

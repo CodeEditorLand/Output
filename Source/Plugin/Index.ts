@@ -43,6 +43,7 @@ import InjectWorkbenchPaintPrime from "./Transform/InjectWorkbenchPaintPrime.js"
 import InjectWorkerBootstrapShim from "./Transform/InjectWorkerBootstrapShim.js";
 import InjectConfigurationOverlay from "./Transform/InjectConfigurationOverlay.js";
 import InjectStorageOverlay from "./Transform/InjectStorageOverlay.js";
+import RewriteIconsStyleSheetURLs from "./Transform/RewriteIconsStyleSheetURLs.js";
 import RewriteNestedWorkerBootstrap from "./Transform/RewriteNestedWorkerBootstrap.js";
 import RewriteNodeModulesPath from "./Transform/RewriteNodeModulesPath.js";
 import RewritePerfBaselineWorker from "./Transform/RewritePerfBaselineWorker.js";
@@ -130,6 +131,7 @@ export { default as InjectWorkbenchPaintPrime } from "./Transform/InjectWorkbenc
 export { default as InjectWorkerBootstrapShim } from "./Transform/InjectWorkerBootstrapShim.js";
 export { default as InjectConfigurationOverlay } from "./Transform/InjectConfigurationOverlay.js";
 export { default as InjectStorageOverlay } from "./Transform/InjectStorageOverlay.js";
+export { default as RewriteIconsStyleSheetURLs } from "./Transform/RewriteIconsStyleSheetURLs.js";
 export { default as RewriteNestedWorkerBootstrap } from "./Transform/RewriteNestedWorkerBootstrap.js";
 export { default as RewriteNodeModulesPath } from "./Transform/RewriteNodeModulesPath.js";
 export { default as RewritePerfBaselineWorker } from "./Transform/RewritePerfBaselineWorker.js";
@@ -321,6 +323,13 @@ export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => {
 		// through IndexedDB. Composite key is `<scope>:<key>` to
 		// disambiguate across APPLICATION / PROFILE / WORKSPACE scopes.
 		InjectStorageOverlay,
+		// Wrap `iconsStyleSheet.js`'s `getCSS()` so the emitted
+		// `@font-face` URLs are rewritten from `vscode-file://vscode-app`
+		// to same-origin paths the WKWebView can actually fetch. Without
+		// this, every extension-contributed codicon font (GitLens,
+		// dart-code, etc.) lands as a missing-glyph blank box because
+		// WKWebView has no `vscode-file://` handler.
+		RewriteIconsStyleSheetURLs,
 		// Force the workbench's ILifecycleService to advance through
 		// Starting -> Ready -> Restored -> Eventually as fast as
 		// possible at boot, rather than waiting on the stock 2-5 s

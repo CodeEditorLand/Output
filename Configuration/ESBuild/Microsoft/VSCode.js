@@ -77,19 +77,45 @@ var VSCode_default = /* @__PURE__ */ __name(async (Current) => (await import("de
         ),
         ...(await import("../Exclude/Node.js")).default(Prefix),
         // LAND-EXCLUDE: telemetry / external-network /
-        // Chromium IPC dead-code strips. Each list adds
-        // the file globs that the entry-point planner
-        // will skip. Tree-shaking removes the consumers
-        // at bundle time.
-        ...(await import("../Exclude/Telemetry.js")).default(
-          Prefix
-        ),
-        ...(await import("../Exclude/Network.js")).default(
-          Prefix
-        ),
-        ...(await import("../Exclude/ChromiumIPC.js")).default(
-          Prefix
-        ),
+        // Chromium IPC dead-code strips ARE INTENTIONALLY
+        // COMMENTED OUT.
+        //
+        // Excluding the files at the entry-point planner
+        // stage drops them from `Output/Target/` entirely,
+        // but the gulp-only consumers (`workbench.desktop.
+        // main.js`, `workbench.web.main.js`, `workbench.
+        // common.main.js`) carry STATIC `import './X'`
+        // references to the excluded paths. Rollup follows
+        // these imports during the bundled-Vite walk and
+        // fails to resolve, blocking every `*-bundled`
+        // profile; the runtime, non-bundled path 404s on
+        // the same imports.
+        //
+        // Behaviour stripping happens through the
+        // `Source/Plugin/Transform/Replace*` plugins
+        // (`ReplaceElectronIPCService`, `ReplaceSearchService`,
+        // `ReplaceSharedProcess`, `DisableUnusedServices`,
+        // ...). Those rewrite the file BODIES to no-op
+        // shims so the IMPORT continues to resolve while
+        // the runtime effect is neutralised. Vite/Rollup
+        // tree-shakes any reachable-but-unused exports
+        // from the final bundled chunk; the unbundled
+        // runtime path serves the no-op'd files from
+        // `Static/Application/`.
+        //
+        // Re-enable a list ONLY if you also add the
+        // matching `Replace*` transform AND patch every
+        // consumer that statically imports a path inside
+        // it. The previous "exclude + tree-shake"
+        // shortcut is incompatible with the bundled-
+        // workbench static-import chain.
+        //
+        // ...(await import("../Exclude/Telemetry.js"))
+        //     .default(Prefix),
+        // ...(await import("../Exclude/Network.js"))
+        //     .default(Prefix),
+        // ...(await import("../Exclude/ChromiumIPC.js"))
+        //     .default(Prefix),
         "tsec.exemptions.json",
         "cgmanifest.json"
       ]

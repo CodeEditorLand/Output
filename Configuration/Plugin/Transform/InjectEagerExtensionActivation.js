@@ -1,21 +1,21 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import DisableLazyPaint, { Marker } from "../Polyfill/DisableLazyPaint.js";
+import EagerExtensionActivation, { Marker } from "../Polyfill/EagerExtensionActivation.js";
 const Polyfill = `
 /* ${Marker} */
-(${DisableLazyPaint.toString()})();
+(${EagerExtensionActivation.toString()})();
 `;
 const Plugin = {
   Kind: "Transform",
-  Name: "InjectDisableLazyPaint",
+  Name: "InjectEagerExtensionActivation",
   Match: /* @__PURE__ */ __name(({ Path }) => Path.endsWith("vs/code/electron-browser/workbench/workbench.js"), "Match"),
   Transform({ Source }) {
     if (Source.includes(Marker)) return { Kind: "Unchanged" };
     return { Kind: "Rewrite", Source: Polyfill + Source };
   }
 };
-var InjectDisableLazyPaint_default = Plugin;
+var InjectEagerExtensionActivation_default = Plugin;
 export {
-  InjectDisableLazyPaint_default as default
+  InjectEagerExtensionActivation_default as default
 };
-//# sourceMappingURL=InjectDisableLazyPaint.js.map
+//# sourceMappingURL=InjectEagerExtensionActivation.js.map

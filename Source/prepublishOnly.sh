@@ -7,7 +7,32 @@ fi
 # shellcheck disable=SC2154
 case "$Dependency" in
 "Microsoft/VSCode")
-	Build="out-build"
+	# Always use `out/` (dev tsc) as the input tree, NOT `out-build/`
+	# (gulp release tree).
+	#
+	# `out-build/` carries the upstream-mangled bytes (`$Hp`, `$ZXb`,
+	# `$4e`, ...) but is missing every gulp-only artefact: the
+	# workbench bundler entries (`workbench.web.main.js`,
+	# `workbench.web.main.internal.js`, `workbench.desktop.main.js`)
+	# never reach `out-build/` because gulp emits them through a
+	# separate AMD-optimiser step Output does not run. Mixing the
+	# two trees produces an incoherent shipped artefact: Output's
+	# release `Target/Microsoft/VSCode/vs/code/electron-browser/
+	# workbench/workbench.js` is mangled, but the supplement-copied
+	# siblings from `out/` are unmangled, and every cross-tree
+	# `import { $Hp } from './telemetry.js'` blows up at runtime
+	# because the unmangled file does not export `$Hp`.
+	#
+	# `out/` is unmangled but COMPLETE - every file VS Code's source
+	# tree references is present. Output's transforms operate on
+	# readable identifiers; consumers (Sky's Static/Application copy
+	# AND Sky's bundled Vite walk) see a single self-consistent
+	# universe of bytes; Vite/Rollup re-mangles for the bundled
+	# profile, browsers gzip the unbundled profile. The shipped
+	# artefact is a few hundred KB larger but works in every profile
+	# without the mangling-truth class of patches the previous
+	# `out-build/` path required.
+	Build="out"
 	;;
 
 "CodeEditorLand/Editor")
@@ -18,25 +43,6 @@ case "$Dependency" in
 	exit 1
 	;;
 esac
-
-# Debug profiles pull from VS Code's `out/` (unminified, unmangled) so
-# the Output transform pipeline operates on readable identifiers
-# instead of the property-mangled `out-build/` (`$ZXb`, `$Q9b`, `$4e`,
-# ...) which forced the entire mangling-truth class of fixes
-# (RewriteStaticBlockSelfRef, RewriteNestedWorkerBootstrap,
-# RewritePerfBaselineWorker, ...). Release profiles keep `out-build/`
-# so shipped builds carry the upstream-minified bytes.
-#
-# Gate is `Debug=true` (Land-introduced PascalCase flag set by every
-# debug profile in `Maintain/Debug/Build.sh`) NOT `NODE_ENV` - the
-# repo's `.env` historically pinned `NODE_ENV=production` and was
-# loaded by Tauri's CLI AFTER Build.sh's `export NODE_ENV=development`,
-# silently overriding the gate and forcing `out-build` even for debug
-# profiles. `.env` is deleted; build-mode flags now flow only via
-# profile exports + `Element/Maintain`.
-if [ "$Dependency" = "Microsoft/VSCode" ] && [ "$Debug" = "true" ]; then
-	Build="out"
-fi
 
 Build "Source/**/*.{ts,json}" \
 	--ESBuild Source/ESBuild/Output.ts

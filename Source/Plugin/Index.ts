@@ -32,6 +32,10 @@ import ExposeWorkbenchAccessor from "./Transform/ExposeWorkbenchAccessor.js";
 import ExtensionScannerIPC from "./Transform/ExtensionScannerIPC.js";
 import InjectNameShim from "./Transform/InjectNameShim.js";
 import InjectDisableLazyPaint from "./Transform/InjectDisableLazyPaint.js";
+import InjectEagerExtensionActivation from "./Transform/InjectEagerExtensionActivation.js";
+import InjectEagerIdleValue from "./Transform/InjectEagerIdleValue.js";
+import InjectEagerLifecyclePhase from "./Transform/InjectEagerLifecyclePhase.js";
+import InjectStripBackgroundPolling from "./Transform/InjectStripBackgroundPolling.js";
 import InjectTelemetryConsentOff from "./Transform/InjectTelemetryConsentOff.js";
 import InjectWebViewPolyfills from "./Transform/InjectWebViewPolyfills.js";
 import InjectWorkbenchInteractivityCSS from "./Transform/InjectWorkbenchInteractivityCSS.js";
@@ -47,8 +51,11 @@ import InjectTerminalGPULayerCSS from "./Transform/InjectTerminalGPULayerCSS.js"
 import PatchLocalTerminalBackend from "./Transform/PatchLocalTerminalBackend.js";
 import PatchTerminalGpuAcceleration from "./Transform/PatchTerminalGpuAcceleration.js";
 import ReplaceElectronIPCService from "./Transform/ReplaceElectronIPCService.js";
+import ReplaceExtensionGalleryService from "./Transform/ReplaceExtensionGalleryService.js";
 import ReplaceSearchService from "./Transform/ReplaceSearchService.js";
 import ReplaceSharedProcess from "./Transform/ReplaceSharedProcess.js";
+import ReplaceTelemetryService from "./Transform/ReplaceTelemetryService.js";
+import ReplaceUpdateService from "./Transform/ReplaceUpdateService.js";
 import HoistFunctionDeclarations from "./Transform/HoistFunctionDeclarations.js";
 import RewriteStaticBlockSelfRef from "./Transform/RewriteStaticBlockSelfRef.js";
 import RewriteWorkbenchBaseURL from "./Transform/RewriteWorkbenchBaseURL.js";
@@ -110,6 +117,10 @@ export { default as StripCSSImport } from "./Transform/StripCSSImport.js";
 export { default as InlineCSSImport } from "./Transform/InlineCSSImport.js";
 export { default as InjectNameShim } from "./Transform/InjectNameShim.js";
 export { default as InjectDisableLazyPaint } from "./Transform/InjectDisableLazyPaint.js";
+export { default as InjectEagerExtensionActivation } from "./Transform/InjectEagerExtensionActivation.js";
+export { default as InjectEagerIdleValue } from "./Transform/InjectEagerIdleValue.js";
+export { default as InjectEagerLifecyclePhase } from "./Transform/InjectEagerLifecyclePhase.js";
+export { default as InjectStripBackgroundPolling } from "./Transform/InjectStripBackgroundPolling.js";
 export { default as InjectTelemetryConsentOff } from "./Transform/InjectTelemetryConsentOff.js";
 export { default as InjectWebViewPolyfills } from "./Transform/InjectWebViewPolyfills.js";
 export { default as InjectWorkbenchInteractivityCSS } from "./Transform/InjectWorkbenchInteractivityCSS.js";
@@ -123,7 +134,10 @@ export { default as RewriteWorkbenchBaseURL } from "./Transform/RewriteWorkbench
 export { default as RewriteStaticBlockSelfRef } from "./Transform/RewriteStaticBlockSelfRef.js";
 export { default as HoistFunctionDeclarations } from "./Transform/HoistFunctionDeclarations.js";
 export { default as ReplaceElectronIPCService } from "./Transform/ReplaceElectronIPCService.js";
+export { default as ReplaceExtensionGalleryService } from "./Transform/ReplaceExtensionGalleryService.js";
 export { default as ReplaceSharedProcess } from "./Transform/ReplaceSharedProcess.js";
+export { default as ReplaceTelemetryService } from "./Transform/ReplaceTelemetryService.js";
+export { default as ReplaceUpdateService } from "./Transform/ReplaceUpdateService.js";
 export { default as StaticToDynamicImport } from "./Transform/StaticToDynamicImport.js";
 export { default as StripDanglingSourceMap } from "./Transform/StripDanglingSourceMap.js";
 export { default as ExtensionScannerIPC } from "./Transform/ExtensionScannerIPC.js";
@@ -286,6 +300,28 @@ export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => {
 		// take the disabled branches at module-eval time so even
 		// straggler appenders never get fed an event. Idempotent.
 		InjectTelemetryConsentOff,
+		// Strip VS Code's background polls (telemetry flush, settings
+		// sync, update check, marketplace recommendations, etc.) at
+		// the setInterval / long setTimeout level. Stack-trace deny
+		// match; non-matching timers run as normal. Idempotent.
+		InjectStripBackgroundPolling,
+		// Force the workbench's ILifecycleService to advance through
+		// Starting -> Ready -> Restored -> Eventually as fast as
+		// possible at boot, rather than waiting on the stock 2-5 s
+		// timer. Unblocks every `lifecycle.when(phase)` Promise that
+		// extension activations + service init wait on. Idempotent.
+		InjectEagerLifecyclePhase,
+		// Fire `IExtensionService.activateByEvent("onStartupFinished")`
+		// + `("*")` directly at workbench-loaded so extension panels
+		// (Roo, Claude, gitlens, dart-code, etc.) populate immediately
+		// rather than waiting for the stock 2-5 s scheduler. Compounds
+		// with InjectEagerLifecyclePhase. Idempotent.
+		InjectEagerExtensionActivation,
+		// Collapse `requestIdleCallback` to `setTimeout(0)` with a
+		// generous synthetic IdleDeadline so VS Code's pervasive
+		// `IdleValue<T>` lazy-init pattern resolves eagerly. Trades
+		// tiny boot-time spike for predictable warm state. Idempotent.
+		InjectEagerIdleValue,
 		// Rewrite `new URL("./worker.html", import.meta.url)` patterns
 		// to absolute origin-pinned `/Static/Application/...` URLs so
 		// they resolve regardless of where the bundled chunk lives.
@@ -301,6 +337,24 @@ export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => {
 		RewriteWorkbenchBaseURL,
 		ReplaceElectronIPCService,
 		ReplaceSharedProcess,
+		// LAND-PATCH: replace VS Code's TelemetryService body with a
+		// no-op stub. Static `import` references in workbench.*
+		// resolve cleanly; consumers that DO call publicLog/etc.
+		// hit no-op methods. Compounds with Network.ts (excludes
+		// wire-level appenders) + InjectTelemetryConsentOff
+		// (pre-bakes consent off at boot).
+		ReplaceTelemetryService,
+		// LAND-PATCH: replace UpdateService + AbstractUpdateService
+		// bodies. State.Idle forever; checkForUpdates / downloadUpdate
+		// / quitAndInstall are no-ops. Auto-update goes through Air's
+		// signed-binary path (Mountain.key.pub verified), not
+		// update.code.visualstudio.com.
+		ReplaceUpdateService,
+		// LAND-PATCH: replace ExtensionGalleryService body. query()
+		// returns an empty pager; download/install reject with a
+		// helpful error. User extensions are sideloaded from
+		// ~/.land/extensions/ - no marketplace traffic.
+		ReplaceExtensionGalleryService,
 		StaticToDynamicImport,
 		StripDanglingSourceMap,
 		ExtensionScannerIPC,

@@ -76,9 +76,20 @@ var VSCode_default = /* @__PURE__ */ __name(async (Current) => (await import("de
           Prefix
         ),
         ...(await import("../Exclude/Node.js")).default(Prefix),
-        // ...(await import("../Exclude/Telemetry.js")).default(
-        // 	Prefix,
-        // ),
+        // LAND-EXCLUDE: telemetry / external-network /
+        // Chromium IPC dead-code strips. Each list adds
+        // the file globs that the entry-point planner
+        // will skip. Tree-shaking removes the consumers
+        // at bundle time.
+        ...(await import("../Exclude/Telemetry.js")).default(
+          Prefix
+        ),
+        ...(await import("../Exclude/Network.js")).default(
+          Prefix
+        ),
+        ...(await import("../Exclude/ChromiumIPC.js")).default(
+          Prefix
+        ),
         "tsec.exemptions.json",
         "cgmanifest.json"
       ]

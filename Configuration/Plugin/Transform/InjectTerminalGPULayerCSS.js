@@ -3,23 +3,32 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
 const Marker = "__LAND_TERMINAL_GPU_LAYER__";
 const InjectedCSS = `
 /* ${Marker} */
+/* Promote the xterm host elements to their own compositor layers without
+ * clipping descendants. \`contain: paint\` was previously applied to the
+ * viewport and screen containers, but on macOS WKWebView that creates a
+ * paint boundary at the layer edge. Combined with \`translateZ(0)\` and
+ * xterm's subpixel row offsets, glyph pixels falling near the boundary
+ * get clipped - the user sees characters sliced in half. Keep the GPU
+ * promotion hints, but only apply \`contain: paint\` to the canvas
+ * itself (which owns its own pixel grid) - never to row containers. */
 .terminal-xterm-host,
 .terminal-wrapper,
-.xterm,
-.xterm .xterm-viewport,
-.xterm .xterm-screen,
-.xterm canvas {
+.xterm {
 	will-change: transform;
-	contain: paint;
 	transform: translateZ(0);
 	backface-visibility: hidden;
 }
 .xterm canvas {
-	/* WKWebView's composited canvas occasionally flashes on focus
-	 * change without an explicit isolation hint; \`isolation: isolate\`
-	 * forces a stacking context so focus transitions don't bleed
-	 * through the parent. */
+	will-change: transform;
+	transform: translateZ(0);
+	backface-visibility: hidden;
+	contain: paint;
 	isolation: isolate;
+	/* Force nearest-neighbour rasterisation so subpixel row edges don't
+	 * blend across the layer boundary. Two declarations: \`pixelated\`
+	 * for current WebKit, \`crisp-edges\` as historical fallback. */
+	image-rendering: pixelated;
+	image-rendering: crisp-edges;
 }
 `;
 const PathRegex = /workbench\/contrib\/terminal\/browser\/media\/[^/]+\.css$/;

@@ -31,7 +31,11 @@ import DisableUnusedServices from "./Transform/DisableUnusedServices.js";
 import ExposeWorkbenchAccessor from "./Transform/ExposeWorkbenchAccessor.js";
 import ExtensionScannerIPC from "./Transform/ExtensionScannerIPC.js";
 import InjectNameShim from "./Transform/InjectNameShim.js";
+import InjectDisableLazyPaint from "./Transform/InjectDisableLazyPaint.js";
+import InjectTelemetryConsentOff from "./Transform/InjectTelemetryConsentOff.js";
 import InjectWebViewPolyfills from "./Transform/InjectWebViewPolyfills.js";
+import InjectWorkbenchInteractivityCSS from "./Transform/InjectWorkbenchInteractivityCSS.js";
+import InjectWorkbenchPaintPrime from "./Transform/InjectWorkbenchPaintPrime.js";
 import InjectWorkerBootstrapShim from "./Transform/InjectWorkerBootstrapShim.js";
 import RewriteNestedWorkerBootstrap from "./Transform/RewriteNestedWorkerBootstrap.js";
 import RewriteNodeModulesPath from "./Transform/RewriteNodeModulesPath.js";
@@ -105,7 +109,11 @@ export type { ApplyInput, ApplyOutcome } from "./Apply.js";
 export { default as StripCSSImport } from "./Transform/StripCSSImport.js";
 export { default as InlineCSSImport } from "./Transform/InlineCSSImport.js";
 export { default as InjectNameShim } from "./Transform/InjectNameShim.js";
+export { default as InjectDisableLazyPaint } from "./Transform/InjectDisableLazyPaint.js";
+export { default as InjectTelemetryConsentOff } from "./Transform/InjectTelemetryConsentOff.js";
 export { default as InjectWebViewPolyfills } from "./Transform/InjectWebViewPolyfills.js";
+export { default as InjectWorkbenchInteractivityCSS } from "./Transform/InjectWorkbenchInteractivityCSS.js";
+export { default as InjectWorkbenchPaintPrime } from "./Transform/InjectWorkbenchPaintPrime.js";
 export { default as InjectWorkerBootstrapShim } from "./Transform/InjectWorkerBootstrapShim.js";
 export { default as RewriteNestedWorkerBootstrap } from "./Transform/RewriteNestedWorkerBootstrap.js";
 export { default as RewriteNodeModulesPath } from "./Transform/RewriteNodeModulesPath.js";
@@ -248,6 +256,36 @@ export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => {
 		// `window.requestIdleCallback` / `queryLocalFonts` are present
 		// before any contribution touches them. Idempotent.
 		InjectWebViewPolyfills,
+		// Disable WKWebView lazy-paint mechanisms so workbench panels
+		// render on `display:flex` rather than waiting for a hover or
+		// scroll. Replaces `requestAnimationFrame` with a coalesced
+		// `setTimeout(0)` queue, `IntersectionObserver` with a
+		// fire-on-observe stub, and strips `content-visibility:auto`
+		// + `contain:paint` from workbench-level CSS rules.
+		// Idempotent. Runs after the polyfill injector so its
+		// rAF/IO overrides land on top of any earlier shim.
+		InjectDisableLazyPaint,
+		// Force workbench parts/panels/composites to be interactive
+		// on `display:flex`. Strips `pointer-events:none`,
+		// `visibility:hidden`, `opacity:0` cascades and zeros panel
+		// transition durations so panels appear instantly.
+		// Companion to InjectDisableLazyPaint: that one fixed paint;
+		// this fixes interactivity. Idempotent.
+		InjectWorkbenchInteractivityCSS,
+		// Force WKWebView's compositor to commit pending layout for
+		// each workbench part layer at boot and on the first
+		// interaction with each part. One synchronous
+		// `void offsetHeight` read per part suffices to commit the
+		// layer to the compositor; without it, panels may stay in
+		// a "first paint pending" state until something else
+		// triggers a forced layout. Idempotent.
+		InjectWorkbenchPaintPrime,
+		// Pre-bake telemetry consent OFF so VS Code's TelemetryService
+		// starts in already-disabled state. Network.ts excludes the
+		// wire-level appenders; this transform makes the consumers
+		// take the disabled branches at module-eval time so even
+		// straggler appenders never get fed an event. Idempotent.
+		InjectTelemetryConsentOff,
 		// Rewrite `new URL("./worker.html", import.meta.url)` patterns
 		// to absolute origin-pinned `/Static/Application/...` URLs so
 		// they resolve regardless of where the bundled chunk lives.

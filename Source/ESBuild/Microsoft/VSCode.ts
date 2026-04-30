@@ -128,9 +128,22 @@ export default async (Current: BuildOptions): Promise<BuildOptions> =>
 
 					...(await import("../Exclude/Node.js")).default(Prefix),
 
-					// ...(await import("../Exclude/Telemetry.js")).default(
-					// 	Prefix,
-					// ),
+					// LAND-EXCLUDE: telemetry / external-network /
+					// Chromium IPC dead-code strips. Each list adds
+					// the file globs that the entry-point planner
+					// will skip. Tree-shaking removes the consumers
+					// at bundle time.
+					...(await import("../Exclude/Telemetry.js")).default(
+						Prefix,
+					),
+
+					...(await import("../Exclude/Network.js")).default(
+						Prefix,
+					),
+
+					...(await import("../Exclude/ChromiumIPC.js")).default(
+						Prefix,
+					),
 
 					"tsec.exemptions.json",
 

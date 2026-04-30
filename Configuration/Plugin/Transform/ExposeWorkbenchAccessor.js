@@ -58,9 +58,38 @@ import { IWebviewViewService as __CEL_IWebviewViewService } from '../contrib/web
 // editor and the Problems panel populates. Without this exposure,
 // every diagnostic from every language extension (rust-analyzer,
 // TypeScript, ESLint, ...) is invisible.
-import { IMarkerService as __CEL_IMarkerService } from '../../platform/markers/common/markers.js';`,s="import { mark } from '../../base/common/performance.js';",u=s+`
-`+i,o="import { localize } from '../../nls.js';",d=o+`
-`+i,a="const instantiationService = workbench.startup();",h=`const instantiationService = workbench.startup();
+import { IMarkerService as __CEL_IMarkerService } from '../../platform/markers/common/markers.js';
+// [Land] High-leverage cross-cutting services exposed for Wind.
+// Each handle below is the live workbench instance of the matching
+// \`IFooService\`. Wind's Layer reads these and binds them to its
+// \`Effect.Tag(IFooService)\`-typed surface so every Wind-side
+// service request resolves through the real workbench DI.
+import { IConfigurationService as __CEL_IConfigurationService } from '../../platform/configuration/common/configuration.js';
+import { IStorageService as __CEL_IStorageService } from '../../platform/storage/common/storage.js';
+import { ILifecycleService as __CEL_ILifecycleService } from '../services/lifecycle/common/lifecycle.js';
+import { IWorkbenchThemeService as __CEL_IWorkbenchThemeService } from '../services/themes/common/workbenchThemeService.js';
+import { IThemeService as __CEL_IThemeService } from '../../platform/theme/common/themeService.js';
+import { IKeybindingService as __CEL_IKeybindingService } from '../../platform/keybinding/common/keybinding.js';
+import { INotificationService as __CEL_INotificationService } from '../../platform/notification/common/notification.js';
+import { IFileService as __CEL_IFileService } from '../../platform/files/common/files.js';
+import { IDialogService as __CEL_IDialogService, IFileDialogService as __CEL_IFileDialogService } from '../../platform/dialogs/common/dialogs.js';
+import { IClipboardService as __CEL_IClipboardService } from '../../platform/clipboard/common/clipboardService.js';
+import { IContextKeyService as __CEL_IContextKeyService } from '../../platform/contextkey/common/contextkey.js';
+import { IHostService as __CEL_IHostService } from '../services/host/browser/host.js';
+import { IExtensionService as __CEL_IExtensionService } from '../services/extensions/common/extensions.js';
+import { IWorkspaceContextService as __CEL_IWorkspaceContextService } from '../../platform/workspace/common/workspace.js';
+import { IProductService as __CEL_IProductService } from '../../platform/product/common/productService.js';
+import { IProgressService as __CEL_IProgressService } from '../../platform/progress/common/progress.js';
+import { IEditorService as __CEL_IEditorService } from '../services/editor/common/editorService.js';
+import { IEditorGroupsService as __CEL_IEditorGroupsService } from '../services/editor/common/editorGroupsService.js';
+import { ITextFileService as __CEL_ITextFileService } from '../services/textfile/common/textfiles.js';
+import { IActivityService as __CEL_IActivityService } from '../services/activity/common/activity.js';
+import { ITitleService as __CEL_ITitleService } from '../services/title/browser/titleService.js';
+import { IPaneCompositePartService as __CEL_IPaneCompositePartService } from '../services/panecomposite/browser/panecomposite.js';
+import { IViewDescriptorService as __CEL_IViewDescriptorService } from '../common/views.js';
+import { IWorkbenchLayoutService as __CEL_IWorkbenchLayoutService } from '../services/layout/browser/layoutService.js';`,o="import { mark } from '../../base/common/performance.js';",l=o+`
+`+i,s="import { localize } from '../../nls.js';",_=s+`
+`+i,c="const instantiationService = workbench.startup();",v=`const instantiationService = workbench.startup();
 // [Land] Expose the live IInstantiationService + a directly-callable
 // services facade on \`globalThis\` for Sky-side bridges. Imports are
 // static (see header above), so the assignment is fully synchronous -
@@ -182,6 +211,31 @@ try {
     // because the marker contrib may not have loaded in headless
     // profiles.
     Markers: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IMarkerService); }); } catch (E) { return null; } })(),
+    Configuration: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IConfigurationService); }); } catch (E) { return null; } })(),
+    Storage: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IStorageService); }); } catch (E) { return null; } })(),
+    Lifecycle: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_ILifecycleService); }); } catch (E) { return null; } })(),
+    Theme: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IThemeService); }); } catch (E) { return null; } })(),
+    WorkbenchTheme: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IWorkbenchThemeService); }); } catch (E) { return null; } })(),
+    Keybinding: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IKeybindingService); }); } catch (E) { return null; } })(),
+    Notification: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_INotificationService); }); } catch (E) { return null; } })(),
+    File: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IFileService); }); } catch (E) { return null; } })(),
+    Dialog: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IDialogService); }); } catch (E) { return null; } })(),
+    FileDialog: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IFileDialogService); }); } catch (E) { return null; } })(),
+    Clipboard: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IClipboardService); }); } catch (E) { return null; } })(),
+    ContextKey: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IContextKeyService); }); } catch (E) { return null; } })(),
+    Host: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IHostService); }); } catch (E) { return null; } })(),
+    Extension: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IExtensionService); }); } catch (E) { return null; } })(),
+    Workspace: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IWorkspaceContextService); }); } catch (E) { return null; } })(),
+    Product: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IProductService); }); } catch (E) { return null; } })(),
+    Progress: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IProgressService); }); } catch (E) { return null; } })(),
+    Editor: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IEditorService); }); } catch (E) { return null; } })(),
+    EditorGroups: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IEditorGroupsService); }); } catch (E) { return null; } })(),
+    TextFile: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_ITextFileService); }); } catch (E) { return null; } })(),
+    Activity: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IActivityService); }); } catch (E) { return null; } })(),
+    Title: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_ITitleService); }); } catch (E) { return null; } })(),
+    PaneComposite: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IPaneCompositePartService); }); } catch (E) { return null; } })(),
+    ViewDescriptor: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IViewDescriptorService); }); } catch (E) { return null; } })(),
+    Layout: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IWorkbenchLayoutService); }); } catch (E) { return null; } })(),
   };
   try { window.dispatchEvent(new Event('cel:services-ready')); } catch {}
   try {
@@ -197,9 +251,9 @@ try {
       __CEL_InvE('MountainIPCInvoke', { method: 'diagnostic:log', params: ['cel-services', 'resolve-failed: ' + (e && e.message ? e.message : String(e))] });
     }
   } catch {}
-}`,c="workbenchPromise.complete(workbench);",m=`workbenchPromise.complete(workbench);
+}`,a="workbenchPromise.complete(workbench);",m=`workbenchPromise.complete(workbench);
         // [Land] Expose the IWorkbench facade + signal readiness so Sky's
         // SkyBridge + any Astro component can synchronously call
         // \`__CEL_WORKBENCH__.commands.executeCommand(\u2026)\`.
         globalThis.__CEL_WORKBENCH__ = workbench;
-        try { window.dispatchEvent(new Event("cel:workbench-ready")); } catch {}`,_={Kind:"Transform",Name:"ExposeWorkbenchAccessor",Match:({Path:e})=>/\/vs\/workbench\/browser\/web\.main\.js$/.test(e)||/\/vs\/workbench\/browser\/web\.factory\.js$/.test(e)||/\/vs\/workbench\/electron-browser\/desktop\.main\.js$/.test(e),Transform({Path:e,Source:n}){if(n.includes("__CEL_INSTANTIATION_SERVICE__"))return{Kind:"Unchanged"};if(/web\.main\.js$/.test(e)||/desktop\.main\.js$/.test(e)){if(!n.includes(a))return{Kind:"Unchanged"};const r=/desktop\.main\.js$/.test(e)?o:s,l=/desktop\.main\.js$/.test(e)?d:u;if(!n.includes(r))return{Kind:"Unchanged"};let t=n.replace(r,l);return t=t.replace(a,h),t===n?{Kind:"Unchanged"}:{Kind:"Rewrite",Source:t}}if(/web\.factory\.js$/.test(e)){if(!n.includes(c))return{Kind:"Unchanged"};const r=n.replace(c,m);return r===n?{Kind:"Unchanged"}:{Kind:"Rewrite",Source:r}}return{Kind:"Unchanged"}}};var g=_;export{g as default};
+        try { window.dispatchEvent(new Event("cel:workbench-ready")); } catch {}`,d={Kind:"Transform",Name:"ExposeWorkbenchAccessor",Match:({Path:e})=>/\/vs\/workbench\/browser\/web\.main\.js$/.test(e)||/\/vs\/workbench\/browser\/web\.factory\.js$/.test(e)||/\/vs\/workbench\/electron-browser\/desktop\.main\.js$/.test(e),Transform({Path:e,Source:n}){if(n.includes("__CEL_INSTANTIATION_SERVICE__"))return{Kind:"Unchanged"};if(/web\.main\.js$/.test(e)||/desktop\.main\.js$/.test(e)){if(!n.includes(c))return{Kind:"Unchanged"};const r=/desktop\.main\.js$/.test(e)?s:o,u=/desktop\.main\.js$/.test(e)?_:l;if(!n.includes(r))return{Kind:"Unchanged"};let t=n.replace(r,u);return t=t.replace(c,v),t===n?{Kind:"Unchanged"}:{Kind:"Rewrite",Source:t}}if(/web\.factory\.js$/.test(e)){if(!n.includes(a))return{Kind:"Unchanged"};const r=n.replace(a,m);return r===n?{Kind:"Unchanged"}:{Kind:"Rewrite",Source:r}}return{Kind:"Unchanged"}}};var h=d;export{h as default};

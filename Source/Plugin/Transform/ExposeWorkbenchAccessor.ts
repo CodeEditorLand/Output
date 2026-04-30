@@ -107,7 +107,36 @@ const SharedImportLines =
 	"// editor and the Problems panel populates. Without this exposure,\n" +
 	"// every diagnostic from every language extension (rust-analyzer,\n" +
 	"// TypeScript, ESLint, ...) is invisible.\n" +
-	"import { IMarkerService as __CEL_IMarkerService } from '../../platform/markers/common/markers.js';";
+	"import { IMarkerService as __CEL_IMarkerService } from '../../platform/markers/common/markers.js';\n" +
+	"// [Land] High-leverage cross-cutting services exposed for Wind.\n" +
+	"// Each handle below is the live workbench instance of the matching\n" +
+	"// `IFooService`. Wind's Layer reads these and binds them to its\n" +
+	"// `Effect.Tag(IFooService)`-typed surface so every Wind-side\n" +
+	"// service request resolves through the real workbench DI.\n" +
+	"import { IConfigurationService as __CEL_IConfigurationService } from '../../platform/configuration/common/configuration.js';\n" +
+	"import { IStorageService as __CEL_IStorageService } from '../../platform/storage/common/storage.js';\n" +
+	"import { ILifecycleService as __CEL_ILifecycleService } from '../services/lifecycle/common/lifecycle.js';\n" +
+	"import { IWorkbenchThemeService as __CEL_IWorkbenchThemeService } from '../services/themes/common/workbenchThemeService.js';\n" +
+	"import { IThemeService as __CEL_IThemeService } from '../../platform/theme/common/themeService.js';\n" +
+	"import { IKeybindingService as __CEL_IKeybindingService } from '../../platform/keybinding/common/keybinding.js';\n" +
+	"import { INotificationService as __CEL_INotificationService } from '../../platform/notification/common/notification.js';\n" +
+	"import { IFileService as __CEL_IFileService } from '../../platform/files/common/files.js';\n" +
+	"import { IDialogService as __CEL_IDialogService, IFileDialogService as __CEL_IFileDialogService } from '../../platform/dialogs/common/dialogs.js';\n" +
+	"import { IClipboardService as __CEL_IClipboardService } from '../../platform/clipboard/common/clipboardService.js';\n" +
+	"import { IContextKeyService as __CEL_IContextKeyService } from '../../platform/contextkey/common/contextkey.js';\n" +
+	"import { IHostService as __CEL_IHostService } from '../services/host/browser/host.js';\n" +
+	"import { IExtensionService as __CEL_IExtensionService } from '../services/extensions/common/extensions.js';\n" +
+	"import { IWorkspaceContextService as __CEL_IWorkspaceContextService } from '../../platform/workspace/common/workspace.js';\n" +
+	"import { IProductService as __CEL_IProductService } from '../../platform/product/common/productService.js';\n" +
+	"import { IProgressService as __CEL_IProgressService } from '../../platform/progress/common/progress.js';\n" +
+	"import { IEditorService as __CEL_IEditorService } from '../services/editor/common/editorService.js';\n" +
+	"import { IEditorGroupsService as __CEL_IEditorGroupsService } from '../services/editor/common/editorGroupsService.js';\n" +
+	"import { ITextFileService as __CEL_ITextFileService } from '../services/textfile/common/textfiles.js';\n" +
+	"import { IActivityService as __CEL_IActivityService } from '../services/activity/common/activity.js';\n" +
+	"import { ITitleService as __CEL_ITitleService } from '../services/title/browser/titleService.js';\n" +
+	"import { IPaneCompositePartService as __CEL_IPaneCompositePartService } from '../services/panecomposite/browser/panecomposite.js';\n" +
+	"import { IViewDescriptorService as __CEL_IViewDescriptorService } from '../common/views.js';\n" +
+	"import { IWorkbenchLayoutService as __CEL_IWorkbenchLayoutService } from '../services/layout/browser/layoutService.js';";
 
 // Import markers: VS Code's `out/` tree uses single-quoted module
 // specifiers (the original `tsc` emit), and Output now byte-copies
@@ -253,6 +282,32 @@ const WebMainReplacement =
 	"    // because the marker contrib may not have loaded in headless\n" +
 	"    // profiles.\n" +
 	"    Markers: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IMarkerService); }); } catch (E) { return null; } })(),\n" +
+	// ---- High-leverage cross-cutting services for Wind / SkyBridge ----
+	"    Configuration: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IConfigurationService); }); } catch (E) { return null; } })(),\n" +
+	"    Storage: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IStorageService); }); } catch (E) { return null; } })(),\n" +
+	"    Lifecycle: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_ILifecycleService); }); } catch (E) { return null; } })(),\n" +
+	"    Theme: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IThemeService); }); } catch (E) { return null; } })(),\n" +
+	"    WorkbenchTheme: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IWorkbenchThemeService); }); } catch (E) { return null; } })(),\n" +
+	"    Keybinding: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IKeybindingService); }); } catch (E) { return null; } })(),\n" +
+	"    Notification: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_INotificationService); }); } catch (E) { return null; } })(),\n" +
+	"    File: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IFileService); }); } catch (E) { return null; } })(),\n" +
+	"    Dialog: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IDialogService); }); } catch (E) { return null; } })(),\n" +
+	"    FileDialog: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IFileDialogService); }); } catch (E) { return null; } })(),\n" +
+	"    Clipboard: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IClipboardService); }); } catch (E) { return null; } })(),\n" +
+	"    ContextKey: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IContextKeyService); }); } catch (E) { return null; } })(),\n" +
+	"    Host: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IHostService); }); } catch (E) { return null; } })(),\n" +
+	"    Extension: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IExtensionService); }); } catch (E) { return null; } })(),\n" +
+	"    Workspace: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IWorkspaceContextService); }); } catch (E) { return null; } })(),\n" +
+	"    Product: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IProductService); }); } catch (E) { return null; } })(),\n" +
+	"    Progress: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IProgressService); }); } catch (E) { return null; } })(),\n" +
+	"    Editor: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IEditorService); }); } catch (E) { return null; } })(),\n" +
+	"    EditorGroups: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IEditorGroupsService); }); } catch (E) { return null; } })(),\n" +
+	"    TextFile: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_ITextFileService); }); } catch (E) { return null; } })(),\n" +
+	"    Activity: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IActivityService); }); } catch (E) { return null; } })(),\n" +
+	"    Title: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_ITitleService); }); } catch (E) { return null; } })(),\n" +
+	"    PaneComposite: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IPaneCompositePartService); }); } catch (E) { return null; } })(),\n" +
+	"    ViewDescriptor: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IViewDescriptorService); }); } catch (E) { return null; } })(),\n" +
+	"    Layout: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IWorkbenchLayoutService); }); } catch (E) { return null; } })(),\n" +
 	"  };\n" +
 	"  try { window.dispatchEvent(new Event('cel:services-ready')); } catch {}\n" +
 	"  try {\n" +

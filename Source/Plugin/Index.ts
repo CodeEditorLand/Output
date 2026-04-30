@@ -41,6 +41,8 @@ import InjectWebViewPolyfills from "./Transform/InjectWebViewPolyfills.js";
 import InjectWorkbenchInteractivityCSS from "./Transform/InjectWorkbenchInteractivityCSS.js";
 import InjectWorkbenchPaintPrime from "./Transform/InjectWorkbenchPaintPrime.js";
 import InjectWorkerBootstrapShim from "./Transform/InjectWorkerBootstrapShim.js";
+import InjectConfigurationOverlay from "./Transform/InjectConfigurationOverlay.js";
+import InjectStorageOverlay from "./Transform/InjectStorageOverlay.js";
 import RewriteNestedWorkerBootstrap from "./Transform/RewriteNestedWorkerBootstrap.js";
 import RewriteNodeModulesPath from "./Transform/RewriteNodeModulesPath.js";
 import RewritePerfBaselineWorker from "./Transform/RewritePerfBaselineWorker.js";
@@ -126,6 +128,8 @@ export { default as InjectWebViewPolyfills } from "./Transform/InjectWebViewPoly
 export { default as InjectWorkbenchInteractivityCSS } from "./Transform/InjectWorkbenchInteractivityCSS.js";
 export { default as InjectWorkbenchPaintPrime } from "./Transform/InjectWorkbenchPaintPrime.js";
 export { default as InjectWorkerBootstrapShim } from "./Transform/InjectWorkerBootstrapShim.js";
+export { default as InjectConfigurationOverlay } from "./Transform/InjectConfigurationOverlay.js";
+export { default as InjectStorageOverlay } from "./Transform/InjectStorageOverlay.js";
 export { default as RewriteNestedWorkerBootstrap } from "./Transform/RewriteNestedWorkerBootstrap.js";
 export { default as RewriteNodeModulesPath } from "./Transform/RewriteNodeModulesPath.js";
 export { default as RewritePerfBaselineWorker } from "./Transform/RewritePerfBaselineWorker.js";
@@ -305,6 +309,18 @@ export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => {
 		// the setInterval / long setTimeout level. Stack-trace deny
 		// match; non-matching timers run as normal. Idempotent.
 		InjectStripBackgroundPolling,
+		// Add a `globalThis.__CEL_OVERRIDE_CONFIG__` consult to every
+		// `IConfigurationService.getValue(arg1, arg2)` so Wind / Sky can
+		// inject settings live without writing to disk or going through
+		// Mountain's `configuration:setValue` IPC. Bag is opt-in; when
+		// unset the upstream behaviour is preserved verbatim.
+		InjectConfigurationOverlay,
+		// Add a `globalThis.__CEL_OVERRIDE_STORAGE__` consult to
+		// `AbstractStorageService.{get,getBoolean,getNumber,getObject}`
+		// so Wind / Sky can seed in-memory storage state without going
+		// through IndexedDB. Composite key is `<scope>:<key>` to
+		// disambiguate across APPLICATION / PROFILE / WORKSPACE scopes.
+		InjectStorageOverlay,
 		// Force the workbench's ILifecycleService to advance through
 		// Starting -> Ready -> Restored -> Eventually as fast as
 		// possible at boot, rather than waiting on the stock 2-5 s

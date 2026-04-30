@@ -1,13 +1,27 @@
 /**
- * Step 10: Rewrite `workbench.desktop.main.js` from 3385 static side-effect
+ * Step 10: Rewrite `workbench.desktop.main.js`'s static side-effect
  * imports into a sequential dynamic-import loop.
  *
- * WKWebView's module loader serialises all static imports on the main thread
- * and throttles hard past ~1k. Sequential `await import()` with try/catch
- * keeps every module on its own microtask, surfaces per-module failures,
- * and lets the webview paint between loads. The preamble also re-registers
- * the `IUserDataInitializationService` singleton that the upstream barrel
- * registers as a side-effect of its own top-level statements.
+ * WKWebView's module loader serialises all static imports on the main
+ * thread and throttles hard past ~1k. Sequential `await import()` with
+ * try/catch keeps every module on its own microtask, surfaces per-module
+ * failures, and lets the webview paint between loads. The preamble also
+ * re-registers the `IUserDataInitializationService` singleton that the
+ * upstream barrel registers as a side-effect of its own top-level
+ * statements.
+ *
+ * **Skipped when a bundled profile is active (`Pack` env var set).**
+ * Sky's Vite/Rollup walks the static-import graph from the bundled
+ * Electron entry to extract CSS, dedup chunks, and tree-shake. If we
+ * rewrite the static imports to `await import()`s, Vite can't follow
+ * them statically: every dynamic call becomes its own chunk, the
+ * contribution-side-effect modules get tree-shaken (their CSS imports
+ * along with them), and the resulting bundle ships a fraction of VS
+ * Code's stylesheet (observed: 820 KB CSS / 1 `@font-face` instead of
+ * the multi-MB full-workbench output). The bundled profile doesn't need
+ * the WKWebView throttle workaround anyway - Rollup serialises every
+ * import into one chunk at build time, so the runtime cost is just one
+ * `<script>` evaluation.
  */
 
 import type { TransformPlugin } from "../Type.js";
@@ -19,7 +33,14 @@ const SideEffectRE = /^import\s+['"]([^'"]+)['"]\s*;?\s*$/gm;
 const Plugin: TransformPlugin = {
 	Kind: "Transform",
 	Name: "StaticToDynamicImport",
-	Enabled: () => process.env["Electron"] === "true",
+	Enabled: () =>
+		process.env["Electron"] === "true" &&
+		// `Pack` is the space-separated list of bundled-workbench variants
+		// (`electron`, `browser`, `sessions`, `workbench`) - set by every
+		// `*-bundled` profile in `Maintain/{Release,Debug}/Build.sh`. When
+		// any variant is selected, Sky's Vite handles the import graph;
+		// rewriting here would defeat that.
+		!(process.env["Pack"] ?? "").trim(),
 	Match: ({ Path }) => PathRegex.test(Path),
 	Transform({ Source }) {
 		const Imports: string[] = [];

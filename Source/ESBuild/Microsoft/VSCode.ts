@@ -58,10 +58,23 @@ export default async (Current: BuildOptions): Promise<BuildOptions> =>
 			// unmangled bytes (gzip-friendly, debuggable, a few hundred KB
 			// larger transferred). `minify: false` is belt-and-suspenders
 			// for any future JS file that is NOT served through `copy`.
+			//
+			// `.css` is also copy-mode. esbuild's default `"css"` loader
+			// parses every CSS file, normalises whitespace + quote style,
+			// and re-emits. With `minify: false` the round-trip is mostly
+			// idempotent BUT a single un-recognised CSS feature (modern
+			// custom-property syntax, `@property`, container queries,
+			// nested selectors) silently drops the offending block. The
+			// downstream Vite CSS pipeline then folds the truncated
+			// stylesheet into the bundled `style.<hash>.css` and the
+			// affected workbench parts render unstyled. Byte-copying the
+			// CSS skips esbuild entirely; PostCSS in Vite handles the
+			// parse + emit once, with full feature support.
 			loader: {
 				".js": "copy",
 				".cjs": "copy",
 				".mjs": "copy",
+				".css": "copy",
 			},
 
 			minify: false,

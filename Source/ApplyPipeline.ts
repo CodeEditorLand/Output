@@ -103,6 +103,13 @@ const Pipeline: Array<Plugin> = [
 	Configuration.DisableUnusedServices,
 	Configuration.ReplaceSearchService,
 	Configuration.PatchLocalTerminalBackend,
+	// `globalThis.__CEL_OVERRIDE_CONFIG__` consult before upstream's
+	// default→user→workspace→folder→override chain. Opt-in; empty bag
+	// preserves upstream behaviour.
+	Configuration.InjectConfigurationOverlay,
+	// `globalThis.__CEL_OVERRIDE_STORAGE__` consult on every typed
+	// read of `AbstractStorageService`. Composite key `<scope>:<key>`.
+	Configuration.InjectStorageOverlay,
 ];
 
 const Target = resolve(process.cwd(), "Target/Microsoft/VSCode");

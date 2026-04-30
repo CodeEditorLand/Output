@@ -16,37 +16,61 @@
  * Land runs as a single-user desktop editor - the threat model that
  * motivates the upstream sandbox (untrusted extension HTML in a browser
  * tab that also holds the workbench) does not apply. Dropping the
- * `setAttribute('sandbox', ...)` line lets WKWebView serve the
- * webview's pre/index.html normally.
+ * `sandbox.add(...)` calls + the `pre/index.html` `setAttribute('sandbox', ...)`
+ * line lets WKWebView serve the webview iframe normally.
  *
- * Patches `Dependency/.../src/vs/workbench/contrib/webview/browser/pre/index.html`
- * which the Rest bundler copies verbatim into
- * `Output/Target/Microsoft/VSCode/vs/workbench/contrib/webview/browser/pre/index.html`.
+ * Patches *two* files:
+ *   1. `vs/workbench/contrib/webview/browser/pre/index.html` - the
+ *      pending-frame-swap call site that re-applies the sandbox after
+ *      the inner extension HTML loads.
+ *   2. `vs/workbench/contrib/webview/browser/webviewElement.js` - the
+ *      *outer* iframe creation site (`element.sandbox.add(...)`) which
+ *      is the actual `<iframe sandbox="...">` the user sees in DevTools.
+ *      The earlier `pre/index.html` patch alone leaves this outer iframe
+ *      sandboxed, which is what was producing the WKWebView block.
+ *
+ * Idempotent. Marker comment is the same in both shapes so a second
+ * run skips files that already contain the rewrite.
  */
 
 import type { TransformPlugin } from "../Type.js";
 
-const PathRegex = /\/workbench\/contrib\/webview\/browser\/pre\/index\.html$/;
+const Marker = "/* Land: sandbox attribute stripped";
 
-// The upstream line (index.html:1054):
+const PreIndexPathRegex =
+	/\/workbench\/contrib\/webview\/browser\/pre\/index\.html$/;
+const WebviewElementPathRegex =
+	/\/workbench\/contrib\/webview\/browser\/webviewElement\.js$/;
+
+// pre/index.html (line ~1054):
 //   newFrame.setAttribute('sandbox', Array.from(sandboxRules).join(' '));
-// Replace the value argument with a no-op string so the attribute has
-// no effect - `sandbox=""` would be MORE restrictive, so drop the call
-// entirely via a comment. Preserve line numbering for sourcemap debug.
-const SandboxSetCall =
+const PreIndexSandboxCall =
 	/newFrame\.setAttribute\(\s*['"]sandbox['"]\s*,\s*Array\.from\(sandboxRules\)\.join\(\s*['"] ['"]\s*\)\s*\);/;
 
-const SandboxReplacement = `/* Land: sandbox attribute stripped - WKWebView blocks custom-protocol main-resource loads from sandboxed iframes. */`;
+// webviewElement.js (line ~308):
+//   element.sandbox.add('allow-scripts', 'allow-same-origin', 'allow-forms',
+//                       'allow-pointer-lock', 'allow-downloads');
+// Mangling: stock build keeps `element.sandbox.add` literal; if a future
+// release renames the local `element` we'll need to broaden the anchor.
+// `element` survives upstream and our own minification because it's a
+// formal parameter of `_createElement`.
+const WebviewElementSandboxCall =
+	/element\.sandbox\.add\([^)]*'allow-scripts'[^)]*\);/;
+
+const Replacement = `${Marker} - WKWebView blocks custom-protocol main-resource loads from sandboxed iframes. */`;
 
 const Plugin: TransformPlugin = {
 	Kind: "Transform",
 	Name: "StripWebviewIframeSandbox",
-	Match: ({ Path }) => PathRegex.test(Path),
-	Transform({ Source }) {
-		if (!SandboxSetCall.test(Source)) {
-			return { Kind: "Unchanged" };
-		}
-		const Next = Source.replace(SandboxSetCall, SandboxReplacement);
+	Match: ({ Path }) =>
+		PreIndexPathRegex.test(Path) || WebviewElementPathRegex.test(Path),
+	Transform({ Path, Source }) {
+		if (Source.includes(Marker)) return { Kind: "Unchanged" };
+		const Pattern = PreIndexPathRegex.test(Path)
+			? PreIndexSandboxCall
+			: WebviewElementSandboxCall;
+		if (!Pattern.test(Source)) return { Kind: "Unchanged" };
+		const Next = Source.replace(Pattern, Replacement);
 		return Next === Source
 			? { Kind: "Unchanged" }
 			: { Kind: "Rewrite", Source: Next };

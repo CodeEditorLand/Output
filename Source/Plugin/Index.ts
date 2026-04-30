@@ -38,12 +38,15 @@ import InjectEagerLifecyclePhase from "./Transform/InjectEagerLifecyclePhase.js"
 import InjectStripBackgroundPolling from "./Transform/InjectStripBackgroundPolling.js";
 import InjectTelemetryConsentOff from "./Transform/InjectTelemetryConsentOff.js";
 import InjectWebViewPolyfills from "./Transform/InjectWebViewPolyfills.js";
+import InjectMacTitlebarOffsetCSS from "./Transform/InjectMacTitlebarOffsetCSS.js";
+import InjectPartZIndexCSS from "./Transform/InjectPartZIndexCSS.js";
 import InjectWorkbenchInteractivityCSS from "./Transform/InjectWorkbenchInteractivityCSS.js";
 import InjectWorkbenchPaintPrime from "./Transform/InjectWorkbenchPaintPrime.js";
 import InjectWorkerBootstrapShim from "./Transform/InjectWorkerBootstrapShim.js";
 import InjectConfigurationOverlay from "./Transform/InjectConfigurationOverlay.js";
 import InjectStorageOverlay from "./Transform/InjectStorageOverlay.js";
 import RewriteIconsStyleSheetURLs from "./Transform/RewriteIconsStyleSheetURLs.js";
+import RewriteWebviewShellCSP from "./Transform/RewriteWebviewShellCSP.js";
 import RewriteNestedWorkerBootstrap from "./Transform/RewriteNestedWorkerBootstrap.js";
 import RewriteNodeModulesPath from "./Transform/RewriteNodeModulesPath.js";
 import RewritePerfBaselineWorker from "./Transform/RewritePerfBaselineWorker.js";
@@ -126,12 +129,15 @@ export { default as InjectEagerLifecyclePhase } from "./Transform/InjectEagerLif
 export { default as InjectStripBackgroundPolling } from "./Transform/InjectStripBackgroundPolling.js";
 export { default as InjectTelemetryConsentOff } from "./Transform/InjectTelemetryConsentOff.js";
 export { default as InjectWebViewPolyfills } from "./Transform/InjectWebViewPolyfills.js";
+export { default as InjectMacTitlebarOffsetCSS } from "./Transform/InjectMacTitlebarOffsetCSS.js";
+export { default as InjectPartZIndexCSS } from "./Transform/InjectPartZIndexCSS.js";
 export { default as InjectWorkbenchInteractivityCSS } from "./Transform/InjectWorkbenchInteractivityCSS.js";
 export { default as InjectWorkbenchPaintPrime } from "./Transform/InjectWorkbenchPaintPrime.js";
 export { default as InjectWorkerBootstrapShim } from "./Transform/InjectWorkerBootstrapShim.js";
 export { default as InjectConfigurationOverlay } from "./Transform/InjectConfigurationOverlay.js";
 export { default as InjectStorageOverlay } from "./Transform/InjectStorageOverlay.js";
 export { default as RewriteIconsStyleSheetURLs } from "./Transform/RewriteIconsStyleSheetURLs.js";
+export { default as RewriteWebviewShellCSP } from "./Transform/RewriteWebviewShellCSP.js";
 export { default as RewriteNestedWorkerBootstrap } from "./Transform/RewriteNestedWorkerBootstrap.js";
 export { default as RewriteNodeModulesPath } from "./Transform/RewriteNodeModulesPath.js";
 export { default as RewritePerfBaselineWorker } from "./Transform/RewritePerfBaselineWorker.js";
@@ -300,6 +306,21 @@ export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => {
 		// a "first paint pending" state until something else
 		// triggers a forced layout. Idempotent.
 		InjectWorkbenchPaintPrime,
+		// Reserve the macOS traffic-light cluster width on the
+		// titlebar's left edge so the in-window menubar
+		// (`File / Edit / View / ...`) and the command-center
+		// quick-pick stop colliding with the OS-painted close /
+		// minimize / maximize buttons. Targets `.monaco-workbench.mac`
+		// only; non-macOS builds keep their stock layout. Idempotent.
+		InjectMacTitlebarOffsetCSS,
+		// Establish a deterministic z-index hierarchy across the
+		// workbench parts so a sibling that picked up an implicit
+		// stacking context (transform, opacity, isolation) can't
+		// hide the activity bar, sidebar, panel resize handle,
+		// status bar progress badges, or the command-center
+		// quick-pick dropdown. Hardens stock CSS without changing
+		// its intent. Idempotent.
+		InjectPartZIndexCSS,
 		// Pre-bake telemetry consent OFF so VS Code's TelemetryService
 		// starts in already-disabled state. Network.ts excludes the
 		// wire-level appenders; this transform makes the consumers
@@ -385,6 +406,15 @@ export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => {
 		ExtensionScannerIPC,
 		CatchOutputFolderRejection,
 		StripWebviewIframeSandbox,
+		// Loosen the webview shell's `<meta http-equiv="Content-Security-Policy">`
+		// from a stale sha256 hash on the inline bootstrap script to
+		// `'unsafe-inline'`. Stock VS Code pins the hash; WKWebView
+		// computes it differently from Chromium, and any later
+		// transform that touches the inline script body invalidates
+		// it silently. Loosening matches Land's single-user desktop
+		// threat model and lets every extension webview boot.
+		// Idempotent. Marker `__LAND_WEBVIEW_SHELL_CSP__`.
+		RewriteWebviewShellCSP,
 		// Expose the IWorkbench facade + IInstantiationService on
 		// `globalThis` as `__CEL_WORKBENCH__` / `__CEL_INSTANTIATION_SERVICE__`
 		// / `__CEL_SERVICES__` so Sky's bridge code (SkyBridge,

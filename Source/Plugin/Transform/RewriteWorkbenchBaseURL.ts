@@ -33,20 +33,28 @@ import type { TransformPlugin } from "../Type.js";
 
 const Marker = "/* __LAND_WORKBENCH_BASE_URL_REWRITTEN__ */";
 
+// `vs/code/electron-browser/workbench/workbench.js` is byte-copied from
+// VS Code's `out/` tree (see `Source/ESBuild/Microsoft/VSCode.ts` -
+// `loader: { ".js": "copy" }`), so the original identifier names and
+// formatting from `tsc` survive into Output's Target. The `[\s\S]+?`
+// for the inner template arguments and the `[`'"]` quote class for
+// embedded string literals make the patterns robust to either quote
+// style esbuild might choose for any future intermediate processing.
 const SearchPattern =
-	/const baseUrl = new URL\(`\$\{fileUriFromPath\([^`]+`\);/;
+	/const baseUrl = new URL\(`\$\{fileUriFromPath\([\s\S]+?\)\}\/out\/`\);/;
 
 const Replacement =
 	'const baseUrl = new URL(location.origin + "/Static/Application/");';
 
 // VS Code's load() function picks the workbench URL with a conditional:
 //
-//   if (!!safeProcess.env["VSCODE_DEV"] && globalThis._VSCODE_USE_RELATIVE_IMPORTS) {
-//     workbenchUrl = "../../../workbench/workbench.desktop.main.js";
+//   let workbenchUrl;
+//   if (!!safeProcess.env['VSCODE_DEV'] && globalThis._VSCODE_USE_RELATIVE_IMPORTS) {
+//       workbenchUrl = '../../../workbench/workbench.desktop.main.js';
 //   } else {
-//     workbenchUrl = new URL(`vs/workbench/workbench.desktop.main.js`, baseUrl).href;
+//       workbenchUrl = new URL(`vs/workbench/workbench.desktop.main.js`, baseUrl).href;
 //   }
-//   const result2 = await import(workbenchUrl);   // ← runtime-computed string
+//   const result = await import(workbenchUrl);   // ← runtime-computed string
 //
 // The runtime-computed import string defeats Vite/Rollup's static
 // analysis: the bundler can't follow `await import(<variable>)` and so
@@ -59,9 +67,7 @@ const Replacement =
 // configuration, so VS Code's `isElectron` / `isWeb` detection ran
 // against an unconfigured global, mode-detected as "web", and skipped
 // every Electron-specific service registration (DiskFileSystemProvider,
-// NativeHostService, etc.). Result: ENOPRO file-system errors,
-// `[DefaultAccount] Running in web without remote, skipping init`,
-// and assorted FS lookup failures.
+// NativeHostService, etc.).
 //
 // Replace the conditional + computed-URL import with a single literal-
 // string `await import("../../../workbench/workbench.desktop.main.js")`.
@@ -69,11 +75,13 @@ const Replacement =
 // separate chunk that loads ON DEMAND when the await fires (after
 // workbench.js's setup completes), and Sky's bundled Entry.ts can
 // drop its pre-import of desktop.main.js entirely.
+//
+// `[`'"]` quote class around `VSCODE_DEV` and the relative-path string
+// covers either quote style. `(\w+)` captures `workbenchUrl` and
+// `result` so a future esbuild rename (e.g. `result` → `result2` if a
+// shadow binding is added upstream) does not break the rewrite.
 const ConditionalSearchPattern =
-	/let workbenchUrl;\s*if \(!!safeProcess\.env\["VSCODE_DEV"\] && globalThis\._VSCODE_USE_RELATIVE_IMPORTS\) \{[^}]+\} else \{[^}]+\}\s*const result2 = await import\(workbenchUrl\);/;
-
-const ConditionalReplacement =
-	'const result2 = await import("../../../workbench/workbench.desktop.main.js");';
+	/let (\w+);\s*if \(!!safeProcess\.env\[[`'"]VSCODE_DEV[`'"]\] && globalThis\._VSCODE_USE_RELATIVE_IMPORTS\) \{[\s\S]+?\}\s*else \{[\s\S]+?\}\s*const (\w+) = await import\(\1\);/;
 
 const Plugin: TransformPlugin = {
 	Kind: "Transform",
@@ -84,13 +92,14 @@ const Plugin: TransformPlugin = {
 		if (Source.includes(Marker)) return { Kind: "Unchanged" };
 		if (!SearchPattern.test(Source)) return { Kind: "Unchanged" };
 
-		let Next = Source.replace(SearchPattern, Marker + " " + Replacement);
+		let Next = Source.replace(SearchPattern, `${Marker} ${Replacement}`);
 		if (ConditionalSearchPattern.test(Next)) {
 			Next = Next.replace(
 				ConditionalSearchPattern,
-				ConditionalReplacement,
+				'const $2 = await import("../../../workbench/workbench.desktop.main.js");',
 			);
 		}
+
 		if (Next === Source) return { Kind: "Unchanged" };
 		return { Kind: "Rewrite", Source: Next };
 	},

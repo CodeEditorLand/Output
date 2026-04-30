@@ -27,20 +27,22 @@ import type { TransformPlugin } from "../Type.js";
 
 const Marker = "/* __LAND_PERF_BASELINE_INLINED__ */";
 
-// Anchor matches the post-Hoist transform layout. The IIFE body is
-// fixed in upstream VS Code; we capture the entire `const jsSrc =
-// (function() { ... }).toString();` declaration and replace with a
-// literal-string equivalent.
-const Anchor = `      const jsSrc = (function() {`;
+// Anchor matches the un-minified `tsc` form from VS Code's `out/`
+// tree (now byte-copied via `loader: { ".js": "copy" }` - see
+// `Source/ESBuild/Microsoft/VSCode.ts`). The `(function () {` form
+// uses `tsc`'s default whitespace (space before parens). Indent
+// (12 spaces, four `.then` chain levels deep) is preserved in
+// the replacement so the surrounding `.then` chain stays valid.
+const Anchor = `            const jsSrc = (function () {`;
 
-const Tail = `      }).toString();`;
+const Tail = `            }).toString();`;
 
 // Hand-written equivalent of the VS Code IIFE, omitting the
 // `__name(fib, "fib")` decoration that's the source of the mangling
 // hazard. Logic is identical: time a fib(24) computation, abort early
 // if it takes > 1 s, post the rounded duration back.
 const ReplacementSource =
-	"      const jsSrc = " +
+	"            const jsSrc = " +
 	JSON.stringify(
 		[
 			"function() {",

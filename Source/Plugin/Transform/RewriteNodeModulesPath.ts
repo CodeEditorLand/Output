@@ -54,22 +54,19 @@ import type { TransformPlugin } from "../Type.js";
 
 const Marker = "/* __LAND_NODE_MODULES_PATH_PATCHED__ */";
 
+// `network.js` is byte-copied from VS Code's `out/` tree (see
+// `Source/ESBuild/Microsoft/VSCode.ts` - `loader: { ".js": "copy" }`),
+// so the path constants survive in `tsc`'s emitted form: single-
+// quoted, declared as `export const <name> = '...'`. The literals
+// themselves only appear in those four declarations, so a literal-
+// string replace stays surgical and quote-style-stable.
 const Replacements: ReadonlyArray<[string, string]> = [
+	[`'vs/../../extensions'`, `'vs/../extensions'`],
+	[`'vs/../../node_modules'`, `'vs/../node_modules'`],
+	[`'vs/../../node_modules.asar'`, `'vs/../node_modules.asar'`],
 	[
-		`const builtinExtensionsPath = "vs/../../extensions";`,
-		`const builtinExtensionsPath = "vs/../extensions";`,
-	],
-	[
-		`const nodeModulesPath = "vs/../../node_modules";`,
-		`const nodeModulesPath = "vs/../node_modules";`,
-	],
-	[
-		`const nodeModulesAsarPath = "vs/../../node_modules.asar";`,
-		`const nodeModulesAsarPath = "vs/../node_modules.asar";`,
-	],
-	[
-		`const nodeModulesAsarUnpackedPath = "vs/../../node_modules.asar.unpacked";`,
-		`const nodeModulesAsarUnpackedPath = "vs/../node_modules.asar.unpacked";`,
+		`'vs/../../node_modules.asar.unpacked'`,
+		`'vs/../node_modules.asar.unpacked'`,
 	],
 ];
 

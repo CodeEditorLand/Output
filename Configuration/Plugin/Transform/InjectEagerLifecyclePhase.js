@@ -1,21 +1,4 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import EagerLifecyclePhase, { Marker } from "../Polyfill/EagerLifecyclePhase.js";
-const Polyfill = `
-/* ${Marker} */
-(${EagerLifecyclePhase.toString()})();
-`;
-const Plugin = {
-  Kind: "Transform",
-  Name: "InjectEagerLifecyclePhase",
-  Match: /* @__PURE__ */ __name(({ Path }) => Path.endsWith("vs/code/electron-browser/workbench/workbench.js"), "Match"),
-  Transform({ Source }) {
-    if (Source.includes(Marker)) return { Kind: "Unchanged" };
-    return { Kind: "Rewrite", Source: Polyfill + Source };
-  }
-};
-var InjectEagerLifecyclePhase_default = Plugin;
-export {
-  InjectEagerLifecyclePhase_default as default
-};
-//# sourceMappingURL=InjectEagerLifecyclePhase.js.map
+import n,{Marker as r}from"../Polyfill/EagerLifecyclePhase.js";const o=`
+/* ${r} */
+(${n.toString()})();
+`,i={Kind:"Transform",Name:"InjectEagerLifecyclePhase",Match:({Path:e})=>e.endsWith("vs/code/electron-browser/workbench/workbench.js"),Transform({Source:e}){return e.includes(r)?{Kind:"Unchanged"}:{Kind:"Rewrite",Source:o+e}}};var c=i;export{c as default};

@@ -1,7 +1,4 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-const PathRegex = /workbench\/services\/extensions\/(?:electron-browser|browser)\/extensionsScannerService\.js$/;
-const Body = `import { URI } from '../../../../base/common/uri.js';
+const n=/workbench\/services\/extensions\/(?:electron-browser|browser)\/extensionsScannerService\.js$/,t=`import { URI } from '../../../../base/common/uri.js';
 import { IExtensionsScannerService } from '../../../../platform/extensionManagement/common/extensionsScannerService.js';
 import { InstantiationType, registerSingleton } from '../../../../platform/instantiation/common/extensions.js';
 import { ILogService } from '../../../../platform/log/common/log.js';
@@ -191,17 +188,4 @@ ExtensionsScannerService = __decorate([
 
 registerSingleton(IExtensionsScannerService, ExtensionsScannerService, InstantiationType.Delayed);
 export { ExtensionsScannerService, IExtensionsScannerService };
-`;
-const Plugin = {
-  Kind: "Transform",
-  Name: "ExtensionScannerIPC",
-  Match: /* @__PURE__ */ __name(({ Path }) => PathRegex.test(Path), "Match"),
-  Transform() {
-    return { Kind: "Rewrite", Source: Body };
-  }
-};
-var ExtensionScannerIPC_default = Plugin;
-export {
-  ExtensionScannerIPC_default as default
-};
-//# sourceMappingURL=ExtensionScannerIPC.js.map
+`,s={Kind:"Transform",Name:"ExtensionScannerIPC",Match:({Path:e})=>n.test(e),Transform(){return{Kind:"Rewrite",Source:t}}};var r=s;export{r as default};

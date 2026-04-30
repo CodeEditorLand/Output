@@ -1,7 +1,4 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-const PathRegex = /vs\/platform\/telemetry\/common\/telemetryService\.js$/;
-const Stub = `// LAND-PATCH: telemetryService body replaced with no-op shim.
+const r=/vs\/platform\/telemetry\/common\/telemetryService\.js$/,t=`// LAND-PATCH: telemetryService body replaced with no-op shim.
 // See Land/Element/Output/Source/Plugin/Transform/ReplaceTelemetryService.ts.
 const NOOP_DISPOSABLE = { dispose: () => {} };
 const NOOP_PROMISE = Promise.resolve();
@@ -28,17 +25,4 @@ class NullTelemetryService {
 
 export { NullTelemetryService as TelemetryService };
 export const TelemetryService_default = NullTelemetryService;
-`;
-const Plugin = {
-  Kind: "Transform",
-  Name: "ReplaceTelemetryService",
-  Match: /* @__PURE__ */ __name(({ Path }) => PathRegex.test(Path), "Match"),
-  Transform() {
-    return { Kind: "Rewrite", Source: Stub };
-  }
-};
-var ReplaceTelemetryService_default = Plugin;
-export {
-  ReplaceTelemetryService_default as default
-};
-//# sourceMappingURL=ReplaceTelemetryService.js.map
+`,s={Kind:"Transform",Name:"ReplaceTelemetryService",Match:({Path:e})=>r.test(e),Transform(){return{Kind:"Rewrite",Source:t}}};var l=s;export{l as default};

@@ -38,16 +38,16 @@ import type { TransformPlugin } from "../Type.js";
 
 const Marker = "/* __LAND_NESTED_WORKER_BOOTSTRAP_INLINED__ */";
 
-// Anchor matches the post-HoistFunctionDeclarations layout: an IIFE
-// wrapped in `__name(...)` decoration whose `.toString()` is taken.
-// The body is the same logical sequence emitted by VS Code's source
-// (listener registration → message handler that overrides postMessage,
-// onmessage, dispatches incoming MessageEvents, blocks nested workers,
-// imports the user-supplied workerUrl).
-//
-// Anchor uses the function header through the `}), "_bootstrapFn"))`
-// closing of the outermost `__name(...)` wrapper plus `.toString();`.
-const Anchor = `const _bootstrapFnSource = (/* @__PURE__ */ __name((function _bootstrapFn(workerUrl) {`;
+// Anchor matches the un-minified `tsc` form from VS Code's `out/`
+// tree (now byte-copied via `loader: { ".js": "copy" }` - see
+// `Source/ESBuild/Microsoft/VSCode.ts`). No `__name(...)` wrapping
+// because `keepNames` is off; the IIFE body references only globals
+// (`globalThis.*`, `importScripts`, `MessageEvent`, …), so Sky's
+// downstream Vite/Rollup mangler can rename the inner binding without
+// breaking the worker. The literal-string replacement is still
+// preferable: it removes the `.toString()` round-trip and gives the
+// blob worker a source that is immune to any future bundler change.
+const Anchor = `const _bootstrapFnSource = (function _bootstrapFn(workerUrl) {`;
 
 const ReplacementSource = `const _bootstrapFnSource = ${JSON.stringify(
 	[
@@ -98,11 +98,11 @@ const Plugin: TransformPlugin = {
 		if (Index < 0) return { Kind: "Unchanged" };
 
 		// The closure runs from `Anchor` through the matching
-		// `}), "_bootstrapFn")).toString();` - find that exact tail and
-		// splice it out together with the `_bootstrapFn` body. We use a
-		// stable substring search rather than a regex so the bracket
-		// counting stays robust against minified / re-formatted variants.
-		const TailMarker = `}), "_bootstrapFn")).toString();`;
+		// `}).toString();` - find that exact tail and splice it out
+		// together with the `_bootstrapFn` body. We use a stable
+		// substring search rather than a regex so the bracket counting
+		// stays robust against minified / re-formatted variants.
+		const TailMarker = `}).toString();`;
 		const TailIdx = Source.indexOf(TailMarker, Index);
 		if (TailIdx < 0) return { Kind: "Unchanged" };
 		const BlockEnd = TailIdx + TailMarker.length;

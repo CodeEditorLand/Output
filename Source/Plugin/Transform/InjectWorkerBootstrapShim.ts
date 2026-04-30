@@ -54,15 +54,17 @@ const Marker = "/* __LAND_WORKER_NAME_SHIM__ */";
 const ShimLine =
 	"`var __defProp=Object.defineProperty;var __name=(t,v)=>__defProp(t,\"name\",{value:v,configurable:true});`,";
 
-// Anchor exactly tracks the post-HoistFunctionDeclarations indented
-// lines emitted by ESBuild's TypeScript pass. The leading 4-space
-// indent must match so the inserted line lines up with the surrounding
-// array entries.
-const Anchor =
-	"    `/*${label}*/`,\n    `globalThis._VSCODE_NLS_MESSAGES = ";
-
-const Replacement =
-	`    \`/*\${label}*/\`,\n    ${ShimLine}\n    \`globalThis._VSCODE_NLS_MESSAGES = `;
+// `webWorkerServiceImpl.js` is byte-copied from VS Code's `out/` tree
+// (`loader: { ".js": "copy" }` - see `Source/ESBuild/Microsoft/
+// VSCode.ts`), so the on-disk form keeps `tsc`'s indentation. The
+// nested `coalesce([ \`/*${label}*/\`, \`globalThis._VSCODE_NLS_*\` ])`
+// array sits 12 spaces deep inside `getWorkerBootstrapUrl`. Anchor
+// captures the indent so the replacement preserves it - if upstream
+// reflows the helper, the regex still matches at any indent depth and
+// the inserted shim line stays aligned with the surrounding array
+// entries.
+const AnchorRegex =
+	/(`\/\*\$\{label\}\*\/`,)([ \t]*\n[ \t]*)(`globalThis\._VSCODE_NLS_MESSAGES = )/;
 
 const Plugin: TransformPlugin = {
 	Kind: "Transform",
@@ -73,8 +75,12 @@ const Plugin: TransformPlugin = {
 		),
 	Transform({ Source }) {
 		if (Source.includes(Marker)) return { Kind: "Unchanged" };
-		if (!Source.includes(Anchor)) return { Kind: "Unchanged" };
-		const Next = Source.replace(Anchor, Replacement);
+		if (!AnchorRegex.test(Source)) return { Kind: "Unchanged" };
+		const Next = Source.replace(
+			AnchorRegex,
+			(_M, Head, Indent, NlsHead) =>
+				`${Head}${Indent}${ShimLine}${Indent}${NlsHead}`,
+		);
 		if (Next === Source) return { Kind: "Unchanged" };
 		return { Kind: "Rewrite", Source: Marker + "\n" + Next };
 	},

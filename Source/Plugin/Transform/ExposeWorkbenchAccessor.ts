@@ -109,21 +109,17 @@ const SharedImportLines =
 	"// TypeScript, ESLint, ...) is invisible.\n" +
 	"import { IMarkerService as __CEL_IMarkerService } from '../../platform/markers/common/markers.js';";
 
-// Import markers: stock VS Code source uses single quotes, but esbuild
-// (and Land's Output bundler step) rewrites them to double quotes when
-// it emits the post-bundle file. The marker MUST match the actual quote
-// style of the file we patch, otherwise `Source.includes(ImportMarker)`
-// returns false and the entire `__CEL_SERVICES__` patch silently no-ops -
-// taking SkyBridge's search registration / SCM / status-bar / tree-view
-// bridges offline because `__CEL_SERVICES__` stays undefined. Pick the
-// double-quote form for both files since post-bundle is the only state
-// this transform ever runs against.
+// Import markers: VS Code's `out/` tree uses single-quoted module
+// specifiers (the original `tsc` emit), and Output now byte-copies
+// those files instead of running them through esbuild's quote-
+// normalising transform (see `Source/ESBuild/Microsoft/VSCode.ts` -
+// `loader: { ".js": "copy" }`). Match what's actually on disk.
 const WebMainImportMarker =
-	'import { mark } from "../../base/common/performance.js";';
+	"import { mark } from '../../base/common/performance.js';";
 const WebMainImportReplacement = WebMainImportMarker + "\n" + SharedImportLines;
 
 // `desktop.main.js`'s first import line. Stable across upstream releases.
-const DesktopMainImportMarker = 'import { localize } from "../../nls.js";';
+const DesktopMainImportMarker = "import { localize } from '../../nls.js';";
 const DesktopMainImportReplacement =
 	DesktopMainImportMarker + "\n" + SharedImportLines;
 

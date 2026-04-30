@@ -32,6 +32,42 @@ export default async (Current: BuildOptions): Promise<BuildOptions> =>
 
 			treeShaking: !On,
 
+			// Force readable identifiers + verbatim source for VS Code's
+			// `out/` tree.
+			//
+			// VS Code's gulp pipeline already emits browser-ready ESM into
+			// `out/` (modern syntax, original identifiers, proper formatting).
+			// Running it through esbuild's default production minify would
+			// re-rename every top-level binding (`baseUrl` → `t`,
+			// `fileUriFromPath` → `g`, `safeProcess` → `p`, …), strip
+			// whitespace, and collapse if/else into ternaries.
+			//
+			// Output's transform plugins (`Source/Plugin/Transform/*.ts`)
+			// are all keyed on the un-minified identifier names emitted by
+			// `tsc`, so a minified pass-through would silently no-op every
+			// pattern - producing crashes like `SyntaxError: Unexpected
+			// token '<'` from the unrewritten workbench bootstrap, the
+			// `vs/../../node_modules` 404 chain, and the `__name`/`$4e`
+			// worker-bootstrap mangling class.
+			//
+			// `loader: "copy"` makes esbuild byte-copy `.js`/`.cjs`/`.mjs`
+			// files from `out/` to `Target/Microsoft/VSCode/` without
+			// parsing or rewriting. Sky's downstream Vite/Rollup pass
+			// re-mangles for the bundled-electron production profile;
+			// the unbundled `Static/Application/` profile ships the
+			// unmangled bytes (gzip-friendly, debuggable, a few hundred KB
+			// larger transferred). `minify: false` is belt-and-suspenders
+			// for any future JS file that is NOT served through `copy`.
+			loader: {
+				".js": "copy",
+				".cjs": "copy",
+				".mjs": "copy",
+			},
+
+			minify: false,
+
+			keepNames: false,
+
 			target: ((Browser: string[]) => {
 				const Target = new Set<string>();
 

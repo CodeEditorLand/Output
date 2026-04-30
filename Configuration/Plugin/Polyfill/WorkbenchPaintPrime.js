@@ -1,6 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-const Marker = "__LAND_WORKBENCH_PAINT_PRIME__";
+const Marker = "__LAND_WORKBENCH_PAINT_PRIME_V2__";
 function WorkbenchPaintPrime() {
   if (typeof window === "undefined") return;
   const Land = window;
@@ -60,10 +60,11 @@ function WorkbenchPaintPrime() {
     PrimeAllParts();
     setTimeout(PrimeAllParts, 200);
     setTimeout(PrimeAllParts, 800);
-    document.addEventListener("click", HandleEvent, true);
-    document.addEventListener("keydown", HandleEvent, true);
-    document.addEventListener("pointerdown", HandleEvent, true);
-    document.addEventListener("focus", HandleEvent, true);
+    document.addEventListener("pointerdown", HandleEvent, {
+      capture: true,
+      once: false,
+      passive: true
+    });
   }
   __name(Install, "Install");
   if (document.readyState === "loading") {

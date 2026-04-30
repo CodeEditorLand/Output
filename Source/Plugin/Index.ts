@@ -45,6 +45,7 @@ import InjectWorkbenchPaintPrime from "./Transform/InjectWorkbenchPaintPrime.js"
 import InjectWorkerBootstrapShim from "./Transform/InjectWorkerBootstrapShim.js";
 import InjectConfigurationOverlay from "./Transform/InjectConfigurationOverlay.js";
 import InjectStorageOverlay from "./Transform/InjectStorageOverlay.js";
+import ForceTextAreaInput from "./Transform/ForceTextAreaInput.js";
 import RewriteIconsStyleSheetURLs from "./Transform/RewriteIconsStyleSheetURLs.js";
 import RewriteWebviewShellCSP from "./Transform/RewriteWebviewShellCSP.js";
 import RewriteNestedWorkerBootstrap from "./Transform/RewriteNestedWorkerBootstrap.js";
@@ -136,6 +137,7 @@ export { default as InjectWorkbenchPaintPrime } from "./Transform/InjectWorkbenc
 export { default as InjectWorkerBootstrapShim } from "./Transform/InjectWorkerBootstrapShim.js";
 export { default as InjectConfigurationOverlay } from "./Transform/InjectConfigurationOverlay.js";
 export { default as InjectStorageOverlay } from "./Transform/InjectStorageOverlay.js";
+export { default as ForceTextAreaInput } from "./Transform/ForceTextAreaInput.js";
 export { default as RewriteIconsStyleSheetURLs } from "./Transform/RewriteIconsStyleSheetURLs.js";
 export { default as RewriteWebviewShellCSP } from "./Transform/RewriteWebviewShellCSP.js";
 export { default as RewriteNestedWorkerBootstrap } from "./Transform/RewriteNestedWorkerBootstrap.js";
@@ -222,12 +224,47 @@ export interface BuildPipelineInput {
 }
 
 /**
+ * Master "disable Land customisations" gate. When `process.env.Disable`
+ * is `true` (PascalCase, single-word - Land env-var convention), every
+ * `Inject*` / `Replace*` / `Rewrite*` / `Strip*` / `Patch*` /
+ * `ForceTextAreaInput` / `Hoist*` / `StaticToDynamic*` / `Catch*` /
+ * `Instrument*` / `Disable*` Output transform is skipped. Only the
+ * Copy plugins (which physically populate `Target/Microsoft/VSCode/`
+ * with upstream bytes) still run. The result is "vanilla VS Code on
+ * Tauri" - useful when bisecting whether a regression is in our
+ * polyfills or in upstream / Tauri / WKWebView.
+ *
+ * Code is NOT removed - the imports + the const polyfill list still
+ * exist so flipping the env var back to `false` re-enables every
+ * customisation in one rebuild.
+ */
+const LandDisableAll = (
+	(globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env?.Disable ?? ""
+).toLowerCase() === "true";
+
+/**
  * Compose the full default pipeline in the canonical order. Consumers can
  * still hand-assemble their own arrays if they want to skip / reorder.
  */
 export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => {
 	const IsRelease = (Input.Profile ?? "").startsWith("release");
 	const CSSStrategy = IsRelease ? InlineCSSImport : StripCSSImport;
+	if (LandDisableAll) {
+		// Copy stage only. Vanilla VS Code lands in `Target/`; no
+		// patches are applied. The bundled-Electron entry imports the
+		// upstream `workbench.js` unmodified - if input still doesn't
+		// work in this mode, the regression is upstream / Tauri /
+		// WKWebView, not Land.
+		return [
+			CopyVSOutputFactory(Input.VSOutput),
+			CopyVSRootFilesFactory(Input.VSRootFiles),
+			SupplementFromDependencyFactory(Input.Supplement),
+			CopyWorkerFactory(Input.Worker),
+			CopyNodeModulesFactory(Input.NodeModules),
+			StubUnpublishedAddonsFactory(Input.Addons),
+			CopyTauriMainProcessServiceFactory(Input.TauriMainProcessService),
+		];
+	}
 	return [
 		CopyVSOutputFactory(Input.VSOutput),
 		CopyVSRootFilesFactory(Input.VSRootFiles),
@@ -415,6 +452,15 @@ export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => {
 		// threat model and lets every extension webview boot.
 		// Idempotent. Marker `__LAND_WEBVIEW_SHELL_CSP__`.
 		RewriteWebviewShellCSP,
+		// Flip Monaco's `editor.editContext` default from `true` to
+		// `false` so keyboard input flows through the legacy
+		// `<textarea class="inputarea">` rather than the modern
+		// EditContext-API `<div class="native-edit-context">`. The
+		// textarea path predates EditContext and is the codebase's
+		// battle-tested input route; WKWebView's EditContext support
+		// is flaky enough that focused divs swallow keystrokes
+		// silently. Idempotent. Marker `__LAND_FORCE_TEXTAREA_INPUT__`.
+		ForceTextAreaInput,
 		// Expose the IWorkbench facade + IInstantiationService on
 		// `globalThis` as `__CEL_WORKBENCH__` / `__CEL_INSTANTIATION_SERVICE__`
 		// / `__CEL_SERVICES__` so Sky's bridge code (SkyBridge,

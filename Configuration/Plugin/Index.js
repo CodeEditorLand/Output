@@ -40,6 +40,7 @@ import InjectWorkbenchPaintPrime from "./Transform/InjectWorkbenchPaintPrime.js"
 import InjectWorkerBootstrapShim from "./Transform/InjectWorkerBootstrapShim.js";
 import InjectConfigurationOverlay from "./Transform/InjectConfigurationOverlay.js";
 import InjectStorageOverlay from "./Transform/InjectStorageOverlay.js";
+import ForceTextAreaInput from "./Transform/ForceTextAreaInput.js";
 import RewriteIconsStyleSheetURLs from "./Transform/RewriteIconsStyleSheetURLs.js";
 import RewriteWebviewShellCSP from "./Transform/RewriteWebviewShellCSP.js";
 import RewriteNestedWorkerBootstrap from "./Transform/RewriteNestedWorkerBootstrap.js";
@@ -84,64 +85,77 @@ import { default as default16 } from "./Transform/InjectWorkbenchPaintPrime.js";
 import { default as default17 } from "./Transform/InjectWorkerBootstrapShim.js";
 import { default as default18 } from "./Transform/InjectConfigurationOverlay.js";
 import { default as default19 } from "./Transform/InjectStorageOverlay.js";
-import { default as default20 } from "./Transform/RewriteIconsStyleSheetURLs.js";
-import { default as default21 } from "./Transform/RewriteWebviewShellCSP.js";
-import { default as default22 } from "./Transform/RewriteNestedWorkerBootstrap.js";
-import { default as default23 } from "./Transform/RewriteNodeModulesPath.js";
-import { default as default24 } from "./Transform/RewritePerfBaselineWorker.js";
-import { default as default25 } from "./Transform/RewriteWorkerURLs.js";
-import { default as default26 } from "./Transform/RewriteWorkbenchBaseURL.js";
-import { default as default27 } from "./Transform/RewriteStaticBlockSelfRef.js";
-import { default as default28 } from "./Transform/HoistFunctionDeclarations.js";
-import { default as default29 } from "./Transform/ReplaceElectronIPCService.js";
-import { default as default30 } from "./Transform/ReplaceExtensionGalleryService.js";
-import { default as default31 } from "./Transform/ReplaceSharedProcess.js";
-import { default as default32 } from "./Transform/ReplaceTelemetryService.js";
-import { default as default33 } from "./Transform/ReplaceUpdateService.js";
-import { default as default34 } from "./Transform/StaticToDynamicImport.js";
-import { default as default35 } from "./Transform/StripDanglingSourceMap.js";
-import { default as default36 } from "./Transform/ExtensionScannerIPC.js";
-import { default as default37 } from "./Transform/CatchOutputFolderRejection.js";
-import { default as default38 } from "./Transform/StripWebviewIframeSandbox.js";
-import { default as default39 } from "./Transform/ExposeWorkbenchAccessor.js";
-import { default as default40 } from "./Transform/InstrumentVscodeGit.js";
-import { default as default41 } from "./Transform/DisableUnusedServices.js";
-import { default as default42 } from "./Transform/ReplaceSearchService.js";
-import { default as default43 } from "./Transform/InjectEditorGPULayerCSS.js";
-import { default as default44 } from "./Transform/InjectTerminalGPULayerCSS.js";
-import { default as default45 } from "./Transform/PatchLocalTerminalBackend.js";
-import { default as default46 } from "./Transform/PatchTerminalGpuAcceleration.js";
+import { default as default20 } from "./Transform/ForceTextAreaInput.js";
+import { default as default21 } from "./Transform/RewriteIconsStyleSheetURLs.js";
+import { default as default22 } from "./Transform/RewriteWebviewShellCSP.js";
+import { default as default23 } from "./Transform/RewriteNestedWorkerBootstrap.js";
+import { default as default24 } from "./Transform/RewriteNodeModulesPath.js";
+import { default as default25 } from "./Transform/RewritePerfBaselineWorker.js";
+import { default as default26 } from "./Transform/RewriteWorkerURLs.js";
+import { default as default27 } from "./Transform/RewriteWorkbenchBaseURL.js";
+import { default as default28 } from "./Transform/RewriteStaticBlockSelfRef.js";
+import { default as default29 } from "./Transform/HoistFunctionDeclarations.js";
+import { default as default30 } from "./Transform/ReplaceElectronIPCService.js";
+import { default as default31 } from "./Transform/ReplaceExtensionGalleryService.js";
+import { default as default32 } from "./Transform/ReplaceSharedProcess.js";
+import { default as default33 } from "./Transform/ReplaceTelemetryService.js";
+import { default as default34 } from "./Transform/ReplaceUpdateService.js";
+import { default as default35 } from "./Transform/StaticToDynamicImport.js";
+import { default as default36 } from "./Transform/StripDanglingSourceMap.js";
+import { default as default37 } from "./Transform/ExtensionScannerIPC.js";
+import { default as default38 } from "./Transform/CatchOutputFolderRejection.js";
+import { default as default39 } from "./Transform/StripWebviewIframeSandbox.js";
+import { default as default40 } from "./Transform/ExposeWorkbenchAccessor.js";
+import { default as default41 } from "./Transform/InstrumentVscodeGit.js";
+import { default as default42 } from "./Transform/DisableUnusedServices.js";
+import { default as default43 } from "./Transform/ReplaceSearchService.js";
+import { default as default44 } from "./Transform/InjectEditorGPULayerCSS.js";
+import { default as default45 } from "./Transform/InjectTerminalGPULayerCSS.js";
+import { default as default46 } from "./Transform/PatchLocalTerminalBackend.js";
+import { default as default47 } from "./Transform/PatchTerminalGpuAcceleration.js";
 import {
   CopyVSOutput,
-  default as default47
+  default as default48
 } from "./Copy/CopyVSOutput.js";
 import {
   CopyVSRootFiles,
-  default as default48
+  default as default49
 } from "./Copy/CopyVSRootFiles.js";
 import {
   SupplementFromDependency,
-  default as default49
+  default as default50
 } from "./Copy/SupplementFromDependency.js";
-import { CopyWorker, default as default50 } from "./Copy/CopyWorker.js";
+import { CopyWorker, default as default51 } from "./Copy/CopyWorker.js";
 import {
   CopyNodeModules,
   DefaultPackages,
-  default as default51
+  default as default52
 } from "./Copy/CopyNodeModules.js";
 import {
   StubUnpublishedAddons,
   DefaultStubs,
   StubDataPrefix,
-  default as default52
+  default as default53
 } from "./Copy/StubUnpublishedAddons.js";
 import {
   CopyTauriMainProcessService,
-  default as default53
+  default as default54
 } from "./Copy/CopyTauriMainProcessService.js";
+const LandDisableAll = (globalThis.process?.env?.Disable ?? "").toLowerCase() === "true";
 const BuildPipeline = /* @__PURE__ */ __name((Input) => {
   const IsRelease = (Input.Profile ?? "").startsWith("release");
   const CSSStrategy = IsRelease ? InlineCSSImport : StripCSSImport;
+  if (LandDisableAll) {
+    return [
+      CopyVSOutputFactory(Input.VSOutput),
+      CopyVSRootFilesFactory(Input.VSRootFiles),
+      SupplementFromDependencyFactory(Input.Supplement),
+      CopyWorkerFactory(Input.Worker),
+      CopyNodeModulesFactory(Input.NodeModules),
+      StubUnpublishedAddonsFactory(Input.Addons),
+      CopyTauriMainProcessServiceFactory(Input.TauriMainProcessService)
+    ];
+  }
   return [
     CopyVSOutputFactory(Input.VSOutput),
     CopyVSRootFilesFactory(Input.VSRootFiles),
@@ -329,6 +343,15 @@ const BuildPipeline = /* @__PURE__ */ __name((Input) => {
     // threat model and lets every extension webview boot.
     // Idempotent. Marker `__LAND_WEBVIEW_SHELL_CSP__`.
     RewriteWebviewShellCSP,
+    // Flip Monaco's `editor.editContext` default from `true` to
+    // `false` so keyboard input flows through the legacy
+    // `<textarea class="inputarea">` rather than the modern
+    // EditContext-API `<div class="native-edit-context">`. The
+    // textarea path predates EditContext and is the codebase's
+    // battle-tested input route; WKWebView's EditContext support
+    // is flaky enough that focused divs swallow keystrokes
+    // silently. Idempotent. Marker `__LAND_FORCE_TEXTAREA_INPUT__`.
+    ForceTextAreaInput,
     // Expose the IWorkbench facade + IInstantiationService on
     // `globalThis` as `__CEL_WORKBENCH__` / `__CEL_INSTANTIATION_SERVICE__`
     // / `__CEL_SERVICES__` so Sky's bridge code (SkyBridge,
@@ -403,67 +426,68 @@ var Index_default = BuildPipeline;
 export {
   default2 as ApplyPlugins,
   BuildPipeline,
-  default37 as CatchOutputFolderRejection,
+  default38 as CatchOutputFolderRejection,
   CopyNodeModules,
-  default51 as CopyNodeModulesDefault,
+  default52 as CopyNodeModulesDefault,
   CopyTauriMainProcessService,
-  default53 as CopyTauriMainProcessServiceDefault,
+  default54 as CopyTauriMainProcessServiceDefault,
   CopyVSOutput,
-  default47 as CopyVSOutputDefault,
+  default48 as CopyVSOutputDefault,
   CopyVSRootFiles,
-  default48 as CopyVSRootFilesDefault,
+  default49 as CopyVSRootFilesDefault,
   CopyWorker,
-  default50 as CopyWorkerDefault,
+  default51 as CopyWorkerDefault,
   DefaultPackages as DefaultNodeModulePackages,
   DefaultStubs,
-  default41 as DisableUnusedServices,
-  default39 as ExposeWorkbenchAccessor,
-  default36 as ExtensionScannerIPC,
-  default28 as HoistFunctionDeclarations,
+  default42 as DisableUnusedServices,
+  default40 as ExposeWorkbenchAccessor,
+  default37 as ExtensionScannerIPC,
+  default20 as ForceTextAreaInput,
+  default29 as HoistFunctionDeclarations,
   default18 as InjectConfigurationOverlay,
   default6 as InjectDisableLazyPaint,
   default7 as InjectEagerExtensionActivation,
   default8 as InjectEagerIdleValue,
   default9 as InjectEagerLifecyclePhase,
-  default43 as InjectEditorGPULayerCSS,
+  default44 as InjectEditorGPULayerCSS,
   default13 as InjectMacTitlebarOffsetCSS,
   default5 as InjectNameShim,
   default14 as InjectPartZIndexCSS,
   default19 as InjectStorageOverlay,
   default10 as InjectStripBackgroundPolling,
   default11 as InjectTelemetryConsentOff,
-  default44 as InjectTerminalGPULayerCSS,
+  default45 as InjectTerminalGPULayerCSS,
   default12 as InjectWebViewPolyfills,
   default15 as InjectWorkbenchInteractivityCSS,
   default16 as InjectWorkbenchPaintPrime,
   default17 as InjectWorkerBootstrapShim,
   default4 as InlineCSSImport,
-  default40 as InstrumentVscodeGit,
-  default45 as PatchLocalTerminalBackend,
-  default46 as PatchTerminalGpuAcceleration,
-  default29 as ReplaceElectronIPCService,
-  default30 as ReplaceExtensionGalleryService,
-  default42 as ReplaceSearchService,
-  default31 as ReplaceSharedProcess,
-  default32 as ReplaceTelemetryService,
-  default33 as ReplaceUpdateService,
-  default20 as RewriteIconsStyleSheetURLs,
-  default22 as RewriteNestedWorkerBootstrap,
-  default23 as RewriteNodeModulesPath,
-  default24 as RewritePerfBaselineWorker,
-  default27 as RewriteStaticBlockSelfRef,
-  default21 as RewriteWebviewShellCSP,
-  default26 as RewriteWorkbenchBaseURL,
-  default25 as RewriteWorkerURLs,
-  default34 as StaticToDynamicImport,
+  default41 as InstrumentVscodeGit,
+  default46 as PatchLocalTerminalBackend,
+  default47 as PatchTerminalGpuAcceleration,
+  default30 as ReplaceElectronIPCService,
+  default31 as ReplaceExtensionGalleryService,
+  default43 as ReplaceSearchService,
+  default32 as ReplaceSharedProcess,
+  default33 as ReplaceTelemetryService,
+  default34 as ReplaceUpdateService,
+  default21 as RewriteIconsStyleSheetURLs,
+  default23 as RewriteNestedWorkerBootstrap,
+  default24 as RewriteNodeModulesPath,
+  default25 as RewritePerfBaselineWorker,
+  default28 as RewriteStaticBlockSelfRef,
+  default22 as RewriteWebviewShellCSP,
+  default27 as RewriteWorkbenchBaseURL,
+  default26 as RewriteWorkerURLs,
+  default35 as StaticToDynamicImport,
   default3 as StripCSSImport,
-  default35 as StripDanglingSourceMap,
-  default38 as StripWebviewIframeSandbox,
+  default36 as StripDanglingSourceMap,
+  default39 as StripWebviewIframeSandbox,
   StubDataPrefix,
   StubUnpublishedAddons,
-  default52 as StubUnpublishedAddonsDefault,
+  default53 as StubUnpublishedAddonsDefault,
   SupplementFromDependency,
-  default49 as SupplementFromDependencyDefault,
+  default50 as SupplementFromDependencyDefault,
   Index_default as default
 };
 //# sourceMappingURL=Index.js.map

@@ -471,16 +471,10 @@ async function InvokeMountain(Method, Params) {
   if (typeof Invoke !== "function") return void 0;
   const Start = typeof performance !== "undefined" ? performance.now() : Date.now();
   try {
-    const Value = await Invoke("MountainIPCInvoke", {
+    return await Invoke("MountainIPCInvoke", {
       method: Method,
       params: Params
     });
-    const Elapsed = (typeof performance !== "undefined" ? performance.now() : Date.now()) - Start;
-    _DevLogForward(
-      "tauri-invoke",
-      `[TauriInvoke] method=${Method} ok=true elapsed_ms=${Elapsed.toFixed(2)}`
-    );
-    return Value;
   } catch (Error2) {
     const Elapsed = (typeof performance !== "undefined" ? performance.now() : Date.now()) - Start;
     const Message = String(Error2);
@@ -518,10 +512,6 @@ class TauriChannel {
         ).catch(() => {
         });
       }
-      _DevLogForward(
-        "channel-stub",
-        `fire-and-forget channel=${this.ChannelName} cmd=${Command} route=${this.RoutePrefix ?? "<none>"}`
-      );
       return void 0;
     }
     const Stubs = StubChannels[this.ChannelName];
@@ -532,10 +522,12 @@ class TauriChannel {
         Stubs,
         Command
       ) ? StubValue === void 0 ? "noop" : "value" : "drift";
-      _DevLogForward(
-        "channel-stub",
-        `stub-hit channel=${this.ChannelName} cmd=${Command} disposition=${Disposition}`
-      );
+      if (Disposition === "drift") {
+        _DevLogForward(
+          "channel-stub",
+          `stub-hit channel=${this.ChannelName} cmd=${Command} disposition=${Disposition}`
+        );
+      }
       return StubValue !== void 0 ? StubValue : void 0;
     }
     if (this.RoutePrefix) {

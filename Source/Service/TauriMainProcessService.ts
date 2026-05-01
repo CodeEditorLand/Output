@@ -562,34 +562,35 @@ async function InvokeMountain(
 
 	if (typeof Invoke !== "function") return undefined;
 
-	// `tauri-invoke` tag: per-invoke duration + ok/fail in ms. Stock
-	// `ipc` tag already logs the paired invoke/done from the Rust side
-	// with nanosecond precision; this TS-side line captures round-trip
-	// time *including* Tauri transport overhead, which lets us tell a
-	// slow Rust handler (`ipc done t_ns` large) apart from a starved
-	// webview message channel (`tauri-invoke elapsed_ms` large but
-	// Rust-side `t_ns` small). Both tags are silent unless explicitly
-	// enabled, so there's no cost when off.
+	// `tauri-invoke` tag: previously this block fired a per-invoke
+	// `_DevLogForward("tauri-invoke", …)` after EVERY successful
+	// `MountainIPCInvoke`. Even though Mountain's `dev_log!` macro
+	// silently drops disabled tags, the IPC ROUND TRIP that delivers
+	// the log line ALREADY HAPPENED - Tauri's invoke channel serialises
+	// the call, queues it behind any in-flight invokes, and pays the
+	// full transport cost. During extension boot (dozens of
+	// `file:stat` / `file:readFile` / `extensions:getInstalled` calls
+	// per second) this *doubled* IPC traffic and saturated the
+	// channel. Observed effect: the channel queues stack to 175-280ms
+	// per call and KEYSTROKES (which travel through the same WebKit
+	// message channel as IPC replies on macOS) start to back up. The
+	// user types in the editor, nothing visible happens, then later
+	// switches focus and the queued keystrokes flush into whichever
+	// element is now focused - "characters appearing automatically in
+	// the chat input after switching" was this exact bug.
+	//
+	// Drop the success-case forward entirely. The Rust-side
+	// `[DEV:IPC] done: <method> ok=true t_ns=…` line already carries
+	// the same data at nanosecond precision and is filterable via
+	// `Trace=ipc`. Failures still forward (they're rare and the
+	// stack-trace context is worth the cost).
 	const Start =
 		typeof performance !== "undefined" ? performance.now() : Date.now();
 	try {
-		const Value = await Invoke("MountainIPCInvoke", {
+		return await Invoke("MountainIPCInvoke", {
 			method: Method,
 			params: Params,
 		});
-		const Elapsed =
-			(typeof performance !== "undefined"
-				? performance.now()
-				: Date.now()) - Start;
-		// Success line is per-call and the Rust-side `ipc:done` already
-		// carries the same data at ns precision. Only forward when the
-		// caller explicitly opts into `tauri-invoke` via Trace so
-		// normal runs stay quiet. Failures always forward.
-		_DevLogForward(
-			"tauri-invoke",
-			`[TauriInvoke] method=${Method} ok=true elapsed_ms=${Elapsed.toFixed(2)}`,
-		);
-		return Value;
 	} catch (Error) {
 		const Elapsed =
 			(typeof performance !== "undefined"
@@ -669,10 +670,14 @@ class TauriChannel implements IChannel {
 					Arg !== undefined ? (Array.isArray(Arg) ? Arg : [Arg]) : [],
 				).catch(() => {});
 			}
-			_DevLogForward(
-				"channel-stub",
-				`fire-and-forget channel=${this.ChannelName} cmd=${Command} route=${this.RoutePrefix ?? "<none>"}`,
-			);
+			// Was: `_DevLogForward("channel-stub", "fire-and-forget …")`.
+			// Same IPC-saturation issue as the success-case `tauri-invoke`
+			// forward above - logger / status-bar / file-watcher channels
+			// fire dozens of `createLogger` / `registerLogger` / `log`
+			// commands per second during extension boot, each scheduling
+			// another `RenderDevLog` IPC. The Rust-side `[DEV:IPC]
+			// invoke: <method>` line already records the dispatch with ns
+			// precision. Drop the TS-side mirror.
 			return undefined as T;
 		}
 
@@ -697,10 +702,16 @@ class TauriChannel implements IChannel {
 					? "noop"
 					: "value"
 				: "drift";
-			_DevLogForward(
-				"channel-stub",
-				`stub-hit channel=${this.ChannelName} cmd=${Command} disposition=${Disposition}`,
-			);
+			// Only forward for `drift` - the noteworthy case (a stub key
+			// was added for this channel but THIS command isn't covered).
+			// `value` and `noop` are routine and would saturate the IPC
+			// channel for no diagnostic benefit.
+			if (Disposition === "drift") {
+				_DevLogForward(
+					"channel-stub",
+					`stub-hit channel=${this.ChannelName} cmd=${Command} disposition=${Disposition}`,
+				);
+			}
 			return (StubValue !== undefined ? StubValue : undefined) as T;
 		}
 

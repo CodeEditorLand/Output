@@ -63,17 +63,20 @@ export default function DisableLazyPaint(): void {
 	Land[Marker] = true;
 
 	// ----- requestAnimationFrame + IntersectionObserver overrides -----
-	// These overrides redirect Monaco's rAF callbacks to the macrotask
-	// queue and replace native IntersectionObserver with a fire-on-
-	// observe stub that calls `getBoundingClientRect()` synchronously.
-	// Both bypass WKWebView's compositor-frame coordination - which
-	// also delivers keyboard input - so once Monaco starts rendering
-	// (theme load, decorations, cursor blink, minimap, scrollbars) the
-	// macrotask queue floods and keystrokes starve. Default OFF; set
-	// `(window as any).__LAND_AGGRESSIVE_LAZY_PAINT__ = true` BEFORE
-	// the workbench bootstrap if the original WKWebView lazy-paint
-	// symptom (panels invisible until hover/scroll) reappears.
-	if (Land["__LAND_AGGRESSIVE_LAZY_PAINT__"]) {
+	// Why these overrides exist: WKWebView under Tauri does not always
+	// fire native `rAF` callbacks on hidden / freshly-mounted webview
+	// surfaces, and its `IntersectionObserver` callbacks are gated
+	// behind viewport intersection that the editor element never
+	// reaches until the user clicks (the editor stays unmounted until
+	// interaction). Replacing both forces eager paint + render.
+	//
+	// We initially suspected this polyfill of starving keystroke
+	// delivery via the macrotask queue (rAF→setTimeout(0)) and gated
+	// it behind `__LAND_AGGRESSIVE_LAZY_PAINT__`. The actual culprit
+	// turned out to be a Vim extension activating into Normal mode;
+	// gating this polyfill regressed editor mount behaviour ("editor
+	// doesn't load until click"). Restored unconditional.
+	{
 		let RAFCounter = 0;
 
 		let RAFQueue: Array<RAFEntry> = [];

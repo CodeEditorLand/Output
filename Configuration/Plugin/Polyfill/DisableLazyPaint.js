@@ -88,7 +88,10 @@ function DisableLazyPaint() {
             rootBounds: null
           };
           try {
-            Self.Callback([Entry], Self);
+            Self.Callback(
+              [Entry],
+              Self
+            );
           } catch (Error2) {
             console.error(Error2);
           }
@@ -131,7 +134,9 @@ function DisableLazyPaint() {
   }
   __name(InstallStylesheet, "InstallStylesheet");
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", InstallStylesheet, { once: true });
+    document.addEventListener("DOMContentLoaded", InstallStylesheet, {
+      once: true
+    });
   } else {
     InstallStylesheet();
   }

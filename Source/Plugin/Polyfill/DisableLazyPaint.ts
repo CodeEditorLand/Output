@@ -62,141 +62,161 @@ export default function DisableLazyPaint(): void {
 
 	Land[Marker] = true;
 
-	// ----- requestAnimationFrame: coalesced setTimeout 0 queue -----
-	let RAFCounter = 0;
+	// ----- requestAnimationFrame + IntersectionObserver overrides -----
+	// These overrides redirect Monaco's rAF callbacks to the macrotask
+	// queue and replace native IntersectionObserver with a fire-on-
+	// observe stub that calls `getBoundingClientRect()` synchronously.
+	// Both bypass WKWebView's compositor-frame coordination - which
+	// also delivers keyboard input - so once Monaco starts rendering
+	// (theme load, decorations, cursor blink, minimap, scrollbars) the
+	// macrotask queue floods and keystrokes starve. Default OFF; set
+	// `(window as any).__LAND_AGGRESSIVE_LAZY_PAINT__ = true` BEFORE
+	// the workbench bootstrap if the original WKWebView lazy-paint
+	// symptom (panels invisible until hover/scroll) reappears.
+	if (Land["__LAND_AGGRESSIVE_LAZY_PAINT__"]) {
+		let RAFCounter = 0;
 
-	let RAFQueue: Array<RAFEntry> = [];
+		let RAFQueue: Array<RAFEntry> = [];
 
-	let RAFFlushScheduled = false;
+		let RAFFlushScheduled = false;
 
-	const RAFCancelled = new Set<number>();
+		const RAFCancelled = new Set<number>();
 
-	function FlushRAF(): void {
-		RAFFlushScheduled = false;
+		function FlushRAF(): void {
+			RAFFlushScheduled = false;
 
-		const Drain = RAFQueue;
+			const Drain = RAFQueue;
 
-		RAFQueue = [];
+			RAFQueue = [];
 
-		const Timestamp = performance.now();
+			const Timestamp = performance.now();
 
-		for (const Entry of Drain) {
-			if (RAFCancelled.has(Entry.Id)) {
-				RAFCancelled.delete(Entry.Id);
+			for (const Entry of Drain) {
+				if (RAFCancelled.has(Entry.Id)) {
+					RAFCancelled.delete(Entry.Id);
 
-				continue;
-			}
-
-			try {
-				Entry.Callback(Timestamp);
-			} catch (Error) {
-				console.error(Error);
-			}
-		}
-	}
-
-	window.requestAnimationFrame = (Callback: FrameRequestCallback): number => {
-		const Identifier = ++RAFCounter;
-
-		RAFQueue.push({ Id: Identifier, Callback });
-
-		if (!RAFFlushScheduled) {
-			RAFFlushScheduled = true;
-
-			setTimeout(FlushRAF, 0);
-		}
-
-		return Identifier;
-	};
-
-	window.cancelAnimationFrame = (Identifier: number): void => {
-		RAFCancelled.add(Identifier);
-	};
-
-	// ----- IntersectionObserver: fire-on-observe stub -----
-	const OriginalIO = window.IntersectionObserver;
-
-	class FastIntersectionObserver {
-		private Callback: IntersectionObserverCallback;
-
-		private Disconnected = false;
-
-		private Observed = new Set<Element>();
-
-		constructor(Callback: IntersectionObserverCallback, _Options?: FastIntersectionObserverInit) {
-			this.Callback = Callback;
-		}
-
-		observe(Target: Element): void {
-			if (this.Disconnected) return;
-
-			if (this.Observed.has(Target)) return;
-
-			this.Observed.add(Target);
-
-			const Self = this;
-
-			queueMicrotask(() => {
-				if (Self.Disconnected || !Self.Observed.has(Target)) return;
-
-				let Rectangle: DOMRectReadOnly;
-
-				try {
-					Rectangle = Target.getBoundingClientRect();
-				} catch {
-					Rectangle = {
-						top: 0,
-						left: 0,
-						right: 0,
-						bottom: 0,
-						width: 0,
-						height: 0,
-						x: 0,
-						y: 0,
-						toJSON(): Record<string, unknown> {
-							return {};
-						},
-					} as DOMRectReadOnly;
+					continue;
 				}
 
-				const Entry: FastIntersectionEntry = {
-					target: Target,
-					isIntersecting: true,
-					intersectionRatio: 1,
-					time: performance.now(),
-					boundingClientRect: Rectangle,
-					intersectionRect: Rectangle,
-					rootBounds: null,
-				};
-
 				try {
-					Self.Callback([Entry as unknown as IntersectionObserverEntry], Self as unknown as IntersectionObserver);
+					Entry.Callback(Timestamp);
 				} catch (Error) {
 					console.error(Error);
 				}
-			});
+			}
 		}
 
-		unobserve(Target: Element): void {
-			this.Observed.delete(Target);
+		window.requestAnimationFrame = (
+			Callback: FrameRequestCallback,
+		): number => {
+			const Identifier = ++RAFCounter;
+
+			RAFQueue.push({ Id: Identifier, Callback });
+
+			if (!RAFFlushScheduled) {
+				RAFFlushScheduled = true;
+
+				setTimeout(FlushRAF, 0);
+			}
+
+			return Identifier;
+		};
+
+		window.cancelAnimationFrame = (Identifier: number): void => {
+			RAFCancelled.add(Identifier);
+		};
+
+		const OriginalIO = window.IntersectionObserver;
+
+		class FastIntersectionObserver {
+			private Callback: IntersectionObserverCallback;
+
+			private Disconnected = false;
+
+			private Observed = new Set<Element>();
+
+			constructor(
+				Callback: IntersectionObserverCallback,
+				_Options?: FastIntersectionObserverInit,
+			) {
+				this.Callback = Callback;
+			}
+
+			observe(Target: Element): void {
+				if (this.Disconnected) return;
+
+				if (this.Observed.has(Target)) return;
+
+				this.Observed.add(Target);
+
+				const Self = this;
+
+				queueMicrotask(() => {
+					if (Self.Disconnected || !Self.Observed.has(Target)) return;
+
+					let Rectangle: DOMRectReadOnly;
+
+					try {
+						Rectangle = Target.getBoundingClientRect();
+					} catch {
+						Rectangle = {
+							top: 0,
+							left: 0,
+							right: 0,
+							bottom: 0,
+							width: 0,
+							height: 0,
+							x: 0,
+							y: 0,
+							toJSON(): Record<string, unknown> {
+								return {};
+							},
+						} as DOMRectReadOnly;
+					}
+
+					const Entry: FastIntersectionEntry = {
+						target: Target,
+						isIntersecting: true,
+						intersectionRatio: 1,
+						time: performance.now(),
+						boundingClientRect: Rectangle,
+						intersectionRect: Rectangle,
+						rootBounds: null,
+					};
+
+					try {
+						Self.Callback(
+							[Entry as unknown as IntersectionObserverEntry],
+							Self as unknown as IntersectionObserver,
+						);
+					} catch (Error) {
+						console.error(Error);
+					}
+				});
+			}
+
+			unobserve(Target: Element): void {
+				this.Observed.delete(Target);
+			}
+
+			disconnect(): void {
+				this.Disconnected = true;
+
+				this.Observed.clear();
+			}
+
+			takeRecords(): Array<IntersectionObserverEntry> {
+				return [];
+			}
 		}
 
-		disconnect(): void {
-			this.Disconnected = true;
-
-			this.Observed.clear();
+		if (OriginalIO) {
+			Land["__OriginalIntersectionObserver__"] = OriginalIO;
 		}
 
-		takeRecords(): Array<IntersectionObserverEntry> {
-			return [];
-		}
+		(window as unknown as Record<string, unknown>)["IntersectionObserver"] =
+			FastIntersectionObserver;
 	}
-
-	if (OriginalIO) {
-		Land["__OriginalIntersectionObserver__"] = OriginalIO;
-	}
-
-	(window as unknown as Record<string, unknown>)["IntersectionObserver"] = FastIntersectionObserver;
 
 	// ----- CSS lazy-paint kill -----
 	function InstallStylesheet(): void {
@@ -223,7 +243,9 @@ export default function DisableLazyPaint(): void {
 	}
 
 	if (document.readyState === "loading") {
-		document.addEventListener("DOMContentLoaded", InstallStylesheet, { once: true });
+		document.addEventListener("DOMContentLoaded", InstallStylesheet, {
+			once: true,
+		});
 	} else {
 		InstallStylesheet();
 	}

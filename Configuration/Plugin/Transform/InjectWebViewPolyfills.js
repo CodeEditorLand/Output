@@ -1,8 +1,5 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-const Marker = "__LAND_WEBVIEW_POLYFILLS__";
-const Polyfills = `
-/* ${Marker} */
+const e="__LAND_WEBVIEW_POLYFILLS__",n=`
+/* ${e} */
 (function(){
 	if (typeof window === "undefined") return;
 	if (typeof window.requestIdleCallback !== "function") {
@@ -49,18 +46,4 @@ const Polyfills = `
 	};
 	globalThis.Blob.prototype = OriginalBlob.prototype;
 })();
-`;
-const Plugin = {
-  Kind: "Transform",
-  Name: "InjectWebViewPolyfills",
-  Match: /* @__PURE__ */ __name(({ Path }) => Path.endsWith("vs/code/electron-browser/workbench/workbench.js"), "Match"),
-  Transform({ Source }) {
-    if (Source.includes(Marker)) return { Kind: "Unchanged" };
-    return { Kind: "Rewrite", Source: Polyfills + Source };
-  }
-};
-var InjectWebViewPolyfills_default = Plugin;
-export {
-  InjectWebViewPolyfills_default as default
-};
-//# sourceMappingURL=InjectWebViewPolyfills.js.map
+`,i={Kind:"Transform",Name:"InjectWebViewPolyfills",Match:({Path:t})=>t.endsWith("vs/code/electron-browser/workbench/workbench.js"),Transform({Source:t}){return t.includes(e)?{Kind:"Unchanged"}:{Kind:"Rewrite",Source:n+t}}};var o=i;export{o as default};

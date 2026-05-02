@@ -1,21 +1,4 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import WorkbenchInteractivityCSS, { Marker } from "../Polyfill/WorkbenchInteractivityCSS.js";
-const Polyfill = `
-/* ${Marker} */
-(${WorkbenchInteractivityCSS.toString()})();
-`;
-const Plugin = {
-  Kind: "Transform",
-  Name: "InjectWorkbenchInteractivityCSS",
-  Match: /* @__PURE__ */ __name(({ Path }) => Path.endsWith("vs/code/electron-browser/workbench/workbench.js"), "Match"),
-  Transform({ Source }) {
-    if (Source.includes(Marker)) return { Kind: "Unchanged" };
-    return { Kind: "Rewrite", Source: Polyfill + Source };
-  }
-};
-var InjectWorkbenchInteractivityCSS_default = Plugin;
-export {
-  InjectWorkbenchInteractivityCSS_default as default
-};
-//# sourceMappingURL=InjectWorkbenchInteractivityCSS.js.map
+import e,{Marker as r}from"../Polyfill/WorkbenchInteractivityCSS.js";const t=`
+/* ${r} */
+(${e.toString()})();
+`,o={Kind:"Transform",Name:"InjectWorkbenchInteractivityCSS",Match:({Path:n})=>n.endsWith("vs/code/electron-browser/workbench/workbench.js"),Transform({Source:n}){return n.includes(r)?{Kind:"Unchanged"}:{Kind:"Rewrite",Source:t+n}}};var c=o;export{c as default};

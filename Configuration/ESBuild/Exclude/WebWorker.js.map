@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../Source/ESBuild/Exclude/WebWorker.ts"],
-  "sourcesContent": ["export default (_Prefix: string) => [\n\t// `${Prefix}/workbench/api/worker/*`,\n\t// extensionService.js:1\n\t// GET http://localhost:3000/Static/Application/vs/workbench/services/extensions/browser/webWorkerExtensionHost.js net::ERR_ABORTED 404 (Not Found)\n\t// `${Prefix}/workbench/services/extensions/browser/webWorkerExtensionHost.js`,\n\t// `${Prefix}/workbench/services/extensions/worker/*`,\n];\n"],
-  "mappings": ";;AAAA,IAAO,oBAAQ,wBAAC,YAAoB;AAAA;AAAA;AAAA;AAAA;AAAA;AAMpC,GANe;",
-  "names": []
-}

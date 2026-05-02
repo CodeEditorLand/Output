@@ -6,7 +6,7 @@ function DisableLazyPaint() {
   const Land = window;
   if (Land[Marker]) return;
   Land[Marker] = true;
-  if (Land["__LAND_AGGRESSIVE_LAZY_PAINT__"]) {
+  {
     let FlushRAF2 = function() {
       RAFFlushScheduled = false;
       const Drain = RAFQueue;

@@ -10,22 +10,13 @@ function PartZIndexCSS() {
     const Style = document.createElement("style");
     Style.setAttribute("data-land-part-zindex", "1");
     Style.textContent = [
-      // `isolation: isolate` previously sat on `.monaco-workbench
-      // .part` to prevent translate3d-induced stacking-context
-      // promotion of one part from hiding a sibling. Under
-      // WKWebView this rule blocks input event delivery to the
-      // hidden Monaco `<textarea class="inputarea">` (and to the
-      // EditContext div before `ForceTextAreaInput` flipped the
-      // default) - the textarea is focusable, the cursor blinks,
-      // keys press, and nothing reaches the editor's
-      // `keydown` listener. Symptom: typing was fine before the
-      // theme/lift completed, dead the moment Monaco's input
-      // surface mounted. Explicit per-part `z-index` below already
-      // establishes the desired stacking order without the
-      // `isolation` cost. Re-enable only if the original sibling-
-      // hiding regression returns and we need a more surgical
-      // substitute (e.g. only on parts that actually pick up a
-      // translate3d hint).
+      // Make every part a stacking context so its descendants
+      // don't escape upwards into a sibling part. `isolation:
+      // isolate` is cheaper than `transform: translateZ(0)` and
+      // doesn't nudge subpixel rendering.
+      ".monaco-workbench .part {",
+      "	isolation: isolate;",
+      "}",
       // Editor sits at the bottom of the workbench's z-stack so
       // floating UI (panel resize handles, sidebar shadows)
       // renders on top.

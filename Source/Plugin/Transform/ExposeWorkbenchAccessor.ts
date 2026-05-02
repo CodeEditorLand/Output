@@ -100,6 +100,18 @@ const SharedImportLines =
 	"// reverse-RPC into Cocoon, and the extension's\n" +
 	"// `resolveWebviewView(view, ctx)` callback paints the panel.\n" +
 	"import { IWebviewViewService as __CEL_IWebviewViewService } from '../contrib/webviewView/browser/webviewViewService.js';\n" +
+	"// [Land] IWebviewWorkbenchService - the editor-area webview-panel\n" +
+	"// service. Stock VS Code's `MainThreadWebviewPanels.$createWebviewPanel`\n" +
+	"// calls `IWebviewWorkbenchService.openWebview(...)` to materialise\n" +
+	"// a `WebviewInput` editor; the inner overlay-webview paints the\n" +
+	"// extension HTML. Cocoon's gRPC `webview.create` doesn't go\n" +
+	"// through the standard MainThread/ExtHost RPC, so SkyBridge's\n" +
+	"// `sky://webview/create` listener calls this service directly to\n" +
+	"// open a real panel for `vscode.window.createWebviewPanel(...)`\n" +
+	"// invocations - without this service, panel-mode webviews (Roo's\n" +
+	"// chat panel, Claude's panel surfaces, etc.) were silently parked\n" +
+	"// in an in-memory placeholder map and never rendered.\n" +
+	"import { IWebviewWorkbenchService as __CEL_IWebviewWorkbenchService } from '../contrib/webviewPanel/browser/webviewWorkbenchService.js';\n" +
 	"// [Land] IMarkerService - the workbench's diagnostic store. Mountain\n" +
 	"// emits `sky://diagnostics/changed` after each `Diagnostic.Set` from\n" +
 	"// Cocoon; SkyBridge needs to call `Markers.changeOne(owner, uri,\n" +

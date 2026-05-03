@@ -1,24 +1,28 @@
-const o = /\/workbench\/contrib\/output\/browser\/outputServices\.js$/,
-	t = /(createFolder\([^)]*\)\.then\(\(\)\s*=>\s*(?:undefined|void\s+0)\))/g,
-	a = {
-		Kind: "Transform",
-		Name: "CatchOutputFolderRejection",
-		Match: ({ Path: e, Role: n }) => n === "app" && o.test(e),
-		Transform({ Source: e }) {
-			return (
-				(t.lastIndex = 0),
-				t.test(e)
-					? ((t.lastIndex = 0),
-						{
-							Kind: "Rewrite",
-							Source: e.replace(
-								t,
-								(n, r) => `${r}.catch(() => void 0)`,
-							),
-						})
-					: { Kind: "Unchanged" }
-			);
-		},
-	};
-var s = a;
-export { s as default };
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+const PathRegex = /\/workbench\/contrib\/output\/browser\/outputServices\.js$/;
+const ChainRegex = /(createFolder\([^)]*\)\.then\(\(\)\s*=>\s*(?:undefined|void\s+0)\))/g;
+const Plugin = {
+  Kind: "Transform",
+  Name: "CatchOutputFolderRejection",
+  Match: /* @__PURE__ */ __name(({ Path, Role }) => Role === "app" && PathRegex.test(Path), "Match"),
+  Transform({ Source }) {
+    ChainRegex.lastIndex = 0;
+    if (!ChainRegex.test(Source)) {
+      return { Kind: "Unchanged" };
+    }
+    ChainRegex.lastIndex = 0;
+    return {
+      Kind: "Rewrite",
+      Source: Source.replace(
+        ChainRegex,
+        (_Match, Chain) => `${Chain}.catch(() => void 0)`
+      )
+    };
+  }
+};
+var CatchOutputFolderRejection_default = Plugin;
+export {
+  CatchOutputFolderRejection_default as default
+};
+//# sourceMappingURL=CatchOutputFolderRejection.js.map

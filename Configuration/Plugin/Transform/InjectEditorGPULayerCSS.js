@@ -1,6 +1,8 @@
-const o = "__LAND_EDITOR_GPU_LAYER__",
-	t = `
-/* ${o} */
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+const Marker = "__LAND_EDITOR_GPU_LAYER__";
+const InjectedCSS = `
+/* ${Marker} */
 /* Promote Monaco container elements to their own compositor layers
  * without clipping descendants. \`contain: paint\` on row containers
  * (\`view-lines\`, \`lines-content\`, \`view-overlays\`) creates a paint
@@ -37,24 +39,24 @@ const o = "__LAND_EDITOR_GPU_LAYER__",
 	transform: translateZ(0);
 	isolation: isolate;
 }
-`,
-	n = /editor\/browser\/(?:[^/]+\/)*[^/]+\.css$/,
-	r = {
-		Kind: "Transform",
-		Name: "InjectEditorGPULayerCSS",
-		Match: ({ Path: e }) => n.test(e),
-		Transform({ Source: e }) {
-			return e.includes(o)
-				? { Kind: "Unchanged" }
-				: {
-						Kind: "Rewrite",
-						Source:
-							e +
-							`
-` +
-							t,
-					};
-		},
-	};
-var i = r;
-export { i as default };
+`;
+const PathRegex = /editor\/browser\/(?:[^/]+\/)*[^/]+\.css$/;
+const Plugin = {
+  Kind: "Transform",
+  Name: "InjectEditorGPULayerCSS",
+  Match: /* @__PURE__ */ __name(({ Path }) => PathRegex.test(Path), "Match"),
+  Transform({ Source }) {
+    if (Source.includes(Marker)) {
+      return { Kind: "Unchanged" };
+    }
+    return {
+      Kind: "Rewrite",
+      Source: Source + "\n" + InjectedCSS
+    };
+  }
+};
+var InjectEditorGPULayerCSS_default = Plugin;
+export {
+  InjectEditorGPULayerCSS_default as default
+};
+//# sourceMappingURL=InjectEditorGPULayerCSS.js.map

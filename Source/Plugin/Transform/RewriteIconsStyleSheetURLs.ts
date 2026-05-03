@@ -61,7 +61,7 @@ interface AnchorSpec {
 //      which depends on a `process.versions.node` shim. Under
 //      Tauri/WKWebView the shim isn't always installed before
 //      `iconsStyleSheet.getCSS()` first runs, so the URL leaks
-//      through as `file:///Users/nikola/.land/extensions/<id>/<font>.woff2`.
+//      through as `file:///<home>/.land/extensions/<id>/<font>.woff2`.
 //      WKWebView refuses to load `file:` from an `http:` origin
 //      (mixed-scheme), so the @font-face rule fetches a 0-byte
 //      response and codicons render as missing-glyph boxes. This

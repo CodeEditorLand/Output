@@ -116,7 +116,8 @@ const IconsStyleSheetAnchor: AnchorSpec = {
 // expression and the trailing `;`.
 const FileIconThemeAnchor: AnchorSpec = {
 	Marker: "/* __LAND_FILE_ICON_THEME_URL_REWRITE_V2__ */",
-	PathRegex: /\/vs\/workbench\/services\/themes\/browser\/fileIconThemeData\.js$/,
+	PathRegex:
+		/\/vs\/workbench\/services\/themes\/browser\/fileIconThemeData\.js$/,
 	Search: new RegExp(
 		`(result\\.content\\s*=\\s*cssRules\\.join\\('\\\\n'\\))${TrailingReplaceChain}(\\s*;)`,
 	),
@@ -130,8 +131,7 @@ const Anchors: ReadonlyArray<AnchorSpec> = [
 const Plugin: TransformPlugin = {
 	Kind: "Transform",
 	Name: "RewriteIconsStyleSheetURLs",
-	Match: ({ Path }) =>
-		Anchors.some((Anchor) => Anchor.PathRegex.test(Path)),
+	Match: ({ Path }) => Anchors.some((Anchor) => Anchor.PathRegex.test(Path)),
 	Transform({ Path, Source }) {
 		const Anchor = Anchors.find((Candidate) =>
 			Candidate.PathRegex.test(Path),

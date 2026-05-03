@@ -129,7 +129,10 @@ type ChannelEventBridgeEntry = {
 	Channel: string;
 	Map?: (Payload: unknown) => unknown;
 };
-const ChannelEventBridge: Record<string, Record<string, ChannelEventBridgeEntry>> = {
+const ChannelEventBridge: Record<
+	string,
+	Record<string, ChannelEventBridgeEntry>
+> = {
 	localPty: {
 		// VS Code's `IPtyService.onProcessData` expects
 		// `{ id: number, event: IProcessDataEvent | string }` per
@@ -157,7 +160,11 @@ const ChannelEventBridge: Record<string, Record<string, ChannelEventBridgeEntry>
 				if (!Obj || typeof Obj.id !== "number") return undefined;
 				return {
 					id: Obj.id,
-					event: { pid: Obj.pid ?? 0, cwd: "", windowsPty: undefined },
+					event: {
+						pid: Obj.pid ?? 0,
+						cwd: "",
+						windowsPty: undefined,
+					},
 				};
 			},
 		},

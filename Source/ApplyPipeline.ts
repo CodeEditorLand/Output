@@ -26,7 +26,7 @@
  * is safe.
  */
 
-import { mkdir, copyFile } from "node:fs/promises";
+import { copyFile, mkdir } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 
 import ApplyPlugins from "./Plugin/Apply.js";
@@ -59,7 +59,9 @@ const Destination = resolve(
 );
 await mkdir(dirname(Destination), { recursive: true });
 await copyFile(Source, Destination);
-console.log(`[Output/Pipeline] Copied TauriMainProcessService.js -> ${Destination}`);
+console.log(
+	`[Output/Pipeline] Copied TauriMainProcessService.js -> ${Destination}`,
+);
 
 // `StaticToDynamicImport` and `StripCSSImport` / `InlineCSSImport` are
 // INTENTIONALLY excluded from this Output-side pipeline.

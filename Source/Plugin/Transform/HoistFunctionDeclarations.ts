@@ -197,9 +197,7 @@ function FindTopLevelHelperVars(Lines: ReadonlyArray<string>): Block[] {
 	let Depth = 0;
 	let State: WalkerState = InitialState;
 
-	const HelperStart = new RegExp(
-		`^var (${HelperNames.join("|")})\\s*=`,
-	);
+	const HelperStart = new RegExp(`^var (${HelperNames.join("|")})\\s*=`);
 
 	let i = 0;
 	while (i < Lines.length) {

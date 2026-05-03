@@ -265,8 +265,9 @@ file.
 
 ## Changelog&#x2001;📜
 
-Stay updated with our progress! See [`CHANGELOG.md`](https://github.com/CodeEditorLand/Land/tree/Current/CHANGELOG.md) for a
-history of changes specific to **Output**.
+Stay updated with our progress! See
+[`CHANGELOG.md`](https://github.com/CodeEditorLand/Land/tree/Current/CHANGELOG.md)
+for a history of changes specific to **Output**.
 
 ---
 

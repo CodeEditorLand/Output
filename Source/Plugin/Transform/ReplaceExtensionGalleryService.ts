@@ -28,7 +28,8 @@
 
 import type { TransformPlugin } from "../Type.js";
 
-const PathRegex = /vs\/platform\/extensionManagement\/common\/extensionGalleryService\.js$/;
+const PathRegex =
+	/vs\/platform\/extensionManagement\/common\/extensionGalleryService\.js$/;
 
 const Stub = `// LAND-PATCH: extensionGalleryService body replaced with no-op stub.
 // See Land/Element/Output/Source/Plugin/Transform/ReplaceExtensionGalleryService.ts.

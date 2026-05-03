@@ -52,7 +52,7 @@ import type { TransformPlugin } from "../Type.js";
 const Marker = "/* __LAND_WORKER_NAME_SHIM__ */";
 
 const ShimLine =
-	"`var __defProp=Object.defineProperty;var __name=(t,v)=>__defProp(t,\"name\",{value:v,configurable:true});`,";
+	'`var __defProp=Object.defineProperty;var __name=(t,v)=>__defProp(t,"name",{value:v,configurable:true});`,';
 
 // `webWorkerServiceImpl.js` is byte-copied from VS Code's `out/` tree
 // (`loader: { ".js": "copy" }` - see `Source/ESBuild/Microsoft/

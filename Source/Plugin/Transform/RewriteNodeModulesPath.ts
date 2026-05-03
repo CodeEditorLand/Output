@@ -73,8 +73,7 @@ const Replacements: ReadonlyArray<[string, string]> = [
 const Plugin: TransformPlugin = {
 	Kind: "Transform",
 	Name: "RewriteNodeModulesPath",
-	Match: ({ Path }) =>
-		/\/vs\/base\/common\/network\.js$/.test(Path),
+	Match: ({ Path }) => /\/vs\/base\/common\/network\.js$/.test(Path),
 	Transform({ Source }) {
 		if (Source.includes(Marker)) return { Kind: "Unchanged" };
 

@@ -1,4 +1,5 @@
-const t="__LAND_TERMINAL_GPU_LAYER__",n=`
+const t = "__LAND_TERMINAL_GPU_LAYER__",
+	n = `
 /* ${t} */
 /* Promote the xterm host elements to their own compositor layers without
  * clipping descendants. \`contain: paint\` was previously applied to the
@@ -27,5 +28,24 @@ const t="__LAND_TERMINAL_GPU_LAYER__",n=`
 	image-rendering: pixelated;
 	image-rendering: crisp-edges;
 }
-`,r=/workbench\/contrib\/terminal\/browser\/media\/[^/]+\.css$/,a={Kind:"Transform",Name:"InjectTerminalGPULayerCSS",Match:({Path:e})=>r.test(e),Transform({Source:e}){return e.includes(t)?{Kind:"Unchanged"}:{Kind:"Rewrite",Source:e+`
-`+n}}};var i=a;export{i as default};
+`,
+	r = /workbench\/contrib\/terminal\/browser\/media\/[^/]+\.css$/,
+	a = {
+		Kind: "Transform",
+		Name: "InjectTerminalGPULayerCSS",
+		Match: ({ Path: e }) => r.test(e),
+		Transform({ Source: e }) {
+			return e.includes(t)
+				? { Kind: "Unchanged" }
+				: {
+						Kind: "Rewrite",
+						Source:
+							e +
+							`
+` +
+							n,
+					};
+		},
+	};
+var i = a;
+export { i as default };

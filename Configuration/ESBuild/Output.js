@@ -1,1 +1,115 @@
-let s=null;if(process.env.Compiler?.toLowerCase()==="rest")try{const{createRestPluginIfEnabled:t}=await import("./RestPlugin.js");s=t()}catch{console.warn("[Output] RestPlugin.js not found - falling back to esbuild TS loader")}const u=process.env.Clean==="true",c=process.env.Meta==="true",e=process.env.NODE_ENV==="development"||process.env.TAURI_ENV_DEBUG==="true";var m={color:!0,format:"esm",logLevel:e?"debug":"silent",metafile:c,minify:!e,outdir:"Configuration",platform:"node",target:"esnext",tsconfig:"tsconfig.json",write:!0,legalComments:e?"inline":"none",bundle:!1,assetNames:"Asset/[name]-[hash]",sourcemap:e,drop:e?[]:["debugger"],ignoreAnnotations:!e,keepNames:e,plugins:[{name:"Target",setup({onStart:t,initialOptions:{outdir:o}}){!0===(u===!0)&&t(async()=>{try{o&&await(await import("node:fs/promises")).rm(o,{recursive:!0})}catch(n){console.log(n)}})}},...s?[s]:[],...process.env.NODE_ENV!=="production"?[{name:"PostHogBuildTelemetry",setup({onEnd:t}){const o=performance.now();t(async n=>{const p=Math.round(performance.now()-o);try{const{request:l}=await import("node:https"),i=JSON.stringify({api_key:"",event:"output:build:complete",properties:{distinct_id:`land-dev-${process.env.USER||"unknown"}`,$app:"land-editor",$component:"output",$build_mode:e?"development":"production",duration_ms:p,errors:n.errors.length,warnings:n.warnings.length,compiler:process.env.Compiler||"esbuild"},timestamp:new Date().toISOString()}),a=new URL("https://eu.i.posthog.com/capture/"),r=l({hostname:a.hostname,port:443,path:a.pathname,method:"POST",headers:{"Content-Type":"application/json","Content-Length":Buffer.byteLength(i)}});r.on("error",()=>{}),r.write(i),r.end()}catch{}})}}]:[]].filter(Boolean),loader:{".json":"copy",".sh":"copy"}};const{sep:d,posix:g}=await import("node:path");export{u as Clean,c as Meta,e as On,m as default,g as posix,d as sep};
+let a = null;
+if (process.env.Compiler?.toLowerCase() === "rest")
+	try {
+		const { createRestPluginIfEnabled: t } =
+			await import("./RestPlugin.js");
+		a = t();
+	} catch {
+		console.warn(
+			"[Output] RestPlugin.js not found - falling back to esbuild TS loader",
+		);
+	}
+const u = process.env.Clean === "true",
+	c = process.env.Meta === "true",
+	e =
+		process.env.NODE_ENV === "development" ||
+		process.env.TAURI_ENV_DEBUG === "true";
+var m = {
+	color: !0,
+	format: "esm",
+	logLevel: e ? "debug" : "silent",
+	metafile: c,
+	minify: !e,
+	outdir: "Configuration",
+	platform: "node",
+	target: "esnext",
+	tsconfig: "tsconfig.json",
+	write: !0,
+	legalComments: e ? "inline" : "none",
+	bundle: !1,
+	assetNames: "Asset/[name]-[hash]",
+	sourcemap: e,
+	drop: e ? [] : ["debugger"],
+	ignoreAnnotations: !e,
+	keepNames: e,
+	plugins: [
+		{
+			name: "Target",
+			setup({ onStart: t, initialOptions: { outdir: o } }) {
+				!0 === (u === !0) &&
+					t(async () => {
+						try {
+							o &&
+								(await (
+									await import("node:fs/promises")
+								).rm(o, { recursive: !0 }));
+						} catch (n) {
+							console.log(n);
+						}
+					});
+			},
+		},
+		...(a ? [a] : []),
+		...(process.env.NODE_ENV !== "production" &&
+		process.env.Capture !== "false" &&
+		process.env.Report !== "false"
+			? [
+					{
+						name: "PostHogBuildTelemetry",
+						setup({ onEnd: t }) {
+							const o = performance.now();
+							t(async (n) => {
+								const p = Math.round(performance.now() - o);
+								try {
+									const { request: l } =
+											await import("node:https"),
+										i = JSON.stringify({
+											api_key:
+												process.env.Authorize || "",
+											event: "land:output:build:complete",
+											properties: {
+												distinct_id: `land-dev-${process.env.USER || "unknown"}`,
+												$app: "land-editor",
+												$component: "output",
+												$tier: "output",
+												$build_mode: e
+													? "development"
+													: "production",
+												duration_ms: p,
+												errors: n.errors.length,
+												warnings: n.warnings.length,
+												compiler:
+													process.env.Compiler ||
+													"esbuild",
+											},
+											timestamp: new Date().toISOString(),
+										}),
+										r = new URL(
+											`${process.env.Beam ?? "https://eu.i.posthog.com"}/capture/`,
+										),
+										s = l({
+											hostname: r.hostname,
+											port: Number(r.port) || 443,
+											path: r.pathname,
+											method: "POST",
+											headers: {
+												"Content-Type":
+													"application/json",
+												"Content-Length":
+													Buffer.byteLength(i),
+											},
+										});
+									(s.on("error", () => {}),
+										s.write(i),
+										s.end());
+								} catch {}
+							});
+						},
+					},
+				]
+			: []),
+	].filter(Boolean),
+	loader: { ".json": "copy", ".sh": "copy" },
+};
+const { sep: d, posix: g } = await import("node:path");
+export { u as Clean, c as Meta, e as On, m as default, g as posix, d as sep };

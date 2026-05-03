@@ -37,7 +37,9 @@ export default function EagerLifecyclePhase(): void {
 
 	function AdvancePhase(): boolean {
 		try {
-			const Services = Land["__CEL_SERVICES__"] as CelServices | undefined;
+			const Services = Land["__CEL_SERVICES__"] as
+				| CelServices
+				| undefined;
 
 			if (!Services || typeof Services.invokeFunction !== "function") {
 				return false;
@@ -47,10 +49,14 @@ export default function EagerLifecyclePhase(): void {
 
 			Services.invokeFunction((Accessor: ServicesAccessor) => {
 				try {
-					const Brands = Land["__CEL_BRANDS__"] as Record<string, unknown> | undefined;
+					const Brands = Land["__CEL_BRANDS__"] as
+						| Record<string, unknown>
+						| undefined;
 
 					if (Brands && Brands["ILifecycleService"]) {
-						Lifecycle = Accessor.get<LifecycleService>(Brands["ILifecycleService"]);
+						Lifecycle = Accessor.get<LifecycleService>(
+							Brands["ILifecycleService"],
+						);
 					}
 				} catch {
 					/* ignore */
@@ -62,20 +68,29 @@ export default function EagerLifecyclePhase(): void {
 			try {
 				const ServiceReference = Lifecycle as LifecycleService;
 
-				if (typeof ServiceReference.phase !== "undefined" && ServiceReference.phase < 4) {
+				if (
+					typeof ServiceReference.phase !== "undefined" &&
+					ServiceReference.phase < 4
+				) {
 					ServiceReference.phase = 4;
 
-					console.log("[LandFix:Lifecycle] phase advanced eagerly to Eventually");
+					console.log(
+						"[LandFix:Lifecycle] phase advanced eagerly to Eventually",
+					);
 
 					return true;
 				}
 			} catch (Error) {
-				console.warn(`[LandFix:Lifecycle] phase setter rejected: ${String(Error)}`);
+				console.warn(
+					`[LandFix:Lifecycle] phase setter rejected: ${String(Error)}`,
+				);
 			}
 
 			return false;
 		} catch (Error) {
-			console.warn(`[LandFix:Lifecycle] advance failed: ${String(Error)}`);
+			console.warn(
+				`[LandFix:Lifecycle] advance failed: ${String(Error)}`,
+			);
 
 			return false;
 		}
@@ -98,7 +113,9 @@ export default function EagerLifecyclePhase(): void {
 	}
 
 	if (document.readyState === "loading") {
-		document.addEventListener("DOMContentLoaded", ScheduleAdvance, { once: true });
+		document.addEventListener("DOMContentLoaded", ScheduleAdvance, {
+			once: true,
+		});
 	} else {
 		ScheduleAdvance();
 	}

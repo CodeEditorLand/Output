@@ -55,7 +55,7 @@ export default function StripBackgroundPolling(): void {
 
 	function CallerMatchesDeny(): boolean {
 		try {
-			const Stack = (new Error().stack ?? "");
+			const Stack = new Error().stack ?? "";
 
 			for (const Fragment of DenyFragments) {
 				if (Stack.indexOf(Fragment) >= 0) {
@@ -85,9 +85,10 @@ export default function StripBackgroundPolling(): void {
 				try {
 					const Stack = new Error().stack ?? "";
 
-					const FirstNonAnonymous = Stack
-						.split("\n")
-						.find((Line) => Line.indexOf("anonymous") < 0 && Line.length > 0);
+					const FirstNonAnonymous = Stack.split("\n").find(
+						(Line) =>
+							Line.indexOf("anonymous") < 0 && Line.length > 0,
+					);
 
 					SuppressedRingBuffer.push(FirstNonAnonymous ?? "(unknown)");
 				} catch {
@@ -100,13 +101,27 @@ export default function StripBackgroundPolling(): void {
 
 		const Args = Array.prototype.slice.call(arguments) as Array<unknown>;
 
-		return (OriginalSetInterval as unknown as (...Argv: Array<unknown>) => number).apply(window, Args);
+		return (
+			OriginalSetInterval as unknown as (
+				...Argv: Array<unknown>
+			) => number
+		).apply(window, Args);
 	};
 
-	(window as unknown as { setInterval: typeof PatchedSetInterval }).setInterval = PatchedSetInterval;
+	(
+		window as unknown as { setInterval: typeof PatchedSetInterval }
+	).setInterval = PatchedSetInterval;
 
-	const PatchedSetTimeout = function (this: Window, _Callback: TimerHandler, Delay?: number): number {
-		if (typeof Delay === "number" && Delay >= 30000 && CallerMatchesDeny()) {
+	const PatchedSetTimeout = function (
+		this: Window,
+		_Callback: TimerHandler,
+		Delay?: number,
+	): number {
+		if (
+			typeof Delay === "number" &&
+			Delay >= 30000 &&
+			CallerMatchesDeny()
+		) {
 			Suppressed++;
 
 			return 0;
@@ -114,12 +129,21 @@ export default function StripBackgroundPolling(): void {
 
 		const Args = Array.prototype.slice.call(arguments) as Array<unknown>;
 
-		return (OriginalSetTimeout as unknown as (...Argv: Array<unknown>) => number).apply(window, Args);
+		return (
+			OriginalSetTimeout as unknown as (...Argv: Array<unknown>) => number
+		).apply(window, Args);
 	};
 
-	(window as unknown as { setTimeout: typeof PatchedSetTimeout }).setTimeout = PatchedSetTimeout;
+	(window as unknown as { setTimeout: typeof PatchedSetTimeout }).setTimeout =
+		PatchedSetTimeout;
 
-	Land["__LAND_BACKGROUND_POLL_STATS__"] = (): { suppressedCount: number; recentlySuppressed: Array<string> } => {
-		return { suppressedCount: Suppressed, recentlySuppressed: SuppressedRingBuffer.slice() };
+	Land["__LAND_BACKGROUND_POLL_STATS__"] = (): {
+		suppressedCount: number;
+		recentlySuppressed: Array<string>;
+	} => {
+		return {
+			suppressedCount: Suppressed,
+			recentlySuppressed: SuppressedRingBuffer.slice(),
+		};
 	};
 }

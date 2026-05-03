@@ -1,4 +1,6 @@
-const t=/vs\/platform\/update\/common\/(?:abstractUpdateService|updateService)\.js$/,a=`// LAND-PATCH: updateService body replaced with no-op stub.
+const t =
+		/vs\/platform\/update\/common\/(?:abstractUpdateService|updateService)\.js$/,
+	a = `// LAND-PATCH: updateService body replaced with no-op stub.
 // See Land/Element/Output/Source/Plugin/Transform/ReplaceUpdateService.ts.
 const NOOP_DISPOSABLE = { dispose: () => {} };
 const NOOP_EVENT = (_listener, _thisArgs, _disposables) => NOOP_DISPOSABLE;
@@ -22,4 +24,14 @@ class NullUpdateService {
 export { NullUpdateService as UpdateService };
 export { NullUpdateService as AbstractUpdateService };
 export const UpdateService_default = NullUpdateService;
-`,r={Kind:"Transform",Name:"ReplaceUpdateService",Match:({Path:e})=>t.test(e),Transform(){return{Kind:"Rewrite",Source:a}}};var s=r;export{s as default};
+`,
+	r = {
+		Kind: "Transform",
+		Name: "ReplaceUpdateService",
+		Match: ({ Path: e }) => t.test(e),
+		Transform() {
+			return { Kind: "Rewrite", Source: a };
+		},
+	};
+var s = r;
+export { s as default };

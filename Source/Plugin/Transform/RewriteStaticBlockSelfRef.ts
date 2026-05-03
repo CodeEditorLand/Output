@@ -161,10 +161,7 @@ function FindStaticBlocks(Source: string): StaticBlock[] {
 		const PrevChar = i > 0 ? Source[i - 1]! : "";
 
 		// `class <Id>` recognition - must be at a token boundary.
-		if (
-			(i === 0 || !/[\w$]/.test(PrevChar)) &&
-			ClassKeyword.test(Slice)
-		) {
+		if ((i === 0 || !/[\w$]/.test(PrevChar)) && ClassKeyword.test(Slice)) {
 			let j = i + 5;
 			while (j < Source.length && /\s/.test(Source[j]!)) j++;
 			const NameMatch = Identifier.exec(Source.slice(j));
@@ -240,7 +237,8 @@ function FindStaticBlocks(Source: string): StaticBlock[] {
 const Plugin: TransformPlugin = {
 	Kind: "Transform",
 	Name: "RewriteStaticBlockSelfRef",
-	Match: ({ Path }) => /\/vs\/.*\.js$/.test(Path) && !/\.d\.ts\.map$/.test(Path),
+	Match: ({ Path }) =>
+		/\/vs\/.*\.js$/.test(Path) && !/\.d\.ts\.map$/.test(Path),
 	Transform({ Source }) {
 		if (Source.includes(Marker)) return { Kind: "Unchanged" };
 

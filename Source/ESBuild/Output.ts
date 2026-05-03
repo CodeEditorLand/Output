@@ -95,8 +95,12 @@ export default {
 		// RestPlugin activated only when Compiler=Rest env var is set.
 		...(RestPlugin ? [RestPlugin] : []),
 
-		// PostHog build telemetry - debug only, skipped in production
-		...(process.env["NODE_ENV"] !== "production"
+		// PostHog build telemetry - debug only, skipped in production and
+		// when `Capture=false` (master telemetry kill switch shared with
+		// Mountain / Cocoon / Sky / Build.sh).
+		...(process.env["NODE_ENV"] !== "production" &&
+		process.env["Capture"] !== "false" &&
+		process.env["Report"] !== "false"
 			? [
 					{
 						name: "PostHogBuildTelemetry",
@@ -119,12 +123,13 @@ export default {
 									const { request } =
 										await import("node:https");
 									const Body = JSON.stringify({
-										api_key: "",
-										event: "output:build:complete",
+										api_key: process.env["Authorize"] || "",
+										event: "land:output:build:complete",
 										properties: {
 											distinct_id: `land-dev-${process.env["USER"] || "unknown"}`,
 											$app: "land-editor",
 											$component: "output",
+											$tier: "output",
 											$build_mode: On
 												? "development"
 												: "production",
@@ -138,11 +143,11 @@ export default {
 										timestamp: new Date().toISOString(),
 									});
 									const Url = new URL(
-										"https://eu.i.posthog.com/capture/",
+										`${process.env["Beam"] ?? "https://eu.i.posthog.com"}/capture/`,
 									);
 									const Req = request({
 										hostname: Url.hostname,
-										port: 443,
+										port: Number(Url.port) || 443,
 										path: Url.pathname,
 										method: "POST",
 										headers: {

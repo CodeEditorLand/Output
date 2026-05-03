@@ -30,31 +30,27 @@ import CatchOutputFolderRejection from "./Transform/CatchOutputFolderRejection.j
 import DisableUnusedServices from "./Transform/DisableUnusedServices.js";
 import ExposeWorkbenchAccessor from "./Transform/ExposeWorkbenchAccessor.js";
 import ExtensionScannerIPC from "./Transform/ExtensionScannerIPC.js";
-import InjectNameShim from "./Transform/InjectNameShim.js";
+import ForceTextAreaInput from "./Transform/ForceTextAreaInput.js";
+import HoistFunctionDeclarations from "./Transform/HoistFunctionDeclarations.js";
+import InjectConfigurationOverlay from "./Transform/InjectConfigurationOverlay.js";
 import InjectDisableLazyPaint from "./Transform/InjectDisableLazyPaint.js";
 import InjectEagerExtensionActivation from "./Transform/InjectEagerExtensionActivation.js";
 import InjectEagerIdleValue from "./Transform/InjectEagerIdleValue.js";
 import InjectEagerLifecyclePhase from "./Transform/InjectEagerLifecyclePhase.js";
+import InjectEditorGPULayerCSS from "./Transform/InjectEditorGPULayerCSS.js";
+import InjectMacTitlebarOffsetCSS from "./Transform/InjectMacTitlebarOffsetCSS.js";
+import InjectNameShim from "./Transform/InjectNameShim.js";
+import InjectPartZIndexCSS from "./Transform/InjectPartZIndexCSS.js";
+import InjectStorageOverlay from "./Transform/InjectStorageOverlay.js";
 import InjectStripBackgroundPolling from "./Transform/InjectStripBackgroundPolling.js";
 import InjectTelemetryConsentOff from "./Transform/InjectTelemetryConsentOff.js";
+import InjectTerminalGPULayerCSS from "./Transform/InjectTerminalGPULayerCSS.js";
 import InjectWebViewPolyfills from "./Transform/InjectWebViewPolyfills.js";
-import InjectMacTitlebarOffsetCSS from "./Transform/InjectMacTitlebarOffsetCSS.js";
-import InjectPartZIndexCSS from "./Transform/InjectPartZIndexCSS.js";
 import InjectWorkbenchInteractivityCSS from "./Transform/InjectWorkbenchInteractivityCSS.js";
 import InjectWorkbenchPaintPrime from "./Transform/InjectWorkbenchPaintPrime.js";
 import InjectWorkerBootstrapShim from "./Transform/InjectWorkerBootstrapShim.js";
-import InjectConfigurationOverlay from "./Transform/InjectConfigurationOverlay.js";
-import InjectStorageOverlay from "./Transform/InjectStorageOverlay.js";
-import ForceTextAreaInput from "./Transform/ForceTextAreaInput.js";
-import RewriteIconsStyleSheetURLs from "./Transform/RewriteIconsStyleSheetURLs.js";
-import RewriteWebviewShellCSP from "./Transform/RewriteWebviewShellCSP.js";
-import RewriteNestedWorkerBootstrap from "./Transform/RewriteNestedWorkerBootstrap.js";
-import RewriteNodeModulesPath from "./Transform/RewriteNodeModulesPath.js";
-import RewritePerfBaselineWorker from "./Transform/RewritePerfBaselineWorker.js";
 import InlineCSSImport from "./Transform/InlineCSSImport.js";
 import InstrumentVscodeGit from "./Transform/InstrumentVscodeGit.js";
-import InjectEditorGPULayerCSS from "./Transform/InjectEditorGPULayerCSS.js";
-import InjectTerminalGPULayerCSS from "./Transform/InjectTerminalGPULayerCSS.js";
 import PatchLocalTerminalBackend from "./Transform/PatchLocalTerminalBackend.js";
 import PatchTerminalGpuAcceleration from "./Transform/PatchTerminalGpuAcceleration.js";
 import ReplaceElectronIPCService from "./Transform/ReplaceElectronIPCService.js";
@@ -63,8 +59,12 @@ import ReplaceSearchService from "./Transform/ReplaceSearchService.js";
 import ReplaceSharedProcess from "./Transform/ReplaceSharedProcess.js";
 import ReplaceTelemetryService from "./Transform/ReplaceTelemetryService.js";
 import ReplaceUpdateService from "./Transform/ReplaceUpdateService.js";
-import HoistFunctionDeclarations from "./Transform/HoistFunctionDeclarations.js";
+import RewriteIconsStyleSheetURLs from "./Transform/RewriteIconsStyleSheetURLs.js";
+import RewriteNestedWorkerBootstrap from "./Transform/RewriteNestedWorkerBootstrap.js";
+import RewriteNodeModulesPath from "./Transform/RewriteNodeModulesPath.js";
+import RewritePerfBaselineWorker from "./Transform/RewritePerfBaselineWorker.js";
 import RewriteStaticBlockSelfRef from "./Transform/RewriteStaticBlockSelfRef.js";
+import RewriteWebviewShellCSP from "./Transform/RewriteWebviewShellCSP.js";
 import RewriteWorkbenchBaseURL from "./Transform/RewriteWorkbenchBaseURL.js";
 import RewriteWorkerURLs from "./Transform/RewriteWorkerURLs.js";
 import StaticToDynamicImport from "./Transform/StaticToDynamicImport.js";
@@ -238,9 +238,14 @@ export interface BuildPipelineInput {
  * exist so flipping the env var back to `false` re-enables every
  * customisation in one rebuild.
  */
-const LandDisableAll = (
-	(globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env?.Disable ?? ""
-).toLowerCase() === "true";
+const LandDisableAll =
+	(
+		(
+			globalThis as {
+				process?: { env?: Record<string, string | undefined> };
+			}
+		).process?.env?.Disable ?? ""
+	).toLowerCase() === "true";
 
 /**
  * Compose the full default pipeline in the canonical order. Consumers can

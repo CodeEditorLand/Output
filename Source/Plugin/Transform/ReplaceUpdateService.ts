@@ -28,7 +28,8 @@
 
 import type { TransformPlugin } from "../Type.js";
 
-const PathRegex = /vs\/platform\/update\/common\/(?:abstractUpdateService|updateService)\.js$/;
+const PathRegex =
+	/vs\/platform\/update\/common\/(?:abstractUpdateService|updateService)\.js$/;
 
 const Stub = `// LAND-PATCH: updateService body replaced with no-op stub.
 // See Land/Element/Output/Source/Plugin/Transform/ReplaceUpdateService.ts.

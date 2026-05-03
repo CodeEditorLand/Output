@@ -498,7 +498,11 @@ class ChildProcess {
 			(globalThis as any).__LAND_POLYFILL_TELEMETRY__?.On(
 				"ipc.fire-and-forget",
 				Error,
-				{ Command: "child_process:kill", SpawnId: this._sPid, Signal: signal },
+				{
+					Command: "child_process:kill",
+					SpawnId: this._sPid,
+					Signal: signal,
+				},
 			);
 		});
 

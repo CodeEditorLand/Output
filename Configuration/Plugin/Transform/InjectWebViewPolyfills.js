@@ -1,4 +1,5 @@
-const e="__LAND_WEBVIEW_POLYFILLS__",n=`
+const e = "__LAND_WEBVIEW_POLYFILLS__",
+	n = `
 /* ${e} */
 (function(){
 	if (typeof window === "undefined") return;
@@ -46,4 +47,17 @@ const e="__LAND_WEBVIEW_POLYFILLS__",n=`
 	};
 	globalThis.Blob.prototype = OriginalBlob.prototype;
 })();
-`,i={Kind:"Transform",Name:"InjectWebViewPolyfills",Match:({Path:t})=>t.endsWith("vs/code/electron-browser/workbench/workbench.js"),Transform({Source:t}){return t.includes(e)?{Kind:"Unchanged"}:{Kind:"Rewrite",Source:n+t}}};var o=i;export{o as default};
+`,
+	i = {
+		Kind: "Transform",
+		Name: "InjectWebViewPolyfills",
+		Match: ({ Path: t }) =>
+			t.endsWith("vs/code/electron-browser/workbench/workbench.js"),
+		Transform({ Source: t }) {
+			return t.includes(e)
+				? { Kind: "Unchanged" }
+				: { Kind: "Rewrite", Source: n + t };
+		},
+	};
+var o = i;
+export { o as default };

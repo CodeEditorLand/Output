@@ -70,8 +70,7 @@ const InjectedCSS = `
 }
 `;
 
-const PathRegex =
-	/workbench\/contrib\/terminal\/browser\/media\/[^/]+\.css$/;
+const PathRegex = /workbench\/contrib\/terminal\/browser\/media\/[^/]+\.css$/;
 
 const Plugin: TransformPlugin = {
 	Kind: "Transform",

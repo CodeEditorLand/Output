@@ -12,16 +12,18 @@
  * Idempotent. Marker `__LAND_WORKBENCH_INTERACTIVITY_CSS__`.
  */
 
+import WorkbenchInteractivityCSS, {
+	Marker,
+} from "../Polyfill/WorkbenchInteractivityCSS.js";
 import type { TransformPlugin } from "../Type.js";
-
-import WorkbenchInteractivityCSS, { Marker } from "../Polyfill/WorkbenchInteractivityCSS.js";
 
 const Polyfill = `\n/* ${Marker} */\n(${WorkbenchInteractivityCSS.toString()})();\n`;
 
 const Plugin: TransformPlugin = {
 	Kind: "Transform",
 	Name: "InjectWorkbenchInteractivityCSS",
-	Match: ({ Path }) => Path.endsWith("vs/code/electron-browser/workbench/workbench.js"),
+	Match: ({ Path }) =>
+		Path.endsWith("vs/code/electron-browser/workbench/workbench.js"),
 	Transform({ Source }) {
 		if (Source.includes(Marker)) return { Kind: "Unchanged" };
 		return { Kind: "Rewrite", Source: Polyfill + Source };

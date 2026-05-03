@@ -7,16 +7,18 @@
  * Idempotent. Marker `__LAND_EAGER_LIFECYCLE_PHASE__`.
  */
 
+import EagerLifecyclePhase, {
+	Marker,
+} from "../Polyfill/EagerLifecyclePhase.js";
 import type { TransformPlugin } from "../Type.js";
-
-import EagerLifecyclePhase, { Marker } from "../Polyfill/EagerLifecyclePhase.js";
 
 const Polyfill = `\n/* ${Marker} */\n(${EagerLifecyclePhase.toString()})();\n`;
 
 const Plugin: TransformPlugin = {
 	Kind: "Transform",
 	Name: "InjectEagerLifecyclePhase",
-	Match: ({ Path }) => Path.endsWith("vs/code/electron-browser/workbench/workbench.js"),
+	Match: ({ Path }) =>
+		Path.endsWith("vs/code/electron-browser/workbench/workbench.js"),
 	Transform({ Source }) {
 		if (Source.includes(Marker)) return { Kind: "Unchanged" };
 		return { Kind: "Rewrite", Source: Polyfill + Source };

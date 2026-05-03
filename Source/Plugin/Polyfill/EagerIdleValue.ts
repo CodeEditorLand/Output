@@ -32,7 +32,9 @@ export default function EagerIdleValue(): void {
 		timeRemaining: (): number => 50,
 	};
 
-	const EagerRequestIdleCallback = (Callback: (Deadline: IdleDeadline) => void): number => {
+	const EagerRequestIdleCallback = (
+		Callback: (Deadline: IdleDeadline) => void,
+	): number => {
 		return window.setTimeout(() => {
 			try {
 				Callback(EagerDeadline as unknown as IdleDeadline);
@@ -46,23 +48,40 @@ export default function EagerIdleValue(): void {
 		window.clearTimeout(Identifier);
 	};
 
-	(window as unknown as { requestIdleCallback: typeof EagerRequestIdleCallback }).requestIdleCallback =
-		EagerRequestIdleCallback;
+	(
+		window as unknown as {
+			requestIdleCallback: typeof EagerRequestIdleCallback;
+		}
+	).requestIdleCallback = EagerRequestIdleCallback;
 
-	(window as unknown as { cancelIdleCallback: typeof EagerCancelIdleCallback }).cancelIdleCallback =
-		EagerCancelIdleCallback;
+	(
+		window as unknown as {
+			cancelIdleCallback: typeof EagerCancelIdleCallback;
+		}
+	).cancelIdleCallback = EagerCancelIdleCallback;
 
 	if (typeof globalThis !== "undefined") {
-		(globalThis as unknown as Record<string, unknown>)["requestIdleCallback"] = EagerRequestIdleCallback;
+		(globalThis as unknown as Record<string, unknown>)[
+			"requestIdleCallback"
+		] = EagerRequestIdleCallback;
 
-		(globalThis as unknown as Record<string, unknown>)["cancelIdleCallback"] = EagerCancelIdleCallback;
+		(globalThis as unknown as Record<string, unknown>)[
+			"cancelIdleCallback"
+		] = EagerCancelIdleCallback;
 	}
 
-	if (typeof self !== "undefined" && (self as unknown) !== (window as unknown)) {
-		(self as unknown as Record<string, unknown>)["requestIdleCallback"] = EagerRequestIdleCallback;
+	if (
+		typeof self !== "undefined" &&
+		(self as unknown) !== (window as unknown)
+	) {
+		(self as unknown as Record<string, unknown>)["requestIdleCallback"] =
+			EagerRequestIdleCallback;
 
-		(self as unknown as Record<string, unknown>)["cancelIdleCallback"] = EagerCancelIdleCallback;
+		(self as unknown as Record<string, unknown>)["cancelIdleCallback"] =
+			EagerCancelIdleCallback;
 	}
 
-	console.log("[LandFix:EagerIdleValue] requestIdleCallback collapsed to setTimeout(0); IdleValue executors run eagerly");
+	console.log(
+		"[LandFix:EagerIdleValue] requestIdleCallback collapsed to setTimeout(0); IdleValue executors run eagerly",
+	);
 }

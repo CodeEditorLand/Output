@@ -108,9 +108,7 @@ const Plugin: TransformPlugin = {
 		const BlockEnd = TailIdx + TailMarker.length;
 
 		const Next =
-			Source.slice(0, Index) +
-			ReplacementSource +
-			Source.slice(BlockEnd);
+			Source.slice(0, Index) + ReplacementSource + Source.slice(BlockEnd);
 
 		return {
 			Kind: "Rewrite",

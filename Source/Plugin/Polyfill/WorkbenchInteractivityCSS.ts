@@ -139,7 +139,9 @@ export default function WorkbenchInteractivityCSS(): void {
 	}
 
 	if (document.readyState === "loading") {
-		document.addEventListener("DOMContentLoaded", InstallStylesheet, { once: true });
+		document.addEventListener("DOMContentLoaded", InstallStylesheet, {
+			once: true,
+		});
 	} else {
 		InstallStylesheet();
 	}

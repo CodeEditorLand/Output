@@ -56,8 +56,9 @@ export default ((): PolyfillTelemetry => {
 	};
 
 	if (typeof globalThis !== "undefined") {
-		(globalThis as { __LAND_POLYFILL_TELEMETRY__?: PolyfillTelemetry }).__LAND_POLYFILL_TELEMETRY__ =
-			Telemetry;
+		(
+			globalThis as { __LAND_POLYFILL_TELEMETRY__?: PolyfillTelemetry }
+		).__LAND_POLYFILL_TELEMETRY__ = Telemetry;
 	}
 
 	return Telemetry;

@@ -36,7 +36,9 @@ export default function EagerExtensionActivation(): void {
 
 	function FireActivationEvents(): boolean {
 		try {
-			const Services = Land["__CEL_SERVICES__"] as CelServices | undefined;
+			const Services = Land["__CEL_SERVICES__"] as
+				| CelServices
+				| undefined;
 
 			if (!Services || typeof Services.invokeFunction !== "function") {
 				return false;
@@ -46,17 +48,25 @@ export default function EagerExtensionActivation(): void {
 
 			Services.invokeFunction((Accessor: ServicesAccessor) => {
 				try {
-					const Brands = Land["__CEL_BRANDS__"] as Record<string, unknown> | undefined;
+					const Brands = Land["__CEL_BRANDS__"] as
+						| Record<string, unknown>
+						| undefined;
 
 					if (Brands && Brands["IExtensionService"]) {
-						ExtSvc = Accessor.get<ExtensionService>(Brands["IExtensionService"]);
+						ExtSvc = Accessor.get<ExtensionService>(
+							Brands["IExtensionService"],
+						);
 					}
 				} catch {
 					/* ignore */
 				}
 			});
 
-			if (!ExtSvc || typeof (ExtSvc as ExtensionService).activateByEvent !== "function") {
+			if (
+				!ExtSvc ||
+				typeof (ExtSvc as ExtensionService).activateByEvent !==
+					"function"
+			) {
 				return false;
 			}
 
@@ -64,29 +74,42 @@ export default function EagerExtensionActivation(): void {
 
 			for (const EventName of ["onStartupFinished", "*"]) {
 				try {
-					const Result = (ExtSvc as ExtensionService).activateByEvent(EventName);
+					const Result = (ExtSvc as ExtensionService).activateByEvent(
+						EventName,
+					);
 
-					if (Result && typeof (Result as Promise<unknown>).then === "function") {
+					if (
+						Result &&
+						typeof (Result as Promise<unknown>).then === "function"
+					) {
 						(Result as Promise<unknown>).catch((Error: unknown) => {
-							console.warn(`[LandFix:EagerActivation] activateByEvent ${EventName} rejected: ${String(Error)}`);
+							console.warn(
+								`[LandFix:EagerActivation] activateByEvent ${EventName} rejected: ${String(Error)}`,
+							);
 						});
 					}
 
 					FireCount++;
 				} catch (Error) {
-					console.warn(`[LandFix:EagerActivation] activateByEvent ${EventName} threw: ${String(Error)}`);
+					console.warn(
+						`[LandFix:EagerActivation] activateByEvent ${EventName} threw: ${String(Error)}`,
+					);
 				}
 			}
 
 			if (FireCount > 0) {
-				console.log(`[LandFix:EagerActivation] fired ${FireCount} activation event(s) eagerly`);
+				console.log(
+					`[LandFix:EagerActivation] fired ${FireCount} activation event(s) eagerly`,
+				);
 
 				return true;
 			}
 
 			return false;
 		} catch (Error) {
-			console.warn(`[LandFix:EagerActivation] FireActivationEvents failed: ${String(Error)}`);
+			console.warn(
+				`[LandFix:EagerActivation] FireActivationEvents failed: ${String(Error)}`,
+			);
 
 			return false;
 		}
@@ -109,7 +132,9 @@ export default function EagerExtensionActivation(): void {
 	}
 
 	if (document.readyState === "loading") {
-		document.addEventListener("DOMContentLoaded", ScheduleFire, { once: true });
+		document.addEventListener("DOMContentLoaded", ScheduleFire, {
+			once: true,
+		});
 	} else {
 		ScheduleFire();
 	}

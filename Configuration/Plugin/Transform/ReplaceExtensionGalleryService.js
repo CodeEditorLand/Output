@@ -1,4 +1,6 @@
-const n=/vs\/platform\/extensionManagement\/common\/extensionGalleryService\.js$/,t=`// LAND-PATCH: extensionGalleryService body replaced with no-op stub.
+const n =
+		/vs\/platform\/extensionManagement\/common\/extensionGalleryService\.js$/,
+	t = `// LAND-PATCH: extensionGalleryService body replaced with no-op stub.
 // See Land/Element/Output/Source/Plugin/Transform/ReplaceExtensionGalleryService.ts.
 const EMPTY_PAGER = {
 	firstPage: [],
@@ -61,4 +63,14 @@ class NullExtensionGalleryService {
 export { NullExtensionGalleryService as ExtensionGalleryService };
 export { NullExtensionGalleryService as AbstractExtensionGalleryService };
 export const ExtensionGalleryService_default = NullExtensionGalleryService;
-`,r={Kind:"Transform",Name:"ReplaceExtensionGalleryService",Match:({Path:e})=>n.test(e),Transform(){return{Kind:"Rewrite",Source:t}}};var o=r;export{o as default};
+`,
+	r = {
+		Kind: "Transform",
+		Name: "ReplaceExtensionGalleryService",
+		Match: ({ Path: e }) => n.test(e),
+		Transform() {
+			return { Kind: "Rewrite", Source: t };
+		},
+	};
+var o = r;
+export { o as default };

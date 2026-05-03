@@ -100,10 +100,7 @@ const Plugin: TransformPlugin = {
 			// path included it; the canonical Sky-served prefix is
 			// `/Static/Application/`.
 			let Joined = Resolved.join("/");
-			Joined = Joined.replace(
-				/^.*?\/Target\/Microsoft\/VSCode\//,
-				"",
-			);
+			Joined = Joined.replace(/^.*?\/Target\/Microsoft\/VSCode\//, "");
 
 			return `new URL("/Static/Application/${Joined}", location.origin)`;
 		});

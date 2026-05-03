@@ -1,4 +1,9 @@
-const r=["workbench/services/search/electron-browser/searchService.js","workbench/services/search/browser/searchService.js"],t=new RegExp(`(?:${r.map(e=>e.replaceAll("/","\\/")).join("|")})$`),o=`// [Land] ReplaceSearchService transform
+const r = [
+		"workbench/services/search/electron-browser/searchService.js",
+		"workbench/services/search/browser/searchService.js",
+	],
+	t = new RegExp(`(?:${r.map((e) => e.replaceAll("/", "\\/")).join("|")})$`),
+	o = `// [Land] ReplaceSearchService transform
 // Original: vs/workbench/services/search/browser/searchService.ts
 // Replacement: Tauri-IPC backed ISearchService \u2192 Mountain search:* handlers.
 
@@ -192,4 +197,15 @@ registerSingleton(ISearchService, RemoteSearchService, InstantiationType.Delayed
 // consumer reaching for it (debug overlays, internal tools) still gets a
 // constructible class without inheriting the broken web-worker plumbing.
 export class LocalFileSearchWorkerClient extends MountainTauriSearchProvider {}
-`,i={Kind:"Transform",Name:"ReplaceSearchService",Enabled:()=>process.env.Electron==="true",Match:({Path:e})=>t.test(e),Transform(){return{Kind:"Rewrite",Source:o}}};var n=i;export{n as default};
+`,
+	i = {
+		Kind: "Transform",
+		Name: "ReplaceSearchService",
+		Enabled: () => process.env.Electron === "true",
+		Match: ({ Path: e }) => t.test(e),
+		Transform() {
+			return { Kind: "Rewrite", Source: o };
+		},
+	};
+var n = i;
+export { n as default };

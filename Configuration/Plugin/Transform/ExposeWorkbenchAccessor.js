@@ -1,4 +1,4 @@
-const i=`// [Land] Static imports of the service decorators + ViewsRegistry
+const i = `// [Land] Static imports of the service decorators + ViewsRegistry
 // symbols used by the \`__CEL_SERVICES__\` patch below. ESM
 // imports must be at the top of the module - injecting them here
 // means the symbols are in scope at the \`workbench.startup()\`
@@ -99,9 +99,21 @@ import { IActivityService as __CEL_IActivityService } from '../services/activity
 import { ITitleService as __CEL_ITitleService } from '../services/title/browser/titleService.js';
 import { IPaneCompositePartService as __CEL_IPaneCompositePartService } from '../services/panecomposite/browser/panecomposite.js';
 import { IViewDescriptorService as __CEL_IViewDescriptorService } from '../common/views.js';
-import { IWorkbenchLayoutService as __CEL_IWorkbenchLayoutService } from '../services/layout/browser/layoutService.js';`,o="import { mark } from '../../base/common/performance.js';",l=o+`
-`+i,s="import { localize } from '../../nls.js';",v=s+`
-`+i,c="const instantiationService = workbench.startup();",_=`const instantiationService = workbench.startup();
+import { IWorkbenchLayoutService as __CEL_IWorkbenchLayoutService } from '../services/layout/browser/layoutService.js';`,
+	o = "import { mark } from '../../base/common/performance.js';",
+	l =
+		o +
+		`
+` +
+		i,
+	s = "import { localize } from '../../nls.js';",
+	v =
+		s +
+		`
+` +
+		i,
+	c = "const instantiationService = workbench.startup();",
+	_ = `const instantiationService = workbench.startup();
 // [Land] Expose the live IInstantiationService + a directly-callable
 // services facade on \`globalThis\` for Sky-side bridges. Imports are
 // static (see header above), so the assignment is fully synchronous -
@@ -263,9 +275,46 @@ try {
       __CEL_InvE('MountainIPCInvoke', { method: 'diagnostic:log', params: ['cel-services', 'resolve-failed: ' + (e && e.message ? e.message : String(e))] });
     }
   } catch {}
-}`,a="workbenchPromise.complete(workbench);",m=`workbenchPromise.complete(workbench);
+}`,
+	a = "workbenchPromise.complete(workbench);",
+	m = `workbenchPromise.complete(workbench);
         // [Land] Expose the IWorkbench facade + signal readiness so Sky's
         // SkyBridge + any Astro component can synchronously call
         // \`__CEL_WORKBENCH__.commands.executeCommand(\u2026)\`.
         globalThis.__CEL_WORKBENCH__ = workbench;
-        try { window.dispatchEvent(new Event("cel:workbench-ready")); } catch {}`,d={Kind:"Transform",Name:"ExposeWorkbenchAccessor",Match:({Path:e})=>/\/vs\/workbench\/browser\/web\.main\.js$/.test(e)||/\/vs\/workbench\/browser\/web\.factory\.js$/.test(e)||/\/vs\/workbench\/electron-browser\/desktop\.main\.js$/.test(e),Transform({Path:e,Source:n}){if(n.includes("__CEL_INSTANTIATION_SERVICE__"))return{Kind:"Unchanged"};if(/web\.main\.js$/.test(e)||/desktop\.main\.js$/.test(e)){if(!n.includes(c))return{Kind:"Unchanged"};const r=/desktop\.main\.js$/.test(e)?s:o,u=/desktop\.main\.js$/.test(e)?v:l;if(!n.includes(r))return{Kind:"Unchanged"};let t=n.replace(r,u);return t=t.replace(c,_),t===n?{Kind:"Unchanged"}:{Kind:"Rewrite",Source:t}}if(/web\.factory\.js$/.test(e)){if(!n.includes(a))return{Kind:"Unchanged"};const r=n.replace(a,m);return r===n?{Kind:"Unchanged"}:{Kind:"Rewrite",Source:r}}return{Kind:"Unchanged"}}};var h=d;export{h as default};
+        try { window.dispatchEvent(new Event("cel:workbench-ready")); } catch {}`,
+	d = {
+		Kind: "Transform",
+		Name: "ExposeWorkbenchAccessor",
+		Match: ({ Path: e }) =>
+			/\/vs\/workbench\/browser\/web\.main\.js$/.test(e) ||
+			/\/vs\/workbench\/browser\/web\.factory\.js$/.test(e) ||
+			/\/vs\/workbench\/electron-browser\/desktop\.main\.js$/.test(e),
+		Transform({ Path: e, Source: n }) {
+			if (n.includes("__CEL_INSTANTIATION_SERVICE__"))
+				return { Kind: "Unchanged" };
+			if (/web\.main\.js$/.test(e) || /desktop\.main\.js$/.test(e)) {
+				if (!n.includes(c)) return { Kind: "Unchanged" };
+				const r = /desktop\.main\.js$/.test(e) ? s : o,
+					u = /desktop\.main\.js$/.test(e) ? v : l;
+				if (!n.includes(r)) return { Kind: "Unchanged" };
+				let t = n.replace(r, u);
+				return (
+					(t = t.replace(c, _)),
+					t === n
+						? { Kind: "Unchanged" }
+						: { Kind: "Rewrite", Source: t }
+				);
+			}
+			if (/web\.factory\.js$/.test(e)) {
+				if (!n.includes(a)) return { Kind: "Unchanged" };
+				const r = n.replace(a, m);
+				return r === n
+					? { Kind: "Unchanged" }
+					: { Kind: "Rewrite", Source: r };
+			}
+			return { Kind: "Unchanged" };
+		},
+	};
+var h = d;
+export { h as default };

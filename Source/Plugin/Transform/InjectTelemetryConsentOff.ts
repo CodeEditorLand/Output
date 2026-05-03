@@ -7,16 +7,18 @@
  * Idempotent. Marker `__LAND_TELEMETRY_CONSENT_OFF__`.
  */
 
+import TelemetryConsentOff, {
+	Marker,
+} from "../Polyfill/TelemetryConsentOff.js";
 import type { TransformPlugin } from "../Type.js";
-
-import TelemetryConsentOff, { Marker } from "../Polyfill/TelemetryConsentOff.js";
 
 const Polyfill = `\n/* ${Marker} */\n(${TelemetryConsentOff.toString()})();\n`;
 
 const Plugin: TransformPlugin = {
 	Kind: "Transform",
 	Name: "InjectTelemetryConsentOff",
-	Match: ({ Path }) => Path.endsWith("vs/code/electron-browser/workbench/workbench.js"),
+	Match: ({ Path }) =>
+		Path.endsWith("vs/code/electron-browser/workbench/workbench.js"),
 	Transform({ Source }) {
 		if (Source.includes(Marker)) return { Kind: "Unchanged" };
 		return { Kind: "Rewrite", Source: Polyfill + Source };

@@ -12,16 +12,18 @@
  * Idempotent. Marker `__LAND_MAC_TITLEBAR_OFFSET__`.
  */
 
+import MacTitlebarOffsetCSS, {
+	Marker,
+} from "../Polyfill/MacTitlebarOffsetCSS.js";
 import type { TransformPlugin } from "../Type.js";
-
-import MacTitlebarOffsetCSS, { Marker } from "../Polyfill/MacTitlebarOffsetCSS.js";
 
 const Polyfill = `\n/* ${Marker} */\n(${MacTitlebarOffsetCSS.toString()})();\n`;
 
 const Plugin: TransformPlugin = {
 	Kind: "Transform",
 	Name: "InjectMacTitlebarOffsetCSS",
-	Match: ({ Path }) => Path.endsWith("vs/code/electron-browser/workbench/workbench.js"),
+	Match: ({ Path }) =>
+		Path.endsWith("vs/code/electron-browser/workbench/workbench.js"),
 	Transform({ Source }) {
 		if (Source.includes(Marker)) return { Kind: "Unchanged" };
 		return { Kind: "Rewrite", Source: Polyfill + Source };

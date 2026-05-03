@@ -117,5 +117,7 @@ export default function TelemetryConsentOff(): void {
 
 	Land["__LAND_TELEMETRY_ENABLED__"] = false;
 
-	console.log(`[LandFix:Telemetry] consent prebaked off; ${Object.keys(Prebake).length} keys seeded`);
+	console.log(
+		`[LandFix:Telemetry] consent prebaked off; ${Object.keys(Prebake).length} keys seeded`,
+	);
 }

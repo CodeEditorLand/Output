@@ -1,52 +1,48 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { readFile } from "node:fs/promises";
-import { dirname, resolve } from "node:path";
-const CSSImport = /import\s*(['"])([^'"]+\.css)\1\s*;?/g;
-const Plugin = {
-  Kind: "Transform",
-  Name: "InlineCSSImport",
-  Match: /* @__PURE__ */ __name(({ Path, Role }) => (Role === "app" || Role === "out" || Role === "out-build") && /\.js$/.test(Path), "Match"),
-  async Transform({ Path: FilePath, Source }) {
-    CSSImport.lastIndex = 0;
-    if (!CSSImport.test(Source)) return { Kind: "Unchanged" };
-    CSSImport.lastIndex = 0;
-    const Directory = dirname(FilePath);
-    const Tasks = [];
-    Source.replace(CSSImport, (Match, _Quote, Specifier) => {
-      Tasks.push(
-        (async () => {
-          const Resolved2 = resolve(Directory, Specifier);
-          try {
-            const CSS = await readFile(Resolved2, "utf8");
-            const Encoded = JSON.stringify(CSS);
-            const Tag = JSON.stringify(Specifier);
-            return {
-              From: Match,
-              To: `((c)=>{const s=document.createElement("style");s.setAttribute("data-css",${Tag});s.textContent=c;document.head.appendChild(s);})(${Encoded});`
-            };
-          } catch {
-            return {
-              From: Match,
-              To: `window._LOAD_CSS_WORKER?.(new URL(${JSON.stringify(
-                Specifier
-              )},import.meta.url).pathname);`
-            };
-          }
-        })()
-      );
-      return Match;
-    });
-    const Resolved = await Promise.all(Tasks);
-    let Rewritten = Source;
-    for (const { From, To } of Resolved) {
-      Rewritten = Rewritten.replace(From, () => To);
-    }
-    return { Kind: "Rewrite", Source: Rewritten };
-  }
-};
-var InlineCSSImport_default = Plugin;
-export {
-  InlineCSSImport_default as default
-};
-//# sourceMappingURL=InlineCSSImport.js.map
+import { readFile as f } from "node:fs/promises";
+import { dirname as g, resolve as y } from "node:path";
+
+const n = /import\s*(['"])([^'"]+\.css)\1\s*;?/g,
+	T = {
+		Kind: "Transform",
+		Name: "InlineCSSImport",
+		Match: ({ Path: e, Role: t }) =>
+			(t === "app" || t === "out" || t === "out-build") &&
+			/\.js$/.test(e),
+		async Transform({ Path: e, Source: t }) {
+			if (((n.lastIndex = 0), !n.test(t))) return { Kind: "Unchanged" };
+			n.lastIndex = 0;
+			const m = g(e),
+				a = [];
+			t.replace(
+				n,
+				(r, i, o) => (
+					a.push(
+						(async () => {
+							const d = y(m, o);
+							try {
+								const l = await f(d, "utf8"),
+									u = JSON.stringify(l),
+									p = JSON.stringify(o);
+								return {
+									From: r,
+									To: `((c)=>{const s=document.createElement("style");s.setAttribute("data-css",${p});s.textContent=c;document.head.appendChild(s);})(${u});`,
+								};
+							} catch {
+								return {
+									From: r,
+									To: `window._LOAD_CSS_WORKER?.(new URL(${JSON.stringify(o)},import.meta.url).pathname);`,
+								};
+							}
+						})(),
+					),
+					r
+				),
+			);
+			const c = await Promise.all(a);
+			let s = t;
+			for (const { From: r, To: i } of c) s = s.replace(r, () => i);
+			return { Kind: "Rewrite", Source: s };
+		},
+	};
+var h = T;
+export { h as default };

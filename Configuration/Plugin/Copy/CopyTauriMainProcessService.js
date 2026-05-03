@@ -1,23 +1,8 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-const CopyTauriMainProcessService = /* @__PURE__ */ __name(({
-  OutputService,
-  WindService,
-  Destination
-}) => ({
-  Kind: "Copy",
-  Name: "CopyTauriMainProcessService",
-  Enabled: /* @__PURE__ */ __name(() => process.env["Electron"] === "true", "Enabled"),
-  Entries: [
-    {
-      From: [OutputService, WindService],
-      To: Destination
-    }
-  ]
-}), "CopyTauriMainProcessService");
-var CopyTauriMainProcessService_default = CopyTauriMainProcessService;
-export {
-  CopyTauriMainProcessService,
-  CopyTauriMainProcessService_default as default
-};
-//# sourceMappingURL=CopyTauriMainProcessService.js.map
+const o = ({ OutputService: e, WindService: r, Destination: i }) => ({
+	Kind: "Copy",
+	Name: "CopyTauriMainProcessService",
+	Enabled: () => process.env.Electron === "true",
+	Entries: [{ From: [e, r], To: i }],
+});
+var n = o;
+export { o as CopyTauriMainProcessService, n as default };

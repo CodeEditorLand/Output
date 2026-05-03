@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../Source/ESBuild/Microsoft/VSCode/Declaration.ts"],
-  "sourcesContent": ["import type { BuildOptions } from \"esbuild\";\n\nexport const Dependency = (await import(\"../../../ESBuild.js\")).Dependency;\n\nexport const Merge = (await import(\"deepmerge-ts\")).deepmergeCustom({\n\tmergeArrays: false,\n});\n\n/**\n * @module ESBuild\n *\n */\nexport default async (Current: BuildOptions): Promise<BuildOptions> =>\n\tMerge<[BuildOptions, BuildOptions]>(\n\t\tawait (await import(\"../VSCode.js\")).default(Current),\n\n\t\t{\n\t\t\tbundle: false,\n\n\t\t\toutbase: \"../../Dependency/Microsoft/Dependency/Editor/src\",\n\n\t\t\ttsconfig: `Configuration/tsconfig/${Dependency}/tsconfig.Declaration.json`,\n\n\t\t\tplugins: [],\n\n\t\t\tallowOverwrite: true,\n\n\t\t\tentryPoints: Current.entryPoints ?? [],\n\n\t\t\tloader: {\n\t\t\t\t\".d.ts\": \"copy\",\n\t\t\t},\n\t\t},\n\t);\n"],
-  "mappings": ";;AAEO,MAAM,cAAc,MAAM,OAAO,qBAAqB,GAAG;AAEzD,MAAM,SAAS,MAAM,OAAO,cAAc,GAAG,gBAAgB;AAAA,EACnE,aAAa;AACd,CAAC;AAMD,IAAO,sBAAQ,8BAAO,YACrB;AAAA,EACC,OAAO,MAAM,OAAO,cAAc,GAAG,QAAQ,OAAO;AAAA,EAEpD;AAAA,IACC,QAAQ;AAAA,IAER,SAAS;AAAA,IAET,UAAU,0BAA0B,UAAU;AAAA,IAE9C,SAAS,CAAC;AAAA,IAEV,gBAAgB;AAAA,IAEhB,aAAa,QAAQ,eAAe,CAAC;AAAA,IAErC,QAAQ;AAAA,MACP,SAAS;AAAA,IACV;AAAA,EACD;AACD,GArBc;",
-  "names": []
-}

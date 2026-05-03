@@ -1,47 +1,52 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-const Marker = "/* __LAND_WORKER_URLS_REWRITTEN__ */";
-const URLPattern = /new URL\(\s*[`'"]([^`'"]+(?:WorkerMain\.tsx?(?:\?[^`'"]*)?|Iframe\.html))[`'"]\s*,\s*import\.meta\.url\s*\)/g;
-const Plugin = {
-  Kind: "Transform",
-  Name: "RewriteWorkerURLs",
-  // Every JS file under `vs/` is in scope - the URLPattern test below
-  // short-circuits when no matching `new URL(...)` is present, so
-  // non-affected files are walked-and-skipped with no rewrite.
-  Match: /* @__PURE__ */ __name(({ Path }) => /\/vs\/.*\.js$/.test(Path) && !/\.d\.ts\.map$/.test(Path), "Match"),
-  Transform({ Path, Source }) {
-    if (Source.includes(Marker)) return { Kind: "Unchanged" };
-    if (!URLPattern.test(Source)) return { Kind: "Unchanged" };
-    URLPattern.lastIndex = 0;
-    const SourceFileDir = Path.split("/").slice(0, -1).join("/");
-    const Next = Source.replace(URLPattern, (_Match, RelPath) => {
-      const QueryIndex = RelPath.indexOf("?");
-      let PathOnly = QueryIndex >= 0 ? RelPath.slice(0, QueryIndex) : RelPath;
-      if (PathOnly.endsWith(".ts")) {
-        PathOnly = PathOnly.slice(0, -3) + ".js";
-      } else if (PathOnly.endsWith(".tsx")) {
-        PathOnly = PathOnly.slice(0, -4) + ".js";
-      }
-      const Segments = (SourceFileDir + "/" + PathOnly).split("/");
-      const Resolved = [];
-      for (const Segment of Segments) {
-        if (Segment === "" || Segment === ".") continue;
-        if (Segment === "..") {
-          Resolved.pop();
-          continue;
-        }
-        Resolved.push(Segment);
-      }
-      let Joined = Resolved.join("/");
-      Joined = Joined.replace(/^.*?\/Target\/Microsoft\/VSCode\//, "");
-      return `new URL("/Static/Application/${Joined}", location.origin)`;
-    });
-    if (Next === Source) return { Kind: "Unchanged" };
-    return { Kind: "Rewrite", Source: Marker + "\n" + Next };
-  }
-};
-var RewriteWorkerURLs_default = Plugin;
-export {
-  RewriteWorkerURLs_default as default
-};
-//# sourceMappingURL=RewriteWorkerURLs.js.map
+const d = "/* __LAND_WORKER_URLS_REWRITTEN__ */",
+	c =
+		/new URL\(\s*[`'"]([^`'"]+(?:WorkerMain\.tsx?(?:\?[^`'"]*)?|Iframe\.html))[`'"]\s*,\s*import\.meta\.url\s*\)/g,
+	m = {
+		Kind: "Transform",
+		Name: "RewriteWorkerURLs",
+		Match: ({ Path: e }) =>
+			/\/vs\/.*\.js$/.test(e) && !/\.d\.ts\.map$/.test(e),
+		Transform({ Path: e, Source: t }) {
+			if (t.includes(d)) return { Kind: "Unchanged" };
+			if (!c.test(t)) return { Kind: "Unchanged" };
+			c.lastIndex = 0;
+			const f = e.split("/").slice(0, -1).join("/"),
+				a = t.replace(c, (u, i) => {
+					const l = i.indexOf("?");
+					let n = l >= 0 ? i.slice(0, l) : i;
+					n.endsWith(".ts")
+						? (n = n.slice(0, -3) + ".js")
+						: n.endsWith(".tsx") && (n = n.slice(0, -4) + ".js");
+					const p = (f + "/" + n).split("/"),
+						r = [];
+					for (const s of p)
+						if (!(s === "" || s === ".")) {
+							if (s === "..") {
+								r.pop();
+								continue;
+							}
+							r.push(s);
+						}
+					let o = r.join("/");
+					return (
+						(o = o.replace(
+							/^.*?\/Target\/Microsoft\/VSCode\//,
+							"",
+						)),
+						`new URL("/Static/Application/${o}", location.origin)`
+					);
+				});
+			return a === t
+				? { Kind: "Unchanged" }
+				: {
+						Kind: "Rewrite",
+						Source:
+							d +
+							`
+` +
+							a,
+					};
+		},
+	};
+var g = m;
+export { g as default };

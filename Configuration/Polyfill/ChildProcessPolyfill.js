@@ -1,478 +1,350 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-async function invokeTauri(command, args = {}) {
-  try {
-    const Invoke = window.__TAURI__?.core?.invoke ?? window.__TAURI__?.invoke ?? window.TAURI?.invoke;
-    if (typeof Invoke === "function") {
-      if (command.includes(":")) {
-        return await Invoke("MountainIPCInvoke", {
-          method: command,
-          params: args
-        });
-      }
-      return await Invoke(command, args);
-    }
-    throw new Error(`Tauri invoke not available for command: ${command}`);
-  } catch (error) {
-    throw error;
-  }
+async function c(s, e = {}) {
+	try {
+		const n =
+			window.__TAURI__?.core?.invoke ??
+			window.__TAURI__?.invoke ??
+			window.TAURI?.invoke;
+		if (typeof n == "function")
+			return s.includes(":")
+				? await n("MountainIPCInvoke", { method: s, params: e })
+				: await n(s, e);
+		throw new Error(`Tauri invoke not available for command: ${s}`);
+	} catch (n) {
+		throw n;
+	}
 }
-__name(invokeTauri, "invokeTauri");
-function listenToTauri(event, handler) {
-  if (typeof window.__TAURI__?.event?.listen === "function") {
-    const unlistenPromise = window.__TAURI__.event.listen(event, ({ payload }) => {
-      handler(payload);
-    }).catch(() => {
-    });
-    return () => {
-      unlistenPromise.then(
-        (unlisten) => unlisten?.()
-      );
-    };
-  }
-  if (typeof window.TAURI?.event?.listen === "function") {
-    const unlistenPromise = window.TAURI.event.listen(event, ({ payload }) => {
-      handler(payload);
-    }).catch(() => {
-    });
-    return () => {
-      unlistenPromise.then(
-        (unlisten) => unlisten?.()
-      );
-    };
-  }
-  return () => {
-  };
+function l(s, e) {
+	if (typeof window.__TAURI__?.event?.listen == "function") {
+		const n = window.__TAURI__.event
+			.listen(s, ({ payload: i }) => {
+				e(i);
+			})
+			.catch(() => {});
+		return () => {
+			n.then((i) => i?.());
+		};
+	}
+	if (typeof window.TAURI?.event?.listen == "function") {
+		const n = window.TAURI.event
+			.listen(s, ({ payload: i }) => {
+				e(i);
+			})
+			.catch(() => {});
+		return () => {
+			n.then((i) => i?.());
+		};
+	}
+	return () => {};
 }
-__name(listenToTauri, "listenToTauri");
-function createMockStream(direction) {
-  const listeners = /* @__PURE__ */ new Map();
-  return {
-    write(data) {
-      return true;
-    },
-    end(data) {
-      this.emit("end");
-    },
-    on(event, listener) {
-      if (!listeners.has(event)) {
-        listeners.set(event, /* @__PURE__ */ new Set());
-      }
-      listeners.get(event).add(listener);
-    },
-    removeAllListeners(event) {
-      if (event) {
-        listeners.delete(event);
-      } else {
-        listeners.clear();
-      }
-    },
-    emit(event, ...args) {
-      const eventListeners = listeners.get(event);
-      if (eventListeners) {
-        eventListeners.forEach((listener) => {
-          try {
-            listener(...args);
-          } catch (error) {
-          }
-        });
-      }
-    }
-  };
+function f(s) {
+	const e = new Map();
+	return {
+		write(n) {
+			return !0;
+		},
+		end(n) {
+			this.emit("end");
+		},
+		on(n, i) {
+			(e.has(n) || e.set(n, new Set()), e.get(n).add(i));
+		},
+		removeAllListeners(n) {
+			n ? e.delete(n) : e.clear();
+		},
+		emit(n, ...i) {
+			const t = e.get(n);
+			t &&
+				t.forEach((d) => {
+					try {
+						d(...i);
+					} catch {}
+				});
+		},
+	};
 }
-__name(createMockStream, "createMockStream");
-class ChildProcess {
-  static {
-    __name(this, "ChildProcess");
-  }
-  // Process state
-  pid = 0;
-  killed = false;
-  exitCode = null;
-  signalCode = null;
-  // Streams
-  stdin;
-  stdout;
-  stderr;
-  stdio;
-  // Event listeners
-  listeners = /* @__PURE__ */ new Map();
-  // Process ID tracking
-  _sPid;
-  constructor(spawnId) {
-    this._sPid = spawnId;
-    this.stdin = createMockStream("write");
-    this.stdout = createMockStream("read");
-    this.stderr = createMockStream("read");
-    this.stdio = [this.stdin, this.stdout, this.stderr];
-    this.setupEventListeners();
-  }
-  /**
-   * Set up Tauri event listeners for this process
-   */
-  setupEventListeners() {
-    const unlistenSpawn = listenToTauri(
-      `child_process:spawn:${this._sPid}`,
-      (payload) => {
-        this.emit("spawn");
-      }
-    );
-    const unlistenExit = listenToTauri(
-      `child_process:exit:${this._sPid}`,
-      (payload) => {
-        const data = payload;
-        this.exitCode = data.exit_code;
-        this.signalCode = data.signal;
-        this.killed = true;
-        this.emit("exit", this.exitCode, this.signalCode);
-        this.emit("close", this.exitCode, this.signalCode);
-      }
-    );
-    const unlistenError = listenToTauri(
-      `child_process:error:${this._sPid}`,
-      (payload) => {
-        this.emit("error", payload);
-      }
-    );
-    const unlistenStdout = listenToTauri(
-      `child_process:stdout:${this._sPid}`,
-      (payload) => {
-        const data = payload;
-        this.stdout.emit(
-          "data",
-          data.data instanceof Buffer ? data.data : Buffer.from(data.data)
-        );
-      }
-    );
-    const unlistenStderr = listenToTauri(
-      `child_process:stderr:${this._sPid}`,
-      (payload) => {
-        const data = payload;
-        this.stderr.emit(
-          "data",
-          data.data instanceof Buffer ? data.data : Buffer.from(data.data)
-        );
-      }
-    );
-    this._unlistenFunctions = [
-      unlistenSpawn,
-      unlistenExit,
-      unlistenError,
-      unlistenStdout,
-      unlistenStderr
-    ];
-  }
-  _unlistenFunctions = [];
-  // ============================================================================
-  // Event Methods
-  // ============================================================================
-  /**
-   * Add event listener
-   */
-  on(event, listener) {
-    if (!this.listeners.has(event)) {
-      this.listeners.set(event, /* @__PURE__ */ new Set());
-    }
-    this.listeners.get(event).add(listener);
-    return this;
-  }
-  /**
-   * Add one-time event listener
-   */
-  once(event, listener) {
-    const wrappedListener = /* @__PURE__ */ __name((...args) => {
-      this.removeListener(event, wrappedListener);
-      listener(...args);
-    }, "wrappedListener");
-    return this.on(event, wrappedListener);
-  }
-  /**
-   * Remove event listener
-   */
-  removeListener(event, listener) {
-    const eventListeners = this.listeners.get(event);
-    if (eventListeners) {
-      eventListeners.delete(listener);
-      if (eventListeners.size === 0) {
-        this.listeners.delete(event);
-      }
-    }
-    return this;
-  }
-  /**
-   * Remove all listeners for an event
-   */
-  removeAllListeners(event) {
-    if (event) {
-      this.listeners.delete(event);
-    } else {
-      this.listeners.clear();
-    }
-    return this;
-  }
-  /**
-   * Emit event to all listeners
-   */
-  emit(event, ...args) {
-    const listeners = this.listeners.get(event);
-    if (!listeners || listeners.size === 0) {
-      return false;
-    }
-    listeners.forEach((listener) => {
-      try {
-        listener(...args);
-      } catch (error) {
-      }
-    });
-    return true;
-  }
-  // ============================================================================
-  // Process Control
-  // ============================================================================
-  /**
-   * Kill the process
-   */
-  kill(signal = "SIGTERM") {
-    if (this.killed) {
-      return true;
-    }
-    this.signalCode = signal;
-    invokeTauri("child_process:kill", {
-      spawn_id: this._sPid,
-      signal
-    }).catch((Error2) => {
-      globalThis.__LAND_POLYFILL_TELEMETRY__?.On(
-        "ipc.fire-and-forget",
-        Error2,
-        {
-          Command: "child_process:kill",
-          SpawnId: this._sPid,
-          Signal: signal
-        }
-      );
-    });
-    return true;
-  }
-  /**
-   * Send a message to the process (IPC)
-   */
-  send(message, sendHandle, options) {
-    invokeTauri("child_process:send", {
-      spawn_id: this._sPid,
-      message
-    }).catch((Error2) => {
-      globalThis.__LAND_POLYFILL_TELEMETRY__?.On(
-        "ipc.fire-and-forget",
-        Error2,
-        { Command: "child_process:send", SpawnId: this._sPid }
-      );
-    });
-    return true;
-  }
-  /**
-   * Disconnect from the process
-   */
-  disconnect() {
-    this.removeAllListeners();
-    this._unlistenFunctions.forEach((unlisten) => unlisten());
-    this.stdin.end();
-  }
-  /**
-   * Ref the process (keep it alive)
-   */
-  ref() {
-    return this;
-  }
-  /**
-   * Unref the process (allow it to exit)
-   */
-  unref() {
-    return this;
-  }
-  /**
-   * Cleanup resources
-   */
-  cleanup() {
-    this._unlistenFunctions.forEach((unlisten) => unlisten());
-    this._unlistenFunctions = [];
-  }
+class u {
+	pid = 0;
+	killed = !1;
+	exitCode = null;
+	signalCode = null;
+	stdin;
+	stdout;
+	stderr;
+	stdio;
+	listeners = new Map();
+	_sPid;
+	constructor(e) {
+		((this._sPid = e),
+			(this.stdin = f("write")),
+			(this.stdout = f("read")),
+			(this.stderr = f("read")),
+			(this.stdio = [this.stdin, this.stdout, this.stderr]),
+			this.setupEventListeners());
+	}
+	setupEventListeners() {
+		const e = l(`child_process:spawn:${this._sPid}`, (r) => {
+				this.emit("spawn");
+			}),
+			n = l(`child_process:exit:${this._sPid}`, (r) => {
+				const o = r;
+				((this.exitCode = o.exit_code),
+					(this.signalCode = o.signal),
+					(this.killed = !0),
+					this.emit("exit", this.exitCode, this.signalCode),
+					this.emit("close", this.exitCode, this.signalCode));
+			}),
+			i = l(`child_process:error:${this._sPid}`, (r) => {
+				this.emit("error", r);
+			}),
+			t = l(`child_process:stdout:${this._sPid}`, (r) => {
+				const o = r;
+				this.stdout.emit(
+					"data",
+					o.data instanceof Buffer ? o.data : Buffer.from(o.data),
+				);
+			}),
+			d = l(`child_process:stderr:${this._sPid}`, (r) => {
+				const o = r;
+				this.stderr.emit(
+					"data",
+					o.data instanceof Buffer ? o.data : Buffer.from(o.data),
+				);
+			});
+		this._unlistenFunctions = [e, n, i, t, d];
+	}
+	_unlistenFunctions = [];
+	on(e, n) {
+		return (
+			this.listeners.has(e) || this.listeners.set(e, new Set()),
+			this.listeners.get(e).add(n),
+			this
+		);
+	}
+	once(e, n) {
+		const i = (...t) => {
+			(this.removeListener(e, i), n(...t));
+		};
+		return this.on(e, i);
+	}
+	removeListener(e, n) {
+		const i = this.listeners.get(e);
+		return (
+			i && (i.delete(n), i.size === 0 && this.listeners.delete(e)),
+			this
+		);
+	}
+	removeAllListeners(e) {
+		return (e ? this.listeners.delete(e) : this.listeners.clear(), this);
+	}
+	emit(e, ...n) {
+		const i = this.listeners.get(e);
+		return !i || i.size === 0
+			? !1
+			: (i.forEach((t) => {
+					try {
+						t(...n);
+					} catch {}
+				}),
+				!0);
+	}
+	kill(e = "SIGTERM") {
+		return (
+			this.killed ||
+				((this.signalCode = e),
+				c("child_process:kill", {
+					spawn_id: this._sPid,
+					signal: e,
+				}).catch((n) => {
+					globalThis.__LAND_POLYFILL_TELEMETRY__?.On(
+						"ipc.fire-and-forget",
+						n,
+						{
+							Command: "child_process:kill",
+							SpawnId: this._sPid,
+							Signal: e,
+						},
+					);
+				})),
+			!0
+		);
+	}
+	send(e, n, i) {
+		return (
+			c("child_process:send", { spawn_id: this._sPid, message: e }).catch(
+				(t) => {
+					globalThis.__LAND_POLYFILL_TELEMETRY__?.On(
+						"ipc.fire-and-forget",
+						t,
+						{ Command: "child_process:send", SpawnId: this._sPid },
+					);
+				},
+			),
+			!0
+		);
+	}
+	disconnect() {
+		(this.removeAllListeners(),
+			this._unlistenFunctions.forEach((e) => e()),
+			this.stdin.end());
+	}
+	ref() {
+		return this;
+	}
+	unref() {
+		return this;
+	}
+	cleanup() {
+		(this._unlistenFunctions.forEach((e) => e()),
+			(this._unlistenFunctions = []));
+	}
 }
-function spawn(command, args, options) {
-  const spawnId = `spawn_${Date.now()}_${Math.random().toString(36).substring(7)}`;
-  const proc = new ChildProcess(spawnId);
-  invokeTauri("electron:spawn_child_process", {
-    command,
-    args: args ?? [],
-    cwd: options?.cwd,
-    env: options?.env,
-    shell: options?.shell
-    // Note: stdio, detached, etc. are passed but may not be fully supported
-  }).then((result) => {
-    if (result.success) {
-      proc.pid = result.pid;
-      proc.emit("spawn");
-    } else {
-      proc.emit(
-        "error",
-        new Error(result.error ?? "Failed to spawn process")
-      );
-    }
-  }).catch((error) => {
-    proc.emit("error", error);
-  });
-  return proc;
+function g(s, e, n) {
+	const i = `spawn_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+		t = new u(i);
+	return (
+		c("electron:spawn_child_process", {
+			command: s,
+			args: e ?? [],
+			cwd: n?.cwd,
+			env: n?.env,
+			shell: n?.shell,
+		})
+			.then((d) => {
+				d.success
+					? ((t.pid = d.pid), t.emit("spawn"))
+					: t.emit(
+							"error",
+							new Error(d.error ?? "Failed to spawn process"),
+						);
+			})
+			.catch((d) => {
+				t.emit("error", d);
+			}),
+		t
+	);
 }
-__name(spawn, "spawn");
-function exec(command, options, callback) {
-  const execId = `exec_${Date.now()}_${Math.random().toString(36).substring(7)}`;
-  const proc = new ChildProcess(execId);
-  let stdout = "";
-  let stderr = "";
-  let error = null;
-  proc.stdout.on("data", (data) => {
-    stdout += data.toString(options?.encoding ?? "utf8");
-  });
-  proc.stderr.on("data", (data) => {
-    stderr += data.toString(options?.encoding ?? "utf8");
-  });
-  proc.on("exit", (code) => {
-    if (code !== 0) {
-      error = new Error(`Command failed: ${command}
-${stderr}`);
-      error.code = code ?? void 0;
-      error.killed = proc.killed;
-    }
-    if (callback) {
-      callback(error, stdout, stderr);
-    }
-  });
-  invokeTauri("electron:exec_command", {
-    command,
-    cwd: options?.cwd,
-    env: options?.env,
-    shell: options?.shell,
-    timeout: options?.timeout
-  }).then((result) => {
-    if (result.success) {
-      proc.pid = result.pid;
-    } else {
-      error = new Error(result.error ?? "Failed to execute command");
-      proc.emit("error", error);
-    }
-  }).catch((err) => {
-    error = err;
-    proc.emit("error", err);
-  });
-  return proc;
+function h(s, e, n) {
+	const i = `exec_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+		t = new u(i);
+	let d = "",
+		r = "",
+		o = null;
+	return (
+		t.stdout.on("data", (a) => {
+			d += a.toString(e?.encoding ?? "utf8");
+		}),
+		t.stderr.on("data", (a) => {
+			r += a.toString(e?.encoding ?? "utf8");
+		}),
+		t.on("exit", (a) => {
+			(a !== 0 &&
+				((o = new Error(`Command failed: ${s}
+${r}`)),
+				(o.code = a ?? void 0),
+				(o.killed = t.killed)),
+				n && n(o, d, r));
+		}),
+		c("electron:exec_command", {
+			command: s,
+			cwd: e?.cwd,
+			env: e?.env,
+			shell: e?.shell,
+			timeout: e?.timeout,
+		})
+			.then((a) => {
+				a.success
+					? (t.pid = a.pid)
+					: ((o = new Error(a.error ?? "Failed to execute command")),
+						t.emit("error", o));
+			})
+			.catch((a) => {
+				((o = a), t.emit("error", a));
+			}),
+		t
+	);
 }
-__name(exec, "exec");
-function execPromise(command, options) {
-  return new Promise((resolve, reject) => {
-    const proc = exec(command, options, (error, stdout, stderr) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve({ stdout, stderr });
-      }
-    });
-  });
+function _(s, e) {
+	return new Promise((n, i) => {
+		const t = h(s, e, (d, r, o) => {
+			d ? i(d) : n({ stdout: r, stderr: o });
+		});
+	});
 }
-__name(execPromise, "execPromise");
-function fork(modulePath, args, options) {
-  const forkId = `fork_${Date.now()}_${Math.random().toString(36).substring(7)}`;
-  const proc = new ChildProcess(forkId);
-  const isExtensionHost = modulePath.includes("extensionHost") || modulePath.includes("process");
-  if (isExtensionHost) {
-    invokeTauri("electron:fork_extension_host", {
-      module_path: modulePath,
-      args: args ?? [],
-      cwd: options?.cwd,
-      env: options?.env,
-      exec_path: options?.execPath,
-      exec_argv: options?.execArgv,
-      silent: options?.silent
-    }).then((result) => {
-      if (result.success) {
-        proc.pid = result.pid;
-        proc.emit("spawn");
-      } else {
-        proc.emit(
-          "error",
-          new Error(
-            result.error ?? "Failed to fork extension host"
-          )
-        );
-      }
-    }).catch((error) => {
-      proc.emit("error", error);
-    });
-  } else {
-    const forkedProc = spawn(
-      options?.execPath ?? process.execPath,
-      [modulePath, ...args ?? []],
-      {
-        cwd: options?.cwd,
-        env: options?.env,
-        silent: options?.silent ? "pipe" : "inherit"
-      }
-    );
-    proc.pid = forkedProc.pid;
-  }
-  return proc;
+function p(s, e, n) {
+	const i = `fork_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+		t = new u(i);
+	if (s.includes("extensionHost") || s.includes("process"))
+		c("electron:fork_extension_host", {
+			module_path: s,
+			args: e ?? [],
+			cwd: n?.cwd,
+			env: n?.env,
+			exec_path: n?.execPath,
+			exec_argv: n?.execArgv,
+			silent: n?.silent,
+		})
+			.then((r) => {
+				r.success
+					? ((t.pid = r.pid), t.emit("spawn"))
+					: t.emit(
+							"error",
+							new Error(
+								r.error ?? "Failed to fork extension host",
+							),
+						);
+			})
+			.catch((r) => {
+				t.emit("error", r);
+			});
+	else {
+		const r = g(n?.execPath ?? m.execPath, [s, ...(e ?? [])], {
+			cwd: n?.cwd,
+			env: n?.env,
+			silent: n?.silent ? "pipe" : "inherit",
+		});
+		t.pid = r.pid;
+	}
+	return t;
 }
-__name(fork, "fork");
-const childProcess = {
-  spawn,
-  exec,
-  execSync: /* @__PURE__ */ __name(() => {
-    throw new Error(
-      "childProcess.execSync() is not supported in browser/Tauri environment. Use async exec() instead."
-    );
-  }, "execSync"),
-  fork,
-  execFile: exec
-  // execFile is similar to exec in this context
+const w = {
+	spawn: g,
+	exec: h,
+	execSync: () => {
+		throw new Error(
+			"childProcess.execSync() is not supported in browser/Tauri environment. Use async exec() instead.",
+		);
+	},
+	fork: p,
+	execFile: h,
 };
-function installChildProcessPolyfill() {
-  if (typeof window === "undefined") {
-    return;
-  }
-  if (window.__CHILD_PROCESS_POLYFILL_INSTALLED__) {
-    return;
-  }
-  window.__CHILD_PROCESS_POLYFILL_INSTALLED__ = true;
-  window.childProcess = childProcess;
-  if (typeof window.require === "function") {
-    const existingRequire = window.require;
-    window.require = (id) => {
-      if (id === "child_process") {
-        return childProcess;
-      }
-      return existingRequire(id);
-    };
-  }
-  if (typeof window.vscode !== "undefined") {
-    window.vscode.childProcess = childProcess;
-  }
+function S() {
+	if (
+		!(typeof window > "u") &&
+		!window.__CHILD_PROCESS_POLYFILL_INSTALLED__
+	) {
+		if (
+			((window.__CHILD_PROCESS_POLYFILL_INSTALLED__ = !0),
+			(window.childProcess = w),
+			typeof window.require == "function")
+		) {
+			const s = window.require;
+			window.require = (e) => (e === "child_process" ? w : s(e));
+		}
+		typeof window.vscode < "u" && (window.vscode.childProcess = w);
+	}
 }
-__name(installChildProcessPolyfill, "installChildProcessPolyfill");
-const process = typeof window !== "undefined" && window.process ? window.process : { execPath: "/usr/local/bin/node" };
-var ChildProcessPolyfill_default = {
-  install: installChildProcessPolyfill,
-  module: childProcess,
-  // Individual exports for convenience
-  spawn,
-  exec,
-  execPromise,
-  fork,
-  // Types
-  ChildProcess
+const m =
+	typeof window < "u" && window.process
+		? window.process
+		: { execPath: "/usr/local/bin/node" };
+var v = {
+	install: S,
+	module: w,
+	spawn: g,
+	exec: h,
+	execPromise: _,
+	fork: p,
+	ChildProcess: u,
 };
-if (typeof window !== "undefined") {
-  installChildProcessPolyfill();
-}
-export {
-  ChildProcessPolyfill_default as default,
-  installChildProcessPolyfill
-};
-//# sourceMappingURL=ChildProcessPolyfill.js.map
+typeof window < "u" && S();
+export { v as default, S as installChildProcessPolyfill };

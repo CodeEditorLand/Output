@@ -1,23 +1,19 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import StripBackgroundPolling, {
-  Marker
-} from "../Polyfill/StripBackgroundPolling.js";
-const Polyfill = `
-/* ${Marker} */
-(${StripBackgroundPolling.toString()})();
-`;
-const Plugin = {
-  Kind: "Transform",
-  Name: "InjectStripBackgroundPolling",
-  Match: /* @__PURE__ */ __name(({ Path }) => Path.endsWith("vs/code/electron-browser/workbench/workbench.js"), "Match"),
-  Transform({ Source }) {
-    if (Source.includes(Marker)) return { Kind: "Unchanged" };
-    return { Kind: "Rewrite", Source: Polyfill + Source };
-  }
-};
-var InjectStripBackgroundPolling_default = Plugin;
-export {
-  InjectStripBackgroundPolling_default as default
-};
-//# sourceMappingURL=InjectStripBackgroundPolling.js.map
+import o, { Marker as r } from "../Polyfill/StripBackgroundPolling.js";
+
+const e = `
+/* ${r} */
+(${o.toString()})();
+`,
+	i = {
+		Kind: "Transform",
+		Name: "InjectStripBackgroundPolling",
+		Match: ({ Path: n }) =>
+			n.endsWith("vs/code/electron-browser/workbench/workbench.js"),
+		Transform({ Source: n }) {
+			return n.includes(r)
+				? { Kind: "Unchanged" }
+				: { Kind: "Rewrite", Source: e + n };
+		},
+	};
+var l = i;
+export { l as default };

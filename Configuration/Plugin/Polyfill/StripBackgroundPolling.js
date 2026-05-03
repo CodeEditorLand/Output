@@ -1,97 +1,82 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-const Marker = "__LAND_STRIP_BACKGROUND_POLLING__";
-function StripBackgroundPolling() {
-  if (typeof window === "undefined") return;
-  const Land = window;
-  if (Land[Marker]) return;
-  Land[Marker] = true;
-  const DenyFragments = [
-    "telemetryService",
-    "telemetryUtils",
-    "telemetryLogAppender",
-    "1dsAppender",
-    "oneDataSystemAppender",
-    "errorTelemetry",
-    "userDataSyncService",
-    "userDataAutoSyncService",
-    "userDataSyncMachinesService",
-    "settingsSync",
-    "updateService",
-    "abstractUpdateService",
-    "extensionGalleryService",
-    "extensionsTipsService",
-    "extensionRecommendationsService",
-    "exeBasedRecommendations",
-    "keymapRecommendations",
-    "configBasedRecommendations",
-    "remoteAgentService",
-    "remoteTunnelService",
-    "liveShare",
-    "issueService",
-    "surveyService",
-    "experimentService",
-    "assignmentService",
-    "mcpGalleryService",
-    "welcomeBanner",
-    "walkthroughs"
-  ];
-  function CallerMatchesDeny() {
-    try {
-      const Stack = new Error().stack ?? "";
-      for (const Fragment of DenyFragments) {
-        if (Stack.indexOf(Fragment) >= 0) {
-          return true;
-        }
-      }
-      return false;
-    } catch {
-      return false;
-    }
-  }
-  __name(CallerMatchesDeny, "CallerMatchesDeny");
-  const OriginalSetInterval = window.setInterval.bind(window);
-  const OriginalSetTimeout = window.setTimeout.bind(window);
-  let Suppressed = 0;
-  const SuppressedRingBuffer = [];
-  const PatchedSetInterval = /* @__PURE__ */ __name(function() {
-    if (CallerMatchesDeny()) {
-      Suppressed++;
-      if (SuppressedRingBuffer.length < 32) {
-        try {
-          const Stack = new Error().stack ?? "";
-          const FirstNonAnonymous = Stack.split("\n").find(
-            (Line) => Line.indexOf("anonymous") < 0 && Line.length > 0
-          );
-          SuppressedRingBuffer.push(FirstNonAnonymous ?? "(unknown)");
-        } catch {
-        }
-      }
-      return 0;
-    }
-    const Args = Array.prototype.slice.call(arguments);
-    return OriginalSetInterval.apply(window, Args);
-  }, "PatchedSetInterval");
-  window.setInterval = PatchedSetInterval;
-  const PatchedSetTimeout = /* @__PURE__ */ __name(function(_Callback, Delay) {
-    if (typeof Delay === "number" && Delay >= 3e4 && CallerMatchesDeny()) {
-      Suppressed++;
-      return 0;
-    }
-    const Args = Array.prototype.slice.call(arguments);
-    return OriginalSetTimeout.apply(window, Args);
-  }, "PatchedSetTimeout");
-  window.setTimeout = PatchedSetTimeout;
-  Land["__LAND_BACKGROUND_POLL_STATS__"] = () => {
-    return {
-      suppressedCount: Suppressed,
-      recentlySuppressed: SuppressedRingBuffer.slice()
-    };
-  };
+const c = "__LAND_STRIP_BACKGROUND_POLLING__";
+function S() {
+	if (typeof window > "u") return;
+	const r = window;
+	if (r[c]) return;
+	r[c] = !0;
+	const u = [
+		"telemetryService",
+		"telemetryUtils",
+		"telemetryLogAppender",
+		"1dsAppender",
+		"oneDataSystemAppender",
+		"errorTelemetry",
+		"userDataSyncService",
+		"userDataAutoSyncService",
+		"userDataSyncMachinesService",
+		"settingsSync",
+		"updateService",
+		"abstractUpdateService",
+		"extensionGalleryService",
+		"extensionsTipsService",
+		"extensionRecommendationsService",
+		"exeBasedRecommendations",
+		"keymapRecommendations",
+		"configBasedRecommendations",
+		"remoteAgentService",
+		"remoteTunnelService",
+		"liveShare",
+		"issueService",
+		"surveyService",
+		"experimentService",
+		"assignmentService",
+		"mcpGalleryService",
+		"welcomeBanner",
+		"walkthroughs",
+	];
+	function a() {
+		try {
+			const n = new Error().stack ?? "";
+			for (const e of u) if (n.indexOf(e) >= 0) return !0;
+			return !1;
+		} catch {
+			return !1;
+		}
+	}
+	const d = window.setInterval.bind(window),
+		l = window.setTimeout.bind(window);
+	let t = 0;
+	const s = [],
+		p = function () {
+			if (a()) {
+				if ((t++, s.length < 32))
+					try {
+						const o = (new Error().stack ?? "")
+							.split(
+								`
+`,
+							)
+							.find(
+								(i) =>
+									i.indexOf("anonymous") < 0 && i.length > 0,
+							);
+						s.push(o ?? "(unknown)");
+					} catch {}
+				return 0;
+			}
+			const n = Array.prototype.slice.call(arguments);
+			return d.apply(window, n);
+		};
+	window.setInterval = p;
+	const m = function (n, e) {
+		if (typeof e == "number" && e >= 3e4 && a()) return (t++, 0);
+		const o = Array.prototype.slice.call(arguments);
+		return l.apply(window, o);
+	};
+	((window.setTimeout = m),
+		(r.__LAND_BACKGROUND_POLL_STATS__ = () => ({
+			suppressedCount: t,
+			recentlySuppressed: s.slice(),
+		})));
 }
-__name(StripBackgroundPolling, "StripBackgroundPolling");
-export {
-  Marker,
-  StripBackgroundPolling as default
-};
-//# sourceMappingURL=StripBackgroundPolling.js.map
+export { c as Marker, S as default };

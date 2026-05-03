@@ -1,19 +1,23 @@
-import e, { Marker as n } from "../Polyfill/MacTitlebarOffsetCSS.js";
-
-const t = `
-/* ${n} */
-(${e.toString()})();
-`,
-	o = {
-		Kind: "Transform",
-		Name: "InjectMacTitlebarOffsetCSS",
-		Match: ({ Path: r }) =>
-			r.endsWith("vs/code/electron-browser/workbench/workbench.js"),
-		Transform({ Source: r }) {
-			return r.includes(n)
-				? { Kind: "Unchanged" }
-				: { Kind: "Rewrite", Source: t + r };
-		},
-	};
-var s = o;
-export { s as default };
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import MacTitlebarOffsetCSS, {
+  Marker
+} from "../Polyfill/MacTitlebarOffsetCSS.js";
+const Polyfill = `
+/* ${Marker} */
+(${MacTitlebarOffsetCSS.toString()})();
+`;
+const Plugin = {
+  Kind: "Transform",
+  Name: "InjectMacTitlebarOffsetCSS",
+  Match: /* @__PURE__ */ __name(({ Path }) => Path.endsWith("vs/code/electron-browser/workbench/workbench.js"), "Match"),
+  Transform({ Source }) {
+    if (Source.includes(Marker)) return { Kind: "Unchanged" };
+    return { Kind: "Rewrite", Source: Polyfill + Source };
+  }
+};
+var InjectMacTitlebarOffsetCSS_default = Plugin;
+export {
+  InjectMacTitlebarOffsetCSS_default as default
+};
+//# sourceMappingURL=InjectMacTitlebarOffsetCSS.js.map

@@ -1,6 +1,8 @@
-const t = "__LAND_TERMINAL_GPU_LAYER__",
-	n = `
-/* ${t} */
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+const Marker = "__LAND_TERMINAL_GPU_LAYER__";
+const InjectedCSS = `
+/* ${Marker} */
 /* Promote the xterm host elements to their own compositor layers without
  * clipping descendants. \`contain: paint\` was previously applied to the
  * viewport and screen containers, but on macOS WKWebView that creates a
@@ -28,24 +30,24 @@ const t = "__LAND_TERMINAL_GPU_LAYER__",
 	image-rendering: pixelated;
 	image-rendering: crisp-edges;
 }
-`,
-	r = /workbench\/contrib\/terminal\/browser\/media\/[^/]+\.css$/,
-	a = {
-		Kind: "Transform",
-		Name: "InjectTerminalGPULayerCSS",
-		Match: ({ Path: e }) => r.test(e),
-		Transform({ Source: e }) {
-			return e.includes(t)
-				? { Kind: "Unchanged" }
-				: {
-						Kind: "Rewrite",
-						Source:
-							e +
-							`
-` +
-							n,
-					};
-		},
-	};
-var i = a;
-export { i as default };
+`;
+const PathRegex = /workbench\/contrib\/terminal\/browser\/media\/[^/]+\.css$/;
+const Plugin = {
+  Kind: "Transform",
+  Name: "InjectTerminalGPULayerCSS",
+  Match: /* @__PURE__ */ __name(({ Path }) => PathRegex.test(Path), "Match"),
+  Transform({ Source }) {
+    if (Source.includes(Marker)) {
+      return { Kind: "Unchanged" };
+    }
+    return {
+      Kind: "Rewrite",
+      Source: Source + "\n" + InjectedCSS
+    };
+  }
+};
+var InjectTerminalGPULayerCSS_default = Plugin;
+export {
+  InjectTerminalGPULayerCSS_default as default
+};
+//# sourceMappingURL=InjectTerminalGPULayerCSS.js.map

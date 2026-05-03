@@ -1,7 +1,43 @@
-var r = (o) => [
-	`${o}/code/browser/workbench/callback.html`,
-	`${o}/code/browser/workbench/workbench-dev.html`,
-	`${o}/code/browser/workbench/workbench.html`,
-	`${o}/workbench/contrib/terminalContrib/README.md`,
-];
-export { r as default };
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var Workbench_default = /* @__PURE__ */ __name((Prefix) => [
+  // Examples - KEEP core ones like files, preferences, output, terminal UI
+  // `${Prefix}/workbench/contrib/chat`,
+  // `${Prefix}/workbench/contrib/notebook`,
+  // `${Prefix}/workbench/contrib/replNotebook`,
+  // `${Prefix}/workbench/contrib/interactive`,
+  // `${Prefix}/workbench/contrib/testing`,
+  // `${Prefix}/workbench/contrib/timeline`,
+  // `${Prefix}/workbench/contrib/comments`,
+  // Keep if needed for basic diff view, remove if git ext handles all
+  // `${Prefix}/workbench/contrib/scm`,
+  // Keep common, maybe remove browser UI parts if needed
+  // `${Prefix}/workbench/contrib/debug`,
+  // `${Prefix}/workbench/contrib/callHierarchy`,
+  // `${Prefix}/workbench/contrib/typeHierarchy`,
+  // `${Prefix}/workbench/contrib/issue`,
+  // `${Prefix}/workbench/contrib/surveys`,
+  // `${Prefix}/workbench/contrib/tags`,
+  // Keep if extensions might contribute/run tasks
+  // `${Prefix}/workbench/contrib/tasks`,
+  // `${Prefix}/workbench/contrib/remote`,
+  // `${Prefix}/workbench/contrib/remoteTunnel`,
+  // `${Prefix}/workbench/contrib/share`,
+  // `${Prefix}/workbench/contrib/speech`,
+  // Keep common services
+  // `${Prefix}/workbench/contrib/userDataProfile/browser`,
+  // Keep common services
+  // `${Prefix}/workbench/contrib/userDataSync/browser`,
+  // `${Prefix}/workbench/contrib/welcome*`,
+  `${Prefix}/code/browser/workbench/callback.html`,
+  `${Prefix}/code/browser/workbench/workbench-dev.html`,
+  `${Prefix}/code/browser/workbench/workbench.html`,
+  // `${Prefix}/workbench/contrib/webview/browser/pre/fake.html`,
+  // `${Prefix}/workbench/contrib/webview/browser/pre/index-no-csp.html`,
+  // `${Prefix}/workbench/contrib/webview/browser/pre/index.html`,
+  `${Prefix}/workbench/contrib/terminalContrib/README.md`
+], "default");
+export {
+  Workbench_default as default
+};
+//# sourceMappingURL=Workbench.js.map

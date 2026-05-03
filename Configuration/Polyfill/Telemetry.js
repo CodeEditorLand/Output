@@ -1,23 +1,19 @@
-var Telemetry_default = (() => {
-  let Handler = null;
-  const Telemetry = {
-    On(Category, Error, Detail) {
-      if (Handler === null) return;
-      try {
-        Handler(Category, Error, Detail);
-      } catch {
-      }
-    },
-    Set(NewHandler) {
-      Handler = NewHandler;
-    }
-  };
-  if (typeof globalThis !== "undefined") {
-    globalThis.__LAND_POLYFILL_TELEMETRY__ = Telemetry;
-  }
-  return Telemetry;
+var t = (() => {
+	let e = null;
+	const n = {
+		On(l, r, o) {
+			if (e !== null)
+				try {
+					e(l, r, o);
+				} catch {}
+		},
+		Set(l) {
+			e = l;
+		},
+	};
+	return (
+		typeof globalThis < "u" && (globalThis.__LAND_POLYFILL_TELEMETRY__ = n),
+		n
+	);
 })();
-export {
-  Telemetry_default as default
-};
-//# sourceMappingURL=Telemetry.js.map
+export { t as default };

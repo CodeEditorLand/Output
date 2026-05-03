@@ -1,12 +1,12 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-const Marker = "workbench/contrib/terminal/electron-browser/localTerminalBackend.js".replaceAll(
-  "/",
-  "\\/"
-);
-const PathRegex = new RegExp(`${Marker}$`);
-const FunctionRegex = /async\s+_connectToDirectProxy\s*\(\s*\)\s*\{[\s\S]*?\n\s*\}\)\;\s*\n\s*\}/;
-const LandBody = `async _connectToDirectProxy() {
+const r =
+		"workbench/contrib/terminal/electron-browser/localTerminalBackend.js".replaceAll(
+			"/",
+			"\\/",
+		),
+	s = new RegExp(`${r}$`),
+	t =
+		/async\s+_connectToDirectProxy\s*\(\s*\)\s*\{[\s\S]*?\n\s*\}\)\;\s*\n\s*\}/,
+	n = `async _connectToDirectProxy() {
 		// [Land] Bypass acquirePort('vscode:createPtyHostMessageChannel');
 		// Tauri has no Electron utility-process MessagePort. Route every
 		// pty operation through the existing _localPtyService channel
@@ -51,27 +51,19 @@ const LandBody = `async _connectToDirectProxy() {
 		this._onPtyHostConnected.fire();
 		// Eagerly fetch the backend's environment for memoization
 		this.getEnvironment();
-	}`;
-const Plugin = {
-  Kind: "Transform",
-  Name: "PatchLocalTerminalBackend",
-  Enabled: /* @__PURE__ */ __name(() => process.env["Electron"] === "true", "Enabled"),
-  Match: /* @__PURE__ */ __name(({ Path }) => PathRegex.test(Path), "Match"),
-  Transform({ Source }) {
-    if (Source.includes("[Land] Bypass acquirePort")) {
-      return { Kind: "Unchanged" };
-    }
-    if (!FunctionRegex.test(Source)) {
-      return { Kind: "Unchanged" };
-    }
-    return {
-      Kind: "Rewrite",
-      Source: Source.replace(FunctionRegex, LandBody)
-    };
-  }
-};
-var PatchLocalTerminalBackend_default = Plugin;
-export {
-  PatchLocalTerminalBackend_default as default
-};
-//# sourceMappingURL=PatchLocalTerminalBackend.js.map
+	}`,
+	o = {
+		Kind: "Transform",
+		Name: "PatchLocalTerminalBackend",
+		Enabled: () => process.env.Electron === "true",
+		Match: ({ Path: e }) => s.test(e),
+		Transform({ Source: e }) {
+			return e.includes("[Land] Bypass acquirePort")
+				? { Kind: "Unchanged" }
+				: t.test(e)
+					? { Kind: "Rewrite", Source: e.replace(t, n) }
+					: { Kind: "Unchanged" };
+		},
+	};
+var i = o;
+export { i as default };

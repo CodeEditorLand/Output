@@ -165,7 +165,7 @@ Dependency/ → Rest → Target/Rest/ → Configuration/ → Target/
 - **[`Source/ESBuild/Output.ts`](https://github.com/CodeEditorLand/Output/tree/Current/Source/ESBuild/Output.ts)** -
   ESBuild configuration with ESM format, Node.js platform, ES Next target, and
   conditional Rest plugin integration
-- **[`Source/ESBuild/RestPlugin.ts`](https://github.com/CodeEditorLand/Output/tree/Current/Source/ESBuild/RestPlugin.ts)** -
+- **[`Source/ESBuild/RestPlugin.ts`](https://github.com/CodeEditorLand/Output/tree/Current/Source/ESBuild/Rest/Plugin.ts)** -
   TypeScript file interception, Rest compiler invocation, source map generation,
   and fallback to esbuild on errors
 - **[`Source/prepublishOnly.sh`](https://github.com/CodeEditorLand/Output/tree/Current/Source/prepublishOnly.sh)** -

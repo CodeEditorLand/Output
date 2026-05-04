@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) =>
 	__defProp(target, "name", { value, configurable: true });
-const { Browser, Electron } = await import("../../ESBuild.js");
+const { Browser, Electron } = await import("../../../ESBuild.js");
 var IPC_default = /* @__PURE__ */ __name(
 	(Prefix) => [
 		// ---- Electron IPC channels (electron.ipcRenderer / ipcMain) ----

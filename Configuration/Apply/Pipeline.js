@@ -1,13 +1,13 @@
 import { copyFile, mkdir } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 
-import ApplyPlugins from "./Plugin/Apply.js";
+import ApplyPlugins from "../Plugin/Apply.js";
 
 var __defProp = Object.defineProperty;
 var __name = (target, value) =>
 	__defProp(target, "name", { value, configurable: true });
 
-const Configuration = await import("./Plugin/Index.js");
+const Configuration = await import("../Plugin/Index.js");
 const ServiceCopies = [
 	{
 		From: "Configuration/Service/Tauri/Main/Process/Service.js",

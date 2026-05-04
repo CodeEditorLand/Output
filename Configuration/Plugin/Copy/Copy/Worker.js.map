@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["../../../../Source/Plugin/Copy/Copy/Worker.ts"],
-  "sourcesContent": ["/**\n * Step 3: Copy the bundled Worker JS (Element/Worker) to the consumer's\n * `Target/Worker.js` root so VS Code's service-worker-style CSS intercept\n * path resolves against a real file served at `/Worker.js`.\n */\n\nimport type { CopyPlugin } from \"../Type.js\";\n\nexport interface CopyWorkerInput {\n\treadonly From: string;\n\treadonly To: string;\n}\n\nexport const CopyWorker = ({ From, To }: CopyWorkerInput): CopyPlugin => ({\n\tKind: \"Copy\",\n\tName: \"CopyWorker\",\n\tEntries: [{ From: [From], To }],\n});\n\nexport default CopyWorker;\n"],
+  "sourcesContent": ["/**\n * Step 3: Copy the bundled Worker JS (Element/Worker) to the consumer's\n * `Target/Worker.js` root so VS Code's service-worker-style CSS intercept\n * path resolves against a real file served at `/Worker.js`.\n */\n\nimport type { CopyPlugin } from \"../../Type.js\";\n\nexport interface CopyWorkerInput {\n\treadonly From: string;\n\treadonly To: string;\n}\n\nexport const CopyWorker = ({ From, To }: CopyWorkerInput): CopyPlugin => ({\n\tKind: \"Copy\",\n\tName: \"CopyWorker\",\n\tEntries: [{ From: [From], To }],\n});\n\nexport default CopyWorker;\n"],
   "mappings": ";;AAaO,MAAM,aAAa,wBAAC,EAAE,MAAM,GAAG,OAAoC;AAAA,EACzE,MAAM;AAAA,EACN,MAAM;AAAA,EACN,SAAS,CAAC,EAAE,MAAM,CAAC,IAAI,GAAG,GAAG,CAAC;AAC/B,IAJ0B;AAM1B,IAAO,iBAAQ;",
   "names": []
 }

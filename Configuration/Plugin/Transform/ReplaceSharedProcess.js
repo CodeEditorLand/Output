@@ -7,19 +7,8 @@ const Marker =
 		"\\/",
 	);
 const PathRegex = new RegExp(`${Marker}$`);
-const Body = [
-	`import { TauriMainProcessService } from '../../../../platform/ipc/electron-browser/TauriMainProcessService.js';`,
-	``,
-	`class SharedProcessService extends TauriMainProcessService {`,
-	`  constructor(windowId, _logService) { super(windowId); }`,
-	`  notifyRestored() { /* Land has no shared process; channels go direct to Mountain */ }`,
-	`  async getConnection() { return this; /* self-satisfy the IPC Client shape */ }`,
-	`}`,
-	``,
-	`export { SharedProcessService };`,
-	`export default SharedProcessService;`,
-	``,
-].join("\n");
+const ReExport =
+	"export { SharedProcessService } from '../../../../platform/ipc/electron-browser/CELSharedProcessService.js';\nexport { default } from '../../../../platform/ipc/electron-browser/CELSharedProcessService.js';\n";
 const Plugin = {
 	Kind: "Transform",
 	Name: "ReplaceSharedProcess",
@@ -29,7 +18,7 @@ const Plugin = {
 	),
 	Match: /* @__PURE__ */ __name(({ Path }) => PathRegex.test(Path), "Match"),
 	Transform() {
-		return { Kind: "Rewrite", Source: Body };
+		return { Kind: "Rewrite", Source: ReExport };
 	},
 };
 var ReplaceSharedProcess_default = Plugin;

@@ -1,37 +1,18 @@
+import { readFile } from "node:fs/promises";
+import { fileURLToPath } from "node:url";
+
 var __defProp = Object.defineProperty;
 var __name = (target, value) =>
 	__defProp(target, "name", { value, configurable: true });
+
 const Marker = "__LAND_TERMINAL_GPU_LAYER__";
-const InjectedCSS = `
-/* ${Marker} */
-/* Promote the xterm host elements to their own compositor layers without
- * clipping descendants. \`contain: paint\` was previously applied to the
- * viewport and screen containers, but on macOS WKWebView that creates a
- * paint boundary at the layer edge. Combined with \`translateZ(0)\` and
- * xterm's subpixel row offsets, glyph pixels falling near the boundary
- * get clipped - the user sees characters sliced in half. Keep the GPU
- * promotion hints, but only apply \`contain: paint\` to the canvas
- * itself (which owns its own pixel grid) - never to row containers. */
-.terminal-xterm-host,
-.terminal-wrapper,
-.xterm {
-	will-change: transform;
-	transform: translateZ(0);
-	backface-visibility: hidden;
-}
-.xterm canvas {
-	will-change: transform;
-	transform: translateZ(0);
-	backface-visibility: hidden;
-	contain: paint;
-	isolation: isolate;
-	/* Force nearest-neighbour rasterisation so subpixel row edges don't
-	 * blend across the layer boundary. Two declarations: \`pixelated\`
-	 * for current WebKit, \`crisp-edges\` as historical fallback. */
-	image-rendering: pixelated;
-	image-rendering: crisp-edges;
-}
-`;
+const StylesheetPath = fileURLToPath(
+	new URL(
+		"../../../Source/Asset/Style/TerminalGPULayer.css",
+		import.meta.url,
+	),
+);
+const InjectedCSS = "\n" + (await readFile(StylesheetPath, "utf8"));
 const PathRegex = /workbench\/contrib\/terminal\/browser\/media\/[^/]+\.css$/;
 const Plugin = {
 	Kind: "Transform",
@@ -43,7 +24,7 @@ const Plugin = {
 		}
 		return {
 			Kind: "Rewrite",
-			Source: Source + "\n" + InjectedCSS,
+			Source: Source + InjectedCSS,
 		};
 	},
 };

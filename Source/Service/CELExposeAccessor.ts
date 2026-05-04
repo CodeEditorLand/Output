@@ -230,6 +230,52 @@ export const ExposeAccessor = (InstantiationService) => {
 			),
 			Layout: Resolve(InstantiationService, IWorkbenchLayoutService),
 		};
+		// Defensive monkey-patch: short-circuit `IExtensionService.activateByEvent`
+		// for `onView:<viewId>` events. WebviewViewPane.activate() awaits
+		// `await this.extensionService.activateByEvent("onView:" + this.id)`
+		// BEFORE it calls `webviewViewService.resolve(...)`; under Land the
+		// `*` activation already runs every extension at boot, so per-view
+		// events are redundant - and Cocoon's RequestRoutingHandler doesn't
+		// short-circuit them, so the workbench's standard codepath can hang
+		// the pane forever waiting on a Cocoon round-trip that never settles.
+		// Returning a resolved promise immediately is safe because Land does
+		// NOT rely on per-event activation: every contribution that could
+		// match `onView:X` was already pulled in by the `*` activation pass.
+		// Without this patch, every extension sidebar stalls at the bare
+		// `pre/index.html` chrome because resolve() never runs.
+		try {
+			const ExtensionSvc = Resolve(
+				InstantiationService,
+				IExtensionService,
+			);
+			if (
+				ExtensionSvc &&
+				typeof ExtensionSvc.activateByEvent === "function" &&
+				!ExtensionSvc.__CEL_PATCHED_ONVIEW__
+			) {
+				const Original =
+					ExtensionSvc.activateByEvent.bind(ExtensionSvc);
+				ExtensionSvc.activateByEvent = function (Event) {
+					if (
+						typeof Event === "string" &&
+						Event.indexOf("onView:") === 0
+					) {
+						return Promise.resolve();
+					}
+					return Original(Event);
+				};
+				ExtensionSvc.__CEL_PATCHED_ONVIEW__ = true;
+				Diagnostic(
+					"cel-services",
+					"activateByEvent onView:* short-circuit installed",
+				);
+			}
+		} catch (PatchError) {
+			Diagnostic(
+				"cel-services",
+				`activateByEvent patch failed: ${String(PatchError?.message ?? PatchError)}`,
+			);
+		}
 		try {
 			window.dispatchEvent(new Event("cel:services-ready"));
 		} catch {

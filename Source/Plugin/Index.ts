@@ -53,6 +53,7 @@ import InlineCSSImport from "./Transform/InlineCSSImport.js";
 import InstrumentVscodeGit from "./Transform/InstrumentVscodeGit.js";
 import PatchLocalTerminalBackend from "./Transform/PatchLocalTerminalBackend.js";
 import PatchTerminalGpuAcceleration from "./Transform/PatchTerminalGpuAcceleration.js";
+import PatchWebviewIframeServiceWorker from "./Transform/PatchWebviewIframeServiceWorker.js";
 import ReplaceElectronIPCService from "./Transform/ReplaceElectronIPCService.js";
 import ReplaceExtensionGalleryService from "./Transform/ReplaceExtensionGalleryService.js";
 import ReplaceSearchService from "./Transform/ReplaceSearchService.js";
@@ -165,6 +166,7 @@ export { default as InjectEditorGPULayerCSS } from "./Transform/InjectEditorGPUL
 export { default as InjectTerminalGPULayerCSS } from "./Transform/InjectTerminalGPULayerCSS.js";
 export { default as PatchLocalTerminalBackend } from "./Transform/PatchLocalTerminalBackend.js";
 export { default as PatchTerminalGpuAcceleration } from "./Transform/PatchTerminalGpuAcceleration.js";
+export { default as PatchWebviewIframeServiceWorker } from "./Transform/PatchWebviewIframeServiceWorker.js";
 
 export {
 	CopyVSOutput,
@@ -448,6 +450,15 @@ export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => {
 		ExtensionScannerIPC,
 		CatchOutputFolderRejection,
 		StripWebviewIframeSandbox,
+		// Default `disableServiceWorker = true` inside the webview iframe
+		// shell so the bootstrap script's `await workerReady` resolves
+		// immediately under WKWebView (which rejects ServiceWorker
+		// registration on the `vscode-webview://` custom protocol). Without
+		// this every extension webview hangs at the bare `pre/index.html`
+		// chrome because the `content` message handler awaits the rejected
+		// `workerReady` promise and bails on `fatal-error` before rendering
+		// the extension HTML. Idempotent. Marker `__LAND_DISABLE_WEBVIEW_SW__`.
+		PatchWebviewIframeServiceWorker,
 		// Loosen the webview shell's `<meta http-equiv="Content-Security-Policy">`
 		// from a stale sha256 hash on the inline bootstrap script to
 		// `'unsafe-inline'`. Stock VS Code pins the hash; WKWebView

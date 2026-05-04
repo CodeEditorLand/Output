@@ -176,6 +176,39 @@ const ExposeAccessor = /* @__PURE__ */ __name((InstantiationService) => {
 			Layout: Resolve(InstantiationService, IWorkbenchLayoutService),
 		};
 		try {
+			const ExtensionSvc = Resolve(
+				InstantiationService,
+				IExtensionService,
+			);
+			if (
+				ExtensionSvc &&
+				typeof ExtensionSvc.activateByEvent === "function" &&
+				!ExtensionSvc.__CEL_PATCHED_ONVIEW__
+			) {
+				const Original =
+					ExtensionSvc.activateByEvent.bind(ExtensionSvc);
+				ExtensionSvc.activateByEvent = function (Event2) {
+					if (
+						typeof Event2 === "string" &&
+						Event2.indexOf("onView:") === 0
+					) {
+						return Promise.resolve();
+					}
+					return Original(Event2);
+				};
+				ExtensionSvc.__CEL_PATCHED_ONVIEW__ = true;
+				Diagnostic(
+					"cel-services",
+					"activateByEvent onView:* short-circuit installed",
+				);
+			}
+		} catch (PatchError) {
+			Diagnostic(
+				"cel-services",
+				`activateByEvent patch failed: ${String(PatchError?.message ?? PatchError)}`,
+			);
+		}
+		try {
 			window.dispatchEvent(new Event("cel:services-ready"));
 		} catch {}
 		Diagnostic("cel-services", "ready (sync via static import)");

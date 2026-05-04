@@ -146,6 +146,13 @@ const Pipeline: Array<Plugin> = [
 	Configuration.ExtensionScannerIPC,
 	Configuration.CatchOutputFolderRejection,
 	Configuration.StripWebviewIframeSandbox,
+	// Default `disableServiceWorker = true` in the webview iframe shell
+	// so the bootstrap `await workerReady` resolves immediately on
+	// WKWebView - SW registration on the `vscode-webview://` custom
+	// protocol rejects, and the iframe's `content` handler bails on the
+	// rejection without rendering. Without this every extension webview
+	// hangs at the empty pre/index.html chrome.
+	Configuration.PatchWebviewIframeServiceWorker,
 	Configuration.ExposeWorkbenchAccessor,
 	Configuration.InstrumentVscodeGit,
 	Configuration.DisableUnusedServices,

@@ -49,19 +49,35 @@ const Configuration = await import("./Plugin/Index.js");
 // canonical source, BEFORE transforms run. Both Sky paths (the
 // `/Static/Application/` copy and the bundled Vite walk) consume
 // Output's Target, so the file is available everywhere.
-const Source = resolve(
-	process.cwd(),
-	"Configuration/Service/TauriMainProcessService.js",
-);
-const Destination = resolve(
-	process.cwd(),
-	"Target/Microsoft/VSCode/vs/platform/ipc/electron-browser/TauriMainProcessService.js",
-);
-await mkdir(dirname(Destination), { recursive: true });
-await copyFile(Source, Destination);
-console.log(
-	`[Output/Pipeline] Copied TauriMainProcessService.js -> ${Destination}`,
-);
+// Each entry copies one compiled service module from `Configuration/Service/`
+// into the in-place VS Code tree at the location its companion transform
+// expects to import. The entries below are processed serially before the
+// transform pipeline runs so every transform's injected `import './Foo.js'`
+// already has its sibling on disk.
+const ServiceCopies: ReadonlyArray<{
+	From: string;
+	To: string;
+	Why: string;
+}> = [
+	{
+		From: "Configuration/Service/TauriMainProcessService.js",
+		To: "Target/Microsoft/VSCode/vs/platform/ipc/electron-browser/TauriMainProcessService.js",
+		Why: "ReplaceElectronIPCService rewrites VS Code's mainProcessService.js to `import './TauriMainProcessService.js'`; Sky's astro:build:done copy fires AFTER Vite has walked modules, so the bundled tree fails to resolve the sibling. Copying into Output's own Target makes the file available to both Sky paths.",
+	},
+	{
+		From: "Configuration/Service/CELExposeAccessor.js",
+		To: "Target/Microsoft/VSCode/vs/workbench/browser/CELExposeAccessor.js",
+		Why: "ExposeWorkbenchAccessor injects `import './CELExposeAccessor.js'` into web.main.js + web.factory.js (and `'../browser/CELExposeAccessor.js'` into desktop.main.js). The shim is authored in Source/Service/CELExposeAccessor.ts, compiled by Output's esbuild step, and dropped here so the imports resolve at runtime.",
+	},
+];
+
+for (const Entry of ServiceCopies) {
+	const From = resolve(process.cwd(), Entry.From);
+	const To = resolve(process.cwd(), Entry.To);
+	await mkdir(dirname(To), { recursive: true });
+	await copyFile(From, To);
+	console.log(`[Output/Pipeline] Copied ${Entry.From} -> ${To}`);
+}
 
 // `StaticToDynamicImport` and `StripCSSImport` / `InlineCSSImport` are
 // INTENTIONALLY excluded from this Output-side pipeline.

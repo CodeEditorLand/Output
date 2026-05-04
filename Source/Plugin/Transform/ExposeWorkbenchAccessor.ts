@@ -17,334 +17,56 @@
  *
  * Two files are patched:
  *
- *   1. `vs/workbench/browser/web.main.js` (BrowserMain.open) - right after
- *      `const instantiationService = workbench.startup();` we stash the live
- *      service so Sky can do
- *        `__CEL_INSTANTIATION_SERVICE__.invokeFunction(a => a.get(I…))`
- *      to resolve any workbench service at call time.
+ *   1. `vs/workbench/browser/web.main.js` (BrowserMain.open) - plus its
+ *      `vs/workbench/electron-browser/desktop.main.js` twin - insert
+ *      `import { ExposeAccessor } from './CELExposeAccessor.js'` (or
+ *      `'../browser/CELExposeAccessor.js'` for the electron file) at the
+ *      top of the module, and call `ExposeAccessor(instantiationService)`
+ *      immediately after `const instantiationService = workbench.startup();`.
  *
  *   2. `vs/workbench/browser/web.factory.js` (`create()` .then callback) -
- *      after `instantiatedWorkbench = workbench; workbenchPromise.complete(…);`
- *      we also stash the IWorkbench facade and fire a `cel:workbench-ready`
- *      DOM event so Sky-side listeners that were waiting on the workbench
- *      being fully attached to the DOM can fire synchronously.
+ *      insert `import { OnWorkbenchReady } from './CELExposeAccessor.js'`
+ *      and call `OnWorkbenchReady(workbench)` after
+ *      `workbenchPromise.complete(workbench);`.
  *
- * Both injections are idempotent (`indexOf('__CEL_INSTANTIATION_SERVICE__')`
+ * The shim itself lives in `Element/Output/Source/Service/CELExposeAccessor.ts`
+ * and is compiled by Output's esbuild step to
+ * `Configuration/Service/CELExposeAccessor.js`. `ApplyPipeline.ts` copies
+ * the compiled artefact into `Target/Microsoft/VSCode/vs/workbench/browser/
+ * CELExposeAccessor.js` BEFORE this transform runs, so the injected import
+ * resolves immediately.
+ *
+ * Both injections are idempotent (`indexOf('CELExposeAccessor')`
  * short-circuits) so re-running the transform on an already-patched tree is
- * a no-op. The transform only touches the two files above - every other
- * module in `vs/workbench/browser` is passed through untouched.
+ * a no-op. The transform only touches the three files above.
  */
 
 import type { TransformPlugin } from "../Type.js";
 
-// Static imports of service decorator symbols. The patched file's
-// existing first import line is the marker we replace; the relative
-// paths below are written from each file's own location:
-//
-//   - web.main.js     → vs/workbench/browser/web.main.js          (depth 3)
-//   - desktop.main.js → vs/workbench/electron-browser/desktop.main.js (depth 3)
-//
-// Both directories sit at the same depth under `vs/`, so the same
-// relative paths work for both. Only the *marker* string differs.
-const SharedImportLines =
-	"// [Land] Static imports of the service decorators + ViewsRegistry\n" +
-	"// symbols used by the `__CEL_SERVICES__` patch below. ESM\n" +
-	"// imports must be at the top of the module - injecting them here\n" +
-	"// means the symbols are in scope at the `workbench.startup()`\n" +
-	"// patch site without any runtime resolution.\n" +
-	"import { IStatusbarService as __CEL_IStatusbarService } from '../services/statusbar/browser/statusbar.js';\n" +
-	"import { ICommandService as __CEL_ICommandService, CommandsRegistry as __CEL_CommandsRegistry } from '../../platform/commands/common/commands.js';\n" +
-	"import { ISearchService as __CEL_ISearchService } from '../services/search/common/search.js';\n" +
-	"import { IViewsService as __CEL_IViewsService } from '../services/views/common/viewsService.js';\n" +
-	"import { Registry as __CEL_Registry } from '../../platform/registry/common/platform.js';\n" +
-	"// [Land] `URI` (`vscode-uri` flavour as bundled by VS Code) is needed\n" +
-	"// by SkyBridge's search provider so result rows carry real URI\n" +
-	"// instances - the workbench's SearchService dedups results by\n" +
-	"// `getComparisonKey(uri)` which calls `uri.with(...)`. Returning\n" +
-	"// raw `URIComponents` POJOs throws `uri.with is not a function`.\n" +
-	"import { URI as __CEL_URI } from '../../base/common/uri.js';\n" +
-	"// [Land] SCM, Debug, CustomEditor service decorators - exposed so\n" +
-	"// SkyBridge can register in-process providers that mirror the\n" +
-	"// extension-host registrations Cocoon emits via `sky://scm/*`,\n" +
-	"// `sky://debug/*`, `sky://customEditor/*` events. Without this,\n" +
-	"// the workbench's MainThread* class never sees the extension\n" +
-	"// registration and the corresponding viewlet (SCM panel, debug\n" +
-	"// configurations dropdown, custom editor type) stays empty.\n" +
-	"import { ISCMService as __CEL_ISCMService } from '../contrib/scm/common/scm.js';\n" +
-	"import { IDebugService as __CEL_IDebugService } from '../contrib/debug/common/debug.js';\n" +
-	"import { ICustomEditorService as __CEL_ICustomEditorService } from '../contrib/customEditor/common/customEditor.js';\n" +
-	"import { Emitter as __CEL_Emitter } from '../../base/common/event.js';\n" +
-	"import { Disposable as __CEL_Disposable, toDisposable as __CEL_toDisposable } from '../../base/common/lifecycle.js';\n" +
-	"// [Land] IModelService + ILanguageService - needed by the SkyBridge\n" +
-	"// SCM provider shim's `inputBoxTextModel`. Workbench's\n" +
-	"// MainThreadSCMProvider requires a real `ITextModel` (constructed\n" +
-	"// here via `modelService.createModel('', langSelection, uri)`).\n" +
-	"// Without these, the shim's `inputBoxTextModel: null` makes\n" +
-	"// `__CEL_SERVICES__.SCM.registerSCMProvider(...)` throw and the\n" +
-	"// bridge silently falls back to CustomEvent dispatch.\n" +
-	"import { IModelService as __CEL_IModelService } from '../../editor/common/services/model.js';\n" +
-	"import { ILanguageService as __CEL_ILanguageService } from '../../editor/common/languages/language.js';\n" +
-	"// [Land] ResourceTree class - needed by the SkyBridge SCM provider\n" +
-	"// shim's `group.resourceTree` getter. Workbench's SCM repository\n" +
-	"// pane reads this to render hierarchical group children. Without\n" +
-	"// a real instance the panel crashes on grouped-tree mode; a fresh\n" +
-	"// empty ResourceTree per group renders cleanly.\n" +
-	"import { ResourceTree as __CEL_ResourceTree } from '../../base/common/resourceTree.js';\n" +
-	"import { IUriIdentityService as __CEL_IUriIdentityService } from '../../platform/uriIdentity/common/uriIdentity.js';\n" +
-	"// [Land] IWebviewViewService - the workbench's resolver registry\n" +
-	"// for sidebar/panel webview content. Exposing this lets\n" +
-	"// `SkyBridge.ts:Register('sky://webview/registerView', ...)`\n" +
-	"// register a resolver per Cocoon-registered view; when the user\n" +
-	"// reveals an extension's sidebar panel the workbench invokes\n" +
-	"// the resolver, the resolver fires `webview.resolveView`\n" +
-	"// reverse-RPC into Cocoon, and the extension's\n" +
-	"// `resolveWebviewView(view, ctx)` callback paints the panel.\n" +
-	"import { IWebviewViewService as __CEL_IWebviewViewService } from '../contrib/webviewView/browser/webviewViewService.js';\n" +
-	"// [Land] IWebviewWorkbenchService - the editor-area webview-panel\n" +
-	"// service. Stock VS Code's `MainThreadWebviewPanels.$createWebviewPanel`\n" +
-	"// calls `IWebviewWorkbenchService.openWebview(...)` to materialise\n" +
-	"// a `WebviewInput` editor; the inner overlay-webview paints the\n" +
-	"// extension HTML. Cocoon's gRPC `webview.create` doesn't go\n" +
-	"// through the standard MainThread/ExtHost RPC, so SkyBridge's\n" +
-	"// `sky://webview/create` listener calls this service directly to\n" +
-	"// open a real panel for `vscode.window.createWebviewPanel(...)`\n" +
-	"// invocations - without this service, panel-mode webviews (Roo's\n" +
-	"// chat panel, Claude's panel surfaces, etc.) were silently parked\n" +
-	"// in an in-memory placeholder map and never rendered.\n" +
-	"import { IWebviewWorkbenchService as __CEL_IWebviewWorkbenchService } from '../contrib/webviewPanel/browser/webviewWorkbenchService.js';\n" +
-	"// [Land] IMarkerService - the workbench's diagnostic store. Mountain\n" +
-	"// emits `sky://diagnostics/changed` after each `Diagnostic.Set` from\n" +
-	"// Cocoon; SkyBridge needs to call `Markers.changeOne(owner, uri,\n" +
-	"// markers)` to push into this service so red squiggles paint in the\n" +
-	"// editor and the Problems panel populates. Without this exposure,\n" +
-	"// every diagnostic from every language extension (rust-analyzer,\n" +
-	"// TypeScript, ESLint, ...) is invisible.\n" +
-	"import { IMarkerService as __CEL_IMarkerService } from '../../platform/markers/common/markers.js';\n" +
-	"// [Land] High-leverage cross-cutting services exposed for Wind.\n" +
-	"// Each handle below is the live workbench instance of the matching\n" +
-	"// `IFooService`. Wind's Layer reads these and binds them to its\n" +
-	"// `Effect.Tag(IFooService)`-typed surface so every Wind-side\n" +
-	"// service request resolves through the real workbench DI.\n" +
-	"import { IConfigurationService as __CEL_IConfigurationService } from '../../platform/configuration/common/configuration.js';\n" +
-	"import { IStorageService as __CEL_IStorageService } from '../../platform/storage/common/storage.js';\n" +
-	"import { ILifecycleService as __CEL_ILifecycleService } from '../services/lifecycle/common/lifecycle.js';\n" +
-	"import { IWorkbenchThemeService as __CEL_IWorkbenchThemeService } from '../services/themes/common/workbenchThemeService.js';\n" +
-	"import { IThemeService as __CEL_IThemeService } from '../../platform/theme/common/themeService.js';\n" +
-	"import { IKeybindingService as __CEL_IKeybindingService } from '../../platform/keybinding/common/keybinding.js';\n" +
-	"import { INotificationService as __CEL_INotificationService } from '../../platform/notification/common/notification.js';\n" +
-	"import { IFileService as __CEL_IFileService } from '../../platform/files/common/files.js';\n" +
-	"import { IDialogService as __CEL_IDialogService, IFileDialogService as __CEL_IFileDialogService } from '../../platform/dialogs/common/dialogs.js';\n" +
-	"import { IClipboardService as __CEL_IClipboardService } from '../../platform/clipboard/common/clipboardService.js';\n" +
-	"import { IContextKeyService as __CEL_IContextKeyService } from '../../platform/contextkey/common/contextkey.js';\n" +
-	"import { IHostService as __CEL_IHostService } from '../services/host/browser/host.js';\n" +
-	"import { IExtensionService as __CEL_IExtensionService } from '../services/extensions/common/extensions.js';\n" +
-	"import { IWorkspaceContextService as __CEL_IWorkspaceContextService } from '../../platform/workspace/common/workspace.js';\n" +
-	"import { IProductService as __CEL_IProductService } from '../../platform/product/common/productService.js';\n" +
-	"import { IProgressService as __CEL_IProgressService } from '../../platform/progress/common/progress.js';\n" +
-	"import { IEditorService as __CEL_IEditorService } from '../services/editor/common/editorService.js';\n" +
-	"import { IEditorGroupsService as __CEL_IEditorGroupsService } from '../services/editor/common/editorGroupsService.js';\n" +
-	"import { ITextFileService as __CEL_ITextFileService } from '../services/textfile/common/textfiles.js';\n" +
-	"import { IActivityService as __CEL_IActivityService } from '../services/activity/common/activity.js';\n" +
-	"import { ITitleService as __CEL_ITitleService } from '../services/title/browser/titleService.js';\n" +
-	"import { IPaneCompositePartService as __CEL_IPaneCompositePartService } from '../services/panecomposite/browser/panecomposite.js';\n" +
-	"import { IViewDescriptorService as __CEL_IViewDescriptorService } from '../common/views.js';\n" +
-	"import { IWorkbenchLayoutService as __CEL_IWorkbenchLayoutService } from '../services/layout/browser/layoutService.js';";
-
-// Import markers: VS Code's `out/` tree uses single-quoted module
-// specifiers (the original `tsc` emit), and Output now byte-copies
-// those files instead of running them through esbuild's quote-
-// normalising transform (see `Source/ESBuild/Microsoft/VSCode.ts` -
-// `loader: { ".js": "copy" }`). Match what's actually on disk.
+// VS Code's `out/` tree uses single-quoted module specifiers (the original
+// `tsc` emit), and Output now byte-copies those files instead of running them
+// through esbuild's quote-normalising transform. Match what's actually on disk.
 const WebMainImportMarker =
 	"import { mark } from '../../base/common/performance.js';";
-const WebMainImportReplacement = WebMainImportMarker + "\n" + SharedImportLines;
+const WebMainImportInjection =
+	"\nimport { ExposeAccessor as __CEL_ExposeAccessor } from './CELExposeAccessor.js';";
 
-// `desktop.main.js`'s first import line. Stable across upstream releases.
 const DesktopMainImportMarker = "import { localize } from '../../nls.js';";
-const DesktopMainImportReplacement =
-	DesktopMainImportMarker + "\n" + SharedImportLines;
+const DesktopMainImportInjection =
+	"\nimport { ExposeAccessor as __CEL_ExposeAccessor } from '../browser/CELExposeAccessor.js';";
 
-const WebMainMarker = "const instantiationService = workbench.startup();";
-const WebMainReplacement =
-	"const instantiationService = workbench.startup();\n" +
-	"// [Land] Expose the live IInstantiationService + a directly-callable\n" +
-	"// services facade on `globalThis` for Sky-side bridges. Imports are\n" +
-	"// static (see header above), so the assignment is fully synchronous -\n" +
-	"// `__CEL_SERVICES__` is populated before this line returns and any\n" +
-	"// downstream listener (SkyBridge tree-view attach, command palette\n" +
-	"// fan-out, status-bar sync) can reach it on the same microtask.\n" +
-	"globalThis.__CEL_INSTANTIATION_SERVICE__ = instantiationService;\n" +
-	"try {\n" +
-	"  var __CEL_ViewsRegistryId = 'workbench.registry.view';\n" +
-	"  globalThis.__CEL_SERVICES__ = {\n" +
-	// Each `invokeFunction` is wrapped in its own try-IIFE so a single
-	// failed service lookup (interface decorator missing in this profile,
-	// service not yet registered, etc.) degrades to `null` for that key
-	// instead of throwing out of the entire `__CEL_SERVICES__` literal -
-	// which would leave `__CEL_SERVICES__` undefined and break every
-	// Sky-side bridge (search provider, status bar, tree views, ...).
-	"    Statusbar: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IStatusbarService); }); } catch (E) { return null; } })(),\n" +
-	"    Commands: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_ICommandService); }); } catch (E) { return null; } })(),\n" +
-	"    CommandRegistry: __CEL_CommandsRegistry,\n" +
-	"    Search: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_ISearchService); }); } catch (E) { return null; } })(),\n" +
-	"    Views: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IViewsService); }); } catch (E) { return null; } })(),\n" +
-	"    // `URI` (real class with `.with()`, `.fsPath`, `.toString()`)\n" +
-	"    // exposed so Sky-side bridges can build resource objects the\n" +
-	"    // workbench accepts directly (no `URI.revive` round-trip).\n" +
-	"    URI: __CEL_URI,\n" +
-	"    // `TreeViewByViewId(id)` resolves the workbench's ITreeView\n" +
-	"    // instance for a registered tree view. Setting `.dataProvider`\n" +
-	"    // on the returned value makes the view render its data.\n" +
-	"    TreeViewByViewId: function(ViewId) {\n" +
-	"      try {\n" +
-	"        var Reg = __CEL_Registry.as(__CEL_ViewsRegistryId);\n" +
-	"        var Desc = Reg && Reg.getView ? Reg.getView(ViewId) : null;\n" +
-	"        return Desc && Desc.treeView ? Desc.treeView : null;\n" +
-	"      } catch (E) { return null; }\n" +
-	"    },\n" +
-	"    // `ViewRegistrySnapshot()` returns counts + sample IDs for the\n" +
-	"    // workbench's ViewContainersRegistry and ViewsRegistry. Used by\n" +
-	"    // SkyBridge's diagnostic probe to confirm extension manifests\n" +
-	"    // (Roo, Claude, gitlens, ...) reached `viewsExtensionPoint`'s\n" +
-	"    // setHandler - if extension panels don't open, the most common\n" +
-	"    // cause is that contributions never made it through\n" +
-	"    // `IExtensionService` to the registry, so the activity bar has\n" +
-	"    // no clickable entry point. This accessor lives where\n" +
-	"    // `__CEL_Registry` is in scope; SkyBridge can't reach the same\n" +
-	"    // Registry instance from its own module graph.\n" +
-	"    ViewRegistrySnapshot: function() {\n" +
-	"      try {\n" +
-	"        // Stock VS Code's registry IDs (see\n" +
-	"        // `vs/workbench/common/views.ts:35` -\n" +
-	"        // `'workbench.registry.view.containers'` /\n" +
-	"        // `'workbench.registry.view'`). The previous attempt at\n" +
-	"        // `'workbench.view.containersRegistry'` was a guessed\n" +
-	"        // dotted name; `Registry.as` returned null and the probe\n" +
-	"        // reported `containers=0` even though the workbench had\n" +
-	"        // dozens of contributions.\n" +
-	"        var ContainersReg = __CEL_Registry.as('workbench.registry.view.containers');\n" +
-	"        var ViewsReg = __CEL_Registry.as(__CEL_ViewsRegistryId);\n" +
-	"        var Locations = (ContainersReg && ContainersReg.all) ? ContainersReg.all : [];\n" +
-	"        var ContainerIds = [];\n" +
-	"        for (var I = 0; I < Locations.length; I++) {\n" +
-	"          ContainerIds.push(String((Locations[I] && Locations[I].id) || '<no-id>'));\n" +
-	"        }\n" +
-	"        var ViewIds = [];\n" +
-	"        try {\n" +
-	"          for (var J = 0; J < Locations.length; J++) {\n" +
-	"            var Views = (ViewsReg && ViewsReg.getViews) ? ViewsReg.getViews(Locations[J]) : [];\n" +
-	"            for (var K = 0; K < Views.length; K++) {\n" +
-	"              ViewIds.push(String((Views[K] && Views[K].id) || '<no-id>'));\n" +
-	"            }\n" +
-	"          }\n" +
-	"        } catch (E2) { /* swallow per-container failure */ }\n" +
-	"        return {\n" +
-	"          containers: ContainerIds.length,\n" +
-	"          views: ViewIds.length,\n" +
-	"          // Bumped from 16 to all - 35 containers / 79 views\n" +
-	"          // is small enough to log in full, and sampling at 16\n" +
-	"          // hid Roo / other extension contributions past the\n" +
-	"          // first chunk so triage couldn't tell whether they\n" +
-	"          // were registered or missing.\n" +
-	"          containerSample: ContainerIds,\n" +
-	"          viewSample: ViewIds,\n" +
-	"        };\n" +
-	"      } catch (E) {\n" +
-	"        return { containers: -1, views: -1, error: String(E && E.message ? E.message : E) };\n" +
-	"      }\n" +
-	"    },\n" +
-	"    // SCM/Debug/CustomEditor service handles. Each may be `null`\n" +
-	"    // if the contrib failed to load (e.g. headless web profile).\n" +
-	"    // SkyBridge null-checks before each call so missing services\n" +
-	"    // degrade silently instead of crashing the bridge.\n" +
-	"    SCM: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_ISCMService); }); } catch (E) { return null; } })(),\n" +
-	"    Debug: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IDebugService); }); } catch (E) { return null; } })(),\n" +
-	"    CustomEditor: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_ICustomEditorService); }); } catch (E) { return null; } })(),\n" +
-	"    // `Emitter` + `Disposable`/`toDisposable` are needed by the\n" +
-	"    // SCM provider shim in SkyBridge - the workbench's ISCMService\n" +
-	"    // expects providers to expose `onDidChange*: Event<T>` whose\n" +
-	"    // shape matches `vs/base/common/event.js::Emitter`'s `event`\n" +
-	"    // property. Re-creating those classes outside the bundled\n" +
-	"    // module would not interop because instanceof checks fail.\n" +
-	"    Emitter: __CEL_Emitter,\n" +
-	"    Disposable: __CEL_Disposable,\n" +
-	"    ToDisposable: __CEL_toDisposable,\n" +
-	"    // Model + language services - the SCM provider shim uses these\n" +
-	"    // to build a real `ITextModel` for the inputBox before calling\n" +
-	"    // `SCM.registerSCMProvider`. `Languages` may be `null` if the\n" +
-	"    // language registry hasn't booted; SkyBridge falls back to\n" +
-	"    // plaintext (`null` languageSelection) in that case.\n" +
-	"    Models: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IModelService); }); } catch (E) { return null; } })(),\n" +
-	"    Languages: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_ILanguageService); }); } catch (E) { return null; } })(),\n" +
-	"    // ResourceTree class + UriIdentity for the SCM shim's group\n" +
-	"    // resourceTree getter. ResourceTree's constructor signature is\n" +
-	"    // `new ResourceTree(context, rootUri, extUri)` where extUri is\n" +
-	"    // `IUriIdentityService.extUri`. We expose both so SkyBridge\n" +
-	"    // can construct an instance without re-resolving the service.\n" +
-	"    ResourceTree: __CEL_ResourceTree,\n" +
-	"    UriIdentity: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IUriIdentityService); }); } catch (E) { return null; } })(),\n" +
-	"    // WebviewViews resolver registry - SkyBridge's\n" +
-	"    // `sky://webview/registerView` listener calls\n" +
-	"    // `WebviewViews.register(viewType, resolver)` so the workbench\n" +
-	"    // knows how to populate the panel when the user reveals it.\n" +
-	"    WebviewViews: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IWebviewViewService); }); } catch (E) { return null; } })(),\n" +
-	"    // IMarkerService - SkyBridge wires `cel:diagnostics:changed` ->\n" +
-	"    // `Markers.changeOne(owner, uri, markers)` so extension-supplied\n" +
-	"    // diagnostics paint in the editor + Problems panel. Null-safe\n" +
-	"    // because the marker contrib may not have loaded in headless\n" +
-	"    // profiles.\n" +
-	"    Markers: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IMarkerService); }); } catch (E) { return null; } })(),\n" +
-	// ---- High-leverage cross-cutting services for Wind / SkyBridge ----
-	"    Configuration: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IConfigurationService); }); } catch (E) { return null; } })(),\n" +
-	"    Storage: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IStorageService); }); } catch (E) { return null; } })(),\n" +
-	"    Lifecycle: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_ILifecycleService); }); } catch (E) { return null; } })(),\n" +
-	"    Theme: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IThemeService); }); } catch (E) { return null; } })(),\n" +
-	"    WorkbenchTheme: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IWorkbenchThemeService); }); } catch (E) { return null; } })(),\n" +
-	"    Keybinding: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IKeybindingService); }); } catch (E) { return null; } })(),\n" +
-	"    Notification: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_INotificationService); }); } catch (E) { return null; } })(),\n" +
-	"    File: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IFileService); }); } catch (E) { return null; } })(),\n" +
-	"    Dialog: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IDialogService); }); } catch (E) { return null; } })(),\n" +
-	"    FileDialog: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IFileDialogService); }); } catch (E) { return null; } })(),\n" +
-	"    Clipboard: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IClipboardService); }); } catch (E) { return null; } })(),\n" +
-	"    ContextKey: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IContextKeyService); }); } catch (E) { return null; } })(),\n" +
-	"    Host: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IHostService); }); } catch (E) { return null; } })(),\n" +
-	"    Extension: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IExtensionService); }); } catch (E) { return null; } })(),\n" +
-	"    Workspace: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IWorkspaceContextService); }); } catch (E) { return null; } })(),\n" +
-	"    Product: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IProductService); }); } catch (E) { return null; } })(),\n" +
-	"    Progress: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IProgressService); }); } catch (E) { return null; } })(),\n" +
-	"    Editor: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IEditorService); }); } catch (E) { return null; } })(),\n" +
-	"    EditorGroups: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IEditorGroupsService); }); } catch (E) { return null; } })(),\n" +
-	"    TextFile: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_ITextFileService); }); } catch (E) { return null; } })(),\n" +
-	"    Activity: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IActivityService); }); } catch (E) { return null; } })(),\n" +
-	"    Title: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_ITitleService); }); } catch (E) { return null; } })(),\n" +
-	"    PaneComposite: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IPaneCompositePartService); }); } catch (E) { return null; } })(),\n" +
-	"    ViewDescriptor: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IViewDescriptorService); }); } catch (E) { return null; } })(),\n" +
-	"    Layout: (function(){ try { return instantiationService.invokeFunction(function(a){ return a.get(__CEL_IWorkbenchLayoutService); }); } catch (E) { return null; } })(),\n" +
-	"  };\n" +
-	"  try { window.dispatchEvent(new Event('cel:services-ready')); } catch {}\n" +
-	"  try {\n" +
-	"    var __CEL_Inv = (globalThis.__TAURI__ && (globalThis.__TAURI__.core ? globalThis.__TAURI__.core.invoke : globalThis.__TAURI__.invoke));\n" +
-	"    if (typeof __CEL_Inv === 'function') {\n" +
-	"      __CEL_Inv('MountainIPCInvoke', { method: 'diagnostic:log', params: ['cel-services', 'ready (sync via static import)'] });\n" +
-	"    }\n" +
-	"  } catch {}\n" +
-	"} catch (e) {\n" +
-	"  try {\n" +
-	"    var __CEL_InvE = (globalThis.__TAURI__ && (globalThis.__TAURI__.core ? globalThis.__TAURI__.core.invoke : globalThis.__TAURI__.invoke));\n" +
-	"    if (typeof __CEL_InvE === 'function') {\n" +
-	"      __CEL_InvE('MountainIPCInvoke', { method: 'diagnostic:log', params: ['cel-services', 'resolve-failed: ' + (e && e.message ? e.message : String(e))] });\n" +
-	"    }\n" +
-	"  } catch {}\n" +
-	"}";
+const WebFactoryImportMarker =
+	"import { mark } from '../../base/common/performance.js';";
+const WebFactoryImportInjection =
+	"\nimport { OnWorkbenchReady as __CEL_OnWorkbenchReady } from './CELExposeAccessor.js';";
 
-const WebFactoryMarker = "workbenchPromise.complete(workbench);";
-const WebFactoryReplacement =
-	"workbenchPromise.complete(workbench);\n" +
-	"        // [Land] Expose the IWorkbench facade + signal readiness so Sky's\n" +
-	"        // SkyBridge + any Astro component can synchronously call\n" +
-	"        // `__CEL_WORKBENCH__.commands.executeCommand(…)`.\n" +
-	"        globalThis.__CEL_WORKBENCH__ = workbench;\n" +
-	'        try { window.dispatchEvent(new Event("cel:workbench-ready")); } catch {}';
+const StartupMarker = "const instantiationService = workbench.startup();";
+const StartupInjection =
+	StartupMarker + "\n        __CEL_ExposeAccessor(instantiationService);";
+
+const WorkbenchReadyMarker = "workbenchPromise.complete(workbench);";
+const WorkbenchReadyInjection =
+	WorkbenchReadyMarker + "\n        __CEL_OnWorkbenchReady(workbench);";
 
 const Plugin: TransformPlugin = {
 	Kind: "Transform",
@@ -354,42 +76,52 @@ const Plugin: TransformPlugin = {
 		/\/vs\/workbench\/browser\/web\.factory\.js$/.test(Path) ||
 		/\/vs\/workbench\/electron-browser\/desktop\.main\.js$/.test(Path),
 	Transform({ Path, Source }) {
-		if (Source.includes("__CEL_INSTANTIATION_SERVICE__")) {
+		if (Source.includes("CELExposeAccessor")) {
 			// Already patched in a previous build pass.
 			return { Kind: "Unchanged" };
 		}
-		// `web.main.js` covers the web profile; `desktop.main.js` covers
-		// the debug-electron / release-electron profile actually used at
-		// runtime. Both files contain the identical
-		// `const instantiationService = workbench.startup();` line - the
-		// only difference is the first-import marker the static-imports
-		// piggyback on. The replacement body is identical across both.
-		if (/web\.main\.js$/.test(Path) || /desktop\.main\.js$/.test(Path)) {
-			if (!Source.includes(WebMainMarker)) return { Kind: "Unchanged" };
-			const ImportMarker = /desktop\.main\.js$/.test(Path)
+		const IsWebMain = /\/web\.main\.js$/.test(Path);
+		const IsDesktopMain = /\/desktop\.main\.js$/.test(Path);
+		const IsWebFactory = /\/web\.factory\.js$/.test(Path);
+
+		if (IsWebMain || IsDesktopMain) {
+			if (!Source.includes(StartupMarker)) {
+				return { Kind: "Unchanged" };
+			}
+			const ImportMarker = IsDesktopMain
 				? DesktopMainImportMarker
 				: WebMainImportMarker;
-			const ImportReplacement = /desktop\.main\.js$/.test(Path)
-				? DesktopMainImportReplacement
-				: WebMainImportReplacement;
-			if (!Source.includes(ImportMarker)) return { Kind: "Unchanged" };
-			let Next = Source.replace(ImportMarker, ImportReplacement);
-			Next = Next.replace(WebMainMarker, WebMainReplacement);
-			return Next === Source
-				? { Kind: "Unchanged" }
-				: { Kind: "Rewrite", Source: Next };
-		}
-		if (/web\.factory\.js$/.test(Path)) {
-			if (!Source.includes(WebFactoryMarker))
+			const ImportInjection = IsDesktopMain
+				? DesktopMainImportInjection
+				: WebMainImportInjection;
+			if (!Source.includes(ImportMarker)) {
 				return { Kind: "Unchanged" };
+			}
 			const Next = Source.replace(
-				WebFactoryMarker,
-				WebFactoryReplacement,
-			);
+				ImportMarker,
+				ImportMarker + ImportInjection,
+			).replace(StartupMarker, StartupInjection);
 			return Next === Source
 				? { Kind: "Unchanged" }
 				: { Kind: "Rewrite", Source: Next };
 		}
+
+		if (IsWebFactory) {
+			if (!Source.includes(WorkbenchReadyMarker)) {
+				return { Kind: "Unchanged" };
+			}
+			if (!Source.includes(WebFactoryImportMarker)) {
+				return { Kind: "Unchanged" };
+			}
+			const Next = Source.replace(
+				WebFactoryImportMarker,
+				WebFactoryImportMarker + WebFactoryImportInjection,
+			).replace(WorkbenchReadyMarker, WorkbenchReadyInjection);
+			return Next === Source
+				? { Kind: "Unchanged" }
+				: { Kind: "Rewrite", Source: Next };
+		}
+
 		return { Kind: "Unchanged" };
 	},
 };

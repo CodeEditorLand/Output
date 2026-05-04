@@ -1,29 +1,34 @@
-const s = (e, a) => ({
-	name: `output:${e.Name}`,
-	setup(t) {
-		t.onLoad({ filter: /\.(m?js|cjs|ts|tsx|html)$/ }, async (o) => {
-			const r = a.Roots.find((d) => o.path.startsWith(d.Path));
-			if (
-				!r ||
-				!e.Match({ Path: o.path, Role: r.Role }) ||
-				(e.Enabled && !e.Enabled())
-			)
-				return null;
-			const { readFile: l } = await import("node:fs/promises"),
-				i = await l(o.path, "utf-8"),
-				n = await e.Transform({
-					Path: o.path,
-					Source: i,
-					Role: r.Role,
-				});
-			return n.Kind === "Unchanged"
-				? null
-				: {
-						contents: n.Source,
-						loader: o.path.endsWith(".html") ? "text" : "js",
-					};
-		});
-	},
-});
-var y = {};
-export { s as AsEsbuildPlugin, y as default };
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+const AsEsbuildPlugin = /* @__PURE__ */ __name((Plugin, Options) => ({
+  name: `output:${Plugin.Name}`,
+  setup(Build) {
+    Build.onLoad({ filter: /\.(m?js|cjs|ts|tsx|html)$/ }, async (Args) => {
+      const Matched = Options.Roots.find(
+        (Root) => Args.path.startsWith(Root.Path)
+      );
+      if (!Matched) return null;
+      if (!Plugin.Match({ Path: Args.path, Role: Matched.Role }) || Plugin.Enabled && !Plugin.Enabled()) {
+        return null;
+      }
+      const { readFile } = await import("node:fs/promises");
+      const Source = await readFile(Args.path, "utf-8");
+      const Result = await Plugin.Transform({
+        Path: Args.path,
+        Source,
+        Role: Matched.Role
+      });
+      if (Result.Kind === "Unchanged") return null;
+      return {
+        contents: Result.Source,
+        loader: Args.path.endsWith(".html") ? "text" : "js"
+      };
+    });
+  }
+}), "AsEsbuildPlugin");
+var Type_default = {};
+export {
+  AsEsbuildPlugin,
+  Type_default as default
+};
+//# sourceMappingURL=Type.js.map

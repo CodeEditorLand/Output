@@ -209,6 +209,47 @@ const ExposeAccessor = /* @__PURE__ */ __name((InstantiationService) => {
 			);
 		}
 		try {
+			if (typeof window !== "undefined" && window.addEventListener) {
+				const Land = globalThis;
+				if (!Land.__CEL_WEBVIEW_PORT_MAP__) {
+					Land.__CEL_WEBVIEW_PORT_MAP__ = /* @__PURE__ */ new Map();
+				}
+				if (!Land.__CEL_WEBVIEW_READY_HOOKED__) {
+					Land.__CEL_WEBVIEW_READY_HOOKED__ = true;
+					window.addEventListener(
+						"message",
+						(MessageEvent) => {
+							try {
+								const Data = MessageEvent?.data;
+								if (
+									Data &&
+									Data.channel === "webview-ready" &&
+									typeof Data.target === "string" &&
+									MessageEvent.ports &&
+									MessageEvent.ports.length > 0
+								) {
+									Land.__CEL_WEBVIEW_PORT_MAP__.set(
+										Data.target,
+										MessageEvent.ports[0],
+									);
+									Diagnostic(
+										"webview-port",
+										`captured webview-ready target=${Data.target} origin=${MessageEvent.origin}`,
+									);
+								}
+							} catch {}
+						},
+						true,
+					);
+				}
+			}
+		} catch (PortError) {
+			Diagnostic(
+				"webview-port",
+				`hook failed: ${String(PortError?.message ?? PortError)}`,
+			);
+		}
+		try {
 			window.dispatchEvent(new Event("cel:services-ready"));
 		} catch {}
 		Diagnostic("cel-services", "ready (sync via static import)");

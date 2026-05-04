@@ -2,38 +2,38 @@ import { default as default2 } from "./Apply.js";
 import {
 	CopyNodeModules,
 	CopyNodeModules as CopyNodeModulesFactory,
-	default as default52,
+	default as default53,
 	DefaultPackages,
 } from "./Copy/CopyNodeModules.js";
 import {
 	CopyTauriMainProcessService,
 	CopyTauriMainProcessService as CopyTauriMainProcessServiceFactory,
-	default as default54,
+	default as default55,
 } from "./Copy/CopyTauriMainProcessService.js";
 import {
 	CopyVSOutput,
 	CopyVSOutput as CopyVSOutputFactory,
-	default as default48,
+	default as default49,
 } from "./Copy/CopyVSOutput.js";
 import {
 	CopyVSRootFiles,
 	CopyVSRootFiles as CopyVSRootFilesFactory,
-	default as default49,
+	default as default50,
 } from "./Copy/CopyVSRootFiles.js";
 import {
 	CopyWorker,
 	CopyWorker as CopyWorkerFactory,
-	default as default51,
+	default as default52,
 } from "./Copy/CopyWorker.js";
 import {
-	default as default53,
+	default as default54,
 	DefaultStubs,
 	StubDataPrefix,
 	StubUnpublishedAddons,
 	StubUnpublishedAddons as StubUnpublishedAddonsFactory,
 } from "./Copy/StubUnpublishedAddons.js";
 import {
-	default as default50,
+	default as default51,
 	SupplementFromDependency,
 	SupplementFromDependency as SupplementFromDependencyFactory,
 } from "./Copy/SupplementFromDependency.js";
@@ -118,6 +118,9 @@ import PatchLocalTerminalBackend, {
 import PatchTerminalGpuAcceleration, {
 	default as default47,
 } from "./Transform/PatchTerminalGpuAcceleration.js";
+import PatchWebviewIframeServiceWorker, {
+	default as default48,
+} from "./Transform/PatchWebviewIframeServiceWorker.js";
 import ReplaceElectronIPCService, {
 	default as default30,
 } from "./Transform/ReplaceElectronIPCService.js";
@@ -373,6 +376,15 @@ const BuildPipeline = /* @__PURE__ */ __name((Input) => {
 		ExtensionScannerIPC,
 		CatchOutputFolderRejection,
 		StripWebviewIframeSandbox,
+		// Default `disableServiceWorker = true` inside the webview iframe
+		// shell so the bootstrap script's `await workerReady` resolves
+		// immediately under WKWebView (which rejects ServiceWorker
+		// registration on the `vscode-webview://` custom protocol). Without
+		// this every extension webview hangs at the bare `pre/index.html`
+		// chrome because the `content` message handler awaits the rejected
+		// `workerReady` promise and bails on `fatal-error` before rendering
+		// the extension HTML. Idempotent. Marker `__LAND_DISABLE_WEBVIEW_SW__`.
+		PatchWebviewIframeServiceWorker,
 		// Loosen the webview shell's `<meta http-equiv="Content-Security-Policy">`
 		// from a stale sha256 hash on the inline bootstrap script to
 		// `'unsafe-inline'`. Stock VS Code pins the hash; WKWebView
@@ -467,15 +479,15 @@ export {
 	BuildPipeline,
 	default38 as CatchOutputFolderRejection,
 	CopyNodeModules,
-	default52 as CopyNodeModulesDefault,
+	default53 as CopyNodeModulesDefault,
 	CopyTauriMainProcessService,
-	default54 as CopyTauriMainProcessServiceDefault,
+	default55 as CopyTauriMainProcessServiceDefault,
 	CopyVSOutput,
-	default48 as CopyVSOutputDefault,
+	default49 as CopyVSOutputDefault,
 	CopyVSRootFiles,
-	default49 as CopyVSRootFilesDefault,
+	default50 as CopyVSRootFilesDefault,
 	CopyWorker,
-	default51 as CopyWorkerDefault,
+	default52 as CopyWorkerDefault,
 	DefaultPackages as DefaultNodeModulePackages,
 	DefaultStubs,
 	default42 as DisableUnusedServices,
@@ -504,6 +516,7 @@ export {
 	default41 as InstrumentVscodeGit,
 	default46 as PatchLocalTerminalBackend,
 	default47 as PatchTerminalGpuAcceleration,
+	default48 as PatchWebviewIframeServiceWorker,
 	default30 as ReplaceElectronIPCService,
 	default31 as ReplaceExtensionGalleryService,
 	default43 as ReplaceSearchService,
@@ -524,9 +537,9 @@ export {
 	default39 as StripWebviewIframeSandbox,
 	StubDataPrefix,
 	StubUnpublishedAddons,
-	default53 as StubUnpublishedAddonsDefault,
+	default54 as StubUnpublishedAddonsDefault,
 	SupplementFromDependency,
-	default50 as SupplementFromDependencyDefault,
+	default51 as SupplementFromDependencyDefault,
 	Index_default as default,
 };
 //# sourceMappingURL=Index.js.map

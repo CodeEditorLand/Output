@@ -52,6 +52,6 @@ Build "../../Dependency/Microsoft/Dependency/Editor/$Build/**/*.{css,fish,html,j
 
 # Apply transform plugins to Output's own Target so every consumer
 # (Sky's /Static/Application copy AND Sky's bundled Vite walk) sees
-# pre-shimmed VS Code files. Compiled `Configuration/ApplyPipeline.js`
+# pre-shimmed VS Code files. Compiled `Configuration/Apply/Pipeline.js`
 # is emitted by the first Build step above (Source/**/*.ts pass).
-node Configuration/ApplyPipeline.js
+node Configuration/Apply/Pipeline.js

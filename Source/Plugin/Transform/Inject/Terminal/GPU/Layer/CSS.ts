@@ -42,13 +42,13 @@
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 
-import type { TransformPlugin } from "../Type.js";
+import type { TransformPlugin } from "../../../../../Type.js";
 
 const Marker = "__LAND_TERMINAL_GPU_LAYER__";
 
 const StylesheetPath = fileURLToPath(
 	new URL(
-		"../../../Source/Asset/Style/TerminalGPULayer.css",
+		"../../../../../../../Source/Asset/Style/Terminal/GPU/Layer.css",
 		import.meta.url,
 	),
 );

@@ -9,8 +9,8 @@
 
 import TelemetryConsentOff, {
 	Marker,
-} from "../Polyfill/TelemetryConsentOff.js";
-import type { TransformPlugin } from "../Type.js";
+} from "../../../../Polyfill/Telemetry/Consent/Off.js";
+import type { TransformPlugin } from "../../../../Type.js";
 
 const Polyfill = `\n/* ${Marker} */\n(${TelemetryConsentOff.toString()})();\n`;
 

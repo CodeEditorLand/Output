@@ -26,7 +26,7 @@
  *                  columns: [{start, end}] }] }]
  */
 
-import type { TransformPlugin } from "../Type.js";
+import type { TransformPlugin } from "../../../Type.js";
 
 // Land's electron profile bundles `electron-browser/searchService.js`; the
 // browser/ variant ships the upstream worker provider. Match BOTH so this

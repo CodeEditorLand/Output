@@ -149,7 +149,7 @@ export default async (Current: BuildOptions): Promise<BuildOptions> =>
 
 					...(await import("../Exclude/Server.js")).default(Prefix),
 
-					...(await import("../Exclude/WebWorker.js")).default(
+					...(await import("../Exclude/Web/Worker.js")).default(
 						Prefix,
 					),
 
@@ -161,7 +161,7 @@ export default async (Current: BuildOptions): Promise<BuildOptions> =>
 						Prefix,
 					),
 
-					...(await import("../Exclude/BuiltIn.js")).default(Prefix),
+					...(await import("../Exclude/Built/In.js")).default(Prefix),
 
 					...(await import("../Exclude/NLS.js")).default(Prefix),
 
@@ -215,7 +215,7 @@ export default async (Current: BuildOptions): Promise<BuildOptions> =>
 					//     .default(Prefix),
 					// ...(await import("../Exclude/Network.js"))
 					//     .default(Prefix),
-					// ...(await import("../Exclude/ChromiumIPC.js"))
+					// ...(await import("../Exclude/Chromium/IPC.js"))
 					//     .default(Prefix),
 
 					"tsec.exemptions.json",

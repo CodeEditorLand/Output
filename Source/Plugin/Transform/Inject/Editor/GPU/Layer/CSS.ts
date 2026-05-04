@@ -31,7 +31,7 @@
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 
-import type { TransformPlugin } from "../Type.js";
+import type { TransformPlugin } from "../../../../../Type.js";
 
 const Marker = "__LAND_EDITOR_GPU_LAYER__";
 
@@ -40,7 +40,10 @@ const Marker = "__LAND_EDITOR_GPU_LAYER__";
 // to the package root and into `Source/Asset/Style/` keeps the CSS source
 // alongside its sibling stylesheets without forcing an esbuild copy step.
 const StylesheetPath = fileURLToPath(
-	new URL("../../../Source/Asset/Style/EditorGPULayer.css", import.meta.url),
+	new URL(
+		"../../../../../../../Source/Asset/Style/Editor/GPU/Layer.css",
+		import.meta.url,
+	),
 );
 const InjectedCSS = "\n" + (await readFile(StylesheetPath, "utf8"));
 

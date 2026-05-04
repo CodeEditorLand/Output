@@ -19,7 +19,7 @@
  * `SharedProcessService` from the workbench services path keeps working.
  */
 
-import type { TransformPlugin } from "../Type.js";
+import type { TransformPlugin } from "../../../Type.js";
 
 const Marker =
 	"workbench/services/sharedProcess/electron-browser/sharedProcessService.js".replaceAll(

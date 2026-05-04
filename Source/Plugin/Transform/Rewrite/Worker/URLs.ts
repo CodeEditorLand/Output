@@ -21,7 +21,7 @@
  * Idempotent via `__LAND_WORKER_URLS_REWRITTEN__` marker.
  */
 
-import type { TransformPlugin } from "../Type.js";
+import type { TransformPlugin } from "../../../Type.js";
 
 const Marker = "/* __LAND_WORKER_URLS_REWRITTEN__ */";
 

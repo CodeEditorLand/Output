@@ -24,8 +24,10 @@
  * during Output's own build).
  */
 
-import DisableLazyPaint, { Marker } from "../Polyfill/DisableLazyPaint.js";
-import type { TransformPlugin } from "../Type.js";
+import DisableLazyPaint, {
+	Marker,
+} from "../../../../Polyfill/Disable/Lazy/Paint.js";
+import type { TransformPlugin } from "../../../../Type.js";
 
 /** Wrap the compiled function body in an IIFE so it executes at
  *  prepend-time (the original embedded form was already an IIFE).

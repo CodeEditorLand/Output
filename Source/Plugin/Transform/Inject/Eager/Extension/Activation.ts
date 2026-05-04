@@ -9,8 +9,8 @@
 
 import EagerExtensionActivation, {
 	Marker,
-} from "../Polyfill/EagerExtensionActivation.js";
-import type { TransformPlugin } from "../Type.js";
+} from "../../../../Polyfill/Eager/Extension/Activation.js";
+import type { TransformPlugin } from "../../../../Type.js";
 
 const Polyfill = `\n/* ${Marker} */\n(${EagerExtensionActivation.toString()})();\n`;
 

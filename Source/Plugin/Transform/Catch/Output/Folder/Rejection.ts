@@ -36,7 +36,7 @@
  * Output build step - use that as a regression tripwire.
  */
 
-import type { TransformPlugin } from "../Type.js";
+import type { TransformPlugin } from "../../../../Type.js";
 
 const PathRegex = /\/workbench\/contrib\/output\/browser\/outputServices\.js$/;
 

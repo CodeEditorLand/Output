@@ -38,7 +38,7 @@
  * so re-running the transform is a no-op.
  */
 
-import type { TransformPlugin } from "../Type.js";
+import type { TransformPlugin } from "../../../Type.js";
 
 const Marker = (Letter: string, Note: string): string =>
 	`try { process.stdout.write('[GIT-MARK-${Letter}] ${Note}\\n'); } catch (e) {} `;

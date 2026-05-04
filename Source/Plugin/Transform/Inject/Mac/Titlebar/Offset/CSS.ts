@@ -14,8 +14,8 @@
 
 import MacTitlebarOffsetCSS, {
 	Marker,
-} from "../Polyfill/MacTitlebarOffsetCSS.js";
-import type { TransformPlugin } from "../Type.js";
+} from "../../../../../Polyfill/Mac/Titlebar/Offset/CSS.js";
+import type { TransformPlugin } from "../../../../../Type.js";
 
 const Polyfill = `\n/* ${Marker} */\n(${MacTitlebarOffsetCSS.toString()})();\n`;
 

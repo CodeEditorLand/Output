@@ -1,7 +1,7 @@
 let RestPlugin = null;
 if (process.env["Compiler"]?.toLowerCase() === "rest") {
 	try {
-		const { createRestPluginIfEnabled } = await import("./RestPlugin.js");
+		const { createRestPluginIfEnabled } = await import("./Rest/Plugin.js");
 		RestPlugin = createRestPluginIfEnabled();
 	} catch {
 		console.warn(

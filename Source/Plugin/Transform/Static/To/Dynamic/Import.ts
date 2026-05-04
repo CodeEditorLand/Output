@@ -24,7 +24,7 @@
  * `<script>` evaluation.
  */
 
-import type { TransformPlugin } from "../Type.js";
+import type { TransformPlugin } from "../../../../Type.js";
 
 const Marker = "workbench/workbench.desktop.main.js".replaceAll("/", "\\/");
 const PathRegex = new RegExp(`${Marker}$`);

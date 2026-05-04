@@ -435,8 +435,8 @@ function ParseIPCMessage(Buffer: ArrayBuffer): {
  * showed nothing, search never left the workbench, and workspace
  * state was not persisted.
  *
- * Kept in lockstep with `Wind/Source/Service/TauriMainProcessService.ts`
- * and `Output/Source/Service/TauriMainProcessService.ts` ChannelRouteMap.
+ * Kept in lockstep with `Wind/Source/Service/Tauri/Main/Process/Service.ts`
+ * and `Output/Source/Service/Tauri/Main/Process/Service.ts` ChannelRouteMap.
  */
 function MapChannelMethodToTauri(
 	Channel: string,

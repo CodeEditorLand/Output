@@ -35,7 +35,7 @@
  *     terminal still work after the disable (run a smoke test).
  */
 
-import type { TransformPlugin } from "../Type.js";
+import type { TransformPlugin } from "../../../Type.js";
 
 const InertBody =
 	"// [Land] disabled by DisableUnusedServices transform.\nexport default {};\n";

@@ -20,7 +20,7 @@
 
 import { stat } from "node:fs/promises";
 
-import type { TransformPlugin } from "../Type.js";
+import type { TransformPlugin } from "../../../../Type.js";
 
 const SourceMapComment = /\n?\/\/[#@][ \t]*sourceMappingURL=[^\n]*\n?$/;
 

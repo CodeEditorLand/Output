@@ -58,7 +58,7 @@
  * out-build mangler, so the rewrite silently ran on no files.
  */
 
-import type { TransformPlugin } from "../Type.js";
+import type { TransformPlugin } from "../../../../../Type.js";
 
 const Marker = "/* __LAND_STATIC_BLOCK_SELFREF_REWRITTEN__ */";
 

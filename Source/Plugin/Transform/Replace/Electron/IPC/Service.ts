@@ -13,7 +13,7 @@
  * does the lookup once, copies the service, then runs this transform.
  */
 
-import type { TransformPlugin } from "../Type.js";
+import type { TransformPlugin } from "../../../../Type.js";
 
 const Marker = "platform/ipc/electron-browser/mainProcessService.js".replaceAll(
 	"/",

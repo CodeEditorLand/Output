@@ -44,7 +44,7 @@
  * `sky://terminal/*`); that's parallel and unaffected.
  */
 
-import type { TransformPlugin } from "../Type.js";
+import type { TransformPlugin } from "../../../../Type.js";
 
 const Marker =
 	"workbench/contrib/terminal/electron-browser/localTerminalBackend.js".replaceAll(

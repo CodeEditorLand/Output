@@ -9,8 +9,8 @@
 
 import EagerLifecyclePhase, {
 	Marker,
-} from "../Polyfill/EagerLifecyclePhase.js";
-import type { TransformPlugin } from "../Type.js";
+} from "../../../../Polyfill/Eager/Lifecycle/Phase.js";
+import type { TransformPlugin } from "../../../../Type.js";
 
 const Polyfill = `\n/* ${Marker} */\n(${EagerLifecyclePhase.toString()})();\n`;
 

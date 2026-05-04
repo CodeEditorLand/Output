@@ -8,8 +8,8 @@
 
 import WorkbenchPaintPrime, {
 	Marker,
-} from "../Polyfill/WorkbenchPaintPrime.js";
-import type { TransformPlugin } from "../Type.js";
+} from "../../../../Polyfill/Workbench/Paint/Prime.js";
+import type { TransformPlugin } from "../../../../Type.js";
 
 const Polyfill = `\n/* ${Marker} */\n(${WorkbenchPaintPrime.toString()})();\n`;
 

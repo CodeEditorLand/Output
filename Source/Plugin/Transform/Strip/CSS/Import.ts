@@ -8,7 +8,7 @@
  * Worker Element and is attached to `window` at boot.
  */
 
-import type { TransformPlugin } from "../Type.js";
+import type { TransformPlugin } from "../../../Type.js";
 
 const CSSImport = /import\s*(['"])([^'"]+\.css)\1\s*;?/g;
 

@@ -10,8 +10,8 @@
 
 import StripBackgroundPolling, {
 	Marker,
-} from "../Polyfill/StripBackgroundPolling.js";
-import type { TransformPlugin } from "../Type.js";
+} from "../../../../Polyfill/Strip/Background/Polling.js";
+import type { TransformPlugin } from "../../../../Type.js";
 
 const Polyfill = `\n/* ${Marker} */\n(${StripBackgroundPolling.toString()})();\n`;
 

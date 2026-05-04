@@ -106,7 +106,7 @@ var VSCode_default = /* @__PURE__ */ __name(
 					...(await import("../Exclude/Test.js")).default(Prefix),
 					...(await import("../Exclude/Electron.js")).default(Prefix),
 					...(await import("../Exclude/Server.js")).default(Prefix),
-					...(await import("../Exclude/WebWorker.js")).default(
+					...(await import("../Exclude/Web/Worker.js")).default(
 						Prefix,
 					),
 					...(await import("../Exclude/Standalone.js")).default(
@@ -115,7 +115,7 @@ var VSCode_default = /* @__PURE__ */ __name(
 					...(await import("../Exclude/Workbench.js")).default(
 						Prefix,
 					),
-					...(await import("../Exclude/BuiltIn.js")).default(Prefix),
+					...(await import("../Exclude/Built/In.js")).default(Prefix),
 					...(await import("../Exclude/NLS.js")).default(Prefix),
 					...(await import("../Exclude/Potential.js")).default(
 						Prefix,
@@ -163,7 +163,7 @@ var VSCode_default = /* @__PURE__ */ __name(
 					//     .default(Prefix),
 					// ...(await import("../Exclude/Network.js"))
 					//     .default(Prefix),
-					// ...(await import("../Exclude/ChromiumIPC.js"))
+					// ...(await import("../Exclude/Chromium/IPC.js"))
 					//     .default(Prefix),
 					"tsec.exemptions.json",
 					"cgmanifest.json",

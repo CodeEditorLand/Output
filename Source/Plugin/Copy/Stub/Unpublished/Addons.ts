@@ -16,7 +16,7 @@
 
 import { join } from "node:path";
 
-import type { CopyPlugin } from "../Type.js";
+import type { CopyPlugin } from "../../../Type.js";
 
 export interface StubUnpublishedAddonsInput {
 	readonly Destination: string;

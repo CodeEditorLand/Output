@@ -34,7 +34,7 @@
  * Idempotent: skip if the marker is already present.
  */
 
-import type { TransformPlugin } from "../Type.js";
+import type { TransformPlugin } from "../../../../Type.js";
 
 const Marker = "/* __LAND_NESTED_WORKER_BOOTSTRAP_INLINED__ */";
 

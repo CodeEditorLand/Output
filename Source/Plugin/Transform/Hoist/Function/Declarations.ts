@@ -44,7 +44,7 @@
  * corrected.
  */
 
-import type { TransformPlugin } from "../Type.js";
+import type { TransformPlugin } from "../../../Type.js";
 
 // Marker is bumped to V2 so files transformed by the previous (V1) pass
 // re-run under the corrected logic. V1 pulled `__name(NAME, "NAME");`

@@ -4,7 +4,7 @@
  * path resolves against a real file served at `/Worker.js`.
  */
 
-import type { CopyPlugin } from "../Type.js";
+import type { CopyPlugin } from "../../Type.js";
 
 export interface CopyWorkerInput {
 	readonly From: string;

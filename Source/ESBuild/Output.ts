@@ -6,7 +6,7 @@ import type { BuildOptions } from "esbuild";
 let RestPlugin: import("esbuild").Plugin | null = null;
 if (process.env["Compiler"]?.toLowerCase() === "rest") {
 	try {
-		const { createRestPluginIfEnabled } = await import("./RestPlugin.js");
+		const { createRestPluginIfEnabled } = await import("./Rest/Plugin.js");
 		RestPlugin = createRestPluginIfEnabled();
 	} catch {
 		console.warn(

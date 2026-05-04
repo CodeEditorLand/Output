@@ -52,7 +52,7 @@
 //     and friends. Those are the ext-host RPC surface; they call
 //     into the abstract IIPCChannel and are wired by our shim.
 
-export const { Browser, Electron } = await import("../../ESBuild.js");
+export const { Browser, Electron } = await import("../../../ESBuild.js");
 
 // Always exclude these - they're dead in BOTH browser and bundled-
 // electron Land profiles because we never run a Chromium V8

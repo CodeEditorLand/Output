@@ -37,7 +37,7 @@
  *   - fileIconThemeData:  `__LAND_FILE_ICON_THEME_URL_REWRITE__`
  */
 
-import type { TransformPlugin } from "../Type.js";
+import type { TransformPlugin } from "../../../../../Type.js";
 
 interface AnchorSpec {
 	readonly Marker: string;

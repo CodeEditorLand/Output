@@ -10,7 +10,7 @@
  * supplies the file it refers to.
  */
 
-import type { CopyPlugin } from "../Type.js";
+import type { CopyPlugin } from "../../../../../Type.js";
 
 export interface CopyTauriMainProcessServiceInput {
 	readonly OutputService: string;

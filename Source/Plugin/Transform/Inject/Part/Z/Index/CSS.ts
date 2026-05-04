@@ -13,8 +13,10 @@
  * Idempotent. Marker `__LAND_PART_ZINDEX__`.
  */
 
-import PartZIndexCSS, { Marker } from "../Polyfill/PartZIndexCSS.js";
-import type { TransformPlugin } from "../Type.js";
+import PartZIndexCSS, {
+	Marker,
+} from "../../../../../Polyfill/Part/Z/Index/CSS.js";
+import type { TransformPlugin } from "../../../../../Type.js";
 
 const Polyfill = `\n/* ${Marker} */\n(${PartZIndexCSS.toString()})();\n`;
 

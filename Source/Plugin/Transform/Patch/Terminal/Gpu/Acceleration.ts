@@ -31,7 +31,7 @@
  * Idempotent via the `[Land] gpuAcceleration default` marker comment.
  */
 
-import type { TransformPlugin } from "../Type.js";
+import type { TransformPlugin } from "../../../../Type.js";
 
 const Marker = "[Land] gpuAcceleration default";
 

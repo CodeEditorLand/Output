@@ -14,8 +14,8 @@
 
 import WorkbenchInteractivityCSS, {
 	Marker,
-} from "../Polyfill/WorkbenchInteractivityCSS.js";
-import type { TransformPlugin } from "../Type.js";
+} from "../../../../Polyfill/Workbench/Interactivity/CSS.js";
+import type { TransformPlugin } from "../../../../Type.js";
 
 const Polyfill = `\n/* ${Marker} */\n(${WorkbenchInteractivityCSS.toString()})();\n`;
 

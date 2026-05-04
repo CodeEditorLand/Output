@@ -15,7 +15,7 @@
  * body to a one-line re-export pointing at the canonical sibling.
  */
 
-import type { TransformPlugin } from "../Type.js";
+import type { TransformPlugin } from "../../../../Type.js";
 
 const PathRegex =
 	/vs\/platform\/extensionManagement\/common\/extensionGalleryService\.js$/;

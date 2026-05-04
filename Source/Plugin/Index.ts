@@ -1,77 +1,77 @@
 import {
 	CopyNodeModules as CopyNodeModulesFactory,
 	type CopyNodeModulesInput,
-} from "./Copy/CopyNodeModules.js";
+} from "./Copy/Copy/Node/Modules.js";
 import {
 	CopyTauriMainProcessService as CopyTauriMainProcessServiceFactory,
 	type CopyTauriMainProcessServiceInput,
-} from "./Copy/CopyTauriMainProcessService.js";
+} from "./Copy/Copy/Tauri/Main/Process/Service.js";
 import {
 	CopyVSOutput as CopyVSOutputFactory,
 	type CopyVSOutputInput,
-} from "./Copy/CopyVSOutput.js";
+} from "./Copy/Copy/VS/Output.js";
 import {
 	CopyVSRootFiles as CopyVSRootFilesFactory,
 	type CopyVSRootFilesInput,
-} from "./Copy/CopyVSRootFiles.js";
+} from "./Copy/Copy/VS/Root/Files.js";
 import {
 	CopyWorker as CopyWorkerFactory,
 	type CopyWorkerInput,
-} from "./Copy/CopyWorker.js";
+} from "./Copy/Copy/Worker.js";
 import {
 	StubUnpublishedAddons as StubUnpublishedAddonsFactory,
 	type StubUnpublishedAddonsInput,
-} from "./Copy/StubUnpublishedAddons.js";
+} from "./Copy/Stub/Unpublished/Addons.js";
 import {
 	SupplementFromDependency as SupplementFromDependencyFactory,
 	type SupplementFromDependencyInput,
-} from "./Copy/SupplementFromDependency.js";
-import CatchOutputFolderRejection from "./Transform/CatchOutputFolderRejection.js";
-import DisableUnusedServices from "./Transform/DisableUnusedServices.js";
-import ExposeWorkbenchAccessor from "./Transform/ExposeWorkbenchAccessor.js";
-import ExtensionScannerIPC from "./Transform/ExtensionScannerIPC.js";
-import ForceTextAreaInput from "./Transform/ForceTextAreaInput.js";
-import HoistFunctionDeclarations from "./Transform/HoistFunctionDeclarations.js";
-import InjectConfigurationOverlay from "./Transform/InjectConfigurationOverlay.js";
-import InjectDisableLazyPaint from "./Transform/InjectDisableLazyPaint.js";
-import InjectEagerExtensionActivation from "./Transform/InjectEagerExtensionActivation.js";
-import InjectEagerIdleValue from "./Transform/InjectEagerIdleValue.js";
-import InjectEagerLifecyclePhase from "./Transform/InjectEagerLifecyclePhase.js";
-import InjectEditorGPULayerCSS from "./Transform/InjectEditorGPULayerCSS.js";
-import InjectMacTitlebarOffsetCSS from "./Transform/InjectMacTitlebarOffsetCSS.js";
-import InjectNameShim from "./Transform/InjectNameShim.js";
-import InjectPartZIndexCSS from "./Transform/InjectPartZIndexCSS.js";
-import InjectStorageOverlay from "./Transform/InjectStorageOverlay.js";
-import InjectStripBackgroundPolling from "./Transform/InjectStripBackgroundPolling.js";
-import InjectTelemetryConsentOff from "./Transform/InjectTelemetryConsentOff.js";
-import InjectTerminalGPULayerCSS from "./Transform/InjectTerminalGPULayerCSS.js";
-import InjectWebViewPolyfills from "./Transform/InjectWebViewPolyfills.js";
-import InjectWorkbenchInteractivityCSS from "./Transform/InjectWorkbenchInteractivityCSS.js";
-import InjectWorkbenchPaintPrime from "./Transform/InjectWorkbenchPaintPrime.js";
-import InjectWorkerBootstrapShim from "./Transform/InjectWorkerBootstrapShim.js";
-import InlineCSSImport from "./Transform/InlineCSSImport.js";
-import InstrumentVscodeGit from "./Transform/InstrumentVscodeGit.js";
-import PatchLocalTerminalBackend from "./Transform/PatchLocalTerminalBackend.js";
-import PatchTerminalGpuAcceleration from "./Transform/PatchTerminalGpuAcceleration.js";
-import PatchWebviewIframeServiceWorker from "./Transform/PatchWebviewIframeServiceWorker.js";
-import ReplaceElectronIPCService from "./Transform/ReplaceElectronIPCService.js";
-import ReplaceExtensionGalleryService from "./Transform/ReplaceExtensionGalleryService.js";
-import ReplaceSearchService from "./Transform/ReplaceSearchService.js";
-import ReplaceSharedProcess from "./Transform/ReplaceSharedProcess.js";
-import ReplaceTelemetryService from "./Transform/ReplaceTelemetryService.js";
-import ReplaceUpdateService from "./Transform/ReplaceUpdateService.js";
-import RewriteIconsStyleSheetURLs from "./Transform/RewriteIconsStyleSheetURLs.js";
-import RewriteNestedWorkerBootstrap from "./Transform/RewriteNestedWorkerBootstrap.js";
-import RewriteNodeModulesPath from "./Transform/RewriteNodeModulesPath.js";
-import RewritePerfBaselineWorker from "./Transform/RewritePerfBaselineWorker.js";
-import RewriteStaticBlockSelfRef from "./Transform/RewriteStaticBlockSelfRef.js";
-import RewriteWebviewShellCSP from "./Transform/RewriteWebviewShellCSP.js";
-import RewriteWorkbenchBaseURL from "./Transform/RewriteWorkbenchBaseURL.js";
-import RewriteWorkerURLs from "./Transform/RewriteWorkerURLs.js";
-import StaticToDynamicImport from "./Transform/StaticToDynamicImport.js";
-import StripCSSImport from "./Transform/StripCSSImport.js";
-import StripDanglingSourceMap from "./Transform/StripDanglingSourceMap.js";
-import StripWebviewIframeSandbox from "./Transform/StripWebviewIframeSandbox.js";
+} from "./Copy/Supplement/From/Dependency.js";
+import CatchOutputFolderRejection from "./Transform/Catch/Output/Folder/Rejection.js";
+import DisableUnusedServices from "./Transform/Disable/Unused/Services.js";
+import ExposeWorkbenchAccessor from "./Transform/Expose/Workbench/Accessor.js";
+import ExtensionScannerIPC from "./Transform/Extension/Scanner/IPC.js";
+import ForceTextAreaInput from "./Transform/Force/Text/Area/Input.js";
+import HoistFunctionDeclarations from "./Transform/Hoist/Function/Declarations.js";
+import InjectConfigurationOverlay from "./Transform/Inject/Configuration/Overlay.js";
+import InjectDisableLazyPaint from "./Transform/Inject/Disable/Lazy/Paint.js";
+import InjectEagerExtensionActivation from "./Transform/Inject/Eager/Extension/Activation.js";
+import InjectEagerIdleValue from "./Transform/Inject/Eager/Idle/Value.js";
+import InjectEagerLifecyclePhase from "./Transform/Inject/Eager/Lifecycle/Phase.js";
+import InjectEditorGPULayerCSS from "./Transform/Inject/Editor/GPU/Layer/CSS.js";
+import InjectMacTitlebarOffsetCSS from "./Transform/Inject/Mac/Titlebar/Offset/CSS.js";
+import InjectNameShim from "./Transform/Inject/Name/Shim.js";
+import InjectPartZIndexCSS from "./Transform/Inject/Part/Z/Index/CSS.js";
+import InjectStorageOverlay from "./Transform/Inject/Storage/Overlay.js";
+import InjectStripBackgroundPolling from "./Transform/Inject/Strip/Background/Polling.js";
+import InjectTelemetryConsentOff from "./Transform/Inject/Telemetry/Consent/Off.js";
+import InjectTerminalGPULayerCSS from "./Transform/Inject/Terminal/GPU/Layer/CSS.js";
+import InjectWebViewPolyfills from "./Transform/Inject/Web/View/Polyfills.js";
+import InjectWorkbenchInteractivityCSS from "./Transform/Inject/Workbench/Interactivity/CSS.js";
+import InjectWorkbenchPaintPrime from "./Transform/Inject/Workbench/Paint/Prime.js";
+import InjectWorkerBootstrapShim from "./Transform/Inject/Worker/Bootstrap/Shim.js";
+import InlineCSSImport from "./Transform/Inline/CSS/Import.js";
+import InstrumentVscodeGit from "./Transform/Instrument/Vscode/Git.js";
+import PatchLocalTerminalBackend from "./Transform/Patch/Local/Terminal/Backend.js";
+import PatchTerminalGpuAcceleration from "./Transform/Patch/Terminal/Gpu/Acceleration.js";
+import PatchWebviewIframeServiceWorker from "./Transform/Patch/Webview/Iframe/Service/Worker.js";
+import ReplaceElectronIPCService from "./Transform/Replace/Electron/IPC/Service.js";
+import ReplaceExtensionGalleryService from "./Transform/Replace/Extension/Gallery/Service.js";
+import ReplaceSearchService from "./Transform/Replace/Search/Service.js";
+import ReplaceSharedProcess from "./Transform/Replace/Shared/Process.js";
+import ReplaceTelemetryService from "./Transform/Replace/Telemetry/Service.js";
+import ReplaceUpdateService from "./Transform/Replace/Update/Service.js";
+import RewriteIconsStyleSheetURLs from "./Transform/Rewrite/Icons/Style/Sheet/URLs.js";
+import RewriteNestedWorkerBootstrap from "./Transform/Rewrite/Nested/Worker/Bootstrap.js";
+import RewriteNodeModulesPath from "./Transform/Rewrite/Node/Modules/Path.js";
+import RewritePerfBaselineWorker from "./Transform/Rewrite/Perf/Baseline/Worker.js";
+import RewriteStaticBlockSelfRef from "./Transform/Rewrite/Static/Block/Self/Ref.js";
+import RewriteWebviewShellCSP from "./Transform/Rewrite/Webview/Shell/CSP.js";
+import RewriteWorkbenchBaseURL from "./Transform/Rewrite/Workbench/Base/URL.js";
+import RewriteWorkerURLs from "./Transform/Rewrite/Worker/URLs.js";
+import StaticToDynamicImport from "./Transform/Static/To/Dynamic/Import.js";
+import StripCSSImport from "./Transform/Strip/CSS/Import.js";
+import StripDanglingSourceMap from "./Transform/Strip/Dangling/Source/Map.js";
+import StripWebviewIframeSandbox from "./Transform/Strip/Webview/Iframe/Sandbox.js";
 import type { Plugin } from "./Type.js";
 
 /**
@@ -121,88 +121,91 @@ export * from "./Type.js";
 export { default as ApplyPlugins } from "./Apply.js";
 export type { ApplyInput, ApplyOutcome } from "./Apply.js";
 
-export { default as StripCSSImport } from "./Transform/StripCSSImport.js";
-export { default as InlineCSSImport } from "./Transform/InlineCSSImport.js";
-export { default as InjectNameShim } from "./Transform/InjectNameShim.js";
-export { default as InjectDisableLazyPaint } from "./Transform/InjectDisableLazyPaint.js";
-export { default as InjectEagerExtensionActivation } from "./Transform/InjectEagerExtensionActivation.js";
-export { default as InjectEagerIdleValue } from "./Transform/InjectEagerIdleValue.js";
-export { default as InjectEagerLifecyclePhase } from "./Transform/InjectEagerLifecyclePhase.js";
-export { default as InjectStripBackgroundPolling } from "./Transform/InjectStripBackgroundPolling.js";
-export { default as InjectTelemetryConsentOff } from "./Transform/InjectTelemetryConsentOff.js";
-export { default as InjectWebViewPolyfills } from "./Transform/InjectWebViewPolyfills.js";
-export { default as InjectMacTitlebarOffsetCSS } from "./Transform/InjectMacTitlebarOffsetCSS.js";
-export { default as InjectPartZIndexCSS } from "./Transform/InjectPartZIndexCSS.js";
-export { default as InjectWorkbenchInteractivityCSS } from "./Transform/InjectWorkbenchInteractivityCSS.js";
-export { default as InjectWorkbenchPaintPrime } from "./Transform/InjectWorkbenchPaintPrime.js";
-export { default as InjectWorkerBootstrapShim } from "./Transform/InjectWorkerBootstrapShim.js";
-export { default as InjectConfigurationOverlay } from "./Transform/InjectConfigurationOverlay.js";
-export { default as InjectStorageOverlay } from "./Transform/InjectStorageOverlay.js";
-export { default as ForceTextAreaInput } from "./Transform/ForceTextAreaInput.js";
-export { default as RewriteIconsStyleSheetURLs } from "./Transform/RewriteIconsStyleSheetURLs.js";
-export { default as RewriteWebviewShellCSP } from "./Transform/RewriteWebviewShellCSP.js";
-export { default as RewriteNestedWorkerBootstrap } from "./Transform/RewriteNestedWorkerBootstrap.js";
-export { default as RewriteNodeModulesPath } from "./Transform/RewriteNodeModulesPath.js";
-export { default as RewritePerfBaselineWorker } from "./Transform/RewritePerfBaselineWorker.js";
-export { default as RewriteWorkerURLs } from "./Transform/RewriteWorkerURLs.js";
-export { default as RewriteWorkbenchBaseURL } from "./Transform/RewriteWorkbenchBaseURL.js";
-export { default as RewriteStaticBlockSelfRef } from "./Transform/RewriteStaticBlockSelfRef.js";
-export { default as HoistFunctionDeclarations } from "./Transform/HoistFunctionDeclarations.js";
-export { default as ReplaceElectronIPCService } from "./Transform/ReplaceElectronIPCService.js";
-export { default as ReplaceExtensionGalleryService } from "./Transform/ReplaceExtensionGalleryService.js";
-export { default as ReplaceSharedProcess } from "./Transform/ReplaceSharedProcess.js";
-export { default as ReplaceTelemetryService } from "./Transform/ReplaceTelemetryService.js";
-export { default as ReplaceUpdateService } from "./Transform/ReplaceUpdateService.js";
-export { default as StaticToDynamicImport } from "./Transform/StaticToDynamicImport.js";
-export { default as StripDanglingSourceMap } from "./Transform/StripDanglingSourceMap.js";
-export { default as ExtensionScannerIPC } from "./Transform/ExtensionScannerIPC.js";
-export { default as CatchOutputFolderRejection } from "./Transform/CatchOutputFolderRejection.js";
-export { default as StripWebviewIframeSandbox } from "./Transform/StripWebviewIframeSandbox.js";
-export { default as ExposeWorkbenchAccessor } from "./Transform/ExposeWorkbenchAccessor.js";
-export { default as InstrumentVscodeGit } from "./Transform/InstrumentVscodeGit.js";
-export { default as DisableUnusedServices } from "./Transform/DisableUnusedServices.js";
-export { default as ReplaceSearchService } from "./Transform/ReplaceSearchService.js";
-export { default as InjectEditorGPULayerCSS } from "./Transform/InjectEditorGPULayerCSS.js";
-export { default as InjectTerminalGPULayerCSS } from "./Transform/InjectTerminalGPULayerCSS.js";
-export { default as PatchLocalTerminalBackend } from "./Transform/PatchLocalTerminalBackend.js";
-export { default as PatchTerminalGpuAcceleration } from "./Transform/PatchTerminalGpuAcceleration.js";
-export { default as PatchWebviewIframeServiceWorker } from "./Transform/PatchWebviewIframeServiceWorker.js";
+export { default as StripCSSImport } from "./Transform/Strip/CSS/Import.js";
+export { default as InlineCSSImport } from "./Transform/Inline/CSS/Import.js";
+export { default as InjectNameShim } from "./Transform/Inject/Name/Shim.js";
+export { default as InjectDisableLazyPaint } from "./Transform/Inject/Disable/Lazy/Paint.js";
+export { default as InjectEagerExtensionActivation } from "./Transform/Inject/Eager/Extension/Activation.js";
+export { default as InjectEagerIdleValue } from "./Transform/Inject/Eager/Idle/Value.js";
+export { default as InjectEagerLifecyclePhase } from "./Transform/Inject/Eager/Lifecycle/Phase.js";
+export { default as InjectStripBackgroundPolling } from "./Transform/Inject/Strip/Background/Polling.js";
+export { default as InjectTelemetryConsentOff } from "./Transform/Inject/Telemetry/Consent/Off.js";
+export { default as InjectWebViewPolyfills } from "./Transform/Inject/Web/View/Polyfills.js";
+export { default as InjectMacTitlebarOffsetCSS } from "./Transform/Inject/Mac/Titlebar/Offset/CSS.js";
+export { default as InjectPartZIndexCSS } from "./Transform/Inject/Part/Z/Index/CSS.js";
+export { default as InjectWorkbenchInteractivityCSS } from "./Transform/Inject/Workbench/Interactivity/CSS.js";
+export { default as InjectWorkbenchPaintPrime } from "./Transform/Inject/Workbench/Paint/Prime.js";
+export { default as InjectWorkerBootstrapShim } from "./Transform/Inject/Worker/Bootstrap/Shim.js";
+export { default as InjectConfigurationOverlay } from "./Transform/Inject/Configuration/Overlay.js";
+export { default as InjectStorageOverlay } from "./Transform/Inject/Storage/Overlay.js";
+export { default as ForceTextAreaInput } from "./Transform/Force/Text/Area/Input.js";
+export { default as RewriteIconsStyleSheetURLs } from "./Transform/Rewrite/Icons/Style/Sheet/URLs.js";
+export { default as RewriteWebviewShellCSP } from "./Transform/Rewrite/Webview/Shell/CSP.js";
+export { default as RewriteNestedWorkerBootstrap } from "./Transform/Rewrite/Nested/Worker/Bootstrap.js";
+export { default as RewriteNodeModulesPath } from "./Transform/Rewrite/Node/Modules/Path.js";
+export { default as RewritePerfBaselineWorker } from "./Transform/Rewrite/Perf/Baseline/Worker.js";
+export { default as RewriteWorkerURLs } from "./Transform/Rewrite/Worker/URLs.js";
+export { default as RewriteWorkbenchBaseURL } from "./Transform/Rewrite/Workbench/Base/URL.js";
+export { default as RewriteStaticBlockSelfRef } from "./Transform/Rewrite/Static/Block/Self/Ref.js";
+export { default as HoistFunctionDeclarations } from "./Transform/Hoist/Function/Declarations.js";
+export { default as ReplaceElectronIPCService } from "./Transform/Replace/Electron/IPC/Service.js";
+export { default as ReplaceExtensionGalleryService } from "./Transform/Replace/Extension/Gallery/Service.js";
+export { default as ReplaceSharedProcess } from "./Transform/Replace/Shared/Process.js";
+export { default as ReplaceTelemetryService } from "./Transform/Replace/Telemetry/Service.js";
+export { default as ReplaceUpdateService } from "./Transform/Replace/Update/Service.js";
+export { default as StaticToDynamicImport } from "./Transform/Static/To/Dynamic/Import.js";
+export { default as StripDanglingSourceMap } from "./Transform/Strip/Dangling/Source/Map.js";
+export { default as ExtensionScannerIPC } from "./Transform/Extension/Scanner/IPC.js";
+export { default as CatchOutputFolderRejection } from "./Transform/Catch/Output/Folder/Rejection.js";
+export { default as StripWebviewIframeSandbox } from "./Transform/Strip/Webview/Iframe/Sandbox.js";
+export { default as ExposeWorkbenchAccessor } from "./Transform/Expose/Workbench/Accessor.js";
+export { default as InstrumentVscodeGit } from "./Transform/Instrument/Vscode/Git.js";
+export { default as DisableUnusedServices } from "./Transform/Disable/Unused/Services.js";
+export { default as ReplaceSearchService } from "./Transform/Replace/Search/Service.js";
+export { default as InjectEditorGPULayerCSS } from "./Transform/Inject/Editor/GPU/Layer/CSS.js";
+export { default as InjectTerminalGPULayerCSS } from "./Transform/Inject/Terminal/GPU/Layer/CSS.js";
+export { default as PatchLocalTerminalBackend } from "./Transform/Patch/Local/Terminal/Backend.js";
+export { default as PatchTerminalGpuAcceleration } from "./Transform/Patch/Terminal/Gpu/Acceleration.js";
+export { default as PatchWebviewIframeServiceWorker } from "./Transform/Patch/Webview/Iframe/Service/Worker.js";
 
 export {
 	CopyVSOutput,
 	default as CopyVSOutputDefault,
-} from "./Copy/CopyVSOutput.js";
-export type { CopyVSOutputInput } from "./Copy/CopyVSOutput.js";
+} from "./Copy/Copy/VS/Output.js";
+export type { CopyVSOutputInput } from "./Copy/Copy/VS/Output.js";
 export {
 	CopyVSRootFiles,
 	default as CopyVSRootFilesDefault,
-} from "./Copy/CopyVSRootFiles.js";
-export type { CopyVSRootFilesInput } from "./Copy/CopyVSRootFiles.js";
+} from "./Copy/Copy/VS/Root/Files.js";
+export type { CopyVSRootFilesInput } from "./Copy/Copy/VS/Root/Files.js";
 export {
 	SupplementFromDependency,
 	default as SupplementFromDependencyDefault,
-} from "./Copy/SupplementFromDependency.js";
-export type { SupplementFromDependencyInput } from "./Copy/SupplementFromDependency.js";
-export { CopyWorker, default as CopyWorkerDefault } from "./Copy/CopyWorker.js";
-export type { CopyWorkerInput } from "./Copy/CopyWorker.js";
+} from "./Copy/Supplement/From/Dependency.js";
+export type { SupplementFromDependencyInput } from "./Copy/Supplement/From/Dependency.js";
+export {
+	CopyWorker,
+	default as CopyWorkerDefault,
+} from "./Copy/Copy/Worker.js";
+export type { CopyWorkerInput } from "./Copy/Copy/Worker.js";
 export {
 	CopyNodeModules,
 	DefaultPackages as DefaultNodeModulePackages,
 	default as CopyNodeModulesDefault,
-} from "./Copy/CopyNodeModules.js";
-export type { CopyNodeModulesInput } from "./Copy/CopyNodeModules.js";
+} from "./Copy/Copy/Node/Modules.js";
+export type { CopyNodeModulesInput } from "./Copy/Copy/Node/Modules.js";
 export {
 	StubUnpublishedAddons,
 	DefaultStubs,
 	StubDataPrefix,
 	default as StubUnpublishedAddonsDefault,
-} from "./Copy/StubUnpublishedAddons.js";
-export type { StubUnpublishedAddonsInput } from "./Copy/StubUnpublishedAddons.js";
+} from "./Copy/Stub/Unpublished/Addons.js";
+export type { StubUnpublishedAddonsInput } from "./Copy/Stub/Unpublished/Addons.js";
 export {
 	CopyTauriMainProcessService,
 	default as CopyTauriMainProcessServiceDefault,
-} from "./Copy/CopyTauriMainProcessService.js";
-export type { CopyTauriMainProcessServiceInput } from "./Copy/CopyTauriMainProcessService.js";
+} from "./Copy/Copy/Tauri/Main/Process/Service.js";
+export type { CopyTauriMainProcessServiceInput } from "./Copy/Copy/Tauri/Main/Process/Service.js";
 
 export interface BuildPipelineInput {
 	readonly VSOutput: CopyVSOutputInput;

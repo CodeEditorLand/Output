@@ -19,8 +19,10 @@
  * Idempotent via the `__LAND_WEBVIEW_POLYFILLS__` marker.
  */
 
-import WebViewPolyfills, { Marker } from "../Polyfill/WebViewPolyfills.js";
-import type { TransformPlugin } from "../Type.js";
+import WebViewPolyfills, {
+	Marker,
+} from "../../../../Polyfill/Web/View/Polyfills.js";
+import type { TransformPlugin } from "../../../../Type.js";
 
 const Polyfill = `\n/* ${Marker} */\n(${WebViewPolyfills.toString()})();\n`;
 

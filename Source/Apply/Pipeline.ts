@@ -29,10 +29,10 @@
 import { copyFile, mkdir } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 
-import ApplyPlugins from "./Plugin/Apply.js";
-import type { Plugin } from "./Plugin/Type.js";
+import ApplyPlugins from "../Plugin/Apply.js";
+import type { Plugin } from "../Plugin/Type.js";
 
-const Configuration = await import("./Plugin/Index.js");
+const Configuration = await import("../Plugin/Index.js");
 
 // -----------------------------------------------------------------------------
 // COPY STEP: TauriMainProcessService.js into Target tree

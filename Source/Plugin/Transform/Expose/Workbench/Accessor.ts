@@ -41,7 +41,7 @@
  * a no-op. The transform only touches the three files above.
  */
 
-import type { TransformPlugin } from "../Type.js";
+import type { TransformPlugin } from "../../../Type.js";
 
 // VS Code's `out/` tree uses single-quoted module specifiers (the original
 // `tsc` emit), and Output now byte-copies those files instead of running them

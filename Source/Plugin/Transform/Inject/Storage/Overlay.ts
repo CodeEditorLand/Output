@@ -29,7 +29,7 @@
  * reads entirely.
  */
 
-import type { TransformPlugin } from "../Type.js";
+import type { TransformPlugin } from "../../../Type.js";
 
 const Marker = "/* __LAND_STORAGE_OVERLAY__ */";
 

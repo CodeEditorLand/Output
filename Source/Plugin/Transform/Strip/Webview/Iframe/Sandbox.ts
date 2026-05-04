@@ -33,7 +33,7 @@
  * run skips files that already contain the rewrite.
  */
 
-import type { TransformPlugin } from "../Type.js";
+import type { TransformPlugin } from "../../../../Type.js";
 
 const Marker = "/* Land: sandbox attribute stripped";
 

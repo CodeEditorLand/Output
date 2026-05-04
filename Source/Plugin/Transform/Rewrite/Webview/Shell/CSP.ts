@@ -32,7 +32,7 @@
  * it survives transforms that scan but don't strip comments).
  */
 
-import type { TransformPlugin } from "../Type.js";
+import type { TransformPlugin } from "../../../../Type.js";
 
 const PathRegex = /\/workbench\/contrib\/webview\/browser\/pre\/index\.html$/;
 

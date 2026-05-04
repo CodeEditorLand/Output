@@ -24,7 +24,7 @@
  * absent.
  */
 
-import type { TransformPlugin } from "../Type.js";
+import type { TransformPlugin } from "../../../Type.js";
 
 const PathRegex = /vs\/platform\/telemetry\/common\/telemetryService\.js$/;
 

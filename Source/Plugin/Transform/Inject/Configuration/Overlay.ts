@@ -46,7 +46,7 @@
  * key to look up. Non-string `arg1` falls through to upstream.
  */
 
-import type { TransformPlugin } from "../Type.js";
+import type { TransformPlugin } from "../../../Type.js";
 
 const Marker = "/* __LAND_CONFIG_OVERLAY__ */";
 

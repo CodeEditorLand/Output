@@ -18,7 +18,7 @@
  * integrity-verified via Mountain.key.pub).
  */
 
-import type { TransformPlugin } from "../Type.js";
+import type { TransformPlugin } from "../../../Type.js";
 
 const PathRegex =
 	/vs\/platform\/update\/common\/(?:abstractUpdateService|updateService)\.js$/;

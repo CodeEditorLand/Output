@@ -53,7 +53,7 @@
  * Idempotent via the `__LAND_DISABLE_WEBVIEW_SW__` marker comment.
  */
 
-import type { TransformPlugin } from "../Type.js";
+import type { TransformPlugin } from "../../../../../Type.js";
 
 const Marker = "__LAND_DISABLE_WEBVIEW_SW__";
 

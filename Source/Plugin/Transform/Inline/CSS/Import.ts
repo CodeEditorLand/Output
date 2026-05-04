@@ -18,7 +18,7 @@
 import { readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 
-import type { TransformPlugin } from "../Type.js";
+import type { TransformPlugin } from "../../../Type.js";
 
 const CSSImport = /import\s*(['"])([^'"]+\.css)\1\s*;?/g;
 

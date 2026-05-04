@@ -50,7 +50,7 @@
  * Idempotent: skips if the marker is already present.
  */
 
-import type { TransformPlugin } from "../Type.js";
+import type { TransformPlugin } from "../../../../Type.js";
 
 const Marker = "/* __LAND_NODE_MODULES_PATH_PATCHED__ */";
 

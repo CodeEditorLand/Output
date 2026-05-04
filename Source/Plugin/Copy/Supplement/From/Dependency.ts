@@ -7,7 +7,7 @@
  * only missing files are filled in.
  */
 
-import type { CopyPlugin } from "../Type.js";
+import type { CopyPlugin } from "../../../Type.js";
 
 export interface SupplementFromDependencyInput {
 	readonly From: string;

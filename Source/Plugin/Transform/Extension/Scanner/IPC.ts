@@ -18,7 +18,7 @@
  * at the canonical `common/` sibling so existing call sites keep working.
  */
 
-import type { TransformPlugin } from "../Type.js";
+import type { TransformPlugin } from "../../../Type.js";
 
 // Match BOTH the electron-browser and browser variants. Stock VS Code
 // ships parallel implementations of the scanner service - the

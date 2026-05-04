@@ -47,7 +47,7 @@
  * present in the file.
  */
 
-import type { TransformPlugin } from "../Type.js";
+import type { TransformPlugin } from "../../../../Type.js";
 
 const Marker = "/* __LAND_WORKER_NAME_SHIM__ */";
 

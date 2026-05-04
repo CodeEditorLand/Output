@@ -38,7 +38,7 @@
  * Idempotent. Marker `__LAND_FORCE_TEXTAREA_INPUT__`.
  */
 
-import type { TransformPlugin } from "../Type.js";
+import type { TransformPlugin } from "../../../../Type.js";
 
 const Marker = "/* __LAND_FORCE_TEXTAREA_INPUT__ */";
 

@@ -29,7 +29,7 @@
  * Idempotent via `__LAND_WORKBENCH_BASE_URL_REWRITTEN__` marker.
  */
 
-import type { TransformPlugin } from "../Type.js";
+import type { TransformPlugin } from "../../../../Type.js";
 
 const Marker = "/* __LAND_WORKBENCH_BASE_URL_REWRITTEN__ */";
 

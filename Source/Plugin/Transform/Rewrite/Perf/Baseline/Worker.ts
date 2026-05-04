@@ -23,7 +23,7 @@
  * Idempotent: skip if marker is present.
  */
 
-import type { TransformPlugin } from "../Type.js";
+import type { TransformPlugin } from "../../../../Type.js";
 
 const Marker = "/* __LAND_PERF_BASELINE_INLINED__ */";
 

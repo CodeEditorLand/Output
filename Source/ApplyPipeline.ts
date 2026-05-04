@@ -69,6 +69,36 @@ const ServiceCopies: ReadonlyArray<{
 		To: "Target/Microsoft/VSCode/vs/workbench/browser/CELExposeAccessor.js",
 		Why: "ExposeWorkbenchAccessor injects `import './CELExposeAccessor.js'` into web.main.js + web.factory.js (and `'../browser/CELExposeAccessor.js'` into desktop.main.js). The shim is authored in Source/Service/CELExposeAccessor.ts, compiled by Output's esbuild step, and dropped here so the imports resolve at runtime.",
 	},
+	{
+		From: "Configuration/Service/CELSharedProcessService.js",
+		To: "Target/Microsoft/VSCode/vs/platform/ipc/electron-browser/CELSharedProcessService.js",
+		Why: "ReplaceSharedProcess reduces `vs/workbench/services/sharedProcess/electron-browser/sharedProcessService.js` to a one-line re-export pointing at this canonical sibling of TauriMainProcessService. Drop colocated with TauriMainProcessService so the `import './TauriMainProcessService.js'` inside the shim resolves directly.",
+	},
+	{
+		From: "Configuration/Service/CELExtensionsScannerService.js",
+		To: "Target/Microsoft/VSCode/vs/workbench/services/extensions/common/CELExtensionsScannerService.js",
+		Why: "ExtensionScannerIPC reduces both `electron-browser/extensionsScannerService.js` and `browser/extensionsScannerService.js` to one-line re-exports pointing at this `common/` sibling. Single canonical drop avoids divergence between the two variants.",
+	},
+	{
+		From: "Configuration/Service/CELSearchService.js",
+		To: "Target/Microsoft/VSCode/vs/workbench/services/search/common/CELSearchService.js",
+		Why: "ReplaceSearchService reduces both `electron-browser/searchService.js` and `browser/searchService.js` to one-line re-exports pointing at this `common/` sibling so the Mountain-IPC-backed RemoteSearchService is a single source of truth.",
+	},
+	{
+		From: "Configuration/Service/CELNullTelemetryService.js",
+		To: "Target/Microsoft/VSCode/vs/platform/telemetry/common/CELNullTelemetryService.js",
+		Why: "ReplaceTelemetryService reduces `telemetryService.js` to a one-line re-export pointing at this no-op sibling. Telemetry is neutralised in three layers (consent off + service no-op + appender absent); this is the second layer.",
+	},
+	{
+		From: "Configuration/Service/CELNullUpdateService.js",
+		To: "Target/Microsoft/VSCode/vs/platform/update/common/CELNullUpdateService.js",
+		Why: "ReplaceUpdateService reduces both `abstractUpdateService.js` and `updateService.js` to one-line re-exports pointing at this never-update stub. Auto-update goes through Air's signed-binary path, not update.code.visualstudio.com.",
+	},
+	{
+		From: "Configuration/Service/CELNullExtensionGalleryService.js",
+		To: "Target/Microsoft/VSCode/vs/platform/extensionManagement/common/CELNullExtensionGalleryService.js",
+		Why: "ReplaceExtensionGalleryService reduces `extensionGalleryService.js` to a one-line re-export pointing at this no-op stub. User extensions are sideloaded from ~/.land/extensions/ - no marketplace traffic.",
+	},
 ];
 
 for (const Entry of ServiceCopies) {

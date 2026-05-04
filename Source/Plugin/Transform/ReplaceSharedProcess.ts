@@ -10,6 +10,13 @@
  * extensions. Routing `getChannel` through TauriMainProcessService hits the
  * same ChannelRouteMap that backs the main process so `extensions` resolves
  * to Mountain's `extensions:*` handlers directly.
+ *
+ * The replacement class lives in `Element/Output/Source/Service/
+ * CELSharedProcessService.ts` and is dropped next to TauriMainProcessService
+ * at `vs/platform/ipc/electron-browser/CELSharedProcessService.js` by
+ * `ApplyPipeline.ts` BEFORE this transform runs. The original module body
+ * is reduced to a one-line re-export so every call site that imported
+ * `SharedProcessService` from the workbench services path keeps working.
  */
 
 import type { TransformPlugin } from "../Type.js";
@@ -21,19 +28,9 @@ const Marker =
 	);
 const PathRegex = new RegExp(`${Marker}$`);
 
-const Body = [
-	`import { TauriMainProcessService } from '../../../../platform/ipc/electron-browser/TauriMainProcessService.js';`,
-	``,
-	`class SharedProcessService extends TauriMainProcessService {`,
-	`  constructor(windowId, _logService) { super(windowId); }`,
-	`  notifyRestored() { /* Land has no shared process; channels go direct to Mountain */ }`,
-	`  async getConnection() { return this; /* self-satisfy the IPC Client shape */ }`,
-	`}`,
-	``,
-	`export { SharedProcessService };`,
-	`export default SharedProcessService;`,
-	``,
-].join("\n");
+const ReExport =
+	"export { SharedProcessService } from '../../../../platform/ipc/electron-browser/CELSharedProcessService.js';\n" +
+	"export { default } from '../../../../platform/ipc/electron-browser/CELSharedProcessService.js';\n";
 
 const Plugin: TransformPlugin = {
 	Kind: "Transform",
@@ -41,7 +38,8 @@ const Plugin: TransformPlugin = {
 	Enabled: () => process.env["Electron"] === "true",
 	Match: ({ Path }) => PathRegex.test(Path),
 	Transform() {
-		return { Kind: "Rewrite", Source: Body };
+		// Always overwrite - the upstream body is not reusable under Tauri.
+		return { Kind: "Rewrite", Source: ReExport };
 	},
 };
 

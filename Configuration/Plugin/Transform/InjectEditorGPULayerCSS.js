@@ -1,5 +1,6 @@
 var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __name = (target, value) =>
+	__defProp(target, "name", { value, configurable: true });
 const Marker = "__LAND_EDITOR_GPU_LAYER__";
 const InjectedCSS = `
 /* ${Marker} */
@@ -42,21 +43,19 @@ const InjectedCSS = `
 `;
 const PathRegex = /editor\/browser\/(?:[^/]+\/)*[^/]+\.css$/;
 const Plugin = {
-  Kind: "Transform",
-  Name: "InjectEditorGPULayerCSS",
-  Match: /* @__PURE__ */ __name(({ Path }) => PathRegex.test(Path), "Match"),
-  Transform({ Source }) {
-    if (Source.includes(Marker)) {
-      return { Kind: "Unchanged" };
-    }
-    return {
-      Kind: "Rewrite",
-      Source: Source + "\n" + InjectedCSS
-    };
-  }
+	Kind: "Transform",
+	Name: "InjectEditorGPULayerCSS",
+	Match: /* @__PURE__ */ __name(({ Path }) => PathRegex.test(Path), "Match"),
+	Transform({ Source }) {
+		if (Source.includes(Marker)) {
+			return { Kind: "Unchanged" };
+		}
+		return {
+			Kind: "Rewrite",
+			Source: Source + "\n" + InjectedCSS,
+		};
+	},
 };
 var InjectEditorGPULayerCSS_default = Plugin;
-export {
-  InjectEditorGPULayerCSS_default as default
-};
+export { InjectEditorGPULayerCSS_default as default };
 //# sourceMappingURL=InjectEditorGPULayerCSS.js.map

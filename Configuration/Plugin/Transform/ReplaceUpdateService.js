@@ -1,6 +1,8 @@
 var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-const PathRegex = /vs\/platform\/update\/common\/(?:abstractUpdateService|updateService)\.js$/;
+var __name = (target, value) =>
+	__defProp(target, "name", { value, configurable: true });
+const PathRegex =
+	/vs\/platform\/update\/common\/(?:abstractUpdateService|updateService)\.js$/;
 const Stub = `// LAND-PATCH: updateService body replaced with no-op stub.
 // See Land/Element/Output/Source/Plugin/Transform/ReplaceUpdateService.ts.
 const NOOP_DISPOSABLE = { dispose: () => {} };
@@ -27,15 +29,13 @@ export { NullUpdateService as AbstractUpdateService };
 export const UpdateService_default = NullUpdateService;
 `;
 const Plugin = {
-  Kind: "Transform",
-  Name: "ReplaceUpdateService",
-  Match: /* @__PURE__ */ __name(({ Path }) => PathRegex.test(Path), "Match"),
-  Transform() {
-    return { Kind: "Rewrite", Source: Stub };
-  }
+	Kind: "Transform",
+	Name: "ReplaceUpdateService",
+	Match: /* @__PURE__ */ __name(({ Path }) => PathRegex.test(Path), "Match"),
+	Transform() {
+		return { Kind: "Rewrite", Source: Stub };
+	},
 };
 var ReplaceUpdateService_default = Plugin;
-export {
-  ReplaceUpdateService_default as default
-};
+export { ReplaceUpdateService_default as default };
 //# sourceMappingURL=ReplaceUpdateService.js.map

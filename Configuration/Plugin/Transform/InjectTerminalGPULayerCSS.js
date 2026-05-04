@@ -1,5 +1,6 @@
 var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __name = (target, value) =>
+	__defProp(target, "name", { value, configurable: true });
 const Marker = "__LAND_TERMINAL_GPU_LAYER__";
 const InjectedCSS = `
 /* ${Marker} */
@@ -33,21 +34,19 @@ const InjectedCSS = `
 `;
 const PathRegex = /workbench\/contrib\/terminal\/browser\/media\/[^/]+\.css$/;
 const Plugin = {
-  Kind: "Transform",
-  Name: "InjectTerminalGPULayerCSS",
-  Match: /* @__PURE__ */ __name(({ Path }) => PathRegex.test(Path), "Match"),
-  Transform({ Source }) {
-    if (Source.includes(Marker)) {
-      return { Kind: "Unchanged" };
-    }
-    return {
-      Kind: "Rewrite",
-      Source: Source + "\n" + InjectedCSS
-    };
-  }
+	Kind: "Transform",
+	Name: "InjectTerminalGPULayerCSS",
+	Match: /* @__PURE__ */ __name(({ Path }) => PathRegex.test(Path), "Match"),
+	Transform({ Source }) {
+		if (Source.includes(Marker)) {
+			return { Kind: "Unchanged" };
+		}
+		return {
+			Kind: "Rewrite",
+			Source: Source + "\n" + InjectedCSS,
+		};
+	},
 };
 var InjectTerminalGPULayerCSS_default = Plugin;
-export {
-  InjectTerminalGPULayerCSS_default as default
-};
+export { InjectTerminalGPULayerCSS_default as default };
 //# sourceMappingURL=InjectTerminalGPULayerCSS.js.map

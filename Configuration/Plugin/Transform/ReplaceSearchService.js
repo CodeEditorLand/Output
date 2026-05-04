@@ -1,11 +1,12 @@
 var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __name = (target, value) =>
+	__defProp(target, "name", { value, configurable: true });
 const Markers = [
-  "workbench/services/search/electron-browser/searchService.js",
-  "workbench/services/search/browser/searchService.js"
+	"workbench/services/search/electron-browser/searchService.js",
+	"workbench/services/search/browser/searchService.js",
 ];
 const PathRegex = new RegExp(
-  `(?:${Markers.map((M) => M.replaceAll("/", "\\/")).join("|")})$`
+	`(?:${Markers.map((M) => M.replaceAll("/", "\\/")).join("|")})$`,
 );
 const Body = `// [Land] ReplaceSearchService transform
 // Original: vs/workbench/services/search/browser/searchService.ts
@@ -203,16 +204,17 @@ registerSingleton(ISearchService, RemoteSearchService, InstantiationType.Delayed
 export class LocalFileSearchWorkerClient extends MountainTauriSearchProvider {}
 `;
 const Plugin = {
-  Kind: "Transform",
-  Name: "ReplaceSearchService",
-  Enabled: /* @__PURE__ */ __name(() => process.env["Electron"] === "true", "Enabled"),
-  Match: /* @__PURE__ */ __name(({ Path }) => PathRegex.test(Path), "Match"),
-  Transform() {
-    return { Kind: "Rewrite", Source: Body };
-  }
+	Kind: "Transform",
+	Name: "ReplaceSearchService",
+	Enabled: /* @__PURE__ */ __name(
+		() => process.env["Electron"] === "true",
+		"Enabled",
+	),
+	Match: /* @__PURE__ */ __name(({ Path }) => PathRegex.test(Path), "Match"),
+	Transform() {
+		return { Kind: "Rewrite", Source: Body };
+	},
 };
 var ReplaceSearchService_default = Plugin;
-export {
-  ReplaceSearchService_default as default
-};
+export { ReplaceSearchService_default as default };
 //# sourceMappingURL=ReplaceSearchService.js.map

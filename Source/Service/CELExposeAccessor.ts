@@ -41,59 +41,54 @@
  * file's source location. esbuild with `bundle: false` emits them unchanged.
  */
 
-import {
-	IStatusbarService,
-} from "../services/statusbar/browser/statusbar.js";
-import {
-	ICommandService,
-	CommandsRegistry,
-} from "../../platform/commands/common/commands.js";
-import { ISearchService } from "../services/search/common/search.js";
-import { IViewsService } from "../services/views/common/viewsService.js";
-import { Registry } from "../../platform/registry/common/platform.js";
-import { URI } from "../../base/common/uri.js";
-import { ISCMService } from "../contrib/scm/common/scm.js";
-import { IDebugService } from "../contrib/debug/common/debug.js";
-import { ICustomEditorService } from "../contrib/customEditor/common/customEditor.js";
 import { Emitter } from "../../base/common/event.js";
-import {
-	Disposable,
-	toDisposable,
-} from "../../base/common/lifecycle.js";
-import { IModelService } from "../../editor/common/services/model.js";
-import { ILanguageService } from "../../editor/common/languages/language.js";
+import { Disposable, toDisposable } from "../../base/common/lifecycle.js";
 import { ResourceTree } from "../../base/common/resourceTree.js";
-import { IUriIdentityService } from "../../platform/uriIdentity/common/uriIdentity.js";
-import { IWebviewViewService } from "../contrib/webviewView/browser/webviewViewService.js";
-import { IWebviewWorkbenchService } from "../contrib/webviewPanel/browser/webviewWorkbenchService.js";
-import { IMarkerService } from "../../platform/markers/common/markers.js";
+import { URI } from "../../base/common/uri.js";
+import { ILanguageService } from "../../editor/common/languages/language.js";
+import { IModelService } from "../../editor/common/services/model.js";
+import { IClipboardService } from "../../platform/clipboard/common/clipboardService.js";
+import {
+	CommandsRegistry,
+	ICommandService,
+} from "../../platform/commands/common/commands.js";
 import { IConfigurationService } from "../../platform/configuration/common/configuration.js";
-import { IStorageService } from "../../platform/storage/common/storage.js";
-import { ILifecycleService } from "../services/lifecycle/common/lifecycle.js";
-import { IWorkbenchThemeService } from "../services/themes/common/workbenchThemeService.js";
-import { IThemeService } from "../../platform/theme/common/themeService.js";
-import { IKeybindingService } from "../../platform/keybinding/common/keybinding.js";
-import { INotificationService } from "../../platform/notification/common/notification.js";
-import { IFileService } from "../../platform/files/common/files.js";
+import { IContextKeyService } from "../../platform/contextkey/common/contextkey.js";
 import {
 	IDialogService,
 	IFileDialogService,
 } from "../../platform/dialogs/common/dialogs.js";
-import { IClipboardService } from "../../platform/clipboard/common/clipboardService.js";
-import { IContextKeyService } from "../../platform/contextkey/common/contextkey.js";
-import { IHostService } from "../services/host/browser/host.js";
-import { IExtensionService } from "../services/extensions/common/extensions.js";
-import { IWorkspaceContextService } from "../../platform/workspace/common/workspace.js";
+import { IFileService } from "../../platform/files/common/files.js";
+import { IKeybindingService } from "../../platform/keybinding/common/keybinding.js";
+import { IMarkerService } from "../../platform/markers/common/markers.js";
+import { INotificationService } from "../../platform/notification/common/notification.js";
 import { IProductService } from "../../platform/product/common/productService.js";
 import { IProgressService } from "../../platform/progress/common/progress.js";
-import { IEditorService } from "../services/editor/common/editorService.js";
-import { IEditorGroupsService } from "../services/editor/common/editorGroupsService.js";
-import { ITextFileService } from "../services/textfile/common/textfiles.js";
-import { IActivityService } from "../services/activity/common/activity.js";
-import { ITitleService } from "../services/title/browser/titleService.js";
-import { IPaneCompositePartService } from "../services/panecomposite/browser/panecomposite.js";
+import { Registry } from "../../platform/registry/common/platform.js";
+import { IStorageService } from "../../platform/storage/common/storage.js";
+import { IThemeService } from "../../platform/theme/common/themeService.js";
+import { IUriIdentityService } from "../../platform/uriIdentity/common/uriIdentity.js";
+import { IWorkspaceContextService } from "../../platform/workspace/common/workspace.js";
 import { IViewDescriptorService } from "../common/views.js";
+import { ICustomEditorService } from "../contrib/customEditor/common/customEditor.js";
+import { IDebugService } from "../contrib/debug/common/debug.js";
+import { ISCMService } from "../contrib/scm/common/scm.js";
+import { IWebviewWorkbenchService } from "../contrib/webviewPanel/browser/webviewWorkbenchService.js";
+import { IWebviewViewService } from "../contrib/webviewView/browser/webviewViewService.js";
+import { IActivityService } from "../services/activity/common/activity.js";
+import { IEditorGroupsService } from "../services/editor/common/editorGroupsService.js";
+import { IEditorService } from "../services/editor/common/editorService.js";
+import { IExtensionService } from "../services/extensions/common/extensions.js";
+import { IHostService } from "../services/host/browser/host.js";
 import { IWorkbenchLayoutService } from "../services/layout/browser/layoutService.js";
+import { ILifecycleService } from "../services/lifecycle/common/lifecycle.js";
+import { IPaneCompositePartService } from "../services/panecomposite/browser/panecomposite.js";
+import { ISearchService } from "../services/search/common/search.js";
+import { IStatusbarService } from "../services/statusbar/browser/statusbar.js";
+import { ITextFileService } from "../services/textfile/common/textfiles.js";
+import { IWorkbenchThemeService } from "../services/themes/common/workbenchThemeService.js";
+import { ITitleService } from "../services/title/browser/titleService.js";
+import { IViewsService } from "../services/views/common/viewsService.js";
 
 const ViewsRegistryId = "workbench.registry.view";
 const ViewContainersRegistryId = "workbench.registry.view.containers";
@@ -204,7 +199,10 @@ export const ExposeAccessor = (InstantiationService) => {
 			Storage: Resolve(InstantiationService, IStorageService),
 			Lifecycle: Resolve(InstantiationService, ILifecycleService),
 			Theme: Resolve(InstantiationService, IThemeService),
-			WorkbenchTheme: Resolve(InstantiationService, IWorkbenchThemeService),
+			WorkbenchTheme: Resolve(
+				InstantiationService,
+				IWorkbenchThemeService,
+			),
 			Keybinding: Resolve(InstantiationService, IKeybindingService),
 			Notification: Resolve(InstantiationService, INotificationService),
 			File: Resolve(InstantiationService, IFileService),
@@ -226,7 +224,10 @@ export const ExposeAccessor = (InstantiationService) => {
 				InstantiationService,
 				IPaneCompositePartService,
 			),
-			ViewDescriptor: Resolve(InstantiationService, IViewDescriptorService),
+			ViewDescriptor: Resolve(
+				InstantiationService,
+				IViewDescriptorService,
+			),
 			Layout: Resolve(InstantiationService, IWorkbenchLayoutService),
 		};
 		try {

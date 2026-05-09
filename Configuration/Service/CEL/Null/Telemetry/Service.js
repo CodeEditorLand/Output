@@ -1,6 +1,7 @@
 const t = Promise.resolve(void 0);
 
 class r {
+
 	sendErrorTelemetry = !1;
 
 	telemetryLevel = 0;
@@ -26,6 +27,7 @@ class r {
 	publicLogError2(e, n) {}
 
 	getTelemetryInfo() {
+
 		return t;
 	}
 }

@@ -63,6 +63,7 @@ import type { TransformPlugin } from "../../../../../Type.js";
 const Marker = "/* __LAND_STATIC_BLOCK_SELFREF_REWRITTEN__ */";
 
 interface StaticBlock {
+
 	readonly ClassName: string;
 
 	readonly InnerStart: number; // index of first char inside `{`
@@ -70,6 +71,7 @@ interface StaticBlock {
 }
 
 function EscapeRegex(Value: string): string {
+
 	return Value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
@@ -79,11 +81,13 @@ function EscapeRegex(Value: string): string {
  * if no construct started here.
  */
 function SkipNonCode(Source: string, i: number): number {
+
 	const c = Source[i];
 
 	const next = Source[i + 1];
 
 	if (c === "/" && next === "/") {
+
 		let j = i + 2;
 
 		while (j < Source.length && Source[j] !== "\n") j++;
@@ -92,9 +96,11 @@ function SkipNonCode(Source: string, i: number): number {
 	}
 
 	if (c === "/" && next === "*") {
+
 		let j = i + 2;
 
 		while (j < Source.length) {
+
 			if (Source[j] === "*" && Source[j + 1] === "/") return j + 2;
 
 			j++;
@@ -104,14 +110,17 @@ function SkipNonCode(Source: string, i: number): number {
 	}
 
 	if (c === '"' || c === "'" || c === "`") {
+
 		const Quote = c;
 
 		let j = i + 1;
 
 		while (j < Source.length) {
+
 			const ch = Source[j]!;
 
 			if (ch === "\\") {
+
 				j += 2;
 
 				continue;
@@ -134,14 +143,17 @@ function SkipNonCode(Source: string, i: number): number {
  * `Source.length` if unmatched.
  */
 function FindMatchingClose(Source: string, OpenIndex: number): number {
+
 	let depth = 1;
 
 	let i = OpenIndex + 1;
 
 	while (i < Source.length && depth > 0) {
+
 		const Skipped = SkipNonCode(Source, i);
 
 		if (Skipped > i) {
+
 			i = Skipped;
 
 			continue;
@@ -150,7 +162,9 @@ function FindMatchingClose(Source: string, OpenIndex: number): number {
 		const c = Source[i];
 
 		if (c === "{") depth++;
+
 		else if (c === "}") {
+
 			depth--;
 
 			if (depth === 0) return i;
@@ -168,6 +182,7 @@ function FindMatchingClose(Source: string, OpenIndex: number): number {
  * detected from `class <Id>` (declaration or expression) syntax.
  */
 function FindStaticBlocks(Source: string): StaticBlock[] {
+
 	const Blocks: StaticBlock[] = [];
 
 	const ClassStack: Array<{ Name: string; OpenedAtDepth: number }> = [];
@@ -183,9 +198,11 @@ function FindStaticBlocks(Source: string): StaticBlock[] {
 	const Identifier = /^[A-Za-z_$][\w$]*/;
 
 	while (i < Source.length) {
+
 		const Skipped = SkipNonCode(Source, i);
 
 		if (Skipped > i) {
+
 			i = Skipped;
 
 			continue;
@@ -197,6 +214,7 @@ function FindStaticBlocks(Source: string): StaticBlock[] {
 
 		// `class <Id>` recognition - must be at a token boundary.
 		if ((i === 0 || !/[\w$]/.test(PrevChar)) && ClassKeyword.test(Slice)) {
+
 			let j = i + 5;
 
 			while (j < Source.length && /\s/.test(Source[j]!)) j++;
@@ -204,15 +222,18 @@ function FindStaticBlocks(Source: string): StaticBlock[] {
 			const NameMatch = Identifier.exec(Source.slice(j));
 
 			if (NameMatch) {
+
 				const Name = NameMatch[0];
 
 				let k = j + Name.length;
 
 				// Skip whitespace, `extends ...`, generic syntax, until `{`.
 				while (k < Source.length) {
+
 					const Sk = SkipNonCode(Source, k);
 
 					if (Sk > k) {
+
 						k = Sk;
 
 						continue;
@@ -221,6 +242,7 @@ function FindStaticBlocks(Source: string): StaticBlock[] {
 					if (Source[k] === "{") break;
 
 					if (Source[k] === ";" || Source[k] === "}") {
+
 						k = -1;
 
 						break;
@@ -230,6 +252,7 @@ function FindStaticBlocks(Source: string): StaticBlock[] {
 				}
 
 				if (k > 0 && k < Source.length && Source[k] === "{") {
+
 					ClassStack.push({ Name, OpenedAtDepth: Depth });
 
 					Depth++;

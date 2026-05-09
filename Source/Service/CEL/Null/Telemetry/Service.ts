@@ -25,6 +25,7 @@
 const NoopPromise: Promise<undefined> = Promise.resolve(undefined);
 
 class NullTelemetryService {
+
 	readonly sendErrorTelemetry = false;
 
 	readonly telemetryLevel = 0; // TelemetryLevel.NONE
@@ -61,6 +62,7 @@ class NullTelemetryService {
 	publicLogError2(_ErrorEventName: string, _Data?: unknown): void {}
 
 	getTelemetryInfo(): Promise<undefined> {
+
 		return NoopPromise;
 	}
 }

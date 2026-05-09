@@ -11,8 +11,10 @@ const n = /import\s*(['"])([^'"]+\.css)\1\s*;?/g,
 		Transform({ Source: t }) {
 			return (
 				(n.lastIndex = 0),
+
 				n.test(t)
 					? ((n.lastIndex = 0),
+
 						{
 							Kind: "Rewrite",
 							Source: t.replace(

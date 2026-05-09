@@ -6,6 +6,7 @@ const o = `
 
 `,
 	i = {
+
 		Kind: "Transform",
 
 		Name: "InjectEagerLifecyclePhase",
@@ -14,8 +15,10 @@ const o = `
 			e.endsWith("vs/code/electron-browser/workbench/workbench.js"),
 
 		Transform({ Source: e }) {
+
 			return e.includes(r)
 				? { Kind: "Unchanged" }
+
 				: { Kind: "Rewrite", Source: o + e };
 		},
 	};

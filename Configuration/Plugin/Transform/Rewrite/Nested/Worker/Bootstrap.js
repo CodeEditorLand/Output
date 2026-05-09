@@ -1,5 +1,7 @@
 const s = "/* __LAND_NESTED_WORKER_BOOTSTRAP_INLINED__ */",
+
 	i = "const _bootstrapFnSource = (function _bootstrapFn(workerUrl) {",
+
 	c = `const _bootstrapFnSource = ${JSON.stringify(
 		[
 			"function _bootstrapFn(workerUrl) {",

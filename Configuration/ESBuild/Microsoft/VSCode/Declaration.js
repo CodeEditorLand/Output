@@ -1,4 +1,5 @@
 const t = (await import("../../../ESBuild.js")).Dependency,
+
 	o = (await import("deepmerge-ts")).deepmergeCustom({ mergeArrays: !1 });
 
 var i = async (e) =>

@@ -1,5 +1,7 @@
 async function T(t, n = {}) {
+
 	try {
+
 		const e =
 			window.__TAURI__?.core?.invoke ??
 			window.__TAURI__?.invoke ??
@@ -12,12 +14,15 @@ async function T(t, n = {}) {
 
 		throw new Error(`Tauri invoke not available for command: ${t}`);
 	} catch (e) {
+
 		throw e;
 	}
 }
 
 function P(t, n = {}) {
+
 	try {
+
 		const e =
 			window.__TAURI__?.core?.invoke ??
 			window.__TAURI__?.invoke ??
@@ -37,6 +42,7 @@ function P(t, n = {}) {
 				);
 			});
 	} catch (e) {
+
 		globalThis.__LAND_POLYFILL_TELEMETRY__?.On("ipc.fire-and-forget", e, {
 			Command: t,
 			Phase: "invoke-resolve",
@@ -46,6 +52,7 @@ function P(t, n = {}) {
 
 const y = [
 	{
+
 		electronPattern: /^logger:(log|warn|error|info|debug|trace|critical)$/,
 
 		tauriCommand: "logger:log",
@@ -54,6 +61,7 @@ const y = [
 	},
 
 	{
+
 		electronPattern: /^policy:(get|set|validate|enforce|check)$/,
 
 		tauriCommand: "policy:handle",
@@ -62,6 +70,7 @@ const y = [
 	},
 
 	{
+
 		electronPattern: /^sign:(sign|verify|generate|validate)$/,
 
 		tauriCommand: "sign:handle",
@@ -70,6 +79,7 @@ const y = [
 	},
 
 	{
+
 		electronPattern: /^userDataProfiles:(create|delete|update|get|list)$/,
 
 		tauriCommand: "user_data:handle_profile",
@@ -78,6 +88,7 @@ const y = [
 	},
 
 	{
+
 		electronPattern:
 			/^localFileSystem:(read|write|delete|exists|stat|readdir)$/,
 
@@ -88,8 +99,10 @@ const y = [
 ];
 
 function m(t) {
+
 	for (const n of y)
 		if (n.electronPattern.test(t)) {
+
 			const e = n.transform?.([]) ?? {};
 
 			return { command: n.tauriCommand, args: e };
@@ -99,6 +112,7 @@ function m(t) {
 }
 
 function h(t, n) {
+
 	for (const e of y)
 		if (e.electronPattern.test(t) && e.transform) return e.transform(n);
 
@@ -106,21 +120,28 @@ function h(t, n) {
 }
 
 function v(t) {
+
 	const n = [];
 
 	function e(s) {
+
 		if (s == null) n.push(new Uint8Array([0]));
+
 		else if (typeof s == "string") {
+
 			const i = new TextEncoder().encode(s);
 
 			(n.push(new Uint8Array([1])), o(i.length), n.push(i));
 		} else if (Array.isArray(s)) {
+
 			(n.push(new Uint8Array([4])), o(s.length));
 
 			for (const i of s) e(i);
 		} else if (typeof s == "number" && (s | 0) === s)
 			(n.push(new Uint8Array([6])), o(s));
+
 		else {
+
 			const i = new TextEncoder().encode(JSON.stringify(s));
 
 			(n.push(new Uint8Array([5])), o(i.length), n.push(i));
@@ -128,6 +149,7 @@ function v(t) {
 	}
 
 	function o(s) {
+
 		const i = [];
 
 		let u = s >>> 0;
@@ -153,14 +175,17 @@ function v(t) {
 }
 
 function S(t) {
+
 	const n = new Uint8Array(t);
 
 	let e = 0;
 
 	function o() {
+
 		let c = 0;
 
 		for (let a = 0; ; a += 7) {
+
 			const s = n[e++];
 
 			if (((c |= (s & 127) << a), !(s & 128))) return c;
@@ -168,12 +193,16 @@ function S(t) {
 	}
 
 	function r() {
+
 		switch (n[e++]) {
+
 			case 0:
 				return;
 
 			case 1: {
+
 				const a = o(),
+
 					s = new TextDecoder().decode(n.slice(e, e + a));
 
 				return ((e += a), s);
@@ -181,14 +210,18 @@ function S(t) {
 
 			case 2:
 			case 3: {
+
 				const a = o(),
+
 					s = n.slice(e, e + a);
 
 				return ((e += a), s);
 			}
 
 			case 4: {
+
 				const a = o(),
+
 					s = [];
 
 				for (let i = 0; i < a; i++) s.push(r());
@@ -197,7 +230,9 @@ function S(t) {
 			}
 
 			case 5: {
+
 				const a = o(),
+
 					s = new TextDecoder().decode(n.slice(e, e + a));
 
 				return ((e += a), JSON.parse(s));
@@ -212,22 +247,28 @@ function S(t) {
 }
 
 function p(t, n) {
+
 	const e = v(t),
+
 		o = v(n),
+
 		r = new Uint8Array(e.length + o.length);
 
 	return (r.set(e, 0), r.set(o, e.length), r);
 }
 
 function C(t) {
+
 	const n = new Uint8Array(t);
 
 	let e = 0;
 
 	function o() {
+
 		let s = 0;
 
 		for (let i = 0; ; i += 7) {
+
 			const u = n[e++];
 
 			if (((s |= (u & 127) << i), !(u & 128))) return s;
@@ -235,12 +276,16 @@ function C(t) {
 	}
 
 	function r() {
+
 		switch (n[e++]) {
+
 			case 0:
 				return;
 
 			case 1: {
+
 				const i = o(),
+
 					u = new TextDecoder().decode(n.slice(e, e + i));
 
 				return ((e += i), u);
@@ -248,13 +293,16 @@ function C(t) {
 
 			case 2:
 			case 3: {
+
 				const i = o();
 
 				return ((e += i), n.slice(e - i, e));
 			}
 
 			case 4: {
+
 				const i = o(),
+
 					u = [];
 
 				for (let l = 0; l < i; l++) u.push(r());
@@ -263,7 +311,9 @@ function C(t) {
 			}
 
 			case 5: {
+
 				const i = o(),
+
 					u = new TextDecoder().decode(n.slice(e, e + i));
 
 				return ((e += i), JSON.parse(u));
@@ -275,19 +325,23 @@ function C(t) {
 	}
 
 	const c = r(),
+
 		a = r();
 
 	return { Header: c, Body: a };
 }
 
 function A(t, n) {
+
 	const e = E(t);
 
 	return e ? `${e}:${n}` : null;
 }
 
 function E(t) {
+
 	switch (t) {
+
 		case "localFilesystem":
 		case "localFileSystem":
 			return "file";
@@ -381,10 +435,12 @@ function E(t) {
 }
 
 function L(t, n, e) {
+
 	return e == null ? [] : Array.isArray(e) ? e : [e];
 }
 
 async function b(t, n) {
+
 	const e =
 		window.__TAURI__?.core?.invoke ??
 		window.__TAURI__?.invoke ??
@@ -397,6 +453,7 @@ async function b(t, n) {
 }
 
 class R {
+
 	listeners = new Map();
 
 	replyHandlers = new Map();
@@ -406,19 +463,25 @@ class R {
 	onceListeners = new Map();
 
 	emitMessage(n) {
+
 		const e = { sender: {}, senderId: 0, senderIsMainFrame: !0, ports: [] },
+
 			o = this.listeners.get("vscode:message");
 
 		if (o)
 			for (const r of o)
 				try {
+
 					r(e, n);
 				} catch {}
 	}
 
 	handleBinaryIPC(n) {
+
 		try {
+
 			const { Header: e, Body: o } = C(n),
+
 				r = e;
 
 			if (!Array.isArray(r)) return;
@@ -426,12 +489,17 @@ class R {
 			const c = r[0];
 
 			if (c === 100) {
+
 				const a = r[1],
+
 					s = r[2],
+
 					i = r[3],
+
 					u = A(s, i);
 
 				if (u !== null) {
+
 					const f = L(s, i, o);
 
 					b(u, f)
@@ -451,25 +519,33 @@ class R {
 				const l = this.getStubResponse(s, i, o);
 
 				if (typeof l == "string" && l.startsWith("__IPC_ERROR__")) {
+
 					const f = l.slice(13),
+
 						d = p([202, a], f);
 
 					setTimeout(() => this.emitMessage(d), 0);
 				} else {
+
 					const f = p([201, a], l);
 
 					setTimeout(() => this.emitMessage(f), 0);
 				}
 			} else if (c === 102) {
+
 				const a = r[1],
+
 					s = r[2],
+
 					i = r[3];
 			}
 		} catch {}
 	}
 
 	getStubResponse(n, e, o) {
+
 		switch (n) {
+
 			case "logger":
 				return;
 
@@ -485,7 +561,9 @@ class R {
 			case "keyboardLayout":
 				return e === "getKeyboardLayoutData"
 					? {
+
 							keyboardLayoutInfo: {
+
 								model: "pc105",
 
 								layout: "us",
@@ -499,6 +577,7 @@ class R {
 
 							keyboardMapping: {},
 						}
+
 					: void 0;
 
 			case "sharedProcess":
@@ -510,7 +589,9 @@ class R {
 	}
 
 	send(n, ...e) {
+
 		if (n === "vscode:hello") {
+
 			setTimeout(() => {
 				const r = p([200], void 0);
 				this.emitMessage(r);
@@ -520,9 +601,11 @@ class R {
 		}
 
 		if (n === "vscode:message") {
+
 			const r = e[0];
 
 			if (r instanceof ArrayBuffer || ArrayBuffer.isView(r)) {
+
 				const c = r instanceof ArrayBuffer ? r : r.buffer;
 
 				this.handleBinaryIPC(c);
@@ -544,6 +627,7 @@ class R {
 		const o = m(n);
 
 		if (o) {
+
 			const r = h(n, e);
 
 			P(o.command, r);
@@ -553,9 +637,11 @@ class R {
 	sendSync(n, ...e) {}
 
 	async invoke(n, ...e) {
+
 		const o = m(n);
 
 		if (o) {
+
 			const r = h(n, e);
 
 			return await T(o.command, r);
@@ -563,19 +649,26 @@ class R {
 	}
 
 	on(n, e) {
+
 		return (
 			this.listeners.has(n) || this.listeners.set(n, new Set()),
+
 			this.listeners.get(n).add(e),
+
 			this.registerTauriListener(n, e),
+
 			this
 		);
 	}
 
 	once(n, e) {
+
 		(this.onceListeners.has(n) || this.onceListeners.set(n, new Set()),
+
 			this.onceListeners.get(n).add(new WeakRef(e)));
 
 		const o = (r, ...c) => {
+
 			(e(r, ...c), this.removeListener(n, o));
 		};
 
@@ -583,23 +676,29 @@ class R {
 	}
 
 	removeListener(n, e) {
+
 		const o = this.listeners.get(n);
 
 		return (
 			o && (o.delete(e), o.size === 0 && this.listeners.delete(n)),
+
 			this
 		);
 	}
 
 	removeAllListeners(n) {
+
 		return (n ? this.listeners.delete(n) : this.listeners.clear(), this);
 	}
 
 	sendTo(n, e, o) {
+
 		const r = ++this.replyCounter,
+
 			c = { channel: n, args: e, callback: o, timestamp: Date.now() };
 
 		(this.replyHandlers.set(r, c),
+
 			this.invoke(n, ...e)
 				.then((a) => {
 					const s = this.replyHandlers.get(r);
@@ -609,11 +708,13 @@ class R {
 					const s = this.replyHandlers.get(r);
 					s &&
 						(s.callback({ error: a.message }),
+
 						this.replyHandlers.delete(r));
 				}));
 	}
 
 	onReply(n, e) {
+
 		this.on(n, (o, ...r) => {
 			e(r[0]);
 		});
@@ -622,8 +723,11 @@ class R {
 	registerTauriListener(n, e) {}
 
 	cleanup() {
+
 		(this.listeners.clear(),
+
 			this.onceListeners.clear(),
+
 			this.replyHandlers.clear());
 	}
 }
@@ -631,10 +735,12 @@ class R {
 let w = null;
 
 function k() {
+
 	return (w || (w = new R()), w);
 }
 
 function I() {
+
 	if (typeof window > "u" || window.__IPC_RENDERER_SHIM_INSTALLED__) return;
 
 	window.__IPC_RENDERER_SHIM_INSTALLED__ = !0;
@@ -642,6 +748,7 @@ function I() {
 	const t = k();
 
 	(typeof window.vscode < "u" && (window.vscode.ipcRenderer = t),
+
 		(window.__IPC_RENDERER__ = t));
 }
 

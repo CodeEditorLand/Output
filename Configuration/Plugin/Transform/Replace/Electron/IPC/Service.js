@@ -3,10 +3,13 @@ const r = "platform/ipc/electron-browser/mainProcessService.js".replaceAll(
 
 		"\\/",
 	),
+
 	n = new RegExp(`${r}$`),
+
 	o = `export { TauriMainProcessService as ElectronIPCMainProcessService } from './TauriMainProcessService.js';
 `,
 	s = {
+
 		Kind: "Transform",
 
 		Name: "ReplaceElectronIPCService",
@@ -16,6 +19,7 @@ const r = "platform/ipc/electron-browser/mainProcessService.js".replaceAll(
 		Match: ({ Path: e }) => n.test(e),
 
 		Transform() {
+
 			return { Kind: "Rewrite", Source: o };
 		},
 	};

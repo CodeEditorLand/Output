@@ -1,6 +1,9 @@
 const r = "/* __LAND_PERF_BASELINE_INLINED__ */",
+
 	c = "            const jsSrc = (function () {",
+
 	o = "            }).toString();",
+
 	f =
 		"            const jsSrc = " +
 		JSON.stringify(
@@ -34,6 +37,7 @@ const r = "/* __LAND_PERF_BASELINE_INLINED__ */",
 `),
 		) +
 		";",
+
 	a = {
 		Kind: "Transform",
 		Name: "RewritePerfBaselineWorker",

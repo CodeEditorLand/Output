@@ -1,6 +1,9 @@
 const d = "/* __LAND_FN_DECLS_HOISTED_V2__ */",
+
 	B = "/* __LAND_FN_DECLS_HOISTED__ */",
+
 	y = ["__defProp", "__name", "__decorate", "__param"],
+
 	I = new Set([
 		"return",
 
@@ -30,12 +33,15 @@ const d = "/* __LAND_FN_DECLS_HOISTED_V2__ */",
 
 		"await",
 	]),
+
 	C = { InBlockComment: !1, StringChar: null, BraceStack: [] };
 
 function _(n) {
+
 	const s = [];
 
 	let h = 0,
+
 		c = C;
 
 	const p = /^function ([A-Za-z_$][\w$]*)\s*\(/;
@@ -67,24 +73,30 @@ function _(n) {
 						StringChar: o.StringChar,
 						BraceStack: o.BraceStack,
 					}),
+
 						(f += o.Open - o.Close),
+
 						r++);
 				}
 				const i = r - 1,
 					e = n.slice(S, i + 1).join(`
 `);
 				(s.push({ StartLine: S, EndLine: i, Source: e, Name: m }),
+
 					(c = u),
+
 					(a = i + 1));
 				continue;
 			}
 		}
 		((h += t.Open - t.Close),
+
 			(c = {
 				InBlockComment: t.InBlockComment,
 				StringChar: t.StringChar,
 				BraceStack: t.BraceStack,
 			}),
+
 			a++);
 	}
 	return s;
@@ -92,6 +104,7 @@ function _(n) {
 function w(n) {
 	const s = [];
 	let h = 0,
+
 		c = C;
 	const p = new RegExp(`^var (${y.join("|")})\\s*=`);
 	let a = 0;
@@ -122,32 +135,41 @@ function w(n) {
 						StringChar: o.StringChar,
 						BraceStack: o.BraceStack,
 					}),
+
 						(f += o.Open - o.Close),
+
 						r++);
 				}
 				const i = r - 1,
 					e = n.slice(S, i + 1).join(`
 `);
 				(s.push({ StartLine: S, EndLine: i, Source: e, Name: m }),
+
 					(c = u),
+
 					(a = i + 1));
 				continue;
 			}
 		}
 		((h += t.Open - t.Close),
+
 			(c = {
 				InBlockComment: t.InBlockComment,
 				StringChar: t.StringChar,
 				BraceStack: t.BraceStack,
 			}),
+
 			a++);
 	}
 	return s;
 }
 function g(n, s) {
 	let h = 0,
+
 		c = 0,
+
 		p = s.InBlockComment,
+
 		a = s.StringChar;
 	const k = [...s.BraceStack];
 	let t = 0;
@@ -194,6 +216,7 @@ function g(n, s) {
 			let u = !/[A-Za-z_$0-9)\]]/.test(f) || f === "";
 
 			if (!u && /[A-Za-z_$]/.test(f)) {
+
 				let r = m;
 
 				for (; r > 0 && /[A-Za-z_$0-9]/.test(n[r - 1]); ) r--;
@@ -204,31 +227,38 @@ function g(n, s) {
 			}
 
 			if (u) {
+
 				let r = t + 1,
+
 					i = !1;
 
 				for (; r < n.length; ) {
+
 					const e = n[r];
 
 					if (e === "\\") {
+
 						r += 2;
 
 						continue;
 					}
 
 					if (e === "[" && !i) {
+
 						((i = !0), r++);
 
 						continue;
 					}
 
 					if (e === "]" && i) {
+
 						((i = !1), r++);
 
 						continue;
 					}
 
 					if (e === "/" && !i) {
+
 						for (r++; r < n.length && /[gimsuyd]/.test(n[r]); ) r++;
 
 						break;
@@ -244,12 +274,14 @@ function g(n, s) {
 		}
 
 		if (l === "{") {
+
 			(k.push("{"), h++, t++);
 
 			continue;
 		}
 
 		if (l === "}") {
+
 			(k.pop() === "${" ? (a = "`") : c++, t++);
 
 			continue;
@@ -259,6 +291,7 @@ function g(n, s) {
 	}
 
 	return {
+
 		Open: h,
 
 		Close: c,
@@ -272,6 +305,7 @@ function g(n, s) {
 }
 
 const H = {
+
 	Kind: "Transform",
 
 	Name: "HoistFunctionDeclarations",
@@ -279,19 +313,25 @@ const H = {
 	Match: ({ Path: n }) => /\/vs\/.*\.js$/.test(n) && !/\.d\.ts\.map$/.test(n),
 
 	Transform({ Source: n }) {
+
 		if (n.includes(d)) return { Kind: "Unchanged" };
 
 		const s = n.split(`
 `),
 			h = _(s),
+
 			c = w(s),
+
 			p = n.includes(B);
 		if (h.length === 0 && c.length === 0) return { Kind: "Unchanged" };
 		const a = h[0]?.StartLine ?? s.length,
+
 			k = s.slice(0, a),
+
 			t = h.some((e) =>
 				k.some((o) => new RegExp(`\\b${e.Name}\\s*\\(`).test(o)),
 			),
+
 			l = c.some((e) => e.StartLine > 0);
 		if (!t && !l && !p) return { Kind: "Unchanged" };
 		const S = new Set();

@@ -1,7 +1,10 @@
 const d = "/* __LAND_WORKER_URLS_REWRITTEN__ */",
+
 	c =
 		/new URL\(\s*[`'"]([^`'"]+(?:WorkerMain\.tsx?(?:\?[^`'"]*)?|Iframe\.html))[`'"]\s*,\s*import\.meta\.url\s*\)/g,
+
 	m = {
+
 		Kind: "Transform",
 
 		Name: "RewriteWorkerURLs",
@@ -10,6 +13,7 @@ const d = "/* __LAND_WORKER_URLS_REWRITTEN__ */",
 			/\/vs\/.*\.js$/.test(e) && !/\.d\.ts\.map$/.test(e),
 
 		Transform({ Path: e, Source: t }) {
+
 			if (t.includes(d)) return { Kind: "Unchanged" };
 
 			if (!c.test(t)) return { Kind: "Unchanged" };
@@ -17,6 +21,7 @@ const d = "/* __LAND_WORKER_URLS_REWRITTEN__ */",
 			c.lastIndex = 0;
 
 			const f = e.split("/").slice(0, -1).join("/"),
+
 				a = t.replace(c, (u, i) => {
 					const l = i.indexOf("?");
 					let n = l >= 0 ? i.slice(0, l) : i;
@@ -40,13 +45,16 @@ const d = "/* __LAND_WORKER_URLS_REWRITTEN__ */",
 
 							"",
 						)),
+
 						`new URL("/Static/Application/${o}", location.origin)`
 					);
 				});
 
 			return a === t
 				? { Kind: "Unchanged" }
+
 				: {
+
 						Kind: "Rewrite",
 
 						Source:

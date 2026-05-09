@@ -13,13 +13,16 @@
  */
 
 import WorkbenchInteractivityCSS, {
+
 	Marker,
 } from "../../../../Polyfill/Workbench/Interactivity/CSS.js";
+
 import type { TransformPlugin } from "../../../../Type.js";
 
 const Polyfill = `\n/* ${Marker} */\n(${WorkbenchInteractivityCSS.toString()})();\n`;
 
 const Plugin: TransformPlugin = {
+
 	Kind: "Transform",
 
 	Name: "InjectWorkbenchInteractivityCSS",
@@ -28,6 +31,7 @@ const Plugin: TransformPlugin = {
 		Path.endsWith("vs/code/electron-browser/workbench/workbench.js"),
 
 	Transform({ Source }) {
+
 		if (Source.includes(Marker)) return { Kind: "Unchanged" };
 
 		return { Kind: "Rewrite", Source: Polyfill + Source };

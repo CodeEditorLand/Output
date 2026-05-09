@@ -16,6 +16,7 @@
  */
 
 import { readFile } from "node:fs/promises";
+
 import { dirname, resolve } from "node:path";
 
 import type { TransformPlugin } from "../../../Type.js";
@@ -70,6 +71,7 @@ const Plugin: TransformPlugin = {
 		let Rewritten = Source;
 
 		for (const { From, To } of Resolved) {
+
 			Rewritten = Rewritten.replace(From, () => To);
 		}
 

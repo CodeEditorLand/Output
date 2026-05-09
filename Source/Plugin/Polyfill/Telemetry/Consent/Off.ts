@@ -45,6 +45,7 @@ type PrebakeKey =
 	| "workbench.experimental.share.enabled";
 
 export default function TelemetryConsentOff(): void {
+
 	if (typeof window === "undefined") return;
 
 	const Land = window as unknown as Record<string, unknown>;
@@ -54,6 +55,7 @@ export default function TelemetryConsentOff(): void {
 	Land[Marker] = true;
 
 	const Prebake: Record<PrebakeKey, string | boolean> = {
+
 		"telemetry.telemetryLevel": "off",
 
 		"telemetry.feedback.enabled": false,
@@ -116,19 +118,26 @@ export default function TelemetryConsentOff(): void {
 	Land["__LAND_PREBAKED_CONFIG__"] = Prebake;
 
 	function SeedLocalStorage(): void {
+
 		try {
+
 			for (const Key of Object.keys(Prebake) as Array<PrebakeKey>) {
+
 				const Value = JSON.stringify(Prebake[Key]);
 
 				try {
+
 					localStorage.setItem(`settings.application.${Key}`, Value);
 				} catch {
+
 					/* ignore quota / private mode */
 				}
 
 				try {
+
 					localStorage.setItem(`workbench.settings.${Key}`, Value);
 				} catch {
+
 					/* ignore quota / private mode */
 				}
 			}
@@ -137,6 +146,7 @@ export default function TelemetryConsentOff(): void {
 
 			localStorage.setItem("vscode.telemetry.optOut", "1");
 		} catch {
+
 			/* ignore */
 		}
 	}

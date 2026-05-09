@@ -40,6 +40,7 @@
 export const Marker = "__LAND_PART_ZINDEX__";
 
 export default function PartZIndexCSS(): void {
+
 	if (typeof window === "undefined") return;
 
 	const Land = window as unknown as Record<string, unknown>;
@@ -49,6 +50,7 @@ export default function PartZIndexCSS(): void {
 	Land[Marker] = true;
 
 	function InstallStylesheet(): void {
+
 		const Style = document.createElement("style");
 
 		Style.setAttribute("data-land-part-zindex", "1");
@@ -163,10 +165,12 @@ export default function PartZIndexCSS(): void {
 	}
 
 	if (document.readyState === "loading") {
+
 		document.addEventListener("DOMContentLoaded", InstallStylesheet, {
 			once: true,
 		});
 	} else {
+
 		InstallStylesheet();
 	}
 }

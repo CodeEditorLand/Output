@@ -1,6 +1,7 @@
 const e = "__LAND_WORKBENCH_INTERACTIVITY_CSS_V2__";
 
 function a() {
+
 	if (typeof window > "u") return;
 
 	const n = window;
@@ -10,9 +11,11 @@ function a() {
 	n[e] = !0;
 
 	function t() {
+
 		const o = document.createElement("style");
 
 		(o.setAttribute("data-land-workbench-interactivity", "1"),
+
 			(o.textContent = [
 				".monaco-workbench .part,",
 

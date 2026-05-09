@@ -40,6 +40,7 @@
  */
 
 import { readFile } from "node:fs/promises";
+
 import { fileURLToPath } from "node:url";
 
 import type { TransformPlugin } from "../../../../../Type.js";
@@ -59,6 +60,7 @@ const InjectedCSS = "\n" + (await readFile(StylesheetPath, "utf8"));
 const PathRegex = /workbench\/contrib\/terminal\/browser\/media\/[^/]+\.css$/;
 
 const Plugin: TransformPlugin = {
+
 	Kind: "Transform",
 
 	Name: "InjectTerminalGPULayerCSS",
@@ -66,7 +68,9 @@ const Plugin: TransformPlugin = {
 	Match: ({ Path }) => PathRegex.test(Path),
 
 	Transform({ Source }) {
+
 		if (Source.includes(Marker)) {
+
 			return { Kind: "Unchanged" };
 		}
 
@@ -75,6 +79,7 @@ const Plugin: TransformPlugin = {
 		// etc.) - applying to each one is safe because the marker check
 		// above prevents double-injection on already-patched files.
 		return {
+
 			Kind: "Rewrite",
 
 			Source: Source + InjectedCSS,

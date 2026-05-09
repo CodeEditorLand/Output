@@ -9,6 +9,7 @@
  */
 
 import type { Event as VSCodeEvent } from "@codeeditorland/output/Target/Microsoft/VSCode/vs/base/common/event.js";
+
 import type {
 	IChannel,
 	IServerChannel,
@@ -16,7 +17,9 @@ import type {
 
 // Inline trace - performance.mark() collected by build-baked OTELBridge.
 const _Trace = (Tag: string, Message: string): void => {
+
 	try {
+
 		performance.mark(`land:${Tag}:${Message}`);
 	} catch {}
 };
@@ -30,7 +33,9 @@ const _Trace = (Tag: string, Message: string): void => {
 // param-case handling doesn't require a guess - the Rust command
 // coalesces whichever arrived populated.
 const _DevLogForward = (Tag: string, Message: string): void => {
+
 	try {
+
 		const Internals = (window as any).__TAURI_INTERNALS__;
 
 		const Invoke =
@@ -54,6 +59,7 @@ const _DevLogForward = (Tag: string, Message: string): void => {
 // ============================================================================
 
 const ChannelRouteMap: Record<string, string> = {
+
 	localFilesystem: "file",
 
 	storage: "storage",
@@ -160,6 +166,7 @@ const FireAndForgetChannels = new Set(["logger", "output"]);
 // `channel.listen()`) is silently no-op'd. The terminal's xterm panel
 // stays blank, debug-adapter events never reach the debug viewlet, etc.
 type ChannelEventBridgeEntry = {
+
 	Channel: string;
 
 	Map?: (Payload: unknown) => unknown;
@@ -167,18 +174,23 @@ type ChannelEventBridgeEntry = {
 
 const ChannelEventBridge: Record<
 	string,
+
 	Record<string, ChannelEventBridgeEntry>
 > = {
+
 	localPty: {
+
 		// VS Code's `IPtyService.onProcessData` expects
 		// `{ id: number, event: IProcessDataEvent | string }` per
 		// `vs/platform/terminal/common/terminal.ts`. Mountain emits
 		// `{ id, data }` from `Environment/TerminalProvider.rs::PTYReader`.
 		// Re-key `data` → `event` to match.
 		onProcessData: {
+
 			Channel: "sky://terminal/data",
 
 			Map: (P) => {
+
 				const Obj = P as { id?: number; data?: string } | undefined;
 
 				if (!Obj || typeof Obj.id !== "number") return undefined;
@@ -194,17 +206,21 @@ const ChannelEventBridge: Record<
 		// channel exists separately for extension-host PID notifications
 		// from Cocoon - not the same signal.
 		onProcessReady: {
+
 			Channel: "sky://terminal/create",
 
 			Map: (P) => {
+
 				const Obj = P as { id?: number; pid?: number } | undefined;
 
 				if (!Obj || typeof Obj.id !== "number") return undefined;
 
 				return {
+
 					id: Obj.id,
 
 					event: {
+
 						pid: Obj.pid ?? 0,
 
 						cwd: "",
@@ -216,9 +232,11 @@ const ChannelEventBridge: Record<
 		},
 
 		onProcessExit: {
+
 			Channel: "sky://terminal/exit",
 
 			Map: (P) => {
+
 				const Obj = P as { id?: number; code?: number } | undefined;
 
 				if (!Obj || typeof Obj.id !== "number") return undefined;
@@ -262,6 +280,7 @@ const FileSystemThrowCommands = new Set([
 ]);
 
 const StubChannels: Record<string, Record<string, unknown>> = {
+
 	sign: { sign: "", createNewMessage: "", validate: true },
 
 	policy: { serialize: {}, registerPolicyChange: undefined },
@@ -269,8 +288,11 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 	userDataProfiles: {},
 
 	keyboardLayout: {
+
 		getKeyboardLayoutData: {
+
 			keyboardLayoutInfo: {
+
 				model: "pc105",
 
 				layout: "us",
@@ -289,6 +311,7 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 	sharedProcess: {},
 
 	utilityProcessWorker: {
+
 		createWorker: new Promise(() => {}),
 
 		disposeWorker: undefined,
@@ -310,7 +333,9 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 
 	// Fix: terminals.windows - IExternalTerminalService.getDefaultTerminalForPlatforms()
 	externalTerminal: {
+
 		getDefaultTerminalForPlatforms: {
+
 			windows: "cmd.exe",
 
 			linux: "/usr/bin/x-terminal-emulator",
@@ -321,6 +346,7 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 
 	// Fix: update.setInternalOrg - IUpdateService methods
 	update: {
+
 		checkForUpdates: { updateType: 0 },
 
 		downloadUpdate: undefined,
@@ -338,6 +364,7 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 
 	// Fix: webview - IWebviewManagerService stub (prevents webview IPC errors)
 	webview: {
+
 		setIgnoreMenuShortcuts: undefined,
 
 		setContextMenuVisible: undefined,
@@ -349,6 +376,7 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 
 	// Fix: watcher - IFileWatcherService stub (prevents file watch IPC errors)
 	watcher: {
+
 		watch: undefined,
 
 		unwatch: undefined,
@@ -366,6 +394,7 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 	// appender short-circuits in the stub path instead of chewing
 	// a Tauri round-trip each time.
 	telemetryAppender: {
+
 		log: undefined,
 
 		flush: undefined,
@@ -378,6 +407,7 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 	// gallery state; a no-op stub is sufficient until Land has an MCP
 	// registry of its own to wire in.
 	mcpGalleryManifest: {
+
 		setMcpGalleryManifest: undefined,
 	},
 
@@ -386,9 +416,11 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 	// ServiceImpl.resolveWorkspaceLanguageIds` iterates
 	// `fileExtensions.extensions` directly and throws without this stub.
 	diagnostics: {
+
 		getWorkspaceFileExtensions: { extensions: [] },
 
 		getPerformanceInfo: {
+
 			processInfo: {},
 
 			workspaceInfo: {},
@@ -399,6 +431,7 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 		getDiagnostics: "",
 
 		reportWorkspaceStats: {
+
 			configFiles: [],
 
 			fileTypes: [],
@@ -409,6 +442,7 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 
 	// Fix: urlHandler - IURLService stub (prevents vscode:// protocol errors)
 	urlHandler: {
+
 		registerHandler: undefined,
 
 		open: false,
@@ -418,6 +452,7 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 
 	// Fix: userDataAutoSync - IUserDataAutoSyncService stub
 	userDataAutoSync: {
+
 		isEnabled: false,
 
 		canToggleEnablement: false,
@@ -429,6 +464,7 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 
 	// Fix: download - IDownloadService stub (prevents extension gallery errors)
 	download: {
+
 		download: undefined,
 	},
 
@@ -436,6 +472,7 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 	// via `setExtensionGalleryManifest({...})` once at boot. No-op stub
 	// because Land doesn't host an extension gallery.
 	extensionGalleryManifest: {
+
 		setExtensionGalleryManifest: undefined,
 	},
 

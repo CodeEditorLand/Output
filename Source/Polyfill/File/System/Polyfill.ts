@@ -36,6 +36,7 @@
  * File stats interface (partial Node.js fs.Stats)
  */
 interface Stats {
+
 	dev: number;
 
 	ino: number;
@@ -87,6 +88,7 @@ interface Stats {
  * Stats result from Mountain
  */
 interface MountainStats {
+
 	path: string;
 
 	size: number;
@@ -108,6 +110,7 @@ interface MountainStats {
  * Directory entry
  */
 interface Dirent {
+
 	name: string;
 
 	path: string;
@@ -131,6 +134,7 @@ interface Dirent {
  * Mkdir options
  */
 interface MkdirOptions {
+
 	recursive?: boolean;
 
 	mode?: number;
@@ -140,6 +144,7 @@ interface MkdirOptions {
  * Rm options
  */
 interface RmOptions {
+
 	recursive?: boolean;
 
 	force?: boolean;
@@ -153,6 +158,7 @@ interface RmOptions {
  * Read file options
  */
 interface ReadFileOptions {
+
 	encoding?: BufferEncoding | null;
 
 	flag?: string;
@@ -162,6 +168,7 @@ interface ReadFileOptions {
  * Write file options
  */
 interface WriteFileOptions {
+
 	encoding?: BufferEncoding | null;
 
 	mode?: number;
@@ -173,6 +180,7 @@ interface WriteFileOptions {
  * Copy file options
  */
 interface CopyFileOptions {
+
 	mode?: number;
 
 	flags?: number;
@@ -190,7 +198,9 @@ async function invokeTauri<T>(
 
 	args: Record<string, unknown> = {},
 ): Promise<T> {
+
 	try {
+
 		// Tauri 2.x: core.invoke, Tauri 1.x: invoke
 		const Invoke =
 			(window as any).__TAURI__?.core?.invoke ??
@@ -198,6 +208,7 @@ async function invokeTauri<T>(
 			(window as any).TAURI?.invoke;
 
 		if (typeof Invoke === "function") {
+
 			// Colon-prefixed methods (e.g. `file:write`,
 			// `shared_process:invoke`) are not registered as direct Tauri
 			// commands - Rust function names can't contain colons. They
@@ -207,6 +218,7 @@ async function invokeTauri<T>(
 			// transparently so this polyfill behaves like the rest of
 			// Wind/Sky/Output.
 			if (command.includes(":")) {
+
 				return await Invoke("MountainIPCInvoke", {
 					method: command,
 					params: args,
@@ -218,6 +230,7 @@ async function invokeTauri<T>(
 
 		throw new Error(`Tauri invoke not available for command: ${command}`);
 	} catch (error: unknown) {
+
 		throw error;
 	}
 }
@@ -230,7 +243,9 @@ async function invokeTauri<T>(
  * Convert Mountain stats to Node.js Stats
  */
 function mountainStatsToStats(mountainStats: MountainStats): Stats {
+
 	return {
+
 		dev: 1,
 
 		ino: 1,
@@ -264,30 +279,37 @@ function mountainStatsToStats(mountainStats: MountainStats): Stats {
 		birthtime: new Date(mountainStats.created),
 
 		isFile() {
+
 			return mountainStats.is_file;
 		},
 
 		isDirectory() {
+
 			return mountainStats.is_dir;
 		},
 
 		isBlockDevice() {
+
 			return false;
 		},
 
 		isCharacterDevice() {
+
 			return false;
 		},
 
 		isSymbolicLink() {
+
 			return false;
 		},
 
 		isFIFO() {
+
 			return false;
 		},
 
 		isSocket() {
+
 			return false;
 		},
 	};
@@ -301,36 +323,45 @@ function mountainStatsToStats(mountainStats: MountainStats): Stats {
  * Create Dirent from name and path
  */
 function createDirent(name: string, path: string, isDir: boolean): Dirent {
+
 	return {
+
 		name,
 
 		path,
 
 		isFile() {
+
 			return !isDir;
 		},
 
 		isDirectory() {
+
 			return isDir;
 		},
 
 		isBlockDevice() {
+
 			return false;
 		},
 
 		isCharacterDevice() {
+
 			return false;
 		},
 
 		isSymbolicLink() {
+
 			return false;
 		},
 
 		isFIFO() {
+
 			return false;
 		},
 
 		isSocket() {
+
 			return false;
 		},
 	};
@@ -348,11 +379,13 @@ async function readFile(
 
 	options?: ReadFileOptions | BufferEncoding,
 ): Promise<string | Buffer> {
+
 	// Normalize options
 	const encoding =
 		typeof options === "string" ? options : (options?.encoding ?? "utf8");
 
 	try {
+
 		// Call Mountain to read file
 		const content = await invokeTauri<string>("file:read", {
 			path,
@@ -362,6 +395,7 @@ async function readFile(
 		// Return Buffer if encoding is null, otherwise string
 		return encoding === null ? Buffer.from(content, "base64") : content;
 	} catch (error: unknown) {
+
 		const err = error instanceof Error ? error : new Error(String(error));
 
 		throw err;
@@ -378,12 +412,15 @@ async function writeFile(
 
 	options?: WriteFileOptions | BufferEncoding,
 ): Promise<void> {
+
 	// Normalize options
 	let encoding: BufferEncoding | null = "utf8";
 
 	if (typeof options === "string") {
+
 		encoding = options;
 	} else if (options) {
+
 		encoding = options.encoding ?? "utf8";
 	}
 
@@ -391,12 +428,15 @@ async function writeFile(
 	let content: string;
 
 	if (Buffer.isBuffer(data)) {
+
 		content = data.toString(encoding ?? "utf8");
 	} else {
+
 		content = data;
 	}
 
 	try {
+
 		// Call Mountain to write file
 		await invokeTauri("file:write", {
 			path,
@@ -404,6 +444,7 @@ async function writeFile(
 			encoding,
 		});
 	} catch (error: unknown) {
+
 		const err = error instanceof Error ? error : new Error(String(error));
 
 		throw err;
@@ -414,12 +455,15 @@ async function writeFile(
  * Delete file from Mountain file system
  */
 async function unlink(path: string): Promise<void> {
+
 	try {
+
 		await invokeTauri("file:delete", {
 			path,
 			recursive: false,
 		});
 	} catch (error: unknown) {
+
 		const err = error instanceof Error ? error : new Error(String(error));
 
 		throw err;
@@ -430,7 +474,9 @@ async function unlink(path: string): Promise<void> {
  * Remove file or directory (recursive)
  */
 async function rm(path: string, options?: RmOptions): Promise<void> {
+
 	opts = {
+
 		recursive: false,
 
 		force: false,
@@ -438,13 +484,16 @@ async function rm(path: string, options?: RmOptions): Promise<void> {
 	};
 
 	try {
+
 		await invokeTauri("file:delete", {
 			path,
 			recursive: opts.recursive ?? false,
 			force: opts.force ?? false,
 		});
 	} catch (error: unknown) {
+
 		if (!opts.force) {
+
 			const err =
 				error instanceof Error ? error : new Error(String(error));
 
@@ -457,12 +506,15 @@ async function rm(path: string, options?: RmOptions): Promise<void> {
  * Rename/move file or directory
  */
 async function rename(oldPath: string, newPath: string): Promise<void> {
+
 	try {
+
 		await invokeTauri("file:move", {
 			from: oldPath,
 			to: newPath,
 		});
 	} catch (error: unknown) {
+
 		const err = error instanceof Error ? error : new Error(String(error));
 
 		throw err;
@@ -479,12 +531,15 @@ async function copyFile(
 
 	options?: CopyFileOptions,
 ): Promise<void> {
+
 	try {
+
 		await invokeTauri("file:copy", {
 			from: src,
 			to: dest,
 		});
 	} catch (error: unknown) {
+
 		const err = error instanceof Error ? error : new Error(String(error));
 
 		throw err;
@@ -499,28 +554,34 @@ async function mkdir(
 
 	options?: MkdirOptions | number | boolean,
 ): Promise<void> {
+
 	// Normalize options
 	let opts: RecursiveMkdirOptions = { recursive: false };
 
 	if (typeof options === "boolean") {
+
 		opts.recursive = options;
 	} else if (typeof options === "number") {
+
 		opts.recursive = false;
 
 		opts.mode = options;
 	} else if (options) {
+
 		opts.recursive = options.recursive ?? false;
 
 		opts.mode = options.mode;
 	}
 
 	try {
+
 		await invokeTauri("file:mkdir", {
 			path,
 			recursive: opts.recursive ?? false,
 			mode: opts.mode ?? 0o755,
 		});
 	} catch (error: unknown) {
+
 		const err = error instanceof Error ? error : new Error(String(error));
 
 		throw err;
@@ -529,6 +590,7 @@ async function mkdir(
 
 // Fix the type reference issue
 interface RecursiveMkdirOptions {
+
 	recursive?: boolean;
 
 	mode?: number;
@@ -538,13 +600,16 @@ interface RecursiveMkdirOptions {
  * Remove directory
  */
 async function rmdir(path: string): Promise<void> {
+
 	try {
+
 		await invokeTauri("file:delete", {
 			path,
 			recursive: false,
 			is_rmdir: true,
 		});
 	} catch (error: unknown) {
+
 		const err = error instanceof Error ? error : new Error(String(error));
 
 		throw err;
@@ -559,7 +624,9 @@ async function readdir(
 
 	options?: { withFileTypes?: boolean },
 ): Promise<string[] | Dirent[]> {
+
 	try {
+
 		const withFileTypes = options?.withFileTypes ?? false;
 
 		// Call Mountain to read directory
@@ -570,6 +637,7 @@ async function readdir(
 		});
 
 		if (withFileTypes) {
+
 			// Return Dirent objects
 			return entries.map((entry) =>
 				createDirent(
@@ -581,10 +649,12 @@ async function readdir(
 				),
 			);
 		} else {
+
 			// Return string array
 			return entries.map((entry) => entry.name);
 		}
 	} catch (error: unknown) {
+
 		const err = error instanceof Error ? error : new Error(String(error));
 
 		throw err;
@@ -595,7 +665,9 @@ async function readdir(
  * Get file stats
  */
 async function stat(path: string): Promise<Stats> {
+
 	try {
+
 		// Call Mountain to get file stats
 		const mountainStats = await invokeTauri<MountainStats>("file:stat", {
 			path,
@@ -603,6 +675,7 @@ async function stat(path: string): Promise<Stats> {
 
 		return mountainStatsToStats(mountainStats);
 	} catch (error: unknown) {
+
 		const err = error instanceof Error ? error : new Error(String(error));
 
 		throw err;
@@ -613,11 +686,14 @@ async function stat(path: string): Promise<Stats> {
  * Check if file exists
  */
 async function exists(path: string): Promise<boolean> {
+
 	try {
+
 		await stat(path);
 
 		return true;
 	} catch {
+
 		return false;
 	}
 }
@@ -630,6 +706,7 @@ async function exists(path: string): Promise<boolean> {
  * Not supported: Cannot open file descriptors in browser/Tauri
  */
 function open(): never {
+
 	throw new Error(
 		"fs.open() is not supported in browser/Tauri environment. No file descriptor operations available.",
 	);
@@ -639,6 +716,7 @@ function open(): never {
  * Not supported: Cannot read from file descriptors in browser/Tauri
  */
 function read(): never {
+
 	throw new Error(
 		"fs.read() is not supported in browser/Tauri environment. Use readFile() instead.",
 	);
@@ -648,6 +726,7 @@ function read(): never {
  * Not supported: Cannot write to file descriptors in browser/Tauri
  */
 function write(): never {
+
 	throw new Error(
 		"fs.write() is not supported in browser/Tauri environment. Use writeFile() instead.",
 	);
@@ -657,6 +736,7 @@ function write(): never {
  * Not supported: Cannot close file descriptors in browser/Tauri
  */
 function close(): never {
+
 	throw new Error(
 		"fs.close() is not supported in browser/Tauri environment.",
 	);
@@ -666,6 +746,7 @@ function close(): never {
  * Not supported: Synchronous operations not supported
  */
 function readFileSync(): never {
+
 	throw new Error(
 		"fs.readFileSync() is not supported in browser/Tauri environment. Use async readFile() instead.",
 	);
@@ -675,6 +756,7 @@ function readFileSync(): never {
  * Not supported: Synchronous operations not supported
  */
 function writeFileSync(): never {
+
 	throw new Error(
 		"fs.writeFileSync() is not supported in browser/Tauri environment. Use async writeFile() instead.",
 	);
@@ -684,6 +766,7 @@ function writeFileSync(): never {
  * Not supported: File watching requires backend service
  */
 function watch(): never {
+
 	throw new Error(
 		"fs.watch() is not supported. Use the FileWatcher service instead.",
 	);
@@ -693,6 +776,7 @@ function watch(): never {
  * Not supported: File watching requires backend service
  */
 function watchFile(): never {
+
 	throw new Error(
 		"fs.watchFile() is not supported. Use the FileWatcher service instead.",
 	);
@@ -702,6 +786,7 @@ function watchFile(): never {
  * Not supported: Symbolic links not fully supported in sandbox
  */
 function symlink(): never {
+
 	throw new Error(
 		"fs.symlink() is not fully supported in browser/Tauri environment.",
 	);
@@ -711,6 +796,7 @@ function symlink(): never {
  * Not supported: Symbolic links not fully supported in sandbox
  */
 function readlink(): never {
+
 	throw new Error(
 		"fs.readlink() is not fully supported in browser/Tauri environment.",
 	);
@@ -720,6 +806,7 @@ function readlink(): never {
  * Not supported: Cannot modify file permissions in sandbox
  */
 function chmod(): never {
+
 	throw new Error(
 		"fs.chmod() is not supported in browser/Tauri environment.",
 	);
@@ -729,6 +816,7 @@ function chmod(): never {
  * Not supported: Cannot modify file permissions in sandbox
  */
 function chown(): never {
+
 	throw new Error(
 		"fs.chown() is not supported in browser/Tauri environment.",
 	);
@@ -742,6 +830,7 @@ function chown(): never {
  * File System exports (mimicking Node.js fs module)
  */
 const fs = {
+
 	readFile,
 
 	writeFile,
@@ -766,6 +855,7 @@ const fs = {
 
 	// Constants (partial)
 	constants: {
+
 		O_RDONLY: 0,
 
 		O_WRONLY: 1,
@@ -806,6 +896,7 @@ const fs = {
 
 	// Promise-based API for modern Node.js code
 	promises: {
+
 		readFile,
 
 		writeFile,
@@ -838,12 +929,15 @@ const fs = {
  * Install the file system polyfill
  */
 export function installFileSystemPolyfill(): void {
+
 	if (typeof window === "undefined") {
+
 		return;
 	}
 
 	// Prevent double installation
 	if ((window as any).__FILE_SYSTEM_POLYFILL_INSTALLED__) {
+
 		return;
 	}
 
@@ -856,6 +950,7 @@ export function installFileSystemPolyfill(): void {
 
 	// Also attach to window.vscode if available
 	if (typeof (window as any).vscode !== "undefined") {
+
 		(window as any).vscode.fs = fs;
 	}
 }
@@ -864,8 +959,11 @@ export function installFileSystemPolyfill(): void {
  * Create require() shim for fs module
  */
 function createRequireShim() {
+
 	return (id: string) => {
+
 		if (id === "fs") {
+
 			return fs;
 		}
 
@@ -878,6 +976,7 @@ function createRequireShim() {
 // ============================================================================
 
 export default {
+
 	install: installFileSystemPolyfill,
 
 	module: fs,
@@ -908,5 +1007,6 @@ export default {
 
 // Auto-install on import
 if (typeof window !== "undefined") {
+
 	installFileSystemPolyfill();
 }

@@ -6,6 +6,7 @@ const i = `
 
 `,
 	o = {
+
 		Kind: "Transform",
 
 		Name: "InjectDisableLazyPaint",
@@ -14,8 +15,10 @@ const i = `
 			n.endsWith("vs/code/electron-browser/workbench/workbench.js"),
 
 		Transform({ Source: n }) {
+
 			return n.includes(r)
 				? { Kind: "Unchanged" }
+
 				: { Kind: "Rewrite", Source: i + n };
 		},
 	};

@@ -1,5 +1,7 @@
 async function o(e, n = {}) {
+
 	try {
+
 		const r =
 			window.__TAURI__?.core?.invoke ??
 			window.__TAURI__?.invoke ??
@@ -12,12 +14,15 @@ async function o(e, n = {}) {
 
 		throw new Error(`Tauri invoke not available for command: ${e}`);
 	} catch (r) {
+
 		throw r;
 	}
 }
 
 function p(e) {
+
 	return {
+
 		dev: 1,
 
 		ino: 1,
@@ -51,75 +56,93 @@ function p(e) {
 		birthtime: new Date(e.created),
 
 		isFile() {
+
 			return e.is_file;
 		},
 
 		isDirectory() {
+
 			return e.is_dir;
 		},
 
 		isBlockDevice() {
+
 			return !1;
 		},
 
 		isCharacterDevice() {
+
 			return !1;
 		},
 
 		isSymbolicLink() {
+
 			return !1;
 		},
 
 		isFIFO() {
+
 			return !1;
 		},
 
 		isSocket() {
+
 			return !1;
 		},
 	};
 }
 
 function E(e, n, r) {
+
 	return {
+
 		name: e,
 
 		path: n,
 
 		isFile() {
+
 			return !r;
 		},
 
 		isDirectory() {
+
 			return r;
 		},
 
 		isBlockDevice() {
+
 			return !1;
 		},
 
 		isCharacterDevice() {
+
 			return !1;
 		},
 
 		isSymbolicLink() {
+
 			return !1;
 		},
 
 		isFIFO() {
+
 			return !1;
 		},
 
 		isSocket() {
+
 			return !1;
 		},
 	};
 }
 
 async function f(e, n) {
+
 	const r = typeof n == "string" ? n : (n?.encoding ?? "utf8");
 
 	try {
+
 		const i = await o("file:read", {
 			path: e,
 			encoding: r === null ? "base64" : r,
@@ -127,11 +150,13 @@ async function f(e, n) {
 
 		return r === null ? Buffer.from(i, "base64") : i;
 	} catch (i) {
+
 		throw i instanceof Error ? i : new Error(String(i));
 	}
 }
 
 async function u(e, n, r) {
+
 	let i = "utf8";
 
 	typeof r == "string" ? (i = r) : r && (i = r.encoding ?? "utf8");
@@ -141,51 +166,66 @@ async function u(e, n, r) {
 	Buffer.isBuffer(n) ? (t = n.toString(i ?? "utf8")) : (t = n);
 
 	try {
+
 		await o("file:write", { path: e, data: t, encoding: i });
 	} catch (c) {
+
 		throw c instanceof Error ? c : new Error(String(c));
 	}
 }
 
 async function l(e) {
+
 	try {
+
 		await o("file:delete", { path: e, recursive: !1 });
 	} catch (n) {
+
 		throw n instanceof Error ? n : new Error(String(n));
 	}
 }
 
 async function w(e, n) {
+
 	opts = { recursive: !1, force: !1, ...n };
 
 	try {
+
 		await o("file:delete", {
 			path: e,
 			recursive: opts.recursive ?? !1,
 			force: opts.force ?? !1,
 		});
 	} catch (r) {
+
 		if (!opts.force) throw r instanceof Error ? r : new Error(String(r));
 	}
 }
 
 async function d(e, n) {
+
 	try {
+
 		await o("file:move", { from: e, to: n });
 	} catch (r) {
+
 		throw r instanceof Error ? r : new Error(String(r));
 	}
 }
 
 async function m(e, n, r) {
+
 	try {
+
 		await o("file:copy", { from: e, to: n });
 	} catch (i) {
+
 		throw i instanceof Error ? i : new Error(String(i));
 	}
 }
 
 async function v(e, n) {
+
 	let r = { recursive: !1 };
 
 	typeof n == "boolean"
@@ -195,128 +235,156 @@ async function v(e, n) {
 			: n && ((r.recursive = n.recursive ?? !1), (r.mode = n.mode));
 
 	try {
+
 		await o("file:mkdir", {
 			path: e,
 			recursive: r.recursive ?? !1,
 			mode: r.mode ?? 493,
 		});
 	} catch (i) {
+
 		throw i instanceof Error ? i : new Error(String(i));
 	}
 }
 
 async function b(e) {
+
 	try {
+
 		await o("file:delete", { path: e, recursive: !1, is_rmdir: !0 });
 	} catch (n) {
+
 		throw n instanceof Error ? n : new Error(String(n));
 	}
 }
 
 async function y(e, n) {
+
 	try {
+
 		const r = n?.withFileTypes ?? !1,
+
 			i = await o("file:readdir", { path: e });
 
 		return r
 			? i.map((t) => E(t.name, `${e}/${t.name}`, !t.is_file))
 			: i.map((t) => t.name);
 	} catch (r) {
+
 		throw r instanceof Error ? r : new Error(String(r));
 	}
 }
 
 async function s(e) {
+
 	try {
+
 		const n = await o("file:stat", { path: e });
 
 		return p(n);
 	} catch (n) {
+
 		throw n instanceof Error ? n : new Error(String(n));
 	}
 }
 
 async function g(e) {
+
 	try {
+
 		return (await s(e), !0);
 	} catch {
+
 		return !1;
 	}
 }
 
 function k() {
+
 	throw new Error(
 		"fs.open() is not supported in browser/Tauri environment. No file descriptor operations available.",
 	);
 }
 
 function F() {
+
 	throw new Error(
 		"fs.read() is not supported in browser/Tauri environment. Use readFile() instead.",
 	);
 }
 
 function _() {
+
 	throw new Error(
 		"fs.write() is not supported in browser/Tauri environment. Use writeFile() instead.",
 	);
 }
 
 function D() {
+
 	throw new Error(
 		"fs.close() is not supported in browser/Tauri environment.",
 	);
 }
 
 function T() {
+
 	throw new Error(
 		"fs.readFileSync() is not supported in browser/Tauri environment. Use async readFile() instead.",
 	);
 }
 
 function S() {
+
 	throw new Error(
 		"fs.writeFileSync() is not supported in browser/Tauri environment. Use async writeFile() instead.",
 	);
 }
 
 function O() {
+
 	throw new Error(
 		"fs.watch() is not supported. Use the FileWatcher service instead.",
 	);
 }
 
 function R() {
+
 	throw new Error(
 		"fs.watchFile() is not supported. Use the FileWatcher service instead.",
 	);
 }
 
 function L() {
+
 	throw new Error(
 		"fs.symlink() is not fully supported in browser/Tauri environment.",
 	);
 }
 
 function M() {
+
 	throw new Error(
 		"fs.readlink() is not fully supported in browser/Tauri environment.",
 	);
 }
 
 function P() {
+
 	throw new Error(
 		"fs.chmod() is not supported in browser/Tauri environment.",
 	);
 }
 
 function I() {
+
 	throw new Error(
 		"fs.chown() is not supported in browser/Tauri environment.",
 	);
 }
 
 const a = {
+
 	readFile: f,
 
 	writeFile: u,
@@ -340,6 +408,7 @@ const a = {
 	exists: g,
 
 	constants: {
+
 		O_RDONLY: 0,
 
 		O_WRONLY: 1,
@@ -378,6 +447,7 @@ const a = {
 	chown: I,
 
 	promises: {
+
 		readFile: f,
 
 		writeFile: u,
@@ -403,16 +473,22 @@ const a = {
 };
 
 function h() {
+
 	typeof window > "u" ||
 		window.__FILE_SYSTEM_POLYFILL_INSTALLED__ ||
 		((window.__FILE_SYSTEM_POLYFILL_INSTALLED__ = !0),
+
 		(window.fs = a),
+
 		(window.require = B()),
+
 		typeof window.vscode < "u" && (window.vscode.fs = a));
 }
 
 function B() {
+
 	return (e) => {
+
 		if (e === "fs") return a;
 
 		throw new Error(`Require shim only supports 'fs' module. Got: ${e}`);
@@ -420,6 +496,7 @@ function B() {
 }
 
 var C = {
+
 	install: h,
 
 	module: a,

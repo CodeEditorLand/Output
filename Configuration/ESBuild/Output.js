@@ -2,23 +2,28 @@ let a = null;
 
 if (process.env.Compiler?.toLowerCase() === "rest")
 	try {
+
 		const { createRestPluginIfEnabled: t } =
 			await import("./Rest/Plugin.js");
 
 		a = t();
 	} catch {
+
 		console.warn(
 			"[Output] RestPlugin.js not found - falling back to esbuild TS loader",
 		);
 	}
 
 const u = process.env.Clean === "true",
+
 	c = process.env.Meta === "true",
+
 	e =
 		process.env.NODE_ENV === "development" ||
 		process.env.TAURI_ENV_DEBUG === "true";
 
 var m = {
+
 	color: !0,
 
 	format: "esm",
@@ -55,9 +60,11 @@ var m = {
 
 	plugins: [
 		{
+
 			name: "Target",
 
 			setup({ onStart: t, initialOptions: { outdir: o } }) {
+
 				!0 === (u === !0) &&
 					t(async () => {
 						try {
@@ -122,7 +129,9 @@ var m = {
 											},
 										});
 									(s.on("error", () => {}),
+
 										s.write(i),
+
 										s.end());
 								} catch {}
 							});

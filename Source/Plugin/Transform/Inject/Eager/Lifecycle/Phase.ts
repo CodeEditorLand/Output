@@ -8,13 +8,16 @@
  */
 
 import EagerLifecyclePhase, {
+
 	Marker,
 } from "../../../../Polyfill/Eager/Lifecycle/Phase.js";
+
 import type { TransformPlugin } from "../../../../Type.js";
 
 const Polyfill = `\n/* ${Marker} */\n(${EagerLifecyclePhase.toString()})();\n`;
 
 const Plugin: TransformPlugin = {
+
 	Kind: "Transform",
 
 	Name: "InjectEagerLifecyclePhase",
@@ -23,6 +26,7 @@ const Plugin: TransformPlugin = {
 		Path.endsWith("vs/code/electron-browser/workbench/workbench.js"),
 
 	Transform({ Source }) {
+
 		if (Source.includes(Marker)) return { Kind: "Unchanged" };
 
 		return { Kind: "Rewrite", Source: Polyfill + Source };

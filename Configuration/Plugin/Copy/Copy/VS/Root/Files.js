@@ -15,7 +15,9 @@ const d = [
 
 		"bootstrap-meta.js",
 	],
+
 	y = {
+
 		"nls.messages.js":
 			"globalThis._VSCODE_NLS_MESSAGES=globalThis._VSCODE_NLS_MESSAGES??[];export{};",
 
@@ -25,12 +27,16 @@ const d = [
 
 		"nls.metadata.json": "{}",
 	},
+
 	c = (n) => {
+
 		const s = y[n];
 
 		return s ? `data:text/javascript,${s}` : null;
 	},
+
 	g = (n) => {
+
 		if (typeof n == "boolean") return n;
 
 		const s = process.env.NODE_ENV;
@@ -41,9 +47,13 @@ const d = [
 				? !0
 				: process.env.TAURI_ENV_DEBUG === "true";
 	},
+
 	u = (n, s, e, r, a) => {
+
 		const i = a ? r : e,
+
 			l = a ? e : r,
+
 			t = [
 				o(s, n),
 
@@ -57,10 +67,12 @@ const d = [
 
 				o(l, "vs", n),
 			],
+
 			p = c(n);
 
 		return (p && t.push(p), t);
 	},
+
 	m = ({
 		OutputRoot: n,
 		DependencyOutBuild: s,
@@ -69,9 +81,11 @@ const d = [
 		Files: a = d,
 		OnDevelopment: i,
 	}) => {
+
 		const l = g(i);
 
 		return {
+
 			Kind: "Copy",
 
 			Name: "CopyVSRootFiles",

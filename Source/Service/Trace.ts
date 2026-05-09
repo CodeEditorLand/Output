@@ -25,7 +25,9 @@ const Trace = (
 
 	Detail?: Record<string, unknown>,
 ): void => {
+
 	try {
+
 		performance.mark(`land:${Tag}:${Message}`, {
 			detail: Detail ? { ...Detail, Tag } : { Tag },
 		});
@@ -37,14 +39,18 @@ const Trace = (
  * Uses performance.measure() for duration tracking.
  */
 const TraceSpan = (Tag: string, SpanName: string): (() => void) => {
+
 	const MarkName = `land:${Tag}:${SpanName}:start`;
 
 	try {
+
 		performance.mark(MarkName);
 	} catch {}
 
 	return () => {
+
 		try {
+
 			performance.measure(`land:${Tag}:${SpanName}`, MarkName);
 		} catch {}
 	};
@@ -54,7 +60,9 @@ const TraceSpan = (Tag: string, SpanName: string): (() => void) => {
  * Trace an error via performance.mark().
  */
 const TraceError = (Tag: string, Message: string, Error?: unknown): void => {
+
 	try {
+
 		performance.mark(`land:error:${Tag}:${Format(Message)}`, {
 			detail: { Tag, Error: Error ? String(Error) : undefined },
 		});

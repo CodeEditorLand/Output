@@ -13,6 +13,7 @@
 import type { CopyPlugin } from "../../../../../Type.js";
 
 export interface CopyTauriMainProcessServiceInput {
+
 	readonly OutputService: string;
 
 	readonly WindService: string;

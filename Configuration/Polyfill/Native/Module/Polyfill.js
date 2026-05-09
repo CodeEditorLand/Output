@@ -1,5 +1,7 @@
 async function f(e, r = {}) {
+
 	try {
+
 		const n =
 			window.__TAURI__?.core?.invoke ??
 			window.__TAURI__?.invoke ??
@@ -12,6 +14,7 @@ async function f(e, r = {}) {
 
 		throw new Error(`Tauri invoke not available for command: ${e}`);
 	} catch (n) {
+
 		throw n;
 	}
 }
@@ -19,6 +22,7 @@ async function f(e, r = {}) {
 const a = new Map();
 
 function i(e, r) {
+
 	if (a.has(e)) return a.get(e);
 
 	const n = r();
@@ -27,62 +31,80 @@ function i(e, r) {
 }
 
 function s() {
+
 	return {
+
 		setZoomLevel(e) {},
 
 		setZoomFactor(e) {},
 
 		getZoomFactor() {
+
 			return 1;
 		},
 
 		getZoomLevel() {
+
 			return 0;
 		},
 
 		insertCSS(e) {
+
 			const r = document.createElement("style");
 
 			((r.textContent = e), document.head.appendChild(r));
 		},
 
 		insertText(e) {
+
 			document.execCommand("insertText", !1, e);
 		},
 	};
 }
 
 function d() {
+
 	return {
+
 		getName() {
+
 			return "CodeEditorLand";
 		},
 
 		getVersion() {
+
 			return "0.0.1";
 		},
 
 		getLocale() {
+
 			return navigator.language;
 		},
 
 		isReady() {
+
 			return !0;
 		},
 
 		whenReady() {
+
 			return Promise.resolve();
 		},
 	};
 }
 
 function c() {
+
 	return {
+
 		getDisplayNearestPoint(e) {
+
 			return {
+
 				id: 1,
 
 				bounds: {
+
 					x: 0,
 
 					y: 0,
@@ -95,10 +117,13 @@ function c() {
 		},
 
 		getPrimaryDisplay() {
+
 			return {
+
 				id: 1,
 
 				bounds: {
+
 					x: window.screen.availLeft,
 
 					y: window.screen.availTop,
@@ -111,11 +136,14 @@ function c() {
 		},
 
 		getAllDisplays() {
+
 			return [
 				{
+
 					id: 1,
 
 					bounds: {
+
 						x: window.screen.availLeft,
 
 						y: window.screen.availTop,
@@ -131,44 +159,59 @@ function c() {
 }
 
 function u() {
+
 	return {
+
 		async openExternal(e) {
+
 			try {
+
 				const r = window.__TAURI__?.shell ?? window.TAURI?.shell;
 
 				typeof r?.open == "function"
 					? await r.open(e)
 					: window.open(e, "_blank");
 			} catch (r) {
+
 				throw r;
 			}
 		},
 
 		async openPath(e) {
+
 			throw new Error(
 				"Shell.openPath is not supported in browser environment",
 			);
 		},
 
 		async showItemInFolder(e) {
+
 			throw new Error(
 				"Shell.showItemInFolder is not supported in browser environment",
 			);
 		},
 
 		async trashItem(e) {
+
 			await f("file:delete", { path: e });
 		},
 
 		beep() {
+
 			if (typeof AudioContext < "u") {
+
 				const e = new AudioContext(),
+
 					r = e.createOscillator(),
+
 					n = e.createGain();
 
 				(r.connect(n),
+
 					n.connect(e.destination),
+
 					r.start(),
+
 					r.stop(e.currentTime + 0.1));
 			}
 		},
@@ -176,15 +219,21 @@ function u() {
 }
 
 function l() {
+
 	return {
+
 		async showOpenDialog(e) {
+
 			try {
+
 				const r = window.__TAURI__?.dialog ?? window.TAURI?.dialog;
 
 				if (typeof r?.open == "function") {
+
 					const n = await r.open(e);
 
 					return {
+
 						filePaths: Array.isArray(n) ? n : n ? [n] : [],
 
 						canceled: !n,
@@ -196,10 +245,13 @@ function l() {
 		},
 
 		async showSaveDialog(e) {
+
 			try {
+
 				const r = window.__TAURI__?.dialog ?? window.TAURI?.dialog;
 
 				if (typeof r?.save == "function") {
+
 					const n = await r.save(e);
 
 					return { filePath: n ?? void 0, canceled: !n };
@@ -210,11 +262,13 @@ function l() {
 		},
 
 		showMessage(e) {
+
 			window.__TAURI__?.dialog?.message &&
 				window.__TAURI__.dialog.message(e);
 		},
 
 		showError(e) {
+
 			window.__TAURI__?.dialog?.message &&
 				window.__TAURI__.dialog.message("Error: " + e);
 		},
@@ -222,9 +276,13 @@ function l() {
 }
 
 function w() {
+
 	return {
+
 		async writeText(e) {
+
 			try {
+
 				const r =
 					window.__TAURI__?.clipboard ?? window.TAURI?.clipboard;
 
@@ -232,12 +290,15 @@ function w() {
 					? await r.writeText(e)
 					: await navigator.clipboard.writeText(e);
 			} catch (r) {
+
 				throw r;
 			}
 		},
 
 		async readText() {
+
 			try {
+
 				const e =
 					window.__TAURI__?.clipboard ?? window.TAURI?.clipboard;
 
@@ -248,6 +309,7 @@ function w() {
 		},
 
 		async writeBuffer(e, r) {
+
 			throw new Error("Clipboard.writeBuffer is not fully supported");
 		},
 
@@ -258,16 +320,21 @@ function w() {
 }
 
 function m() {
+
 	return {
+
 		get shouldUseDarkColors() {
+
 			return window.matchMedia("(prefers-color-scheme: dark)").matches;
 		},
 
 		get shouldUseInvertedColorScheme() {
+
 			return !1;
 		},
 
 		get theme() {
+
 			const e = window.__TAURI__ ?? window.TAURI;
 
 			return e?.window?.appWindow?.theme
@@ -278,14 +345,18 @@ function m() {
 }
 
 function h() {
+
 	return {
+
 		id: 1,
 
 		isFocused() {
+
 			return document.hasFocus();
 		},
 
 		focus() {
+
 			window.focus();
 		},
 
@@ -294,19 +365,24 @@ function h() {
 		hide() {},
 
 		close() {
+
 			window.close();
 		},
 
 		isMaximizable() {
+
 			return !0;
 		},
 
 		isMinimizable() {
+
 			return !0;
 		},
 
 		getBounds() {
+
 			return {
+
 				x: window.screenX,
 
 				y: window.screenY,
@@ -320,7 +396,9 @@ function h() {
 }
 
 function t() {
+
 	return {
+
 		ipcRenderer: i("ipcRenderer", () => {
 			const e = window.__IPC_RENDERER__;
 			return (
@@ -354,6 +432,7 @@ function t() {
 }
 
 function b() {
+
 	if (typeof window > "u" || typeof require != "function") return;
 
 	const e = window.require;
@@ -393,6 +472,7 @@ function b() {
 		}
 		return e(r);
 	}),
+
 		Object.keys(e).forEach((r) => {
 			Object.defineProperty(window.require, r, {
 				...Object.getOwnPropertyDescriptor(e, r),
@@ -401,13 +481,17 @@ function b() {
 }
 
 window.__electron_require__ = (e) => {
+
 	if (e === "electron") return t();
 
 	if (e.startsWith("electron/")) {
+
 		const r = e.replace("electron/", ""),
+
 			n = t();
 
 		switch (r) {
+
 			case "ipcRenderer":
 				return n.ipcRenderer;
 
@@ -442,6 +526,7 @@ window.__electron_require__ = (e) => {
 };
 
 function p() {
+
 	if (typeof window > "u" || window.__NATIVE_MODULE_POLYFILL_INSTALLED__)
 		return;
 
@@ -450,10 +535,12 @@ function p() {
 	const e = t();
 
 	((window.electron = e),
+
 		typeof window.vscode < "u" && (window.vscode.electron = e));
 }
 
 var g = {
+
 	install: p,
 
 	createElectronModule: t,

@@ -75,6 +75,7 @@ const Replacements: ReadonlyArray<[string, string]> = [
 ];
 
 const Plugin: TransformPlugin = {
+
 	Kind: "Transform",
 
 	Name: "RewriteNodeModulesPath",
@@ -82,6 +83,7 @@ const Plugin: TransformPlugin = {
 	Match: ({ Path }) => /\/vs\/base\/common\/network\.js$/.test(Path),
 
 	Transform({ Source }) {
+
 		if (Source.includes(Marker)) return { Kind: "Unchanged" };
 
 		let Next = Source;
@@ -89,7 +91,9 @@ const Plugin: TransformPlugin = {
 		let Changed = false;
 
 		for (const [Original, Patched] of Replacements) {
+
 			if (Next.includes(Original)) {
+
 				Next = Next.replace(Original, Patched);
 
 				Changed = true;
@@ -99,6 +103,7 @@ const Plugin: TransformPlugin = {
 		if (!Changed) return { Kind: "Unchanged" };
 
 		return {
+
 			Kind: "Rewrite",
 
 			Source: Marker + "\n" + Next,

@@ -1,7 +1,10 @@
 const s =
 		".replace(/vscode-file:\\/\\/vscode-app\\/Static\\/Application\\/out\\//g, (globalThis).location.origin + '/Static/Application/').replace(/vscode-file:\\/\\/vscode-app\\//g, (globalThis).location.origin + '/Extension/').replace(/file:\\/\\/\\//g, (globalThis).location.origin + '/Extension/')",
+
 	o = "(?:(?:\\.replace\\([^)]*\\))*)",
+
 	i = {
+
 		Marker: "/* __LAND_ICONS_STYLESHEET_URL_REWRITE_V2__ */",
 
 		PathRegex: /\/vs\/platform\/theme\/browser\/iconsStyleSheet\.js$/,
@@ -10,7 +13,9 @@ const s =
 			`(getCSS\\(\\)\\s*\\{\\s*[\\s\\S]*?return\\s+rules\\.join\\('\\\\n'\\))${o}(?:;)?(\\s*\\})`,
 		),
 	},
+
 	l = {
+
 		Marker: "/* __LAND_FILE_ICON_THEME_URL_REWRITE_V2__ */",
 
 		PathRegex:
@@ -20,8 +25,11 @@ const s =
 			`(result\\.content\\s*=\\s*cssRules\\.join\\('\\\\n'\\))${o}(\\s*;)`,
 		),
 	},
+
 	c = [i, l],
+
 	h = {
+
 		Kind: "Transform",
 
 		Name: "RewriteIconsStyleSheetURLs",
@@ -29,6 +37,7 @@ const s =
 		Match: ({ Path: r }) => c.some((e) => e.PathRegex.test(r)),
 
 		Transform({ Path: r, Source: e }) {
+
 			const n = c.find((a) => a.PathRegex.test(r));
 
 			if (!n) return { Kind: "Unchanged" };
@@ -41,6 +50,7 @@ const s =
 
 			return t === e
 				? { Kind: "Unchanged" }
+
 				: { Kind: "Rewrite", Source: t };
 		},
 	};

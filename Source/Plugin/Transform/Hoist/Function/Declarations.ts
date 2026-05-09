@@ -95,6 +95,7 @@ const RegexAllowingKeywords: ReadonlySet<string> = new Set([
 ]);
 
 interface Block {
+
 	readonly StartLine: number;
 
 	readonly EndLine: number; // inclusive
@@ -109,6 +110,7 @@ interface Block {
  * from template-literal `${...}` interpolation braces.
  */
 interface WalkerState {
+
 	readonly InBlockComment: boolean;
 
 	readonly StringChar: '"' | "'" | "`" | null;
@@ -117,6 +119,7 @@ interface WalkerState {
 }
 
 const InitialState: WalkerState = {
+
 	InBlockComment: false,
 
 	StringChar: null,
@@ -130,6 +133,7 @@ const InitialState: WalkerState = {
  * the blocks in declaration order.
  */
 function FindTopLevelFunctionBlocks(Lines: ReadonlyArray<string>): Block[] {
+
 	const Blocks: Block[] = [];
 
 	let Depth = 0;

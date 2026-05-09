@@ -42,52 +42,93 @@
  */
 
 import { Emitter } from "../../base/common/event.js";
+
 import { Disposable, toDisposable } from "../../base/common/lifecycle.js";
+
 import { ResourceTree } from "../../base/common/resourceTree.js";
+
 import { URI } from "../../base/common/uri.js";
+
 import { ILanguageService } from "../../editor/common/languages/language.js";
+
 import { IModelService } from "../../editor/common/services/model.js";
+
 import { IClipboardService } from "../../platform/clipboard/common/clipboardService.js";
+
 import {
 	CommandsRegistry,
 	ICommandService,
 } from "../../platform/commands/common/commands.js";
+
 import { IConfigurationService } from "../../platform/configuration/common/configuration.js";
+
 import { IContextKeyService } from "../../platform/contextkey/common/contextkey.js";
+
 import {
 	IDialogService,
 	IFileDialogService,
 } from "../../platform/dialogs/common/dialogs.js";
+
 import { IFileService } from "../../platform/files/common/files.js";
+
 import { IKeybindingService } from "../../platform/keybinding/common/keybinding.js";
+
 import { IMarkerService } from "../../platform/markers/common/markers.js";
+
 import { INotificationService } from "../../platform/notification/common/notification.js";
+
 import { IProductService } from "../../platform/product/common/productService.js";
+
 import { IProgressService } from "../../platform/progress/common/progress.js";
+
 import { Registry } from "../../platform/registry/common/platform.js";
+
 import { IStorageService } from "../../platform/storage/common/storage.js";
+
 import { IThemeService } from "../../platform/theme/common/themeService.js";
+
 import { IUriIdentityService } from "../../platform/uriIdentity/common/uriIdentity.js";
+
 import { IWorkspaceContextService } from "../../platform/workspace/common/workspace.js";
+
 import { IViewDescriptorService } from "../common/views.js";
+
 import { ICustomEditorService } from "../contrib/customEditor/common/customEditor.js";
+
 import { IDebugService } from "../contrib/debug/common/debug.js";
+
 import { ISCMService } from "../contrib/scm/common/scm.js";
+
 import { IWebviewWorkbenchService } from "../contrib/webviewPanel/browser/webviewWorkbenchService.js";
+
 import { IWebviewViewService } from "../contrib/webviewView/browser/webviewViewService.js";
+
 import { IActivityService } from "../services/activity/common/activity.js";
+
 import { IEditorGroupsService } from "../services/editor/common/editorGroupsService.js";
+
 import { IEditorService } from "../services/editor/common/editorService.js";
+
 import { IExtensionService } from "../services/extensions/common/extensions.js";
+
 import { IHostService } from "../services/host/browser/host.js";
+
 import { IWorkbenchLayoutService } from "../services/layout/browser/layoutService.js";
+
 import { ILifecycleService } from "../services/lifecycle/common/lifecycle.js";
+
 import { IPaneCompositePartService } from "../services/panecomposite/browser/panecomposite.js";
+
 import { ISearchService } from "../services/search/common/search.js";
+
 import { IStatusbarService } from "../services/statusbar/browser/statusbar.js";
+
 import { ITextFileService } from "../services/textfile/common/textfiles.js";
+
 import { IWorkbenchThemeService } from "../services/themes/common/workbenchThemeService.js";
+
 import { ITitleService } from "../services/title/browser/titleService.js";
+
 import { IViewsService } from "../services/views/common/viewsService.js";
 
 const ViewsRegistryId = "workbench.registry.view";
@@ -95,20 +136,26 @@ const ViewsRegistryId = "workbench.registry.view";
 const ViewContainersRegistryId = "workbench.registry.view.containers";
 
 const Resolve = (Service, Decorator) => {
+
 	try {
+
 		return Service.invokeFunction((Accessor) => Accessor.get(Decorator));
 	} catch {
+
 		return null;
 	}
 };
 
 const Diagnostic = (Tag, Message) => {
+
 	try {
+
 		const Tauri = globalThis.__TAURI__;
 
 		const Invoke = Tauri?.core?.invoke ?? Tauri?.invoke;
 
 		if (typeof Invoke !== "function") {
+
 			return;
 		}
 
@@ -117,12 +164,15 @@ const Diagnostic = (Tag, Message) => {
 			params: [Tag, Message],
 		});
 	} catch {
+
 		/* renderer may have torn down; never throw out of a diagnostic */
 	}
 };
 
 const SnapshotViewRegistry = () => {
+
 	try {
+
 		const Containers = Registry.as(ViewContainersRegistryId);
 
 		const Views = Registry.as(ViewsRegistryId);
@@ -136,18 +186,23 @@ const SnapshotViewRegistry = () => {
 		const ViewIds = [];
 
 		try {
+
 			for (const Location of Locations) {
+
 				const Children = Views?.getViews?.(Location) ?? [];
 
 				for (const View of Children) {
+
 					ViewIds.push(String(View?.id ?? "<no-id>"));
 				}
 			}
 		} catch {
+
 			/* swallow per-container failure - sample what we have */
 		}
 
 		return {
+
 			containers: ContainerIds.length,
 
 			views: ViewIds.length,
@@ -157,7 +212,9 @@ const SnapshotViewRegistry = () => {
 			viewSample: ViewIds,
 		};
 	} catch (Error) {
+
 		return {
+
 			containers: -1,
 
 			views: -1,
@@ -176,10 +233,13 @@ const SnapshotViewRegistry = () => {
  * without re-implementing a parallel UI surface.
  */
 export const ExposeAccessor = (InstantiationService) => {
+
 	globalThis.__CEL_INSTANTIATION_SERVICE__ = InstantiationService;
 
 	try {
+
 		globalThis.__CEL_SERVICES__ = {
+
 			Statusbar: Resolve(InstantiationService, IStatusbarService),
 
 			Commands: Resolve(InstantiationService, ICommandService),
@@ -193,13 +253,16 @@ export const ExposeAccessor = (InstantiationService) => {
 			URI: URI,
 
 			TreeViewByViewId: (ViewId) => {
+
 				try {
+
 					const Reg = Registry.as(ViewsRegistryId);
 
 					const Descriptor = Reg?.getView?.(ViewId);
 
 					return Descriptor?.treeView ?? null;
 				} catch {
+
 					return null;
 				}
 			},
@@ -313,6 +376,7 @@ export const ExposeAccessor = (InstantiationService) => {
 		// Without this patch, every extension sidebar stalls at the bare
 		// `pre/index.html` chrome because resolve() never runs.
 		try {
+
 			const ExtensionSvc = Resolve(
 				InstantiationService,
 
@@ -324,14 +388,17 @@ export const ExposeAccessor = (InstantiationService) => {
 				typeof ExtensionSvc.activateByEvent === "function" &&
 				!ExtensionSvc.__CEL_PATCHED_ONVIEW__
 			) {
+
 				const Original =
 					ExtensionSvc.activateByEvent.bind(ExtensionSvc);
 
 				ExtensionSvc.activateByEvent = function (Event) {
+
 					if (
 						typeof Event === "string" &&
 						Event.indexOf("onView:") === 0
 					) {
+
 						return Promise.resolve();
 					}
 
@@ -347,6 +414,7 @@ export const ExposeAccessor = (InstantiationService) => {
 				);
 			}
 		} catch (PatchError) {
+
 			Diagnostic(
 				"cel-services",
 
@@ -365,14 +433,18 @@ export const ExposeAccessor = (InstantiationService) => {
 		// SkyBridge or any future recovery path can replay content via a
 		// stored port if the official handler missed it.
 		try {
+
 			if (typeof window !== "undefined" && window.addEventListener) {
+
 				const Land = globalThis;
 
 				if (!Land.__CEL_WEBVIEW_PORT_MAP__) {
+
 					Land.__CEL_WEBVIEW_PORT_MAP__ = new Map();
 				}
 
 				if (!Land.__CEL_WEBVIEW_READY_HOOKED__) {
+
 					Land.__CEL_WEBVIEW_READY_HOOKED__ = true;
 
 					window.addEventListener(
@@ -411,6 +483,7 @@ export const ExposeAccessor = (InstantiationService) => {
 				}
 			}
 		} catch (PortError) {
+
 			Diagnostic(
 				"webview-port",
 
@@ -419,13 +492,16 @@ export const ExposeAccessor = (InstantiationService) => {
 		}
 
 		try {
+
 			window.dispatchEvent(new Event("cel:services-ready"));
 		} catch {
+
 			/* renderer may not have a window in headless tests */
 		}
 
 		Diagnostic("cel-services", "ready (sync via static import)");
 	} catch (Error) {
+
 		Diagnostic(
 			"cel-services",
 
@@ -441,11 +517,14 @@ export const ExposeAccessor = (InstantiationService) => {
  * the workbench being fully attached to the DOM can fire synchronously.
  */
 export const OnWorkbenchReady = (Workbench) => {
+
 	globalThis.__CEL_WORKBENCH__ = Workbench;
 
 	try {
+
 		window.dispatchEvent(new Event("cel:workbench-ready"));
 	} catch {
+
 		/* renderer may not have a window in headless tests */
 	}
 };

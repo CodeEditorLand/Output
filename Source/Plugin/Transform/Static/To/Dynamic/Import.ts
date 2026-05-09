@@ -33,6 +33,7 @@ const PathRegex = new RegExp(`${Marker}$`);
 const SideEffectRE = /^import\s+['"]([^'"]+)['"]\s*;?\s*$/gm;
 
 const Plugin: TransformPlugin = {
+
 	Kind: "Transform",
 
 	Name: "StaticToDynamicImport",
@@ -49,6 +50,7 @@ const Plugin: TransformPlugin = {
 	Match: ({ Path }) => PathRegex.test(Path),
 
 	Transform({ Source }) {
+
 		const Imports: string[] = [];
 
 		let MatchResult: RegExpExecArray | null;
@@ -56,6 +58,7 @@ const Plugin: TransformPlugin = {
 		SideEffectRE.lastIndex = 0;
 
 		while ((MatchResult = SideEffectRE.exec(Source)) !== null) {
+
 			Imports.push(MatchResult[1]!);
 		}
 

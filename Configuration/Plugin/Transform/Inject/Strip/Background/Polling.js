@@ -1,4 +1,5 @@
 import o, {
+
 	Marker as r,
 } from "../../../../Polyfill/Strip/Background/Polling.js";
 
@@ -8,6 +9,7 @@ const e = `
 
 `,
 	i = {
+
 		Kind: "Transform",
 
 		Name: "InjectStripBackgroundPolling",
@@ -16,8 +18,10 @@ const e = `
 			n.endsWith("vs/code/electron-browser/workbench/workbench.js"),
 
 		Transform({ Source: n }) {
+
 			return n.includes(r)
 				? { Kind: "Unchanged" }
+
 				: { Kind: "Rewrite", Source: e + n };
 		},
 	};

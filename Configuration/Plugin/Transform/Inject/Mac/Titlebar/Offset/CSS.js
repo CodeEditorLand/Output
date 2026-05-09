@@ -1,4 +1,5 @@
 import e, {
+
 	Marker as n,
 } from "../../../../../Polyfill/Mac/Titlebar/Offset/CSS.js";
 
@@ -8,6 +9,7 @@ const t = `
 
 `,
 	o = {
+
 		Kind: "Transform",
 
 		Name: "InjectMacTitlebarOffsetCSS",
@@ -16,8 +18,10 @@ const t = `
 			r.endsWith("vs/code/electron-browser/workbench/workbench.js"),
 
 		Transform({ Source: r }) {
+
 			return r.includes(n)
 				? { Kind: "Unchanged" }
+
 				: { Kind: "Rewrite", Source: t + r };
 		},
 	};

@@ -94,6 +94,7 @@ const PathRegex =
 	/\/vs\/workbench\/contrib\/webview\/browser\/pre\/index\.html$/;
 
 const Plugin: TransformPlugin = {
+
 	Kind: "Transform",
 
 	Name: "PatchWebviewIframeServiceWorker",
@@ -101,13 +102,16 @@ const Plugin: TransformPlugin = {
 	Match: ({ Path }) => PathRegex.test(Path),
 
 	Transform({ Source }) {
+
 		if (Source.includes(Marker)) {
+
 			return { Kind: "Unchanged" };
 		}
 
 		let Next = Source;
 
 		if (Next.includes(ServiceWorkerExpression)) {
+
 			Next = Next.replace(
 				ServiceWorkerExpression,
 
@@ -116,15 +120,18 @@ const Plugin: TransformPlugin = {
 		}
 
 		if (Next.includes(HashThrowExpression)) {
+
 			Next = Next.replace(HashThrowExpression, HashThrowReplacement);
 		}
 
 		if (Next.includes(CryptoCheckExpression)) {
+
 			Next = Next.replace(CryptoCheckExpression, CryptoCheckReplacement);
 		}
 
 		return Next === Source
 			? { Kind: "Unchanged" }
+
 			: { Kind: "Rewrite", Source: Next };
 	},
 };

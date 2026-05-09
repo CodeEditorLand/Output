@@ -7,13 +7,16 @@
  */
 
 import WorkbenchPaintPrime, {
+
 	Marker,
 } from "../../../../Polyfill/Workbench/Paint/Prime.js";
+
 import type { TransformPlugin } from "../../../../Type.js";
 
 const Polyfill = `\n/* ${Marker} */\n(${WorkbenchPaintPrime.toString()})();\n`;
 
 const Plugin: TransformPlugin = {
+
 	Kind: "Transform",
 
 	Name: "InjectWorkbenchPaintPrime",
@@ -22,6 +25,7 @@ const Plugin: TransformPlugin = {
 		Path.endsWith("vs/code/electron-browser/workbench/workbench.js"),
 
 	Transform({ Source }) {
+
 		if (Source.includes(Marker)) return { Kind: "Unchanged" };
 
 		return { Kind: "Rewrite", Source: Polyfill + Source };

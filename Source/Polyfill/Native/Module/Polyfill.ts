@@ -44,6 +44,7 @@ import type {
  * Electron-like module structure
  */
 interface ElectronModule {
+
 	ipcRenderer: IpcRenderer;
 
 	webFrame: WebFrame;
@@ -72,6 +73,7 @@ interface ElectronModule {
  * WebFrame interface (partial)
  */
 interface WebFrame {
+
 	setZoomLevel(level: number): void;
 
 	setZoomFactor(factor: number): void;
@@ -89,6 +91,7 @@ interface WebFrame {
  * App interface (partial, mock for renderer)
  */
 interface App {
+
 	getName(): string;
 
 	getVersion(): string;
@@ -104,19 +107,23 @@ interface App {
  * Screen interface (partial)
  */
 interface Screen {
+
 	getDisplayNearestPoint(point: { x: number; y: number }): {
+
 		id: number;
 
 		bounds: { x: number; y: number; width: number; height: number };
 	};
 
 	getPrimaryDisplay(): {
+
 		id: number;
 
 		bounds: { x: number; y: number; width: number; height: number };
 	};
 
 	getAllDisplays(): Array<{
+
 		id: number;
 
 		bounds: { x: number; y: number; width: number; height: number };
@@ -127,6 +134,7 @@ interface Screen {
  * Shell interface (partial)
  */
 interface Shell {
+
 	openExternal(url: string): Promise<void>;
 
 	openPath(path: string): Promise<string>;
@@ -142,6 +150,7 @@ interface Shell {
  * Dialog interface (partial)
  */
 interface Dialog {
+
 	showOpenDialog(
 		options?: unknown,
 	): Promise<{ filePaths: string[]; canceled: boolean }>;
@@ -159,6 +168,7 @@ interface Dialog {
  * Clipboard interface (partial)
  */
 interface Clipboard {
+
 	writeText(text: string): Promise<void>;
 
 	readText(): Promise<string>;
@@ -174,6 +184,7 @@ interface Clipboard {
  * NativeTheme interface (partial)
  */
 interface NativeTheme {
+
 	shouldUseDarkColors: boolean;
 
 	shouldUseInvertedColorScheme: boolean;
@@ -185,6 +196,7 @@ interface NativeTheme {
  * BrowserWindow interface (partial, mock for renderer)
  */
 interface BrowserWindow {
+
 	id: number;
 
 	isFocused(): boolean;
@@ -216,7 +228,9 @@ async function invokeTauri<T>(
 
 	args: Record<string, unknown> = {},
 ): Promise<T> {
+
 	try {
+
 		// Tauri 2.x: core.invoke, Tauri 1.x: invoke
 		const Invoke =
 			(window as any).__TAURI__?.core?.invoke ??
@@ -224,6 +238,7 @@ async function invokeTauri<T>(
 			(window as any).TAURI?.invoke;
 
 		if (typeof Invoke === "function") {
+
 			// Colon-prefixed methods (e.g. `file:write`,
 			// `shared_process:invoke`) are not registered as direct Tauri
 			// commands - Rust function names can't contain colons. They
@@ -233,6 +248,7 @@ async function invokeTauri<T>(
 			// transparently so this polyfill behaves like the rest of
 			// Wind/Sky/Output.
 			if (command.includes(":")) {
+
 				return await Invoke("MountainIPCInvoke", {
 					method: command,
 					params: args,
@@ -244,6 +260,7 @@ async function invokeTauri<T>(
 
 		throw new Error(`Tauri invoke not available for command: ${command}`);
 	} catch (error: unknown) {
+
 		throw error;
 	}
 }
@@ -257,6 +274,7 @@ async function invokeTauri<T>(
  */
 const MODULE_CACHE: Map<
 	string,
+
 	| ElectronModule
 	| IpcRenderer
 	| WebFrame
@@ -271,7 +289,9 @@ const MODULE_CACHE: Map<
  * Get or create cached module
  */
 function getCachedModule<T>(key: string, factory: () => T): T {
+
 	if (MODULE_CACHE.has(key)) {
+
 		return MODULE_CACHE.get(key) as T;
 	}
 
@@ -290,24 +310,31 @@ function getCachedModule<T>(key: string, factory: () => T): T {
  * Create WebFrame polyfill
  */
 function createWebFrame(): WebFrame {
+
 	return {
+
 		setZoomLevel(level: number): void {
+
 			// This is a no-op in browser as zoom is handled by CSS/transform
 		},
 
 		setZoomFactor(factor: number): void {
+
 			// This is a no-op in browser as zoom is handled by CSS/transform
 		},
 
 		getZoomFactor(): number {
+
 			return 1.0;
 		},
 
 		getZoomLevel(): number {
+
 			return 0;
 		},
 
 		insertCSS(css: string): void {
+
 			const style = document.createElement("style");
 
 			style.textContent = css;
@@ -316,6 +343,7 @@ function createWebFrame(): WebFrame {
 		},
 
 		insertText(text: string): void {
+
 			document.execCommand("insertText", false, text);
 		},
 	};
@@ -329,24 +357,31 @@ function createWebFrame(): WebFrame {
  * Create App mock
  */
 function createApp(): App {
+
 	return {
+
 		getName(): string {
+
 			return "CodeEditorLand";
 		},
 
 		getVersion(): string {
+
 			return "0.0.1";
 		},
 
 		getLocale(): string {
+
 			return navigator.language;
 		},
 
 		isReady(): boolean {
+
 			return true;
 		},
 
 		whenReady(): Promise<void> {
+
 			return Promise.resolve();
 		},
 	};
@@ -360,17 +395,23 @@ function createApp(): App {
  * Create Screen polyfill
  */
 function createScreen(): Screen {
+
 	return {
+
 		getDisplayNearestPoint(point: { x: number; y: number }): {
+
 			id: number;
 
 			bounds: { x: number; y: number; width: number; height: number };
 		} {
+
 			// Return primary display in browser
 			return {
+
 				id: 1,
 
 				bounds: {
+
 					x: 0,
 
 					y: 0,
@@ -383,14 +424,18 @@ function createScreen(): Screen {
 		},
 
 		getPrimaryDisplay(): {
+
 			id: number;
 
 			bounds: { x: number; y: number; width: number; height: number };
 		} {
+
 			return {
+
 				id: 1,
 
 				bounds: {
+
 					x: window.screen.availLeft,
 
 					y: window.screen.availTop,
@@ -403,15 +448,19 @@ function createScreen(): Screen {
 		},
 
 		getAllDisplays(): Array<{
+
 			id: number;
 
 			bounds: { x: number; y: number; width: number; height: number };
 		}> {
+
 			return [
 				{
+
 					id: 1,
 
 					bounds: {
+
 						x: window.screen.availLeft,
 
 						y: window.screen.availTop,
@@ -434,26 +483,34 @@ function createScreen(): Screen {
  * Create Shell polyfill
  */
 function createShell(): Shell {
+
 	return {
+
 		async openExternal(url: string): Promise<void> {
+
 			// Use Tauri's shell module
 			try {
+
 				const shell =
 					(window as any).__TAURI__?.shell ??
 					(window as any).TAURI?.shell;
 
 				if (typeof shell?.open === "function") {
+
 					await shell.open(url);
 				} else {
+
 					// Fallback to browser
 					window.open(url, "_blank");
 				}
 			} catch (error) {
+
 				throw error;
 			}
 		},
 
 		async openPath(path: string): Promise<string> {
+
 			// Not supported in browser
 			throw new Error(
 				"Shell.openPath is not supported in browser environment",
@@ -461,6 +518,7 @@ function createShell(): Shell {
 		},
 
 		async showItemInFolder(path: string): Promise<void> {
+
 			// Not supported in browser
 			throw new Error(
 				"Shell.showItemInFolder is not supported in browser environment",
@@ -468,12 +526,15 @@ function createShell(): Shell {
 		},
 
 		async trashItem(path: string): Promise<void> {
+
 			// Delete item via Mountain
 			await invokeTauri("file:delete", { path });
 		},
 
 		beep(): void {
+
 			if (typeof AudioContext !== "undefined") {
+
 				const ctx = new AudioContext();
 
 				const osc = ctx.createOscillator();
@@ -500,20 +561,26 @@ function createShell(): Shell {
  * Create Dialog polyfill
  */
 function createDialog(): Dialog {
+
 	return {
+
 		async showOpenDialog(
 			options?: unknown,
 		): Promise<{ filePaths: string[]; canceled: boolean }> {
+
 			// Use Tauri's dialog module if available
 			try {
+
 				const dialog =
 					(window as any).__TAURI__?.dialog ??
 					(window as any).TAURI?.dialog;
 
 				if (typeof dialog?.open === "function") {
+
 					const selected = await dialog.open(options);
 
 					return {
+
 						filePaths: Array.isArray(selected)
 							? selected
 							: selected
@@ -532,16 +599,20 @@ function createDialog(): Dialog {
 		async showSaveDialog(
 			options?: unknown,
 		): Promise<{ filePath: string | undefined; canceled: boolean }> {
+
 			// Use Tauri's dialog module if available
 			try {
+
 				const dialog =
 					(window as any).__TAURI__?.dialog ??
 					(window as any).TAURI?.dialog;
 
 				if (typeof dialog?.save === "function") {
+
 					const filePath = await dialog.save(options);
 
 					return {
+
 						filePath: filePath ?? undefined,
 
 						canceled: !filePath,
@@ -554,16 +625,20 @@ function createDialog(): Dialog {
 		},
 
 		showMessage(message: string): void {
+
 			// Could use Tauri alert or browser alert
 			if ((window as any).__TAURI__?.dialog?.message) {
+
 				(window as any).__TAURI__.dialog.message(message);
 			} else {
 			}
 		},
 
 		showError(message: string): void {
+
 			// Could use Tauri alert or browser alert
 			if ((window as any).__TAURI__?.dialog?.message) {
+
 				(window as any).__TAURI__.dialog.message("Error: " + message);
 			} else {
 			}
@@ -579,33 +654,43 @@ function createDialog(): Dialog {
  * Create Clipboard polyfill
  */
 function createClipboard(): Clipboard {
+
 	return {
+
 		async writeText(text: string): Promise<void> {
+
 			// Use Tauri's clipboard module
 			try {
+
 				const clipboard =
 					(window as any).__TAURI__?.clipboard ??
 					(window as any).TAURI?.clipboard;
 
 				if (typeof clipboard?.writeText === "function") {
+
 					await clipboard.writeText(text);
 				} else {
+
 					// Fallback to browser clipboard
 					await navigator.clipboard.writeText(text);
 				}
 			} catch (error) {
+
 				throw error;
 			}
 		},
 
 		async readText(): Promise<string> {
+
 			// Use Tauri's clipboard module
 			try {
+
 				const clipboard =
 					(window as any).__TAURI__?.clipboard ??
 					(window as any).TAURI?.clipboard;
 
 				if (typeof clipboard?.readText === "function") {
+
 					return await clipboard.readText();
 				}
 			} catch (error) {}
@@ -615,11 +700,13 @@ function createClipboard(): Clipboard {
 		},
 
 		async writeBuffer(format: string, buffer: Buffer): Promise<void> {
+
 			// Not fully supported in browser clipboard
 			throw new Error("Clipboard.writeBuffer is not fully supported");
 		},
 
 		async readBuffer(format: string): Promise<Buffer | undefined> {
+
 			// Not fully supported in browser clipboard
 			return undefined;
 		},
@@ -636,20 +723,26 @@ function createClipboard(): Clipboard {
  * Create NativeTheme polyfill
  */
 function createNativeTheme(): NativeTheme {
+
 	return {
+
 		get shouldUseDarkColors(): boolean {
+
 			return window.matchMedia("(prefers-color-scheme: dark)").matches;
 		},
 
 		get shouldUseInvertedColorScheme(): boolean {
+
 			return false;
 		},
 
 		get theme(): "system" | "light" | "dark" {
+
 			// Try to get from Tauri if available
 			const tauri = (window as any).__TAURI__ ?? (window as any).TAURI;
 
 			if (tauri?.window?.appWindow?.theme) {
+
 				return tauri.window.appWindow.theme;
 			}
 
@@ -667,39 +760,50 @@ function createNativeTheme(): NativeTheme {
  * Create BrowserWindow mock for renderer process
  */
 function createBrowserWindow(): BrowserWindow {
+
 	return {
+
 		id: 1,
 
 		isFocused(): boolean {
+
 			return document.hasFocus();
 		},
 
 		focus(): void {
+
 			window.focus();
 		},
 
 		show(): void {
+
 			// No-op in renderer
 		},
 
 		hide(): void {
+
 			// No-op in renderer
 		},
 
 		close(): void {
+
 			window.close();
 		},
 
 		isMaximizable(): boolean {
+
 			return true;
 		},
 
 		isMinimizable(): boolean {
+
 			return true;
 		},
 
 		getBounds(): { x: number; y: number; width: number; height: number } {
+
 			return {
+
 				x: window.screenX,
 
 				y: window.screenY,
@@ -720,7 +824,9 @@ function createBrowserWindow(): BrowserWindow {
  * Create Electron module with all sub-modules
  */
 function createElectronModule(): ElectronModule {
+
 	return {
+
 		ipcRenderer: getCachedModule("ipcRenderer", () => {
 			// Import from IPCRendererShim
 			const shim = (window as any).__IPC_RENDERER__;
@@ -769,7 +875,9 @@ function createElectronModule(): ElectronModule {
  * Monkey-patch global require() to intercept electron module imports
  */
 function installRequireShim(): void {
+
 	if (typeof window === "undefined" || typeof require !== "function") {
+
 		return;
 	}
 
@@ -778,18 +886,22 @@ function installRequireShim(): void {
 
 	// Create shim function
 	(window as any).require = function (id: string): unknown {
+
 		// Intercept electron module
 		if (id === "electron") {
+
 			return createElectronModule();
 		}
 
 		// Intercept electron sub-modules
 		if (id.startsWith("electron/")) {
+
 			const moduleName = id.replace("electron/", "");
 
 			const electronModule = createElectronModule();
 
 			switch (moduleName) {
+
 				case "ipcRenderer":
 					return electronModule.ipcRenderer;
 
@@ -846,16 +958,20 @@ function installRequireShim(): void {
 
 // Also need to install the function on its own for later invocations
 (window as any).__electron_require__ = (id: string) => {
+
 	if (id === "electron") {
+
 		return createElectronModule();
 	}
 
 	if (id.startsWith("electron/")) {
+
 		const moduleName = id.replace("electron/", "");
 
 		const electronModule = createElectronModule();
 
 		switch (moduleName) {
+
 			case "ipcRenderer":
 				return electronModule.ipcRenderer;
 
@@ -899,12 +1015,15 @@ function installRequireShim(): void {
  * Install the native module polyfill
  */
 export function installNativeModulePolyfill(): void {
+
 	if (typeof window === "undefined") {
+
 		return;
 	}
 
 	// Prevent double installation
 	if ((window as any).__NATIVE_MODULE_POLYFILL_INSTALLED__) {
+
 		return;
 	}
 
@@ -920,6 +1039,7 @@ export function installNativeModulePolyfill(): void {
 
 	// Attach to window.vscode if available
 	if (typeof (window as any).vscode !== "undefined") {
+
 		(window as any).vscode.electron = electronModule;
 	}
 }
@@ -929,6 +1049,7 @@ export function installNativeModulePolyfill(): void {
 // ============================================================================
 
 export default {
+
 	install: installNativeModulePolyfill,
 
 	// Individual modules
@@ -953,5 +1074,6 @@ export default {
 
 // Auto-install on import
 if (typeof window !== "undefined") {
+
 	installNativeModulePolyfill();
 }

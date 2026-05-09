@@ -2,76 +2,129 @@ import {
 	CopyNodeModules as CopyNodeModulesFactory,
 	type CopyNodeModulesInput,
 } from "./Copy/Copy/Node/Modules.js";
+
 import {
 	CopyTauriMainProcessService as CopyTauriMainProcessServiceFactory,
 	type CopyTauriMainProcessServiceInput,
 } from "./Copy/Copy/Tauri/Main/Process/Service.js";
+
 import {
 	CopyVSOutput as CopyVSOutputFactory,
 	type CopyVSOutputInput,
 } from "./Copy/Copy/VS/Output.js";
+
 import {
 	CopyVSRootFiles as CopyVSRootFilesFactory,
 	type CopyVSRootFilesInput,
 } from "./Copy/Copy/VS/Root/Files.js";
+
 import {
 	CopyWorker as CopyWorkerFactory,
 	type CopyWorkerInput,
 } from "./Copy/Copy/Worker.js";
+
 import {
 	StubUnpublishedAddons as StubUnpublishedAddonsFactory,
 	type StubUnpublishedAddonsInput,
 } from "./Copy/Stub/Unpublished/Addons.js";
+
 import {
 	SupplementFromDependency as SupplementFromDependencyFactory,
 	type SupplementFromDependencyInput,
 } from "./Copy/Supplement/From/Dependency.js";
+
 import CatchOutputFolderRejection from "./Transform/Catch/Output/Folder/Rejection.js";
+
 import DisableUnusedServices from "./Transform/Disable/Unused/Services.js";
+
 import ExposeWorkbenchAccessor from "./Transform/Expose/Workbench/Accessor.js";
+
 import ExtensionScannerIPC from "./Transform/Extension/Scanner/IPC.js";
+
 import ForceTextAreaInput from "./Transform/Force/Text/Area/Input.js";
+
 import HoistFunctionDeclarations from "./Transform/Hoist/Function/Declarations.js";
+
 import InjectConfigurationOverlay from "./Transform/Inject/Configuration/Overlay.js";
+
 import InjectDisableLazyPaint from "./Transform/Inject/Disable/Lazy/Paint.js";
+
 import InjectEagerExtensionActivation from "./Transform/Inject/Eager/Extension/Activation.js";
+
 import InjectEagerIdleValue from "./Transform/Inject/Eager/Idle/Value.js";
+
 import InjectEagerLifecyclePhase from "./Transform/Inject/Eager/Lifecycle/Phase.js";
+
 import InjectEditorGPULayerCSS from "./Transform/Inject/Editor/GPU/Layer/CSS.js";
+
 import InjectMacTitlebarOffsetCSS from "./Transform/Inject/Mac/Titlebar/Offset/CSS.js";
+
 import InjectNameShim from "./Transform/Inject/Name/Shim.js";
+
 import InjectPartZIndexCSS from "./Transform/Inject/Part/Z/Index/CSS.js";
+
 import InjectStorageOverlay from "./Transform/Inject/Storage/Overlay.js";
+
 import InjectStripBackgroundPolling from "./Transform/Inject/Strip/Background/Polling.js";
+
 import InjectTelemetryConsentOff from "./Transform/Inject/Telemetry/Consent/Off.js";
+
 import InjectTerminalGPULayerCSS from "./Transform/Inject/Terminal/GPU/Layer/CSS.js";
+
 import InjectWebViewPolyfills from "./Transform/Inject/Web/View/Polyfills.js";
+
 import InjectWorkbenchInteractivityCSS from "./Transform/Inject/Workbench/Interactivity/CSS.js";
+
 import InjectWorkbenchPaintPrime from "./Transform/Inject/Workbench/Paint/Prime.js";
+
 import InjectWorkerBootstrapShim from "./Transform/Inject/Worker/Bootstrap/Shim.js";
+
 import InlineCSSImport from "./Transform/Inline/CSS/Import.js";
+
 import InstrumentVscodeGit from "./Transform/Instrument/Vscode/Git.js";
+
 import PatchLocalTerminalBackend from "./Transform/Patch/Local/Terminal/Backend.js";
+
 import PatchTerminalGpuAcceleration from "./Transform/Patch/Terminal/Gpu/Acceleration.js";
+
 import PatchWebviewIframeServiceWorker from "./Transform/Patch/Webview/Iframe/Service/Worker.js";
+
 import ReplaceElectronIPCService from "./Transform/Replace/Electron/IPC/Service.js";
+
 import ReplaceExtensionGalleryService from "./Transform/Replace/Extension/Gallery/Service.js";
+
 import ReplaceSearchService from "./Transform/Replace/Search/Service.js";
+
 import ReplaceSharedProcess from "./Transform/Replace/Shared/Process.js";
+
 import ReplaceTelemetryService from "./Transform/Replace/Telemetry/Service.js";
+
 import ReplaceUpdateService from "./Transform/Replace/Update/Service.js";
+
 import RewriteIconsStyleSheetURLs from "./Transform/Rewrite/Icons/Style/Sheet/URLs.js";
+
 import RewriteNestedWorkerBootstrap from "./Transform/Rewrite/Nested/Worker/Bootstrap.js";
+
 import RewriteNodeModulesPath from "./Transform/Rewrite/Node/Modules/Path.js";
+
 import RewritePerfBaselineWorker from "./Transform/Rewrite/Perf/Baseline/Worker.js";
+
 import RewriteStaticBlockSelfRef from "./Transform/Rewrite/Static/Block/Self/Ref.js";
+
 import RewriteWebviewShellCSP from "./Transform/Rewrite/Webview/Shell/CSP.js";
+
 import RewriteWorkbenchBaseURL from "./Transform/Rewrite/Workbench/Base/URL.js";
+
 import RewriteWorkerURLs from "./Transform/Rewrite/Worker/URLs.js";
+
 import StaticToDynamicImport from "./Transform/Static/To/Dynamic/Import.js";
+
 import StripCSSImport from "./Transform/Strip/CSS/Import.js";
+
 import StripDanglingSourceMap from "./Transform/Strip/Dangling/Source/Map.js";
+
 import StripWebviewIframeSandbox from "./Transform/Strip/Webview/Iframe/Sandbox.js";
+
 import type { Plugin } from "./Type.js";
 
 /**
@@ -268,6 +321,7 @@ export {
 export type { CopyTauriMainProcessServiceInput } from "./Copy/Copy/Tauri/Main/Process/Service.js";
 
 export interface BuildPipelineInput {
+
 	readonly VSOutput: CopyVSOutputInput;
 
 	readonly VSRootFiles: CopyVSRootFilesInput;
@@ -324,11 +378,13 @@ const LandDisableAll =
  * still hand-assemble their own arrays if they want to skip / reorder.
  */
 export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => {
+
 	const IsRelease = (Input.Profile ?? "").startsWith("release");
 
 	const CSSStrategy = IsRelease ? InlineCSSImport : StripCSSImport;
 
 	if (LandDisableAll) {
+
 		// Copy stage only. Vanilla VS Code lands in `Target/`; no
 		// patches are applied. The bundled-Electron entry imports the
 		// upstream `workbench.js` unmodified - if input still doesn't

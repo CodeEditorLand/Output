@@ -13,6 +13,7 @@ var t = (() => {
 	};
 	return (
 		typeof globalThis < "u" && (globalThis.__LAND_POLYFILL_TELEMETRY__ = n),
+
 		n
 	);
 })();

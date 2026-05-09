@@ -1,4 +1,5 @@
 const o = "/* __LAND_NODE_MODULES_PATH_PATCHED__ */",
+
 	d = [
 		["'vs/../../extensions'", "'vs/../extensions'"],
 
@@ -12,7 +13,9 @@ const o = "/* __LAND_NODE_MODULES_PATH_PATCHED__ */",
 			"'vs/../node_modules.asar.unpacked'",
 		],
 	],
+
 	t = {
+
 		Kind: "Transform",
 
 		Name: "RewriteNodeModulesPath",
@@ -20,9 +23,11 @@ const o = "/* __LAND_NODE_MODULES_PATH_PATCHED__ */",
 		Match: ({ Path: e }) => /\/vs\/base\/common\/network\.js$/.test(e),
 
 		Transform({ Source: e }) {
+
 			if (e.includes(o)) return { Kind: "Unchanged" };
 
 			let n = e,
+
 				s = !1;
 
 			for (const [r, a] of d)
@@ -30,6 +35,7 @@ const o = "/* __LAND_NODE_MODULES_PATH_PATCHED__ */",
 
 			return s
 				? {
+
 						Kind: "Rewrite",
 
 						Source:
@@ -38,6 +44,7 @@ const o = "/* __LAND_NODE_MODULES_PATH_PATCHED__ */",
 ` +
 							n,
 					}
+
 				: { Kind: "Unchanged" };
 		},
 	};

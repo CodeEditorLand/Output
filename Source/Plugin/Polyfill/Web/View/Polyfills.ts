@@ -32,10 +32,12 @@
 export const Marker = "__LAND_WEBVIEW_POLYFILLS__";
 
 interface IdleCallbackOptions {
+
 	timeout?: number;
 }
 
 interface IdleDeadline {
+
 	didTimeout: boolean;
 
 	timeRemaining: () => number;
@@ -44,7 +46,9 @@ interface IdleDeadline {
 type IdleCallback = (Deadline: IdleDeadline) => void;
 
 declare global {
+
 	interface Window {
+
 		requestIdleCallback?: (
 			Callback: IdleCallback,
 
@@ -58,14 +62,17 @@ declare global {
 }
 
 export default function WebViewPolyfills(): void {
+
 	if (typeof window === "undefined") return;
 
 	if (typeof window.requestIdleCallback !== "function") {
+
 		window.requestIdleCallback = (
 			Callback: IdleCallback,
 
 			Options?: IdleCallbackOptions,
 		): number => {
+
 			const Timeout = (Options && Options.timeout) || 1;
 
 			const Start = Date.now();
@@ -81,19 +88,24 @@ export default function WebViewPolyfills(): void {
 	}
 
 	if (typeof window.cancelIdleCallback !== "function") {
+
 		window.cancelIdleCallback = (Id: number): void => {
+
 			clearTimeout(Id);
 		};
 	}
 
 	if (typeof window.queryLocalFonts !== "function") {
+
 		window.queryLocalFonts = (): Promise<unknown[]> => Promise.resolve([]);
 	}
 
 	const Land = globalThis as Record<string, unknown>;
 
 	if (typeof Land["__name"] !== "function") {
+
 		Land["__name"] = (Target: object, Value: string): object => {
+
 			Object.defineProperty(Target, "name", {
 				value: Value,
 				configurable: true,
@@ -115,6 +127,7 @@ export default function WebViewPolyfills(): void {
 
 		Options?: BlobPropertyBag,
 	): Blob {
+
 		let RewrittenParts: BlobPart[] = Parts;
 
 		if (
@@ -124,6 +137,7 @@ export default function WebViewPolyfills(): void {
 			Parts.length &&
 			typeof Parts[0] === "string"
 		) {
+
 			RewrittenParts = Parts.map((Part) => {
 				if (typeof Part !== "string") return Part;
 				return Part.replace(

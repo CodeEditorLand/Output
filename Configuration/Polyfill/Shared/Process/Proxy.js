@@ -1,5 +1,7 @@
 async function i(e, n = {}) {
+
 	try {
+
 		const r =
 			window.__TAURI__?.core?.invoke ??
 			window.__TAURI__?.invoke ??
@@ -12,12 +14,15 @@ async function i(e, n = {}) {
 
 		throw new Error(`Tauri invoke not available for command: ${e}`);
 	} catch (r) {
+
 		throw r;
 	}
 }
 
 function m(e, n) {
+
 	if (typeof window.__TAURI__?.event?.listen == "function") {
+
 		const r = window.__TAURI__.event
 			.listen(e, ({ payload: a }) => {
 				n(a);
@@ -25,11 +30,13 @@ function m(e, n) {
 			.catch(() => {});
 
 		return () => {
+
 			r.then((a) => a?.());
 		};
 	}
 
 	if (typeof window.TAURI?.event?.listen == "function") {
+
 		const r = window.TAURI.event
 			.listen(e, ({ payload: a }) => {
 				n(a);
@@ -37,6 +44,7 @@ function m(e, n) {
 			.catch(() => {});
 
 		return () => {
+
 			r.then((a) => a?.());
 		};
 	}
@@ -45,7 +53,9 @@ function m(e, n) {
 }
 
 function l(e) {
+
 	const n = new Map(),
+
 		r = new Map();
 
 	let a = !1;
@@ -57,15 +67,18 @@ function l(e) {
 				(t.success
 					? o.resolve(t.data)
 					: o.reject(new Error(t.error ?? "Unknown error")),
+
 					r.delete(t.correlationId));
 			}
 		}),
+
 		x = m(`shared_process:event:${e}`, (s) => {
 			const t = s;
 			p(t.event, ...t.args);
 		});
 
 	function p(s, ...t) {
+
 		const o = n.get(s);
 
 		o &&
@@ -77,22 +90,28 @@ function l(e) {
 	}
 
 	function f() {
+
 		return `${e}_${Date.now()}_${Math.random().toString(36).substring(7)}`;
 	}
 
 	return {
+
 		service: e,
 
 		get ready() {
+
 			return a;
 		},
 
 		set ready(s) {
+
 			a = s;
 		},
 
 		async healthCheck() {
+
 			try {
+
 				return e === "extension-host"
 					? await i("cocoon_extension_host_health", {})
 					: e === "search"
@@ -103,16 +122,20 @@ function l(e) {
 									service: e,
 								});
 			} catch {
+
 				return !1;
 			}
 		},
 
 		async invoke(s, ...t) {
+
 			const o = f(),
+
 				c = { service: e, method: s, args: t, correlationId: o };
 
 			return new Promise((y, P) => {
 				(r.set(o, { resolve: y, reject: P }),
+
 					i("shared_process:invoke", c).catch((b) => {
 						(r.delete(o), P(b));
 					}));
@@ -120,11 +143,14 @@ function l(e) {
 		},
 
 		on(s, t) {
+
 			(n.has(s) || n.set(s, new Set()), n.get(s).add(t));
 		},
 
 		once(s, t) {
+
 			const o = (...c) => {
+
 				(t(...c), this.removeListener(s, o));
 			};
 
@@ -132,12 +158,14 @@ function l(e) {
 		},
 
 		removeListener(s, t) {
+
 			const o = n.get(s);
 
 			o && (o.delete(t), o.size === 0 && n.delete(s));
 		},
 
 		removeAllListeners(s) {
+
 			s ? n.delete(s) : n.clear();
 		},
 	};
@@ -160,6 +188,7 @@ const d = Object.assign(l("extension-host"), {
 			return await this.invoke("getStatus");
 		},
 	}),
+
 	u = Object.assign(l("search"), {
 		async search(e, n) {
 			return await this.invoke("search", e, n);
@@ -171,6 +200,7 @@ const d = Object.assign(l("extension-host"), {
 			return await this.invoke("clearIndex");
 		},
 	}),
+
 	h = Object.assign(l("debug"), {
 		async startSession(e) {
 			return await this.invoke("startSession", e);
@@ -185,6 +215,7 @@ const d = Object.assign(l("extension-host"), {
 			return await this.invoke("getActiveSessions");
 		},
 	}),
+
 	v = Object.assign(l("storage"), {
 		async getItem(e) {
 			return await i("storage:get_item", { key: e });
@@ -202,6 +233,7 @@ const d = Object.assign(l("extension-host"), {
 			return await i("storage:clear", {});
 		},
 	}),
+
 	g = Object.assign(l("update"), {
 		async checkForUpdates() {
 			return await i("update:check", {});
@@ -218,31 +250,41 @@ const d = Object.assign(l("extension-host"), {
 	});
 
 class S {
+
 	services = new Map();
 
 	healthCheckInterval = null;
 
 	constructor() {
+
 		(this.registerService(d),
+
 			this.registerService(u),
+
 			this.registerService(h),
+
 			this.registerService(v),
+
 			this.registerService(g));
 	}
 
 	registerService(n) {
+
 		this.services.set(n.service, n);
 	}
 
 	getService(n) {
+
 		return this.services.get(n);
 	}
 
 	getAllServices() {
+
 		return new Map(this.services);
 	}
 
 	startHealthChecks(n = 3e4) {
+
 		this.healthCheckInterval === null &&
 			(this.healthCheckInterval = window.setInterval(async () => {
 				for (const [, r] of this.services.entries())
@@ -255,18 +297,23 @@ class S {
 	}
 
 	stopHealthChecks() {
+
 		this.healthCheckInterval !== null &&
 			(clearInterval(this.healthCheckInterval),
+
 			(this.healthCheckInterval = null));
 	}
 
 	async initialize() {
+
 		for (const [n, r] of this.services.entries())
 			try {
+
 				const a = await r.healthCheck();
 
 				r.ready = a;
 			} catch {
+
 				r.ready = !1;
 			}
 
@@ -274,6 +321,7 @@ class S {
 	}
 
 	async shutdown() {
+
 		this.stopHealthChecks();
 
 		for (const n of this.services.values()) n.removeAllListeners();
@@ -283,10 +331,12 @@ class S {
 let w = null;
 
 function k() {
+
 	return (w || (w = new S()), w);
 }
 
 async function _() {
+
 	if (typeof window > "u" || window.__SHARED_PROCESS_PROXY_INSTALLED__)
 		return;
 
@@ -295,6 +345,7 @@ async function _() {
 	const e = k();
 
 	(await e.initialize(),
+
 		typeof window.vscode < "u" &&
 			(window.vscode.sharedProcess = {
 				manager: e,
@@ -304,6 +355,7 @@ async function _() {
 				StorageService: v,
 				UpdateService: g,
 			}),
+
 		(window.__SHARED_PROCESS__ = {
 			manager: e,
 			ExtensionHostService: d,
@@ -315,6 +367,7 @@ async function _() {
 }
 
 var A = {
+
 	install: _,
 
 	getManager: k,

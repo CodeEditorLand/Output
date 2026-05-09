@@ -23,15 +23,19 @@
 import { TauriMainProcessService } from "./TauriMainProcessService.js";
 
 class SharedProcessService extends TauriMainProcessService {
+
 	constructor(WindowId: number, _LogService: unknown) {
+
 		super(WindowId);
 	}
 
 	notifyRestored(): void {
+
 		/* Land has no shared process; channels go direct to Mountain */
 	}
 
 	async getConnection(): Promise<this> {
+
 		return this; /* self-satisfy the IPC Client shape */
 	}
 }

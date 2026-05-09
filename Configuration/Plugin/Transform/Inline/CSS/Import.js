@@ -1,4 +1,5 @@
 import { readFile as f } from "node:fs/promises";
+
 import { dirname as g, resolve as y } from "node:path";
 
 const n = /import\s*(['"])([^'"]+\.css)\1\s*;?/g,
@@ -39,6 +40,7 @@ const n = /import\s*(['"])([^'"]+\.css)\1\s*;?/g,
 							}
 						})(),
 					),
+
 					r
 				),
 			);

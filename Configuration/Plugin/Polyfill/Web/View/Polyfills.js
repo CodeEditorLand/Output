@@ -1,6 +1,7 @@
 const b = "__LAND_WEBVIEW_POLYFILLS__";
 
 function u() {
+
 	if (typeof window > "u") return;
 
 	(typeof window.requestIdleCallback != "function" &&
@@ -14,10 +15,12 @@ function u() {
 				});
 			}, o);
 		}),
+
 		typeof window.cancelIdleCallback != "function" &&
 			(window.cancelIdleCallback = (n) => {
 				clearTimeout(n);
 			}),
+
 		typeof window.queryLocalFonts != "function" &&
 			(window.queryLocalFonts = () => Promise.resolve([])));
 
@@ -26,14 +29,18 @@ function u() {
 	typeof a.__name != "function" &&
 		(a.__name = (n, e) => (
 			Object.defineProperty(n, "name", { value: e, configurable: !0 }),
+
 			n
 		));
 
 	const i = globalThis.Blob,
+
 		d = `var __defProp=Object.defineProperty;var __name=(t,v)=>__defProp(t,'name',{value:v,configurable:true});
 `,
 		r = window.location.origin,
+
 		c = function (e, o) {
+
 			let t = e;
 
 			return (
@@ -57,7 +64,9 @@ function u() {
 										r + "/",
 									),
 					)),
+
 					(t = [d, ...t])),
+
 				new i(t, o)
 			);
 		};

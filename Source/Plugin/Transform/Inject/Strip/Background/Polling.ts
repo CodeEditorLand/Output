@@ -9,13 +9,16 @@
  */
 
 import StripBackgroundPolling, {
+
 	Marker,
 } from "../../../../Polyfill/Strip/Background/Polling.js";
+
 import type { TransformPlugin } from "../../../../Type.js";
 
 const Polyfill = `\n/* ${Marker} */\n(${StripBackgroundPolling.toString()})();\n`;
 
 const Plugin: TransformPlugin = {
+
 	Kind: "Transform",
 
 	Name: "InjectStripBackgroundPolling",
@@ -24,6 +27,7 @@ const Plugin: TransformPlugin = {
 		Path.endsWith("vs/code/electron-browser/workbench/workbench.js"),
 
 	Transform({ Source }) {
+
 		if (Source.includes(Marker)) return { Kind: "Unchanged" };
 
 		return { Kind: "Rewrite", Source: Polyfill + Source };

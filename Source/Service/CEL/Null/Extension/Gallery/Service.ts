@@ -27,6 +27,7 @@
  */
 
 const EmptyPager = {
+
 	firstPage: [] as unknown[],
 
 	total: 0,
@@ -45,9 +46,11 @@ const Reject = (Operation: string) => (): Promise<never> =>
 	);
 
 class NullExtensionGalleryService {
+
 	readonly _serviceBrand: undefined = undefined;
 
 	isEnabled(): boolean {
+
 		return false;
 	}
 
@@ -56,6 +59,7 @@ class NullExtensionGalleryService {
 
 		_Token: unknown,
 	): Promise<typeof EmptyPager> {
+
 		return EmptyPager;
 	}
 
@@ -66,10 +70,12 @@ class NullExtensionGalleryService {
 
 		_Arg3?: unknown,
 	): Promise<unknown[]> {
+
 		return [];
 	}
 
 	async isExtensionCompatible(_Extension: unknown): Promise<boolean> {
+
 		return false;
 	}
 
@@ -80,6 +86,7 @@ class NullExtensionGalleryService {
 
 		_TargetPlatform: unknown,
 	): Promise<null> {
+
 		return null;
 	}
 
@@ -90,6 +97,7 @@ class NullExtensionGalleryService {
 
 		_TargetPlatform: unknown,
 	): Promise<unknown[]> {
+
 		return [];
 	}
 
@@ -100,6 +108,7 @@ class NullExtensionGalleryService {
 
 		_Operation: unknown,
 	): Promise<never> {
+
 		return Reject("download")();
 	}
 
@@ -108,6 +117,7 @@ class NullExtensionGalleryService {
 
 		_Location: unknown,
 	): Promise<never> {
+
 		return Reject("downloadSignatureArchive")();
 	}
 
@@ -122,14 +132,17 @@ class NullExtensionGalleryService {
 	): Promise<void> {}
 
 	async getReadme(_Extension: unknown, _Token: unknown): Promise<string> {
+
 		return "";
 	}
 
 	async getManifest(_Extension: unknown, _Token: unknown): Promise<null> {
+
 		return null;
 	}
 
 	async getChangelog(_Extension: unknown, _Token: unknown): Promise<string> {
+
 		return "";
 	}
 
@@ -138,20 +151,24 @@ class NullExtensionGalleryService {
 
 		_LanguageId: unknown,
 	): Promise<null> {
+
 		return null;
 	}
 
 	async getExtensionsControlManifest(): Promise<{
+
 		malicious: unknown[];
 
 		deprecated: Record<string, unknown>;
 
 		search: unknown[];
 	}> {
+
 		return { malicious: [], deprecated: {}, search: [] };
 	}
 
 	async getExtensionMcpManifest(): Promise<null> {
+
 		return null;
 	}
 }

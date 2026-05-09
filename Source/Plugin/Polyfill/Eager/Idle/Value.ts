@@ -13,12 +13,14 @@
 export const Marker = "__LAND_EAGER_IDLE_VALUE__";
 
 interface SyntheticIdleDeadline {
+
 	didTimeout: boolean;
 
 	timeRemaining(): number;
 }
 
 export default function EagerIdleValue(): void {
+
 	if (typeof window === "undefined") return;
 
 	const Land = window as unknown as Record<string, unknown>;
@@ -28,6 +30,7 @@ export default function EagerIdleValue(): void {
 	Land[Marker] = true;
 
 	const EagerDeadline: SyntheticIdleDeadline = {
+
 		didTimeout: false,
 
 		timeRemaining: (): number => 50,
@@ -36,6 +39,7 @@ export default function EagerIdleValue(): void {
 	const EagerRequestIdleCallback = (
 		Callback: (Deadline: IdleDeadline) => void,
 	): number => {
+
 		return window.setTimeout(() => {
 			try {
 				Callback(EagerDeadline as unknown as IdleDeadline);
@@ -46,6 +50,7 @@ export default function EagerIdleValue(): void {
 	};
 
 	const EagerCancelIdleCallback = (Identifier: number): void => {
+
 		window.clearTimeout(Identifier);
 	};
 
@@ -62,6 +67,7 @@ export default function EagerIdleValue(): void {
 	).cancelIdleCallback = EagerCancelIdleCallback;
 
 	if (typeof globalThis !== "undefined") {
+
 		(globalThis as unknown as Record<string, unknown>)[
 			"requestIdleCallback"
 		] = EagerRequestIdleCallback;
@@ -75,6 +81,7 @@ export default function EagerIdleValue(): void {
 		typeof self !== "undefined" &&
 		(self as unknown) !== (window as unknown)
 	) {
+
 		(self as unknown as Record<string, unknown>)["requestIdleCallback"] =
 			EagerRequestIdleCallback;
 

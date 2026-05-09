@@ -1,8 +1,10 @@
 const n =
 		/workbench\/services\/extensions\/(?:electron-browser|browser)\/extensionsScannerService\.js$/,
+
 	r = `export { ExtensionsScannerService, IExtensionsScannerService } from '../common/CELExtensionsScannerService.js';
 `,
 	o = {
+
 		Kind: "Transform",
 
 		Name: "ExtensionScannerIPC",
@@ -10,6 +12,7 @@ const n =
 		Match: ({ Path: e }) => n.test(e),
 
 		Transform() {
+
 			return { Kind: "Rewrite", Source: r };
 		},
 	};

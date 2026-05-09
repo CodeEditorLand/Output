@@ -1,23 +1,29 @@
 const d = "import { mark } from '../../base/common/performance.js';",
+
 	b = `
 import { ExposeAccessor as __CEL_ExposeAccessor } from './CELExposeAccessor.js';`,
 	k = "import { localize } from '../../nls.js';",
+
 	f = `
 import { ExposeAccessor as __CEL_ExposeAccessor } from '../browser/CELExposeAccessor.js';`,
 	s = "import { mark } from '../../base/common/performance.js';",
+
 	j = `
 import { OnWorkbenchReady as __CEL_OnWorkbenchReady } from './CELExposeAccessor.js';`,
 	t = "const instantiationService = workbench.startup();",
+
 	E =
 		t +
 		`
         __CEL_ExposeAccessor(instantiationService);`,
 	c = "workbenchPromise.complete(workbench);",
+
 	h =
 		c +
 		`
         __CEL_OnWorkbenchReady(workbench);`,
 	l = {
+
 		Kind: "Transform",
 
 		Name: "ExposeWorkbenchAccessor",
@@ -28,16 +34,21 @@ import { OnWorkbenchReady as __CEL_OnWorkbenchReady } from './CELExposeAccessor.
 			/\/vs\/workbench\/electron-browser\/desktop\.main\.js$/.test(n),
 
 		Transform({ Path: n, Source: e }) {
+
 			if (e.includes("CELExposeAccessor")) return { Kind: "Unchanged" };
 
 			const a = /\/web\.main\.js$/.test(n),
+
 				o = /\/desktop\.main\.js$/.test(n),
+
 				p = /\/web\.factory\.js$/.test(n);
 
 			if (a || o) {
+
 				if (!e.includes(t)) return { Kind: "Unchanged" };
 
 				const r = o ? k : d,
+
 					m = o ? f : b;
 
 				if (!e.includes(r)) return { Kind: "Unchanged" };
@@ -46,10 +57,12 @@ import { OnWorkbenchReady as __CEL_OnWorkbenchReady } from './CELExposeAccessor.
 
 				return i === e
 					? { Kind: "Unchanged" }
+
 					: { Kind: "Rewrite", Source: i };
 			}
 
 			if (p) {
+
 				if (!e.includes(c)) return { Kind: "Unchanged" };
 
 				if (!e.includes(s)) return { Kind: "Unchanged" };
@@ -58,6 +71,7 @@ import { OnWorkbenchReady as __CEL_OnWorkbenchReady } from './CELExposeAccessor.
 
 				return r === e
 					? { Kind: "Unchanged" }
+
 					: { Kind: "Rewrite", Source: r };
 			}
 

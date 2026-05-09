@@ -25,6 +25,7 @@ const ReExport =
 	"export { default } from './CELNullExtensionGalleryService.js';\n";
 
 const Plugin: TransformPlugin = {
+
 	Kind: "Transform",
 
 	Name: "ReplaceExtensionGalleryService",
@@ -32,6 +33,7 @@ const Plugin: TransformPlugin = {
 	Match: ({ Path }) => PathRegex.test(Path),
 
 	Transform() {
+
 		return { Kind: "Rewrite", Source: ReExport };
 	},
 };

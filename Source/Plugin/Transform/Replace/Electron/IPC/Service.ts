@@ -27,6 +27,7 @@ const ReExport =
 	"export { TauriMainProcessService as ElectronIPCMainProcessService } from './TauriMainProcessService.js';\n";
 
 const Plugin: TransformPlugin = {
+
 	Kind: "Transform",
 
 	Name: "ReplaceElectronIPCService",
@@ -36,6 +37,7 @@ const Plugin: TransformPlugin = {
 	Match: ({ Path }) => PathRegex.test(Path),
 
 	Transform() {
+
 		// Always overwrite - the upstream body is not reusable under Tauri.
 		return { Kind: "Rewrite", Source: ReExport };
 	},

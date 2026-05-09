@@ -1,5 +1,7 @@
 async function i(r, e = {}) {
+
 	try {
+
 		const t =
 			window.__TAURI__?.core?.invoke ??
 			window.__TAURI__?.invoke ??
@@ -12,16 +14,19 @@ async function i(r, e = {}) {
 
 		throw new Error(`Tauri invoke not available for command: ${r}`);
 	} catch (t) {
+
 		throw t;
 	}
 }
 
 const n = {
+
 	execPath: "/Applications/CodeEditorLand.app/Contents/MacOS/codeeditorland",
 
 	execArgv: [],
 
 	env: {
+
 		PATH: "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
 
 		HOME: "/Users/test",
@@ -51,8 +56,11 @@ const n = {
 };
 
 async function m() {
+
 	try {
+
 		if (typeof window.__TAURI__ < "u") {
+
 			const [r, e, t, s] = await Promise.allSettled([
 				i("process_get_exec_path", {}),
 
@@ -77,13 +85,16 @@ async function m() {
 }
 
 function P() {
+
 	const r = navigator.userAgent.match(/Chrome\/(\d+\.\d+\.\d+\.\d+)/);
 
 	return r ? r[1] : "0.0.0.0";
 }
 
 function y() {
+
 	return {
+
 		node: "20.11.0",
 
 		chrome: P(),
@@ -113,11 +124,15 @@ function y() {
 let w = [0, 0];
 
 function u(r) {
+
 	const e = performance.now() * 1e6,
+
 		t = Math.floor(e / 1e9),
+
 		s = Math.floor(e % 1e9);
 
 	if (r) {
+
 		const o = e - (r[0] * 1e9 + r[1]);
 
 		return [Math.floor(o / 1e9), Math.floor(o % 1e9)];
@@ -129,15 +144,19 @@ function u(r) {
 let d = null;
 
 function b(r) {
+
 	const e = Math.floor(Math.random() * 1e4),
+
 		t = Math.floor(Math.random() * 5e3);
 
 	return r && d
 		? { user: e - r.user, system: t - r.system }
+
 		: ((d = { user: e, system: t }), { user: e, system: t });
 }
 
 class l {
+
 	platform;
 
 	arch;
@@ -165,38 +184,53 @@ class l {
 	_exited = !1;
 
 	constructor(e) {
+
 		((this.platform = e.platform ?? n.platform ?? "darwin"),
+
 			(this.arch = e.arch ?? n.arch ?? "x64"),
+
 			(this.version = "v20.11.0"),
+
 			(this.versions = y()),
+
 			(this.pid = e.pid ?? n.pid ?? 1),
+
 			(this.ppid = e.ppid ?? n.ppid ?? 0),
+
 			(this.execPath = e.execPath ?? n.execPath ?? ""),
+
 			(this.execArgv = e.execArgv ?? n.execArgv ?? []),
+
 			(this.env = e.env ?? n.env ?? {}),
+
 			(this.title = "codeeditorland"),
+
 			this.setUpProcessProperties());
 	}
 
 	setUpProcessProperties() {
+
 		(Object.defineProperty(this, "argv", {
 			value: [],
 			writable: !1,
 			enumerable: !0,
 			configurable: !1,
 		}),
+
 			Object.defineProperty(this, "browser", {
 				value: !0,
 				writable: !1,
 				enumerable: !0,
 				configurable: !1,
 			}),
+
 			Object.defineProperty(this, "type", {
 				value: "renderer",
 				writable: !1,
 				enumerable: !0,
 				configurable: !1,
 			}),
+
 			Object.defineProperty(this, "release", {
 				value: {
 					name: "node",
@@ -210,6 +244,7 @@ class l {
 				enumerable: !0,
 				configurable: !1,
 			}),
+
 			Object.defineProperty(this, "features", {
 				value: {
 					debug: !1,
@@ -225,16 +260,19 @@ class l {
 				enumerable: !0,
 				configurable: !1,
 			}),
+
 			(this.hrtime = u));
 	}
 
 	cwd() {
+
 		return this.env.HOME ?? this.env.PWD ?? "/";
 	}
 
 	hrtime = u;
 
 	getProcessMemoryInfo() {
+
 		return i("process_get_memory_info", {}).catch((e) => ({
 			workingSetSize: 100 * 1024 * 1024,
 			peakWorkingSetSize: 150 * 1024 * 1024,
@@ -245,66 +283,88 @@ class l {
 	}
 
 	cpuUsage(e) {
+
 		return b(e);
 	}
 
 	async shellEnv() {
+
 		try {
+
 			return await i("process_get_shell_env", {});
 		} catch {
+
 			return this.env;
 		}
 	}
 
 	umask(e) {
+
 		return 18;
 	}
 
 	exit(e) {
+
 		throw (
 			(this._exitCode = e ?? 0),
+
 			(this._exited = !0),
+
 			this.emit("exit", this._exitCode),
+
 			typeof window < "u" && window.close(),
+
 			new Error("Process cannot exit in browser environment")
 		);
 	}
 
 	kill(e, t) {
+
 		try {
+
 			return (
 				i("process_kill", { pid: e, signal: t }).catch(() => {}),
+
 				!0
 			);
 		} catch {
+
 			return !1;
 		}
 	}
 
 	nextTick(e, ...t) {
+
 		typeof queueMicrotask == "function"
 			? queueMicrotask(() => e(...t))
 			: Promise.resolve().then(() => e(...t));
 	}
 
 	setTitle(e) {
+
 		((this.title = e), typeof document < "u" && (document.title = e));
 	}
 
 	getTitle() {
+
 		return this.title;
 	}
 
 	on(e, t) {
+
 		return (
 			this.listeners.has(e) || this.listeners.set(e, new Set()),
+
 			this.listeners.get(e).add(t),
+
 			this
 		);
 	}
 
 	once(e, t) {
+
 		const s = (...o) => {
+
 			(this.removeListener(e, s), t(...o));
 		};
 
@@ -312,19 +372,23 @@ class l {
 	}
 
 	removeListener(e, t) {
+
 		const s = this.listeners.get(e);
 
 		return (
 			s && (s.delete(t), s.size === 0 && this.listeners.delete(e)),
+
 			this
 		);
 	}
 
 	removeAllListeners(e) {
+
 		return (e ? this.listeners.delete(e) : this.listeners.clear(), this);
 	}
 
 	emit(e, ...t) {
+
 		const s = this.listeners.get(e);
 
 		return !s || s.size === 0
@@ -334,27 +398,34 @@ class l {
 						o(...t);
 					} catch {}
 				}),
+
 				!0);
 	}
 
 	get exitCode() {
+
 		return this._exitCode;
 	}
 
 	get exited() {
+
 		return this._exited;
 	}
 
 	get connected() {
+
 		return !0;
 	}
 }
 
 let a = null,
+
 	c = null;
 
 async function p() {
+
 	if (!a) {
+
 		c || (c = m());
 
 		const r = await c;
@@ -366,10 +437,12 @@ async function p() {
 }
 
 function f() {
+
 	return (a || (a = new l(n)), a);
 }
 
 async function h() {
+
 	if (typeof window > "u" || window.__PROCESS_POLYFILL_INSTALLED__) return;
 
 	window.__PROCESS_POLYFILL_INSTALLED__ = !0;
@@ -377,12 +450,15 @@ async function h() {
 	const r = await p();
 
 	try {
+
 		((window.process = r),
+
 			typeof window.vscode < "u" && (window.vscode.process = r));
 	} catch {}
 }
 
 function g() {
+
 	if (typeof window > "u" || window.__PROCESS_POLYFILL_INSTALLED__) return;
 
 	window.__PROCESS_POLYFILL_INSTALLED__ = !0;
@@ -390,6 +466,7 @@ function g() {
 	const r = f();
 
 	((window.process = r),
+
 		typeof window.vscode < "u" && (window.vscode.process = r));
 }
 
@@ -401,6 +478,7 @@ typeof window < "u" &&
 			Polyfill: "ProcessPolyfill",
 			Phase: "async-fallback-to-sync",
 		}),
+
 			g());
 	});
 

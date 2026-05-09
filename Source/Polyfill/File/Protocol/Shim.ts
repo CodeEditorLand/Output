@@ -20,6 +20,7 @@
 // ============================================================================
 
 interface FileSystemRequest {
+
 	protocol: string;
 
 	path: string;
@@ -30,6 +31,7 @@ interface FileSystemRequest {
 }
 
 interface FileSystemResponse {
+
 	/**
 	 * Body for the synthetic `Response`. `Uint8Array` is the canonical
 	 * binary shape (WASM, fonts, images); `string` is used for text
@@ -43,6 +45,7 @@ interface FileSystemResponse {
 	error?: Error;
 
 	metadata?: {
+
 		mime?: string;
 
 		version?: string;
@@ -54,6 +57,7 @@ interface FileSystemResponse {
 }
 
 interface ProtocolHandler {
+
 	matches(req: FileSystemRequest): boolean;
 
 	handle(req: FileSystemRequest): Promise<FileSystemResponse>;
@@ -67,6 +71,7 @@ interface ProtocolHandler {
  * Interface for Tauri command communication
  */
 interface TauriCommand {
+
 	cmd: string;
 
 	args?: Record<string, unknown>;
@@ -80,7 +85,9 @@ async function invokeTauri<T>(
 
 	args: Record<string, unknown> = {},
 ): Promise<T> {
+
 	try {
+
 		// Tauri 2.x: core.invoke, Tauri 1.x: invoke
 		const Invoke =
 			(window as any).__TAURI__?.core?.invoke ??
@@ -88,6 +95,7 @@ async function invokeTauri<T>(
 			(window as any).TAURI?.invoke;
 
 		if (typeof Invoke === "function") {
+
 			// Colon-prefixed methods (e.g. `file:write`,
 			// `shared_process:invoke`) are not registered as direct Tauri
 			// commands - Rust function names can't contain colons. They
@@ -97,6 +105,7 @@ async function invokeTauri<T>(
 			// transparently so this polyfill behaves like the rest of
 			// Wind/Sky/Output.
 			if (command.includes(":")) {
+
 				return await Invoke("MountainIPCInvoke", {
 					method: command,
 					params: args,
@@ -108,6 +117,7 @@ async function invokeTauri<T>(
 
 		throw new Error(`Tauri invoke not available for command: ${command}`);
 	} catch (error: unknown) {
+
 		throw error;
 	}
 }
@@ -121,12 +131,16 @@ async function invokeTauri<T>(
  * This is Electron's custom file protocol that replaces file://
  */
 const VSCodeFileHandler: ProtocolHandler = {
+
 	matches(req: FileSystemRequest): boolean {
+
 		return req.protocol === "vscode-file";
 	},
 
 	async handle(req: FileSystemRequest): Promise<FileSystemResponse> {
+
 		try {
+
 			// Decode URI-encoded path
 			const decodedPath = decodeURIComponent(req.path);
 
@@ -135,6 +149,7 @@ const VSCodeFileHandler: ProtocolHandler = {
 				(req.headers?.get("X-Http-Method") as string) || "GET";
 
 			if (method === "GET" || !method) {
+
 				// Mountain's `file:read` expects positional args (`Vec<Value>`)
 				// and returns `{ buffer: number[] }`. The previous shape here
 				// (`{ path, encoding: "utf8" }` as a named-object arg) was
@@ -158,6 +173,7 @@ const VSCodeFileHandler: ProtocolHandler = {
 				// so `new Response(content, …)` emits the correct bytes.
 				const Raw = await invokeTauri<
 					| { buffer?: number[] | Uint8Array }
+
 					| number[]
 					| string
 					| null
@@ -167,15 +183,18 @@ const VSCodeFileHandler: ProtocolHandler = {
 				const Bytes = UnwrapReadResult(Raw);
 
 				return {
+
 					content: Bytes,
 
 					metadata: {
+
 						mime: inferMimeType(decodedPath),
 
 						lastModified: new Date().toISOString(),
 					},
 				};
 			} else if (method === "PUT" || method === "POST") {
+
 				// Write file to Mountain
 				// Content should be in the request body
 				throw new Error("File write not implemented via GET handler");
@@ -183,7 +202,9 @@ const VSCodeFileHandler: ProtocolHandler = {
 
 			throw new Error(`Unsupported method: ${method}`);
 		} catch (error: unknown) {
+
 			return {
+
 				content: null,
 
 				error:
@@ -217,29 +238,36 @@ function UnwrapReadResult(
 		| null
 		| undefined,
 ): Uint8Array | string {
+
 	if (Raw === null || Raw === undefined) {
+
 		return new Uint8Array(0);
 	}
 
 	if (typeof Raw === "string") {
+
 		return Raw;
 	}
 
 	if (Raw instanceof Uint8Array) {
+
 		return Raw;
 	}
 
 	if (Array.isArray(Raw)) {
+
 		return new Uint8Array(Raw);
 	}
 
 	const Buffer = (Raw as { buffer?: number[] | Uint8Array }).buffer;
 
 	if (Buffer instanceof Uint8Array) {
+
 		return Buffer;
 	}
 
 	if (Array.isArray(Buffer)) {
+
 		return new Uint8Array(Buffer);
 	}
 
@@ -254,12 +282,16 @@ function UnwrapReadResult(
  * Routes to user data directory in Mountain
  */
 const VSCodeUserDataHandler: ProtocolHandler = {
+
 	matches(req: FileSystemRequest): boolean {
+
 		return req.protocol === "vscode-userdata";
 	},
 
 	async handle(req: FileSystemRequest): Promise<FileSystemResponse> {
+
 		try {
+
 			// Get user data path from Mountain
 			const userDataPath = await invokeTauri<string>(
 				"file:user_data_path",
@@ -276,6 +308,7 @@ const VSCodeUserDataHandler: ProtocolHandler = {
 			// `{ buffer: … }` envelope reach `new Response(…)`.
 			const Raw = await invokeTauri<
 				| { buffer?: number[] | Uint8Array }
+
 				| number[]
 				| string
 				| null
@@ -283,17 +316,21 @@ const VSCodeUserDataHandler: ProtocolHandler = {
 			>("file:read", [fullPath]);
 
 			return {
+
 				content: UnwrapReadResult(Raw),
 
 				metadata: {
+
 					mime: inferMimeType(req.path),
 
 					lastModified: new Date().toISOString(),
 				},
 			};
 		} catch (error: unknown) {
+
 			// Return empty content for user data files that don't exist yet
 			return {
+
 				content: "",
 
 				error: undefined,
@@ -307,12 +344,16 @@ const VSCodeUserDataHandler: ProtocolHandler = {
  * Routes to extension resources via Cocoon
  */
 const VSCodeResourceHandler: ProtocolHandler = {
+
 	matches(req: FileSystemRequest): boolean {
+
 		return req.protocol === "vscode-resource";
 	},
 
 	async handle(req: FileSystemRequest): Promise<FileSystemResponse> {
+
 		try {
+
 			// Parse extension resource path: vscode-resource://{extensionId}/{path}
 			const [extensionId, ...pathParts] = req.path
 				.split("/")
@@ -331,14 +372,18 @@ const VSCodeResourceHandler: ProtocolHandler = {
 			);
 
 			return {
+
 				content,
 
 				metadata: {
+
 					mime: inferMimeType(resourcePath),
 				},
 			};
 		} catch (error: unknown) {
+
 			return {
+
 				content: null,
 
 				error:
@@ -353,12 +398,16 @@ const VSCodeResourceHandler: ProtocolHandler = {
  * Routes to remote file system via Cocoon
  */
 const VSCodeRemoteHandler: ProtocolHandler = {
+
 	matches(req: FileSystemRequest): boolean {
+
 		return req.protocol === "vscode-remote";
 	},
 
 	async handle(req: FileSystemRequest): Promise<FileSystemResponse> {
+
 		try {
+
 			// Parse remote path: vscode-remote://{host}/{path}
 			const [host, ...pathParts] = req.path.split("/").filter(Boolean);
 
@@ -375,14 +424,18 @@ const VSCodeRemoteHandler: ProtocolHandler = {
 			);
 
 			return {
+
 				content,
 
 				metadata: {
+
 					mime: inferMimeType(remotePath),
 				},
 			};
 		} catch (error: unknown) {
+
 			return {
+
 				content: null,
 
 				error:
@@ -396,18 +449,23 @@ const VSCodeRemoteHandler: ProtocolHandler = {
  * Handle standard file:// protocol requests
  */
 const FileHandler: ProtocolHandler = {
+
 	matches(req: FileSystemRequest): boolean {
+
 		return req.protocol === "file";
 	},
 
 	async handle(req: FileSystemRequest): Promise<FileSystemResponse> {
+
 		try {
+
 			const decodedPath = decodeURIComponent(req.path);
 
 			// Positional-array args + binary-safe unwrap - see the
 			// `VSCodeFileHandler` comment for the full reasoning.
 			const Raw = await invokeTauri<
 				| { buffer?: number[] | Uint8Array }
+
 				| number[]
 				| string
 				| null
@@ -415,16 +473,20 @@ const FileHandler: ProtocolHandler = {
 			>("file:read", [decodedPath]);
 
 			return {
+
 				content: UnwrapReadResult(Raw),
 
 				metadata: {
+
 					mime: inferMimeType(decodedPath),
 
 					lastModified: new Date().toISOString(),
 				},
 			};
 		} catch (error: unknown) {
+
 			return {
+
 				content: null,
 
 				error:
@@ -454,6 +516,7 @@ const PROTOCOL_HANDLERS: ProtocolHandler[] = [
  * Find matching handler for a request
  */
 function findHandler(req: FileSystemRequest): ProtocolHandler | null {
+
 	return PROTOCOL_HANDLERS.find((handler) => handler.matches(req)) ?? null;
 }
 
@@ -465,7 +528,9 @@ function findHandler(req: FileSystemRequest): ProtocolHandler | null {
  * Parse custom protocol URL
  */
 function parseProtocolURL(url: string): FileSystemRequest {
+
 	try {
+
 		const parsed = new URL(url);
 
 		// Extract protocol (remove trailing colon)
@@ -483,6 +548,7 @@ function parseProtocolURL(url: string): FileSystemRequest {
 		});
 
 		return {
+
 			protocol,
 
 			path,
@@ -490,6 +556,7 @@ function parseProtocolURL(url: string): FileSystemRequest {
 			query,
 		};
 	} catch (error) {
+
 		throw new Error(`Invalid protocol URL: ${url}`);
 	}
 }
@@ -502,9 +569,11 @@ function parseProtocolURL(url: string): FileSystemRequest {
  * Infer MIME type from file path
  */
 function inferMimeType(path: string): string {
+
 	const extension = path.split(".").pop()?.toLowerCase();
 
 	const mimeMap: Record<string, string> = {
+
 		js: "application/javascript",
 
 		json: "application/json",
@@ -547,6 +616,7 @@ function inferMimeType(path: string): string {
  * Override native fetch to intercept protocol requests
  */
 function installFetchInterception(): void {
+
 	const originalFetch = window.fetch;
 
 	window.fetch = async function interceptFetch(
@@ -554,7 +624,9 @@ function installFetchInterception(): void {
 
 		init?: RequestInit,
 	): Promise<Response> {
+
 		try {
+
 			// Only intercept URLs with custom protocols
 			const url =
 				typeof input === "string"
@@ -564,17 +636,20 @@ function installFetchInterception(): void {
 						: input.url;
 
 			if (needsInterception(url)) {
+
 				const request = parseProtocolURL(url);
 
 				const handler = findHandler(request);
 
 				if (handler) {
+
 					const result = await handler.handle({
 						...request,
 						headers: new Headers(init?.headers),
 					});
 
 					if (result.error) {
+
 						throw result.error;
 					}
 
@@ -597,6 +672,7 @@ function installFetchInterception(): void {
 			// Fall back to original fetch for non-protocol URLs
 			return originalFetch(input, init);
 		} catch (error) {
+
 			return originalFetch(input, init);
 		}
 	};
@@ -606,6 +682,7 @@ function installFetchInterception(): void {
  * Check if URL needs protocol interception
  */
 function needsInterception(url: string): boolean {
+
 	const protocol = url.split(":")[0];
 
 	const interceptedProtocols = [
@@ -633,11 +710,13 @@ function needsInterception(url: string): boolean {
  * Note: This depends on the bundler/module system being used
  */
 function installModuleInterception(): void {
+
 	// This is a placeholder for module import interception
 	// Actual implementation depends on the module system in use
 
 	// For ES modules with import maps or custom resolvers:
 	if (typeof (window as any).__createImport !== "undefined") {
+
 		// Hook into import resolution (environment-specific)
 	}
 
@@ -653,12 +732,15 @@ function installModuleInterception(): void {
  * Initialize the File Protocol Shim
  */
 export function installFileProtocolShim(): void {
+
 	if (typeof window === "undefined") {
+
 		return;
 	}
 
 	// Prevent double installation
 	if ((window as any).__FILE_PROTOCOL_SHIM_INSTALLED__) {
+
 		return;
 	}
 
@@ -679,6 +761,7 @@ export function installFileProtocolShim(): void {
  * Export for testing/debugging purposes
  */
 export const FileProtocolShim = {
+
 	install: installFileProtocolShim,
 
 	handlers: PROTOCOL_HANDLERS,
@@ -690,5 +773,6 @@ export const FileProtocolShim = {
 
 // Auto-install on import
 if (typeof window !== "undefined") {
+
 	installFileProtocolShim();
 }

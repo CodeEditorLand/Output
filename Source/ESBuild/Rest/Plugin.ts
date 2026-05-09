@@ -24,9 +24,13 @@
  */
 
 import { spawnSync } from "node:child_process";
+
 import { existsSync, mkdtempSync, readFileSync } from "node:fs";
+
 import { tmpdir } from "node:os";
+
 import { basename, dirname, extname, join } from "node:path";
+
 import { fileURLToPath } from "node:url";
 
 import type { OnLoadResult, Plugin } from "esbuild";
@@ -242,21 +246,27 @@ const ENABLE_SOURCE_MAPS =
  * @returns {Plugin} The esbuild plugin configuration
  */
 export default function RestPlugin(): Plugin {
+
 	return {
+
 		name: "rest",
 
 		setup(build) {
+
 			// Only enable if Compiler=Rest is set
 			if (!USE_REST_COMPILER) {
+
 				return;
 			}
 
 			// Log plugin activation with full details
 			const log = (...args: unknown[]) => {
+
 				if (
 					build.initialOptions.logLevel !== "silent" ||
 					REST_VERBOSE
 				) {
+
 					console.log("[Rest]", ...args);
 				}
 			};
@@ -319,19 +329,23 @@ export default function RestPlugin(): Plugin {
 			];
 
 			for (const p of explicitlyCheck) {
+
 				console.log(`  Candidate: ${p} exists: ${existsSync(p)}`);
 			}
 
 			if (ENABLE_SOURCE_MAPS) {
+
 				log("Source maps: enabled");
 			}
 
 			// Check if Rest binary is available
 			try {
+
 				if (
 					!existsSync(REST_BINARY_PATH) &&
 					REST_BINARY_PATH !== "rest"
 				) {
+
 					console.warn(
 						`[Rest] Binary not found at: ${REST_BINARY_PATH}`,
 					);
@@ -341,6 +355,7 @@ export default function RestPlugin(): Plugin {
 					);
 				}
 			} catch (_error) {
+
 				// Ignore errors during binary check
 			}
 
@@ -350,6 +365,7 @@ export default function RestPlugin(): Plugin {
 
 				ext: string,
 			): Promise<OnLoadResult | null> => {
+
 				const fs = await import("node:fs/promises");
 
 				// Rest CLI uses directory-based compilation, so we need to create temp dirs
@@ -360,6 +376,7 @@ export default function RestPlugin(): Plugin {
 				);
 
 				try {
+
 					// Copy input file to temp input directory with same name
 					const inputFileName = basename(filePath);
 
@@ -382,6 +399,7 @@ export default function RestPlugin(): Plugin {
 
 					// Add source map flag if enabled
 					if (ENABLE_SOURCE_MAPS) {
+
 						args.push("--sourcemap");
 					}
 
@@ -389,6 +407,7 @@ export default function RestPlugin(): Plugin {
 					args.push(...REST_OPTIONS);
 
 					if (REST_VERBOSE) {
+
 						console.log(
 							"[Rest] Executing:",
 
@@ -408,6 +427,7 @@ export default function RestPlugin(): Plugin {
 					});
 
 					if (result.status !== 0) {
+
 						const stderr = result.stderr || "";
 
 						const stdout = result.stdout || "";
@@ -432,6 +452,7 @@ export default function RestPlugin(): Plugin {
 					);
 
 					if (!existsSync(tempOutputPath)) {
+
 						throw new Error(
 							`Rest compiler did not produce output file: ${tempOutputPath}`,
 						);
@@ -445,10 +466,12 @@ export default function RestPlugin(): Plugin {
 					const mapPath = tempOutputPath + ".map";
 
 					if (ENABLE_SOURCE_MAPS && existsSync(mapPath)) {
+
 						mapContents = readFileSync(mapPath, "utf8");
 					}
 
 					return {
+
 						contents,
 
 						loader: "js",
@@ -460,14 +483,17 @@ export default function RestPlugin(): Plugin {
 						}),
 					};
 				} finally {
+
 					// Clean up temp directories (best effort)
 					try {
+
 						const { rmSync } = await import("node:fs");
 
 						rmSync(tempInputDir, { recursive: true, force: true });
 
 						rmSync(tempOutputDir, { recursive: true, force: true });
 					} catch (_error) {
+
 						// Ignore cleanup errors
 					}
 				}
@@ -544,6 +570,7 @@ export default function RestPlugin(): Plugin {
  * @returns {boolean} True if Rest compiler is enabled
  */
 export function isRestEnabled(): boolean {
+
 	return USE_REST_COMPILER;
 }
 
@@ -553,6 +580,7 @@ export function isRestEnabled(): boolean {
  * @returns {string} The resolved binary path
  */
 export function getRestBinaryPath(): string {
+
 	return REST_BINARY_PATH;
 }
 
@@ -562,5 +590,6 @@ export function getRestBinaryPath(): string {
  * @returns {Plugin | null} Rest plugin if enabled, null otherwise
  */
 export function createRestPluginIfEnabled(): Plugin | null {
+
 	return USE_REST_COMPILER ? RestPlugin() : null;
 }

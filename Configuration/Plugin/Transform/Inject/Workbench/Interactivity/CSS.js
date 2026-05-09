@@ -1,4 +1,5 @@
 import e, {
+
 	Marker as r,
 } from "../../../../Polyfill/Workbench/Interactivity/CSS.js";
 
@@ -8,6 +9,7 @@ const t = `
 
 `,
 	o = {
+
 		Kind: "Transform",
 
 		Name: "InjectWorkbenchInteractivityCSS",
@@ -16,8 +18,10 @@ const t = `
 			n.endsWith("vs/code/electron-browser/workbench/workbench.js"),
 
 		Transform({ Source: n }) {
+
 			return n.includes(r)
 				? { Kind: "Unchanged" }
+
 				: { Kind: "Rewrite", Source: t + n };
 		},
 	};

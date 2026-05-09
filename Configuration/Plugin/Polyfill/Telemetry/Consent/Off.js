@@ -1,6 +1,7 @@
 const r = "__LAND_TELEMETRY_CONSENT_OFF__";
 
 function o() {
+
 	if (typeof window > "u") return;
 
 	const e = window;
@@ -10,6 +11,7 @@ function o() {
 	e[r] = !0;
 
 	const t = {
+
 		"telemetry.telemetryLevel": "off",
 
 		"telemetry.feedback.enabled": !1,
@@ -72,26 +74,34 @@ function o() {
 	e.__LAND_PREBAKED_CONFIG__ = t;
 
 	function s() {
+
 		try {
+
 			for (const n of Object.keys(t)) {
+
 				const a = JSON.stringify(t[n]);
 
 				try {
+
 					localStorage.setItem(`settings.application.${n}`, a);
 				} catch {}
 
 				try {
+
 					localStorage.setItem(`workbench.settings.${n}`, a);
 				} catch {}
 			}
 
 			(localStorage.setItem("workbench.telemetry.optOut", "1"),
+
 				localStorage.setItem("vscode.telemetry.optOut", "1"));
 		} catch {}
 	}
 
 	(s(),
+
 		(e.__LAND_TELEMETRY_ENABLED__ = !1),
+
 		console.log(
 			`[LandFix:Telemetry] consent prebaked off; ${Object.keys(t).length} keys seeded`,
 		));

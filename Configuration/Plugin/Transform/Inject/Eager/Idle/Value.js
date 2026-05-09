@@ -6,6 +6,7 @@ const o = `
 
 `,
 	t = {
+
 		Kind: "Transform",
 
 		Name: "InjectEagerIdleValue",
@@ -14,8 +15,10 @@ const o = `
 			r.endsWith("vs/code/electron-browser/workbench/workbench.js"),
 
 		Transform({ Source: r }) {
+
 			return r.includes(e)
 				? { Kind: "Unchanged" }
+
 				: { Kind: "Rewrite", Source: o + r };
 		},
 	};

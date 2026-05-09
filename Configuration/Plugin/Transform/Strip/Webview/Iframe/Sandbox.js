@@ -6,6 +6,7 @@ const s = "/* Land: sandbox attribute stripped",
 	d = /element\.sandbox\.add\([^)]*'allow-scripts'[^)]*\);/,
 	b = `${s} - WKWebView blocks custom-protocol main-resource loads from sandboxed iframes. */`,
 	c = {
+
 		Kind: "Transform",
 
 		Name: "StripWebviewIframeSandbox",
@@ -13,6 +14,7 @@ const s = "/* Land: sandbox attribute stripped",
 		Match: ({ Path: e }) => o.test(e) || a.test(e),
 
 		Transform({ Path: e, Source: n }) {
+
 			if (n.includes(s)) return { Kind: "Unchanged" };
 
 			const t = o.test(e) ? i : d;
@@ -23,6 +25,7 @@ const s = "/* Land: sandbox attribute stripped",
 
 			return r === n
 				? { Kind: "Unchanged" }
+
 				: { Kind: "Rewrite", Source: r };
 		},
 	};

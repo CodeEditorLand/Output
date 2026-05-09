@@ -48,6 +48,7 @@ const Anchor =
 	/(enum:\s*\[\s*["']auto["']\s*,\s*["']on["']\s*,\s*["']off["']\s*\][\s\S]*?default:\s*)["']auto["']/;
 
 const Plugin: TransformPlugin = {
+
 	Kind: "Transform",
 
 	Name: "PatchTerminalGpuAcceleration",
@@ -55,15 +56,19 @@ const Plugin: TransformPlugin = {
 	Match: ({ Path }) => PathRegex.test(Path),
 
 	Transform({ Source }) {
+
 		if (Source.includes(Marker)) {
+
 			return { Kind: "Unchanged" };
 		}
 
 		if (!Anchor.test(Source)) {
+
 			return { Kind: "Unchanged" };
 		}
 
 		return {
+
 			Kind: "Rewrite",
 
 			Source: Source.replace(Anchor, `$1"off" /* ${Marker} */`),

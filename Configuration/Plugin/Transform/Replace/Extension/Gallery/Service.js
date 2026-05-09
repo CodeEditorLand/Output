@@ -1,10 +1,12 @@
 const r =
 		/vs\/platform\/extensionManagement\/common\/extensionGalleryService\.js$/,
+
 	n = `export { ExtensionGalleryService, AbstractExtensionGalleryService, ExtensionGalleryService_default } from './CELNullExtensionGalleryService.js';
 export { default } from './CELNullExtensionGalleryService.js';
 
 `,
 	t = {
+
 		Kind: "Transform",
 
 		Name: "ReplaceExtensionGalleryService",
@@ -12,6 +14,7 @@ export { default } from './CELNullExtensionGalleryService.js';
 		Match: ({ Path: e }) => r.test(e),
 
 		Transform() {
+
 			return { Kind: "Rewrite", Source: n };
 		},
 	};

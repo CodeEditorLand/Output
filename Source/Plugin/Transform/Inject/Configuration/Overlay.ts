@@ -71,6 +71,7 @@ const Replacement =
 	`$2$3`;
 
 const Plugin: TransformPlugin = {
+
 	Kind: "Transform",
 
 	Name: "InjectConfigurationOverlay",
@@ -78,6 +79,7 @@ const Plugin: TransformPlugin = {
 	Match: ({ Path }) => PathRegex.test(Path),
 
 	Transform({ Source }) {
+
 		if (Source.includes(Marker)) return { Kind: "Unchanged" };
 
 		if (!Pattern.test(Source)) return { Kind: "Unchanged" };

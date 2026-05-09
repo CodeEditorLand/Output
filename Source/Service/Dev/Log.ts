@@ -72,6 +72,7 @@ let CachedTags: string[] | null = null;
 let CachedShort: boolean | null = null;
 
 const GetEnabledTags = (): string[] => {
+
 	if (CachedTags !== null) return CachedTags;
 
 	const Raw =
@@ -90,6 +91,7 @@ const GetEnabledTags = (): string[] => {
 };
 
 const IsShort = (): boolean => {
+
 	if (CachedShort !== null) return CachedShort;
 
 	CachedShort = GetEnabledTags().includes("short");
@@ -98,6 +100,7 @@ const IsShort = (): boolean => {
 };
 
 const IsEnabled = (Tag: string): boolean => {
+
 	const Tags = GetEnabledTags();
 
 	if (Tags.length === 0) return false;
@@ -124,7 +127,9 @@ let DedupKey = "";
 let DedupCount = 0;
 
 const FlushDedup = (): void => {
+
 	if (DedupCount > 1) {
+
 		console.log(`  (x${DedupCount})`);
 	}
 
@@ -143,11 +148,13 @@ const FlushDedup = (): void => {
  * DevLog("CONFIG", "resolveConfiguration folderUri:", folderUri);
  */
 const DevLog = (Tag: string, ...Args: unknown[]): void => {
+
 	if (!IsEnabled(Tag)) return;
 
 	const TagUpper = Tag.toUpperCase();
 
 	if (IsShort()) {
+
 		const Message = Args.map(String).join(" ");
 
 		const Aliased = AliasPath(Message);
@@ -155,6 +162,7 @@ const DevLog = (Tag: string, ...Args: unknown[]): void => {
 		const Key = `${TagUpper}:${Aliased}`;
 
 		if (Key === DedupKey) {
+
 			DedupCount++;
 
 			return;
@@ -168,12 +176,14 @@ const DevLog = (Tag: string, ...Args: unknown[]): void => {
 
 		console.log(`[DEV:${TagUpper}]`, Aliased);
 	} else {
+
 		console.log(`[DEV:${TagUpper}]`, ...Args);
 	}
 };
 
 /** Force-reset the cache (call after changing window.__Trace). */
 DevLog.reset = () => {
+
 	CachedTags = null;
 
 	CachedShort = null;

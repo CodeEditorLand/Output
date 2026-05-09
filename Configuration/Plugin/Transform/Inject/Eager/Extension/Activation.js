@@ -1,4 +1,5 @@
 import e, {
+
 	Marker as r,
 } from "../../../../Polyfill/Eager/Extension/Activation.js";
 
@@ -8,6 +9,7 @@ const o = `
 
 `,
 	t = {
+
 		Kind: "Transform",
 
 		Name: "InjectEagerExtensionActivation",
@@ -16,8 +18,10 @@ const o = `
 			n.endsWith("vs/code/electron-browser/workbench/workbench.js"),
 
 		Transform({ Source: n }) {
+
 			return n.includes(r)
 				? { Kind: "Unchanged" }
+
 				: { Kind: "Rewrite", Source: o + n };
 		},
 	};

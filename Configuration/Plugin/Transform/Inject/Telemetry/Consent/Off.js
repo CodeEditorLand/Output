@@ -6,6 +6,7 @@ const o = `
 
 `,
 	t = {
+
 		Kind: "Transform",
 
 		Name: "InjectTelemetryConsentOff",
@@ -14,8 +15,10 @@ const o = `
 			n.endsWith("vs/code/electron-browser/workbench/workbench.js"),
 
 		Transform({ Source: n }) {
+
 			return n.includes(e)
 				? { Kind: "Unchanged" }
+
 				: { Kind: "Rewrite", Source: o + n };
 		},
 	};

@@ -1,32 +1,46 @@
 import { Emitter as v } from "../../../../base/common/event.js";
+
 import { URI as y } from "../../../../base/common/uri.js";
+
 import { IExtensionsScannerService as p } from "../../../../platform/extensionManagement/common/extensionsScannerService.js";
+
 import {
 	InstantiationType as P,
 	registerSingleton as S,
 } from "../../../../platform/instantiation/common/extensions.js";
 
 const o = (s, i) => {
+
 		try {
+
 			performance.mark("land:exthost:" + s, i ? { detail: i } : void 0);
 		} catch {}
 	},
+
 	c = (...s) => {
+
 		try {
+
 			console.warn("[Land Scanner]", ...s);
 		} catch {}
 	},
+
 	g = async (s, i) => {
+
 		o("scanner:fetch:start", { method: s });
 
 		try {
+
 			const t = globalThis.__TAURI__,
+
 				l = t?.core?.invoke ?? t?.invoke;
 
 			if (typeof l != "function")
 				return (
 					o("scanner:fetch:no-tauri"),
+
 					c("No Tauri invoke available"),
+
 					[]
 				);
 
@@ -41,14 +55,18 @@ const o = (s, i) => {
 					type: typeof u,
 					isArray: Array.isArray(u),
 				}),
+
 				c("IPC", s, "returned", r.length, "extensions"),
+
 				r.length === 0 &&
 					(s === "extensions:scanSystemExtensions" ||
 						s === "extensions:scanUserExtensions"))
 			) {
+
 				const a = [100, 200, 400, 800, 1500];
 
 				for (let n = 0; n < a.length; n++) {
+
 					(c(
 						"0 extensions for",
 
@@ -66,6 +84,7 @@ const o = (s, i) => {
 
 						"ms",
 					),
+
 						await new Promise((d) => setTimeout(d, a[n])));
 
 					const e = await l("MountainIPCInvoke", {
@@ -75,11 +94,13 @@ const o = (s, i) => {
 
 					if (
 						((r = Array.isArray(e) ? e : []),
+
 						o("scanner:fetch:retry", {
 							method: s,
 							retry: n + 1,
 							count: r.length,
 						}),
+
 						c(
 							"Retry",
 
@@ -93,6 +114,7 @@ const o = (s, i) => {
 
 							s,
 						),
+
 						r.length > 0)
 					)
 						break;
@@ -106,19 +128,24 @@ const o = (s, i) => {
 			let f = 0;
 
 			for (let a = 0; a < r.length; a++) {
+
 				const n = r[a];
 
 				try {
+
 					const e =
 							n.manifest && typeof n.manifest == "object"
 								? n.manifest
 								: n,
+
 						d = n.location ?? n.extensionLocation,
+
 						x = d
 							? typeof d == "string"
 								? y.parse(d)
 								: y.revive(d)
 							: y.file("/extensions/" + (e.name || "unknown")),
+
 						w =
 							n.identifier?.id ||
 							n.identifier?.value ||
@@ -126,7 +153,9 @@ const o = (s, i) => {
 								? e.publisher + "." + e.name
 								: e.name) ||
 							"unknown",
+
 						E = typeof n.type == "number" ? n.type : i ? 0 : 1,
+
 						k = typeof n.isBuiltin == "boolean" ? n.isBuiltin : i;
 
 					m.push({
@@ -153,7 +182,9 @@ const o = (s, i) => {
 						validationMessages: n.validationMessages || [],
 					});
 				} catch (e) {
+
 					(f++,
+
 						f <= 3 &&
 							c(
 								"Map error for ext",
@@ -173,9 +204,12 @@ const o = (s, i) => {
 					mapped: m.length,
 					errors: f,
 				}),
+
 				c("Mapped", m.length, "extensions,", f, "errors"),
+
 				m.length > 0)
 			) {
+
 				const a = m[0];
 
 				c(
@@ -199,18 +233,22 @@ const o = (s, i) => {
 
 			return m;
 		} catch (t) {
+
 			return (
 				o("scanner:fetch:error", {
 					method: s,
 					message: String(t).slice(0, 200),
 				}),
+
 				c("Fetch error:", String(t).slice(0, 200)),
+
 				[]
 			);
 		}
 	};
 
 class h {
+
 	_onDidChangeCache = new v();
 
 	onDidChangeCache = this._onDidChangeCache.event;
@@ -218,14 +256,18 @@ class h {
 	userExtensionsLocation = y.file("/extensions");
 
 	constructor() {
+
 		(o("scanner:construct"), c("Constructed"));
 	}
 
 	async scanAllExtensions(i, t) {
+
 		o("scanner:scanAll:start");
 
 		const l = await this.scanSystemExtensions(i),
+
 			u = await this.scanUserExtensions(t),
+
 			r = [...l, ...u];
 
 		return (
@@ -234,56 +276,70 @@ class h {
 				user: u.length,
 				total: r.length,
 			}),
+
 			c("scanAll:", l.length, "system +", u.length, "user =", r.length),
+
 			r
 		);
 	}
 
 	async scanSystemExtensions(i) {
+
 		o("scanner:scanSystem:start");
 
 		const t = await g("extensions:scanSystemExtensions", !0);
 
 		return (
 			o("scanner:scanSystem:done", { count: t.length }),
+
 			c("scanSystemExtensions returning", t.length),
+
 			t
 		);
 	}
 
 	async scanUserExtensions(i) {
+
 		o("scanner:scanUser:start");
 
 		const t = await g("extensions:scanUserExtensions", !1);
 
 		return (
 			o("scanner:scanUser:done", { count: t.length }),
+
 			c("scanUserExtensions returning", t.length),
+
 			t
 		);
 	}
 
 	async scanAllUserExtensions(i) {
+
 		return await this.scanUserExtensions(i);
 	}
 
 	getTargetPlatform() {
+
 		return Promise.resolve("undefined");
 	}
 
 	getProductVersion() {
+
 		return { version: "0.0.1", date: void 0 };
 	}
 
 	async scanExtensionsUnderDevelopment(i, t) {
+
 		return (o("scanner:scanDev"), []);
 	}
 
 	async scanExistingExtension(i, t, l) {
+
 		return null;
 	}
 
 	async scanOneOrMultipleExtensions(i, t, l) {
+
 		return [];
 	}
 
@@ -292,6 +348,7 @@ class h {
 	async updateMetadata(i, t) {}
 
 	async initializeDefaultProfileExtensions() {
+
 		o("scanner:initDefaults");
 	}
 }

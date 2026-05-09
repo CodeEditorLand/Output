@@ -46,6 +46,7 @@ import type {
  * Channel mapping from Electron to Tauri commands
  */
 interface IPCChannelMapping {
+
 	electronPattern: RegExp;
 
 	tauriCommand: string;
@@ -62,6 +63,7 @@ type ReplyHandler = (response: unknown) => void;
  * SendTo request with callback
  */
 interface SendToRequest {
+
 	channel: string;
 
 	args: unknown[];
@@ -83,7 +85,9 @@ async function invokeTauri<T>(
 
 	args: Record<string, unknown> = {},
 ): Promise<T> {
+
 	try {
+
 		// Tauri 2.x: core.invoke, Tauri 1.x: invoke
 		const Invoke =
 			(window as any).__TAURI__?.core?.invoke ??
@@ -91,6 +95,7 @@ async function invokeTauri<T>(
 			(window as any).TAURI?.invoke;
 
 		if (typeof Invoke === "function") {
+
 			// Colon-prefixed methods (e.g. `file:write`,
 			// `shared_process:invoke`) are not registered as direct Tauri
 			// commands - Rust function names can't contain colons. They
@@ -100,6 +105,7 @@ async function invokeTauri<T>(
 			// transparently so this shim behaves like the rest of
 			// Wind/Sky/Output.
 			if (command.includes(":")) {
+
 				return await Invoke("MountainIPCInvoke", {
 					method: command,
 					params: args,
@@ -111,6 +117,7 @@ async function invokeTauri<T>(
 
 		throw new Error(`Tauri invoke not available for command: ${command}`);
 	} catch (error: unknown) {
+
 		throw error;
 	}
 }
@@ -119,7 +126,9 @@ async function invokeTauri<T>(
  * Send Tauri command (no response)
  */
 function sendTauri(command: string, args: Record<string, unknown> = {}): void {
+
 	try {
+
 		// Tauri 2.x: core.invoke, Tauri 1.x: invoke
 		const Invoke =
 			(window as any).__TAURI__?.core?.invoke ??
@@ -127,6 +136,7 @@ function sendTauri(command: string, args: Record<string, unknown> = {}): void {
 			(window as any).TAURI?.invoke;
 
 		if (typeof Invoke === "function") {
+
 			// Same colon-prefix routing rule as `invokeTauri` above -
 			// keep the fire-and-forget form symmetric with the awaited
 			// form so both paths reach Mountain consistently.
@@ -148,6 +158,7 @@ function sendTauri(command: string, args: Record<string, unknown> = {}): void {
 			});
 		}
 	} catch (Error) {
+
 		(globalThis as any).__LAND_POLYFILL_TELEMETRY__?.On(
 			"ipc.fire-and-forget",
 
@@ -168,6 +179,7 @@ function sendTauri(command: string, args: Record<string, unknown> = {}): void {
 const IPC_CHANNEL_MAPPINGS: IPCChannelMapping[] = [
 	// Logger service
 	{
+
 		electronPattern: /^logger:(log|warn|error|info|debug|trace|critical)$/,
 
 		tauriCommand: "logger:log",
@@ -181,6 +193,7 @@ const IPC_CHANNEL_MAPPINGS: IPCChannelMapping[] = [
 
 	// Policy service
 	{
+
 		electronPattern: /^policy:(get|set|validate|enforce|check)$/,
 
 		tauriCommand: "policy:handle",
@@ -193,6 +206,7 @@ const IPC_CHANNEL_MAPPINGS: IPCChannelMapping[] = [
 
 	// Signing service
 	{
+
 		electronPattern: /^sign:(sign|verify|generate|validate)$/,
 
 		tauriCommand: "sign:handle",
@@ -206,6 +220,7 @@ const IPC_CHANNEL_MAPPINGS: IPCChannelMapping[] = [
 
 	// User data profiles service
 	{
+
 		electronPattern: /^userDataProfiles:(create|delete|update|get|list)$/,
 
 		tauriCommand: "user_data:handle_profile",
@@ -219,6 +234,7 @@ const IPC_CHANNEL_MAPPINGS: IPCChannelMapping[] = [
 
 	// Local file system service
 	{
+
 		electronPattern:
 			/^localFileSystem:(read|write|delete|exists|stat|readdir)$/,
 
@@ -238,8 +254,11 @@ const IPC_CHANNEL_MAPPINGS: IPCChannelMapping[] = [
 function mapElectronChannelToTauri(
 	channel: string,
 ): { command: string; args: Record<string, unknown> } | null {
+
 	for (const mapping of IPC_CHANNEL_MAPPINGS) {
+
 		if (mapping.electronPattern.test(channel)) {
+
 			const args = mapping.transform?.([]) ?? {};
 
 			return { command: mapping.tauriCommand, args };
@@ -257,8 +276,11 @@ function transformChannelArgs(
 
 	args: unknown[],
 ): Record<string, unknown> {
+
 	for (const mapping of IPC_CHANNEL_MAPPINGS) {
+
 		if (mapping.electronPattern.test(channel) && mapping.transform) {
+
 			return mapping.transform(args);
 		}
 	}
@@ -285,12 +307,16 @@ function transformChannelArgs(
  */
 
 function SerializeIPC(Data: unknown): Uint8Array {
+
 	const Parts: Uint8Array[] = [];
 
 	function Write(Value: unknown): void {
+
 		if (Value === undefined || Value === null) {
+
 			Parts.push(new Uint8Array([0])); // Undefined
 		} else if (typeof Value === "string") {
+
 			const Encoded = new TextEncoder().encode(Value);
 
 			Parts.push(new Uint8Array([1])); // String
@@ -298,14 +324,17 @@ function SerializeIPC(Data: unknown): Uint8Array {
 
 			Parts.push(Encoded);
 		} else if (Array.isArray(Value)) {
+
 			Parts.push(new Uint8Array([4])); // Array
 			WriteVQL(Value.length);
 
 			for (const Item of Value) Write(Item);
 		} else if (typeof Value === "number" && (Value | 0) === Value) {
+
 			Parts.push(new Uint8Array([6])); // Int
 			WriteVQL(Value);
 		} else {
+
 			const Encoded = new TextEncoder().encode(JSON.stringify(Value));
 
 			Parts.push(new Uint8Array([5])); // Object
@@ -316,11 +345,13 @@ function SerializeIPC(Data: unknown): Uint8Array {
 	}
 
 	function WriteVQL(Value: number): void {
+
 		const Bytes: number[] = [];
 
 		let V = Value >>> 0;
 
 		while (V > 0x7f) {
+
 			Bytes.push((V & 0x7f) | 0x80);
 
 			V >>>= 7;
@@ -342,6 +373,7 @@ function SerializeIPC(Data: unknown): Uint8Array {
 	let Offset = 0;
 
 	for (const P of Parts) {
+
 		Result.set(P, Offset);
 
 		Offset += P.length;
@@ -351,14 +383,17 @@ function SerializeIPC(Data: unknown): Uint8Array {
 }
 
 function DeserializeIPC(Buffer: ArrayBuffer): unknown {
+
 	const View = new Uint8Array(Buffer);
 
 	let Pos = 0;
 
 	function ReadVQL(): number {
+
 		let Value = 0;
 
 		for (let N = 0; ; N += 7) {
+
 			const Byte = View[Pos++];
 
 			Value |= (Byte & 0x7f) << N;
@@ -368,13 +403,16 @@ function DeserializeIPC(Buffer: ArrayBuffer): unknown {
 	}
 
 	function Read(): unknown {
+
 		const Type = View[Pos++];
 
 		switch (Type) {
+
 			case 0:
 				return undefined;
 
 			case 1: {
+
 				const Len = ReadVQL();
 
 				const Str = new TextDecoder().decode(
@@ -388,6 +426,7 @@ function DeserializeIPC(Buffer: ArrayBuffer): unknown {
 
 			case 2:
 			case 3: {
+
 				const Len = ReadVQL();
 
 				const Buf = View.slice(Pos, Pos + Len);
@@ -398,6 +437,7 @@ function DeserializeIPC(Buffer: ArrayBuffer): unknown {
 			}
 
 			case 4: {
+
 				const Len = ReadVQL();
 
 				const Arr: unknown[] = [];
@@ -408,6 +448,7 @@ function DeserializeIPC(Buffer: ArrayBuffer): unknown {
 			}
 
 			case 5: {
+
 				const Len = ReadVQL();
 
 				const Str = new TextDecoder().decode(
@@ -429,6 +470,7 @@ function DeserializeIPC(Buffer: ArrayBuffer): unknown {
 
 /** Build a complete IPC message: serialize(header) + serialize(body) */
 function BuildIPCMessage(Header: unknown, Body: unknown): Uint8Array {
+
 	const H = SerializeIPC(Header);
 
 	const B = SerializeIPC(Body);
@@ -444,18 +486,22 @@ function BuildIPCMessage(Header: unknown, Body: unknown): Uint8Array {
 
 /** Parse an incoming IPC message into header + body */
 function ParseIPCMessage(Buffer: ArrayBuffer): {
+
 	Header: unknown;
 
 	Body: unknown;
 } {
+
 	const View = new Uint8Array(Buffer);
 
 	let Pos = 0;
 
 	function ReadVQL(): number {
+
 		let Value = 0;
 
 		for (let N = 0; ; N += 7) {
+
 			const Byte = View[Pos++];
 
 			Value |= (Byte & 0x7f) << N;
@@ -465,13 +511,16 @@ function ParseIPCMessage(Buffer: ArrayBuffer): {
 	}
 
 	function Read(): unknown {
+
 		const Type = View[Pos++];
 
 		switch (Type) {
+
 			case 0:
 				return undefined;
 
 			case 1: {
+
 				const Len = ReadVQL();
 
 				const Str = new TextDecoder().decode(
@@ -485,6 +534,7 @@ function ParseIPCMessage(Buffer: ArrayBuffer): {
 
 			case 2:
 			case 3: {
+
 				const Len = ReadVQL();
 
 				Pos += Len;
@@ -493,6 +543,7 @@ function ParseIPCMessage(Buffer: ArrayBuffer): {
 			}
 
 			case 4: {
+
 				const Len = ReadVQL();
 
 				const Arr: unknown[] = [];
@@ -503,6 +554,7 @@ function ParseIPCMessage(Buffer: ArrayBuffer): {
 			}
 
 			case 5: {
+
 				const Len = ReadVQL();
 
 				const Str = new TextDecoder().decode(
@@ -550,9 +602,11 @@ function MapChannelMethodToTauri(
 
 	Method: string,
 ): string | null {
+
 	const Prefix = MapChannelToMountainPrefix(Channel);
 
 	if (!Prefix) {
+
 		return null;
 	}
 
@@ -560,7 +614,9 @@ function MapChannelMethodToTauri(
 }
 
 function MapChannelToMountainPrefix(Channel: string): string | null {
+
 	switch (Channel) {
+
 		case "localFilesystem":
 		case "localFileSystem":
 			return "file";
@@ -667,11 +723,14 @@ function CoerceTauriParameters(
 
 	Body: unknown,
 ): unknown[] {
+
 	if (Body === undefined || Body === null) {
+
 		return [];
 	}
 
 	if (Array.isArray(Body)) {
+
 		return Body;
 	}
 
@@ -690,12 +749,14 @@ async function InvokeMountainRaw<T>(
 
 	Parameters: unknown[],
 ): Promise<T> {
+
 	const Invoke =
 		(window as any).__TAURI__?.core?.invoke ??
 		(window as any).__TAURI__?.invoke ??
 		(window as any).TAURI?.invoke;
 
 	if (typeof Invoke !== "function") {
+
 		throw new Error(`Tauri invoke not available for method: ${Method}`);
 	}
 
@@ -714,9 +775,11 @@ async function InvokeMountainRaw<T>(
  * with a built-in binary IPC loopback that speaks VS Code's ChannelClient protocol.
  */
 class IPCRendererImpl implements IpcRenderer {
+
 	// Track event listeners by channel
 	listeners = new Map<
 		string,
+
 		Set<(event: IpcRendererEvent, ...args: unknown[]) => void>
 	>();
 
@@ -728,6 +791,7 @@ class IPCRendererImpl implements IpcRenderer {
 	// Track once listeners
 	onceListeners = new Map<
 		string,
+
 		Set<WeakRef<(event: IpcRendererEvent, ...args: unknown[]) => void>>
 	>();
 
@@ -735,7 +799,9 @@ class IPCRendererImpl implements IpcRenderer {
 	 * Emit a vscode:message event to registered listeners (loopback)
 	 */
 	private emitMessage(Data: Uint8Array | ArrayBuffer): void {
+
 		const Event: IpcRendererEvent = {
+
 			sender: {} as IpcRendererEvent["sender"],
 
 			senderId: 0,
@@ -748,8 +814,11 @@ class IPCRendererImpl implements IpcRenderer {
 		const Listeners = this.listeners.get("vscode:message");
 
 		if (Listeners) {
+
 			for (const Listener of Listeners) {
+
 				try {
+
 					Listener(Event, Data);
 				} catch (Error) {}
 			}
@@ -768,7 +837,9 @@ class IPCRendererImpl implements IpcRenderer {
 	 * 3. Sync stub with `__IPC_ERROR__<msg>` sentinel: emit PromiseError.
 	 */
 	private handleBinaryIPC(Buffer: ArrayBuffer): void {
+
 		try {
+
 			const { Header, Body } = ParseIPCMessage(Buffer);
 
 			const HeaderArr = Header as number[];
@@ -779,6 +850,7 @@ class IPCRendererImpl implements IpcRenderer {
 
 			// RequestType.Promise = 100
 			if (Type === 100) {
+
 				const RequestId = HeaderArr[1] as number;
 
 				const ChannelName = HeaderArr[2] as string;
@@ -792,6 +864,7 @@ class IPCRendererImpl implements IpcRenderer {
 				);
 
 				if (TauriCommand !== null) {
+
 					// Routable channel: forward to Mountain via Tauri and
 					// relay the real response through the binary IPC.
 					const TauriParameters = CoerceTauriParameters(
@@ -840,6 +913,7 @@ class IPCRendererImpl implements IpcRenderer {
 					typeof StubResponse === "string" &&
 					StubResponse.startsWith("__IPC_ERROR__")
 				) {
+
 					const ErrorMessage = StubResponse.slice(13);
 
 					// PromiseError format: [202, requestId], errorMessage
@@ -851,6 +925,7 @@ class IPCRendererImpl implements IpcRenderer {
 
 					setTimeout(() => this.emitMessage(Response), 0);
 				} else {
+
 					// PromiseSuccess (201) + stub data
 					const Response = BuildIPCMessage(
 						[201, RequestId],
@@ -864,6 +939,7 @@ class IPCRendererImpl implements IpcRenderer {
 
 			// RequestType.EventListen = 102
 			else if (Type === 102) {
+
 				const RequestId = HeaderArr[1] as number;
 
 				const ChannelName = HeaderArr[2] as string;
@@ -887,7 +963,9 @@ class IPCRendererImpl implements IpcRenderer {
 
 		_Args: unknown,
 	): unknown {
+
 		switch (Channel) {
+
 			case "logger":
 				// LoggerChannelClient: createLogger, log, setVisibility, etc.
 				return undefined;
@@ -909,8 +987,11 @@ class IPCRendererImpl implements IpcRenderer {
 			case "keyboardLayout":
 				// NativeKeyboardLayoutService: getKeyboardLayoutData
 				if (Method === "getKeyboardLayoutData") {
+
 					return {
+
 						keyboardLayoutInfo: {
+
 							model: "pc105",
 
 							layout: "us",
@@ -951,8 +1032,10 @@ class IPCRendererImpl implements IpcRenderer {
 	 * Send message to main process
 	 */
 	send(channel: string, ...args: unknown[]): void {
+
 		// Handle VS Code binary IPC protocol
 		if (channel === "vscode:hello") {
+
 			// The ChannelClient waits for Initialize (type 200) response.
 			// Send it asynchronously so the listener is registered first.
 			setTimeout(() => {
@@ -964,10 +1047,12 @@ class IPCRendererImpl implements IpcRenderer {
 		}
 
 		if (channel === "vscode:message") {
+
 			// Binary IPC message from workbench → parse and respond
 			const Buffer = args[0];
 
 			if (Buffer instanceof ArrayBuffer || ArrayBuffer.isView(Buffer)) {
+
 				const AB =
 					Buffer instanceof ArrayBuffer
 						? Buffer
@@ -988,6 +1073,7 @@ class IPCRendererImpl implements IpcRenderer {
 			channel === "vscode:openDevTools" ||
 			channel.startsWith("vscode:")
 		) {
+
 			return;
 		}
 
@@ -995,11 +1081,13 @@ class IPCRendererImpl implements IpcRenderer {
 		const mapping = mapElectronChannelToTauri(channel);
 
 		if (mapping) {
+
 			// Use mapped Tauri command with transformed args
 			const tauriArgs = transformChannelArgs(channel, args);
 
 			sendTauri(mapping.command, tauriArgs);
 		} else {
+
 			// Unmapped non-vscode channel - log warning instead of calling
 			// non-existent ipc:send Tauri command
 		}
@@ -1009,6 +1097,7 @@ class IPCRendererImpl implements IpcRenderer {
 	 * Synchronous send - polyfilled as async with warning
 	 */
 	sendSync(_channel: string, ..._args: unknown[]): unknown {
+
 		return undefined;
 	}
 
@@ -1016,10 +1105,12 @@ class IPCRendererImpl implements IpcRenderer {
 	 * Invoke main process and get response
 	 */
 	async invoke<T = unknown>(channel: string, ...args: unknown[]): Promise<T> {
+
 		// Map Electron channel to Tauri command
 		const mapping = mapElectronChannelToTauri(channel);
 
 		if (mapping) {
+
 			const tauriArgs = transformChannelArgs(channel, args);
 
 			return await invokeTauri<T>(mapping.command, tauriArgs);
@@ -1038,7 +1129,9 @@ class IPCRendererImpl implements IpcRenderer {
 
 		listener: (event: IpcRendererEvent, ...args: unknown[]) => void,
 	): this {
+
 		if (!this.listeners.has(channel)) {
+
 			this.listeners.set(channel, new Set());
 		}
 
@@ -1058,7 +1151,9 @@ class IPCRendererImpl implements IpcRenderer {
 
 		listener: (event: IpcRendererEvent, ...args: unknown[]) => void,
 	): this {
+
 		if (!this.onceListeners.has(channel)) {
+
 			this.onceListeners.set(channel, new Set());
 		}
 
@@ -1069,6 +1164,7 @@ class IPCRendererImpl implements IpcRenderer {
 			_event: IpcRendererEvent,
 			...args: unknown[]
 		) => {
+
 			listener(_event, ...args);
 
 			this.removeListener(channel, wrappedListener);
@@ -1087,12 +1183,15 @@ class IPCRendererImpl implements IpcRenderer {
 
 		listener: (event: IpcRendererEvent, ...args: unknown[]) => void,
 	): this {
+
 		const channelListeners = this.listeners.get(channel);
 
 		if (channelListeners) {
+
 			channelListeners.delete(listener);
 
 			if (channelListeners.size === 0) {
+
 				this.listeners.delete(channel);
 			}
 		}
@@ -1104,9 +1203,12 @@ class IPCRendererImpl implements IpcRenderer {
 	 * Remove all listeners for a channel
 	 */
 	removeAllListeners(channel?: string): this {
+
 		if (channel) {
+
 			this.listeners.delete(channel);
 		} else {
+
 			this.listeners.clear();
 		}
 
@@ -1117,9 +1219,11 @@ class IPCRendererImpl implements IpcRenderer {
 	 * Client-side request-reply pattern (sendTo + onReply)
 	 */
 	sendTo(channel: string, args: unknown[], callback: ReplyHandler): void {
+
 		const requestId = ++this.replyCounter;
 
 		const request: SendToRequest = {
+
 			channel,
 
 			args,
@@ -1152,6 +1256,7 @@ class IPCRendererImpl implements IpcRenderer {
 	 * Register reply handler for sendTo pattern
 	 */
 	onReply(channel: string, handler: ReplyHandler): void {
+
 		this.on(channel, (_event, ...args) => {
 			handler(args[0]);
 		});
@@ -1165,6 +1270,7 @@ class IPCRendererImpl implements IpcRenderer {
 
 		_listener: (event: IpcRendererEvent, ...args: unknown[]) => void,
 	): void {
+
 		// Note: Full event listener registration requires Tauri event system
 		// This is a placeholder - actual implementation depends on Tauri setup
 	}
@@ -1173,6 +1279,7 @@ class IPCRendererImpl implements IpcRenderer {
 	 * Cleanup method to remove all listeners
 	 */
 	cleanup(): void {
+
 		this.listeners.clear();
 
 		this.onceListeners.clear();
@@ -1191,7 +1298,9 @@ let ipcRendererInstance: IPCRendererImpl | null = null;
  * Get or create the IPC renderer singleton
  */
 export function getIPCRenderer(): IpcRenderer {
+
 	if (!ipcRendererInstance) {
+
 		ipcRendererInstance = new IPCRendererImpl();
 	}
 
@@ -1206,7 +1315,9 @@ export function getIPCRenderer(): IpcRenderer {
  * Install the IPC renderer shim into window.vscode.ipcRenderer
  */
 export function installIPCRendererShim(): void {
+
 	if (typeof window === "undefined") {
+
 		return;
 	}
 
@@ -1215,6 +1326,7 @@ export function installIPCRendererShim(): void {
 		(window as unknown as { __IPC_RENDERER_SHIM_INSTALLED__?: boolean })
 			.__IPC_RENDERER_SHIM_INSTALLED__
 	) {
+
 		return;
 	}
 
@@ -1230,6 +1342,7 @@ export function installIPCRendererShim(): void {
 		typeof (window as unknown as { vscode?: Record<string, unknown> })
 			.vscode !== "undefined"
 	) {
+
 		(
 			window as unknown as { vscode?: { ipcRenderer?: IpcRenderer } }
 		).vscode!.ipcRenderer = ipcRenderer;
@@ -1247,6 +1360,7 @@ export function installIPCRendererShim(): void {
 export { IPCRendererImpl as IPCRendererClass };
 
 export default {
+
 	install: installIPCRendererShim,
 
 	get: getIPCRenderer,
@@ -1254,5 +1368,6 @@ export default {
 
 // Auto-install on import
 if (typeof window !== "undefined") {
+
 	installIPCRendererShim();
 }

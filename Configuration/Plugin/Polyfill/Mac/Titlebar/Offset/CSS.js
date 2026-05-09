@@ -1,6 +1,7 @@
 const a = "__LAND_MAC_TITLEBAR_OFFSET__";
 
 function o() {
+
 	if (typeof window > "u") return;
 
 	const e = window;
@@ -10,9 +11,11 @@ function o() {
 	e[a] = !0;
 
 	function n() {
+
 		const t = document.createElement("style");
 
 		(t.setAttribute("data-land-mac-titlebar-offset", "1"),
+
 			(t.textContent = [
 				".monaco-workbench.mac .part.titlebar > .titlebar-container {",
 

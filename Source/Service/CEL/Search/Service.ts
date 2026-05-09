@@ -40,24 +40,38 @@
  */
 
 import { Disposable } from "../../../../base/common/lifecycle.js";
+
 import { Schemas } from "../../../../base/common/network.js";
+
 import { URI } from "../../../../base/common/uri.js";
+
 import { IModelService } from "../../../../editor/common/services/model.js";
+
 import { IFileService } from "../../../../platform/files/common/files.js";
+
 import {
 	InstantiationType,
 	registerSingleton,
 } from "../../../../platform/instantiation/common/extensions.js";
+
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+
 import { ILogService } from "../../../../platform/log/common/log.js";
+
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+
 import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+
 import { IEditorService } from "../../editor/common/editorService.js";
+
 import { IExtensionService } from "../../extensions/common/extensions.js";
+
 import { ISearchService, SearchProviderType } from "../common/search.js";
+
 import { SearchService } from "../common/searchService.js";
 
 const TauriInvoke = (Channel, Args) => {
+
 	const Bridge = (globalThis && globalThis.__TAURI__) || null;
 
 	const Invoke =
@@ -65,6 +79,7 @@ const TauriInvoke = (Channel, Args) => {
 		(Bridge && Bridge.invoke);
 
 	if (typeof Invoke !== "function") {
+
 		return Promise.resolve(null);
 	}
 
@@ -73,27 +88,34 @@ const TauriInvoke = (Channel, Args) => {
 	// params } payload and the IPC dispatcher in Mountain matches `method`
 	// against its handler arms (search:findInFiles, search:findFiles, ...).
 	try {
+
 		return Invoke("MountainIPCInvoke", {
 			method: Channel,
 			params: Args,
 		}).catch(() => null);
 	} catch {
+
 		return Promise.resolve(null);
 	}
 };
 
 const ToUri = (Raw) => {
+
 	try {
+
 		return typeof Raw === "string" ? URI.parse(Raw) : URI.revive(Raw);
 	} catch {
+
 		return URI.parse("file:///");
 	}
 };
 
 const BuildIncludePattern = (Query) => {
+
 	if (!Query) return "**";
 
 	if (typeof Query.filePattern === "string" && Query.filePattern.length > 0) {
+
 		return Query.filePattern;
 	}
 
@@ -107,11 +129,13 @@ const BuildIncludePattern = (Query) => {
 };
 
 const BuildExcludePattern = (Query) => {
+
 	if (!Query) return "";
 
 	const Sources = [];
 
 	if (Query.excludePattern && typeof Query.excludePattern === "object") {
+
 		Sources.push(Object.keys(Query.excludePattern));
 	}
 
@@ -120,11 +144,13 @@ const BuildExcludePattern = (Query) => {
 		: [];
 
 	for (const Folder of Folders) {
+
 		if (
 			Folder &&
 			Folder.excludePattern &&
 			typeof Folder.excludePattern === "object"
 		) {
+
 			const P = Folder.excludePattern.pattern || Folder.excludePattern;
 
 			if (P && typeof P === "object") Sources.push(Object.keys(P));
@@ -134,6 +160,7 @@ const BuildExcludePattern = (Query) => {
 	const Flat = [];
 
 	for (const Set of Sources) {
+
 		for (const Key of Set) Flat.push(Key);
 	}
 
@@ -141,15 +168,19 @@ const BuildExcludePattern = (Query) => {
 };
 
 class MountainTauriSearchProvider extends Disposable {
+
 	async getAIName() {
+
 		return undefined;
 	}
 
 	async clearCache(_CacheKey) {
+
 		/* Mountain manages its own LRU cache. */
 	}
 
 	async fileSearch(Query, _Token) {
+
 		const Include = BuildIncludePattern(Query);
 
 		const Exclude = BuildExcludePattern(Query);
@@ -176,11 +207,13 @@ class MountainTauriSearchProvider extends Disposable {
 	}
 
 	async textSearch(Query, OnProgress, _Token) {
+
 		const Pattern =
 			(Query && Query.contentPattern && Query.contentPattern.pattern) ||
 			"";
 
 		if (!Pattern) {
+
 			return { results: [], messages: [], limitHit: false };
 		}
 
@@ -209,6 +242,7 @@ class MountainTauriSearchProvider extends Disposable {
 		const Cap = (Query && Query.maxResults) || 10000;
 
 		const QueryShape = {
+
 			pattern: Pattern,
 
 			isRegExp: IsRegex,
@@ -221,6 +255,7 @@ class MountainTauriSearchProvider extends Disposable {
 		};
 
 		const OptionsShape = {
+
 			includePattern: Include,
 
 			excludePattern: Exclude,
@@ -241,6 +276,7 @@ class MountainTauriSearchProvider extends Disposable {
 		let TotalMatches = 0;
 
 		for (const File of Files) {
+
 			if (!File || typeof File !== "object") continue;
 
 			const Resource = ToUri(File.resource);
@@ -280,15 +316,19 @@ class MountainTauriSearchProvider extends Disposable {
 			Results.push(FileMatch);
 
 			if (typeof OnProgress === "function") {
+
 				try {
+
 					OnProgress(FileMatch);
 				} catch {
+
 					/* swallow */
 				}
 			}
 		}
 
 		return {
+
 			results: Results,
 
 			messages: [],
@@ -302,6 +342,7 @@ class MountainTauriSearchProvider extends Disposable {
 // Mirrors the upstream `out/.../browser/searchService.js` block so the DI
 // container resolves each service the same way it does for stock VS Code.
 class RemoteSearchService extends SearchService {
+
 	declare instantiationService: any;
 
 	constructor(
@@ -321,6 +362,7 @@ class RemoteSearchService extends SearchService {
 
 		@IUriIdentityService UriIdentityService: any,
 	) {
+
 		super(
 			ModelService,
 

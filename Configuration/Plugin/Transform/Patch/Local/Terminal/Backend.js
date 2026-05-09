@@ -4,9 +4,12 @@ const r =
 
 			"\\/",
 		),
+
 	s = new RegExp(`${r}$`),
+
 	t =
 		/async\s+_connectToDirectProxy\s*\(\s*\)\s*\{[\s\S]*?\n\s*\}\)\;\s*\n\s*\}/,
+
 	n = `async _connectToDirectProxy() {
 		// [Land] Bypass acquirePort('vscode:createPtyHostMessageChannel');
 		// Tauri has no Electron utility-process MessagePort. Route every

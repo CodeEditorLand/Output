@@ -28,29 +28,38 @@
  */
 
 import { Emitter } from "../../../../base/common/event.js";
+
 import { URI } from "../../../../base/common/uri.js";
+
 import { IExtensionsScannerService } from "../../../../platform/extensionManagement/common/extensionsScannerService.js";
+
 import {
 	InstantiationType,
 	registerSingleton,
 } from "../../../../platform/instantiation/common/extensions.js";
 
 const Trace = (Tag: string, Detail?: object): void => {
+
 	try {
+
 		performance.mark(
 			"land:exthost:" + Tag,
 
 			Detail ? { detail: Detail } : undefined,
 		);
 	} catch {
+
 		/* noop */
 	}
 };
 
 const Warn = (...Args: unknown[]): void => {
+
 	try {
+
 		console.warn("[Land Scanner]", ...Args);
 	} catch {
+
 		/* noop */
 	}
 };
@@ -60,14 +69,17 @@ const FetchFromMountain = async (
 
 	ForceBuiltin: boolean,
 ): Promise<unknown[]> => {
+
 	Trace("scanner:fetch:start", { method: Method });
 
 	try {
+
 		const Tauri = (globalThis as any).__TAURI__;
 
 		const Invoke = Tauri?.core?.invoke ?? Tauri?.invoke;
 
 		if (typeof Invoke !== "function") {
+
 			Trace("scanner:fetch:no-tauri");
 
 			Warn("No Tauri invoke available");
@@ -111,9 +123,11 @@ const FetchFromMountain = async (
 			(Method === "extensions:scanSystemExtensions" ||
 				Method === "extensions:scanUserExtensions")
 		) {
+
 			const Schedule = [100, 200, 400, 800, 1500];
 
 			for (let Retry = 0; Retry < Schedule.length; Retry++) {
+
 				Warn(
 					"0 extensions for",
 
@@ -174,9 +188,11 @@ const FetchFromMountain = async (
 		let Errors = 0;
 
 		for (let I = 0; I < Extensions.length; I++) {
+
 			const Extension = Extensions[I];
 
 			try {
+
 				// Mountain scanSystem/UserExtensions return an
 				// ILocalExtension-WRAPPED shape with identifier.id,
 				// manifest.{name,publisher,version,...}, location,
@@ -249,9 +265,11 @@ const FetchFromMountain = async (
 					validationMessages: Extension.validationMessages || [],
 				});
 			} catch (Error) {
+
 				Errors++;
 
 				if (Errors <= 3) {
+
 					Warn(
 						"Map error for ext",
 
@@ -274,6 +292,7 @@ const FetchFromMountain = async (
 		Warn("Mapped", Mapped.length, "extensions,", Errors, "errors");
 
 		if (Mapped.length > 0) {
+
 			const First: any = Mapped[0];
 
 			Warn(
@@ -297,6 +316,7 @@ const FetchFromMountain = async (
 
 		return Mapped;
 	} catch (Error) {
+
 		Trace("scanner:fetch:error", {
 			method: Method,
 			message: String(Error).slice(0, 200),
@@ -309,6 +329,7 @@ const FetchFromMountain = async (
 };
 
 class ExtensionsScannerService {
+
 	private readonly _onDidChangeCache = new Emitter<void>();
 
 	readonly onDidChangeCache = this._onDidChangeCache.event;
@@ -316,6 +337,7 @@ class ExtensionsScannerService {
 	readonly userExtensionsLocation = URI.file("/extensions");
 
 	constructor() {
+
 		Trace("scanner:construct");
 
 		Warn("Constructed");
@@ -326,6 +348,7 @@ class ExtensionsScannerService {
 
 		_UserScanOptions: unknown,
 	): Promise<unknown[]> {
+
 		Trace("scanner:scanAll:start");
 
 		const System = await this.scanSystemExtensions(_SystemScanOptions);
@@ -358,6 +381,7 @@ class ExtensionsScannerService {
 	}
 
 	async scanSystemExtensions(_ScanOptions: unknown): Promise<unknown[]> {
+
 		Trace("scanner:scanSystem:start");
 
 		const Result = await FetchFromMountain(
@@ -374,6 +398,7 @@ class ExtensionsScannerService {
 	}
 
 	async scanUserExtensions(_ScanOptions: unknown): Promise<unknown[]> {
+
 		Trace("scanner:scanUser:start");
 
 		const Result = await FetchFromMountain(
@@ -390,14 +415,17 @@ class ExtensionsScannerService {
 	}
 
 	async scanAllUserExtensions(ScanOptions: unknown): Promise<unknown[]> {
+
 		return await this.scanUserExtensions(ScanOptions);
 	}
 
 	getTargetPlatform(): Promise<string> {
+
 		return Promise.resolve("undefined");
 	}
 
 	getProductVersion(): { version: string; date: undefined } {
+
 		return { version: "0.0.1", date: undefined };
 	}
 
@@ -406,6 +434,7 @@ class ExtensionsScannerService {
 
 		_ScanOptions: unknown,
 	): Promise<unknown[]> {
+
 		Trace("scanner:scanDev");
 
 		return [];
@@ -418,6 +447,7 @@ class ExtensionsScannerService {
 
 		_ScanOptions: unknown,
 	): Promise<null> {
+
 		return null;
 	}
 
@@ -428,10 +458,12 @@ class ExtensionsScannerService {
 
 		_ScanOptions: unknown,
 	): Promise<unknown[]> {
+
 		return [];
 	}
 
 	async scanMetadata(_ExtensionLocation: unknown): Promise<undefined> {
+
 		return undefined;
 	}
 
@@ -440,10 +472,12 @@ class ExtensionsScannerService {
 
 		_Metadata: unknown,
 	): Promise<undefined> {
+
 		return undefined;
 	}
 
 	async initializeDefaultProfileExtensions(): Promise<void> {
+
 		Trace("scanner:initDefaults");
 	}
 }

@@ -6,11 +6,14 @@ import type { BuildOptions } from "esbuild";
 let RestPlugin: import("esbuild").Plugin | null = null;
 
 if (process.env["Compiler"]?.toLowerCase() === "rest") {
+
 	try {
+
 		const { createRestPluginIfEnabled } = await import("./Rest/Plugin.js");
 
 		RestPlugin = createRestPluginIfEnabled();
 	} catch {
+
 		console.warn(
 			"[Output] RestPlugin.js not found - falling back to esbuild TS loader",
 		);
@@ -30,6 +33,7 @@ export const On =
  *
  */
 export default {
+
 	color: true,
 
 	format: "esm",
@@ -66,11 +70,14 @@ export default {
 
 	plugins: [
 		{
+
 			name: "Target",
 
 			// @ts-ignore
 			setup({ onStart, initialOptions: { outdir } }) {
+
 				switch (true) {
+
 					case Clean === true:
 						onStart(async () => {
 							try {
@@ -170,6 +177,7 @@ export default {
 	].filter(Boolean),
 
 	loader: {
+
 		".json": "copy",
 
 		".sh": "copy",

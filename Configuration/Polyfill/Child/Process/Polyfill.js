@@ -1,5 +1,7 @@
 async function c(s, e = {}) {
+
 	try {
+
 		const n =
 			window.__TAURI__?.core?.invoke ??
 			window.__TAURI__?.invoke ??
@@ -12,12 +14,15 @@ async function c(s, e = {}) {
 
 		throw new Error(`Tauri invoke not available for command: ${s}`);
 	} catch (n) {
+
 		throw n;
 	}
 }
 
 function l(s, e) {
+
 	if (typeof window.__TAURI__?.event?.listen == "function") {
+
 		const n = window.__TAURI__.event
 			.listen(s, ({ payload: i }) => {
 				e(i);
@@ -25,11 +30,13 @@ function l(s, e) {
 			.catch(() => {});
 
 		return () => {
+
 			n.then((i) => i?.());
 		};
 	}
 
 	if (typeof window.TAURI?.event?.listen == "function") {
+
 		const n = window.TAURI.event
 			.listen(s, ({ payload: i }) => {
 				e(i);
@@ -37,6 +44,7 @@ function l(s, e) {
 			.catch(() => {});
 
 		return () => {
+
 			n.then((i) => i?.());
 		};
 	}
@@ -45,26 +53,33 @@ function l(s, e) {
 }
 
 function f(s) {
+
 	const e = new Map();
 
 	return {
+
 		write(n) {
+
 			return !0;
 		},
 
 		end(n) {
+
 			this.emit("end");
 		},
 
 		on(n, i) {
+
 			(e.has(n) || e.set(n, new Set()), e.get(n).add(i));
 		},
 
 		removeAllListeners(n) {
+
 			n ? e.delete(n) : e.clear();
 		},
 
 		emit(n, ...i) {
+
 			const t = e.get(n);
 
 			t &&
@@ -78,6 +93,7 @@ function f(s) {
 }
 
 class u {
+
 	pid = 0;
 
 	killed = !1;
@@ -99,29 +115,43 @@ class u {
 	_sPid;
 
 	constructor(e) {
+
 		((this._sPid = e),
+
 			(this.stdin = f("write")),
+
 			(this.stdout = f("read")),
+
 			(this.stderr = f("read")),
+
 			(this.stdio = [this.stdin, this.stdout, this.stderr]),
+
 			this.setupEventListeners());
 	}
 
 	setupEventListeners() {
+
 		const e = l(`child_process:spawn:${this._sPid}`, (r) => {
 				this.emit("spawn");
 			}),
+
 			n = l(`child_process:exit:${this._sPid}`, (r) => {
 				const o = r;
 				((this.exitCode = o.exit_code),
+
 					(this.signalCode = o.signal),
+
 					(this.killed = !0),
+
 					this.emit("exit", this.exitCode, this.signalCode),
+
 					this.emit("close", this.exitCode, this.signalCode));
 			}),
+
 			i = l(`child_process:error:${this._sPid}`, (r) => {
 				this.emit("error", r);
 			}),
+
 			t = l(`child_process:stdout:${this._sPid}`, (r) => {
 				const o = r;
 				this.stdout.emit(
@@ -130,6 +160,7 @@ class u {
 					o.data instanceof Buffer ? o.data : Buffer.from(o.data),
 				);
 			}),
+
 			d = l(`child_process:stderr:${this._sPid}`, (r) => {
 				const o = r;
 				this.stderr.emit(
@@ -145,15 +176,20 @@ class u {
 	_unlistenFunctions = [];
 
 	on(e, n) {
+
 		return (
 			this.listeners.has(e) || this.listeners.set(e, new Set()),
+
 			this.listeners.get(e).add(n),
+
 			this
 		);
 	}
 
 	once(e, n) {
+
 		const i = (...t) => {
+
 			(this.removeListener(e, i), n(...t));
 		};
 
@@ -161,19 +197,23 @@ class u {
 	}
 
 	removeListener(e, n) {
+
 		const i = this.listeners.get(e);
 
 		return (
 			i && (i.delete(n), i.size === 0 && this.listeners.delete(e)),
+
 			this
 		);
 	}
 
 	removeAllListeners(e) {
+
 		return (e ? this.listeners.delete(e) : this.listeners.clear(), this);
 	}
 
 	emit(e, ...n) {
+
 		const i = this.listeners.get(e);
 
 		return !i || i.size === 0
@@ -183,13 +223,16 @@ class u {
 						t(...n);
 					} catch {}
 				}),
+
 				!0);
 	}
 
 	kill(e = "SIGTERM") {
+
 		return (
 			this.killed ||
 				((this.signalCode = e),
+
 				c("child_process:kill", {
 					spawn_id: this._sPid,
 					signal: e,
@@ -206,11 +249,13 @@ class u {
 						},
 					);
 				})),
+
 			!0
 		);
 	}
 
 	send(e, n, i) {
+
 		return (
 			c("child_process:send", { spawn_id: this._sPid, message: e }).catch(
 				(t) => {
@@ -223,32 +268,42 @@ class u {
 					);
 				},
 			),
+
 			!0
 		);
 	}
 
 	disconnect() {
+
 		(this.removeAllListeners(),
+
 			this._unlistenFunctions.forEach((e) => e()),
+
 			this.stdin.end());
 	}
 
 	ref() {
+
 		return this;
 	}
 
 	unref() {
+
 		return this;
 	}
 
 	cleanup() {
+
 		(this._unlistenFunctions.forEach((e) => e()),
+
 			(this._unlistenFunctions = []));
 	}
 }
 
 function g(s, e, n) {
+
 	const i = `spawn_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+
 		t = new u(i);
 
 	return (
@@ -271,31 +326,40 @@ function g(s, e, n) {
 			.catch((d) => {
 				t.emit("error", d);
 			}),
+
 		t
 	);
 }
 
 function h(s, e, n) {
+
 	const i = `exec_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+
 		t = new u(i);
 
 	let d = "",
+
 		r = "",
+
 		o = null;
 
 	return (
 		t.stdout.on("data", (a) => {
 			d += a.toString(e?.encoding ?? "utf8");
 		}),
+
 		t.stderr.on("data", (a) => {
 			r += a.toString(e?.encoding ?? "utf8");
 		}),
+
 		t.on("exit", (a) => {
 			(a !== 0 &&
 				((o = new Error(`Command failed: ${s}
 ${r}`)),
 				(o.code = a ?? void 0),
+
 				(o.killed = t.killed)),
+
 				n && n(o, d, r));
 		}),
 		c("electron:exec_command", {
@@ -309,6 +373,7 @@ ${r}`)),
 				a.success
 					? (t.pid = a.pid)
 					: ((o = new Error(a.error ?? "Failed to execute command")),
+
 						t.emit("error", o));
 			})
 			.catch((a) => {
@@ -326,6 +391,7 @@ function _(s, e) {
 }
 function p(s, e, n) {
 	const i = `fork_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+
 		t = new u(i);
 	if (s.includes("extensionHost") || s.includes("process"))
 		c("electron:fork_extension_host", {
@@ -383,7 +449,9 @@ function S() {
 	) {
 		if (
 			((window.__CHILD_PROCESS_POLYFILL_INSTALLED__ = !0),
+
 			(window.childProcess = w),
+
 			typeof window.require == "function")
 		) {
 			const s = window.require;

@@ -1,7 +1,11 @@
 const s = "workbench/workbench.desktop.main.js".replaceAll("/", "\\/"),
+
 	a = new RegExp(`${s}$`),
+
 	i = /^import\s+['"]([^'"]+)['"]\s*;?\s*$/gm,
+
 	c = {
+
 		Kind: "Transform",
 
 		Name: "StaticToDynamicImport",
@@ -12,6 +16,7 @@ const s = "workbench/workbench.desktop.main.js".replaceAll("/", "\\/"),
 		Match: ({ Path: n }) => a.test(n),
 
 		Transform({ Source: n }) {
+
 			const e = [];
 
 			let o;
@@ -20,7 +25,9 @@ const s = "workbench/workbench.desktop.main.js".replaceAll("/", "\\/"),
 
 			return e.length === 0
 				? { Kind: "Unchanged" }
+
 				: {
+
 						Kind: "Rewrite",
 
 						Source: [

@@ -1,7 +1,6 @@
 const b = "__LAND_DISABLE_LAZY_PAINT__";
 
 function w() {
-
 	if (typeof window > "u") return;
 
 	const i = window;
@@ -11,9 +10,7 @@ function w() {
 	i[b] = !0;
 
 	{
-
 		let d = function () {
-
 			s = !1;
 
 			const t = c;
@@ -23,19 +20,15 @@ function w() {
 			const e = performance.now();
 
 			for (const n of t) {
-
 				if (a.has(n.Id)) {
-
 					a.delete(n.Id);
 
 					continue;
 				}
 
 				try {
-
 					n.Callback(e);
 				} catch (r) {
-
 					console.error(r);
 				}
 			}
@@ -44,9 +37,7 @@ function w() {
 		var O = d;
 
 		let o = 0,
-
 			c = [],
-
 			s = !1;
 
 		const a = new Set();
@@ -55,13 +46,10 @@ function w() {
 			const e = ++o;
 			return (
 				c.push({ Id: e, Callback: t }),
-
 				s || ((s = !0), setTimeout(d, 0)),
-
 				e
 			);
 		}),
-
 			(window.cancelAnimationFrame = (t) => {
 				a.add(t);
 			}));
@@ -69,7 +57,6 @@ function w() {
 		const u = window.IntersectionObserver;
 
 		class m {
-
 			Callback;
 
 			Disconnected = !1;
@@ -77,12 +64,10 @@ function w() {
 			Observed = new Set();
 
 			constructor(e, n) {
-
 				this.Callback = e;
 			}
 
 			observe(e) {
-
 				if (this.Disconnected || this.Observed.has(e)) return;
 
 				this.Observed.add(e);
@@ -127,32 +112,26 @@ function w() {
 			}
 
 			unobserve(e) {
-
 				this.Observed.delete(e);
 			}
 
 			disconnect() {
-
 				((this.Disconnected = !0), this.Observed.clear());
 			}
 
 			takeRecords() {
-
 				return [];
 			}
 		}
 
 		(u && (i.__OriginalIntersectionObserver__ = u),
-
 			(window.IntersectionObserver = m));
 	}
 
 	function l() {
-
 		const o = document.createElement("style");
 
 		(o.setAttribute("data-land-disable-lazy-paint", "1"),
-
 			(o.textContent = [
 				"*, ::before, ::after { content-visibility: visible !important; }",
 

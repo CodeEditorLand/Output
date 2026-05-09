@@ -25,10 +25,8 @@
  */
 
 import DisableLazyPaint, {
-
 	Marker,
 } from "../../../../Polyfill/Disable/Lazy/Paint.js";
-
 import type { TransformPlugin } from "../../../../Type.js";
 
 /** Wrap the compiled function body in an IIFE so it executes at
@@ -38,7 +36,6 @@ import type { TransformPlugin } from "../../../../Type.js";
 const Polyfill = `\n/* ${Marker} */\n(${DisableLazyPaint.toString()})();\n`;
 
 const Plugin: TransformPlugin = {
-
 	Kind: "Transform",
 
 	Name: "InjectDisableLazyPaint",
@@ -47,7 +44,6 @@ const Plugin: TransformPlugin = {
 		Path.endsWith("vs/code/electron-browser/workbench/workbench.js"),
 
 	Transform({ Source }) {
-
 		if (Source.includes(Marker)) return { Kind: "Unchanged" };
 
 		return { Kind: "Rewrite", Source: Polyfill + Source };

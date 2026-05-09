@@ -1,9 +1,7 @@
 import { readFile as r } from "node:fs/promises";
-
 import { fileURLToPath as t } from "node:url";
 
 const n = "__LAND_TERMINAL_GPU_LAYER__",
-
 	a = t(
 		new URL(
 			"../../../../../../../Source/Asset/Style/Terminal/GPU/Layer.css",
@@ -11,14 +9,11 @@ const n = "__LAND_TERMINAL_GPU_LAYER__",
 			import.meta.url,
 		),
 	),
-
 	o =
 		`
 ` + (await r(a, "utf8")),
 	i = /workbench\/contrib\/terminal\/browser\/media\/[^/]+\.css$/,
-
 	s = {
-
 		Kind: "Transform",
 
 		Name: "InjectTerminalGPULayerCSS",
@@ -26,10 +21,8 @@ const n = "__LAND_TERMINAL_GPU_LAYER__",
 		Match: ({ Path: e }) => i.test(e),
 
 		Transform({ Source: e }) {
-
 			return e.includes(n)
 				? { Kind: "Unchanged" }
-
 				: { Kind: "Rewrite", Source: e + o };
 		},
 	};

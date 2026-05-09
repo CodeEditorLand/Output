@@ -15,22 +15,18 @@
 export const Marker = "__LAND_EAGER_LIFECYCLE_PHASE__";
 
 interface ServicesAccessor {
-
 	get<T = unknown>(Identifier: unknown): T;
 }
 
 interface LifecycleService {
-
 	phase: number;
 }
 
 interface CelServices {
-
 	invokeFunction: (Callback: (Accessor: ServicesAccessor) => void) => void;
 }
 
 export default function EagerLifecyclePhase(): void {
-
 	if (typeof window === "undefined") return;
 
 	const Land = window as unknown as Record<string, unknown>;
@@ -40,15 +36,12 @@ export default function EagerLifecyclePhase(): void {
 	Land[Marker] = true;
 
 	function AdvancePhase(): boolean {
-
 		try {
-
 			const Services = Land["__CEL_SERVICES__"] as
 				| CelServices
 				| undefined;
 
 			if (!Services || typeof Services.invokeFunction !== "function") {
-
 				return false;
 			}
 
@@ -73,14 +66,12 @@ export default function EagerLifecyclePhase(): void {
 			if (!Lifecycle) return false;
 
 			try {
-
 				const ServiceReference = Lifecycle as LifecycleService;
 
 				if (
 					typeof ServiceReference.phase !== "undefined" &&
 					ServiceReference.phase < 4
 				) {
-
 					ServiceReference.phase = 4;
 
 					console.log(
@@ -90,7 +81,6 @@ export default function EagerLifecyclePhase(): void {
 					return true;
 				}
 			} catch (Error) {
-
 				console.warn(
 					`[LandFix:Lifecycle] phase setter rejected: ${String(Error)}`,
 				);
@@ -98,7 +88,6 @@ export default function EagerLifecyclePhase(): void {
 
 			return false;
 		} catch (Error) {
-
 			console.warn(
 				`[LandFix:Lifecycle] advance failed: ${String(Error)}`,
 			);
@@ -108,7 +97,6 @@ export default function EagerLifecyclePhase(): void {
 	}
 
 	function ScheduleAdvance(): void {
-
 		setTimeout(() => {
 			if (!AdvancePhase()) {
 				let Attempts = 0;
@@ -125,12 +113,10 @@ export default function EagerLifecyclePhase(): void {
 	}
 
 	if (document.readyState === "loading") {
-
 		document.addEventListener("DOMContentLoaded", ScheduleAdvance, {
 			once: true,
 		});
 	} else {
-
 		ScheduleAdvance();
 	}
 }

@@ -14,7 +14,6 @@
 export const Marker = "__LAND_STRIP_BACKGROUND_POLLING__";
 
 export default function StripBackgroundPolling(): void {
-
 	if (typeof window === "undefined") return;
 
 	const Land = window as unknown as Record<string, unknown>;
@@ -82,22 +81,17 @@ export default function StripBackgroundPolling(): void {
 	];
 
 	function CallerMatchesDeny(): boolean {
-
 		try {
-
 			const Stack = new Error().stack ?? "";
 
 			for (const Fragment of DenyFragments) {
-
 				if (Stack.indexOf(Fragment) >= 0) {
-
 					return true;
 				}
 			}
 
 			return false;
 		} catch {
-
 			return false;
 		}
 	}
@@ -111,15 +105,11 @@ export default function StripBackgroundPolling(): void {
 	const SuppressedRingBuffer: Array<string> = [];
 
 	const PatchedSetInterval = function (this: Window): number {
-
 		if (CallerMatchesDeny()) {
-
 			Suppressed++;
 
 			if (SuppressedRingBuffer.length < 32) {
-
 				try {
-
 					const Stack = new Error().stack ?? "";
 
 					const FirstNonAnonymous = Stack.split("\n").find(
@@ -129,7 +119,6 @@ export default function StripBackgroundPolling(): void {
 
 					SuppressedRingBuffer.push(FirstNonAnonymous ?? "(unknown)");
 				} catch {
-
 					/* ignore */
 				}
 			}
@@ -157,13 +146,11 @@ export default function StripBackgroundPolling(): void {
 
 		Delay?: number,
 	): number {
-
 		if (
 			typeof Delay === "number" &&
 			Delay >= 30000 &&
 			CallerMatchesDeny()
 		) {
-
 			Suppressed++;
 
 			return 0;
@@ -180,14 +167,11 @@ export default function StripBackgroundPolling(): void {
 		PatchedSetTimeout;
 
 	Land["__LAND_BACKGROUND_POLL_STATS__"] = (): {
-
 		suppressedCount: number;
 
 		recentlySuppressed: Array<string>;
 	} => {
-
 		return {
-
 			suppressedCount: Suppressed,
 
 			recentlySuppressed: SuppressedRingBuffer.slice(),

@@ -1,7 +1,5 @@
 async function i(e, t = {}) {
-
 	try {
-
 		const n =
 			window.__TAURI__?.core?.invoke ??
 			window.__TAURI__?.invoke ??
@@ -14,36 +12,27 @@ async function i(e, t = {}) {
 
 		throw new Error(`Tauri invoke not available for command: ${e}`);
 	} catch (n) {
-
 		throw n;
 	}
 }
 
 const p = {
-
 	matches(e) {
-
 		return e.protocol === "vscode-file";
 	},
 
 	async handle(e) {
-
 		try {
-
 			const t = decodeURIComponent(e.path),
-
 				n = e.headers?.get("X-Http-Method") || "GET";
 
 			if (n === "GET" || !n) {
-
 				const r = await i("file:read", [t]);
 
 				return {
-
 					content: d(r),
 
 					metadata: {
-
 						mime: s(t),
 
 						lastModified: new Date().toISOString(),
@@ -54,9 +43,7 @@ const p = {
 
 			throw new Error(`Unsupported method: ${n}`);
 		} catch (t) {
-
 			return {
-
 				content: null,
 
 				error: t instanceof Error ? t : new Error(String(t)),
@@ -66,7 +53,6 @@ const p = {
 };
 
 function d(e) {
-
 	if (e == null) return new Uint8Array(0);
 
 	if (typeof e == "string" || e instanceof Uint8Array) return e;
@@ -83,55 +69,40 @@ function d(e) {
 }
 
 const h = {
-
 		matches(e) {
-
 			return e.protocol === "vscode-userdata";
 		},
 
 		async handle(e) {
-
 			try {
-
 				const n = `${await i("file:user_data_path", {})}/${e.path.replace(/^\//, "")}`,
-
 					r = await i("file:read", [n]);
 
 				return {
-
 					content: d(r),
 
 					metadata: {
-
 						mime: s(e.path),
 
 						lastModified: new Date().toISOString(),
 					},
 				};
 			} catch {
-
 				return { content: "", error: void 0 };
 			}
 		},
 	},
-
 	y = {
-
 		matches(e) {
-
 			return e.protocol === "vscode-resource";
 		},
 
 		async handle(e) {
-
 			try {
-
 				const [t, ...n] = e.path.split("/").filter(Boolean),
-
 					r = n.join("/");
 
 				return {
-
 					content: await i("cocoon:get_extension_resource", {
 						extension_id: t,
 						resource_path: r,
@@ -140,9 +111,7 @@ const h = {
 					metadata: { mime: s(r) },
 				};
 			} catch (t) {
-
 				return {
-
 					content: null,
 
 					error: t instanceof Error ? t : new Error(String(t)),
@@ -150,24 +119,17 @@ const h = {
 			}
 		},
 	},
-
 	w = {
-
 		matches(e) {
-
 			return e.protocol === "vscode-remote";
 		},
 
 		async handle(e) {
-
 			try {
-
 				const [t, ...n] = e.path.split("/").filter(Boolean),
-
 					r = n.join("/");
 
 				return {
-
 					content: await i("cocoon:read_remote_file", {
 						host: t,
 						path: r,
@@ -176,9 +138,7 @@ const h = {
 					metadata: { mime: s(r) },
 				};
 			} catch (t) {
-
 				return {
-
 					content: null,
 
 					error: t instanceof Error ? t : new Error(String(t)),
@@ -186,37 +146,27 @@ const h = {
 			}
 		},
 	},
-
 	g = {
-
 		matches(e) {
-
 			return e.protocol === "file";
 		},
 
 		async handle(e) {
-
 			try {
-
 				const t = decodeURIComponent(e.path),
-
 					n = await i("file:read", [t]);
 
 				return {
-
 					content: d(n),
 
 					metadata: {
-
 						mime: s(t),
 
 						lastModified: new Date().toISOString(),
 					},
 				};
 			} catch (t) {
-
 				return {
-
 					content: null,
 
 					error: t instanceof Error ? t : new Error(String(t)),
@@ -224,41 +174,31 @@ const h = {
 			}
 		},
 	},
-
 	u = [p, h, y, w, g];
 
 function S(e) {
-
 	return u.find((t) => t.matches(e)) ?? null;
 }
 
 function m(e) {
-
 	try {
-
 		const t = new URL(e),
-
 			n = t.protocol.replace(/:$/, ""),
-
 			r = t.pathname.replace(/^\//, ""),
-
 			o = {};
 
 		return (
 			t.searchParams.forEach((c, l) => {
 				o[l] = c;
 			}),
-
 			{ protocol: n, path: r, query: o }
 		);
 	} catch {
-
 		throw new Error(`Invalid protocol URL: ${e}`);
 	}
 }
 
 function s(e) {
-
 	const t = e.split(".").pop()?.toLowerCase();
 
 	return (
@@ -283,13 +223,10 @@ function s(e) {
 }
 
 function R() {
-
 	const e = window.fetch;
 
 	window.fetch = async function (n, r) {
-
 		try {
-
 			const o =
 				typeof n == "string"
 					? n
@@ -298,13 +235,10 @@ function R() {
 						: n.url;
 
 			if (P(o)) {
-
 				const c = m(o),
-
 					l = S(c);
 
 				if (l) {
-
 					const a = await l.handle({
 						...c,
 						headers: new Headers(r?.headers),
@@ -328,14 +262,12 @@ function R() {
 
 			return e(n, r);
 		} catch {
-
 			return e(n, r);
 		}
 	};
 }
 
 function P(e) {
-
 	const t = e.split(":")[0];
 
 	return [
@@ -350,12 +282,10 @@ function P(e) {
 }
 
 function _() {
-
 	typeof window.__createImport < "u";
 }
 
 function f() {
-
 	typeof window > "u" ||
 		window.__FILE_PROTOCOL_SHIM_INSTALLED__ ||
 		((window.__FILE_PROTOCOL_SHIM_INSTALLED__ = !0), R(), _());

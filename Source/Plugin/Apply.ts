@@ -13,24 +13,19 @@
  */
 
 import type { Dirent } from "node:fs";
-
 import { readdir, readFile, stat, writeFile } from "node:fs/promises";
-
 import { join } from "node:path";
 
 import CopyFirstAvailable from "./Copy.js";
-
 import type { CopyPlugin, FileRole, Plugin, TransformPlugin } from "./Type.js";
 
 export interface ApplyRoot {
-
 	readonly Path: string;
 
 	readonly Role: FileRole;
 }
 
 export interface ApplyInput {
-
 	readonly Plugins: ReadonlyArray<Plugin>;
 
 	readonly Roots: ReadonlyArray<ApplyRoot>;
@@ -39,7 +34,6 @@ export interface ApplyInput {
 }
 
 export interface CopyResult {
-
 	readonly Name: string;
 
 	readonly Copied: number;
@@ -48,7 +42,6 @@ export interface CopyResult {
 }
 
 export interface TransformResult {
-
 	readonly Name: string;
 
 	readonly Rewritten: number;
@@ -57,7 +50,6 @@ export interface TransformResult {
 }
 
 export interface ApplyOutcome {
-
 	readonly Copy: ReadonlyArray<CopyResult>;
 
 	readonly Transform: ReadonlyArray<TransformResult>;
@@ -69,26 +61,20 @@ const IsTransformable = (Name: string): boolean =>
 const WalkFiles = async function* (
 	Dir: string,
 ): AsyncGenerator<string, void, void> {
-
 	let Entries: Dirent[] = [];
 
 	try {
-
 		Entries = await readdir(Dir, { withFileTypes: true });
 	} catch {
-
 		return;
 	}
 
 	for (const Entry of Entries) {
-
 		const Full = join(Dir, Entry.name);
 
 		if (Entry.isDirectory()) {
-
 			yield* WalkFiles(Full);
 		} else if (Entry.isFile() && IsTransformable(Entry.name)) {
-
 			yield Full;
 		}
 	}
@@ -99,9 +85,7 @@ const RunCopy = async (
 
 	Log?: (Message: string) => void,
 ): Promise<CopyResult> => {
-
 	if (Plugin.Enabled && !Plugin.Enabled()) {
-
 		return { Name: Plugin.Name, Copied: 0, Skipped: 1 };
 	}
 
@@ -112,7 +96,6 @@ const RunCopy = async (
 	const Resolved: Array<{ From: string; To: string }> = [];
 
 	for (const Entry of Plugin.Entries) {
-
 		const Candidates = Entry.From.map((From) => ({
 			From,
 			To: Entry.To,
@@ -123,7 +106,6 @@ const RunCopy = async (
 		const Outcome = await CopyFirstAvailable(Candidates);
 
 		if (Outcome.Resolved) {
-
 			Copied++;
 
 			Resolved.push({
@@ -131,11 +113,9 @@ const RunCopy = async (
 				To: Outcome.Resolved.To,
 			});
 		} else {
-
 			Skipped++;
 
 			if (Plugin.Required) {
-
 				throw new Error(
 					`Plugin ${Plugin.Name}: no candidate resolved for ${Entry.To}${
 						Outcome.Error ? ` (${Outcome.Error})` : ""

@@ -7,7 +7,6 @@
  */
 
 import { copyFile, cp, mkdir, stat, writeFile } from "node:fs/promises";
-
 import { dirname } from "node:path";
 
 /**
@@ -20,7 +19,6 @@ import { dirname } from "node:path";
 const DataPrefix = "data:text/javascript,";
 
 export interface CopyCandidate {
-
 	readonly From: string;
 
 	readonly To: string;
@@ -31,21 +29,17 @@ export interface CopyCandidate {
 }
 
 export interface CopyOutcome {
-
 	readonly Resolved: CopyCandidate | null;
 
 	readonly Error?: string;
 }
 
 const Exists = async (Path: string): Promise<boolean> => {
-
 	try {
-
 		await stat(Path);
 
 		return true;
 	} catch {
-
 		return false;
 	}
 };
@@ -53,9 +47,7 @@ const Exists = async (Path: string): Promise<boolean> => {
 export const CopyFirstAvailable = async (
 	Candidates: ReadonlyArray<CopyCandidate>,
 ): Promise<CopyOutcome> => {
-
 	for (const Candidate of Candidates) {
-
 		// Inline-body branch: `From` holds the literal file body prefixed
 		// by `data:text/javascript,`. Used by StubUnpublishedAddons to
 		// synthesise a module whose source tree does not yet exist on
@@ -63,9 +55,7 @@ export const CopyFirstAvailable = async (
 		// the filesystem existence check so the `Exists` call is
 		// skipped.
 		if (Candidate.From.startsWith(DataPrefix)) {
-
 			try {
-
 				await mkdir(dirname(Candidate.To), { recursive: true });
 
 				await writeFile(
@@ -78,9 +68,7 @@ export const CopyFirstAvailable = async (
 
 				return { Resolved: Candidate };
 			} catch (Error) {
-
 				return {
-
 					Resolved: null,
 
 					Error:
@@ -94,26 +82,21 @@ export const CopyFirstAvailable = async (
 		if (!(await Exists(Candidate.From))) continue;
 
 		try {
-
 			// Ensure parent dir so `copyFile` doesn't fail on fresh trees.
 			await mkdir(dirname(Candidate.To), { recursive: true });
 
 			if (Candidate.Recursive) {
-
 				await cp(Candidate.From, Candidate.To, {
 					recursive: true,
 					force: Candidate.Force ?? true,
 				});
 			} else {
-
 				await copyFile(Candidate.From, Candidate.To);
 			}
 
 			return { Resolved: Candidate };
 		} catch (Error) {
-
 			return {
-
 				Resolved: null,
 
 				Error:

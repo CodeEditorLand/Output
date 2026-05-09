@@ -45,7 +45,6 @@ const ReExport =
 	"export { RemoteSearchService, LocalFileSearchWorkerClient } from '../common/CELSearchService.js';\n";
 
 const Plugin: TransformPlugin = {
-
 	Kind: "Transform",
 
 	Name: "ReplaceSearchService",
@@ -55,7 +54,6 @@ const Plugin: TransformPlugin = {
 	Match: ({ Path }) => PathRegex.test(Path),
 
 	Transform() {
-
 		return { Kind: "Rewrite", Source: ReExport };
 	},
 };

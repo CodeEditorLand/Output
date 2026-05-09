@@ -23,7 +23,6 @@ const a = [
 
 		"vscode-oniguruma",
 	],
-
 	s = ({
 		LocalRoot: t,
 		DependencyRoot: r,

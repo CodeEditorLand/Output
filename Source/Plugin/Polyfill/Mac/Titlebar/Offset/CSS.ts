@@ -28,7 +28,6 @@
 export const Marker = "__LAND_MAC_TITLEBAR_OFFSET__";
 
 export default function MacTitlebarOffsetCSS(): void {
-
 	if (typeof window === "undefined") return;
 
 	const Land = window as unknown as Record<string, unknown>;
@@ -38,7 +37,6 @@ export default function MacTitlebarOffsetCSS(): void {
 	Land[Marker] = true;
 
 	function InstallStylesheet(): void {
-
 		const Style = document.createElement("style");
 
 		Style.setAttribute("data-land-mac-titlebar-offset", "1");

@@ -1,9 +1,6 @@
 const o = /\/workbench\/contrib\/output\/browser\/outputServices\.js$/,
-
 	t = /(createFolder\([^)]*\)\.then\(\(\)\s*=>\s*(?:undefined|void\s+0)\))/g,
-
 	a = {
-
 		Kind: "Transform",
 
 		Name: "CatchOutputFolderRejection",
@@ -11,13 +8,10 @@ const o = /\/workbench\/contrib\/output\/browser\/outputServices\.js$/,
 		Match: ({ Path: e, Role: n }) => n === "app" && o.test(e),
 
 		Transform({ Source: e }) {
-
 			return (
 				(t.lastIndex = 0),
-
 				t.test(e)
 					? ((t.lastIndex = 0),
-
 						{
 							Kind: "Rewrite",
 							Source: e.replace(

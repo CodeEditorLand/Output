@@ -1,7 +1,6 @@
 const s = "__LAND_EAGER_EXTENSION_ACTIVATION__";
 
 function u() {
-
 	if (typeof window > "u") return;
 
 	const o = window;
@@ -11,9 +10,7 @@ function u() {
 	o[s] = !0;
 
 	function c() {
-
 		try {
-
 			const n = o.__CEL_SERVICES__;
 
 			if (!n || typeof n.invokeFunction != "function") return !1;
@@ -29,7 +26,6 @@ function u() {
 							(t = i.get(e.IExtensionService));
 					} catch {}
 				}),
-
 				!t || typeof t.activateByEvent != "function")
 			)
 				return !1;
@@ -38,7 +34,6 @@ function u() {
 
 			for (const i of ["onStartupFinished", "*"])
 				try {
-
 					const e = t.activateByEvent(i);
 
 					(e &&
@@ -48,10 +43,8 @@ function u() {
 								`[LandFix:EagerActivation] activateByEvent ${i} rejected: ${String(v)}`,
 							);
 						}),
-
 						r++);
 				} catch (e) {
-
 					console.warn(
 						`[LandFix:EagerActivation] activateByEvent ${i} threw: ${String(e)}`,
 					);
@@ -61,23 +54,19 @@ function u() {
 				? (console.log(
 						`[LandFix:EagerActivation] fired ${r} activation event(s) eagerly`,
 					),
-
 					!0)
 				: !1;
 		} catch (n) {
-
 			return (
 				console.warn(
 					`[LandFix:EagerActivation] FireActivationEvents failed: ${String(n)}`,
 				),
-
 				!1
 			);
 		}
 	}
 
 	function a() {
-
 		setTimeout(() => {
 			if (!c()) {
 				let n = 0;

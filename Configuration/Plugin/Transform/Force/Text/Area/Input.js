@@ -1,10 +1,7 @@
 const e = "/* __LAND_FORCE_TEXTAREA_INPUT__ */",
-
 	o = /\/vs\/editor\/common\/config\/editorOptions\.js$/,
-
 	r =
 		/(register\(new EditorBooleanOption\(\s*44\s*\/\* EditorOption\.editContext \*\/\s*,\s*'editContext'\s*,\s*)true(\s*,)/,
-
 	s = {
 		Kind: "Transform",
 		Name: "ForceTextAreaInput",

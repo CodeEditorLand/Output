@@ -7,7 +7,6 @@
 import type { CopyPlugin } from "../../Type.js";
 
 export interface CopyWorkerInput {
-
 	readonly From: string;
 
 	readonly To: string;

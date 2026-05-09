@@ -1,11 +1,8 @@
 const t = "/* __LAND_CONFIG_OVERLAY__ */",
-
 	o =
 		/\/vs\/(?:platform\/configuration\/common|workbench\/services\/configuration\/browser)\/configurationService\.js$/,
-
 	e =
 		/(getValue\(arg1, arg2\) \{\n)(\s+)(const section = typeof arg1 === 'string')/,
-
 	a = `$1$2${t}
 $2const __CEL_O = globalThis.__CEL_OVERRIDE_CONFIG__;
 
@@ -18,7 +15,6 @@ $2}
 
 $2$3`,
 	i = {
-
 		Kind: "Transform",
 
 		Name: "InjectConfigurationOverlay",
@@ -26,7 +22,6 @@ $2$3`,
 		Match: ({ Path: n }) => o.test(n),
 
 		Transform({ Source: n }) {
-
 			if (n.includes(t)) return { Kind: "Unchanged" };
 
 			if (!e.test(n)) return { Kind: "Unchanged" };
@@ -35,7 +30,6 @@ $2$3`,
 
 			return r === n
 				? { Kind: "Unchanged" }
-
 				: { Kind: "Rewrite", Source: r };
 		},
 	};

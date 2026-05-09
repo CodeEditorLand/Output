@@ -21,7 +21,6 @@
 export const Marker = "__LAND_WORKBENCH_PAINT_PRIME_V2__";
 
 export default function WorkbenchPaintPrime(): void {
-
 	if (typeof window === "undefined") return;
 
 	const Land = window as unknown as Record<string, unknown>;
@@ -55,7 +54,6 @@ export default function WorkbenchPaintPrime(): void {
 	const Primed = new WeakSet<Element>();
 
 	function PrimeElement(Element: Element | null | undefined): void {
-
 		if (!Element || Primed.has(Element)) return;
 
 		Primed.add(Element);
@@ -63,35 +61,27 @@ export default function WorkbenchPaintPrime(): void {
 		void (Element as HTMLElement).offsetHeight;
 
 		try {
-
 			Element.getBoundingClientRect();
 		} catch {
-
 			/* ignore */
 		}
 	}
 
 	function PrimeAllParts(): void {
-
 		for (const Selector of PartSelectors) {
-
 			const Nodes = document.querySelectorAll(Selector);
 
 			for (const Node of Array.from(Nodes)) {
-
 				PrimeElement(Node);
 			}
 		}
 	}
 
 	function FindPartAncestor(Target: EventTarget | null): Element | null {
-
 		let Cursor = Target as Element | null;
 
 		while (Cursor && Cursor !== document.body) {
-
 			if (Cursor.classList) {
-
 				if (
 					Cursor.classList.contains("part") ||
 					Cursor.classList.contains("composite") ||
@@ -102,7 +92,6 @@ export default function WorkbenchPaintPrime(): void {
 					Cursor.classList.contains("pane") ||
 					Cursor.classList.contains("editor")
 				) {
-
 					return Cursor;
 				}
 			}
@@ -114,14 +103,12 @@ export default function WorkbenchPaintPrime(): void {
 	}
 
 	function HandleEvent(Event: Event): void {
-
 		const Part = FindPartAncestor(Event.target);
 
 		if (Part) PrimeElement(Part);
 	}
 
 	function Install(): void {
-
 		PrimeAllParts();
 
 		setTimeout(PrimeAllParts, 200);
@@ -151,10 +138,8 @@ export default function WorkbenchPaintPrime(): void {
 	}
 
 	if (document.readyState === "loading") {
-
 		document.addEventListener("DOMContentLoaded", Install, { once: true });
 	} else {
-
 		Install();
 	}
 }

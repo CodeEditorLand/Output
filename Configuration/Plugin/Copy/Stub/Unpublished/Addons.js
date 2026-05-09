@@ -2,15 +2,12 @@ import { join as s } from "node:path";
 
 const a = [
 		{
-
 			Package: "@xterm/addon-progress",
 
 			Body: "define([],function(){var n=function(){};var P=function(){this.activate=n;this.dispose=n;this.onChange=function(){return{dispose:n}}};return{ProgressAddon:P}})",
 		},
 	],
-
 	t = "data:text/javascript,",
-
 	i = ({ Destination: o, Stubs: e = a }) => ({
 		Kind: "Copy",
 		Name: "StubUnpublishedAddons",
@@ -22,7 +19,6 @@ const a = [
 			};
 		}),
 	}),
-
 	p = t;
 
 var u = i;

@@ -21,7 +21,6 @@ export const On =
  *
  */
 export default {
-
 	color: true,
 
 	format: "esm",
@@ -58,14 +57,11 @@ export default {
 
 	plugins: [
 		{
-
 			name: "Target",
 
 			// @ts-ignore
 			setup({ onStart, initialOptions: { outdir } }) {
-
 				switch (true) {
-
 					case Clean === true:
 						onStart(async () => {
 							try {
@@ -91,7 +87,6 @@ export default {
 	],
 
 	loader: {
-
 		".css": "css",
 
 		".fish": "copy",

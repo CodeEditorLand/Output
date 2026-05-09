@@ -1,14 +1,11 @@
 import { mkdir as c, copyFile as n } from "node:fs/promises";
-
 import { dirname as a, resolve as t } from "node:path";
 
 import l from "../Plugin/Apply.js";
 
 const e = await import("../Plugin/Index.js"),
-
 	p = [
 		{
-
 			From: "Configuration/Service/Tauri/Main/Process/Service.js",
 
 			To: "Target/Microsoft/VSCode/vs/platform/ipc/electron-browser/TauriMainProcessService.js",
@@ -17,7 +14,6 @@ const e = await import("../Plugin/Index.js"),
 		},
 
 		{
-
 			From: "Configuration/Service/CEL/Expose/Accessor.js",
 
 			To: "Target/Microsoft/VSCode/vs/workbench/browser/CELExposeAccessor.js",
@@ -26,7 +22,6 @@ const e = await import("../Plugin/Index.js"),
 		},
 
 		{
-
 			From: "Configuration/Service/CEL/Shared/Process/Service.js",
 
 			To: "Target/Microsoft/VSCode/vs/platform/ipc/electron-browser/CELSharedProcessService.js",
@@ -35,7 +30,6 @@ const e = await import("../Plugin/Index.js"),
 		},
 
 		{
-
 			From: "Configuration/Service/CEL/Extensions/Scanner/Service.js",
 
 			To: "Target/Microsoft/VSCode/vs/workbench/services/extensions/common/CELExtensionsScannerService.js",
@@ -44,7 +38,6 @@ const e = await import("../Plugin/Index.js"),
 		},
 
 		{
-
 			From: "Configuration/Service/CEL/Search/Service.js",
 
 			To: "Target/Microsoft/VSCode/vs/workbench/services/search/common/CELSearchService.js",
@@ -53,7 +46,6 @@ const e = await import("../Plugin/Index.js"),
 		},
 
 		{
-
 			From: "Configuration/Service/CEL/Null/Telemetry/Service.js",
 
 			To: "Target/Microsoft/VSCode/vs/platform/telemetry/common/CELNullTelemetryService.js",
@@ -62,7 +54,6 @@ const e = await import("../Plugin/Index.js"),
 		},
 
 		{
-
 			From: "Configuration/Service/CEL/Null/Update/Service.js",
 
 			To: "Target/Microsoft/VSCode/vs/platform/update/common/CELNullUpdateService.js",
@@ -71,7 +62,6 @@ const e = await import("../Plugin/Index.js"),
 		},
 
 		{
-
 			From: "Configuration/Service/CEL/Null/Extension/Gallery/Service.js",
 
 			To: "Target/Microsoft/VSCode/vs/platform/extensionManagement/common/CELNullExtensionGalleryService.js",
@@ -81,15 +71,11 @@ const e = await import("../Plugin/Index.js"),
 	];
 
 for (const o of p) {
-
 	const r = t(process.cwd(), o.From),
-
 		i = t(process.cwd(), o.To);
 
 	(await c(a(i), { recursive: !0 }),
-
 		await n(r, i),
-
 		console.log(`[Output/Pipeline] Copied ${o.From} -> ${i}`));
 }
 
@@ -144,15 +130,12 @@ const S = [
 
 		e.RewriteIconsStyleSheetURLs,
 	],
-
 	m = t(process.cwd(), "Target/Microsoft/VSCode"),
-
 	s = await l({
 		Plugins: S,
 		Roots: [{ Path: m, Role: "app" }],
 		Log: (o) => console.log(`[Output/Pipeline] ${o}`),
 	}),
-
 	d = s.Transform.reduce((o, r) => o + r.Rewritten, 0);
 
 console.log(

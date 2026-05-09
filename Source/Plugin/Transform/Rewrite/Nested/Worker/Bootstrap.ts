@@ -116,7 +116,6 @@ const ReplacementSource = `const _bootstrapFnSource = ${JSON.stringify(
 )};`;
 
 const Plugin: TransformPlugin = {
-
 	Kind: "Transform",
 
 	Name: "RewriteNestedWorkerBootstrap",
@@ -127,7 +126,6 @@ const Plugin: TransformPlugin = {
 		),
 
 	Transform({ Source }) {
-
 		if (Source.includes(Marker)) return { Kind: "Unchanged" };
 
 		const Index = Source.indexOf(Anchor);
@@ -151,7 +149,6 @@ const Plugin: TransformPlugin = {
 			Source.slice(0, Index) + ReplacementSource + Source.slice(BlockEnd);
 
 		return {
-
 			Kind: "Rewrite",
 
 			Source: Marker + "\n" + Next,

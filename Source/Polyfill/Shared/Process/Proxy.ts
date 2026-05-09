@@ -45,7 +45,6 @@ type SharedProcessService =
  * Shared process message
  */
 interface SharedProcessMessage {
-
 	service: SharedProcessService;
 
 	method: string;
@@ -59,7 +58,6 @@ interface SharedProcessMessage {
  * Shared process response
  */
 interface SharedProcessResponse {
-
 	success: boolean;
 
 	data?: unknown;
@@ -73,7 +71,6 @@ interface SharedProcessResponse {
  * Service proxy interface
  */
 interface ServiceProxy {
-
 	service: SharedProcessService;
 
 	ready: boolean;
@@ -103,9 +100,7 @@ async function invokeTauri<T>(
 
 	args: Record<string, unknown> = {},
 ): Promise<T> {
-
 	try {
-
 		// Tauri 2.x: core.invoke, Tauri 1.x: invoke
 		const Invoke =
 			(window as any).__TAURI__?.core?.invoke ??
@@ -113,7 +108,6 @@ async function invokeTauri<T>(
 			(window as any).TAURI?.invoke;
 
 		if (typeof Invoke === "function") {
-
 			// Colon-prefixed methods (e.g. `file:write`,
 			// `shared_process:invoke`) are not registered as direct Tauri
 			// commands - Rust function names can't contain colons. They
@@ -123,7 +117,6 @@ async function invokeTauri<T>(
 			// transparently so this polyfill behaves like the rest of
 			// Wind/Sky/Output.
 			if (command.includes(":")) {
-
 				return await Invoke("MountainIPCInvoke", {
 					method: command,
 					params: args,
@@ -135,7 +128,6 @@ async function invokeTauri<T>(
 
 		throw new Error(`Tauri invoke not available for command: ${command}`);
 	} catch (error: unknown) {
-
 		throw error;
 	}
 }
@@ -148,9 +140,7 @@ function listenToTauri(
 
 	handler: (payload: unknown) => void,
 ): () => void {
-
 	if (typeof (window as any).__TAURI__?.event?.listen === "function") {
-
 		const unlistenPromise = (window as any).__TAURI__.event
 			.listen(event, ({ payload }: { payload: unknown }) => {
 				handler(payload);
@@ -161,7 +151,6 @@ function listenToTauri(
 			});
 
 		return () => {
-
 			unlistenPromise.then((unlisten: (() => void) | undefined) =>
 				unlisten?.(),
 			);
@@ -169,7 +158,6 @@ function listenToTauri(
 	}
 
 	if (typeof (window as any).TAURI?.event?.listen === "function") {
-
 		const unlistenPromise = (window as any).TAURI.event
 			.listen(event, ({ payload }: { payload: unknown }) => {
 				handler(payload);
@@ -177,7 +165,6 @@ function listenToTauri(
 			.catch(() => {});
 
 		return () => {
-
 			unlistenPromise.then((unlisten: (() => void) | undefined) =>
 				unlisten?.(),
 			);
@@ -195,14 +182,11 @@ function listenToTauri(
  * Create a service proxy for a specific shared process service
  */
 function createServiceProxy(service: SharedProcessService): ServiceProxy {
-
 	const listeners: Map<string, Set<(...args: unknown[]) => void>> = new Map();
 
 	const pendingRequests: Map<
 		string,
-
 		{ resolve: (value: unknown) => void; reject: (error: Error) => void }
-
 	> = new Map();
 
 	let isReady = false;
@@ -247,11 +231,9 @@ function createServiceProxy(service: SharedProcessService): ServiceProxy {
 	 * Emit event to all listeners
 	 */
 	function emitEvent(event: string, ...args: unknown[]): void {
-
 		const eventListeners = listeners.get(event);
 
 		if (eventListeners) {
-
 			eventListeners.forEach((listener) => {
 				try {
 					listener(...args);
@@ -264,21 +246,17 @@ function createServiceProxy(service: SharedProcessService): ServiceProxy {
 	 * Generate correlation ID for request-response pattern
 	 */
 	function generateCorrelationId(): string {
-
 		return `${service}_${Date.now()}_${Math.random().toString(36).substring(7)}`;
 	}
 
 	return {
-
 		service,
 
 		get ready() {
-
 			return isReady;
 		},
 
 		set ready(value: boolean) {
-
 			isReady = value;
 		},
 
@@ -286,32 +264,26 @@ function createServiceProxy(service: SharedProcessService): ServiceProxy {
 		 * Health check for the service
 		 */
 		async healthCheck(): Promise<boolean> {
-
 			try {
-
 				if (service === "extension-host") {
-
 					return await invokeTauri<boolean>(
 						"cocoon_extension_host_health",
 
 						{},
 					);
 				} else if (service === "search") {
-
 					return await invokeTauri<boolean>(
 						"cocoon_search_service_health",
 
 						{},
 					);
 				} else if (service === "debug") {
-
 					return await invokeTauri<boolean>(
 						"cocoon_debug_service_health",
 
 						{},
 					);
 				} else {
-
 					return await invokeTauri<boolean>(
 						"shared_process_service_health",
 
@@ -319,7 +291,6 @@ function createServiceProxy(service: SharedProcessService): ServiceProxy {
 					);
 				}
 			} catch {
-
 				return false;
 			}
 		},
@@ -328,11 +299,9 @@ function createServiceProxy(service: SharedProcessService): ServiceProxy {
 		 * Invoke a method on the service
 		 */
 		async invoke(method: string, ...args: unknown[]): Promise<unknown> {
-
 			const correlationId = generateCorrelationId();
 
 			const request: SharedProcessMessage = {
-
 				service,
 
 				method,
@@ -358,9 +327,7 @@ function createServiceProxy(service: SharedProcessService): ServiceProxy {
 		 * Register event listener
 		 */
 		on(event: string, handler: (...args: unknown[]) => void): void {
-
 			if (!listeners.has(event)) {
-
 				listeners.set(event, new Set());
 			}
 
@@ -371,9 +338,7 @@ function createServiceProxy(service: SharedProcessService): ServiceProxy {
 		 * Register one-time event listener
 		 */
 		once(event: string, handler: (...args: unknown[]) => void): void {
-
 			const wrappedHandler: (...args: unknown[]) => void = (...args) => {
-
 				handler(...args);
 
 				this.removeListener(event, wrappedHandler);
@@ -390,15 +355,12 @@ function createServiceProxy(service: SharedProcessService): ServiceProxy {
 
 			handler: (...args: unknown[]) => void,
 		): void {
-
 			const eventListeners = listeners.get(event);
 
 			if (eventListeners) {
-
 				eventListeners.delete(handler);
 
 				if (eventListeners.size === 0) {
-
 					listeners.delete(event);
 				}
 			}
@@ -408,12 +370,9 @@ function createServiceProxy(service: SharedProcessService): ServiceProxy {
 		 * Remove all event listeners
 		 */
 		removeAllListeners(event?: string): void {
-
 			if (event) {
-
 				listeners.delete(event);
 			} else {
-
 				listeners.clear();
 			}
 		},
@@ -711,7 +670,6 @@ export const UpdateService: ServiceProxy = Object.assign(
  * Manages all shared process services
  */
 class SharedProcessManager {
-
 	// Service proxies
 	private services: Map<SharedProcessService, ServiceProxy> = new Map();
 
@@ -719,7 +677,6 @@ class SharedProcessManager {
 	private healthCheckInterval: number | null = null;
 
 	constructor() {
-
 		// Register default services
 		this.registerService(ExtensionHostService);
 
@@ -736,7 +693,6 @@ class SharedProcessManager {
 	 * Register a service proxy
 	 */
 	registerService(proxy: ServiceProxy): void {
-
 		this.services.set(proxy.service, proxy);
 	}
 
@@ -744,7 +700,6 @@ class SharedProcessManager {
 	 * Get service proxy
 	 */
 	getService(service: SharedProcessService): ServiceProxy | undefined {
-
 		return this.services.get(service);
 	}
 
@@ -752,7 +707,6 @@ class SharedProcessManager {
 	 * Get all services
 	 */
 	getAllServices(): Map<SharedProcessService, ServiceProxy> {
-
 		return new Map(this.services);
 	}
 
@@ -760,9 +714,7 @@ class SharedProcessManager {
 	 * Start health checks
 	 */
 	startHealthChecks(intervalMs: number = 30000): void {
-
 		if (this.healthCheckInterval !== null) {
-
 			return;
 		}
 
@@ -781,9 +733,7 @@ class SharedProcessManager {
 	 * Stop health checks
 	 */
 	stopHealthChecks(): void {
-
 		if (this.healthCheckInterval !== null) {
-
 			clearInterval(this.healthCheckInterval);
 
 			this.healthCheckInterval = null;
@@ -794,16 +744,12 @@ class SharedProcessManager {
 	 * Initialize all services
 	 */
 	async initialize(): Promise<void> {
-
 		for (const [serviceName, proxy] of this.services.entries()) {
-
 			try {
-
 				const isHealthy = await proxy.healthCheck();
 
 				proxy.ready = isHealthy;
 			} catch (error) {
-
 				proxy.ready = false;
 			}
 		}
@@ -816,12 +762,10 @@ class SharedProcessManager {
 	 * Shutdown all services
 	 */
 	async shutdown(): Promise<void> {
-
 		this.stopHealthChecks();
 
 		// Remove all listeners
 		for (const proxy of this.services.values()) {
-
 			proxy.removeAllListeners();
 		}
 	}
@@ -837,9 +781,7 @@ let sharedProcessManager: SharedProcessManager | null = null;
  * Get or create the shared process manager
  */
 export function getSharedProcessManager(): SharedProcessManager {
-
 	if (!sharedProcessManager) {
-
 		sharedProcessManager = new SharedProcessManager();
 	}
 
@@ -854,15 +796,12 @@ export function getSharedProcessManager(): SharedProcessManager {
  * Install the shared process proxy
  */
 export async function installSharedProcessProxy(): Promise<void> {
-
 	if (typeof window === "undefined") {
-
 		return;
 	}
 
 	// Prevent double installation
 	if ((window as any).__SHARED_PROCESS_PROXY_INSTALLED__) {
-
 		return;
 	}
 
@@ -876,9 +815,7 @@ export async function installSharedProcessProxy(): Promise<void> {
 
 	// Attach to window.vscode if available
 	if (typeof (window as any).vscode !== "undefined") {
-
 		(window as any).vscode.sharedProcess = {
-
 			manager,
 
 			ExtensionHostService,
@@ -895,7 +832,6 @@ export async function installSharedProcessProxy(): Promise<void> {
 
 	// Make services globally available
 	(window as any).__SHARED_PROCESS__ = {
-
 		manager,
 
 		ExtensionHostService,
@@ -915,7 +851,6 @@ export async function installSharedProcessProxy(): Promise<void> {
 // ============================================================================
 
 export default {
-
 	install: installSharedProcessProxy,
 
 	getManager: getSharedProcessManager,
@@ -937,7 +872,6 @@ export default {
 
 // Auto-install on import
 if (typeof window !== "undefined") {
-
 	installSharedProcessProxy().catch((Error: unknown) => {
 		(globalThis as any).__LAND_POLYFILL_TELEMETRY__?.On(
 			"polyfill.install",

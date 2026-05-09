@@ -52,7 +52,6 @@ const ReplacementMeta =
 	`connect-src 'self' https: blob: data:;">${Marker}`;
 
 const Plugin: TransformPlugin = {
-
 	Kind: "Transform",
 
 	Name: "RewriteWebviewShellCSP",
@@ -60,7 +59,6 @@ const Plugin: TransformPlugin = {
 	Match: ({ Path }) => PathRegex.test(Path),
 
 	Transform({ Source }) {
-
 		if (Source.includes(Marker)) return { Kind: "Unchanged" };
 
 		if (!CSPMetaPattern.test(Source)) return { Kind: "Unchanged" };
@@ -69,7 +67,6 @@ const Plugin: TransformPlugin = {
 
 		return Next === Source
 			? { Kind: "Unchanged" }
-
 			: { Kind: "Rewrite", Source: Next };
 	},
 };

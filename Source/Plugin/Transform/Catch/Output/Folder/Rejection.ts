@@ -53,7 +53,6 @@ const ChainRegex =
 	/(createFolder\([^)]*\)\.then\(\(\)\s*=>\s*(?:undefined|void\s+0)\))/g;
 
 const Plugin: TransformPlugin = {
-
 	Kind: "Transform",
 
 	Name: "CatchOutputFolderRejection",
@@ -61,18 +60,15 @@ const Plugin: TransformPlugin = {
 	Match: ({ Path, Role }) => Role === "app" && PathRegex.test(Path),
 
 	Transform({ Source }) {
-
 		ChainRegex.lastIndex = 0;
 
 		if (!ChainRegex.test(Source)) {
-
 			return { Kind: "Unchanged" };
 		}
 
 		ChainRegex.lastIndex = 0;
 
 		return {
-
 			Kind: "Rewrite",
 
 			Source: Source.replace(

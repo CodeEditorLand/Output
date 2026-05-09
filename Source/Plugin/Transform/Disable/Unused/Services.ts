@@ -91,7 +91,6 @@ const PathRegex = new RegExp(
 );
 
 const Plugin: TransformPlugin = {
-
 	Kind: "Transform",
 
 	Name: "DisableUnusedServices",
@@ -99,10 +98,8 @@ const Plugin: TransformPlugin = {
 	Match: ({ Path }) => PathRegex.test(Path),
 
 	Transform({ Source }) {
-
 		// Already disabled (re-run on a previously-built tree).
 		if (Source.includes("[Land] disabled by DisableUnusedServices")) {
-
 			return { Kind: "Unchanged" };
 		}
 

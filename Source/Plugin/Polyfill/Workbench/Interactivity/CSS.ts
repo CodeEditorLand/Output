@@ -18,7 +18,6 @@
 export const Marker = "__LAND_WORKBENCH_INTERACTIVITY_CSS_V2__";
 
 export default function WorkbenchInteractivityCSS(): void {
-
 	if (typeof window === "undefined") return;
 
 	const Land = window as unknown as Record<string, unknown>;
@@ -28,7 +27,6 @@ export default function WorkbenchInteractivityCSS(): void {
 	Land[Marker] = true;
 
 	function InstallStylesheet(): void {
-
 		const Style = document.createElement("style");
 
 		Style.setAttribute("data-land-workbench-interactivity", "1");

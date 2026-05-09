@@ -1,9 +1,7 @@
 const s = { dispose: () => {} },
-
 	n = (a, o, t) => s;
 
 class e {
-
 	state = { type: "idle", updateType: 0 };
 
 	onStateChange = n;
@@ -19,7 +17,6 @@ class e {
 	async quitAndInstall() {}
 
 	async isLatestVersion() {
-
 		return !0;
 	}
 

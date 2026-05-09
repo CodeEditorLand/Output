@@ -1,7 +1,6 @@
 const a = "__LAND_EAGER_LIFECYCLE_PHASE__";
 
 function s() {
-
 	if (typeof window > "u") return;
 
 	const r = window;
@@ -11,9 +10,7 @@ function s() {
 	r[a] = !0;
 
 	function t() {
-
 		try {
-
 			const e = r.__CEL_SERVICES__;
 
 			if (!e || typeof e.invokeFunction != "function") return !1;
@@ -29,27 +26,22 @@ function s() {
 							(c = n.get(i.ILifecycleService));
 					} catch {}
 				}),
-
 				!c)
 			)
 				return !1;
 
 			try {
-
 				const n = c;
 
 				if (typeof n.phase < "u" && n.phase < 4)
 					return (
 						(n.phase = 4),
-
 						console.log(
 							"[LandFix:Lifecycle] phase advanced eagerly to Eventually",
 						),
-
 						!0
 					);
 			} catch (n) {
-
 				console.warn(
 					`[LandFix:Lifecycle] phase setter rejected: ${String(n)}`,
 				);
@@ -57,19 +49,16 @@ function s() {
 
 			return !1;
 		} catch (e) {
-
 			return (
 				console.warn(
 					`[LandFix:Lifecycle] advance failed: ${String(e)}`,
 				),
-
 				!1
 			);
 		}
 	}
 
 	function o() {
-
 		setTimeout(() => {
 			if (!t()) {
 				let e = 0;

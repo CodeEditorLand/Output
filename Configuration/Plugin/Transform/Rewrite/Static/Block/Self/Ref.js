@@ -1,18 +1,14 @@
 const C = "/* __LAND_STATIC_BLOCK_SELFREF_REWRITTEN__ */";
 
 function N(n) {
-
 	return n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 function g(n, l) {
-
 	const e = n[l],
-
 		i = n[l + 1];
 
 	if (e === "/" && i === "/") {
-
 		let t = l + 2;
 
 		for (
@@ -80,7 +76,6 @@ function B(n) {
 			continue;
 		}
 		const p = n.slice(t),
-
 			m = t > 0 ? n[t - 1] : "";
 		if ((t === 0 || !/[\w$]/.test(m)) && s.test(p)) {
 			let a = t + 5;
@@ -120,7 +115,6 @@ function B(n) {
 			if (n[a] === "{") {
 				const o = b(n, a);
 				(l.push({ ClassName: h.Name, InnerStart: a + 1, InnerEnd: o }),
-
 					(t = o + 1));
 				continue;
 			}
@@ -148,7 +142,6 @@ const I = {
 		if (l.length === 0) return { Kind: "Unchanged" };
 		const e = [];
 		let i = 0,
-
 			t = !1;
 		for (const s of l) {
 			e.push(n.slice(i, s.InnerStart));
@@ -159,7 +152,6 @@ const I = {
 		}
 		return (
 			e.push(n.slice(i)),
-
 			t
 				? {
 						Kind: "Rewrite",

@@ -1,7 +1,6 @@
 const c = "__LAND_STRIP_BACKGROUND_POLLING__";
 
 function S() {
-
 	if (typeof window > "u") return;
 
 	const r = window;
@@ -69,35 +68,27 @@ function S() {
 	];
 
 	function a() {
-
 		try {
-
 			const n = new Error().stack ?? "";
 
 			for (const e of u) if (n.indexOf(e) >= 0) return !0;
 
 			return !1;
 		} catch {
-
 			return !1;
 		}
 	}
 
 	const d = window.setInterval.bind(window),
-
 		l = window.setTimeout.bind(window);
 
 	let t = 0;
 
 	const s = [],
-
 		p = function () {
-
 			if (a()) {
-
 				if ((t++, s.length < 32))
 					try {
-
 						const o = (new Error().stack ?? "")
 							.split(
 								`
@@ -121,7 +112,6 @@ function S() {
 		return l.apply(window, o);
 	};
 	((window.setTimeout = m),
-
 		(r.__LAND_BACKGROUND_POLL_STATS__ = () => ({
 			suppressedCount: t,
 			recentlySuppressed: s.slice(),

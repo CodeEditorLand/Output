@@ -37,7 +37,6 @@ const NoopEvent = (
 ): typeof NoopDisposable => NoopDisposable;
 
 class NullUpdateService {
-
 	readonly state = { type: "idle", updateType: 0 }; // StateType.Idle
 	readonly onStateChange = NoopEvent;
 
@@ -52,7 +51,6 @@ class NullUpdateService {
 	async quitAndInstall(): Promise<void> {}
 
 	async isLatestVersion(): Promise<boolean> {
-
 		return true;
 	}
 

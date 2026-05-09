@@ -74,7 +74,6 @@ const WorkbenchReadyInjection =
 	WorkbenchReadyMarker + "\n        __CEL_OnWorkbenchReady(workbench);";
 
 const Plugin: TransformPlugin = {
-
 	Kind: "Transform",
 
 	Name: "ExposeWorkbenchAccessor",
@@ -85,9 +84,7 @@ const Plugin: TransformPlugin = {
 		/\/vs\/workbench\/electron-browser\/desktop\.main\.js$/.test(Path),
 
 	Transform({ Path, Source }) {
-
 		if (Source.includes("CELExposeAccessor")) {
-
 			// Already patched in a previous build pass.
 			return { Kind: "Unchanged" };
 		}
@@ -99,9 +96,7 @@ const Plugin: TransformPlugin = {
 		const IsWebFactory = /\/web\.factory\.js$/.test(Path);
 
 		if (IsWebMain || IsDesktopMain) {
-
 			if (!Source.includes(StartupMarker)) {
-
 				return { Kind: "Unchanged" };
 			}
 
@@ -114,7 +109,6 @@ const Plugin: TransformPlugin = {
 				: WebMainImportInjection;
 
 			if (!Source.includes(ImportMarker)) {
-
 				return { Kind: "Unchanged" };
 			}
 
@@ -126,19 +120,15 @@ const Plugin: TransformPlugin = {
 
 			return Next === Source
 				? { Kind: "Unchanged" }
-
 				: { Kind: "Rewrite", Source: Next };
 		}
 
 		if (IsWebFactory) {
-
 			if (!Source.includes(WorkbenchReadyMarker)) {
-
 				return { Kind: "Unchanged" };
 			}
 
 			if (!Source.includes(WebFactoryImportMarker)) {
-
 				return { Kind: "Unchanged" };
 			}
 
@@ -150,7 +140,6 @@ const Plugin: TransformPlugin = {
 
 			return Next === Source
 				? { Kind: "Unchanged" }
-
 				: { Kind: "Rewrite", Source: Next };
 		}
 

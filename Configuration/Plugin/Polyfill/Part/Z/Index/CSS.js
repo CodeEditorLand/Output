@@ -1,7 +1,6 @@
 const o = "__LAND_PART_ZINDEX__";
 
 function a() {
-
 	if (typeof window > "u") return;
 
 	const t = window;
@@ -11,11 +10,9 @@ function a() {
 	t[o] = !0;
 
 	function e() {
-
 		const n = document.createElement("style");
 
 		(n.setAttribute("data-land-part-zindex", "1"),
-
 			(n.textContent = [
 				".monaco-workbench .part {",
 

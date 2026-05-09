@@ -4,15 +4,12 @@ const r =
 
 			"\\/",
 		),
-
 	o = new RegExp(`${r}$`),
-
 	s = `export { SharedProcessService } from '../../../../platform/ipc/electron-browser/CELSharedProcessService.js';
 export { default } from '../../../../platform/ipc/electron-browser/CELSharedProcessService.js';
 
 `,
 	c = {
-
 		Kind: "Transform",
 
 		Name: "ReplaceSharedProcess",
@@ -22,7 +19,6 @@ export { default } from '../../../../platform/ipc/electron-browser/CELSharedProc
 		Match: ({ Path: e }) => o.test(e),
 
 		Transform() {
-
 			return { Kind: "Rewrite", Source: s };
 		},
 	};

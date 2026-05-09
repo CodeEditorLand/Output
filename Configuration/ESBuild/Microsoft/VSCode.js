@@ -1,7 +1,5 @@
 const e = (await import("../../ESBuild.js")).On,
-
 	t = "vs",
-
 	o = (await import("../../ESBuild.js")).Dependency;
 
 var c = async (d) =>
@@ -49,9 +47,7 @@ var c = async (d) =>
 					const p = (l[a ?? 0] || a) ?? "";
 					f.has(p) &&
 						(i?.includes("-") && (i = i.split("-")[0]),
-
 						i?.includes(".") && (i = i.split(".")[0]),
-
 						/^\d+$/.test(i ?? "") && s.add(`${p}${i}`));
 				}
 				return Array.from(s).sort();

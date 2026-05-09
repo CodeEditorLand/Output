@@ -1,10 +1,7 @@
 const t = "/* __LAND_WORKBENCH_BASE_URL_REWRITTEN__ */",
-
 	r =
 		/const baseUrl = new URL\(`\$\{fileUriFromPath\([\s\S]+?\)\}\/out\/`\);/,
-
 	o = 'const baseUrl = new URL(location.origin + "/Static/Application/");',
-
 	s =
 		/let (\w+);\s*if \(!!safeProcess\.env\[[`'"]VSCODE_DEV[`'"]\] && globalThis\._VSCODE_USE_RELATIVE_IMPORTS\) \{[\s\S]+?\}\s*else \{[\s\S]+?\}\s*const (\w+) = await import\(\1\);/,
 	i = {
@@ -26,7 +23,6 @@ const t = "/* __LAND_WORKBENCH_BASE_URL_REWRITTEN__ */",
 
 						'const $2 = await import("../../../workbench/workbench.desktop.main.js");',
 					)),
-
 				n === e ? { Kind: "Unchanged" } : { Kind: "Rewrite", Source: n }
 			);
 		},

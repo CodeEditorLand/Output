@@ -6,7 +6,6 @@ const o = `
 
 `,
 	t = {
-
 		Kind: "Transform",
 
 		Name: "InjectPartZIndexCSS",
@@ -15,10 +14,8 @@ const o = `
 			n.endsWith("vs/code/electron-browser/workbench/workbench.js"),
 
 		Transform({ Source: n }) {
-
 			return n.includes(r)
 				? { Kind: "Unchanged" }
-
 				: { Kind: "Rewrite", Source: o + n };
 		},
 	};

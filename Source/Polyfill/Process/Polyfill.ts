@@ -34,7 +34,6 @@
  * Process versions object
  */
 interface ProcessVersions {
-
 	node: string;
 
 	chrome: string;
@@ -64,7 +63,6 @@ interface ProcessVersions {
  * Process CPU usage snapshot
  */
 interface ProcessCpuUsage {
-
 	user: number;
 
 	system: number;
@@ -74,7 +72,6 @@ interface ProcessCpuUsage {
  * Process memory info
  */
 interface ProcessMemoryInfo {
-
 	workingSetSize: number;
 
 	peakWorkingSetSize: number;
@@ -118,7 +115,6 @@ type ProcessEventListener = (...args: unknown[]) => void;
  * Process configuration
  */
 interface ProcessConfig {
-
 	execPath?: string;
 
 	execArgv?: string[];
@@ -150,9 +146,7 @@ async function invokeTauri<T>(
 
 	args: Record<string, unknown> = {},
 ): Promise<T> {
-
 	try {
-
 		// Tauri 2.x: core.invoke, Tauri 1.x: invoke
 		const Invoke =
 			(window as any).__TAURI__?.core?.invoke ??
@@ -160,7 +154,6 @@ async function invokeTauri<T>(
 			(window as any).TAURI?.invoke;
 
 		if (typeof Invoke === "function") {
-
 			// Colon-prefixed methods (e.g. `file:write`,
 			// `shared_process:invoke`) are not registered as direct Tauri
 			// commands - Rust function names can't contain colons. They
@@ -170,7 +163,6 @@ async function invokeTauri<T>(
 			// transparently so this polyfill behaves like the rest of
 			// Wind/Sky/Output.
 			if (command.includes(":")) {
-
 				return await Invoke("MountainIPCInvoke", {
 					method: command,
 					params: args,
@@ -182,7 +174,6 @@ async function invokeTauri<T>(
 
 		throw new Error(`Tauri invoke not available for command: ${command}`);
 	} catch (error: unknown) {
-
 		throw error;
 	}
 }
@@ -195,13 +186,11 @@ async function invokeTauri<T>(
  * Default process configuration
  */
 const DEFAULT_PROCESS_CONFIG: ProcessConfig = {
-
 	execPath: "/Applications/CodeEditorLand.app/Contents/MacOS/codeeditorland",
 
 	execArgv: [],
 
 	env: {
-
 		PATH: "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
 
 		HOME: "/Users/test",

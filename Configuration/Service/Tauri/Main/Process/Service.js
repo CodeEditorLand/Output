@@ -1,17 +1,11 @@
 const u = (i, e) => {
-
 		try {
-
 			performance.mark(`land:${i}:${e}`);
 		} catch {}
 	},
-
 	c = (i, e) => {
-
 		try {
-
 			const n = window.__TAURI_INTERNALS__,
-
 				d =
 					window.__TAURI__?.core?.invoke ??
 					window.__TAURI__?.invoke ??
@@ -24,9 +18,7 @@ const u = (i, e) => {
 			);
 		} catch {}
 	},
-
 	h = {
-
 		localFilesystem: "file",
 
 		storage: "storage",
@@ -91,19 +83,13 @@ const u = (i, e) => {
 
 		localGit: "git",
 	},
-
 	y = new Set(["logger", "output"]),
-
 	m = {
-
 		localPty: {
-
 			onProcessData: {
-
 				Channel: "sky://terminal/data",
 
 				Map: (i) => {
-
 					const e = i;
 
 					if (!(!e || typeof e.id != "number"))
@@ -112,20 +98,16 @@ const u = (i, e) => {
 			},
 
 			onProcessReady: {
-
 				Channel: "sky://terminal/create",
 
 				Map: (i) => {
-
 					const e = i;
 
 					if (!(!e || typeof e.id != "number"))
 						return {
-
 							id: e.id,
 
 							event: {
-
 								pid: e.pid ?? 0,
 
 								cwd: "",
@@ -137,11 +119,9 @@ const u = (i, e) => {
 			},
 
 			onProcessExit: {
-
 				Channel: "sky://terminal/exit",
 
 				Map: (i) => {
-
 					const e = i;
 
 					if (!(!e || typeof e.id != "number"))
@@ -150,9 +130,7 @@ const u = (i, e) => {
 			},
 		},
 	},
-
 	f = new Set(["localFilesystem"]),
-
 	w = new Set([
 		"stat",
 
@@ -182,9 +160,7 @@ const u = (i, e) => {
 
 		"cloneFile",
 	]),
-
 	b = {
-
 		sign: { sign: "", createNewMessage: "", validate: !0 },
 
 		policy: { serialize: {}, registerPolicyChange: void 0 },
@@ -192,11 +168,8 @@ const u = (i, e) => {
 		userDataProfiles: {},
 
 		keyboardLayout: {
-
 			getKeyboardLayoutData: {
-
 				keyboardLayoutInfo: {
-
 					model: "pc105",
 
 					layout: "us",
@@ -215,7 +188,6 @@ const u = (i, e) => {
 		sharedProcess: {},
 
 		utilityProcessWorker: {
-
 			createWorker: new Promise(() => {}),
 
 			disposeWorker: void 0,
@@ -236,9 +208,7 @@ const u = (i, e) => {
 		browserViewGroup: {},
 
 		externalTerminal: {
-
 			getDefaultTerminalForPlatforms: {
-
 				windows: "cmd.exe",
 
 				linux: "/usr/bin/x-terminal-emulator",
@@ -248,7 +218,6 @@ const u = (i, e) => {
 		},
 
 		update: {
-
 			checkForUpdates: { updateType: 0 },
 
 			downloadUpdate: void 0,
@@ -265,7 +234,6 @@ const u = (i, e) => {
 		},
 
 		webview: {
-
 			setIgnoreMenuShortcuts: void 0,
 
 			setContextMenuVisible: void 0,
@@ -282,7 +250,6 @@ const u = (i, e) => {
 		mcpGalleryManifest: { setMcpGalleryManifest: void 0 },
 
 		diagnostics: {
-
 			getWorkspaceFileExtensions: { extensions: [] },
 
 			getPerformanceInfo: { processInfo: {}, workspaceInfo: {} },
@@ -292,7 +259,6 @@ const u = (i, e) => {
 			getDiagnostics: "",
 
 			reportWorkspaceStats: {
-
 				configFiles: [],
 
 				fileTypes: [],
@@ -304,7 +270,6 @@ const u = (i, e) => {
 		urlHandler: { registerHandler: void 0, open: !1, create: void 0 },
 
 		userDataAutoSync: {
-
 			isEnabled: !1,
 
 			canToggleEnablement: !1,
@@ -319,7 +284,6 @@ const u = (i, e) => {
 		extensionGalleryManifest: { setExtensionGalleryManifest: void 0 },
 
 		extensionTipsService: {
-
 			getImportantExecutableBasedTips: [],
 
 			getOtherExecutableBasedTips: [],
@@ -332,7 +296,6 @@ const u = (i, e) => {
 		},
 
 		mcpManagement: {
-
 			getInstalled: [],
 
 			install: void 0,
@@ -345,7 +308,6 @@ const u = (i, e) => {
 		},
 
 		mcpWorkbenchManagement: {
-
 			getInstalled: [],
 
 			getLocalServers: [],
@@ -356,7 +318,6 @@ const u = (i, e) => {
 		},
 
 		userDataSync: {
-
 			_getInitialData: [0, [], null],
 
 			accept: void 0,
@@ -385,11 +346,9 @@ const u = (i, e) => {
 		userDataSyncStoreManagement: { _getInitialData: null },
 
 		languageDetection: {
-
 			detectLanguage: null,
 
 			provideLanguageDetectionHints: {
-
 				fileExtensions: { extensions: [] },
 			},
 		},
@@ -401,7 +360,6 @@ const u = (i, e) => {
 		checksum: { checksum: "" },
 
 		languagePacks: {
-
 			getAvailableLanguages: [],
 
 			getInstalledLanguages: [],
@@ -410,13 +368,11 @@ const u = (i, e) => {
 		},
 
 		userDataSyncUtil: {
-
 			resolveDefaultIgnoredSettings: [],
 
 			resolveUserKeybindings: {},
 
 			resolveFormattingOptions: {
-
 				eol: `
 `,
 				insertSpaces: !0,
@@ -426,7 +382,6 @@ const u = (i, e) => {
 		},
 
 		userDataSyncMachines: {
-
 			getMachines: [],
 
 			addCurrentMachine: void 0,
@@ -439,7 +394,6 @@ const u = (i, e) => {
 		},
 
 		IUserDataSyncResourceProviderService: {
-
 			getRemoteSyncedProfiles: [],
 
 			getLocalSyncedProfiles: [],
@@ -460,7 +414,6 @@ const u = (i, e) => {
 		customEndpointTelemetry: { publicLog: void 0, publicLogError: void 0 },
 
 		process: {
-
 			createTunnel: { id: "" },
 
 			startTunnel: {},
@@ -473,7 +426,6 @@ const u = (i, e) => {
 		},
 
 		remoteTunnel: {
-
 			getTunnelStatus: { type: "disconnected" },
 
 			getMode: { active: !1 },
@@ -494,7 +446,6 @@ const u = (i, e) => {
 		sharedWebContentExtractor: { readImage: void 0 },
 
 		playwright: {
-
 			__initialize: void 0,
 
 			click: void 0,
@@ -515,11 +466,9 @@ const u = (i, e) => {
 		},
 
 		v8InspectProfiling: {
-
 			startProfiling: "",
 
 			stopProfiling: {
-
 				nodes: [],
 
 				samples: [],
@@ -534,7 +483,6 @@ const u = (i, e) => {
 	};
 
 async function p(i, e) {
-
 	const n = window.__TAURI__?.core?.invoke ?? window.__TAURI__?.invoke;
 
 	if (typeof n != "function") return;
@@ -542,13 +490,10 @@ async function p(i, e) {
 	const d = typeof performance < "u" ? performance.now() : Date.now();
 
 	try {
-
 		return await n("MountainIPCInvoke", { method: i, params: e });
 	} catch (l) {
-
 		const a =
 				(typeof performance < "u" ? performance.now() : Date.now()) - d,
-
 			r = String(l);
 
 		throw (
@@ -561,16 +506,13 @@ async function p(i, e) {
 
 					`[TauriInvoke] method=${i} ok=false elapsed_ms=${a.toFixed(2)} err=${r}`,
 				),
-
 			l
 		);
 	}
 }
 
 class v {
-
 	constructor(e, n) {
-
 		this.ChannelName = e;
 
 		this.RoutePrefix = n;
@@ -581,7 +523,6 @@ class v {
 	RoutePrefix;
 
 	async call(e, n, d) {
-
 		if (
 			e === "then" ||
 			e === "catch" ||
@@ -596,7 +537,6 @@ class v {
 			return;
 
 		if ((u("ipc", `${this.ChannelName}.${e}`), y.has(this.ChannelName))) {
-
 			this.RoutePrefix &&
 				p(
 					`${this.RoutePrefix}:${e}`,
@@ -610,11 +550,9 @@ class v {
 		const l = b[this.ChannelName];
 
 		if (l !== void 0) {
-
 			u("ipc", `stub:${this.ChannelName}.${e}`);
 
 			const a = l[e],
-
 				r = Object.prototype.hasOwnProperty.call(l, e)
 					? a === void 0
 						? "noop"
@@ -628,34 +566,27 @@ class v {
 
 						`stub-hit channel=${this.ChannelName} cmd=${e} disposition=${r}`,
 					),
-
 				a !== void 0 ? a : void 0
 			);
 		}
 
 		if (this.RoutePrefix) {
-
 			const a = `${this.RoutePrefix}:${e}`,
-
 				r = n !== void 0 ? (Array.isArray(n) ? n : [n]) : [];
 
 			try {
-
 				const o = await p(a, r);
 
 				if (
 					f.has(this.ChannelName) &&
 					(e === "readFile" || e === "read")
 				) {
-
 					const t = o;
 
 					if (t != null) {
-
 						const s = Array.isArray(t) ? t : t.buffer;
 
 						if (Array.isArray(s)) {
-
 							const g = new Uint8Array(s);
 
 							return { buffer: g, byteLength: g.byteLength };
@@ -665,11 +596,8 @@ class v {
 
 				return o;
 			} catch (o) {
-
 				if (f.has(this.ChannelName) && w.has(e)) {
-
 					const t = String(o),
-
 						s = new Error(t);
 
 					throw (
@@ -677,19 +605,15 @@ class v {
 						t.includes("ENOENT") ||
 						t.includes("not found")
 							? ((s.code = "FileNotFound"),
-
 								(s.fileOperationResult = 1))
 							: t.includes("Permission denied") ||
 								  t.includes("EACCES")
 								? ((s.code = "NoPermissions"),
-
 									(s.fileOperationResult = 6))
 								: (t.includes("File exists") ||
 										t.includes("EEXIST")) &&
 									((s.code = "FileExists"),
-
 									(s.fileOperationResult = 4)),
-
 						s
 					);
 				}
@@ -701,7 +625,6 @@ class v {
 		}
 
 		(u("ipc", `unknown:${this.ChannelName}.${e}`),
-
 			c(
 				"channel-stub",
 
@@ -710,16 +633,13 @@ class v {
 	}
 
 	listen(e, n) {
-
 		u("ipc", `listen:${this.ChannelName}.${e}`);
 
 		const d = m[this.ChannelName]?.[e];
 
 		return d
 			? (l) => {
-
 					let a = !1,
-
 						r = null;
 
 					return (
@@ -737,7 +657,6 @@ class v {
 								typeof o == "function" && (a ? o() : (r = o));
 							})
 							.catch(() => {}),
-
 						{
 							dispose: () => {
 								((a = !0), r?.());
@@ -745,10 +664,8 @@ class v {
 						}
 					);
 				}
-
 			: f.has(this.ChannelName) && e === "readFileStream"
 				? (l) => {
-
 						const a =
 							n !== void 0 ? (Array.isArray(n) ? n : [n]) : [];
 
@@ -772,30 +689,24 @@ class v {
 								.catch((r) => {
 									l(r);
 								}),
-
 							{ dispose: () => {} }
 						);
 					}
-
 				: () => ({ dispose: () => {} });
 	}
 }
 
 class k {
-
 	Channels = new Map();
 
 	constructor(e) {
-
 		u("ipc", `TauriMainProcessService:window=${e}`);
 	}
 
 	getChannel(e) {
-
 		let n = this.Channels.get(e);
 
 		if (!n) {
-
 			const d = h[e] ?? null;
 
 			((n = new v(e, d)), this.Channels.set(e, n));
@@ -807,7 +718,6 @@ class k {
 	registerChannel(e, n) {}
 
 	dispose() {
-
 		this.Channels.clear();
 	}
 }

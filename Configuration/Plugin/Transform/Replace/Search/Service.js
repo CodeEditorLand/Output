@@ -3,13 +3,10 @@ const r = [
 
 		"workbench/services/search/browser/searchService.js",
 	],
-
 	c = new RegExp(`(?:${r.map((e) => e.replaceAll("/", "\\/")).join("|")})$`),
-
 	o = `export { RemoteSearchService, LocalFileSearchWorkerClient } from '../common/CELSearchService.js';
 `,
 	s = {
-
 		Kind: "Transform",
 
 		Name: "ReplaceSearchService",
@@ -19,7 +16,6 @@ const r = [
 		Match: ({ Path: e }) => c.test(e),
 
 		Transform() {
-
 			return { Kind: "Rewrite", Source: o };
 		},
 	};

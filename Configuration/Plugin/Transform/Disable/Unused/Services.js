@@ -15,13 +15,10 @@ export default {};
 
 		"workbench/contrib/processExplorer/electron-browser/processExplorer.contribution.js",
 	],
-
 	o = new RegExp(
 		`(?:${n.map((e) => e.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})$`,
 	),
-
 	s = {
-
 		Kind: "Transform",
 
 		Name: "DisableUnusedServices",
@@ -29,10 +26,8 @@ export default {};
 		Match: ({ Path: e }) => o.test(e),
 
 		Transform({ Source: e }) {
-
 			return e.includes("[Land] disabled by DisableUnusedServices")
 				? { Kind: "Unchanged" }
-
 				: { Kind: "Rewrite", Source: r };
 		},
 	};

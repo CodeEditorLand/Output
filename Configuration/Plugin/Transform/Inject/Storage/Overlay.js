@@ -1,10 +1,7 @@
 const r = "/* __LAND_STORAGE_OVERLAY__ */",
-
 	o = /\/vs\/platform\/storage\/common\/storage\.js$/,
-
 	l = [
 		{
-
 			Method: "get",
 
 			Pattern:
@@ -12,7 +9,6 @@ const r = "/* __LAND_STORAGE_OVERLAY__ */",
 		},
 
 		{
-
 			Method: "getBoolean",
 
 			Pattern:
@@ -20,7 +16,6 @@ const r = "/* __LAND_STORAGE_OVERLAY__ */",
 		},
 
 		{
-
 			Method: "getNumber",
 
 			Pattern:
@@ -28,16 +23,13 @@ const r = "/* __LAND_STORAGE_OVERLAY__ */",
 		},
 
 		{
-
 			Method: "getObject",
 
 			Pattern:
 				/(getObject\(key, scope, fallbackValue\) \{\n)(\s+)(return this\.getStorage\(scope\)\?\.getObject\(key, fallbackValue\);)/,
 		},
 	],
-
 	c = {
-
 		Kind: "Transform",
 
 		Name: "InjectStorageOverlay",
@@ -45,11 +37,9 @@ const r = "/* __LAND_STORAGE_OVERLAY__ */",
 		Match: ({ Path: e }) => o.test(e),
 
 		Transform({ Source: e }) {
-
 			if (e.includes(r)) return { Kind: "Unchanged" };
 
 			let t = e,
-
 				a = !1;
 
 			for (const n of l)
@@ -67,7 +57,6 @@ $2	}
 $2}
 $2$3`,
 					)),
-
 					(a = !0));
 			return a ? { Kind: "Rewrite", Source: t } : { Kind: "Unchanged" };
 		},

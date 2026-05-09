@@ -1,9 +1,7 @@
 const a = (o, n) =>
 		`try { process.stdout.write('[GIT-MARK-${o}] ${n}\\n'); } catch (e) {} `,
-
 	c = [
 		{
-
 			Letter: "A",
 
 			Anchor: "async function activate(context) {",
@@ -14,7 +12,6 @@ const a = (o, n) =>
 		},
 
 		{
-
 			Letter: "B",
 
 			Anchor: "context.subscriptions.push(new vscode_1.Disposable(() => vscode_1.Disposable.from(...disposables).dispose()));",
@@ -25,7 +22,6 @@ const a = (o, n) =>
 		},
 
 		{
-
 			Letter: "C",
 
 			Anchor: "const logger = vscode_1.window.createOutputChannel('Git', { log: true });",
@@ -36,7 +32,6 @@ const a = (o, n) =>
 		},
 
 		{
-
 			Letter: "D",
 
 			Anchor: "const enabled = config.get('enabled');",
@@ -47,7 +42,6 @@ const a = (o, n) =>
 		},
 
 		{
-
 			Letter: "E",
 
 			Anchor: "const { model, cloneManager } = await createModel(context, logger, telemetryReporter, disposables);",
@@ -58,7 +52,6 @@ const a = (o, n) =>
 		},
 
 		{
-
 			Letter: "F",
 
 			Anchor: "return new extension_1.GitExtensionImpl({ model, cloneManager });",
@@ -69,7 +62,6 @@ const a = (o, n) =>
 		},
 
 		{
-
 			Letter: "G",
 
 			Anchor: "async function createModel(context, logger, telemetryReporter, disposables) {",
@@ -80,7 +72,6 @@ const a = (o, n) =>
 		},
 
 		{
-
 			Letter: "H",
 
 			Anchor: "const info = await (0, git_1.findGit)(pathHints, gitPath => {",
@@ -91,7 +82,6 @@ const a = (o, n) =>
 		},
 
 		{
-
 			Letter: "I",
 
 			Anchor: "const model = new model_1.Model(git, askpass, context.globalState, context.workspaceState, logger, telemetryReporter);",
@@ -101,10 +91,8 @@ const a = (o, n) =>
 			Note: "createModel new Model done",
 		},
 	],
-
 	l = [
 		{
-
 			Letter: "J",
 
 			Anchor: "async doInitialScan() {",
@@ -115,7 +103,6 @@ const a = (o, n) =>
 		},
 
 		{
-
 			Letter: "K",
 
 			Anchor: "async openRepository(repoPath, openIfClosed = false, openIfParent = false) {",
@@ -126,7 +113,6 @@ const a = (o, n) =>
 		},
 
 		{
-
 			Letter: "L",
 
 			Anchor: "this.logger.trace(`[Model][openRepository] Repository root for path",
@@ -136,13 +122,10 @@ const a = (o, n) =>
 			Note: "Model openRepository getRepositoryRoot done",
 		},
 	],
-
 	d = (o, n) => {
-
 		let e = o;
 
 		for (const t of n) {
-
 			const i = a(t.Letter, t.Note);
 
 			if (e.includes(`[GIT-MARK-${t.Letter}]`)) continue;
@@ -151,7 +134,6 @@ const a = (o, n) =>
 
 			if (!(r < 0))
 				if (t.Position === "after") {
-
 					const s = r + t.Anchor.length;
 
 					e = e.slice(0, s) + " " + i + e.slice(s);
@@ -160,9 +142,7 @@ const a = (o, n) =>
 
 		return e;
 	},
-
 	f = {
-
 		Kind: "Transform",
 
 		Name: "InstrumentVscodeGit",
@@ -172,14 +152,11 @@ const a = (o, n) =>
 			/extensions\/git\/(?:out|dist)\/model\.js$/.test(o),
 
 		Transform({ Path: o, Source: n }) {
-
 			const e = /main\.js$/.test(o) ? c : l,
-
 				t = d(n, e);
 
 			return t === n
 				? { Kind: "Unchanged" }
-
 				: { Kind: "Rewrite", Source: t };
 		},
 	};

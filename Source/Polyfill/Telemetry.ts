@@ -17,7 +17,6 @@
  */
 
 interface PolyfillTelemetry {
-
 	readonly On: (
 		Category: string,
 

@@ -40,7 +40,6 @@
 import type { TransformPlugin } from "../../../../../Type.js";
 
 interface AnchorSpec {
-
 	readonly Marker: string;
 
 	readonly PathRegex: RegExp;
@@ -106,7 +105,6 @@ const TrailingReplaceChain = "(?:(?:\\.replace\\([^)]*\\))*)";
 // the regex tolerant of either form (esbuild minifiers occasionally
 // drop the trailing `;` before a `}`).
 const IconsStyleSheetAnchor: AnchorSpec = {
-
 	Marker: "/* __LAND_ICONS_STYLESHEET_URL_REWRITE_V2__ */",
 
 	PathRegex: /\/vs\/platform\/theme\/browser\/iconsStyleSheet\.js$/,
@@ -121,7 +119,6 @@ const IconsStyleSheetAnchor: AnchorSpec = {
 // `result.content = cssRules.join('\n');`. Capture the join
 // expression and the trailing `;`.
 const FileIconThemeAnchor: AnchorSpec = {
-
 	Marker: "/* __LAND_FILE_ICON_THEME_URL_REWRITE_V2__ */",
 
 	PathRegex:
@@ -139,7 +136,6 @@ const Anchors: ReadonlyArray<AnchorSpec> = [
 ];
 
 const Plugin: TransformPlugin = {
-
 	Kind: "Transform",
 
 	Name: "RewriteIconsStyleSheetURLs",
@@ -147,7 +143,6 @@ const Plugin: TransformPlugin = {
 	Match: ({ Path }) => Anchors.some((Anchor) => Anchor.PathRegex.test(Path)),
 
 	Transform({ Path, Source }) {
-
 		const Anchor = Anchors.find((Candidate) =>
 			Candidate.PathRegex.test(Path),
 		);

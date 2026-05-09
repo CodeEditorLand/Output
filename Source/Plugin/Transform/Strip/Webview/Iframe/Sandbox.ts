@@ -60,7 +60,6 @@ const WebviewElementSandboxCall =
 const Replacement = `${Marker} - WKWebView blocks custom-protocol main-resource loads from sandboxed iframes. */`;
 
 const Plugin: TransformPlugin = {
-
 	Kind: "Transform",
 
 	Name: "StripWebviewIframeSandbox",
@@ -69,7 +68,6 @@ const Plugin: TransformPlugin = {
 		PreIndexPathRegex.test(Path) || WebviewElementPathRegex.test(Path),
 
 	Transform({ Path, Source }) {
-
 		if (Source.includes(Marker)) return { Kind: "Unchanged" };
 
 		const Pattern = PreIndexPathRegex.test(Path)
@@ -82,7 +80,6 @@ const Plugin: TransformPlugin = {
 
 		return Next === Source
 			? { Kind: "Unchanged" }
-
 			: { Kind: "Rewrite", Source: Next };
 	},
 };

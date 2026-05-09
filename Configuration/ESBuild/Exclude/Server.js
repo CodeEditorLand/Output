@@ -1,1 +1,3 @@
-var r=e=>[`${e}/server/`];export{r as default};
+var r = (e) => [`${e}/server/`];
+
+export { r as default };

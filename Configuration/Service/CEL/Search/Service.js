@@ -1,1 +1,210 @@
-var _=Object.defineProperty;var N=Object.getOwnPropertyDescriptor;var A=(t,e,r,s)=>{for(var n=s>1?void 0:s?N(e,r):e,o=t.length-1,i;o>=0;o--)(i=t[o])&&(n=(s?i(e,r,n):i(n))||n);return s&&n&&_(e,r,n),n},c=(t,e)=>(r,s)=>e(r,s,t);import{Disposable as U}from"../../../../base/common/lifecycle.js";import{Schemas as C}from"../../../../base/common/network.js";import{URI as h}from"../../../../base/common/uri.js";import{IModelService as H}from"../../../../editor/common/services/model.js";import{IFileService as W}from"../../../../platform/files/common/files.js";import{InstantiationType as B,registerSingleton as M}from"../../../../platform/instantiation/common/extensions.js";import{IInstantiationService as O}from"../../../../platform/instantiation/common/instantiation.js";import{ILogService as D}from"../../../../platform/log/common/log.js";import{ITelemetryService as K}from"../../../../platform/telemetry/common/telemetry.js";import{IUriIdentityService as q}from"../../../../platform/uriIdentity/common/uriIdentity.js";import{IEditorService as z}from"../../editor/common/editorService.js";import{IExtensionService as G}from"../../extensions/common/extensions.js";import{ISearchService as J,SearchProviderType as T}from"../common/search.js";import{SearchService as V}from"../common/searchService.js";const F=(t,e)=>{const r=globalThis&&globalThis.__TAURI__||null,s=r&&r.core&&r.core.invoke||r&&r.invoke;if(typeof s!="function")return Promise.resolve(null);try{return s("MountainIPCInvoke",{method:t,params:e}).catch(()=>null)}catch{return Promise.resolve(null)}},k=t=>{try{return typeof t=="string"?h.parse(t):h.revive(t)}catch{return h.parse("file:///")}},R=t=>t?typeof t.filePattern=="string"&&t.filePattern.length>0?t.filePattern:((Array.isArray(t.folderQueries)?t.folderQueries:[]).length>0,"**"):"**",L=t=>{if(!t)return"";const e=[];t.excludePattern&&typeof t.excludePattern=="object"&&e.push(Object.keys(t.excludePattern));const r=Array.isArray(t.folderQueries)?t.folderQueries:[];for(const n of r)if(n&&n.excludePattern&&typeof n.excludePattern=="object"){const o=n.excludePattern.pattern||n.excludePattern;o&&typeof o=="object"&&e.push(Object.keys(o))}const s=[];for(const n of e)for(const o of n)s.push(o);return s.join(",")};class j extends U{async getAIName(){}async clearCache(e){}async fileSearch(e,r){const s=R(e),n=L(e),o=e&&e.maxResults||1e4,i=await F("search:findFiles",[s,n,o,!0,!1]),l=Array.isArray(i)?i:[];return{results:l.map(f=>({resource:k(f)})),messages:[],limitHit:l.length>=o}}async textSearch(e,r,s){const n=e&&e.contentPattern&&e.contentPattern.pattern||"";if(!n)return{results:[],messages:[],limitHit:!1};const o=!!(e&&e.contentPattern&&e.contentPattern.isRegExp),i=!!(e&&e.contentPattern&&e.contentPattern.isCaseSensitive),l=!!(e&&e.contentPattern&&e.contentPattern.isWordMatch),p=R(e),f=L(e),P=e&&e.maxResults||1e4,v=await F("search:findInFiles",[{pattern:n,isRegExp:o,isCaseSensitive:i,isWordMatch:l,isMultiline:!1},{includePattern:p,excludePattern:f,maxResults:P}]),w=Array.isArray(v)?v:[],x=[];let I=0;for(const m of w){if(!m||typeof m!="object")continue;const E=k(m.resource),g=(Array.isArray(m.matches)?m.matches:[]).map(a=>{const y=Math.max(0,(a&&a.lineNumber||1)-1),b=Array.isArray(a&&a.columns)?a.columns:[];return{rangeLocations:(b.length>0?b:[{start:0,end:(a&&a.preview||"").length}]).map(d=>({source:{startLineNumber:y,startColumn:d.start||0,endLineNumber:y,endColumn:d.end||0},preview:{startLineNumber:0,startColumn:d.start||0,endLineNumber:0,endColumn:d.end||0}})),previewText:a&&a.preview||""}});I+=g.length;const S={resource:E,results:g};if(x.push(S),typeof r=="function")try{r(S)}catch{}}return{results:x,messages:[],limitHit:I>=P}}}let u=class extends V{constructor(e,r,s,n,o,i,l,p){super(e,r,s,n,o,i,p),this.instantiationService=l;const f=new j;this.registerSearchResultProvider(C.file,T.file,f),this.registerSearchResultProvider(C.file,T.text,f)}};u=A([c(0,H),c(1,z),c(2,K),c(3,D),c(4,G),c(5,W),c(6,O),c(7,q)],u);M(J,u,B.Delayed);class de extends j{}export{de as LocalFileSearchWorkerClient,u as RemoteSearchService};
+import { Disposable as U } from "../../../../base/common/lifecycle.js";
+import { Schemas as C } from "../../../../base/common/network.js";
+import { URI as h } from "../../../../base/common/uri.js";
+import { IModelService as H } from "../../../../editor/common/services/model.js";
+import { IFileService as W } from "../../../../platform/files/common/files.js";
+import {
+	InstantiationType as B,
+	registerSingleton as M,
+} from "../../../../platform/instantiation/common/extensions.js";
+import { IInstantiationService as O } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILogService as D } from "../../../../platform/log/common/log.js";
+import { ITelemetryService as K } from "../../../../platform/telemetry/common/telemetry.js";
+import { IUriIdentityService as q } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { IEditorService as z } from "../../editor/common/editorService.js";
+import { IExtensionService as G } from "../../extensions/common/extensions.js";
+import {
+	ISearchService as J,
+	SearchProviderType as T,
+} from "../common/search.js";
+import { SearchService as V } from "../common/searchService.js";
+
+var _ = Object.defineProperty;
+
+var N = Object.getOwnPropertyDescriptor;
+
+var A = (t, e, r, s) => {
+		for (
+			var n = s > 1 ? void 0 : s ? N(e, r) : e, o = t.length - 1, i;
+			o >= 0;
+			o--
+		)
+			(i = t[o]) && (n = (s ? i(e, r, n) : i(n)) || n);
+
+		return (s && n && _(e, r, n), n);
+	},
+	c = (t, e) => (r, s) => e(r, s, t);
+
+const F = (t, e) => {
+		const r = (globalThis && globalThis.__TAURI__) || null,
+			s = (r && r.core && r.core.invoke) || (r && r.invoke);
+
+		if (typeof s != "function") return Promise.resolve(null);
+
+		try {
+			return s("MountainIPCInvoke", { method: t, params: e }).catch(
+				() => null,
+			);
+		} catch {
+			return Promise.resolve(null);
+		}
+	},
+	k = (t) => {
+		try {
+			return typeof t == "string" ? h.parse(t) : h.revive(t);
+		} catch {
+			return h.parse("file:///");
+		}
+	},
+	R = (t) =>
+		t
+			? typeof t.filePattern == "string" && t.filePattern.length > 0
+				? t.filePattern
+				: ((Array.isArray(t.folderQueries) ? t.folderQueries : [])
+						.length > 0,
+					"**")
+			: "**",
+	L = (t) => {
+		if (!t) return "";
+
+		const e = [];
+
+		t.excludePattern &&
+			typeof t.excludePattern == "object" &&
+			e.push(Object.keys(t.excludePattern));
+
+		const r = Array.isArray(t.folderQueries) ? t.folderQueries : [];
+
+		for (const n of r)
+			if (n && n.excludePattern && typeof n.excludePattern == "object") {
+				const o = n.excludePattern.pattern || n.excludePattern;
+
+				o && typeof o == "object" && e.push(Object.keys(o));
+			}
+
+		const s = [];
+
+		for (const n of e) for (const o of n) s.push(o);
+
+		return s.join(",");
+	};
+
+class j extends U {
+	async getAIName() {}
+
+	async clearCache(e) {}
+
+	async fileSearch(e, r) {
+		const s = R(e),
+			n = L(e),
+			o = (e && e.maxResults) || 1e4,
+			i = await F("search:findFiles", [s, n, o, !0, !1]),
+			l = Array.isArray(i) ? i : [];
+
+		return {
+			results: l.map((f) => ({ resource: k(f) })),
+
+			messages: [],
+
+			limitHit: l.length >= o,
+		};
+	}
+
+	async textSearch(e, r, s) {
+		const n = (e && e.contentPattern && e.contentPattern.pattern) || "";
+
+		if (!n) return { results: [], messages: [], limitHit: !1 };
+
+		const o = !!(e && e.contentPattern && e.contentPattern.isRegExp),
+			i = !!(e && e.contentPattern && e.contentPattern.isCaseSensitive),
+			l = !!(e && e.contentPattern && e.contentPattern.isWordMatch),
+			p = R(e),
+			f = L(e),
+			P = (e && e.maxResults) || 1e4,
+			v = await F("search:findInFiles", [
+				{
+					pattern: n,
+					isRegExp: o,
+					isCaseSensitive: i,
+					isWordMatch: l,
+					isMultiline: !1,
+				},
+
+				{ includePattern: p, excludePattern: f, maxResults: P },
+			]),
+			w = Array.isArray(v) ? v : [],
+			x = [];
+
+		let I = 0;
+
+		for (const m of w) {
+			if (!m || typeof m != "object") continue;
+
+			const E = k(m.resource),
+				g = (Array.isArray(m.matches) ? m.matches : []).map((a) => {
+					const y = Math.max(0, ((a && a.lineNumber) || 1) - 1),
+						b = Array.isArray(a && a.columns) ? a.columns : [];
+					return {
+						rangeLocations: (b.length > 0
+							? b
+							: [
+									{
+										start: 0,
+										end: ((a && a.preview) || "").length,
+									},
+								]
+						).map((d) => ({
+							source: {
+								startLineNumber: y,
+								startColumn: d.start || 0,
+								endLineNumber: y,
+								endColumn: d.end || 0,
+							},
+							preview: {
+								startLineNumber: 0,
+								startColumn: d.start || 0,
+								endLineNumber: 0,
+								endColumn: d.end || 0,
+							},
+						})),
+
+						previewText: (a && a.preview) || "",
+					};
+				});
+
+			I += g.length;
+
+			const S = { resource: E, results: g };
+
+			if ((x.push(S), typeof r == "function"))
+				try {
+					r(S);
+				} catch {}
+		}
+
+		return { results: x, messages: [], limitHit: I >= P };
+	}
+}
+
+let u = class extends V {
+	constructor(e, r, s, n, o, i, l, p) {
+		(super(e, r, s, n, o, i, p), (this.instantiationService = l));
+
+		const f = new j();
+
+		(this.registerSearchResultProvider(C.file, T.file, f),
+			this.registerSearchResultProvider(C.file, T.text, f));
+	}
+};
+
+u = A(
+	[c(0, H), c(1, z), c(2, K), c(3, D), c(4, G), c(5, W), c(6, O), c(7, q)],
+
+	u,
+);
+
+M(J, u, B.Delayed);
+
+class de extends j {}
+
+export { de as LocalFileSearchWorkerClient, u as RemoteSearchService };

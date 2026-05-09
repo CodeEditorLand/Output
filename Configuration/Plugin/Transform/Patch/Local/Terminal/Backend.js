@@ -1,4 +1,13 @@
-const r="workbench/contrib/terminal/electron-browser/localTerminalBackend.js".replaceAll("/","\\/"),s=new RegExp(`${r}$`),t=/async\s+_connectToDirectProxy\s*\(\s*\)\s*\{[\s\S]*?\n\s*\}\)\;\s*\n\s*\}/,n=`async _connectToDirectProxy() {
+const r =
+		"workbench/contrib/terminal/electron-browser/localTerminalBackend.js".replaceAll(
+			"/",
+
+			"\\/",
+		),
+	s = new RegExp(`${r}$`),
+	t =
+		/async\s+_connectToDirectProxy\s*\(\s*\)\s*\{[\s\S]*?\n\s*\}\)\;\s*\n\s*\}/,
+	n = `async _connectToDirectProxy() {
 		// [Land] Bypass acquirePort('vscode:createPtyHostMessageChannel');
 		// Tauri has no Electron utility-process MessagePort. Route every
 		// pty operation through the existing _localPtyService channel
@@ -43,4 +52,23 @@ const r="workbench/contrib/terminal/electron-browser/localTerminalBackend.js".re
 		this._onPtyHostConnected.fire();
 		// Eagerly fetch the backend's environment for memoization
 		this.getEnvironment();
-	}`,o={Kind:"Transform",Name:"PatchLocalTerminalBackend",Enabled:()=>process.env.Electron==="true",Match:({Path:e})=>s.test(e),Transform({Source:e}){return e.includes("[Land] Bypass acquirePort")?{Kind:"Unchanged"}:t.test(e)?{Kind:"Rewrite",Source:e.replace(t,n)}:{Kind:"Unchanged"}}};var i=o;export{i as default};
+	}`,
+	o = {
+		Kind: "Transform",
+
+		Name: "PatchLocalTerminalBackend",
+
+		Enabled: () => process.env.Electron === "true",
+
+		Match: ({ Path: e }) => s.test(e),
+
+		Transform({ Source: e }) {
+			return e.includes("[Land] Bypass acquirePort")
+				? { Kind: "Unchanged" }
+				: t.test(e)
+					? { Kind: "Rewrite", Source: e.replace(t, n) }
+					: { Kind: "Unchanged" };
+		},
+	};
+var i = o;
+export { i as default };

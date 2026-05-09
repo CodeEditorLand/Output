@@ -29,8 +29,11 @@ const ReExport =
 
 const Plugin: TransformPlugin = {
 	Kind: "Transform",
+
 	Name: "ReplaceUpdateService",
+
 	Match: ({ Path }) => PathRegex.test(Path),
+
 	Transform() {
 		return { Kind: "Rewrite", Source: ReExport };
 	},

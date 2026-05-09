@@ -20,7 +20,9 @@ const Format = (Message: string): string =>
  */
 const Trace = (
 	Tag: string,
+
 	Message: string,
+
 	Detail?: Record<string, unknown>,
 ): void => {
 	try {
@@ -36,6 +38,7 @@ const Trace = (
  */
 const TraceSpan = (Tag: string, SpanName: string): (() => void) => {
 	const MarkName = `land:${Tag}:${SpanName}:start`;
+
 	try {
 		performance.mark(MarkName);
 	} catch {}
@@ -59,4 +62,5 @@ const TraceError = (Tag: string, Message: string, Error?: unknown): void => {
 };
 
 export { Trace, TraceSpan, TraceError, Format };
+
 export default Trace;

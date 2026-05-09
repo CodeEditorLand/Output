@@ -41,7 +41,9 @@ import type { TransformPlugin } from "../../../../../Type.js";
 
 interface AnchorSpec {
 	readonly Marker: string;
+
 	readonly PathRegex: RegExp;
+
 	readonly Search: RegExp;
 }
 
@@ -104,7 +106,9 @@ const TrailingReplaceChain = "(?:(?:\\.replace\\([^)]*\\))*)";
 // drop the trailing `;` before a `}`).
 const IconsStyleSheetAnchor: AnchorSpec = {
 	Marker: "/* __LAND_ICONS_STYLESHEET_URL_REWRITE_V2__ */",
+
 	PathRegex: /\/vs\/platform\/theme\/browser\/iconsStyleSheet\.js$/,
+
 	Search: new RegExp(
 		`(getCSS\\(\\)\\s*\\{\\s*[\\s\\S]*?return\\s+rules\\.join\\('\\\\n'\\))${TrailingReplaceChain}(?:;)?(\\s*\\})`,
 	),
@@ -116,8 +120,10 @@ const IconsStyleSheetAnchor: AnchorSpec = {
 // expression and the trailing `;`.
 const FileIconThemeAnchor: AnchorSpec = {
 	Marker: "/* __LAND_FILE_ICON_THEME_URL_REWRITE_V2__ */",
+
 	PathRegex:
 		/\/vs\/workbench\/services\/themes\/browser\/fileIconThemeData\.js$/,
+
 	Search: new RegExp(
 		`(result\\.content\\s*=\\s*cssRules\\.join\\('\\\\n'\\))${TrailingReplaceChain}(\\s*;)`,
 	),
@@ -125,19 +131,26 @@ const FileIconThemeAnchor: AnchorSpec = {
 
 const Anchors: ReadonlyArray<AnchorSpec> = [
 	IconsStyleSheetAnchor,
+
 	FileIconThemeAnchor,
 ];
 
 const Plugin: TransformPlugin = {
 	Kind: "Transform",
+
 	Name: "RewriteIconsStyleSheetURLs",
+
 	Match: ({ Path }) => Anchors.some((Anchor) => Anchor.PathRegex.test(Path)),
+
 	Transform({ Path, Source }) {
 		const Anchor = Anchors.find((Candidate) =>
 			Candidate.PathRegex.test(Path),
 		);
+
 		if (!Anchor) return { Kind: "Unchanged" };
+
 		if (Source.includes(Anchor.Marker)) return { Kind: "Unchanged" };
+
 		if (!Anchor.Search.test(Source)) return { Kind: "Unchanged" };
 
 		// Trailing `;` keeps the rewritten join-chain a complete
@@ -148,9 +161,12 @@ const Plugin: TransformPlugin = {
 		// (`;;` is two empty statements, JS-legal).
 		const Next = Source.replace(
 			Anchor.Search,
+
 			`${Anchor.Marker} $1${ReplacementSuffix};$2`,
 		);
+
 		if (Next === Source) return { Kind: "Unchanged" };
+
 		return { Kind: "Rewrite", Source: Next };
 	},
 };

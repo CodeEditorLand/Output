@@ -4,9 +4,11 @@ import type { BuildOptions } from "esbuild";
 // The dynamic import must be inside the conditional body - not a ternary -
 // so ESM module evaluation does not resolve the specifier when Compiler != Rest.
 let RestPlugin: import("esbuild").Plugin | null = null;
+
 if (process.env["Compiler"]?.toLowerCase() === "rest") {
 	try {
 		const { createRestPluginIfEnabled } = await import("./Rest/Plugin.js");
+
 		RestPlugin = createRestPluginIfEnabled();
 	} catch {
 		console.warn(

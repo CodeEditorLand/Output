@@ -17,11 +17,15 @@ const Polyfill = `\n/* ${Marker} */\n(${StripBackgroundPolling.toString()})();\n
 
 const Plugin: TransformPlugin = {
 	Kind: "Transform",
+
 	Name: "InjectStripBackgroundPolling",
+
 	Match: ({ Path }) =>
 		Path.endsWith("vs/code/electron-browser/workbench/workbench.js"),
+
 	Transform({ Source }) {
 		if (Source.includes(Marker)) return { Kind: "Unchanged" };
+
 		return { Kind: "Rewrite", Source: Polyfill + Source };
 	},
 };

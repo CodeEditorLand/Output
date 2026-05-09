@@ -17,22 +17,35 @@ import type { CopyPlugin } from "../../../Type.js";
 
 export interface CopyNodeModulesInput {
 	readonly LocalRoot: string;
+
 	readonly DependencyRoot: string;
+
 	readonly Destination: string;
+
 	readonly Packages?: ReadonlyArray<string>;
 }
 
 export const DefaultPackages = [
 	"@xterm/xterm",
+
 	"@xterm/addon-clipboard",
+
 	"@xterm/addon-image",
+
 	"@xterm/addon-ligatures",
+
 	"@xterm/addon-search",
+
 	"@xterm/addon-serialize",
+
 	"@xterm/addon-unicode11",
+
 	"@xterm/addon-webgl",
+
 	"@vscode/vscode-languagedetection",
+
 	"vscode-textmate",
+
 	"vscode-oniguruma",
 ] as const;
 
@@ -43,7 +56,9 @@ export const CopyNodeModules = ({
 	Packages = DefaultPackages,
 }: CopyNodeModulesInput): CopyPlugin => ({
 	Kind: "Copy",
+
 	Name: "CopyNodeModules",
+
 	Entries: Packages.map((Pkg) => ({
 		From: [join(LocalRoot, Pkg), join(DependencyRoot, Pkg)],
 		To: join(Destination, Pkg),

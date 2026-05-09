@@ -37,6 +37,7 @@ interface IdleCallbackOptions {
 
 interface IdleDeadline {
 	didTimeout: boolean;
+
 	timeRemaining: () => number;
 }
 
@@ -46,9 +47,12 @@ declare global {
 	interface Window {
 		requestIdleCallback?: (
 			Callback: IdleCallback,
+
 			Options?: IdleCallbackOptions,
 		) => number;
+
 		cancelIdleCallback?: (Id: number) => void;
+
 		queryLocalFonts?: () => Promise<unknown[]>;
 	}
 }
@@ -59,10 +63,13 @@ export default function WebViewPolyfills(): void {
 	if (typeof window.requestIdleCallback !== "function") {
 		window.requestIdleCallback = (
 			Callback: IdleCallback,
+
 			Options?: IdleCallbackOptions,
 		): number => {
 			const Timeout = (Options && Options.timeout) || 1;
+
 			const Start = Date.now();
+
 			return setTimeout(() => {
 				Callback({
 					didTimeout: Timeout <= 0,
@@ -84,26 +91,32 @@ export default function WebViewPolyfills(): void {
 	}
 
 	const Land = globalThis as Record<string, unknown>;
+
 	if (typeof Land["__name"] !== "function") {
 		Land["__name"] = (Target: object, Value: string): object => {
 			Object.defineProperty(Target, "name", {
 				value: Value,
 				configurable: true,
 			});
+
 			return Target;
 		};
 	}
 
 	const OriginalBlob = globalThis.Blob;
+
 	const NameShim =
 		"var __defProp=Object.defineProperty;var __name=(t,v)=>__defProp(t,'name',{value:v,configurable:true});\n";
+
 	const Origin = window.location.origin;
 
 	const PatchedBlob = function PatchedBlob(
 		Parts: BlobPart[],
+
 		Options?: BlobPropertyBag,
 	): Blob {
 		let RewrittenParts: BlobPart[] = Parts;
+
 		if (
 			Options &&
 			Options.type === "application/javascript" &&
@@ -115,15 +128,19 @@ export default function WebViewPolyfills(): void {
 				if (typeof Part !== "string") return Part;
 				return Part.replace(
 					/vscode-file:\/\/vscode-app\/Static\/Application\/out\//g,
+
 					Origin + "/Static/Application/",
 				).replace(/vscode-file:\/\/vscode-app\//g, Origin + "/");
 			});
+
 			RewrittenParts = [NameShim, ...RewrittenParts];
 		}
+
 		return new OriginalBlob(RewrittenParts, Options);
 	} as unknown as typeof Blob;
 
 	(PatchedBlob as unknown as { prototype: unknown }).prototype =
 		OriginalBlob.prototype;
+
 	globalThis.Blob = PatchedBlob;
 }

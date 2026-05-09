@@ -63,12 +63,17 @@ const InertBody =
 const DisablePathSegments: string[] = [
 	// A. Auto-update
 	"workbench/contrib/update/browser/update.contribution.js",
+
 	"workbench/contrib/update/electron-browser/update.contribution.js",
+
 	// B. Issue reporter
 	"workbench/contrib/issue/browser/issue.contribution.js",
+
 	"workbench/contrib/issue/electron-browser/issue.contribution.js",
+
 	// C. MS account / settings sync UI surface
 	"workbench/contrib/userDataSync/browser/userDataSync.contribution.js",
+
 	// D. Process explorer - electron-shell window with a live PID list.
 	//    No matching Mountain side; previously rendered an empty pane.
 	//
@@ -87,13 +92,17 @@ const PathRegex = new RegExp(
 
 const Plugin: TransformPlugin = {
 	Kind: "Transform",
+
 	Name: "DisableUnusedServices",
+
 	Match: ({ Path }) => PathRegex.test(Path),
+
 	Transform({ Source }) {
 		// Already disabled (re-run on a previously-built tree).
 		if (Source.includes("[Land] disabled by DisableUnusedServices")) {
 			return { Kind: "Unchanged" };
 		}
+
 		return { Kind: "Rewrite", Source: InertBody };
 	},
 };

@@ -27,15 +27,19 @@
  */
 
 const NoopDisposable = { dispose: (): void => {} };
+
 const NoopEvent = (
 	_Listener: unknown,
+
 	_ThisArgs?: unknown,
+
 	_Disposables?: unknown,
 ): typeof NoopDisposable => NoopDisposable;
 
 class NullUpdateService {
 	readonly state = { type: "idle", updateType: 0 }; // StateType.Idle
 	readonly onStateChange = NoopEvent;
+
 	readonly _serviceBrand: undefined = undefined;
 
 	async checkForUpdates(_Explicit?: boolean): Promise<void> {}
@@ -54,6 +58,9 @@ class NullUpdateService {
 }
 
 export { NullUpdateService as UpdateService };
+
 export { NullUpdateService as AbstractUpdateService };
+
 export const UpdateService_default = NullUpdateService;
+
 export default NullUpdateService;

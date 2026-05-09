@@ -72,13 +72,20 @@ const Replacement =
 
 const Plugin: TransformPlugin = {
 	Kind: "Transform",
+
 	Name: "InjectConfigurationOverlay",
+
 	Match: ({ Path }) => PathRegex.test(Path),
+
 	Transform({ Source }) {
 		if (Source.includes(Marker)) return { Kind: "Unchanged" };
+
 		if (!Pattern.test(Source)) return { Kind: "Unchanged" };
+
 		const Next = Source.replace(Pattern, Replacement);
+
 		if (Next === Source) return { Kind: "Unchanged" };
+
 		return { Kind: "Rewrite", Source: Next };
 	},
 };

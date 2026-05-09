@@ -11,6 +11,7 @@ import type { CopyPlugin } from "../../../Type.js";
 
 export interface SupplementFromDependencyInput {
 	readonly From: string;
+
 	readonly To: string;
 }
 
@@ -19,7 +20,9 @@ export const SupplementFromDependency = ({
 	To,
 }: SupplementFromDependencyInput): CopyPlugin => ({
 	Kind: "Copy",
+
 	Name: "SupplementFromDependency",
+
 	Entries: [{ From: [From], To, Recursive: true, Force: false }],
 });
 

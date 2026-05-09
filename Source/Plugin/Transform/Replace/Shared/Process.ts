@@ -24,8 +24,10 @@ import type { TransformPlugin } from "../../../Type.js";
 const Marker =
 	"workbench/services/sharedProcess/electron-browser/sharedProcessService.js".replaceAll(
 		"/",
+
 		"\\/",
 	);
+
 const PathRegex = new RegExp(`${Marker}$`);
 
 const ReExport =
@@ -34,9 +36,13 @@ const ReExport =
 
 const Plugin: TransformPlugin = {
 	Kind: "Transform",
+
 	Name: "ReplaceSharedProcess",
+
 	Enabled: () => process.env["Electron"] === "true",
+
 	Match: ({ Path }) => PathRegex.test(Path),
+
 	Transform() {
 		// Always overwrite - the upstream body is not reusable under Tauri.
 		return { Kind: "Rewrite", Source: ReExport };

@@ -14,7 +14,9 @@ import type { CopyPlugin } from "../../../../../Type.js";
 
 export interface CopyTauriMainProcessServiceInput {
 	readonly OutputService: string;
+
 	readonly WindService: string;
+
 	readonly Destination: string;
 }
 
@@ -24,8 +26,11 @@ export const CopyTauriMainProcessService = ({
 	Destination,
 }: CopyTauriMainProcessServiceInput): CopyPlugin => ({
 	Kind: "Copy",
+
 	Name: "CopyTauriMainProcessService",
+
 	Enabled: () => process.env["Electron"] === "true",
+
 	Entries: [
 		{
 			From: [OutputService, WindService],

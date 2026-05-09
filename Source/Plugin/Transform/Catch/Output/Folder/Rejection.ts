@@ -54,18 +54,26 @@ const ChainRegex =
 
 const Plugin: TransformPlugin = {
 	Kind: "Transform",
+
 	Name: "CatchOutputFolderRejection",
+
 	Match: ({ Path, Role }) => Role === "app" && PathRegex.test(Path),
+
 	Transform({ Source }) {
 		ChainRegex.lastIndex = 0;
+
 		if (!ChainRegex.test(Source)) {
 			return { Kind: "Unchanged" };
 		}
+
 		ChainRegex.lastIndex = 0;
+
 		return {
 			Kind: "Rewrite",
+
 			Source: Source.replace(
 				ChainRegex,
+
 				(_Match, Chain) => `${Chain}.catch(() => void 0)`,
 			),
 		};

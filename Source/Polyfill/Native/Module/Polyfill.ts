@@ -45,15 +45,24 @@ import type {
  */
 interface ElectronModule {
 	ipcRenderer: IpcRenderer;
+
 	webFrame: WebFrame;
+
 	app: App;
+
 	screen: Screen;
+
 	shell: Shell;
+
 	dialog: Dialog;
+
 	clipboard: Clipboard;
+
 	nativeTheme: NativeTheme;
+
 	// remote: Remote; // Not supported - no main process access
 	BrowserWindow: BrowserWindow;
+
 	// session: Session; // Not supported
 	// webContents: WebContents; // Not supported
 	// globalShortcut: GlobalShortcut; // Not supported
@@ -64,10 +73,15 @@ interface ElectronModule {
  */
 interface WebFrame {
 	setZoomLevel(level: number): void;
+
 	setZoomFactor(factor: number): void;
+
 	getZoomFactor(): number;
+
 	getZoomLevel(): number;
+
 	insertCSS(css: string): void;
+
 	insertText(text: string): void;
 }
 
@@ -76,9 +90,13 @@ interface WebFrame {
  */
 interface App {
 	getName(): string;
+
 	getVersion(): string;
+
 	getLocale(): string;
+
 	isReady(): boolean;
+
 	whenReady(): Promise<void>;
 }
 
@@ -88,14 +106,19 @@ interface App {
 interface Screen {
 	getDisplayNearestPoint(point: { x: number; y: number }): {
 		id: number;
+
 		bounds: { x: number; y: number; width: number; height: number };
 	};
+
 	getPrimaryDisplay(): {
 		id: number;
+
 		bounds: { x: number; y: number; width: number; height: number };
 	};
+
 	getAllDisplays(): Array<{
 		id: number;
+
 		bounds: { x: number; y: number; width: number; height: number };
 	}>;
 }
@@ -105,9 +128,13 @@ interface Screen {
  */
 interface Shell {
 	openExternal(url: string): Promise<void>;
+
 	openPath(path: string): Promise<string>;
+
 	showItemInFolder(path: string): Promise<void>;
+
 	trashItem(path: string): Promise<void>;
+
 	beep(): void;
 }
 
@@ -118,10 +145,13 @@ interface Dialog {
 	showOpenDialog(
 		options?: unknown,
 	): Promise<{ filePaths: string[]; canceled: boolean }>;
+
 	showSaveDialog(
 		options?: unknown,
 	): Promise<{ filePath: string | undefined; canceled: boolean }>;
+
 	showMessage(message: string): void;
+
 	showError(message: string): void;
 }
 
@@ -130,9 +160,13 @@ interface Dialog {
  */
 interface Clipboard {
 	writeText(text: string): Promise<void>;
+
 	readText(): Promise<string>;
+
 	writeBuffer(format: string, buffer: Buffer): Promise<void>;
+
 	readBuffer(format: string): Promise<Buffer | undefined>;
+
 	clear(): void;
 }
 
@@ -141,7 +175,9 @@ interface Clipboard {
  */
 interface NativeTheme {
 	shouldUseDarkColors: boolean;
+
 	shouldUseInvertedColorScheme: boolean;
+
 	theme: "system" | "light" | "dark";
 }
 
@@ -150,13 +186,21 @@ interface NativeTheme {
  */
 interface BrowserWindow {
 	id: number;
+
 	isFocused(): boolean;
+
 	focus(): void;
+
 	show(): void;
+
 	hide(): void;
+
 	close(): void;
+
 	isMaximizable(): boolean;
+
 	isMinimizable(): boolean;
+
 	getBounds(): { x: number; y: number; width: number; height: number };
 }
 
@@ -169,6 +213,7 @@ interface BrowserWindow {
  */
 async function invokeTauri<T>(
 	command: string,
+
 	args: Record<string, unknown> = {},
 ): Promise<T> {
 	try {
@@ -193,6 +238,7 @@ async function invokeTauri<T>(
 					params: args,
 				});
 			}
+
 			return await Invoke(command, args);
 		}
 
@@ -228,8 +274,11 @@ function getCachedModule<T>(key: string, factory: () => T): T {
 	if (MODULE_CACHE.has(key)) {
 		return MODULE_CACHE.get(key) as T;
 	}
+
 	const module = factory();
+
 	MODULE_CACHE.set(key, module as any);
+
 	return module;
 }
 
@@ -260,7 +309,9 @@ function createWebFrame(): WebFrame {
 
 		insertCSS(css: string): void {
 			const style = document.createElement("style");
+
 			style.textContent = css;
+
 			document.head.appendChild(style);
 		},
 
@@ -312,15 +363,20 @@ function createScreen(): Screen {
 	return {
 		getDisplayNearestPoint(point: { x: number; y: number }): {
 			id: number;
+
 			bounds: { x: number; y: number; width: number; height: number };
 		} {
 			// Return primary display in browser
 			return {
 				id: 1,
+
 				bounds: {
 					x: 0,
+
 					y: 0,
+
 					width: window.screen.width,
+
 					height: window.screen.height,
 				},
 			};
@@ -328,14 +384,19 @@ function createScreen(): Screen {
 
 		getPrimaryDisplay(): {
 			id: number;
+
 			bounds: { x: number; y: number; width: number; height: number };
 		} {
 			return {
 				id: 1,
+
 				bounds: {
 					x: window.screen.availLeft,
+
 					y: window.screen.availTop,
+
 					width: window.screen.width,
+
 					height: window.screen.height,
 				},
 			};
@@ -343,15 +404,20 @@ function createScreen(): Screen {
 
 		getAllDisplays(): Array<{
 			id: number;
+
 			bounds: { x: number; y: number; width: number; height: number };
 		}> {
 			return [
 				{
 					id: 1,
+
 					bounds: {
 						x: window.screen.availLeft,
+
 						y: window.screen.availTop,
+
 						width: window.screen.width,
+
 						height: window.screen.height,
 					},
 				},
@@ -375,6 +441,7 @@ function createShell(): Shell {
 				const shell =
 					(window as any).__TAURI__?.shell ??
 					(window as any).TAURI?.shell;
+
 				if (typeof shell?.open === "function") {
 					await shell.open(url);
 				} else {
@@ -408,11 +475,17 @@ function createShell(): Shell {
 		beep(): void {
 			if (typeof AudioContext !== "undefined") {
 				const ctx = new AudioContext();
+
 				const osc = ctx.createOscillator();
+
 				const gain = ctx.createGain();
+
 				osc.connect(gain);
+
 				gain.connect(ctx.destination);
+
 				osc.start();
+
 				osc.stop(ctx.currentTime + 0.1);
 			}
 		},
@@ -436,14 +509,17 @@ function createDialog(): Dialog {
 				const dialog =
 					(window as any).__TAURI__?.dialog ??
 					(window as any).TAURI?.dialog;
+
 				if (typeof dialog?.open === "function") {
 					const selected = await dialog.open(options);
+
 					return {
 						filePaths: Array.isArray(selected)
 							? selected
 							: selected
 								? [selected]
 								: [],
+
 						canceled: !selected,
 					};
 				}
@@ -461,10 +537,13 @@ function createDialog(): Dialog {
 				const dialog =
 					(window as any).__TAURI__?.dialog ??
 					(window as any).TAURI?.dialog;
+
 				if (typeof dialog?.save === "function") {
 					const filePath = await dialog.save(options);
+
 					return {
 						filePath: filePath ?? undefined,
+
 						canceled: !filePath,
 					};
 				}
@@ -507,6 +586,7 @@ function createClipboard(): Clipboard {
 				const clipboard =
 					(window as any).__TAURI__?.clipboard ??
 					(window as any).TAURI?.clipboard;
+
 				if (typeof clipboard?.writeText === "function") {
 					await clipboard.writeText(text);
 				} else {
@@ -524,6 +604,7 @@ function createClipboard(): Clipboard {
 				const clipboard =
 					(window as any).__TAURI__?.clipboard ??
 					(window as any).TAURI?.clipboard;
+
 				if (typeof clipboard?.readText === "function") {
 					return await clipboard.readText();
 				}
@@ -567,6 +648,7 @@ function createNativeTheme(): NativeTheme {
 		get theme(): "system" | "light" | "dark" {
 			// Try to get from Tauri if available
 			const tauri = (window as any).__TAURI__ ?? (window as any).TAURI;
+
 			if (tauri?.window?.appWindow?.theme) {
 				return tauri.window.appWindow.theme;
 			}
@@ -587,32 +669,43 @@ function createNativeTheme(): NativeTheme {
 function createBrowserWindow(): BrowserWindow {
 	return {
 		id: 1,
+
 		isFocused(): boolean {
 			return document.hasFocus();
 		},
+
 		focus(): void {
 			window.focus();
 		},
+
 		show(): void {
 			// No-op in renderer
 		},
+
 		hide(): void {
 			// No-op in renderer
 		},
+
 		close(): void {
 			window.close();
 		},
+
 		isMaximizable(): boolean {
 			return true;
 		},
+
 		isMinimizable(): boolean {
 			return true;
 		},
+
 		getBounds(): { x: number; y: number; width: number; height: number } {
 			return {
 				x: window.screenX,
+
 				y: window.screenY,
+
 				width: window.innerWidth,
+
 				height: window.innerHeight,
 			};
 		},
@@ -647,15 +740,23 @@ function createElectronModule(): ElectronModule {
 		}) as IpcRenderer,
 
 		webFrame: getCachedModule("webFrame", createWebFrame) as WebFrame,
+
 		app: getCachedModule("app", createApp) as App,
+
 		screen: getCachedModule("screen", createScreen) as Screen,
+
 		shell: getCachedModule("shell", createShell) as Shell,
+
 		dialog: getCachedModule("dialog", createDialog) as Dialog,
+
 		clipboard: getCachedModule("clipboard", createClipboard) as Clipboard,
+
 		nativeTheme: getCachedModule(
 			"nativeTheme",
+
 			createNativeTheme,
 		) as NativeTheme,
+
 		BrowserWindow: createBrowserWindow(),
 	};
 }
@@ -685,32 +786,43 @@ function installRequireShim(): void {
 		// Intercept electron sub-modules
 		if (id.startsWith("electron/")) {
 			const moduleName = id.replace("electron/", "");
+
 			const electronModule = createElectronModule();
 
 			switch (moduleName) {
 				case "ipcRenderer":
 					return electronModule.ipcRenderer;
+
 				case "webFrame":
 					return electronModule.webFrame;
+
 				case "app":
 					return electronModule.app;
+
 				case "screen":
 					return electronModule.screen;
+
 				case "shell":
 					return electronModule.shell;
+
 				case "dialog":
 					return electronModule.dialog;
+
 				case "clipboard":
 					return electronModule.clipboard;
+
 				case "nativeTheme":
 					return electronModule.nativeTheme;
+
 				case "browserWindow":
 				case "BrowserWindow":
 					return electronModule.BrowserWindow;
+
 				case "remote":
 					throw new Error(
 						"electron.remote is not supported in Tauri environment",
 					);
+
 				default:
 					return {};
 			}
@@ -725,6 +837,7 @@ function installRequireShim(): void {
 		Object.defineProperty((window as any).require, key, {
 			...(Object.getOwnPropertyDescriptor(
 				originalRequire,
+
 				key,
 			) as PropertyDescriptor),
 		});
@@ -736,32 +849,45 @@ function installRequireShim(): void {
 	if (id === "electron") {
 		return createElectronModule();
 	}
+
 	if (id.startsWith("electron/")) {
 		const moduleName = id.replace("electron/", "");
+
 		const electronModule = createElectronModule();
+
 		switch (moduleName) {
 			case "ipcRenderer":
 				return electronModule.ipcRenderer;
+
 			case "webFrame":
 				return electronModule.webFrame;
+
 			case "app":
 				return electronModule.app;
+
 			case "screen":
 				return electronModule.screen;
+
 			case "shell":
 				return electronModule.shell;
+
 			case "dialog":
 				return electronModule.dialog;
+
 			case "clipboard":
 				return electronModule.clipboard;
+
 			case "nativeTheme":
 				return electronModule.nativeTheme;
+
 			case "BrowserWindow":
 				return electronModule.BrowserWindow;
+
 			default:
 				return {};
 		}
 	}
+
 	return undefined;
 };
 
@@ -781,12 +907,15 @@ export function installNativeModulePolyfill(): void {
 	if ((window as any).__NATIVE_MODULE_POLYFILL_INSTALLED__) {
 		return;
 	}
+
 	(window as any).__NATIVE_MODULE_POLYFILL_INSTALLED__ = true;
+
 	// Install require shim
 	installRequireShim();
 
 	// Also make electron directly available on global
 	const electronModule = createElectronModule();
+
 	(window as any).electron = electronModule;
 
 	// Attach to window.vscode if available
@@ -804,13 +933,21 @@ export default {
 
 	// Individual modules
 	createElectronModule,
+
 	createWebFrame,
+
 	createApp,
+
 	createScreen,
+
 	createShell,
+
 	createDialog,
+
 	createClipboard,
+
 	createNativeTheme,
+
 	createBrowserWindow,
 };
 

@@ -37,4 +37,5 @@ class SharedProcessService extends TauriMainProcessService {
 }
 
 export { SharedProcessService };
+
 export default SharedProcessService;

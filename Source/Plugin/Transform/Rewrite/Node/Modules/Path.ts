@@ -62,26 +62,36 @@ const Marker = "/* __LAND_NODE_MODULES_PATH_PATCHED__ */";
 // string replace stays surgical and quote-style-stable.
 const Replacements: ReadonlyArray<[string, string]> = [
 	[`'vs/../../extensions'`, `'vs/../extensions'`],
+
 	[`'vs/../../node_modules'`, `'vs/../node_modules'`],
+
 	[`'vs/../../node_modules.asar'`, `'vs/../node_modules.asar'`],
+
 	[
 		`'vs/../../node_modules.asar.unpacked'`,
+
 		`'vs/../node_modules.asar.unpacked'`,
 	],
 ];
 
 const Plugin: TransformPlugin = {
 	Kind: "Transform",
+
 	Name: "RewriteNodeModulesPath",
+
 	Match: ({ Path }) => /\/vs\/base\/common\/network\.js$/.test(Path),
+
 	Transform({ Source }) {
 		if (Source.includes(Marker)) return { Kind: "Unchanged" };
 
 		let Next = Source;
+
 		let Changed = false;
+
 		for (const [Original, Patched] of Replacements) {
 			if (Next.includes(Original)) {
 				Next = Next.replace(Original, Patched);
+
 				Changed = true;
 			}
 		}
@@ -90,6 +100,7 @@ const Plugin: TransformPlugin = {
 
 		return {
 			Kind: "Rewrite",
+
 			Source: Marker + "\n" + Next,
 		};
 	},

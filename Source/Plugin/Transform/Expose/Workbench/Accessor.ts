@@ -48,59 +48,76 @@ import type { TransformPlugin } from "../../../Type.js";
 // through esbuild's quote-normalising transform. Match what's actually on disk.
 const WebMainImportMarker =
 	"import { mark } from '../../base/common/performance.js';";
+
 const WebMainImportInjection =
 	"\nimport { ExposeAccessor as __CEL_ExposeAccessor } from './CELExposeAccessor.js';";
 
 const DesktopMainImportMarker = "import { localize } from '../../nls.js';";
+
 const DesktopMainImportInjection =
 	"\nimport { ExposeAccessor as __CEL_ExposeAccessor } from '../browser/CELExposeAccessor.js';";
 
 const WebFactoryImportMarker =
 	"import { mark } from '../../base/common/performance.js';";
+
 const WebFactoryImportInjection =
 	"\nimport { OnWorkbenchReady as __CEL_OnWorkbenchReady } from './CELExposeAccessor.js';";
 
 const StartupMarker = "const instantiationService = workbench.startup();";
+
 const StartupInjection =
 	StartupMarker + "\n        __CEL_ExposeAccessor(instantiationService);";
 
 const WorkbenchReadyMarker = "workbenchPromise.complete(workbench);";
+
 const WorkbenchReadyInjection =
 	WorkbenchReadyMarker + "\n        __CEL_OnWorkbenchReady(workbench);";
 
 const Plugin: TransformPlugin = {
 	Kind: "Transform",
+
 	Name: "ExposeWorkbenchAccessor",
+
 	Match: ({ Path }) =>
 		/\/vs\/workbench\/browser\/web\.main\.js$/.test(Path) ||
 		/\/vs\/workbench\/browser\/web\.factory\.js$/.test(Path) ||
 		/\/vs\/workbench\/electron-browser\/desktop\.main\.js$/.test(Path),
+
 	Transform({ Path, Source }) {
 		if (Source.includes("CELExposeAccessor")) {
 			// Already patched in a previous build pass.
 			return { Kind: "Unchanged" };
 		}
+
 		const IsWebMain = /\/web\.main\.js$/.test(Path);
+
 		const IsDesktopMain = /\/desktop\.main\.js$/.test(Path);
+
 		const IsWebFactory = /\/web\.factory\.js$/.test(Path);
 
 		if (IsWebMain || IsDesktopMain) {
 			if (!Source.includes(StartupMarker)) {
 				return { Kind: "Unchanged" };
 			}
+
 			const ImportMarker = IsDesktopMain
 				? DesktopMainImportMarker
 				: WebMainImportMarker;
+
 			const ImportInjection = IsDesktopMain
 				? DesktopMainImportInjection
 				: WebMainImportInjection;
+
 			if (!Source.includes(ImportMarker)) {
 				return { Kind: "Unchanged" };
 			}
+
 			const Next = Source.replace(
 				ImportMarker,
+
 				ImportMarker + ImportInjection,
 			).replace(StartupMarker, StartupInjection);
+
 			return Next === Source
 				? { Kind: "Unchanged" }
 				: { Kind: "Rewrite", Source: Next };
@@ -110,13 +127,17 @@ const Plugin: TransformPlugin = {
 			if (!Source.includes(WorkbenchReadyMarker)) {
 				return { Kind: "Unchanged" };
 			}
+
 			if (!Source.includes(WebFactoryImportMarker)) {
 				return { Kind: "Unchanged" };
 			}
+
 			const Next = Source.replace(
 				WebFactoryImportMarker,
+
 				WebFactoryImportMarker + WebFactoryImportInjection,
 			).replace(WorkbenchReadyMarker, WorkbenchReadyInjection);
+
 			return Next === Source
 				? { Kind: "Unchanged" }
 				: { Kind: "Rewrite", Source: Next };

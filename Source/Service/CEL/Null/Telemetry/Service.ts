@@ -26,24 +26,33 @@ const NoopPromise: Promise<undefined> = Promise.resolve(undefined);
 
 class NullTelemetryService {
 	readonly sendErrorTelemetry = false;
+
 	readonly telemetryLevel = 0; // TelemetryLevel.NONE
 	readonly sessionId = "";
+
 	readonly machineId = "";
+
 	readonly firstSessionDate = "";
+
 	readonly msftInternal = false;
+
 	readonly _serviceBrand: undefined = undefined;
 
 	setExperimentProperty(_Name: string, _Value: unknown): void {}
 
 	publicLog(
 		_EventName: string,
+
 		_Data?: unknown,
+
 		_AnonymizeFilePaths?: boolean,
 	): void {}
 
 	publicLog2(
 		_EventName: string,
+
 		_Data?: unknown,
+
 		_AnonymizeFilePaths?: boolean,
 	): void {}
 
@@ -57,5 +66,7 @@ class NullTelemetryService {
 }
 
 export { NullTelemetryService as TelemetryService };
+
 export const TelemetryService_default = NullTelemetryService;
+
 export default NullTelemetryService;

@@ -20,19 +20,24 @@ const DataPrefix = "data:text/javascript,";
 
 export interface CopyCandidate {
 	readonly From: string;
+
 	readonly To: string;
+
 	readonly Recursive?: boolean;
+
 	readonly Force?: boolean;
 }
 
 export interface CopyOutcome {
 	readonly Resolved: CopyCandidate | null;
+
 	readonly Error?: string;
 }
 
 const Exists = async (Path: string): Promise<boolean> => {
 	try {
 		await stat(Path);
+
 		return true;
 	} catch {
 		return false;
@@ -52,15 +57,20 @@ export const CopyFirstAvailable = async (
 		if (Candidate.From.startsWith(DataPrefix)) {
 			try {
 				await mkdir(dirname(Candidate.To), { recursive: true });
+
 				await writeFile(
 					Candidate.To,
+
 					Candidate.From.slice(DataPrefix.length),
+
 					"utf-8",
 				);
+
 				return { Resolved: Candidate };
 			} catch (Error) {
 				return {
 					Resolved: null,
+
 					Error:
 						Error instanceof globalThis.Error
 							? Error.message
@@ -68,10 +78,13 @@ export const CopyFirstAvailable = async (
 				};
 			}
 		}
+
 		if (!(await Exists(Candidate.From))) continue;
+
 		try {
 			// Ensure parent dir so `copyFile` doesn't fail on fresh trees.
 			await mkdir(dirname(Candidate.To), { recursive: true });
+
 			if (Candidate.Recursive) {
 				await cp(Candidate.From, Candidate.To, {
 					recursive: true,
@@ -80,10 +93,12 @@ export const CopyFirstAvailable = async (
 			} else {
 				await copyFile(Candidate.From, Candidate.To);
 			}
+
 			return { Resolved: Candidate };
 		} catch (Error) {
 			return {
 				Resolved: null,
+
 				Error:
 					Error instanceof globalThis.Error
 						? Error.message
@@ -91,6 +106,7 @@ export const CopyFirstAvailable = async (
 			};
 		}
 	}
+
 	return { Resolved: null };
 };
 

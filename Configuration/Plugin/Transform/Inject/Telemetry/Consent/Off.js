@@ -1,23 +1,4 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import TelemetryConsentOff, {
-  Marker
-} from "../../../../Polyfill/Telemetry/Consent/Off.js";
-const Polyfill = `
-/* ${Marker} */
-(${TelemetryConsentOff.toString()})();
-`;
-const Plugin = {
-  Kind: "Transform",
-  Name: "InjectTelemetryConsentOff",
-  Match: /* @__PURE__ */ __name(({ Path }) => Path.endsWith("vs/code/electron-browser/workbench/workbench.js"), "Match"),
-  Transform({ Source }) {
-    if (Source.includes(Marker)) return { Kind: "Unchanged" };
-    return { Kind: "Rewrite", Source: Polyfill + Source };
-  }
-};
-var Off_default = Plugin;
-export {
-  Off_default as default
-};
-//# sourceMappingURL=Off.js.map
+import r,{Marker as e}from"../../../../Polyfill/Telemetry/Consent/Off.js";const o=`
+/* ${e} */
+(${r.toString()})();
+`,t={Kind:"Transform",Name:"InjectTelemetryConsentOff",Match:({Path:n})=>n.endsWith("vs/code/electron-browser/workbench/workbench.js"),Transform({Source:n}){return n.includes(e)?{Kind:"Unchanged"}:{Kind:"Rewrite",Source:o+n}}};var s=t;export{s as default};

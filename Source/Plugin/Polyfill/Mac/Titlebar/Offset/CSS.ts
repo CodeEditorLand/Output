@@ -46,8 +46,11 @@ export default function MacTitlebarOffsetCSS(): void {
 			// titlebar container. Targets `.mac` so non-macOS builds keep
 			// their stock layout.
 			".monaco-workbench.mac .part.titlebar > .titlebar-container {",
+
 			"\tpadding-left: 80px;",
+
 			"}",
+
 			// `flex-direction: row-reverse` on `.part.titlebar` (stock
 			// VS Code rule) inverts visual ordering when extra siblings
 			// exist. With Tauri's overlay titlebar the sibling
@@ -55,8 +58,11 @@ export default function MacTitlebarOffsetCSS(): void {
 			// has no visible effect - but explicitly switching to plain
 			// `row` makes the layout robust to future churn.
 			".monaco-workbench.mac .part.titlebar {",
+
 			"\tflex-direction: row !important;",
+
 			"}",
+
 			// Ensure the drag region also leaves the traffic-light area
 			// non-draggable. macOS already owns the buttons; making the
 			// drag region cover them still works (clicks pass through to
@@ -64,9 +70,13 @@ export default function MacTitlebarOffsetCSS(): void {
 			// hover. Inset the drag region so the buttons are
 			// pixel-clean.
 			".monaco-workbench.mac .part.titlebar > .titlebar-container > .titlebar-drag-region {",
+
 			"\tleft: 80px;",
+
 			"\twidth: calc(100% - 80px);",
+
 			"}",
+
 			// The macOS compact menubar (`.activitybar .menubar.compact`)
 			// is unaffected; the inline menubar lives at
 			// `.titlebar-left > .menubar` and inherits the container's
@@ -80,7 +90,9 @@ export default function MacTitlebarOffsetCSS(): void {
 			// `margin-inline-start` so it doesn't drift back under the
 			// traffic lights on a 1024px-wide split.
 			".monaco-workbench.mac .part.titlebar > .titlebar-container.has-center > .titlebar-center {",
+
 			"\tmargin-inline-start: 16px;",
+
 			"}",
 		].join("\n");
 

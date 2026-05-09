@@ -19,13 +19,18 @@
 interface PolyfillTelemetry {
 	readonly On: (
 		Category: string,
+
 		Error: unknown,
+
 		Detail?: Record<string, unknown>,
 	) => void;
+
 	readonly Set: (
 		Handler: (
 			Category: string,
+
 			Error: unknown,
+
 			Detail?: Record<string, unknown>,
 		) => void,
 	) => void;
@@ -35,7 +40,9 @@ export default ((): PolyfillTelemetry => {
 	let Handler:
 		| ((
 				Category: string,
+
 				Error: unknown,
+
 				Detail?: Record<string, unknown>,
 		  ) => void)
 		| null = null;

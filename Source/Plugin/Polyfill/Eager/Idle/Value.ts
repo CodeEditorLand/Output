@@ -29,6 +29,7 @@ export default function EagerIdleValue(): void {
 
 	const EagerDeadline: SyntheticIdleDeadline = {
 		didTimeout: false,
+
 		timeRemaining: (): number => 50,
 	};
 

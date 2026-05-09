@@ -46,17 +46,29 @@ const ReplacementSource =
 	JSON.stringify(
 		[
 			"function() {",
+
 			"  let tooSlow = false;",
+
 			"  function fib(n) {",
+
 			"    if (tooSlow) { return 0; }",
+
 			"    if (performance.now() - t1 >= 1e3) { tooSlow = true; }",
+
 			"    if (n <= 2) { return n; }",
+
 			"    return fib(n - 1) + fib(n - 2);",
+
 			"  }",
+
 			"  const t1 = performance.now();",
+
 			"  fib(24);",
+
 			"  const value = Math.round(performance.now() - t1);",
+
 			"  self.postMessage({ value: tooSlow ? -1 : value });",
+
 			"}",
 		].join("\n"),
 	) +
@@ -64,17 +76,25 @@ const ReplacementSource =
 
 const Plugin: TransformPlugin = {
 	Kind: "Transform",
+
 	Name: "RewritePerfBaselineWorker",
+
 	Match: ({ Path }) =>
 		/\/vs\/workbench\/services\/timer\/browser\/timerService\.js$/.test(
 			Path,
 		),
+
 	Transform({ Source }) {
 		if (Source.includes(Marker)) return { Kind: "Unchanged" };
+
 		const Index = Source.indexOf(Anchor);
+
 		if (Index < 0) return { Kind: "Unchanged" };
+
 		const TailIdx = Source.indexOf(Tail, Index);
+
 		if (TailIdx < 0) return { Kind: "Unchanged" };
+
 		const BlockEnd = TailIdx + Tail.length;
 
 		const Next =
@@ -82,6 +102,7 @@ const Plugin: TransformPlugin = {
 
 		return {
 			Kind: "Rewrite",
+
 			Source: Marker + "\n" + Next,
 		};
 	},

@@ -49,27 +49,34 @@ const Marker = "__LAND_TERMINAL_GPU_LAYER__";
 const StylesheetPath = fileURLToPath(
 	new URL(
 		"../../../../../../../Source/Asset/Style/Terminal/GPU/Layer.css",
+
 		import.meta.url,
 	),
 );
+
 const InjectedCSS = "\n" + (await readFile(StylesheetPath, "utf8"));
 
 const PathRegex = /workbench\/contrib\/terminal\/browser\/media\/[^/]+\.css$/;
 
 const Plugin: TransformPlugin = {
 	Kind: "Transform",
+
 	Name: "InjectTerminalGPULayerCSS",
+
 	Match: ({ Path }) => PathRegex.test(Path),
+
 	Transform({ Source }) {
 		if (Source.includes(Marker)) {
 			return { Kind: "Unchanged" };
 		}
+
 		// Append the GPU-layer hints to the matched terminal stylesheet.
 		// Multiple terminal CSS files exist (terminal.css, terminalTabs.css,
 		// etc.) - applying to each one is safe because the marker check
 		// above prevents double-injection on already-patched files.
 		return {
 			Kind: "Rewrite",
+
 			Source: Source + InjectedCSS,
 		};
 	},

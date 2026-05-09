@@ -42,23 +42,30 @@ const Marker = "__LAND_EDITOR_GPU_LAYER__";
 const StylesheetPath = fileURLToPath(
 	new URL(
 		"../../../../../../../Source/Asset/Style/Editor/GPU/Layer.css",
+
 		import.meta.url,
 	),
 );
+
 const InjectedCSS = "\n" + (await readFile(StylesheetPath, "utf8"));
 
 const PathRegex = /editor\/browser\/(?:[^/]+\/)*[^/]+\.css$/;
 
 const Plugin: TransformPlugin = {
 	Kind: "Transform",
+
 	Name: "InjectEditorGPULayerCSS",
+
 	Match: ({ Path }) => PathRegex.test(Path),
+
 	Transform({ Source }) {
 		if (Source.includes(Marker)) {
 			return { Kind: "Unchanged" };
 		}
+
 		return {
 			Kind: "Rewrite",
+
 			Source: Source + InjectedCSS,
 		};
 	},

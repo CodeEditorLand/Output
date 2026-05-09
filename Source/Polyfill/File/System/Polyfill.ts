@@ -37,27 +37,49 @@
  */
 interface Stats {
 	dev: number;
+
 	ino: number;
+
 	mode: number;
+
 	nlink: number;
+
 	uid: number;
+
 	gid: number;
+
 	rdev: number;
+
 	size: number;
+
 	atimeMs: number;
+
 	mtimeMs: number;
+
 	ctimeMs: number;
+
 	birthtimeMs: number;
+
 	atime: Date;
+
 	mtime: Date;
+
 	ctime: Date;
+
 	birthtime: Date;
+
 	isFile(): boolean;
+
 	isDirectory(): boolean;
+
 	isBlockDevice(): boolean;
+
 	isCharacterDevice(): boolean;
+
 	isSymbolicLink(): boolean;
+
 	isFIFO(): boolean;
+
 	isSocket(): boolean;
 }
 
@@ -66,12 +88,19 @@ interface Stats {
  */
 interface MountainStats {
 	path: string;
+
 	size: number;
+
 	created: string;
+
 	modified: string;
+
 	accessed: string;
+
 	is_file: boolean;
+
 	is_dir: boolean;
+
 	permissions?: string;
 }
 
@@ -80,13 +109,21 @@ interface MountainStats {
  */
 interface Dirent {
 	name: string;
+
 	path: string;
+
 	isFile(): boolean;
+
 	isDirectory(): boolean;
+
 	isBlockDevice(): boolean;
+
 	isCharacterDevice(): boolean;
+
 	isSymbolicLink(): boolean;
+
 	isFIFO(): boolean;
+
 	isSocket(): boolean;
 }
 
@@ -95,6 +132,7 @@ interface Dirent {
  */
 interface MkdirOptions {
 	recursive?: boolean;
+
 	mode?: number;
 }
 
@@ -103,8 +141,11 @@ interface MkdirOptions {
  */
 interface RmOptions {
 	recursive?: boolean;
+
 	force?: boolean;
+
 	maxRetries?: number;
+
 	retryDelay?: number;
 }
 
@@ -113,6 +154,7 @@ interface RmOptions {
  */
 interface ReadFileOptions {
 	encoding?: BufferEncoding | null;
+
 	flag?: string;
 }
 
@@ -121,7 +163,9 @@ interface ReadFileOptions {
  */
 interface WriteFileOptions {
 	encoding?: BufferEncoding | null;
+
 	mode?: number;
+
 	flag?: string;
 }
 
@@ -130,6 +174,7 @@ interface WriteFileOptions {
  */
 interface CopyFileOptions {
 	mode?: number;
+
 	flags?: number;
 }
 
@@ -142,6 +187,7 @@ interface CopyFileOptions {
  */
 async function invokeTauri<T>(
 	command: string,
+
 	args: Record<string, unknown> = {},
 ): Promise<T> {
 	try {
@@ -166,6 +212,7 @@ async function invokeTauri<T>(
 					params: args,
 				});
 			}
+
 			return await Invoke(command, args);
 		}
 
@@ -185,39 +232,61 @@ async function invokeTauri<T>(
 function mountainStatsToStats(mountainStats: MountainStats): Stats {
 	return {
 		dev: 1,
+
 		ino: 1,
+
 		mode: mountainStats.is_file ? 0o100644 : 0o40755,
+
 		nlink: 1,
+
 		uid: 1000,
+
 		gid: 1000,
+
 		rdev: 0,
+
 		size: mountainStats.size,
+
 		atimeMs: new Date(mountainStats.accessed).getTime(),
+
 		mtimeMs: new Date(mountainStats.modified).getTime(),
+
 		ctimeMs: new Date(mountainStats.created).getTime(),
+
 		birthtimeMs: new Date(mountainStats.created).getTime(),
+
 		atime: new Date(mountainStats.accessed),
+
 		mtime: new Date(mountainStats.modified),
+
 		ctime: new Date(mountainStats.created),
+
 		birthtime: new Date(mountainStats.created),
+
 		isFile() {
 			return mountainStats.is_file;
 		},
+
 		isDirectory() {
 			return mountainStats.is_dir;
 		},
+
 		isBlockDevice() {
 			return false;
 		},
+
 		isCharacterDevice() {
 			return false;
 		},
+
 		isSymbolicLink() {
 			return false;
 		},
+
 		isFIFO() {
 			return false;
 		},
+
 		isSocket() {
 			return false;
 		},
@@ -234,25 +303,33 @@ function mountainStatsToStats(mountainStats: MountainStats): Stats {
 function createDirent(name: string, path: string, isDir: boolean): Dirent {
 	return {
 		name,
+
 		path,
+
 		isFile() {
 			return !isDir;
 		},
+
 		isDirectory() {
 			return isDir;
 		},
+
 		isBlockDevice() {
 			return false;
 		},
+
 		isCharacterDevice() {
 			return false;
 		},
+
 		isSymbolicLink() {
 			return false;
 		},
+
 		isFIFO() {
 			return false;
 		},
+
 		isSocket() {
 			return false;
 		},
@@ -268,6 +345,7 @@ function createDirent(name: string, path: string, isDir: boolean): Dirent {
  */
 async function readFile(
 	path: string,
+
 	options?: ReadFileOptions | BufferEncoding,
 ): Promise<string | Buffer> {
 	// Normalize options
@@ -285,6 +363,7 @@ async function readFile(
 		return encoding === null ? Buffer.from(content, "base64") : content;
 	} catch (error: unknown) {
 		const err = error instanceof Error ? error : new Error(String(error));
+
 		throw err;
 	}
 }
@@ -294,11 +373,14 @@ async function readFile(
  */
 async function writeFile(
 	path: string,
+
 	data: string | Buffer,
+
 	options?: WriteFileOptions | BufferEncoding,
 ): Promise<void> {
 	// Normalize options
 	let encoding: BufferEncoding | null = "utf8";
+
 	if (typeof options === "string") {
 		encoding = options;
 	} else if (options) {
@@ -307,6 +389,7 @@ async function writeFile(
 
 	// Convert data to string
 	let content: string;
+
 	if (Buffer.isBuffer(data)) {
 		content = data.toString(encoding ?? "utf8");
 	} else {
@@ -322,6 +405,7 @@ async function writeFile(
 		});
 	} catch (error: unknown) {
 		const err = error instanceof Error ? error : new Error(String(error));
+
 		throw err;
 	}
 }
@@ -337,6 +421,7 @@ async function unlink(path: string): Promise<void> {
 		});
 	} catch (error: unknown) {
 		const err = error instanceof Error ? error : new Error(String(error));
+
 		throw err;
 	}
 }
@@ -347,6 +432,7 @@ async function unlink(path: string): Promise<void> {
 async function rm(path: string, options?: RmOptions): Promise<void> {
 	opts = {
 		recursive: false,
+
 		force: false,
 		...options,
 	};
@@ -361,6 +447,7 @@ async function rm(path: string, options?: RmOptions): Promise<void> {
 		if (!opts.force) {
 			const err =
 				error instanceof Error ? error : new Error(String(error));
+
 			throw err;
 		}
 	}
@@ -377,6 +464,7 @@ async function rename(oldPath: string, newPath: string): Promise<void> {
 		});
 	} catch (error: unknown) {
 		const err = error instanceof Error ? error : new Error(String(error));
+
 		throw err;
 	}
 }
@@ -386,7 +474,9 @@ async function rename(oldPath: string, newPath: string): Promise<void> {
  */
 async function copyFile(
 	src: string,
+
 	dest: string,
+
 	options?: CopyFileOptions,
 ): Promise<void> {
 	try {
@@ -396,6 +486,7 @@ async function copyFile(
 		});
 	} catch (error: unknown) {
 		const err = error instanceof Error ? error : new Error(String(error));
+
 		throw err;
 	}
 }
@@ -405,17 +496,21 @@ async function copyFile(
  */
 async function mkdir(
 	path: string,
+
 	options?: MkdirOptions | number | boolean,
 ): Promise<void> {
 	// Normalize options
 	let opts: RecursiveMkdirOptions = { recursive: false };
+
 	if (typeof options === "boolean") {
 		opts.recursive = options;
 	} else if (typeof options === "number") {
 		opts.recursive = false;
+
 		opts.mode = options;
 	} else if (options) {
 		opts.recursive = options.recursive ?? false;
+
 		opts.mode = options.mode;
 	}
 
@@ -427,6 +522,7 @@ async function mkdir(
 		});
 	} catch (error: unknown) {
 		const err = error instanceof Error ? error : new Error(String(error));
+
 		throw err;
 	}
 }
@@ -434,6 +530,7 @@ async function mkdir(
 // Fix the type reference issue
 interface RecursiveMkdirOptions {
 	recursive?: boolean;
+
 	mode?: number;
 }
 
@@ -449,6 +546,7 @@ async function rmdir(path: string): Promise<void> {
 		});
 	} catch (error: unknown) {
 		const err = error instanceof Error ? error : new Error(String(error));
+
 		throw err;
 	}
 }
@@ -458,6 +556,7 @@ async function rmdir(path: string): Promise<void> {
  */
 async function readdir(
 	path: string,
+
 	options?: { withFileTypes?: boolean },
 ): Promise<string[] | Dirent[]> {
 	try {
@@ -475,7 +574,9 @@ async function readdir(
 			return entries.map((entry) =>
 				createDirent(
 					entry.name,
+
 					`${path}/${entry.name}`,
+
 					!entry.is_file,
 				),
 			);
@@ -485,6 +586,7 @@ async function readdir(
 		}
 	} catch (error: unknown) {
 		const err = error instanceof Error ? error : new Error(String(error));
+
 		throw err;
 	}
 }
@@ -502,6 +604,7 @@ async function stat(path: string): Promise<Stats> {
 		return mountainStatsToStats(mountainStats);
 	} catch (error: unknown) {
 		const err = error instanceof Error ? error : new Error(String(error));
+
 		throw err;
 	}
 }
@@ -512,6 +615,7 @@ async function stat(path: string): Promise<Stats> {
 async function exists(path: string): Promise<boolean> {
 	try {
 		await stat(path);
+
 		return true;
 	} catch {
 		return false;
@@ -639,53 +743,89 @@ function chown(): never {
  */
 const fs = {
 	readFile,
+
 	writeFile,
+
 	unlink,
+
 	rm,
+
 	rename,
+
 	copyFile,
+
 	mkdir,
+
 	rmdir,
+
 	readdir,
+
 	stat,
+
 	exists,
 
 	// Constants (partial)
 	constants: {
 		O_RDONLY: 0,
+
 		O_WRONLY: 1,
+
 		O_RDWR: 2,
+
 		O_CREAT: 64,
+
 		O_TRUNC: 512,
+
 		O_APPEND: 1024,
 	},
 
 	// Not supported but included for TypeScript compatibility
 	open,
+
 	read,
+
 	write,
+
 	close,
+
 	readFileSync,
+
 	writeFileSync,
+
 	watch,
+
 	watchFile,
+
 	symlink,
+
 	readlink,
+
 	chmod,
+
 	chown,
 
 	// Promise-based API for modern Node.js code
 	promises: {
 		readFile,
+
 		writeFile,
+
 		unlink,
+
 		rm,
+
 		rename,
+
 		copyFile,
+
 		mkdir,
+
 		rmdir,
+
 		readdir,
+
 		stat,
+
 		exists,
 	},
 };
@@ -706,9 +846,12 @@ export function installFileSystemPolyfill(): void {
 	if ((window as any).__FILE_SYSTEM_POLYFILL_INSTALLED__) {
 		return;
 	}
+
 	(window as any).__FILE_SYSTEM_POLYFILL_INSTALLED__ = true;
+
 	// Attach fs module to global (for Node.js compatibility)
 	(window as any).fs = fs;
+
 	(window as any).require = createRequireShim();
 
 	// Also attach to window.vscode if available
@@ -725,6 +868,7 @@ function createRequireShim() {
 		if (id === "fs") {
 			return fs;
 		}
+
 		throw new Error(`Require shim only supports 'fs' module. Got: ${id}`);
 	};
 }
@@ -735,19 +879,30 @@ function createRequireShim() {
 
 export default {
 	install: installFileSystemPolyfill,
+
 	module: fs,
 
 	// Individual exports for convenience
 	readFile,
+
 	writeFile,
+
 	unlink,
+
 	rm,
+
 	rename,
+
 	copyFile,
+
 	mkdir,
+
 	rmdir,
+
 	readdir,
+
 	stat,
+
 	exists,
 };
 

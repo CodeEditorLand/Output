@@ -140,6 +140,7 @@ export default function DisableLazyPaint(): void {
 
 			constructor(
 				Callback: IntersectionObserverCallback,
+
 				_Options?: FastIntersectionObserverInit,
 			) {
 				this.Callback = Callback;
@@ -190,6 +191,7 @@ export default function DisableLazyPaint(): void {
 					try {
 						Self.Callback(
 							[Entry as unknown as IntersectionObserverEntry],
+
 							Self as unknown as IntersectionObserver,
 						);
 					} catch (Error) {
@@ -229,16 +231,27 @@ export default function DisableLazyPaint(): void {
 
 		Style.textContent = [
 			"*, ::before, ::after { content-visibility: visible !important; }",
+
 			".monaco-workbench .part > .content,",
+
 			".monaco-workbench .panel,",
+
 			".monaco-workbench .viewlet,",
+
 			".monaco-workbench .pane,",
+
 			".monaco-workbench .pane-body,",
+
 			".monaco-workbench .composite,",
+
 			".monaco-workbench .activitybar,",
+
 			".monaco-workbench .sidebar {",
+
 			"  contain: none !important;",
+
 			"  content-visibility: visible !important;",
+
 			"}",
 		].join("\n");
 

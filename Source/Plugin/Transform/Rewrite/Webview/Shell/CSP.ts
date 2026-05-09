@@ -53,12 +53,18 @@ const ReplacementMeta =
 
 const Plugin: TransformPlugin = {
 	Kind: "Transform",
+
 	Name: "RewriteWebviewShellCSP",
+
 	Match: ({ Path }) => PathRegex.test(Path),
+
 	Transform({ Source }) {
 		if (Source.includes(Marker)) return { Kind: "Unchanged" };
+
 		if (!CSPMetaPattern.test(Source)) return { Kind: "Unchanged" };
+
 		const Next = Source.replace(CSPMetaPattern, ReplacementMeta);
+
 		return Next === Source
 			? { Kind: "Unchanged" }
 			: { Kind: "Rewrite", Source: Next };

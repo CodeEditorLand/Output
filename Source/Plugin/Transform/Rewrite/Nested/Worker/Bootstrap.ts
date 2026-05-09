@@ -52,49 +52,84 @@ const Anchor = `const _bootstrapFnSource = (function _bootstrapFn(workerUrl) {`;
 const ReplacementSource = `const _bootstrapFnSource = ${JSON.stringify(
 	[
 		"function _bootstrapFn(workerUrl) {",
+
 		"  const listener = function(event) {",
+
 		"    globalThis.removeEventListener('message', listener);",
+
 		"    const port = event.data;",
+
 		"    Object.defineProperties(globalThis, {",
+
 		"      'postMessage': {",
+
 		"        value: function(data, transferOrOptions) {",
+
 		"          port.postMessage(data, transferOrOptions);",
+
 		"        }",
+
 		"      },",
+
 		"      'onmessage': {",
+
 		"        get: function() { return port.onmessage; },",
+
 		"        set: function(value) { port.onmessage = value; }",
+
 		"      }",
+
 		"    });",
+
 		"    port.addEventListener('message', function(msg) {",
+
 		"      globalThis.dispatchEvent(new MessageEvent('message', {",
+
 		"        data: msg.data,",
+
 		"        ports: msg.ports ? [...msg.ports] : void 0",
+
 		"      }));",
+
 		"    });",
+
 		"    port.start();",
+
 		"    globalThis.Worker = class {",
+
 		"      constructor() {",
+
 		"        throw new TypeError('Nested workers from within nested worker are NOT supported.');",
+
 		"      }",
+
 		"    };",
+
 		"    importScripts(workerUrl);",
+
 		"  };",
+
 		"  globalThis.addEventListener('message', listener);",
+
 		"}",
 	].join("\n"),
 )};`;
 
 const Plugin: TransformPlugin = {
 	Kind: "Transform",
+
 	Name: "RewriteNestedWorkerBootstrap",
+
 	Match: ({ Path }) =>
 		/\/vs\/workbench\/services\/extensions\/worker\/polyfillNestedWorker\.js$/.test(
 			Path,
 		),
+
 	Transform({ Source }) {
 		if (Source.includes(Marker)) return { Kind: "Unchanged" };
+
 		const Index = Source.indexOf(Anchor);
+
 		if (Index < 0) return { Kind: "Unchanged" };
 
 		// The closure runs from `Anchor` through the matching
@@ -103,8 +138,11 @@ const Plugin: TransformPlugin = {
 		// substring search rather than a regex so the bracket counting
 		// stays robust against minified / re-formatted variants.
 		const TailMarker = `}).toString();`;
+
 		const TailIdx = Source.indexOf(TailMarker, Index);
+
 		if (TailIdx < 0) return { Kind: "Unchanged" };
+
 		const BlockEnd = TailIdx + TailMarker.length;
 
 		const Next =
@@ -112,6 +150,7 @@ const Plugin: TransformPlugin = {
 
 		return {
 			Kind: "Rewrite",
+
 			Source: Marker + "\n" + Next,
 		};
 	},

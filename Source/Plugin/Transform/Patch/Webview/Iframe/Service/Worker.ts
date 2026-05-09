@@ -95,25 +95,34 @@ const PathRegex =
 
 const Plugin: TransformPlugin = {
 	Kind: "Transform",
+
 	Name: "PatchWebviewIframeServiceWorker",
+
 	Match: ({ Path }) => PathRegex.test(Path),
+
 	Transform({ Source }) {
 		if (Source.includes(Marker)) {
 			return { Kind: "Unchanged" };
 		}
+
 		let Next = Source;
+
 		if (Next.includes(ServiceWorkerExpression)) {
 			Next = Next.replace(
 				ServiceWorkerExpression,
+
 				ServiceWorkerReplacement,
 			);
 		}
+
 		if (Next.includes(HashThrowExpression)) {
 			Next = Next.replace(HashThrowExpression, HashThrowReplacement);
 		}
+
 		if (Next.includes(CryptoCheckExpression)) {
 			Next = Next.replace(CryptoCheckExpression, CryptoCheckReplacement);
 		}
+
 		return Next === Source
 			? { Kind: "Unchanged" }
 			: { Kind: "Rewrite", Source: Next };

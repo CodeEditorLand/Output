@@ -28,8 +28,11 @@
 
 const EmptyPager = {
 	firstPage: [] as unknown[],
+
 	total: 0,
+
 	pageSize: 50,
+
 	getPage: async (): Promise<unknown[]> => [],
 };
 
@@ -50,6 +53,7 @@ class NullExtensionGalleryService {
 
 	async query(
 		_Options: unknown,
+
 		_Token: unknown,
 	): Promise<typeof EmptyPager> {
 		return EmptyPager;
@@ -57,7 +61,9 @@ class NullExtensionGalleryService {
 
 	async getExtensions(
 		_ExtensionInfos: unknown,
+
 		_Arg2?: unknown,
+
 		_Arg3?: unknown,
 	): Promise<unknown[]> {
 		return [];
@@ -69,7 +75,9 @@ class NullExtensionGalleryService {
 
 	async getCompatibleExtension(
 		_Extension: unknown,
+
 		_IncludePreRelease: unknown,
+
 		_TargetPlatform: unknown,
 	): Promise<null> {
 		return null;
@@ -77,7 +85,9 @@ class NullExtensionGalleryService {
 
 	async getAllCompatibleVersions(
 		_Extension: unknown,
+
 		_IncludePreRelease: unknown,
+
 		_TargetPlatform: unknown,
 	): Promise<unknown[]> {
 		return [];
@@ -85,7 +95,9 @@ class NullExtensionGalleryService {
 
 	async download(
 		_Extension: unknown,
+
 		_Location: unknown,
+
 		_Operation: unknown,
 	): Promise<never> {
 		return Reject("download")();
@@ -93,6 +105,7 @@ class NullExtensionGalleryService {
 
 	async downloadSignatureArchive(
 		_Extension: unknown,
+
 		_Location: unknown,
 	): Promise<never> {
 		return Reject("downloadSignatureArchive")();
@@ -100,8 +113,11 @@ class NullExtensionGalleryService {
 
 	async reportStatistic(
 		_Publisher: unknown,
+
 		_Name: unknown,
+
 		_Version: unknown,
+
 		_Type: unknown,
 	): Promise<void> {}
 
@@ -119,6 +135,7 @@ class NullExtensionGalleryService {
 
 	async getCoreTranslation(
 		_Extension: unknown,
+
 		_LanguageId: unknown,
 	): Promise<null> {
 		return null;
@@ -126,7 +143,9 @@ class NullExtensionGalleryService {
 
 	async getExtensionsControlManifest(): Promise<{
 		malicious: unknown[];
+
 		deprecated: Record<string, unknown>;
+
 		search: unknown[];
 	}> {
 		return { malicious: [], deprecated: {}, search: [] };
@@ -138,6 +157,9 @@ class NullExtensionGalleryService {
 }
 
 export { NullExtensionGalleryService as ExtensionGalleryService };
+
 export { NullExtensionGalleryService as AbstractExtensionGalleryService };
+
 export const ExtensionGalleryService_default = NullExtensionGalleryService;
+
 export default NullExtensionGalleryService;

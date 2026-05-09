@@ -59,63 +59,93 @@ export default function PartZIndexCSS(): void {
 			// isolate` is cheaper than `transform: translateZ(0)` and
 			// doesn't nudge subpixel rendering.
 			".monaco-workbench .part {",
+
 			"\tisolation: isolate;",
+
 			"}",
+
 			// Editor sits at the bottom of the workbench's z-stack so
 			// floating UI (panel resize handles, sidebar shadows)
 			// renders on top.
 			".monaco-workbench .part.editor {",
+
 			"\tz-index: 1;",
+
 			"}",
+
 			// Activity bar lives left/right of the workbench and must
 			// render above the editor's overlay layers (drop targets,
 			// minimap shadow). 10 keeps it well below the titlebar
 			// (2500) and quick-pick (2550) ladder.
 			".monaco-workbench .part.activitybar {",
+
 			"\tz-index: 10;",
+
 			"}",
+
 			// Sidebar / auxiliary bar / bottom panel share a tier just
 			// above the activity bar so resize handles draw correctly
 			// against the editor's content.
 			".monaco-workbench .part.sidebar,",
+
 			".monaco-workbench .part.auxiliarybar,",
+
 			".monaco-workbench .part.panel {",
+
 			"\tz-index: 11;",
+
 			"}",
+
 			// Banner (workspace trust banner, update notifications)
 			// sits above panels but below the status bar.
 			".monaco-workbench .part.banner {",
+
 			"\tz-index: 12;",
+
 			"}",
+
 			// Status bar must always be visible at the bottom even when
 			// a maximized panel is in front. Stock has no explicit
 			// z-index so a maximized panel (`.part.panel.maximized`)
 			// occasionally clips the right-edge progress badges.
 			".monaco-workbench .part.statusbar {",
+
 			"\tz-index: 20;",
+
 			"}",
+
 			// When the panel is maximized the workbench gives it a
 			// `display:flex` row that fills the editor area; without an
 			// explicit z-index the panel viewlet header can hide under
 			// the floating editor toolbar. Pin it.
 			".monaco-workbench .part.panel.maximized {",
+
 			"\tz-index: 13;",
+
 			"}",
+
 			// Drop-target overlays the editor uses for drag-and-drop of
 			// tabs need to stay above the editor (z 1) but below all
 			// panels. 5 fits cleanly between editor and activity bar.
 			".monaco-workbench .editor-drop-target,",
+
 			".monaco-workbench .editor-group-watermark {",
+
 			"\tz-index: 5;",
+
 			"}",
+
 			// Make sure the command-center quick-pick (`.quick-input-widget`)
 			// keeps its 2550 layer even when an extension's webview
 			// inside the editor sets a higher z-index. Stock CSS doesn't
 			// guard against this and an offending extension can hide the
 			// picker entirely. We hoist explicitly to defeat shenanigans.
 			".monaco-workbench .quick-input-widget {",
+
 			"\tz-index: 2550 !important;",
+
 			"}",
+
 			// Notification toasts likewise - extensions occasionally
 			// inject `position:fixed; z-index:9999999` into their
 			// webview, which under our scheme bleeds into the host
@@ -123,7 +153,9 @@ export default function PartZIndexCSS(): void {
 			// just above quick-pick so they remain visible during a
 			// command-palette session.
 			".monaco-workbench .notifications-toasts {",
+
 			"\tz-index: 2575 !important;",
+
 			"}",
 		].join("\n");
 

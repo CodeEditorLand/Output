@@ -54,9 +54,11 @@ import type { TransformPlugin } from "../../../Type.js";
 // helper `var` declarations (`__defProp`, `__name`, `__decorate`,
 // `__param`) so they precede every hoisted function body.
 const Marker = "/* __LAND_FN_DECLS_HOISTED_V2__ */";
+
 const LegacyMarker = "/* __LAND_FN_DECLS_HOISTED__ */";
 
 const HelperNames = ["__defProp", "__name", "__decorate", "__param"] as const;
+
 type HelperName = (typeof HelperNames)[number];
 
 // Keywords whose right-hand position permits a regex literal (`return /x/`,
@@ -64,25 +66,40 @@ type HelperName = (typeof HelperNames)[number];
 // from division when the previous non-whitespace token is an identifier.
 const RegexAllowingKeywords: ReadonlySet<string> = new Set([
 	"return",
+
 	"typeof",
+
 	"instanceof",
+
 	"in",
+
 	"of",
+
 	"delete",
+
 	"void",
+
 	"throw",
+
 	"new",
+
 	"do",
+
 	"else",
+
 	"case",
+
 	"yield",
+
 	"await",
 ]);
 
 interface Block {
 	readonly StartLine: number;
+
 	readonly EndLine: number; // inclusive
 	readonly Source: string;
+
 	readonly Name: string;
 }
 
@@ -93,13 +110,17 @@ interface Block {
  */
 interface WalkerState {
 	readonly InBlockComment: boolean;
+
 	readonly StringChar: '"' | "'" | "`" | null;
+
 	readonly BraceStack: ReadonlyArray<"{" | "${">;
 }
 
 const InitialState: WalkerState = {
 	InBlockComment: false,
+
 	StringChar: null,
+
 	BraceStack: [],
 };
 
@@ -110,7 +131,9 @@ const InitialState: WalkerState = {
  */
 function FindTopLevelFunctionBlocks(Lines: ReadonlyArray<string>): Block[] {
 	const Blocks: Block[] = [];
+
 	let Depth = 0;
+
 	let State: WalkerState = InitialState;
 
 	const FunctionStart = /^function ([A-Za-z_$][\w$]*)\s*\(/;
@@ -269,6 +292,7 @@ function FindTopLevelHelperVars(Lines: ReadonlyArray<string>): Block[] {
  */
 function StripCommentsAndStrings(
 	Line: string,
+
 	State: WalkerState,
 ): {
 	readonly Open: number;
@@ -421,10 +445,13 @@ function StripCommentsAndStrings(
 
 const Plugin: TransformPlugin = {
 	Kind: "Transform",
+
 	Name: "HoistFunctionDeclarations",
+
 	Match: ({ Path }) =>
 		// Limit to VS Code source. Skip already-hoisted files.
 		/\/vs\/.*\.js$/.test(Path) && !/\.d\.ts\.map$/.test(Path),
+
 	Transform({ Source }) {
 		if (Source.includes(Marker)) return { Kind: "Unchanged" };
 

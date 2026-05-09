@@ -27,12 +27,16 @@
 import type { TransformPlugin } from "../../../../Type.js";
 
 const Marker = "workbench/workbench.desktop.main.js".replaceAll("/", "\\/");
+
 const PathRegex = new RegExp(`${Marker}$`);
+
 const SideEffectRE = /^import\s+['"]([^'"]+)['"]\s*;?\s*$/gm;
 
 const Plugin: TransformPlugin = {
 	Kind: "Transform",
+
 	Name: "StaticToDynamicImport",
+
 	Enabled: () =>
 		process.env["Electron"] === "true" &&
 		// `Pack` is the space-separated list of bundled-workbench variants
@@ -41,24 +45,37 @@ const Plugin: TransformPlugin = {
 		// any variant is selected, Sky's Vite handles the import graph;
 		// rewriting here would defeat that.
 		!(process.env["Pack"] ?? "").trim(),
+
 	Match: ({ Path }) => PathRegex.test(Path),
+
 	Transform({ Source }) {
 		const Imports: string[] = [];
+
 		let MatchResult: RegExpExecArray | null;
+
 		SideEffectRE.lastIndex = 0;
+
 		while ((MatchResult = SideEffectRE.exec(Source)) !== null) {
 			Imports.push(MatchResult[1]!);
 		}
+
 		if (Imports.length === 0) return { Kind: "Unchanged" };
 
 		const Lines = [
 			`// Sequential dynamic import loader (Plugin/StaticToDynamicImport)`,
+
 			`import { registerSingleton } from '../platform/instantiation/common/extensions.js';`,
+
 			`import { IUserDataInitializationService, UserDataInitializationService } from './services/userData/browser/userDataInit.js';`,
+
 			`import { SyncDescriptor } from '../platform/instantiation/common/descriptors.js';`,
+
 			``,
+
 			`console.log("[workbench.desktop.main] Loading ${Imports.length} modules sequentially...");`,
+
 			`const _t0 = performance.now();`,
+
 			`let _n = 0;`,
 			...Imports.map(
 				(Path, Index) =>

@@ -49,17 +49,23 @@ const Anchor =
 
 const Plugin: TransformPlugin = {
 	Kind: "Transform",
+
 	Name: "PatchTerminalGpuAcceleration",
+
 	Match: ({ Path }) => PathRegex.test(Path),
+
 	Transform({ Source }) {
 		if (Source.includes(Marker)) {
 			return { Kind: "Unchanged" };
 		}
+
 		if (!Anchor.test(Source)) {
 			return { Kind: "Unchanged" };
 		}
+
 		return {
 			Kind: "Rewrite",
+
 			Source: Source.replace(Anchor, `$1"off" /* ${Marker} */`),
 		};
 	},

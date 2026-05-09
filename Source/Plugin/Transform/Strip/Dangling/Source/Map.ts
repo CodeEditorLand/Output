@@ -27,6 +27,7 @@ const SourceMapComment = /\n?\/\/[#@][ \t]*sourceMappingURL=[^\n]*\n?$/;
 const HasSibling = async (Path: string): Promise<boolean> => {
 	try {
 		await stat(`${Path}.map`);
+
 		return true;
 	} catch {
 		return false;
@@ -35,13 +36,20 @@ const HasSibling = async (Path: string): Promise<boolean> => {
 
 const Plugin: TransformPlugin = {
 	Kind: "Transform",
+
 	Name: "StripDanglingSourceMap",
+
 	Match: ({ Path, Role }) => Role === "app" && /\.js$/.test(Path),
+
 	async Transform({ Path, Source }) {
 		if (!SourceMapComment.test(Source)) return { Kind: "Unchanged" };
+
 		if (await HasSibling(Path)) return { Kind: "Unchanged" };
+
 		SourceMapComment.lastIndex = 0;
+
 		const Next = Source.replace(SourceMapComment, "\n");
+
 		return Next === Source
 			? { Kind: "Unchanged" }
 			: { Kind: "Rewrite", Source: Next };

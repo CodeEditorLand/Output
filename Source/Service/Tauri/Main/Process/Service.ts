@@ -32,11 +32,14 @@ const _Trace = (Tag: string, Message: string): void => {
 const _DevLogForward = (Tag: string, Message: string): void => {
 	try {
 		const Internals = (window as any).__TAURI_INTERNALS__;
+
 		const Invoke =
 			(window as any).__TAURI__?.core?.invoke ??
 			(window as any).__TAURI__?.invoke ??
 			Internals?.invoke;
+
 		if (typeof Invoke !== "function") return;
+
 		Invoke("RenderDevLog", {
 			Tag,
 			Message,
@@ -52,11 +55,17 @@ const _DevLogForward = (Tag: string, Message: string): void => {
 
 const ChannelRouteMap: Record<string, string> = {
 	localFilesystem: "file",
+
 	storage: "storage",
+
 	logger: "logger",
+
 	configuration: "configuration",
+
 	textFile: "textFile",
+
 	extensions: "extensions",
+
 	// VS Code's Extensions sidebar (`extensionsWorkbenchService.ts:815`)
 	// calls `extensionManagementService.getInstalled(...)`, which bridges
 	// to the `extensionManagement` Electron IPC channel. Route it to the
@@ -67,35 +76,60 @@ const ChannelRouteMap: Record<string, string> = {
 	// RoutePrefix, every call returned `undefined`, and the Extensions
 	// view stayed empty despite 94 extensions being scanned.
 	extensionManagement: "extensions",
+
 	// Extension gallery reads go to the same route - Mountain doesn't
 	// implement a gallery backend yet, so the handler returns an empty
 	// array which the sidebar renders as "no results", matching what a
 	// user on an offline/air-gapped VS Code install sees.
 	extensionGallery: "extensions",
+
 	commands: "commands",
+
 	terminal: "terminal",
+
 	output: "output",
+
 	notification: "notification",
+
 	progress: "progress",
+
 	quickInput: "quickInput",
+
 	workspaces: "workspaces",
+
 	themes: "themes",
+
 	search: "search",
+
 	environment: "environment",
+
 	decorations: "decorations",
+
 	workingCopy: "workingCopy",
+
 	keybinding: "keybinding",
+
 	lifecycle: "lifecycle",
+
 	label: "label",
+
 	model: "model",
+
 	nativeHost: "nativeHost",
+
 	localPty: "localPty",
+
 	// update: stubbed - Mountain doesn't implement IUpdateService yet
 	url: "url",
+
 	menubar: "menubar",
+
 	encryption: "encryption",
+
 	extensionHostStarter: "extensionHostStarter",
+
 	extensionhostdebugservice: "extensionhostdebugservice",
+
 	// Git: the built-in `git` extension's `MainProcessService.getChannel("localGit")`
 	// path. Stock VS Code backs this with `ILocalGitService` in the shared
 	// process; Land routes every method (`exec`, `clone`, `pull`, `checkout`,
@@ -127,8 +161,10 @@ const FireAndForgetChannels = new Set(["logger", "output"]);
 // stays blank, debug-adapter events never reach the debug viewlet, etc.
 type ChannelEventBridgeEntry = {
 	Channel: string;
+
 	Map?: (Payload: unknown) => unknown;
 };
+
 const ChannelEventBridge: Record<
 	string,
 	Record<string, ChannelEventBridgeEntry>
@@ -141,12 +177,16 @@ const ChannelEventBridge: Record<
 		// Re-key `data` → `event` to match.
 		onProcessData: {
 			Channel: "sky://terminal/data",
+
 			Map: (P) => {
 				const Obj = P as { id?: number; data?: string } | undefined;
+
 				if (!Obj || typeof Obj.id !== "number") return undefined;
+
 				return { id: Obj.id, event: Obj.data ?? "" };
 			},
 		},
+
 		// Listen on `sky://terminal/create` because that's when Mountain
 		// spawns the PTY (same moment the process is "ready" from the
 		// renderer's POV - the workbench uses this event to drive xterm
@@ -155,24 +195,34 @@ const ChannelEventBridge: Record<
 		// from Cocoon - not the same signal.
 		onProcessReady: {
 			Channel: "sky://terminal/create",
+
 			Map: (P) => {
 				const Obj = P as { id?: number; pid?: number } | undefined;
+
 				if (!Obj || typeof Obj.id !== "number") return undefined;
+
 				return {
 					id: Obj.id,
+
 					event: {
 						pid: Obj.pid ?? 0,
+
 						cwd: "",
+
 						windowsPty: undefined,
 					},
 				};
 			},
 		},
+
 		onProcessExit: {
 			Channel: "sky://terminal/exit",
+
 			Map: (P) => {
 				const Obj = P as { id?: number; code?: number } | undefined;
+
 				if (!Obj || typeof Obj.id !== "number") return undefined;
+
 				return { id: Obj.id, event: Obj.code ?? 0 };
 			},
 		},
@@ -180,57 +230,91 @@ const ChannelEventBridge: Record<
 };
 
 const FileSystemChannels = new Set(["localFilesystem"]);
+
 const FileSystemThrowCommands = new Set([
 	"stat",
+
 	"readFile",
+
 	"writeFile",
+
 	"readdir",
+
 	"mkdir",
+
 	"delete",
+
 	"rename",
+
 	"copy",
+
 	"open",
+
 	"close",
+
 	"read",
+
 	"write",
+
 	"realpath",
+
 	"cloneFile",
 ]);
 
 const StubChannels: Record<string, Record<string, unknown>> = {
 	sign: { sign: "", createNewMessage: "", validate: true },
+
 	policy: { serialize: {}, registerPolicyChange: undefined },
+
 	userDataProfiles: {},
+
 	keyboardLayout: {
 		getKeyboardLayoutData: {
 			keyboardLayoutInfo: {
 				model: "pc105",
+
 				layout: "us",
+
 				variant: "",
+
 				options: "",
+
 				rules: "",
 			},
+
 			keyboardMapping: {},
 		},
 	},
+
 	sharedProcess: {},
+
 	utilityProcessWorker: {
 		createWorker: new Promise(() => {}),
+
 		disposeWorker: undefined,
 	},
+
 	meteredConnection: {},
+
 	webContentExtractor: {},
+
 	browserElements: {},
+
 	NativeMcpDiscoveryHelper: { load: undefined },
+
 	sandboxHelper: {},
+
 	mcpGateway: {},
+
 	browserViewGroup: {},
 
 	// Fix: terminals.windows - IExternalTerminalService.getDefaultTerminalForPlatforms()
 	externalTerminal: {
 		getDefaultTerminalForPlatforms: {
 			windows: "cmd.exe",
+
 			linux: "/usr/bin/x-terminal-emulator",
+
 			osx: "Terminal.app",
 		},
 	},
@@ -238,26 +322,37 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 	// Fix: update.setInternalOrg - IUpdateService methods
 	update: {
 		checkForUpdates: { updateType: 0 },
+
 		downloadUpdate: undefined,
+
 		applyUpdate: undefined,
+
 		quitAndInstall: undefined,
+
 		isLatestVersion: true,
+
 		setInternalOrg: undefined,
+
 		_getInitialState: { type: 0 },
 	},
 
 	// Fix: webview - IWebviewManagerService stub (prevents webview IPC errors)
 	webview: {
 		setIgnoreMenuShortcuts: undefined,
+
 		setContextMenuVisible: undefined,
+
 		hideReference: undefined,
+
 		showReference: undefined,
 	},
 
 	// Fix: watcher - IFileWatcherService stub (prevents file watch IPC errors)
 	watcher: {
 		watch: undefined,
+
 		unwatch: undefined,
+
 		setVerboseLogging: undefined,
 	},
 
@@ -272,6 +367,7 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 	// a Tauri round-trip each time.
 	telemetryAppender: {
 		log: undefined,
+
 		flush: undefined,
 	},
 
@@ -291,15 +387,22 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 	// `fileExtensions.extensions` directly and throws without this stub.
 	diagnostics: {
 		getWorkspaceFileExtensions: { extensions: [] },
+
 		getPerformanceInfo: {
 			processInfo: {},
+
 			workspaceInfo: {},
 		},
+
 		getSystemInfo: {},
+
 		getDiagnostics: "",
+
 		reportWorkspaceStats: {
 			configFiles: [],
+
 			fileTypes: [],
+
 			launchConfigFiles: [],
 		},
 	},
@@ -307,15 +410,20 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 	// Fix: urlHandler - IURLService stub (prevents vscode:// protocol errors)
 	urlHandler: {
 		registerHandler: undefined,
+
 		open: false,
+
 		create: undefined,
 	},
 
 	// Fix: userDataAutoSync - IUserDataAutoSyncService stub
 	userDataAutoSync: {
 		isEnabled: false,
+
 		canToggleEnablement: false,
+
 		turnOn: undefined,
+
 		turnOff: undefined,
 	},
 
@@ -339,9 +447,13 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 	// Empty arrays = "no recommendations" (Land doesn't host an exe-based tips backend).
 	extensionTipsService: {
 		getImportantExecutableBasedTips: [],
+
 		getOtherExecutableBasedTips: [],
+
 		getAllWorkspacesTips: [],
+
 		getConfigBasedTips: [],
+
 		getImportantExecutableBasedTipsForExecutable: [],
 	},
 
@@ -356,6 +468,7 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 		getGalleryServers: [],
 		getLatest: undefined,
 	},
+
 	mcpWorkbenchManagement: {
 		getInstalled: [],
 		getLocalServers: [],
@@ -383,10 +496,12 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 		turnOn: undefined,
 		turnOff: undefined,
 	},
+
 	userDataSyncAccount: {
 		_getInitialData: undefined,
 		getAccount: undefined,
 	},
+
 	userDataSyncStoreManagement: {
 		_getInitialData: null,
 	},

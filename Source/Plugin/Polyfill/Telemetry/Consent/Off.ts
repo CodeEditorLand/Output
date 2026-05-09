@@ -55,33 +55,61 @@ export default function TelemetryConsentOff(): void {
 
 	const Prebake: Record<PrebakeKey, string | boolean> = {
 		"telemetry.telemetryLevel": "off",
+
 		"telemetry.feedback.enabled": false,
+
 		"workbench.enableExperiments": false,
+
 		"workbench.settings.enableNaturalLanguageSearch": false,
+
 		"workbench.welcomePage.walkthroughs.openOnInstall": false,
+
 		"workbench.startupEditor": "none",
+
 		"workbench.enableSearchEditorPreview": false,
+
 		"workbench.tips.enabled": false,
+
 		"workbench.welcomeBanner.enabled": false,
+
 		"update.mode": "none",
+
 		"update.showReleaseNotes": false,
+
 		"update.enableWindowsBackgroundUpdates": false,
+
 		"extensions.autoUpdate": false,
+
 		"extensions.autoCheckUpdates": false,
+
 		"extensions.ignoreRecommendations": true,
+
 		"extensions.showRecommendationsOnlyOnDemand": true,
+
 		"extensions.closeExtensionDetailsOnViewChange": true,
+
 		"extensions.experimental.deferredStartupFinishedActivation": false,
+
 		"redhat.telemetry.enabled": false,
+
 		"chat.experimental.detectParticipant.enabled": false,
+
 		"chat.experimental.offerSetup": false,
+
 		"security.workspace.trust.banner": "never",
+
 		"security.workspace.trust.startupPrompt": "never",
+
 		"security.workspace.trust.untrustedFiles": "open",
+
 		"security.workspace.trust.enabled": false,
+
 		"workbench.cloudChanges.autoStore": "off",
+
 		"workbench.cloudChanges.continueOn": "off",
+
 		"settingsSync.keybindingsPerPlatform": false,
+
 		"workbench.experimental.share.enabled": false,
 	};
 

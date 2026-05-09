@@ -24,32 +24,59 @@ export default function StripBackgroundPolling(): void {
 
 	const DenyFragments: Array<string> = [
 		"telemetryService",
+
 		"telemetryUtils",
+
 		"telemetryLogAppender",
+
 		"1dsAppender",
+
 		"oneDataSystemAppender",
+
 		"errorTelemetry",
+
 		"userDataSyncService",
+
 		"userDataAutoSyncService",
+
 		"userDataSyncMachinesService",
+
 		"settingsSync",
+
 		"updateService",
+
 		"abstractUpdateService",
+
 		"extensionGalleryService",
+
 		"extensionsTipsService",
+
 		"extensionRecommendationsService",
+
 		"exeBasedRecommendations",
+
 		"keymapRecommendations",
+
 		"configBasedRecommendations",
+
 		"remoteAgentService",
+
 		"remoteTunnelService",
+
 		"liveShare",
+
 		"issueService",
+
 		"surveyService",
+
 		"experimentService",
+
 		"assignmentService",
+
 		"mcpGalleryService",
+
 		"welcomeBanner",
+
 		"walkthroughs",
 	];
 
@@ -114,7 +141,9 @@ export default function StripBackgroundPolling(): void {
 
 	const PatchedSetTimeout = function (
 		this: Window,
+
 		_Callback: TimerHandler,
+
 		Delay?: number,
 	): number {
 		if (
@@ -139,10 +168,12 @@ export default function StripBackgroundPolling(): void {
 
 	Land["__LAND_BACKGROUND_POLL_STATS__"] = (): {
 		suppressedCount: number;
+
 		recentlySuppressed: Array<string>;
 	} => {
 		return {
 			suppressedCount: Suppressed,
+
 			recentlySuppressed: SuppressedRingBuffer.slice(),
 		};
 	};

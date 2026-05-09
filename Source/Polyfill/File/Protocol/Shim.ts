@@ -21,8 +21,11 @@
 
 interface FileSystemRequest {
 	protocol: string;
+
 	path: string;
+
 	query?: Record<string, string>;
+
 	headers?: Headers;
 }
 
@@ -36,17 +39,23 @@ interface FileSystemResponse {
 	 * load with "module doesn't start with '\0asm'").
 	 */
 	content: Uint8Array | string | Blob | null;
+
 	error?: Error;
+
 	metadata?: {
 		mime?: string;
+
 		version?: string;
+
 		etag?: string;
+
 		lastModified?: string;
 	};
 }
 
 interface ProtocolHandler {
 	matches(req: FileSystemRequest): boolean;
+
 	handle(req: FileSystemRequest): Promise<FileSystemResponse>;
 }
 
@@ -59,6 +68,7 @@ interface ProtocolHandler {
  */
 interface TauriCommand {
 	cmd: string;
+
 	args?: Record<string, unknown>;
 }
 
@@ -67,6 +77,7 @@ interface TauriCommand {
  */
 async function invokeTauri<T>(
 	command: string,
+
 	args: Record<string, unknown> = {},
 ): Promise<T> {
 	try {
@@ -91,6 +102,7 @@ async function invokeTauri<T>(
 					params: args,
 				});
 			}
+
 			return await Invoke(command, args);
 		}
 
@@ -156,8 +168,10 @@ const VSCodeFileHandler: ProtocolHandler = {
 
 				return {
 					content: Bytes,
+
 					metadata: {
 						mime: inferMimeType(decodedPath),
+
 						lastModified: new Date().toISOString(),
 					},
 				};
@@ -171,6 +185,7 @@ const VSCodeFileHandler: ProtocolHandler = {
 		} catch (error: unknown) {
 			return {
 				content: null,
+
 				error:
 					error instanceof Error ? error : new Error(String(error)),
 			};
@@ -205,22 +220,29 @@ function UnwrapReadResult(
 	if (Raw === null || Raw === undefined) {
 		return new Uint8Array(0);
 	}
+
 	if (typeof Raw === "string") {
 		return Raw;
 	}
+
 	if (Raw instanceof Uint8Array) {
 		return Raw;
 	}
+
 	if (Array.isArray(Raw)) {
 		return new Uint8Array(Raw);
 	}
+
 	const Buffer = (Raw as { buffer?: number[] | Uint8Array }).buffer;
+
 	if (Buffer instanceof Uint8Array) {
 		return Buffer;
 	}
+
 	if (Array.isArray(Buffer)) {
 		return new Uint8Array(Buffer);
 	}
+
 	// Unknown shape - return an empty buffer rather than a stringified
 	// object. A failing WASM load is easier to diagnose as "zero bytes"
 	// than as "corrupt [object Object]".
@@ -241,8 +263,10 @@ const VSCodeUserDataHandler: ProtocolHandler = {
 			// Get user data path from Mountain
 			const userDataPath = await invokeTauri<string>(
 				"file:user_data_path",
+
 				{},
 			);
+
 			const fullPath = `${userDataPath}/${req.path.replace(/^\//, "")}`;
 
 			// Positional-array args + binary-safe unwrap - see the
@@ -260,8 +284,10 @@ const VSCodeUserDataHandler: ProtocolHandler = {
 
 			return {
 				content: UnwrapReadResult(Raw),
+
 				metadata: {
 					mime: inferMimeType(req.path),
+
 					lastModified: new Date().toISOString(),
 				},
 			};
@@ -269,6 +295,7 @@ const VSCodeUserDataHandler: ProtocolHandler = {
 			// Return empty content for user data files that don't exist yet
 			return {
 				content: "",
+
 				error: undefined,
 			};
 		}
@@ -290,11 +317,13 @@ const VSCodeResourceHandler: ProtocolHandler = {
 			const [extensionId, ...pathParts] = req.path
 				.split("/")
 				.filter(Boolean);
+
 			const resourcePath = pathParts.join("/");
 
 			// Request resource from Cocoon via gRPC
 			const content = await invokeTauri<string>(
 				"cocoon:get_extension_resource",
+
 				{
 					extension_id: extensionId,
 					resource_path: resourcePath,
@@ -303,6 +332,7 @@ const VSCodeResourceHandler: ProtocolHandler = {
 
 			return {
 				content,
+
 				metadata: {
 					mime: inferMimeType(resourcePath),
 				},
@@ -310,6 +340,7 @@ const VSCodeResourceHandler: ProtocolHandler = {
 		} catch (error: unknown) {
 			return {
 				content: null,
+
 				error:
 					error instanceof Error ? error : new Error(String(error)),
 			};
@@ -330,11 +361,13 @@ const VSCodeRemoteHandler: ProtocolHandler = {
 		try {
 			// Parse remote path: vscode-remote://{host}/{path}
 			const [host, ...pathParts] = req.path.split("/").filter(Boolean);
+
 			const remotePath = pathParts.join("/");
 
 			// Request file from Cocoon via gRPC
 			const content = await invokeTauri<string>(
 				"cocoon:read_remote_file",
+
 				{
 					host,
 					path: remotePath,
@@ -343,6 +376,7 @@ const VSCodeRemoteHandler: ProtocolHandler = {
 
 			return {
 				content,
+
 				metadata: {
 					mime: inferMimeType(remotePath),
 				},
@@ -350,6 +384,7 @@ const VSCodeRemoteHandler: ProtocolHandler = {
 		} catch (error: unknown) {
 			return {
 				content: null,
+
 				error:
 					error instanceof Error ? error : new Error(String(error)),
 			};
@@ -381,14 +416,17 @@ const FileHandler: ProtocolHandler = {
 
 			return {
 				content: UnwrapReadResult(Raw),
+
 				metadata: {
 					mime: inferMimeType(decodedPath),
+
 					lastModified: new Date().toISOString(),
 				},
 			};
 		} catch (error: unknown) {
 			return {
 				content: null,
+
 				error:
 					error instanceof Error ? error : new Error(String(error)),
 			};
@@ -402,9 +440,13 @@ const FileHandler: ProtocolHandler = {
 
 const PROTOCOL_HANDLERS: ProtocolHandler[] = [
 	VSCodeFileHandler,
+
 	VSCodeUserDataHandler,
+
 	VSCodeResourceHandler,
+
 	VSCodeRemoteHandler,
+
 	FileHandler,
 ];
 
@@ -435,13 +477,16 @@ function parseProtocolURL(url: string): FileSystemRequest {
 
 		// Parse query string
 		const query: Record<string, string> = {};
+
 		parsed.searchParams.forEach((value, key) => {
 			query[key] = value;
 		});
 
 		return {
 			protocol,
+
 			path,
+
 			query,
 		};
 	} catch (error) {
@@ -461,19 +506,33 @@ function inferMimeType(path: string): string {
 
 	const mimeMap: Record<string, string> = {
 		js: "application/javascript",
+
 		json: "application/json",
+
 		ts: "application/typescript",
+
 		html: "text/html",
+
 		htm: "text/html",
+
 		css: "text/css",
+
 		md: "text/markdown",
+
 		txt: "text/plain",
+
 		xml: "application/xml",
+
 		png: "image/png",
+
 		jpg: "image/jpeg",
+
 		jpeg: "image/jpeg",
+
 		gif: "image/gif",
+
 		svg: "image/svg+xml",
+
 		wasm: "application/wasm",
 	};
 
@@ -492,6 +551,7 @@ function installFetchInterception(): void {
 
 	window.fetch = async function interceptFetch(
 		input: RequestInfo | URL,
+
 		init?: RequestInit,
 	): Promise<Response> {
 		try {
@@ -505,6 +565,7 @@ function installFetchInterception(): void {
 
 			if (needsInterception(url)) {
 				const request = parseProtocolURL(url);
+
 				const handler = findHandler(request);
 
 				if (handler) {
@@ -546,14 +607,20 @@ function installFetchInterception(): void {
  */
 function needsInterception(url: string): boolean {
 	const protocol = url.split(":")[0];
+
 	const interceptedProtocols = [
 		"vscode-file",
+
 		"vscode-userdata",
+
 		"vscode-resource",
+
 		"vscode-remote",
+
 		// Note: We don't intercept standard file:// by default
 		// as it's handled by Tauri's security model
 	];
+
 	return interceptedProtocols.includes(protocol);
 }
 
@@ -594,7 +661,9 @@ export function installFileProtocolShim(): void {
 	if ((window as any).__FILE_PROTOCOL_SHIM_INSTALLED__) {
 		return;
 	}
+
 	(window as any).__FILE_PROTOCOL_SHIM_INSTALLED__ = true;
+
 	// Install fetch interception
 	installFetchInterception();
 
@@ -611,8 +680,11 @@ export function installFileProtocolShim(): void {
  */
 export const FileProtocolShim = {
 	install: installFileProtocolShim,
+
 	handlers: PROTOCOL_HANDLERS,
+
 	parseProtocolURL,
+
 	inferMimeType,
 };
 

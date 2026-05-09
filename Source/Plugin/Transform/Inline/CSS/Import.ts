@@ -61,14 +61,18 @@ const Plugin: TransformPlugin = {
 					}
 				})(),
 			);
+
 			return Match;
 		});
 
 		const Resolved = await Promise.all(Tasks);
+
 		let Rewritten = Source;
+
 		for (const { From, To } of Resolved) {
 			Rewritten = Rewritten.replace(From, () => To);
 		}
+
 		return { Kind: "Rewrite", Source: Rewritten };
 	},
 };

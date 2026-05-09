@@ -96,6 +96,7 @@ const Plugin: TransformPlugin = {
 		if (ConditionalSearchPattern.test(Next)) {
 			Next = Next.replace(
 				ConditionalSearchPattern,
+
 				'const $2 = await import("../../../workbench/workbench.desktop.main.js");',
 			);
 		}

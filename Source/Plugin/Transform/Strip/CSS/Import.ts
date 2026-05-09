@@ -29,6 +29,7 @@ const Plugin: TransformPlugin = {
 			Kind: "Rewrite",
 			Source: Source.replace(
 				CSSImport,
+
 				(_Match, _Quote, Path) =>
 					`window._LOAD_CSS_WORKER?.(new URL("${Path}",import.meta.url).pathname);`,
 			),

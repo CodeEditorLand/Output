@@ -47,7 +47,9 @@ import type {
  */
 interface IPCChannelMapping {
 	electronPattern: RegExp;
+
 	tauriCommand: string;
+
 	transform?: (args: unknown[]) => Record<string, unknown>;
 }
 
@@ -61,8 +63,11 @@ type ReplyHandler = (response: unknown) => void;
  */
 interface SendToRequest {
 	channel: string;
+
 	args: unknown[];
+
 	callback: ReplyHandler;
+
 	timestamp: number;
 }
 
@@ -75,6 +80,7 @@ interface SendToRequest {
  */
 async function invokeTauri<T>(
 	command: string,
+
 	args: Record<string, unknown> = {},
 ): Promise<T> {
 	try {
@@ -99,6 +105,7 @@ async function invokeTauri<T>(
 					params: args,
 				});
 			}
+
 			return await Invoke(command, args);
 		}
 
@@ -129,10 +136,13 @@ function sendTauri(command: string, args: Record<string, unknown> = {}): void {
 						params: args,
 					})
 				: Invoke(command, args);
+
 			Call.catch((Error: unknown) => {
 				(globalThis as any).__LAND_POLYFILL_TELEMETRY__?.On(
 					"ipc.fire-and-forget",
+
 					Error,
+
 					{ Command: command },
 				);
 			});
@@ -140,7 +150,9 @@ function sendTauri(command: string, args: Record<string, unknown> = {}): void {
 	} catch (Error) {
 		(globalThis as any).__LAND_POLYFILL_TELEMETRY__?.On(
 			"ipc.fire-and-forget",
+
 			Error,
+
 			{ Command: command, Phase: "invoke-resolve" },
 		);
 	}
@@ -157,47 +169,61 @@ const IPC_CHANNEL_MAPPINGS: IPCChannelMapping[] = [
 	// Logger service
 	{
 		electronPattern: /^logger:(log|warn|error|info|debug|trace|critical)$/,
+
 		tauriCommand: "logger:log",
+
 		transform: (_args) => ({
 			level: _args[0] as string,
 			message: _args[1] as string,
 			context: _args[2] as Record<string, unknown>,
 		}),
 	},
+
 	// Policy service
 	{
 		electronPattern: /^policy:(get|set|validate|enforce|check)$/,
+
 		tauriCommand: "policy:handle",
+
 		transform: (_args) => ({
 			action: _args[0] as string,
 			data: _args[1] as Record<string, unknown>,
 		}),
 	},
+
 	// Signing service
 	{
 		electronPattern: /^sign:(sign|verify|generate|validate)$/,
+
 		tauriCommand: "sign:handle",
+
 		transform: (_args) => ({
 			action: _args[0] as string,
 			data: _args[1] as string,
 			options: _args[2] as Record<string, unknown>,
 		}),
 	},
+
 	// User data profiles service
 	{
 		electronPattern: /^userDataProfiles:(create|delete|update|get|list)$/,
+
 		tauriCommand: "user_data:handle_profile",
+
 		transform: (_args) => ({
 			action: _args[0] as string,
 			profileId: _args[1] as string,
 			data: _args[2] as Record<string, unknown>,
 		}),
 	},
+
 	// Local file system service
 	{
 		electronPattern:
 			/^localFileSystem:(read|write|delete|exists|stat|readdir)$/,
+
 		tauriCommand: "file:handle",
+
 		transform: (_args) => ({
 			action: _args[0] as string,
 			path: _args[1] as string,
@@ -215,9 +241,11 @@ function mapElectronChannelToTauri(
 	for (const mapping of IPC_CHANNEL_MAPPINGS) {
 		if (mapping.electronPattern.test(channel)) {
 			const args = mapping.transform?.([]) ?? {};
+
 			return { command: mapping.tauriCommand, args };
 		}
 	}
+
 	return null;
 }
 
@@ -226,6 +254,7 @@ function mapElectronChannelToTauri(
  */
 function transformChannelArgs(
 	channel: string,
+
 	args: unknown[],
 ): Record<string, unknown> {
 	for (const mapping of IPC_CHANNEL_MAPPINGS) {
@@ -233,6 +262,7 @@ function transformChannelArgs(
 			return mapping.transform(args);
 		}
 	}
+
 	// Return args as-is if no mapping found
 	return { args };
 }
@@ -256,166 +286,243 @@ function transformChannelArgs(
 
 function SerializeIPC(Data: unknown): Uint8Array {
 	const Parts: Uint8Array[] = [];
+
 	function Write(Value: unknown): void {
 		if (Value === undefined || Value === null) {
 			Parts.push(new Uint8Array([0])); // Undefined
 		} else if (typeof Value === "string") {
 			const Encoded = new TextEncoder().encode(Value);
+
 			Parts.push(new Uint8Array([1])); // String
 			WriteVQL(Encoded.length);
+
 			Parts.push(Encoded);
 		} else if (Array.isArray(Value)) {
 			Parts.push(new Uint8Array([4])); // Array
 			WriteVQL(Value.length);
+
 			for (const Item of Value) Write(Item);
 		} else if (typeof Value === "number" && (Value | 0) === Value) {
 			Parts.push(new Uint8Array([6])); // Int
 			WriteVQL(Value);
 		} else {
 			const Encoded = new TextEncoder().encode(JSON.stringify(Value));
+
 			Parts.push(new Uint8Array([5])); // Object
 			WriteVQL(Encoded.length);
+
 			Parts.push(Encoded);
 		}
 	}
+
 	function WriteVQL(Value: number): void {
 		const Bytes: number[] = [];
+
 		let V = Value >>> 0;
+
 		while (V > 0x7f) {
 			Bytes.push((V & 0x7f) | 0x80);
+
 			V >>>= 7;
 		}
+
 		Bytes.push(V & 0x7f);
+
 		Parts.push(new Uint8Array(Bytes));
 	}
+
 	Write(Data);
+
 	let Total = 0;
+
 	for (const P of Parts) Total += P.length;
+
 	const Result = new Uint8Array(Total);
+
 	let Offset = 0;
+
 	for (const P of Parts) {
 		Result.set(P, Offset);
+
 		Offset += P.length;
 	}
+
 	return Result;
 }
 
 function DeserializeIPC(Buffer: ArrayBuffer): unknown {
 	const View = new Uint8Array(Buffer);
+
 	let Pos = 0;
+
 	function ReadVQL(): number {
 		let Value = 0;
+
 		for (let N = 0; ; N += 7) {
 			const Byte = View[Pos++];
+
 			Value |= (Byte & 0x7f) << N;
+
 			if (!(Byte & 0x80)) return Value;
 		}
 	}
+
 	function Read(): unknown {
 		const Type = View[Pos++];
+
 		switch (Type) {
 			case 0:
 				return undefined;
+
 			case 1: {
 				const Len = ReadVQL();
+
 				const Str = new TextDecoder().decode(
 					View.slice(Pos, Pos + Len),
 				);
+
 				Pos += Len;
+
 				return Str;
 			}
+
 			case 2:
 			case 3: {
 				const Len = ReadVQL();
+
 				const Buf = View.slice(Pos, Pos + Len);
+
 				Pos += Len;
+
 				return Buf;
 			}
+
 			case 4: {
 				const Len = ReadVQL();
+
 				const Arr: unknown[] = [];
+
 				for (let I = 0; I < Len; I++) Arr.push(Read());
+
 				return Arr;
 			}
+
 			case 5: {
 				const Len = ReadVQL();
+
 				const Str = new TextDecoder().decode(
 					View.slice(Pos, Pos + Len),
 				);
+
 				Pos += Len;
+
 				return JSON.parse(Str);
 			}
+
 			case 6:
 				return ReadVQL();
 		}
 	}
+
 	return Read();
 }
 
 /** Build a complete IPC message: serialize(header) + serialize(body) */
 function BuildIPCMessage(Header: unknown, Body: unknown): Uint8Array {
 	const H = SerializeIPC(Header);
+
 	const B = SerializeIPC(Body);
+
 	const Result = new Uint8Array(H.length + B.length);
+
 	Result.set(H, 0);
+
 	Result.set(B, H.length);
+
 	return Result;
 }
 
 /** Parse an incoming IPC message into header + body */
 function ParseIPCMessage(Buffer: ArrayBuffer): {
 	Header: unknown;
+
 	Body: unknown;
 } {
 	const View = new Uint8Array(Buffer);
+
 	let Pos = 0;
+
 	function ReadVQL(): number {
 		let Value = 0;
+
 		for (let N = 0; ; N += 7) {
 			const Byte = View[Pos++];
+
 			Value |= (Byte & 0x7f) << N;
+
 			if (!(Byte & 0x80)) return Value;
 		}
 	}
+
 	function Read(): unknown {
 		const Type = View[Pos++];
+
 		switch (Type) {
 			case 0:
 				return undefined;
+
 			case 1: {
 				const Len = ReadVQL();
+
 				const Str = new TextDecoder().decode(
 					View.slice(Pos, Pos + Len),
 				);
+
 				Pos += Len;
+
 				return Str;
 			}
+
 			case 2:
 			case 3: {
 				const Len = ReadVQL();
+
 				Pos += Len;
+
 				return View.slice(Pos - Len, Pos);
 			}
+
 			case 4: {
 				const Len = ReadVQL();
+
 				const Arr: unknown[] = [];
+
 				for (let I = 0; I < Len; I++) Arr.push(Read());
+
 				return Arr;
 			}
+
 			case 5: {
 				const Len = ReadVQL();
+
 				const Str = new TextDecoder().decode(
 					View.slice(Pos, Pos + Len),
 				);
+
 				Pos += Len;
+
 				return JSON.parse(Str);
 			}
+
 			case 6:
 				return ReadVQL();
 		}
 	}
+
 	const Header = Read();
+
 	const Body = Read();
+
 	return { Header, Body };
 }
 
@@ -440,12 +547,15 @@ function ParseIPCMessage(Buffer: ArrayBuffer): {
  */
 function MapChannelMethodToTauri(
 	Channel: string,
+
 	Method: string,
 ): string | null {
 	const Prefix = MapChannelToMountainPrefix(Channel);
+
 	if (!Prefix) {
 		return null;
 	}
+
 	return `${Prefix}:${Method}`;
 }
 
@@ -454,62 +564,90 @@ function MapChannelToMountainPrefix(Channel: string): string | null {
 		case "localFilesystem":
 		case "localFileSystem":
 			return "file";
+
 		case "storage":
 			return "storage";
+
 		case "configuration":
 			return "configuration";
+
 		case "commands":
 			return "commands";
+
 		case "search":
 			return "search";
+
 		case "workspaces":
 			return "workspaces";
+
 		case "terminal":
 			return "terminal";
+
 		case "textFile":
 			return "textFile";
+
 		case "output":
 			return "output";
+
 		case "notification":
 			return "notification";
+
 		case "progress":
 			return "progress";
+
 		case "quickInput":
 			return "quickInput";
+
 		case "environment":
 			return "environment";
+
 		case "decorations":
 			return "decorations";
+
 		case "workingCopy":
 			return "workingCopy";
+
 		case "label":
 			return "label";
+
 		case "model":
 			return "model";
+
 		case "extensions":
 		case "extensionManagement":
 		case "extensionGallery":
 			return "extensions";
+
 		case "extensionHostStarter":
 			return "extensionHostStarter";
+
 		case "localPty":
 			return "localPty";
+
 		case "nativeHost":
 			return "nativeHost";
+
 		case "themes":
 			return "themes";
+
 		case "keybinding":
 			return "keybinding";
+
 		case "lifecycle":
 			return "lifecycle";
+
 		case "url":
 			return "url";
+
 		case "menubar":
 			return "menubar";
+
 		case "encryption":
 			return "encryption";
+
 		case "localGit":
 			return "git";
+
 		default:
 			return null;
 	}
@@ -524,15 +662,19 @@ function MapChannelToMountainPrefix(Channel: string): string | null {
  */
 function CoerceTauriParameters(
 	_Channel: string,
+
 	_Method: string,
+
 	Body: unknown,
 ): unknown[] {
 	if (Body === undefined || Body === null) {
 		return [];
 	}
+
 	if (Array.isArray(Body)) {
 		return Body;
 	}
+
 	return [Body];
 }
 
@@ -545,15 +687,18 @@ function CoerceTauriParameters(
  */
 async function InvokeMountainRaw<T>(
 	Method: string,
+
 	Parameters: unknown[],
 ): Promise<T> {
 	const Invoke =
 		(window as any).__TAURI__?.core?.invoke ??
 		(window as any).__TAURI__?.invoke ??
 		(window as any).TAURI?.invoke;
+
 	if (typeof Invoke !== "function") {
 		throw new Error(`Tauri invoke not available for method: ${Method}`);
 	}
+
 	return (await Invoke("MountainIPCInvoke", {
 		method: Method,
 		params: Parameters,
@@ -577,6 +722,7 @@ class IPCRendererImpl implements IpcRenderer {
 
 	// Track reply handlers
 	replyHandlers = new Map<number, SendToRequest>();
+
 	replyCounter = 0;
 
 	// Track once listeners
@@ -591,11 +737,16 @@ class IPCRendererImpl implements IpcRenderer {
 	private emitMessage(Data: Uint8Array | ArrayBuffer): void {
 		const Event: IpcRendererEvent = {
 			sender: {} as IpcRendererEvent["sender"],
+
 			senderId: 0,
+
 			senderIsMainFrame: true,
+
 			ports: [],
 		};
+
 		const Listeners = this.listeners.get("vscode:message");
+
 		if (Listeners) {
 			for (const Listener of Listeners) {
 				try {
@@ -619,7 +770,9 @@ class IPCRendererImpl implements IpcRenderer {
 	private handleBinaryIPC(Buffer: ArrayBuffer): void {
 		try {
 			const { Header, Body } = ParseIPCMessage(Buffer);
+
 			const HeaderArr = Header as number[];
+
 			if (!Array.isArray(HeaderArr)) return;
 
 			const Type = HeaderArr[0];
@@ -627,25 +780,33 @@ class IPCRendererImpl implements IpcRenderer {
 			// RequestType.Promise = 100
 			if (Type === 100) {
 				const RequestId = HeaderArr[1] as number;
+
 				const ChannelName = HeaderArr[2] as string;
+
 				const MethodName = HeaderArr[3] as string;
 
 				const TauriCommand = MapChannelMethodToTauri(
 					ChannelName,
+
 					MethodName,
 				);
+
 				if (TauriCommand !== null) {
 					// Routable channel: forward to Mountain via Tauri and
 					// relay the real response through the binary IPC.
 					const TauriParameters = CoerceTauriParameters(
 						ChannelName,
+
 						MethodName,
+
 						Body,
 					);
+
 					InvokeMountainRaw(TauriCommand, TauriParameters)
 						.then((Result) => {
 							const Response = BuildIPCMessage(
 								[201, RequestId],
+
 								Result,
 							);
 							this.emitMessage(Response);
@@ -657,16 +818,20 @@ class IPCRendererImpl implements IpcRenderer {
 									: String(Error);
 							const Response = BuildIPCMessage(
 								[202, RequestId],
+
 								Message,
 							);
 							this.emitMessage(Response);
 						});
+
 					return;
 				}
 
 				const StubResponse = this.getStubResponse(
 					ChannelName,
+
 					MethodName,
+
 					Body,
 				);
 
@@ -676,26 +841,35 @@ class IPCRendererImpl implements IpcRenderer {
 					StubResponse.startsWith("__IPC_ERROR__")
 				) {
 					const ErrorMessage = StubResponse.slice(13);
+
 					// PromiseError format: [202, requestId], errorMessage
 					const Response = BuildIPCMessage(
 						[202, RequestId],
+
 						ErrorMessage,
 					);
+
 					setTimeout(() => this.emitMessage(Response), 0);
 				} else {
 					// PromiseSuccess (201) + stub data
 					const Response = BuildIPCMessage(
 						[201, RequestId],
+
 						StubResponse,
 					);
+
 					setTimeout(() => this.emitMessage(Response), 0);
 				}
 			}
+
 			// RequestType.EventListen = 102
 			else if (Type === 102) {
 				const RequestId = HeaderArr[1] as number;
+
 				const ChannelName = HeaderArr[2] as string;
+
 				const EventName = HeaderArr[3] as string;
+
 				// Event subscriptions don't need immediate response.
 				// The server fires EventFire (204) when events occur.
 			}
@@ -708,44 +882,59 @@ class IPCRendererImpl implements IpcRenderer {
 	 */
 	private getStubResponse(
 		Channel: string,
+
 		Method: string,
+
 		_Args: unknown,
 	): unknown {
 		switch (Channel) {
 			case "logger":
 				// LoggerChannelClient: createLogger, log, setVisibility, etc.
 				return undefined;
+
 			case "policy":
 				// PolicyChannelClient: listen, serialize
 				if (Method === "serialize") return {};
+
 				return undefined;
+
 			case "sign":
 				// SignService: sign, createNewMessage, validate
 				return "";
+
 			case "userDataProfiles":
 				// UserDataProfilesService: various profile ops
 				return undefined;
+
 			case "keyboardLayout":
 				// NativeKeyboardLayoutService: getKeyboardLayoutData
 				if (Method === "getKeyboardLayoutData") {
 					return {
 						keyboardLayoutInfo: {
 							model: "pc105",
+
 							layout: "us",
+
 							variant: "",
+
 							options: "",
+
 							rules: "",
 						},
+
 						keyboardMapping: {},
 					};
 				}
+
 				return undefined;
+
 			// `storage` and `configuration` channels: routed live via
 			// `MapChannelMethodToTauri` so the workbench persists UI state
 			// and settings through Mountain instead of an in-memory stub.
 			case "sharedProcess":
 				// SharedProcessService: when, dispose
 				return undefined;
+
 			// NOTE: `localFilesystem`, `storage`, `configuration` used to
 			// return sentinel stubs here. They are now routed live to
 			// Mountain via `MapChannelMethodToTauri` in `handleBinaryIPC`
@@ -770,19 +959,23 @@ class IPCRendererImpl implements IpcRenderer {
 				const InitMessage = BuildIPCMessage([200], undefined);
 				this.emitMessage(InitMessage);
 			}, 0);
+
 			return;
 		}
 
 		if (channel === "vscode:message") {
 			// Binary IPC message from workbench → parse and respond
 			const Buffer = args[0];
+
 			if (Buffer instanceof ArrayBuffer || ArrayBuffer.isView(Buffer)) {
 				const AB =
 					Buffer instanceof ArrayBuffer
 						? Buffer
 						: (Buffer as Uint8Array).buffer;
+
 				this.handleBinaryIPC(AB);
 			}
+
 			return;
 		}
 
@@ -804,6 +997,7 @@ class IPCRendererImpl implements IpcRenderer {
 		if (mapping) {
 			// Use mapped Tauri command with transformed args
 			const tauriArgs = transformChannelArgs(channel, args);
+
 			sendTauri(mapping.command, tauriArgs);
 		} else {
 			// Unmapped non-vscode channel - log warning instead of calling
@@ -827,6 +1021,7 @@ class IPCRendererImpl implements IpcRenderer {
 
 		if (mapping) {
 			const tauriArgs = transformChannelArgs(channel, args);
+
 			return await invokeTauri<T>(mapping.command, tauriArgs);
 		}
 
@@ -840,11 +1035,13 @@ class IPCRendererImpl implements IpcRenderer {
 	 */
 	on(
 		channel: string,
+
 		listener: (event: IpcRendererEvent, ...args: unknown[]) => void,
 	): this {
 		if (!this.listeners.has(channel)) {
 			this.listeners.set(channel, new Set());
 		}
+
 		this.listeners.get(channel)!.add(listener);
 
 		// Also register with Tauri for main→renderer communication
@@ -858,11 +1055,13 @@ class IPCRendererImpl implements IpcRenderer {
 	 */
 	once(
 		channel: string,
+
 		listener: (event: IpcRendererEvent, ...args: unknown[]) => void,
 	): this {
 		if (!this.onceListeners.has(channel)) {
 			this.onceListeners.set(channel, new Set());
 		}
+
 		this.onceListeners.get(channel)!.add(new WeakRef(listener));
 
 		// Create wrapper that removes listener after first call
@@ -871,6 +1070,7 @@ class IPCRendererImpl implements IpcRenderer {
 			...args: unknown[]
 		) => {
 			listener(_event, ...args);
+
 			this.removeListener(channel, wrappedListener);
 		};
 
@@ -884,11 +1084,14 @@ class IPCRendererImpl implements IpcRenderer {
 	 */
 	removeListener(
 		channel: string,
+
 		listener: (event: IpcRendererEvent, ...args: unknown[]) => void,
 	): this {
 		const channelListeners = this.listeners.get(channel);
+
 		if (channelListeners) {
 			channelListeners.delete(listener);
+
 			if (channelListeners.size === 0) {
 				this.listeners.delete(channel);
 			}
@@ -915,10 +1118,14 @@ class IPCRendererImpl implements IpcRenderer {
 	 */
 	sendTo(channel: string, args: unknown[], callback: ReplyHandler): void {
 		const requestId = ++this.replyCounter;
+
 		const request: SendToRequest = {
 			channel,
+
 			args,
+
 			callback,
+
 			timestamp: Date.now(),
 		};
 
@@ -955,6 +1162,7 @@ class IPCRendererImpl implements IpcRenderer {
 	 */
 	private registerTauriListener(
 		_channel: string,
+
 		_listener: (event: IpcRendererEvent, ...args: unknown[]) => void,
 	): void {
 		// Note: Full event listener registration requires Tauri event system
@@ -966,7 +1174,9 @@ class IPCRendererImpl implements IpcRenderer {
 	 */
 	cleanup(): void {
 		this.listeners.clear();
+
 		this.onceListeners.clear();
+
 		this.replyHandlers.clear();
 	}
 }
@@ -984,6 +1194,7 @@ export function getIPCRenderer(): IpcRenderer {
 	if (!ipcRendererInstance) {
 		ipcRendererInstance = new IPCRendererImpl();
 	}
+
 	return ipcRendererInstance;
 }
 
@@ -1006,9 +1217,11 @@ export function installIPCRendererShim(): void {
 	) {
 		return;
 	}
+
 	(
 		window as unknown as { __IPC_RENDERER_SHIM_INSTALLED__: boolean }
 	).__IPC_RENDERER_SHIM_INSTALLED__ = true;
+
 	// Create IPC renderer instance
 	const ipcRenderer = getIPCRenderer();
 
@@ -1035,6 +1248,7 @@ export { IPCRendererImpl as IPCRendererClass };
 
 export default {
 	install: installIPCRendererShim,
+
 	get: getIPCRenderer,
 };
 

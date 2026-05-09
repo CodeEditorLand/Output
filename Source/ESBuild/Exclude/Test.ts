@@ -1,6 +1,7 @@
 export default (Prefix: string) => [
 	// Exclude entire test directories (including package.json files)
 	`${Prefix}/base/parts/ipc/test`,
+
 	`${Prefix}/base/parts/ipc/test/*`,
 
 	`${Prefix}/base/parts/request/test`,

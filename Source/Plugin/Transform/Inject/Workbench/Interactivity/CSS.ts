@@ -21,11 +21,15 @@ const Polyfill = `\n/* ${Marker} */\n(${WorkbenchInteractivityCSS.toString()})()
 
 const Plugin: TransformPlugin = {
 	Kind: "Transform",
+
 	Name: "InjectWorkbenchInteractivityCSS",
+
 	Match: ({ Path }) =>
 		Path.endsWith("vs/code/electron-browser/workbench/workbench.js"),
+
 	Transform({ Source }) {
 		if (Source.includes(Marker)) return { Kind: "Unchanged" };
+
 		return { Kind: "Rewrite", Source: Polyfill + Source };
 	},
 };

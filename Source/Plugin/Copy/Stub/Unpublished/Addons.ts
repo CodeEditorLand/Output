@@ -20,8 +20,10 @@ import type { CopyPlugin } from "../../../Type.js";
 
 export interface StubUnpublishedAddonsInput {
 	readonly Destination: string;
+
 	readonly Stubs?: ReadonlyArray<{
 		readonly Package: string;
+
 		readonly Body: string;
 	}>;
 }
@@ -29,6 +31,7 @@ export interface StubUnpublishedAddonsInput {
 export const DefaultStubs = [
 	{
 		Package: "@xterm/addon-progress",
+
 		Body: "define([],function(){var n=function(){};var P=function(){this.activate=n;this.dispose=n;this.onChange=function(){return{dispose:n}}};return{ProgressAddon:P}})",
 	},
 ] as const;
@@ -46,7 +49,9 @@ export const StubUnpublishedAddons = ({
 	Stubs = DefaultStubs,
 }: StubUnpublishedAddonsInput): CopyPlugin => ({
 	Kind: "Copy",
+
 	Name: "StubUnpublishedAddons",
+
 	Entries: Stubs.map((Stub) => {
 		const FileName = Stub.Package.split("/").pop()!;
 		return {

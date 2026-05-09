@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../../../Source/Plugin/Transform/Inject/Telemetry/Consent/Off.ts"],
-  "sourcesContent": ["/**\n * Pre-bake `telemetry.telemetryLevel: \"off\"` and friends into the\n * workbench bootstrap so VS Code's TelemetryService starts in\n * already-disabled state and never opens a network connection.\n *\n * Body lives in `Polyfill/TelemetryConsentOff.ts` (type-checked).\n * Idempotent. Marker `__LAND_TELEMETRY_CONSENT_OFF__`.\n */\n\nimport TelemetryConsentOff, {\n\tMarker,\n} from \"../../../../Polyfill/Telemetry/Consent/Off.js\";\nimport type { TransformPlugin } from \"../../../../Type.js\";\n\nconst Polyfill = `\\n/* ${Marker} */\\n(${TelemetryConsentOff.toString()})();\\n`;\n\nconst Plugin: TransformPlugin = {\n\tKind: \"Transform\",\n\tName: \"InjectTelemetryConsentOff\",\n\tMatch: ({ Path }) =>\n\t\tPath.endsWith(\"vs/code/electron-browser/workbench/workbench.js\"),\n\tTransform({ Source }) {\n\t\tif (Source.includes(Marker)) return { Kind: \"Unchanged\" };\n\t\treturn { Kind: \"Rewrite\", Source: Polyfill + Source };\n\t},\n};\n\nexport default Plugin;\n"],
-  "mappings": ";;AASA,OAAO;AAAA,EACN;AAAA,OACM;AAGP,MAAM,WAAW;AAAA,KAAQ,MAAM;AAAA,GAAS,oBAAoB,SAAS,CAAC;AAAA;AAEtE,MAAM,SAA0B;AAAA,EAC/B,MAAM;AAAA,EACN,MAAM;AAAA,EACN,OAAO,wBAAC,EAAE,KAAK,MACd,KAAK,SAAS,iDAAiD,GADzD;AAAA,EAEP,UAAU,EAAE,OAAO,GAAG;AACrB,QAAI,OAAO,SAAS,MAAM,EAAG,QAAO,EAAE,MAAM,YAAY;AACxD,WAAO,EAAE,MAAM,WAAW,QAAQ,WAAW,OAAO;AAAA,EACrD;AACD;AAEA,IAAO,cAAQ;",
-  "names": []
-}

@@ -21,29 +21,37 @@ import type { CopyPlugin, FileRole, Plugin, TransformPlugin } from "./Type.js";
 
 export interface ApplyRoot {
 	readonly Path: string;
+
 	readonly Role: FileRole;
 }
 
 export interface ApplyInput {
 	readonly Plugins: ReadonlyArray<Plugin>;
+
 	readonly Roots: ReadonlyArray<ApplyRoot>;
+
 	readonly Log?: (Message: string) => void;
 }
 
 export interface CopyResult {
 	readonly Name: string;
+
 	readonly Copied: number;
+
 	readonly Skipped: number;
 }
 
 export interface TransformResult {
 	readonly Name: string;
+
 	readonly Rewritten: number;
+
 	readonly Stubbed: number;
 }
 
 export interface ApplyOutcome {
 	readonly Copy: ReadonlyArray<CopyResult>;
+
 	readonly Transform: ReadonlyArray<TransformResult>;
 }
 
@@ -54,13 +62,16 @@ const WalkFiles = async function* (
 	Dir: string,
 ): AsyncGenerator<string, void, void> {
 	let Entries: Dirent[] = [];
+
 	try {
 		Entries = await readdir(Dir, { withFileTypes: true });
 	} catch {
 		return;
 	}
+
 	for (const Entry of Entries) {
 		const Full = join(Dir, Entry.name);
+
 		if (Entry.isDirectory()) {
 			yield* WalkFiles(Full);
 		} else if (Entry.isFile() && IsTransformable(Entry.name)) {
@@ -71,14 +82,19 @@ const WalkFiles = async function* (
 
 const RunCopy = async (
 	Plugin: CopyPlugin,
+
 	Log?: (Message: string) => void,
 ): Promise<CopyResult> => {
 	if (Plugin.Enabled && !Plugin.Enabled()) {
 		return { Name: Plugin.Name, Copied: 0, Skipped: 1 };
 	}
+
 	let Copied = 0;
+
 	let Skipped = 0;
+
 	const Resolved: Array<{ From: string; To: string }> = [];
+
 	for (const Entry of Plugin.Entries) {
 		const Candidates = Entry.From.map((From) => ({
 			From,
@@ -86,15 +102,19 @@ const RunCopy = async (
 			Recursive: Entry.Recursive,
 			Force: Entry.Force,
 		}));
+
 		const Outcome = await CopyFirstAvailable(Candidates);
+
 		if (Outcome.Resolved) {
 			Copied++;
+
 			Resolved.push({
 				From: Outcome.Resolved.From,
 				To: Outcome.Resolved.To,
 			});
 		} else {
 			Skipped++;
+
 			if (Plugin.Required) {
 				throw new Error(
 					`Plugin ${Plugin.Name}: no candidate resolved for ${Entry.To}${
@@ -115,6 +135,7 @@ const RunCopy = async (
 
 const RunTransforms = async (
 	Roots: ReadonlyArray<ApplyRoot>,
+
 	Transforms: ReadonlyArray<TransformPlugin>,
 ): Promise<ReadonlyArray<TransformResult>> => {
 	const Counters = new Map<string, { Rewritten: number; Stubbed: number }>();

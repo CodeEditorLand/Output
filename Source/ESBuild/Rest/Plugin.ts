@@ -272,29 +272,44 @@ export default function RestPlugin(): Plugin {
 
 			console.log(
 				"[Rest] Checking for binary at resolved path:",
+
 				REST_BINARY_PATH,
 			);
 
 			const explicitlyCheck = [
 				join(
 					__dirname,
+
 					"..",
+
 					"..",
+
 					"..",
+
 					"Rest",
+
 					"Target",
+
 					"release",
+
 					"Rest",
 				),
 
 				join(
 					__dirname,
+
 					"..",
+
 					"..",
+
 					"..",
+
 					"Rest",
+
 					"Target",
+
 					"release",
+
 					"rest",
 				),
 

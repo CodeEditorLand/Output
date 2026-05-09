@@ -35,16 +35,27 @@
  */
 interface ProcessVersions {
 	node: string;
+
 	chrome: string;
+
 	electron: string;
+
 	v8?: string;
+
 	uv?: string;
+
 	zlib?: string;
+
 	brotli?: string;
+
 	ares?: string;
+
 	modules?: string;
+
 	nghttp2?: string;
+
 	napi?: string;
+
 	openssl?: string;
 }
 
@@ -53,6 +64,7 @@ interface ProcessVersions {
  */
 interface ProcessCpuUsage {
 	user: number;
+
 	system: number;
 }
 
@@ -61,13 +73,21 @@ interface ProcessCpuUsage {
  */
 interface ProcessMemoryInfo {
 	workingSetSize: number;
+
 	peakWorkingSetSize: number;
+
 	privateBytes: number;
+
 	sharedBytes: number;
+
 	residentSet: number;
+
 	heapTotal?: number;
+
 	heapUsed?: number;
+
 	external?: number;
+
 	arrayBuffers?: number;
 }
 
@@ -96,13 +116,21 @@ type ProcessEventListener = (...args: unknown[]) => void;
  */
 interface ProcessConfig {
 	execPath?: string;
+
 	execArgv?: string[];
+
 	env?: Record<string, string>;
+
 	platform?: string;
+
 	arch?: string;
+
 	version?: ProcessVersions;
+
 	pid?: number;
+
 	ppid?: number;
+
 	title?: string;
 }
 
@@ -115,6 +143,7 @@ interface ProcessConfig {
  */
 async function invokeTauri<T>(
 	command: string,
+
 	args: Record<string, unknown> = {},
 ): Promise<T> {
 	try {
@@ -139,6 +168,7 @@ async function invokeTauri<T>(
 					params: args,
 				});
 			}
+
 			return await Invoke(command, args);
 		}
 
@@ -157,16 +187,26 @@ async function invokeTauri<T>(
  */
 const DEFAULT_PROCESS_CONFIG: ProcessConfig = {
 	execPath: "/Applications/CodeEditorLand.app/Contents/MacOS/codeeditorland",
+
 	execArgv: [],
+
 	env: {
 		PATH: "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+
 		HOME: "/Users/test",
+
 		USER: "test",
+
 		SHELL: "/bin/zsh",
+
 		TMPDIR: "/tmp",
+
 		TMP: "/tmp",
+
 		TEMP: "/tmp",
+
 		NODE_ENV: "production",
+
 		// Tells the Electron workbench to use relative imports
 		// instead of vscode-file:// URLs (WKWebView can't import()
 		// from custom schemes). Paired with _VSCODE_USE_RELATIVE_IMPORTS
@@ -188,8 +228,11 @@ async function getProcessConfiguration(): Promise<ProcessConfig> {
 			// Try to get actual process info from Tauri
 			const [execPath, platform, arch, pid] = await Promise.allSettled([
 				invokeTauri<string>("process_get_exec_path", {}),
+
 				invokeTauri<string>("process_get_platform", {}),
+
 				invokeTauri<string>("process_get_arch", {}),
+
 				invokeTauri<number>("process_get_pid", {}),
 			]);
 
@@ -230,16 +273,27 @@ function createVersions(): ProcessVersions {
 
 	return {
 		node: "20.11.0",
+
 		chrome: chromeVersion,
+
 		electron: "31.0.0",
+
 		v8: "12.4.254.20",
+
 		uv: "1.46.1",
+
 		zlib: "1.2.13.1-motley",
+
 		brotli: "1.0.9",
+
 		ares: "1.21.0",
+
 		modules: "127",
+
 		nghttp2: "1.59.0",
+
 		napi: "9",
+
 		openssl: "3.0.13+quic",
 	};
 }
@@ -437,6 +491,7 @@ class ProcessPolyfill {
 	getProcessMemoryInfo(): Promise<ProcessMemoryInfo> {
 		return invokeTauri<ProcessMemoryInfo>(
 			"process_get_memory_info",
+
 			{},
 		).catch((error) => {
 			// Return mocked values
@@ -464,6 +519,7 @@ class ProcessPolyfill {
 		try {
 			return await invokeTauri<Record<string, string>>(
 				"process_get_shell_env",
+
 				{},
 			);
 		} catch (error) {
@@ -571,6 +627,7 @@ class ProcessPolyfill {
 	 */
 	removeListener(
 		event: ProcessEventType,
+
 		listener: ProcessEventListener,
 	): this {
 		const listeners = this.listeners.get(event);
@@ -737,7 +794,9 @@ if (typeof window !== "undefined") {
 		// see when the env-bridge degrades silently.
 		(globalThis as any).__LAND_POLYFILL_TELEMETRY__?.On(
 			"polyfill.install",
+
 			Error,
+
 			{ Polyfill: "ProcessPolyfill", Phase: "async-fallback-to-sync" },
 		);
 		installProcessPolyfillSync();

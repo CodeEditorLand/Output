@@ -11,16 +11,24 @@ export default (Prefix: string) => [
 	// which transitively imports those entries from `workbench.web.main
 	// .internal.js`.
 	"/bootstrap-cli.js",
+
 	"/bootstrap-fork.js",
+
 	"/bootstrap-node.js",
+
 	"/bootstrap-server.js",
+
 	"/cli.js",
+
 	"/main.js",
+
 	"/server-cli.js",
+
 	"/server-main.js",
 
 	// These are specific to VSCode's output structure, keep them
 	`${Prefix}/code/node/cli.js`,
+
 	`${Prefix}/code/node/cliProcessMain.js`,
 
 	// Only exclude the desktop workbench when NOT building for Electron

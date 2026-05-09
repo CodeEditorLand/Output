@@ -91,6 +91,7 @@ import { ITitleService } from "../services/title/browser/titleService.js";
 import { IViewsService } from "../services/views/common/viewsService.js";
 
 const ViewsRegistryId = "workbench.registry.view";
+
 const ViewContainersRegistryId = "workbench.registry.view.containers";
 
 const Resolve = (Service, Decorator) => {
@@ -104,10 +105,13 @@ const Resolve = (Service, Decorator) => {
 const Diagnostic = (Tag, Message) => {
 	try {
 		const Tauri = globalThis.__TAURI__;
+
 		const Invoke = Tauri?.core?.invoke ?? Tauri?.invoke;
+
 		if (typeof Invoke !== "function") {
 			return;
 		}
+
 		Invoke("MountainIPCInvoke", {
 			method: "diagnostic:log",
 			params: [Tag, Message],
@@ -120,15 +124,21 @@ const Diagnostic = (Tag, Message) => {
 const SnapshotViewRegistry = () => {
 	try {
 		const Containers = Registry.as(ViewContainersRegistryId);
+
 		const Views = Registry.as(ViewsRegistryId);
+
 		const Locations = Containers?.all ?? [];
+
 		const ContainerIds = Locations.map((Location) =>
 			String(Location?.id ?? "<no-id>"),
 		);
+
 		const ViewIds = [];
+
 		try {
 			for (const Location of Locations) {
 				const Children = Views?.getViews?.(Location) ?? [];
+
 				for (const View of Children) {
 					ViewIds.push(String(View?.id ?? "<no-id>"));
 				}
@@ -136,16 +146,22 @@ const SnapshotViewRegistry = () => {
 		} catch {
 			/* swallow per-container failure - sample what we have */
 		}
+
 		return {
 			containers: ContainerIds.length,
+
 			views: ViewIds.length,
+
 			containerSample: ContainerIds,
+
 			viewSample: ViewIds,
 		};
 	} catch (Error) {
 		return {
 			containers: -1,
+
 			views: -1,
+
 			error: String(Error?.message ?? Error),
 		};
 	}
@@ -161,75 +177,128 @@ const SnapshotViewRegistry = () => {
  */
 export const ExposeAccessor = (InstantiationService) => {
 	globalThis.__CEL_INSTANTIATION_SERVICE__ = InstantiationService;
+
 	try {
 		globalThis.__CEL_SERVICES__ = {
 			Statusbar: Resolve(InstantiationService, IStatusbarService),
+
 			Commands: Resolve(InstantiationService, ICommandService),
+
 			CommandRegistry: CommandsRegistry,
+
 			Search: Resolve(InstantiationService, ISearchService),
+
 			Views: Resolve(InstantiationService, IViewsService),
+
 			URI: URI,
+
 			TreeViewByViewId: (ViewId) => {
 				try {
 					const Reg = Registry.as(ViewsRegistryId);
+
 					const Descriptor = Reg?.getView?.(ViewId);
+
 					return Descriptor?.treeView ?? null;
 				} catch {
 					return null;
 				}
 			},
+
 			ViewRegistrySnapshot: SnapshotViewRegistry,
+
 			SCM: Resolve(InstantiationService, ISCMService),
+
 			Debug: Resolve(InstantiationService, IDebugService),
+
 			CustomEditor: Resolve(InstantiationService, ICustomEditorService),
+
 			Emitter: Emitter,
+
 			Disposable: Disposable,
+
 			ToDisposable: toDisposable,
+
 			Models: Resolve(InstantiationService, IModelService),
+
 			Languages: Resolve(InstantiationService, ILanguageService),
+
 			ResourceTree: ResourceTree,
+
 			UriIdentity: Resolve(InstantiationService, IUriIdentityService),
+
 			WebviewViews: Resolve(InstantiationService, IWebviewViewService),
+
 			WebviewPanels: Resolve(
 				InstantiationService,
+
 				IWebviewWorkbenchService,
 			),
+
 			Markers: Resolve(InstantiationService, IMarkerService),
+
 			Configuration: Resolve(InstantiationService, IConfigurationService),
+
 			Storage: Resolve(InstantiationService, IStorageService),
+
 			Lifecycle: Resolve(InstantiationService, ILifecycleService),
+
 			Theme: Resolve(InstantiationService, IThemeService),
+
 			WorkbenchTheme: Resolve(
 				InstantiationService,
+
 				IWorkbenchThemeService,
 			),
+
 			Keybinding: Resolve(InstantiationService, IKeybindingService),
+
 			Notification: Resolve(InstantiationService, INotificationService),
+
 			File: Resolve(InstantiationService, IFileService),
+
 			Dialog: Resolve(InstantiationService, IDialogService),
+
 			FileDialog: Resolve(InstantiationService, IFileDialogService),
+
 			Clipboard: Resolve(InstantiationService, IClipboardService),
+
 			ContextKey: Resolve(InstantiationService, IContextKeyService),
+
 			Host: Resolve(InstantiationService, IHostService),
+
 			Extension: Resolve(InstantiationService, IExtensionService),
+
 			Workspace: Resolve(InstantiationService, IWorkspaceContextService),
+
 			Product: Resolve(InstantiationService, IProductService),
+
 			Progress: Resolve(InstantiationService, IProgressService),
+
 			Editor: Resolve(InstantiationService, IEditorService),
+
 			EditorGroups: Resolve(InstantiationService, IEditorGroupsService),
+
 			TextFile: Resolve(InstantiationService, ITextFileService),
+
 			Activity: Resolve(InstantiationService, IActivityService),
+
 			Title: Resolve(InstantiationService, ITitleService),
+
 			PaneComposite: Resolve(
 				InstantiationService,
+
 				IPaneCompositePartService,
 			),
+
 			ViewDescriptor: Resolve(
 				InstantiationService,
+
 				IViewDescriptorService,
 			),
+
 			Layout: Resolve(InstantiationService, IWorkbenchLayoutService),
 		};
+
 		// Defensive monkey-patch: short-circuit `IExtensionService.activateByEvent`
 		// for `onView:<viewId>` events. WebviewViewPane.activate() awaits
 		// `await this.extensionService.activateByEvent("onView:" + this.id)`
@@ -246,8 +315,10 @@ export const ExposeAccessor = (InstantiationService) => {
 		try {
 			const ExtensionSvc = Resolve(
 				InstantiationService,
+
 				IExtensionService,
 			);
+
 			if (
 				ExtensionSvc &&
 				typeof ExtensionSvc.activateByEvent === "function" &&
@@ -255,6 +326,7 @@ export const ExposeAccessor = (InstantiationService) => {
 			) {
 				const Original =
 					ExtensionSvc.activateByEvent.bind(ExtensionSvc);
+
 				ExtensionSvc.activateByEvent = function (Event) {
 					if (
 						typeof Event === "string" &&
@@ -262,20 +334,26 @@ export const ExposeAccessor = (InstantiationService) => {
 					) {
 						return Promise.resolve();
 					}
+
 					return Original(Event);
 				};
+
 				ExtensionSvc.__CEL_PATCHED_ONVIEW__ = true;
+
 				Diagnostic(
 					"cel-services",
+
 					"activateByEvent onView:* short-circuit installed",
 				);
 			}
 		} catch (PatchError) {
 			Diagnostic(
 				"cel-services",
+
 				`activateByEvent patch failed: ${String(PatchError?.message ?? PatchError)}`,
 			);
 		}
+
 		// Window-level webview-ready interceptor. The workbench's
 		// `WebviewElement._registerMessageHandler` listens for
 		// `e.data.channel === "webview-ready"` and captures `e.ports[0]`
@@ -289,13 +367,17 @@ export const ExposeAccessor = (InstantiationService) => {
 		try {
 			if (typeof window !== "undefined" && window.addEventListener) {
 				const Land = globalThis;
+
 				if (!Land.__CEL_WEBVIEW_PORT_MAP__) {
 					Land.__CEL_WEBVIEW_PORT_MAP__ = new Map();
 				}
+
 				if (!Land.__CEL_WEBVIEW_READY_HOOKED__) {
 					Land.__CEL_WEBVIEW_READY_HOOKED__ = true;
+
 					window.addEventListener(
 						"message",
+
 						(MessageEvent) => {
 							try {
 								const Data = MessageEvent?.data;
@@ -308,10 +390,12 @@ export const ExposeAccessor = (InstantiationService) => {
 								) {
 									Land.__CEL_WEBVIEW_PORT_MAP__.set(
 										Data.target,
+
 										MessageEvent.ports[0],
 									);
 									Diagnostic(
 										"webview-port",
+
 										`captured webview-ready target=${Data.target} origin=${MessageEvent.origin}`,
 									);
 								}
@@ -321,6 +405,7 @@ export const ExposeAccessor = (InstantiationService) => {
 								   listener that handles the same event */
 							}
 						},
+
 						true,
 					);
 				}
@@ -328,18 +413,22 @@ export const ExposeAccessor = (InstantiationService) => {
 		} catch (PortError) {
 			Diagnostic(
 				"webview-port",
+
 				`hook failed: ${String(PortError?.message ?? PortError)}`,
 			);
 		}
+
 		try {
 			window.dispatchEvent(new Event("cel:services-ready"));
 		} catch {
 			/* renderer may not have a window in headless tests */
 		}
+
 		Diagnostic("cel-services", "ready (sync via static import)");
 	} catch (Error) {
 		Diagnostic(
 			"cel-services",
+
 			`resolve-failed: ${String(Error?.message ?? Error)}`,
 		);
 	}
@@ -353,6 +442,7 @@ export const ExposeAccessor = (InstantiationService) => {
  */
 export const OnWorkbenchReady = (Workbench) => {
 	globalThis.__CEL_WORKBENCH__ = Workbench;
+
 	try {
 		window.dispatchEvent(new Event("cel:workbench-ready"));
 	} catch {

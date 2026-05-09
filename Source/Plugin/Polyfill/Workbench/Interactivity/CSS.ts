@@ -53,25 +53,41 @@ export default function WorkbenchInteractivityCSS(): void {
 			// pop-over event chain. Visibility / opacity are left
 			// alone - the workbench manages those itself.
 			".monaco-workbench .part,",
+
 			".monaco-workbench .part > .content,",
+
 			".monaco-workbench .part > .title,",
+
 			".monaco-workbench .activitybar,",
+
 			".monaco-workbench .statusbar,",
+
 			".monaco-workbench .titlebar {",
+
 			"  pointer-events: auto !important;",
+
 			"}",
+
 			// `display: none` for `.hidden` parts: stock VS Code uses
 			// CSS class toggles to hide parts; if a different polyfill
 			// or the bundled-electron entry leaks `display: flex` onto
 			// a `.hidden` part, this rule re-asserts the intent.
 			".monaco-workbench .part.hidden,",
+
 			".monaco-workbench .part.empty,",
+
 			".monaco-workbench .composite.hidden,",
+
 			".monaco-workbench .panel.hidden,",
+
 			".monaco-workbench .pane.hidden,",
+
 			".monaco-workbench .viewlet.hidden {",
+
 			"  display: none !important;",
+
 			"}",
+
 			// Zero-duration transitions on the visible part shells so
 			// panel resize / sidebar toggle finishes in one frame
 			// rather than animating through a half-painted state. We
@@ -80,25 +96,45 @@ export default function WorkbenchInteractivityCSS(): void {
 			// (suggest, hover) free to animate with their own timing
 			// avoids a perceived "snap" mid-popup.
 			".monaco-workbench .part,",
+
 			".monaco-workbench .activitybar,",
+
 			".monaco-workbench .statusbar,",
+
 			".monaco-workbench .titlebar {",
+
 			"  transition-duration: 0s !important;",
+
 			"  animation-duration: 0s !important;",
+
 			"}",
+
 			".monaco-workbench .monaco-inputbox,",
+
 			".monaco-workbench .monaco-inputbox > .ibwrapper,",
+
 			".monaco-workbench .monaco-inputbox input,",
+
 			".monaco-workbench .monaco-inputbox textarea,",
+
 			".monaco-workbench .monaco-findInput,",
+
 			".monaco-workbench .monaco-action-bar,",
+
 			".monaco-workbench .action-item,",
+
 			".monaco-workbench .action-label,",
+
 			".monaco-workbench .codicon {",
+
 			"  pointer-events: auto !important;",
+
 			"  visibility: visible !important;",
+
 			"  opacity: 1 !important;",
+
 			"}",
+
 			// Monaco's keyboard input target. The hidden `<textarea
 			// class="inputarea">` lives inside `.monaco-editor >
 			// .overflow-guard > .inputarea` and receives every
@@ -114,13 +150,21 @@ export default function WorkbenchInteractivityCSS(): void {
 			// specific selectors so we don't blanket-fix unrelated
 			// `<textarea>` elements outside Monaco.
 			".monaco-workbench .monaco-editor,",
+
 			".monaco-workbench .monaco-editor .overflow-guard,",
+
 			".monaco-workbench .monaco-editor .monaco-scrollable-element,",
+
 			".monaco-workbench .monaco-editor .lines-content,",
+
 			".monaco-workbench .monaco-editor .view-lines,",
+
 			".monaco-workbench .monaco-editor .inputarea {",
+
 			"  pointer-events: auto !important;",
+
 			"}",
+
 			// The textarea itself is intentionally semi-transparent
 			// (Monaco paints the cursor + selection on a separate
 			// layer) so we can NOT force `opacity:1` here - that
@@ -131,7 +175,9 @@ export default function WorkbenchInteractivityCSS(): void {
 			// textarea out of input. Limit ourselves to
 			// `pointer-events`.
 			".monaco-workbench .monaco-editor textarea.inputarea {",
+
 			"  pointer-events: auto !important;",
+
 			"}",
 		].join("\n");
 

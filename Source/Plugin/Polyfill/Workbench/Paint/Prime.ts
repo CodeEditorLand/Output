@@ -31,14 +31,23 @@ export default function WorkbenchPaintPrime(): void {
 
 	const PartSelectors: Array<string> = [
 		".monaco-workbench .activitybar",
+
 		".monaco-workbench .sidebar",
+
 		".monaco-workbench .auxiliarybar",
+
 		".monaco-workbench .panel",
+
 		".monaco-workbench .editor",
+
 		".monaco-workbench .titlebar",
+
 		".monaco-workbench .statusbar",
+
 		".monaco-workbench .banner",
+
 		".monaco-workbench .part",
+
 		".monaco-workbench .composite",
 	];
 

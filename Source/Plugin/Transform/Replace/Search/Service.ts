@@ -33,8 +33,10 @@ import type { TransformPlugin } from "../../../Type.js";
 // transform covers either bundle target.
 const Markers = [
 	"workbench/services/search/electron-browser/searchService.js",
+
 	"workbench/services/search/browser/searchService.js",
 ];
+
 const PathRegex = new RegExp(
 	`(?:${Markers.map((Marker) => Marker.replaceAll("/", "\\/")).join("|")})$`,
 );
@@ -44,9 +46,13 @@ const ReExport =
 
 const Plugin: TransformPlugin = {
 	Kind: "Transform",
+
 	Name: "ReplaceSearchService",
+
 	Enabled: () => process.env["Electron"] === "true",
+
 	Match: ({ Path }) => PathRegex.test(Path),
+
 	Transform() {
 		return { Kind: "Rewrite", Source: ReExport };
 	},

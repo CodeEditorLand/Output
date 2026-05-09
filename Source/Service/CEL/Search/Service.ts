@@ -59,12 +59,15 @@ import { SearchService } from "../common/searchService.js";
 
 const TauriInvoke = (Channel, Args) => {
 	const Bridge = (globalThis && globalThis.__TAURI__) || null;
+
 	const Invoke =
 		(Bridge && Bridge.core && Bridge.core.invoke) ||
 		(Bridge && Bridge.invoke);
+
 	if (typeof Invoke !== "function") {
 		return Promise.resolve(null);
 	}
+
 	// Mirror of `TauriMainProcessService.InvokeMountain` (Wind/Output): the
 	// single Tauri command `MountainIPCInvoke` takes a named { method,
 	// params } payload and the IPC dispatcher in Mountain matches `method`
@@ -89,25 +92,33 @@ const ToUri = (Raw) => {
 
 const BuildIncludePattern = (Query) => {
 	if (!Query) return "**";
+
 	if (typeof Query.filePattern === "string" && Query.filePattern.length > 0) {
 		return Query.filePattern;
 	}
+
 	const Folders = Array.isArray(Query.folderQueries)
 		? Query.folderQueries
 		: [];
+
 	if (Folders.length > 0) return "**";
+
 	return "**";
 };
 
 const BuildExcludePattern = (Query) => {
 	if (!Query) return "";
+
 	const Sources = [];
+
 	if (Query.excludePattern && typeof Query.excludePattern === "object") {
 		Sources.push(Object.keys(Query.excludePattern));
 	}
+
 	const Folders = Array.isArray(Query.folderQueries)
 		? Query.folderQueries
 		: [];
+
 	for (const Folder of Folders) {
 		if (
 			Folder &&
@@ -115,13 +126,17 @@ const BuildExcludePattern = (Query) => {
 			typeof Folder.excludePattern === "object"
 		) {
 			const P = Folder.excludePattern.pattern || Folder.excludePattern;
+
 			if (P && typeof P === "object") Sources.push(Object.keys(P));
 		}
 	}
+
 	const Flat = [];
+
 	for (const Set of Sources) {
 		for (const Key of Set) Flat.push(Key);
 	}
+
 	return Flat.join(",");
 };
 
@@ -136,17 +151,27 @@ class MountainTauriSearchProvider extends Disposable {
 
 	async fileSearch(Query, _Token) {
 		const Include = BuildIncludePattern(Query);
+
 		const Exclude = BuildExcludePattern(Query);
+
 		const Cap = (Query && Query.maxResults) || 10000;
+
 		const Raw = await TauriInvoke("search:findFiles", [
 			Include,
+
 			Exclude,
+
 			Cap,
+
 			true,
+
 			false,
 		]);
+
 		const Uris = Array.isArray(Raw) ? Raw : [];
+
 		const Results = Uris.map((U) => ({ resource: ToUri(U) }));
+
 		return { results: Results, messages: [], limitHit: Uris.length >= Cap };
 	}
 
@@ -154,50 +179,74 @@ class MountainTauriSearchProvider extends Disposable {
 		const Pattern =
 			(Query && Query.contentPattern && Query.contentPattern.pattern) ||
 			"";
+
 		if (!Pattern) {
 			return { results: [], messages: [], limitHit: false };
 		}
+
 		const IsRegex = !!(
 			Query &&
 			Query.contentPattern &&
 			Query.contentPattern.isRegExp
 		);
+
 		const IsCase = !!(
 			Query &&
 			Query.contentPattern &&
 			Query.contentPattern.isCaseSensitive
 		);
+
 		const IsWord = !!(
 			Query &&
 			Query.contentPattern &&
 			Query.contentPattern.isWordMatch
 		);
+
 		const Include = BuildIncludePattern(Query);
+
 		const Exclude = BuildExcludePattern(Query);
+
 		const Cap = (Query && Query.maxResults) || 10000;
+
 		const QueryShape = {
 			pattern: Pattern,
+
 			isRegExp: IsRegex,
+
 			isCaseSensitive: IsCase,
+
 			isWordMatch: IsWord,
+
 			isMultiline: false,
 		};
+
 		const OptionsShape = {
 			includePattern: Include,
+
 			excludePattern: Exclude,
+
 			maxResults: Cap,
 		};
+
 		const Raw = await TauriInvoke("search:findInFiles", [
 			QueryShape,
+
 			OptionsShape,
 		]);
+
 		const Files = Array.isArray(Raw) ? Raw : [];
+
 		const Results = [];
+
 		let TotalMatches = 0;
+
 		for (const File of Files) {
 			if (!File || typeof File !== "object") continue;
+
 			const Resource = ToUri(File.resource);
+
 			const Matches = Array.isArray(File.matches) ? File.matches : [];
+
 			const Hits = Matches.map((M) => {
 				const Line = Math.max(0, ((M && M.lineNumber) || 1) - 1);
 				const Cols = Array.isArray(M && M.columns) ? M.columns : [];
@@ -223,9 +272,13 @@ class MountainTauriSearchProvider extends Disposable {
 					previewText: (M && M.preview) || "",
 				};
 			});
+
 			TotalMatches += Hits.length;
+
 			const FileMatch = { resource: Resource, results: Hits };
+
 			Results.push(FileMatch);
+
 			if (typeof OnProgress === "function") {
 				try {
 					OnProgress(FileMatch);
@@ -234,9 +287,12 @@ class MountainTauriSearchProvider extends Disposable {
 				}
 			}
 		}
+
 		return {
 			results: Results,
+
 			messages: [],
+
 			limitHit: TotalMatches >= Cap,
 		};
 	}
@@ -250,33 +306,54 @@ class RemoteSearchService extends SearchService {
 
 	constructor(
 		@IModelService ModelService: any,
+
 		@IEditorService EditorService: any,
+
 		@ITelemetryService TelemetryService: any,
+
 		@ILogService LogService: any,
+
 		@IExtensionService ExtensionService: any,
+
 		@IFileService FileService: any,
+
 		@IInstantiationService InstantiationServiceArg: any,
+
 		@IUriIdentityService UriIdentityService: any,
 	) {
 		super(
 			ModelService,
+
 			EditorService,
+
 			TelemetryService,
+
 			LogService,
+
 			ExtensionService,
+
 			FileService,
+
 			UriIdentityService,
 		);
+
 		this.instantiationService = InstantiationServiceArg;
+
 		const Provider = new MountainTauriSearchProvider();
+
 		this.registerSearchResultProvider(
 			Schemas.file,
+
 			SearchProviderType.file,
+
 			Provider,
 		);
+
 		this.registerSearchResultProvider(
 			Schemas.file,
+
 			SearchProviderType.text,
+
 			Provider,
 		);
 	}
@@ -288,7 +365,9 @@ export { RemoteSearchService };
 // receive the Mountain-backed implementation transparently.
 registerSingleton(
 	ISearchService,
+
 	RemoteSearchService,
+
 	InstantiationType.Delayed,
 );
 

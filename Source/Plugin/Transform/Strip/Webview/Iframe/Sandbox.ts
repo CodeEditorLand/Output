@@ -61,16 +61,23 @@ const Replacement = `${Marker} - WKWebView blocks custom-protocol main-resource 
 
 const Plugin: TransformPlugin = {
 	Kind: "Transform",
+
 	Name: "StripWebviewIframeSandbox",
+
 	Match: ({ Path }) =>
 		PreIndexPathRegex.test(Path) || WebviewElementPathRegex.test(Path),
+
 	Transform({ Path, Source }) {
 		if (Source.includes(Marker)) return { Kind: "Unchanged" };
+
 		const Pattern = PreIndexPathRegex.test(Path)
 			? PreIndexSandboxCall
 			: WebviewElementSandboxCall;
+
 		if (!Pattern.test(Source)) return { Kind: "Unchanged" };
+
 		const Next = Source.replace(Pattern, Replacement);
+
 		return Next === Source
 			? { Kind: "Unchanged" }
 			: { Kind: "Rewrite", Source: Next };

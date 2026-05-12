@@ -1,318 +1,508 @@
-import { CopyNodeModules as o } from "./Copy/Copy/Node/Modules.js";
-import { CopyTauriMainProcessService as r } from "./Copy/Copy/Tauri/Main/Process/Service.js";
-import { CopyVSOutput as t } from "./Copy/Copy/VS/Output.js";
-import { CopyVSRootFiles as a } from "./Copy/Copy/VS/Root/Files.js";
-import { CopyWorker as p } from "./Copy/Copy/Worker.js";
-import { StubUnpublishedAddons as i } from "./Copy/Stub/Unpublished/Addons.js";
-import { SupplementFromDependency as m } from "./Copy/Supplement/From/Dependency.js";
-import l from "./Transform/Catch/Output/Folder/Rejection.js";
-import s from "./Transform/Disable/Unused/Services.js";
-import f from "./Transform/Expose/Workbench/Accessor.js";
-import u from "./Transform/Extension/Scanner/IPC.js";
-import c from "./Transform/Force/Text/Area/Input.js";
-
-import "./Transform/Hoist/Function/Declarations.js";
-
-import d from "./Transform/Inject/Configuration/Overlay.js";
-import S from "./Transform/Inject/Disable/Lazy/Paint.js";
-import y from "./Transform/Inject/Eager/Extension/Activation.js";
-import x from "./Transform/Inject/Eager/Idle/Value.js";
-import C from "./Transform/Inject/Eager/Lifecycle/Phase.js";
-import I from "./Transform/Inject/Editor/GPU/Layer/CSS.js";
-import P from "./Transform/Inject/Mac/Titlebar/Offset/CSS.js";
-import R from "./Transform/Inject/Name/Shim.js";
-import b from "./Transform/Inject/Part/Z/Index/CSS.js";
-import j from "./Transform/Inject/Storage/Overlay.js";
-import h from "./Transform/Inject/Strip/Background/Polling.js";
-import v from "./Transform/Inject/Telemetry/Consent/Off.js";
-import W from "./Transform/Inject/Terminal/GPU/Layer/CSS.js";
-import k from "./Transform/Inject/Web/View/Polyfills.js";
-import F from "./Transform/Inject/Workbench/Interactivity/CSS.js";
-import D from "./Transform/Inject/Workbench/Paint/Prime.js";
-import M from "./Transform/Inject/Worker/Bootstrap/Shim.js";
-import T from "./Transform/Inline/CSS/Import.js";
-import g from "./Transform/Instrument/Vscode/Git.js";
-import V from "./Transform/Patch/Local/Terminal/Backend.js";
-
-import "./Transform/Patch/Terminal/Gpu/Acceleration.js";
-
-import w from "./Transform/Patch/Webview/Iframe/Service/Worker.js";
-import A from "./Transform/Replace/Electron/IPC/Service.js";
-import O from "./Transform/Replace/Extension/Gallery/Service.js";
-import U from "./Transform/Replace/Search/Service.js";
-import E from "./Transform/Replace/Shared/Process.js";
-import L from "./Transform/Replace/Telemetry/Service.js";
-import N from "./Transform/Replace/Update/Service.js";
-import B from "./Transform/Rewrite/Icons/Style/Sheet/URLs.js";
-import G from "./Transform/Rewrite/Nested/Worker/Bootstrap.js";
-import z from "./Transform/Rewrite/Node/Modules/Path.js";
-import H from "./Transform/Rewrite/Perf/Baseline/Worker.js";
-
-import "./Transform/Rewrite/Static/Block/Self/Ref.js";
-
-import { default as mo } from "./Apply.js";
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import {
-	CopyNodeModules as it,
-	DefaultPackages as mt,
-	default as nt,
+  CopyNodeModules as CopyNodeModulesFactory
 } from "./Copy/Copy/Node/Modules.js";
 import {
-	CopyTauriMainProcessService as St,
-	default as yt,
+  CopyTauriMainProcessService as CopyTauriMainProcessServiceFactory
 } from "./Copy/Copy/Tauri/Main/Process/Service.js";
-import { CopyVSOutput as Kr, default as Qr } from "./Copy/Copy/VS/Output.js";
 import {
-	default as _r,
-	CopyVSRootFiles as Yr,
+  CopyVSOutput as CopyVSOutputFactory
+} from "./Copy/Copy/VS/Output.js";
+import {
+  CopyVSRootFiles as CopyVSRootFilesFactory
 } from "./Copy/Copy/VS/Root/Files.js";
-import { default as at, CopyWorker as tt } from "./Copy/Copy/Worker.js";
 import {
-	default as ct,
-	DefaultStubs as ft,
-	StubUnpublishedAddons as st,
-	StubDataPrefix as ut,
+  CopyWorker as CopyWorkerFactory
+} from "./Copy/Copy/Worker.js";
+import {
+  StubUnpublishedAddons as StubUnpublishedAddonsFactory
 } from "./Copy/Stub/Unpublished/Addons.js";
 import {
-	SupplementFromDependency as et,
-	default as ot,
+  SupplementFromDependency as SupplementFromDependencyFactory
 } from "./Copy/Supplement/From/Dependency.js";
-import { default as Wr } from "./Transform/Catch/Output/Folder/Rejection.js";
-import { default as wr } from "./Transform/Disable/Unused/Services.js";
-import { default as Mr } from "./Transform/Expose/Workbench/Accessor.js";
-import { default as hr } from "./Transform/Extension/Scanner/IPC.js";
-import { default as Ho } from "./Transform/Force/Text/Area/Input.js";
-import { default as nr } from "./Transform/Hoist/Function/Declarations.js";
-import { default as No } from "./Transform/Inject/Configuration/Overlay.js";
-import { default as yo } from "./Transform/Inject/Disable/Lazy/Paint.js";
-import { default as Co } from "./Transform/Inject/Eager/Extension/Activation.js";
-import { default as Po } from "./Transform/Inject/Eager/Idle/Value.js";
-import { default as bo } from "./Transform/Inject/Eager/Lifecycle/Phase.js";
-import { default as Er } from "./Transform/Inject/Editor/GPU/Layer/CSS.js";
-import { default as Mo } from "./Transform/Inject/Mac/Titlebar/Offset/CSS.js";
-import { default as co } from "./Transform/Inject/Name/Shim.js";
-import { default as go } from "./Transform/Inject/Part/Z/Index/CSS.js";
-import { default as Go } from "./Transform/Inject/Storage/Overlay.js";
-import { default as ho } from "./Transform/Inject/Strip/Background/Polling.js";
-import { default as Wo } from "./Transform/Inject/Telemetry/Consent/Off.js";
-import { default as Nr } from "./Transform/Inject/Terminal/GPU/Layer/CSS.js";
-import { default as Fo } from "./Transform/Inject/Web/View/Polyfills.js";
-import { default as wo } from "./Transform/Inject/Workbench/Interactivity/CSS.js";
-import { default as Oo } from "./Transform/Inject/Workbench/Paint/Prime.js";
-import { default as Eo } from "./Transform/Inject/Worker/Bootstrap/Shim.js";
-import { default as fo } from "./Transform/Inline/CSS/Import.js";
-import { default as gr } from "./Transform/Instrument/Vscode/Git.js";
-import { default as Gr } from "./Transform/Patch/Local/Terminal/Backend.js";
-import { default as Hr } from "./Transform/Patch/Terminal/Gpu/Acceleration.js";
-import { default as qr } from "./Transform/Patch/Webview/Iframe/Service/Worker.js";
-import { default as sr } from "./Transform/Replace/Electron/IPC/Service.js";
-import { default as ur } from "./Transform/Replace/Extension/Gallery/Service.js";
-import { default as Or } from "./Transform/Replace/Search/Service.js";
-import { default as dr } from "./Transform/Replace/Shared/Process.js";
-import { default as yr } from "./Transform/Replace/Telemetry/Service.js";
-import { default as Cr } from "./Transform/Replace/Update/Service.js";
-import { default as qo } from "./Transform/Rewrite/Icons/Style/Sheet/URLs.js";
-import { default as Xo } from "./Transform/Rewrite/Nested/Worker/Bootstrap.js";
-import { default as _o } from "./Transform/Rewrite/Node/Modules/Path.js";
-import { default as er } from "./Transform/Rewrite/Perf/Baseline/Worker.js";
-import { default as ir } from "./Transform/Rewrite/Static/Block/Self/Ref.js";
-import Z, { default as Ko } from "./Transform/Rewrite/Webview/Shell/CSP.js";
-import q, { default as ar } from "./Transform/Rewrite/Workbench/Base/URL.js";
-import J, { default as rr } from "./Transform/Rewrite/Worker/URLs.js";
-import K, { default as Pr } from "./Transform/Static/To/Dynamic/Import.js";
-import Q, { default as lo } from "./Transform/Strip/CSS/Import.js";
-import X, { default as br } from "./Transform/Strip/Dangling/Source/Map.js";
-import Y, { default as Fr } from "./Transform/Strip/Webview/Iframe/Sandbox.js";
-
+import CatchOutputFolderRejection from "./Transform/Catch/Output/Folder/Rejection.js";
+import DisableUnusedServices from "./Transform/Disable/Unused/Services.js";
+import ExposeWorkbenchAccessor from "./Transform/Expose/Workbench/Accessor.js";
+import ExtensionScannerIPC from "./Transform/Extension/Scanner/IPC.js";
+import ForceTextAreaInput from "./Transform/Force/Text/Area/Input.js";
+import HoistFunctionDeclarations from "./Transform/Hoist/Function/Declarations.js";
+import InjectConfigurationOverlay from "./Transform/Inject/Configuration/Overlay.js";
+import InjectDisableLazyPaint from "./Transform/Inject/Disable/Lazy/Paint.js";
+import InjectEagerExtensionActivation from "./Transform/Inject/Eager/Extension/Activation.js";
+import InjectEagerIdleValue from "./Transform/Inject/Eager/Idle/Value.js";
+import InjectEagerLifecyclePhase from "./Transform/Inject/Eager/Lifecycle/Phase.js";
+import InjectEditorGPULayerCSS from "./Transform/Inject/Editor/GPU/Layer/CSS.js";
+import InjectMacTitlebarOffsetCSS from "./Transform/Inject/Mac/Titlebar/Offset/CSS.js";
+import InjectNameShim from "./Transform/Inject/Name/Shim.js";
+import InjectPartZIndexCSS from "./Transform/Inject/Part/Z/Index/CSS.js";
+import InjectStorageOverlay from "./Transform/Inject/Storage/Overlay.js";
+import InjectStripBackgroundPolling from "./Transform/Inject/Strip/Background/Polling.js";
+import InjectTelemetryConsentOff from "./Transform/Inject/Telemetry/Consent/Off.js";
+import InjectTerminalGPULayerCSS from "./Transform/Inject/Terminal/GPU/Layer/CSS.js";
+import InjectWebViewPolyfills from "./Transform/Inject/Web/View/Polyfills.js";
+import InjectWorkbenchInteractivityCSS from "./Transform/Inject/Workbench/Interactivity/CSS.js";
+import InjectWorkbenchPaintPrime from "./Transform/Inject/Workbench/Paint/Prime.js";
+import InjectWorkerBootstrapShim from "./Transform/Inject/Worker/Bootstrap/Shim.js";
+import InlineCSSImport from "./Transform/Inline/CSS/Import.js";
+import InstrumentVscodeGit from "./Transform/Instrument/Vscode/Git.js";
+import PatchLocalTerminalBackend from "./Transform/Patch/Local/Terminal/Backend.js";
+import PatchTerminalGpuAcceleration from "./Transform/Patch/Terminal/Gpu/Acceleration.js";
+import PatchWebviewIframeServiceWorker from "./Transform/Patch/Webview/Iframe/Service/Worker.js";
+import ReplaceElectronIPCService from "./Transform/Replace/Electron/IPC/Service.js";
+import ReplaceExtensionGalleryService from "./Transform/Replace/Extension/Gallery/Service.js";
+import ReplaceSearchService from "./Transform/Replace/Search/Service.js";
+import ReplaceSharedProcess from "./Transform/Replace/Shared/Process.js";
+import ReplaceTelemetryService from "./Transform/Replace/Telemetry/Service.js";
+import ReplaceUpdateService from "./Transform/Replace/Update/Service.js";
+import RewriteIconsStyleSheetURLs from "./Transform/Rewrite/Icons/Style/Sheet/URLs.js";
+import RewriteNestedWorkerBootstrap from "./Transform/Rewrite/Nested/Worker/Bootstrap.js";
+import RewriteNodeModulesPath from "./Transform/Rewrite/Node/Modules/Path.js";
+import RewritePerfBaselineWorker from "./Transform/Rewrite/Perf/Baseline/Worker.js";
+import RewriteStaticBlockSelfRef from "./Transform/Rewrite/Static/Block/Self/Ref.js";
+import RewriteWebviewShellCSP from "./Transform/Rewrite/Webview/Shell/CSP.js";
+import RewriteWorkbenchBaseURL from "./Transform/Rewrite/Workbench/Base/URL.js";
+import RewriteWorkerURLs from "./Transform/Rewrite/Worker/URLs.js";
+import StaticToDynamicImport from "./Transform/Static/To/Dynamic/Import.js";
+import StripCSSImport from "./Transform/Strip/CSS/Import.js";
+import StripDanglingSourceMap from "./Transform/Strip/Dangling/Source/Map.js";
+import StripWebviewIframeSandbox from "./Transform/Strip/Webview/Iframe/Sandbox.js";
 export * from "./Type.js";
-
-const _ = (globalThis.process?.env?.Disable ?? "").toLowerCase() === "true",
-	$ = (e) => {
-		const n = (e.Profile ?? "").startsWith("release") ? T : Q;
-
-		return _
-			? [
-					t(e.VSOutput),
-
-					a(e.VSRootFiles),
-
-					m(e.Supplement),
-
-					p(e.Worker),
-
-					o(e.NodeModules),
-
-					i(e.Addons),
-
-					r(e.TauriMainProcessService),
-				]
-			: [
-					t(e.VSOutput),
-
-					a(e.VSRootFiles),
-
-					m(e.Supplement),
-
-					p(e.Worker),
-
-					o(e.NodeModules),
-
-					i(e.Addons),
-
-					r(e.TauriMainProcessService),
-
-					n,
-
-					R,
-
-					M,
-
-					G,
-
-					H,
-
-					z,
-
-					k,
-
-					S,
-
-					F,
-
-					D,
-
-					P,
-
-					b,
-
-					v,
-
-					h,
-
-					d,
-
-					j,
-
-					B,
-
-					C,
-
-					y,
-
-					x,
-
-					J,
-
-					q,
-
-					A,
-
-					E,
-
-					L,
-
-					N,
-
-					O,
-
-					K,
-
-					X,
-
-					u,
-
-					l,
-
-					Y,
-
-					w,
-
-					Z,
-
-					c,
-
-					f,
-
-					g,
-
-					s,
-
-					U,
-
-					V,
-
-					W,
-
-					I,
-				];
-	};
-
-var to = $;
-
+import { default as default2 } from "./Apply.js";
+import { default as default3 } from "./Transform/Strip/CSS/Import.js";
+import { default as default4 } from "./Transform/Inline/CSS/Import.js";
+import { default as default5 } from "./Transform/Inject/Name/Shim.js";
+import { default as default6 } from "./Transform/Inject/Disable/Lazy/Paint.js";
+import { default as default7 } from "./Transform/Inject/Eager/Extension/Activation.js";
+import { default as default8 } from "./Transform/Inject/Eager/Idle/Value.js";
+import { default as default9 } from "./Transform/Inject/Eager/Lifecycle/Phase.js";
+import { default as default10 } from "./Transform/Inject/Strip/Background/Polling.js";
+import { default as default11 } from "./Transform/Inject/Telemetry/Consent/Off.js";
+import { default as default12 } from "./Transform/Inject/Web/View/Polyfills.js";
+import { default as default13 } from "./Transform/Inject/Mac/Titlebar/Offset/CSS.js";
+import { default as default14 } from "./Transform/Inject/Part/Z/Index/CSS.js";
+import { default as default15 } from "./Transform/Inject/Workbench/Interactivity/CSS.js";
+import { default as default16 } from "./Transform/Inject/Workbench/Paint/Prime.js";
+import { default as default17 } from "./Transform/Inject/Worker/Bootstrap/Shim.js";
+import { default as default18 } from "./Transform/Inject/Configuration/Overlay.js";
+import { default as default19 } from "./Transform/Inject/Storage/Overlay.js";
+import { default as default20 } from "./Transform/Force/Text/Area/Input.js";
+import { default as default21 } from "./Transform/Rewrite/Icons/Style/Sheet/URLs.js";
+import { default as default22 } from "./Transform/Rewrite/Webview/Shell/CSP.js";
+import { default as default23 } from "./Transform/Rewrite/Nested/Worker/Bootstrap.js";
+import { default as default24 } from "./Transform/Rewrite/Node/Modules/Path.js";
+import { default as default25 } from "./Transform/Rewrite/Perf/Baseline/Worker.js";
+import { default as default26 } from "./Transform/Rewrite/Worker/URLs.js";
+import { default as default27 } from "./Transform/Rewrite/Workbench/Base/URL.js";
+import { default as default28 } from "./Transform/Rewrite/Static/Block/Self/Ref.js";
+import { default as default29 } from "./Transform/Hoist/Function/Declarations.js";
+import { default as default30 } from "./Transform/Replace/Electron/IPC/Service.js";
+import { default as default31 } from "./Transform/Replace/Extension/Gallery/Service.js";
+import { default as default32 } from "./Transform/Replace/Shared/Process.js";
+import { default as default33 } from "./Transform/Replace/Telemetry/Service.js";
+import { default as default34 } from "./Transform/Replace/Update/Service.js";
+import { default as default35 } from "./Transform/Static/To/Dynamic/Import.js";
+import { default as default36 } from "./Transform/Strip/Dangling/Source/Map.js";
+import { default as default37 } from "./Transform/Extension/Scanner/IPC.js";
+import { default as default38 } from "./Transform/Catch/Output/Folder/Rejection.js";
+import { default as default39 } from "./Transform/Strip/Webview/Iframe/Sandbox.js";
+import { default as default40 } from "./Transform/Expose/Workbench/Accessor.js";
+import { default as default41 } from "./Transform/Instrument/Vscode/Git.js";
+import { default as default42 } from "./Transform/Disable/Unused/Services.js";
+import { default as default43 } from "./Transform/Replace/Search/Service.js";
+import { default as default44 } from "./Transform/Inject/Editor/GPU/Layer/CSS.js";
+import { default as default45 } from "./Transform/Inject/Terminal/GPU/Layer/CSS.js";
+import { default as default46 } from "./Transform/Patch/Local/Terminal/Backend.js";
+import { default as default47 } from "./Transform/Patch/Terminal/Gpu/Acceleration.js";
+import { default as default48 } from "./Transform/Patch/Webview/Iframe/Service/Worker.js";
+import {
+  CopyVSOutput,
+  default as default49
+} from "./Copy/Copy/VS/Output.js";
+import {
+  CopyVSRootFiles,
+  default as default50
+} from "./Copy/Copy/VS/Root/Files.js";
+import {
+  SupplementFromDependency,
+  default as default51
+} from "./Copy/Supplement/From/Dependency.js";
+import {
+  CopyWorker,
+  default as default52
+} from "./Copy/Copy/Worker.js";
+import {
+  CopyNodeModules,
+  DefaultPackages,
+  default as default53
+} from "./Copy/Copy/Node/Modules.js";
+import {
+  StubUnpublishedAddons,
+  DefaultStubs,
+  StubDataPrefix,
+  default as default54
+} from "./Copy/Stub/Unpublished/Addons.js";
+import {
+  CopyTauriMainProcessService,
+  default as default55
+} from "./Copy/Copy/Tauri/Main/Process/Service.js";
+const LandDisableAll = (globalThis.process?.env?.Disable ?? "").toLowerCase() === "true";
+const BuildPipeline = /* @__PURE__ */ __name((Input) => {
+  const IsRelease = (Input.Profile ?? "").startsWith("release");
+  const CSSStrategy = IsRelease ? InlineCSSImport : StripCSSImport;
+  if (LandDisableAll) {
+    return [
+      CopyVSOutputFactory(Input.VSOutput),
+      CopyVSRootFilesFactory(Input.VSRootFiles),
+      SupplementFromDependencyFactory(Input.Supplement),
+      CopyWorkerFactory(Input.Worker),
+      CopyNodeModulesFactory(Input.NodeModules),
+      StubUnpublishedAddonsFactory(Input.Addons),
+      CopyTauriMainProcessServiceFactory(Input.TauriMainProcessService)
+    ];
+  }
+  return [
+    CopyVSOutputFactory(Input.VSOutput),
+    CopyVSRootFilesFactory(Input.VSRootFiles),
+    SupplementFromDependencyFactory(Input.Supplement),
+    CopyWorkerFactory(Input.Worker),
+    CopyNodeModulesFactory(Input.NodeModules),
+    StubUnpublishedAddonsFactory(Input.Addons),
+    CopyTauriMainProcessServiceFactory(Input.TauriMainProcessService),
+    CSSStrategy,
+    InjectNameShim,
+    // Inject the same `__name` / `__defProp` shim into the
+    // `webWorkerServiceImpl.js::getWorkerBootstrapUrl` blob factory
+    // so Monaco's editor language workers (TS/CSS/HTML/JSON
+    // services), semantic-token workers, and any other worker spawned
+    // via `defaultWorkerFactory` inherit the helpers in their module
+    // scope. Without this the workers crash at module-eval time with
+    // `ReferenceError: Can't find variable: $4e` (the mangled name
+    // for `__name`) the moment they reach a `__name(fn, "label")`
+    // call site - typically before the first language feature ever
+    // activates.
+    InjectWorkerBootstrapShim,
+    // Rewrite `polyfillNestedWorker.js`'s `_bootstrapFnSource =
+    // (function _bootstrapFn(...)).toString()` pattern with a literal
+    // string equivalent that omits the cosmetic `__name(...)`
+    // decorations. Without this, after Vite/OXC mangling the parent
+    // chunk's `__name` becomes (e.g.) `$4e`; `_bootstrapFn.toString()`
+    // returns the mangled source as a string; the resulting blob
+    // worker has no `$4e` defined in its scope and crashes at module
+    // eval with `ReferenceError: Can't find variable: $4e`. The
+    // literal-string replacement is mangler-immune.
+    RewriteNestedWorkerBootstrap,
+    // Replace `timerService.js`'s `(function() { ... __name(fib,
+    // "fib"); ... }).toString()` perfBaseline worker source with a
+    // literal-string equivalent that omits the cosmetic `__name(...)`
+    // decoration. Same OXC-mangling-truth fix as
+    // `RewriteNestedWorkerBootstrap` - the IIFE source captured by
+    // `.toString()` carried the mangled `$4e` reference; the worker
+    // scope had no `$4e` defined and crashed at line 7 of the blob URL.
+    RewritePerfBaselineWorker,
+    // Patch `vs/base/common/network.js`'s `nodeModulesPath` from
+    // `vs/../../node_modules` (over-resolves to `Static/node_modules`)
+    // to `vs/../node_modules` (resolves to `Static/Application/
+    // node_modules` where files actually exist after the build's
+    // CopyNodeModules step). Without this, every textmate / oniguruma
+    // / language-detection import returns the SPA `index.html`
+    // fallback, the browser parses HTML as JS, and ALL grammar /
+    // tokenization / syntax-highlighting silently breaks across
+    // every extension. Idempotent.
+    RewriteNodeModulesPath,
+    // Inject WKWebView polyfills + Blob worker URL rewrite into VS
+    // Code's Electron workbench entry. Runs at module-eval time so
+    // `window.requestIdleCallback` / `queryLocalFonts` are present
+    // before any contribution touches them. Idempotent.
+    InjectWebViewPolyfills,
+    // Disable WKWebView lazy-paint mechanisms so workbench panels
+    // render on `display:flex` rather than waiting for a hover or
+    // scroll. Replaces `requestAnimationFrame` with a coalesced
+    // `setTimeout(0)` queue, `IntersectionObserver` with a
+    // fire-on-observe stub, and strips `content-visibility:auto`
+    // + `contain:paint` from workbench-level CSS rules.
+    // Idempotent. Runs after the polyfill injector so its
+    // rAF/IO overrides land on top of any earlier shim.
+    InjectDisableLazyPaint,
+    // Force workbench parts/panels/composites to be interactive
+    // on `display:flex`. Strips `pointer-events:none`,
+    // `visibility:hidden`, `opacity:0` cascades and zeros panel
+    // transition durations so panels appear instantly.
+    // Companion to InjectDisableLazyPaint: that one fixed paint;
+    // this fixes interactivity. Idempotent.
+    InjectWorkbenchInteractivityCSS,
+    // Force WKWebView's compositor to commit pending layout for
+    // each workbench part layer at boot and on the first
+    // interaction with each part. One synchronous
+    // `void offsetHeight` read per part suffices to commit the
+    // layer to the compositor; without it, panels may stay in
+    // a "first paint pending" state until something else
+    // triggers a forced layout. Idempotent.
+    InjectWorkbenchPaintPrime,
+    // Reserve the macOS traffic-light cluster width on the
+    // titlebar's left edge so the in-window menubar
+    // (`File / Edit / View / ...`) and the command-center
+    // quick-pick stop colliding with the OS-painted close /
+    // minimize / maximize buttons. Targets `.monaco-workbench.mac`
+    // only; non-macOS builds keep their stock layout. Idempotent.
+    InjectMacTitlebarOffsetCSS,
+    // Establish a deterministic z-index hierarchy across the
+    // workbench parts so a sibling that picked up an implicit
+    // stacking context (transform, opacity, isolation) can't
+    // hide the activity bar, sidebar, panel resize handle,
+    // status bar progress badges, or the command-center
+    // quick-pick dropdown. Hardens stock CSS without changing
+    // its intent. Idempotent.
+    InjectPartZIndexCSS,
+    // Pre-bake telemetry consent OFF so VS Code's TelemetryService
+    // starts in already-disabled state. Network.ts excludes the
+    // wire-level appenders; this transform makes the consumers
+    // take the disabled branches at module-eval time so even
+    // straggler appenders never get fed an event. Idempotent.
+    InjectTelemetryConsentOff,
+    // Strip VS Code's background polls (telemetry flush, settings
+    // sync, update check, marketplace recommendations, etc.) at
+    // the setInterval / long setTimeout level. Stack-trace deny
+    // match; non-matching timers run as normal. Idempotent.
+    InjectStripBackgroundPolling,
+    // Add a `globalThis.__CEL_OVERRIDE_CONFIG__` consult to every
+    // `IConfigurationService.getValue(arg1, arg2)` so Wind / Sky can
+    // inject settings live without writing to disk or going through
+    // Mountain's `configuration:setValue` IPC. Bag is opt-in; when
+    // unset the upstream behaviour is preserved verbatim.
+    InjectConfigurationOverlay,
+    // Add a `globalThis.__CEL_OVERRIDE_STORAGE__` consult to
+    // `AbstractStorageService.{get,getBoolean,getNumber,getObject}`
+    // so Wind / Sky can seed in-memory storage state without going
+    // through IndexedDB. Composite key is `<scope>:<key>` to
+    // disambiguate across APPLICATION / PROFILE / WORKSPACE scopes.
+    InjectStorageOverlay,
+    // Wrap `iconsStyleSheet.js`'s `getCSS()` so the emitted
+    // `@font-face` URLs are rewritten from `vscode-file://vscode-app`
+    // to same-origin paths the WKWebView can actually fetch. Without
+    // this, every extension-contributed codicon font (GitLens,
+    // dart-code, etc.) lands as a missing-glyph blank box because
+    // WKWebView has no `vscode-file://` handler.
+    RewriteIconsStyleSheetURLs,
+    // Force the workbench's ILifecycleService to advance through
+    // Starting -> Ready -> Restored -> Eventually as fast as
+    // possible at boot, rather than waiting on the stock 2-5 s
+    // timer. Unblocks every `lifecycle.when(phase)` Promise that
+    // extension activations + service init wait on. Idempotent.
+    InjectEagerLifecyclePhase,
+    // Fire `IExtensionService.activateByEvent("onStartupFinished")`
+    // + `("*")` directly at workbench-loaded so extension panels
+    // (Roo, Claude, gitlens, dart-code, etc.) populate immediately
+    // rather than waiting for the stock 2-5 s scheduler. Compounds
+    // with InjectEagerLifecyclePhase. Idempotent.
+    InjectEagerExtensionActivation,
+    // Collapse `requestIdleCallback` to `setTimeout(0)` with a
+    // generous synthetic IdleDeadline so VS Code's pervasive
+    // `IdleValue<T>` lazy-init pattern resolves eagerly. Trades
+    // tiny boot-time spike for predictable warm state. Idempotent.
+    InjectEagerIdleValue,
+    // Rewrite `new URL("./worker.html", import.meta.url)` patterns
+    // to absolute origin-pinned `/Static/Application/...` URLs so
+    // they resolve regardless of where the bundled chunk lives.
+    // Without this, Vite-bundled chunks resolve worker scripts
+    // relative to `_astro/` and the dev server returns 404 HTML
+    // (browser parses it as JS, crashes with "Unexpected token <").
+    RewriteWorkerURLs,
+    // Rewrite the workbench loader's base URL from `vscode-file://`
+    // (which only resolves when Mountain's custom scheme handler is
+    // registered with the webview - not the case in dev profiles)
+    // to a plain `${location.origin}/Static/Application/` URL that
+    // resolves through the normal HTTP path Sky's pipeline serves.
+    RewriteWorkbenchBaseURL,
+    ReplaceElectronIPCService,
+    ReplaceSharedProcess,
+    // LAND-PATCH: replace VS Code's TelemetryService body with a
+    // no-op stub. Static `import` references in workbench.*
+    // resolve cleanly; consumers that DO call publicLog/etc.
+    // hit no-op methods. Compounds with Network.ts (excludes
+    // wire-level appenders) + InjectTelemetryConsentOff
+    // (pre-bakes consent off at boot).
+    ReplaceTelemetryService,
+    // LAND-PATCH: replace UpdateService + AbstractUpdateService
+    // bodies. State.Idle forever; checkForUpdates / downloadUpdate
+    // / quitAndInstall are no-ops. Auto-update goes through Air's
+    // signed-binary path (Mountain.key.pub verified), not
+    // update.code.visualstudio.com.
+    ReplaceUpdateService,
+    // LAND-PATCH: replace ExtensionGalleryService body. query()
+    // returns an empty pager; download/install reject with a
+    // helpful error. User extensions are sideloaded from
+    // ~/.land/extensions/ - no marketplace traffic.
+    ReplaceExtensionGalleryService,
+    StaticToDynamicImport,
+    StripDanglingSourceMap,
+    ExtensionScannerIPC,
+    CatchOutputFolderRejection,
+    StripWebviewIframeSandbox,
+    // Default `disableServiceWorker = true` inside the webview iframe
+    // shell so the bootstrap script's `await workerReady` resolves
+    // immediately under WKWebView (which rejects ServiceWorker
+    // registration on the `vscode-webview://` custom protocol). Without
+    // this every extension webview hangs at the bare `pre/index.html`
+    // chrome because the `content` message handler awaits the rejected
+    // `workerReady` promise and bails on `fatal-error` before rendering
+    // the extension HTML. Idempotent. Marker `__LAND_DISABLE_WEBVIEW_SW__`.
+    PatchWebviewIframeServiceWorker,
+    // Loosen the webview shell's `<meta http-equiv="Content-Security-Policy">`
+    // from a stale sha256 hash on the inline bootstrap script to
+    // `'unsafe-inline'`. Stock VS Code pins the hash; WKWebView
+    // computes it differently from Chromium, and any later
+    // transform that touches the inline script body invalidates
+    // it silently. Loosening matches Land's single-user desktop
+    // threat model and lets every extension webview boot.
+    // Idempotent. Marker `__LAND_WEBVIEW_SHELL_CSP__`.
+    RewriteWebviewShellCSP,
+    // Flip Monaco's `editor.editContext` default from `true` to
+    // `false` so keyboard input flows through the legacy
+    // `<textarea class="inputarea">` rather than the modern
+    // EditContext-API `<div class="native-edit-context">`. The
+    // textarea path predates EditContext and is the codebase's
+    // battle-tested input route; WKWebView's EditContext support
+    // is flaky enough that focused divs swallow keystrokes
+    // silently. Idempotent. Marker `__LAND_FORCE_TEXTAREA_INPUT__`.
+    ForceTextAreaInput,
+    // Expose the IWorkbench facade + IInstantiationService on
+    // `globalThis` as `__CEL_WORKBENCH__` / `__CEL_INSTANTIATION_SERVICE__`
+    // / `__CEL_SERVICES__` so Sky's bridge code (SkyBridge,
+    // tree-view attachment, command forwarding, status-bar sync) can
+    // call into the live workbench without re-implementing a parallel
+    // UI. Without this patch, every tree view an extension registers
+    // surfaces as `attach-give-up (no workbench tree descriptor)` on
+    // the renderer and the entire Sky→workbench integration is dead.
+    ExposeWorkbenchAccessor,
+    // Instrument the bundled vscode.git extension's `out/main.js` +
+    // `out/model.js` with `process.stdout.write('[GIT-MARK-X] ...')`
+    // markers at strategic activation-pipeline points. Bypasses the
+    // outputChannel routing entirely so progress is visible even when
+    // the channel-name dev_log filter is muted. Drives the F6
+    // diagnostic - whichever marker is the LAST visible one identifies
+    // the exact bail point in vscode.git's silent activation. Self-
+    // idempotent (skips the inject if marker already present).
+    InstrumentVscodeGit,
+    // Replace upstream contribution barrels for features Land
+    // intentionally does not back (auto-update, issue reporter, MS
+    // account / settings sync, welcome walkthrough, process explorer,
+    // experiments) with an empty default export. Removes broken UI,
+    // silences the "service not registered" warnings, and shortens
+    // boot. List lives in the transform itself.
+    DisableUnusedServices,
+    // Replace `RemoteSearchService`'s web-worker-backed file/text
+    // search provider with a Tauri-IPC client that delegates to
+    // Mountain's `search:findFiles` / `search:findInFiles` (Rust
+    // `ignore::WalkBuilder` + `grep-searcher`, `.gitignore`-aware by
+    // default). Without this, the workbench search panel shows files
+    // in the explorer pane but the match counter stays at 0 because
+    // no text-search backend ever runs, AND the file walker doesn't
+    // honour `.gitignore` so `Target/` / `node_modules/` appear in
+    // results.
+    ReplaceSearchService,
+    // Patch `LocalTerminalBackend._connectToDirectProxy` so it stops
+    // calling `acquirePort('vscode:createPtyHostMessageChannel', ...)`,
+    // which never resolves under Tauri (no Electron utility-process
+    // MessagePort). Without this, every `createTerminal` /
+    // `attachToProcess` / `listProcesses` call hangs forever because
+    // `_connectToDirectProxy()` never resolves; the user clicks
+    // "open terminal" and the panel sits empty with no PTY ever
+    // spawning. The patched body routes everything through the
+    // already-functional `_localPtyService` channel proxy
+    // (`mainProcessService.getChannel('localPty')` →
+    // Mountain's `localPty:*` handlers).
+    PatchLocalTerminalBackend,
+    // Pin the xterm canvas to its own GPU compositor layer so
+    // WKWebView's compositor flush between `xterm.refresh()` cycles
+    // doesn't expose the cleared canvas (the "terminal flashes on
+    // every click" symptom). CSS-only - degrades to inert hints if
+    // WebKit ever fixes the underlying compositor behaviour.
+    InjectTerminalGPULayerCSS,
+    // Same GPU-layer hint applied to Monaco's editor canvases.
+    // Targets the "underscore/cursor at a different place" symptom
+    // where WKWebView's compositor lifts the cursor onto a layer
+    // whose baseline diverges from the text layer during reflow.
+    InjectEditorGPULayerCSS
+    // `PatchTerminalGpuAcceleration` is intentionally NOT registered
+    // here. Forcing the DOM renderer fixed the WebGL atlas font
+    // glitches but introduced a "black shadow over text" visual
+    // artifact (xterm's DOM-renderer cursor / accessibility layer
+    // in WKWebView). Keep the transform file on disk so it can be
+    // re-enabled if we settle on DOM, but default-on it makes the
+    // terminal worse, not better. Re-evaluate after the input race
+    // fix lands and we know whether the original "broken fonts"
+    // symptom was actually WebGL atlas drift or a deferred-create
+    // race side-effect.
+  ];
+}, "BuildPipeline");
+var Index_default = BuildPipeline;
 export {
-	mo as ApplyPlugins,
-	$ as BuildPipeline,
-	Wr as CatchOutputFolderRejection,
-	it as CopyNodeModules,
-	nt as CopyNodeModulesDefault,
-	St as CopyTauriMainProcessService,
-	yt as CopyTauriMainProcessServiceDefault,
-	Kr as CopyVSOutput,
-	Qr as CopyVSOutputDefault,
-	Yr as CopyVSRootFiles,
-	_r as CopyVSRootFilesDefault,
-	tt as CopyWorker,
-	at as CopyWorkerDefault,
-	mt as DefaultNodeModulePackages,
-	ft as DefaultStubs,
-	wr as DisableUnusedServices,
-	Mr as ExposeWorkbenchAccessor,
-	hr as ExtensionScannerIPC,
-	Ho as ForceTextAreaInput,
-	nr as HoistFunctionDeclarations,
-	No as InjectConfigurationOverlay,
-	yo as InjectDisableLazyPaint,
-	Co as InjectEagerExtensionActivation,
-	Po as InjectEagerIdleValue,
-	bo as InjectEagerLifecyclePhase,
-	Er as InjectEditorGPULayerCSS,
-	Mo as InjectMacTitlebarOffsetCSS,
-	co as InjectNameShim,
-	go as InjectPartZIndexCSS,
-	Go as InjectStorageOverlay,
-	ho as InjectStripBackgroundPolling,
-	Wo as InjectTelemetryConsentOff,
-	Nr as InjectTerminalGPULayerCSS,
-	Fo as InjectWebViewPolyfills,
-	wo as InjectWorkbenchInteractivityCSS,
-	Oo as InjectWorkbenchPaintPrime,
-	Eo as InjectWorkerBootstrapShim,
-	fo as InlineCSSImport,
-	gr as InstrumentVscodeGit,
-	Gr as PatchLocalTerminalBackend,
-	Hr as PatchTerminalGpuAcceleration,
-	qr as PatchWebviewIframeServiceWorker,
-	sr as ReplaceElectronIPCService,
-	ur as ReplaceExtensionGalleryService,
-	Or as ReplaceSearchService,
-	dr as ReplaceSharedProcess,
-	yr as ReplaceTelemetryService,
-	Cr as ReplaceUpdateService,
-	qo as RewriteIconsStyleSheetURLs,
-	Xo as RewriteNestedWorkerBootstrap,
-	_o as RewriteNodeModulesPath,
-	er as RewritePerfBaselineWorker,
-	ir as RewriteStaticBlockSelfRef,
-	Ko as RewriteWebviewShellCSP,
-	ar as RewriteWorkbenchBaseURL,
-	rr as RewriteWorkerURLs,
-	Pr as StaticToDynamicImport,
-	lo as StripCSSImport,
-	br as StripDanglingSourceMap,
-	Fr as StripWebviewIframeSandbox,
-	ut as StubDataPrefix,
-	st as StubUnpublishedAddons,
-	ct as StubUnpublishedAddonsDefault,
-	et as SupplementFromDependency,
-	ot as SupplementFromDependencyDefault,
-	to as default,
+  default2 as ApplyPlugins,
+  BuildPipeline,
+  default38 as CatchOutputFolderRejection,
+  CopyNodeModules,
+  default53 as CopyNodeModulesDefault,
+  CopyTauriMainProcessService,
+  default55 as CopyTauriMainProcessServiceDefault,
+  CopyVSOutput,
+  default49 as CopyVSOutputDefault,
+  CopyVSRootFiles,
+  default50 as CopyVSRootFilesDefault,
+  CopyWorker,
+  default52 as CopyWorkerDefault,
+  DefaultPackages as DefaultNodeModulePackages,
+  DefaultStubs,
+  default42 as DisableUnusedServices,
+  default40 as ExposeWorkbenchAccessor,
+  default37 as ExtensionScannerIPC,
+  default20 as ForceTextAreaInput,
+  default29 as HoistFunctionDeclarations,
+  default18 as InjectConfigurationOverlay,
+  default6 as InjectDisableLazyPaint,
+  default7 as InjectEagerExtensionActivation,
+  default8 as InjectEagerIdleValue,
+  default9 as InjectEagerLifecyclePhase,
+  default44 as InjectEditorGPULayerCSS,
+  default13 as InjectMacTitlebarOffsetCSS,
+  default5 as InjectNameShim,
+  default14 as InjectPartZIndexCSS,
+  default19 as InjectStorageOverlay,
+  default10 as InjectStripBackgroundPolling,
+  default11 as InjectTelemetryConsentOff,
+  default45 as InjectTerminalGPULayerCSS,
+  default12 as InjectWebViewPolyfills,
+  default15 as InjectWorkbenchInteractivityCSS,
+  default16 as InjectWorkbenchPaintPrime,
+  default17 as InjectWorkerBootstrapShim,
+  default4 as InlineCSSImport,
+  default41 as InstrumentVscodeGit,
+  default46 as PatchLocalTerminalBackend,
+  default47 as PatchTerminalGpuAcceleration,
+  default48 as PatchWebviewIframeServiceWorker,
+  default30 as ReplaceElectronIPCService,
+  default31 as ReplaceExtensionGalleryService,
+  default43 as ReplaceSearchService,
+  default32 as ReplaceSharedProcess,
+  default33 as ReplaceTelemetryService,
+  default34 as ReplaceUpdateService,
+  default21 as RewriteIconsStyleSheetURLs,
+  default23 as RewriteNestedWorkerBootstrap,
+  default24 as RewriteNodeModulesPath,
+  default25 as RewritePerfBaselineWorker,
+  default28 as RewriteStaticBlockSelfRef,
+  default22 as RewriteWebviewShellCSP,
+  default27 as RewriteWorkbenchBaseURL,
+  default26 as RewriteWorkerURLs,
+  default35 as StaticToDynamicImport,
+  default3 as StripCSSImport,
+  default36 as StripDanglingSourceMap,
+  default39 as StripWebviewIframeSandbox,
+  StubDataPrefix,
+  StubUnpublishedAddons,
+  default54 as StubUnpublishedAddonsDefault,
+  SupplementFromDependency,
+  default51 as SupplementFromDependencyDefault,
+  Index_default as default
 };
+//# sourceMappingURL=Index.js.map

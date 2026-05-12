@@ -1,336 +1,312 @@
-const d = "/* __LAND_FN_DECLS_HOISTED_V2__ */",
-	B = "/* __LAND_FN_DECLS_HOISTED__ */",
-	y = ["__defProp", "__name", "__decorate", "__param"],
-	I = new Set([
-		"return",
-
-		"typeof",
-
-		"instanceof",
-
-		"in",
-
-		"of",
-
-		"delete",
-
-		"void",
-
-		"throw",
-
-		"new",
-
-		"do",
-
-		"else",
-
-		"case",
-
-		"yield",
-
-		"await",
-	]),
-	C = { InBlockComment: !1, StringChar: null, BraceStack: [] };
-
-function _(n) {
-	const s = [];
-
-	let h = 0,
-		c = C;
-
-	const p = /^function ([A-Za-z_$][\w$]*)\s*\(/;
-	let a = 0;
-	for (; a < n.length; ) {
-		const k = n[a],
-			t = g(k, c);
-		if (
-			h === 0 &&
-			!c.InBlockComment &&
-			c.StringChar === null &&
-			c.BraceStack.length === 0
-		) {
-			const l = p.exec(k);
-			if (l) {
-				const S = a,
-					m = l[1];
-				let f = t.Open - t.Close,
-					u = {
-						InBlockComment: t.InBlockComment,
-						StringChar: t.StringChar,
-						BraceStack: t.BraceStack,
-					},
-					r = a + 1;
-				for (; r < n.length && f > 0; ) {
-					const o = g(n[r], u);
-					((u = {
-						InBlockComment: o.InBlockComment,
-						StringChar: o.StringChar,
-						BraceStack: o.BraceStack,
-					}),
-						(f += o.Open - o.Close),
-						r++);
-				}
-				const i = r - 1,
-					e = n.slice(S, i + 1).join(`
-`);
-				(s.push({ StartLine: S, EndLine: i, Source: e, Name: m }),
-					(c = u),
-					(a = i + 1));
-				continue;
-			}
-		}
-		((h += t.Open - t.Close),
-			(c = {
-				InBlockComment: t.InBlockComment,
-				StringChar: t.StringChar,
-				BraceStack: t.BraceStack,
-			}),
-			a++);
-	}
-	return s;
-}
-function w(n) {
-	const s = [];
-	let h = 0,
-		c = C;
-	const p = new RegExp(`^var (${y.join("|")})\\s*=`);
-	let a = 0;
-	for (; a < n.length; ) {
-		const k = n[a],
-			t = g(k, c);
-		if (
-			h === 0 &&
-			!c.InBlockComment &&
-			c.StringChar === null &&
-			c.BraceStack.length === 0
-		) {
-			const l = p.exec(k);
-			if (l) {
-				const S = a,
-					m = l[1];
-				let f = t.Open - t.Close,
-					u = {
-						InBlockComment: t.InBlockComment,
-						StringChar: t.StringChar,
-						BraceStack: t.BraceStack,
-					},
-					r = a + 1;
-				for (; r < n.length && f > 0; ) {
-					const o = g(n[r], u);
-					((u = {
-						InBlockComment: o.InBlockComment,
-						StringChar: o.StringChar,
-						BraceStack: o.BraceStack,
-					}),
-						(f += o.Open - o.Close),
-						r++);
-				}
-				const i = r - 1,
-					e = n.slice(S, i + 1).join(`
-`);
-				(s.push({ StartLine: S, EndLine: i, Source: e, Name: m }),
-					(c = u),
-					(a = i + 1));
-				continue;
-			}
-		}
-		((h += t.Open - t.Close),
-			(c = {
-				InBlockComment: t.InBlockComment,
-				StringChar: t.StringChar,
-				BraceStack: t.BraceStack,
-			}),
-			a++);
-	}
-	return s;
-}
-function g(n, s) {
-	let h = 0,
-		c = 0,
-		p = s.InBlockComment,
-		a = s.StringChar;
-	const k = [...s.BraceStack];
-	let t = 0;
-	for (; t < n.length; ) {
-		const l = n[t],
-			S = n[t + 1];
-		if (p) {
-			if (l === "*" && S === "/") {
-				((p = !1), (t += 2));
-				continue;
-			}
-			t++;
-			continue;
-		}
-		if (a) {
-			if (a === "`" && l === "$" && S === "{") {
-				(k.push("${"), (a = null), (t += 2));
-				continue;
-			}
-			if (l === "\\") {
-				t += 2;
-				continue;
-			}
-			(l === a && (a = null), t++);
-			continue;
-		}
-		if (l === "/" && S === "/") break;
-		if (l === "/" && S === "*") {
-			((p = !0), (t += 2));
-			continue;
-		}
-		if (l === '"' || l === "'" || l === "`") {
-			((a = l), t++);
-			continue;
-		}
-		if (l === "\\") {
-			t += 2;
-			continue;
-		}
-		if (l === "/") {
-			let m = t - 1;
-			for (; m >= 0 && (n[m] === " " || n[m] === "	"); ) m--;
-			const f = m >= 0 ? n[m] : "";
-			let u = !/[A-Za-z_$0-9)\]]/.test(f) || f === "";
-
-			if (!u && /[A-Za-z_$]/.test(f)) {
-				let r = m;
-
-				for (; r > 0 && /[A-Za-z_$0-9]/.test(n[r - 1]); ) r--;
-
-				const i = n.slice(r, m + 1);
-
-				I.has(i) && (u = !0);
-			}
-
-			if (u) {
-				let r = t + 1,
-					i = !1;
-
-				for (; r < n.length; ) {
-					const e = n[r];
-
-					if (e === "\\") {
-						r += 2;
-
-						continue;
-					}
-
-					if (e === "[" && !i) {
-						((i = !0), r++);
-
-						continue;
-					}
-
-					if (e === "]" && i) {
-						((i = !1), r++);
-
-						continue;
-					}
-
-					if (e === "/" && !i) {
-						for (r++; r < n.length && /[gimsuyd]/.test(n[r]); ) r++;
-
-						break;
-					}
-
-					r++;
-				}
-
-				t = r;
-
-				continue;
-			}
-		}
-
-		if (l === "{") {
-			(k.push("{"), h++, t++);
-
-			continue;
-		}
-
-		if (l === "}") {
-			(k.pop() === "${" ? (a = "`") : c++, t++);
-
-			continue;
-		}
-
-		t++;
-	}
-
-	return {
-		Open: h,
-
-		Close: c,
-
-		InBlockComment: p,
-
-		StringChar: a,
-
-		BraceStack: k,
-	};
-}
-
-const H = {
-	Kind: "Transform",
-
-	Name: "HoistFunctionDeclarations",
-
-	Match: ({ Path: n }) => /\/vs\/.*\.js$/.test(n) && !/\.d\.ts\.map$/.test(n),
-
-	Transform({ Source: n }) {
-		if (n.includes(d)) return { Kind: "Unchanged" };
-
-		const s = n.split(`
-`),
-			h = _(s),
-			c = w(s),
-			p = n.includes(B);
-		if (h.length === 0 && c.length === 0) return { Kind: "Unchanged" };
-		const a = h[0]?.StartLine ?? s.length,
-			k = s.slice(0, a),
-			t = h.some((e) =>
-				k.some((o) => new RegExp(`\\b${e.Name}\\s*\\(`).test(o)),
-			),
-			l = c.some((e) => e.StartLine > 0);
-		if (!t && !l && !p) return { Kind: "Unchanged" };
-		const S = new Set();
-		for (const e of h)
-			for (let o = e.StartLine; o <= e.EndLine; o++) S.add(o);
-		for (const e of c)
-			for (let o = e.StartLine; o <= e.EndLine; o++) S.add(o);
-		let m = 0;
-		for (let e = 0; e < s.length; e++) {
-			const o = s[e].trim();
-			if (
-				o === "" ||
-				o.startsWith("//") ||
-				o.startsWith("/*") ||
-				o.startsWith("*") ||
-				o.startsWith("import ") ||
-				o.startsWith("import{") ||
-				o.startsWith("import*") ||
-				o.startsWith("import(")
-			)
-				m = e + 1;
-			else break;
-		}
-		const f = c.map((e) => e.Source).join(`
-`),
-			u = h.map((e) => e.Source).join(`
-`),
-			r = [f, u].filter((e) => e.length > 0).join(`
-`),
-			i = [];
-		for (let e = 0; e < m; e++) S.has(e) || i.push(s[e]);
-		(i.push(d), r.length > 0 && i.push(r));
-		for (let e = m; e < s.length; e++) S.has(e) || i.push(s[e]);
-		return {
-			Kind: "Rewrite",
-			Source: i.join(`
-`),
-		};
-	},
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+const Marker = "/* __LAND_FN_DECLS_HOISTED_V2__ */";
+const LegacyMarker = "/* __LAND_FN_DECLS_HOISTED__ */";
+const HelperNames = ["__defProp", "__name", "__decorate", "__param"];
+const RegexAllowingKeywords = /* @__PURE__ */ new Set([
+  "return",
+  "typeof",
+  "instanceof",
+  "in",
+  "of",
+  "delete",
+  "void",
+  "throw",
+  "new",
+  "do",
+  "else",
+  "case",
+  "yield",
+  "await"
+]);
+const InitialState = {
+  InBlockComment: false,
+  StringChar: null,
+  BraceStack: []
 };
-var N = H;
-export { N as default };
+function FindTopLevelFunctionBlocks(Lines) {
+  const Blocks = [];
+  let Depth = 0;
+  let State = InitialState;
+  const FunctionStart = /^function ([A-Za-z_$][\w$]*)\s*\(/;
+  let i = 0;
+  while (i < Lines.length) {
+    const Line = Lines[i];
+    const Stripped = StripCommentsAndStrings(Line, State);
+    if (Depth === 0 && !State.InBlockComment && State.StringChar === null && State.BraceStack.length === 0) {
+      const Match = FunctionStart.exec(Line);
+      if (Match) {
+        const StartLine = i;
+        const Name = Match[1];
+        let LocalDepth = Stripped.Open - Stripped.Close;
+        let Inner = {
+          InBlockComment: Stripped.InBlockComment,
+          StringChar: Stripped.StringChar,
+          BraceStack: Stripped.BraceStack
+        };
+        let j = i + 1;
+        while (j < Lines.length && LocalDepth > 0) {
+          const Next = StripCommentsAndStrings(Lines[j], Inner);
+          Inner = {
+            InBlockComment: Next.InBlockComment,
+            StringChar: Next.StringChar,
+            BraceStack: Next.BraceStack
+          };
+          LocalDepth += Next.Open - Next.Close;
+          j++;
+        }
+        const EndLine = j - 1;
+        const Source = Lines.slice(StartLine, EndLine + 1).join("\n");
+        Blocks.push({ StartLine, EndLine, Source, Name });
+        State = Inner;
+        i = EndLine + 1;
+        continue;
+      }
+    }
+    Depth += Stripped.Open - Stripped.Close;
+    State = {
+      InBlockComment: Stripped.InBlockComment,
+      StringChar: Stripped.StringChar,
+      BraceStack: Stripped.BraceStack
+    };
+    i++;
+  }
+  return Blocks;
+}
+__name(FindTopLevelFunctionBlocks, "FindTopLevelFunctionBlocks");
+function FindTopLevelHelperVars(Lines) {
+  const Blocks = [];
+  let Depth = 0;
+  let State = InitialState;
+  const HelperStart = new RegExp(`^var (${HelperNames.join("|")})\\s*=`);
+  let i = 0;
+  while (i < Lines.length) {
+    const Line = Lines[i];
+    const Stripped = StripCommentsAndStrings(Line, State);
+    if (Depth === 0 && !State.InBlockComment && State.StringChar === null && State.BraceStack.length === 0) {
+      const Match = HelperStart.exec(Line);
+      if (Match) {
+        const StartLine = i;
+        const Name = Match[1];
+        let LocalDepth = Stripped.Open - Stripped.Close;
+        let Inner = {
+          InBlockComment: Stripped.InBlockComment,
+          StringChar: Stripped.StringChar,
+          BraceStack: Stripped.BraceStack
+        };
+        let j = i + 1;
+        while (j < Lines.length && LocalDepth > 0) {
+          const Next = StripCommentsAndStrings(Lines[j], Inner);
+          Inner = {
+            InBlockComment: Next.InBlockComment,
+            StringChar: Next.StringChar,
+            BraceStack: Next.BraceStack
+          };
+          LocalDepth += Next.Open - Next.Close;
+          j++;
+        }
+        const EndLine = j - 1;
+        const Source = Lines.slice(StartLine, EndLine + 1).join("\n");
+        Blocks.push({ StartLine, EndLine, Source, Name });
+        State = Inner;
+        i = EndLine + 1;
+        continue;
+      }
+    }
+    Depth += Stripped.Open - Stripped.Close;
+    State = {
+      InBlockComment: Stripped.InBlockComment,
+      StringChar: Stripped.StringChar,
+      BraceStack: Stripped.BraceStack
+    };
+    i++;
+  }
+  return Blocks;
+}
+__name(FindTopLevelHelperVars, "FindTopLevelHelperVars");
+function StripCommentsAndStrings(Line, State) {
+  let Open = 0;
+  let Close = 0;
+  let InBlockComment = State.InBlockComment;
+  let StringChar = State.StringChar;
+  const BraceStack = [...State.BraceStack];
+  let i = 0;
+  while (i < Line.length) {
+    const c = Line[i];
+    const next = Line[i + 1];
+    if (InBlockComment) {
+      if (c === "*" && next === "/") {
+        InBlockComment = false;
+        i += 2;
+        continue;
+      }
+      i++;
+      continue;
+    }
+    if (StringChar) {
+      if (StringChar === "`" && c === "$" && next === "{") {
+        BraceStack.push("${");
+        StringChar = null;
+        i += 2;
+        continue;
+      }
+      if (c === "\\") {
+        i += 2;
+        continue;
+      }
+      if (c === StringChar) {
+        StringChar = null;
+      }
+      i++;
+      continue;
+    }
+    if (c === "/" && next === "/") break;
+    if (c === "/" && next === "*") {
+      InBlockComment = true;
+      i += 2;
+      continue;
+    }
+    if (c === '"' || c === "'" || c === "`") {
+      StringChar = c;
+      i++;
+      continue;
+    }
+    if (c === "\\") {
+      i += 2;
+      continue;
+    }
+    if (c === "/") {
+      let k = i - 1;
+      while (k >= 0 && (Line[k] === " " || Line[k] === "	")) k--;
+      const Prev = k >= 0 ? Line[k] : "";
+      let IsRegex = !/[A-Za-z_$0-9)\]]/.test(Prev) || Prev === "";
+      if (!IsRegex && /[A-Za-z_$]/.test(Prev)) {
+        let WordStart = k;
+        while (WordStart > 0 && /[A-Za-z_$0-9]/.test(Line[WordStart - 1])) {
+          WordStart--;
+        }
+        const Word = Line.slice(WordStart, k + 1);
+        if (RegexAllowingKeywords.has(Word)) IsRegex = true;
+      }
+      if (IsRegex) {
+        let m = i + 1;
+        let InCharClass = false;
+        while (m < Line.length) {
+          const Ch = Line[m];
+          if (Ch === "\\") {
+            m += 2;
+            continue;
+          }
+          if (Ch === "[" && !InCharClass) {
+            InCharClass = true;
+            m++;
+            continue;
+          }
+          if (Ch === "]" && InCharClass) {
+            InCharClass = false;
+            m++;
+            continue;
+          }
+          if (Ch === "/" && !InCharClass) {
+            m++;
+            while (m < Line.length && /[gimsuyd]/.test(Line[m])) {
+              m++;
+            }
+            break;
+          }
+          m++;
+        }
+        i = m;
+        continue;
+      }
+    }
+    if (c === "{") {
+      BraceStack.push("{");
+      Open++;
+      i++;
+      continue;
+    }
+    if (c === "}") {
+      const Top = BraceStack.pop();
+      if (Top === "${") {
+        StringChar = "`";
+      } else {
+        Close++;
+      }
+      i++;
+      continue;
+    }
+    i++;
+  }
+  return { Open, Close, InBlockComment, StringChar, BraceStack };
+}
+__name(StripCommentsAndStrings, "StripCommentsAndStrings");
+const Plugin = {
+  Kind: "Transform",
+  Name: "HoistFunctionDeclarations",
+  Match: /* @__PURE__ */ __name(({ Path }) => (
+    // Limit to VS Code source. Skip already-hoisted files.
+    /\/vs\/.*\.js$/.test(Path) && !/\.d\.ts\.map$/.test(Path)
+  ), "Match"),
+  Transform({ Source }) {
+    if (Source.includes(Marker)) return { Kind: "Unchanged" };
+    const Lines = Source.split("\n");
+    const Blocks = FindTopLevelFunctionBlocks(Lines);
+    const HelperBlocks = FindTopLevelHelperVars(Lines);
+    const HasLegacyMarker = Source.includes(LegacyMarker);
+    if (Blocks.length === 0 && HelperBlocks.length === 0) {
+      return { Kind: "Unchanged" };
+    }
+    const FirstBlockStart = Blocks[0]?.StartLine ?? Lines.length;
+    const PreambleLines = Lines.slice(0, FirstBlockStart);
+    const PreambleHasCallsToHoistedFns = Blocks.some(
+      (Block) => PreambleLines.some(
+        (PrevLine) => new RegExp(`\\b${Block.Name}\\s*\\(`).test(PrevLine)
+      )
+    );
+    const HelpersNeedHoisting = HelperBlocks.some(
+      (Block) => Block.StartLine > 0
+    );
+    if (!PreambleHasCallsToHoistedFns && !HelpersNeedHoisting && !HasLegacyMarker) {
+      return { Kind: "Unchanged" };
+    }
+    const SkipRanges = /* @__PURE__ */ new Set();
+    for (const Block of Blocks) {
+      for (let n = Block.StartLine; n <= Block.EndLine; n++) {
+        SkipRanges.add(n);
+      }
+    }
+    for (const Block of HelperBlocks) {
+      for (let n = Block.StartLine; n <= Block.EndLine; n++) {
+        SkipRanges.add(n);
+      }
+    }
+    let HoistInsertAt = 0;
+    for (let n = 0; n < Lines.length; n++) {
+      const Trimmed = Lines[n].trim();
+      if (Trimmed === "" || Trimmed.startsWith("//") || Trimmed.startsWith("/*") || Trimmed.startsWith("*") || Trimmed.startsWith("import ") || Trimmed.startsWith("import{") || Trimmed.startsWith("import*") || Trimmed.startsWith("import(")) {
+        HoistInsertAt = n + 1;
+      } else {
+        break;
+      }
+    }
+    const HelpersSource = HelperBlocks.map((B) => B.Source).join("\n");
+    const FunctionsSource = Blocks.map((B) => B.Source).join("\n");
+    const HoistedSource = [HelpersSource, FunctionsSource].filter((Part) => Part.length > 0).join("\n");
+    const Output = [];
+    for (let n = 0; n < HoistInsertAt; n++) {
+      if (!SkipRanges.has(n)) Output.push(Lines[n]);
+    }
+    Output.push(Marker);
+    if (HoistedSource.length > 0) Output.push(HoistedSource);
+    for (let n = HoistInsertAt; n < Lines.length; n++) {
+      if (!SkipRanges.has(n)) Output.push(Lines[n]);
+    }
+    return { Kind: "Rewrite", Source: Output.join("\n") };
+  }
+};
+var Declarations_default = Plugin;
+export {
+  Declarations_default as default
+};
+//# sourceMappingURL=Declarations.js.map

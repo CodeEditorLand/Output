@@ -1,25 +1,23 @@
-import e, { Marker as r } from "../../../../Polyfill/Disable/Lazy/Paint.js";
-
-const i = `
-/* ${r} */
-(${e.toString()})();
-
-`,
-	o = {
-		Kind: "Transform",
-
-		Name: "InjectDisableLazyPaint",
-
-		Match: ({ Path: n }) =>
-			n.endsWith("vs/code/electron-browser/workbench/workbench.js"),
-
-		Transform({ Source: n }) {
-			return n.includes(r)
-				? { Kind: "Unchanged" }
-				: { Kind: "Rewrite", Source: i + n };
-		},
-	};
-
-var a = o;
-
-export { a as default };
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import DisableLazyPaint, {
+  Marker
+} from "../../../../Polyfill/Disable/Lazy/Paint.js";
+const Polyfill = `
+/* ${Marker} */
+(${DisableLazyPaint.toString()})();
+`;
+const Plugin = {
+  Kind: "Transform",
+  Name: "InjectDisableLazyPaint",
+  Match: /* @__PURE__ */ __name(({ Path }) => Path.endsWith("vs/code/electron-browser/workbench/workbench.js"), "Match"),
+  Transform({ Source }) {
+    if (Source.includes(Marker)) return { Kind: "Unchanged" };
+    return { Kind: "Rewrite", Source: Polyfill + Source };
+  }
+};
+var Paint_default = Plugin;
+export {
+  Paint_default as default
+};
+//# sourceMappingURL=Paint.js.map

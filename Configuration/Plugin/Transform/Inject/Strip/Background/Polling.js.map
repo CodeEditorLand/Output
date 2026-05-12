@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../../Source/Plugin/Transform/Inject/Strip/Background/Polling.ts"],
+  "sourcesContent": ["/**\n * Strip VS Code's recurring background polls (telemetry flush,\n * settings sync, update check, marketplace recommendations, etc.)\n * at the `setInterval` / long `setTimeout` level via a stack-trace\n * deny match.\n *\n * Body lives in `Polyfill/StripBackgroundPolling.ts` (type-checked).\n * Idempotent. Marker `__LAND_STRIP_BACKGROUND_POLLING__`.\n */\n\nimport StripBackgroundPolling, {\n\tMarker,\n} from \"../../../../Polyfill/Strip/Background/Polling.js\";\nimport type { TransformPlugin } from \"../../../../Type.js\";\n\nconst Polyfill = `\\n/* ${Marker} */\\n(${StripBackgroundPolling.toString()})();\\n`;\n\nconst Plugin: TransformPlugin = {\n\tKind: \"Transform\",\n\n\tName: \"InjectStripBackgroundPolling\",\n\n\tMatch: ({ Path }) =>\n\t\tPath.endsWith(\"vs/code/electron-browser/workbench/workbench.js\"),\n\n\tTransform({ Source }) {\n\t\tif (Source.includes(Marker)) return { Kind: \"Unchanged\" };\n\n\t\treturn { Kind: \"Rewrite\", Source: Polyfill + Source };\n\t},\n};\n\nexport default Plugin;\n"],
+  "mappings": ";;AAUA,OAAO;AAAA,EACN;AAAA,OACM;AAGP,MAAM,WAAW;AAAA,KAAQ,MAAM;AAAA,GAAS,uBAAuB,SAAS,CAAC;AAAA;AAEzE,MAAM,SAA0B;AAAA,EAC/B,MAAM;AAAA,EAEN,MAAM;AAAA,EAEN,OAAO,wBAAC,EAAE,KAAK,MACd,KAAK,SAAS,iDAAiD,GADzD;AAAA,EAGP,UAAU,EAAE,OAAO,GAAG;AACrB,QAAI,OAAO,SAAS,MAAM,EAAG,QAAO,EAAE,MAAM,YAAY;AAExD,WAAO,EAAE,MAAM,WAAW,QAAQ,WAAW,OAAO;AAAA,EACrD;AACD;AAEA,IAAO,kBAAQ;",
+  "names": []
+}

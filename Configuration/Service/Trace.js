@@ -1,39 +1,42 @@
-const c = /land\.editor\.binary\.[^\s/\\)]+/g,
-	a = (r) => r.replace(c, "$APP"),
-	e = (r, t, n) => {
-		try {
-			performance.mark(`land:${r}:${t}`, {
-				detail: n ? { ...n, Tag: r } : { Tag: r },
-			});
-		} catch {}
-	},
-	o = (r, t) => {
-		const n = `land:${r}:${t}:start`;
-
-		try {
-			performance.mark(n);
-		} catch {}
-
-		return () => {
-			try {
-				performance.measure(`land:${r}:${t}`, n);
-			} catch {}
-		};
-	},
-	s = (r, t, n) => {
-		try {
-			performance.mark(`land:error:${r}:${a(t)}`, {
-				detail: { Tag: r, Error: n ? String(n) : void 0 },
-			});
-		} catch {}
-	};
-
-var i = e;
-
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+const AppDataPattern = /land\.editor\.binary\.[^\s/\\)]+/g;
+const Format = /* @__PURE__ */ __name((Message) => Message.replace(AppDataPattern, "$APP"), "Format");
+const Trace = /* @__PURE__ */ __name((Tag, Message, Detail) => {
+  try {
+    performance.mark(`land:${Tag}:${Message}`, {
+      detail: Detail ? { ...Detail, Tag } : { Tag }
+    });
+  } catch {
+  }
+}, "Trace");
+const TraceSpan = /* @__PURE__ */ __name((Tag, SpanName) => {
+  const MarkName = `land:${Tag}:${SpanName}:start`;
+  try {
+    performance.mark(MarkName);
+  } catch {
+  }
+  return () => {
+    try {
+      performance.measure(`land:${Tag}:${SpanName}`, MarkName);
+    } catch {
+    }
+  };
+}, "TraceSpan");
+const TraceError = /* @__PURE__ */ __name((Tag, Message, Error2) => {
+  try {
+    performance.mark(`land:error:${Tag}:${Format(Message)}`, {
+      detail: { Tag, Error: Error2 ? String(Error2) : void 0 }
+    });
+  } catch {
+  }
+}, "TraceError");
+var Trace_default = Trace;
 export {
-	a as Format,
-	e as Trace,
-	s as TraceError,
-	o as TraceSpan,
-	i as default,
+  Format,
+  Trace,
+  TraceError,
+  TraceSpan,
+  Trace_default as default
 };
+//# sourceMappingURL=Trace.js.map

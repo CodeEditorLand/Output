@@ -1,46 +1,38 @@
-import { join as o } from "node:path";
-
-const a = [
-		"@xterm/xterm",
-
-		"@xterm/addon-clipboard",
-
-		"@xterm/addon-image",
-
-		"@xterm/addon-ligatures",
-
-		"@xterm/addon-search",
-
-		"@xterm/addon-serialize",
-
-		"@xterm/addon-unicode11",
-
-		"@xterm/addon-webgl",
-
-		"@vscode/vscode-languagedetection",
-
-		"vscode-textmate",
-
-		"vscode-oniguruma",
-	],
-	s = ({
-		LocalRoot: t,
-		DependencyRoot: r,
-		Destination: d,
-		Packages: n = a,
-	}) => ({
-		Kind: "Copy",
-
-		Name: "CopyNodeModules",
-
-		Entries: n.map((e) => ({
-			From: [o(t, e), o(r, e)],
-			To: o(d, e),
-			Recursive: !0,
-			Force: !0,
-		})),
-	});
-
-var p = s;
-
-export { s as CopyNodeModules, a as DefaultPackages, p as default };
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { join } from "node:path";
+const DefaultPackages = [
+  "@xterm/xterm",
+  "@xterm/addon-clipboard",
+  "@xterm/addon-image",
+  "@xterm/addon-ligatures",
+  "@xterm/addon-search",
+  "@xterm/addon-serialize",
+  "@xterm/addon-unicode11",
+  "@xterm/addon-webgl",
+  "@vscode/vscode-languagedetection",
+  "vscode-textmate",
+  "vscode-oniguruma"
+];
+const CopyNodeModules = /* @__PURE__ */ __name(({
+  LocalRoot,
+  DependencyRoot,
+  Destination,
+  Packages = DefaultPackages
+}) => ({
+  Kind: "Copy",
+  Name: "CopyNodeModules",
+  Entries: Packages.map((Pkg) => ({
+    From: [join(LocalRoot, Pkg), join(DependencyRoot, Pkg)],
+    To: join(Destination, Pkg),
+    Recursive: true,
+    Force: true
+  }))
+}), "CopyNodeModules");
+var Modules_default = CopyNodeModules;
+export {
+  CopyNodeModules,
+  DefaultPackages,
+  Modules_default as default
+};
+//# sourceMappingURL=Modules.js.map

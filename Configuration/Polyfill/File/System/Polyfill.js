@@ -1,452 +1,434 @@
-async function o(e, n = {}) {
-	try {
-		const r =
-			window.__TAURI__?.core?.invoke ??
-			window.__TAURI__?.invoke ??
-			window.TAURI?.invoke;
-
-		if (typeof r == "function")
-			return e.includes(":")
-				? await r("MountainIPCInvoke", { method: e, params: n })
-				: await r(e, n);
-
-		throw new Error(`Tauri invoke not available for command: ${e}`);
-	} catch (r) {
-		throw r;
-	}
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+async function invokeTauri(command, args = {}) {
+  try {
+    const Invoke = window.__TAURI__?.core?.invoke ?? window.__TAURI__?.invoke ?? window.TAURI?.invoke;
+    if (typeof Invoke === "function") {
+      if (command.includes(":")) {
+        return await Invoke("MountainIPCInvoke", {
+          method: command,
+          params: args
+        });
+      }
+      return await Invoke(command, args);
+    }
+    throw new Error(`Tauri invoke not available for command: ${command}`);
+  } catch (error) {
+    throw error;
+  }
 }
-
-function p(e) {
-	return {
-		dev: 1,
-
-		ino: 1,
-
-		mode: e.is_file ? 33188 : 16877,
-
-		nlink: 1,
-
-		uid: 1e3,
-
-		gid: 1e3,
-
-		rdev: 0,
-
-		size: e.size,
-
-		atimeMs: new Date(e.accessed).getTime(),
-
-		mtimeMs: new Date(e.modified).getTime(),
-
-		ctimeMs: new Date(e.created).getTime(),
-
-		birthtimeMs: new Date(e.created).getTime(),
-
-		atime: new Date(e.accessed),
-
-		mtime: new Date(e.modified),
-
-		ctime: new Date(e.created),
-
-		birthtime: new Date(e.created),
-
-		isFile() {
-			return e.is_file;
-		},
-
-		isDirectory() {
-			return e.is_dir;
-		},
-
-		isBlockDevice() {
-			return !1;
-		},
-
-		isCharacterDevice() {
-			return !1;
-		},
-
-		isSymbolicLink() {
-			return !1;
-		},
-
-		isFIFO() {
-			return !1;
-		},
-
-		isSocket() {
-			return !1;
-		},
-	};
+__name(invokeTauri, "invokeTauri");
+function mountainStatsToStats(mountainStats) {
+  return {
+    dev: 1,
+    ino: 1,
+    mode: mountainStats.is_file ? 33188 : 16877,
+    nlink: 1,
+    uid: 1e3,
+    gid: 1e3,
+    rdev: 0,
+    size: mountainStats.size,
+    atimeMs: new Date(mountainStats.accessed).getTime(),
+    mtimeMs: new Date(mountainStats.modified).getTime(),
+    ctimeMs: new Date(mountainStats.created).getTime(),
+    birthtimeMs: new Date(mountainStats.created).getTime(),
+    atime: new Date(mountainStats.accessed),
+    mtime: new Date(mountainStats.modified),
+    ctime: new Date(mountainStats.created),
+    birthtime: new Date(mountainStats.created),
+    isFile() {
+      return mountainStats.is_file;
+    },
+    isDirectory() {
+      return mountainStats.is_dir;
+    },
+    isBlockDevice() {
+      return false;
+    },
+    isCharacterDevice() {
+      return false;
+    },
+    isSymbolicLink() {
+      return false;
+    },
+    isFIFO() {
+      return false;
+    },
+    isSocket() {
+      return false;
+    }
+  };
 }
-
-function E(e, n, r) {
-	return {
-		name: e,
-
-		path: n,
-
-		isFile() {
-			return !r;
-		},
-
-		isDirectory() {
-			return r;
-		},
-
-		isBlockDevice() {
-			return !1;
-		},
-
-		isCharacterDevice() {
-			return !1;
-		},
-
-		isSymbolicLink() {
-			return !1;
-		},
-
-		isFIFO() {
-			return !1;
-		},
-
-		isSocket() {
-			return !1;
-		},
-	};
+__name(mountainStatsToStats, "mountainStatsToStats");
+function createDirent(name, path, isDir) {
+  return {
+    name,
+    path,
+    isFile() {
+      return !isDir;
+    },
+    isDirectory() {
+      return isDir;
+    },
+    isBlockDevice() {
+      return false;
+    },
+    isCharacterDevice() {
+      return false;
+    },
+    isSymbolicLink() {
+      return false;
+    },
+    isFIFO() {
+      return false;
+    },
+    isSocket() {
+      return false;
+    }
+  };
 }
-
-async function f(e, n) {
-	const r = typeof n == "string" ? n : (n?.encoding ?? "utf8");
-
-	try {
-		const i = await o("file:read", {
-			path: e,
-			encoding: r === null ? "base64" : r,
-		});
-
-		return r === null ? Buffer.from(i, "base64") : i;
-	} catch (i) {
-		throw i instanceof Error ? i : new Error(String(i));
-	}
+__name(createDirent, "createDirent");
+async function readFile(path, options) {
+  const encoding = typeof options === "string" ? options : options?.encoding ?? "utf8";
+  try {
+    const content = await invokeTauri("file:read", {
+      path,
+      encoding: encoding === null ? "base64" : encoding
+    });
+    return encoding === null ? Buffer.from(content, "base64") : content;
+  } catch (error) {
+    const err = error instanceof Error ? error : new Error(String(error));
+    throw err;
+  }
 }
-
-async function u(e, n, r) {
-	let i = "utf8";
-
-	typeof r == "string" ? (i = r) : r && (i = r.encoding ?? "utf8");
-
-	let t;
-
-	Buffer.isBuffer(n) ? (t = n.toString(i ?? "utf8")) : (t = n);
-
-	try {
-		await o("file:write", { path: e, data: t, encoding: i });
-	} catch (c) {
-		throw c instanceof Error ? c : new Error(String(c));
-	}
+__name(readFile, "readFile");
+async function writeFile(path, data, options) {
+  let encoding = "utf8";
+  if (typeof options === "string") {
+    encoding = options;
+  } else if (options) {
+    encoding = options.encoding ?? "utf8";
+  }
+  let content;
+  if (Buffer.isBuffer(data)) {
+    content = data.toString(encoding ?? "utf8");
+  } else {
+    content = data;
+  }
+  try {
+    await invokeTauri("file:write", {
+      path,
+      data: content,
+      encoding
+    });
+  } catch (error) {
+    const err = error instanceof Error ? error : new Error(String(error));
+    throw err;
+  }
 }
-
-async function l(e) {
-	try {
-		await o("file:delete", { path: e, recursive: !1 });
-	} catch (n) {
-		throw n instanceof Error ? n : new Error(String(n));
-	}
+__name(writeFile, "writeFile");
+async function unlink(path) {
+  try {
+    await invokeTauri("file:delete", {
+      path,
+      recursive: false
+    });
+  } catch (error) {
+    const err = error instanceof Error ? error : new Error(String(error));
+    throw err;
+  }
 }
-
-async function w(e, n) {
-	opts = { recursive: !1, force: !1, ...n };
-
-	try {
-		await o("file:delete", {
-			path: e,
-			recursive: opts.recursive ?? !1,
-			force: opts.force ?? !1,
-		});
-	} catch (r) {
-		if (!opts.force) throw r instanceof Error ? r : new Error(String(r));
-	}
+__name(unlink, "unlink");
+async function rm(path, options) {
+  opts = {
+    recursive: false,
+    force: false,
+    ...options
+  };
+  try {
+    await invokeTauri("file:delete", {
+      path,
+      recursive: opts.recursive ?? false,
+      force: opts.force ?? false
+    });
+  } catch (error) {
+    if (!opts.force) {
+      const err = error instanceof Error ? error : new Error(String(error));
+      throw err;
+    }
+  }
 }
-
-async function d(e, n) {
-	try {
-		await o("file:move", { from: e, to: n });
-	} catch (r) {
-		throw r instanceof Error ? r : new Error(String(r));
-	}
+__name(rm, "rm");
+async function rename(oldPath, newPath) {
+  try {
+    await invokeTauri("file:move", {
+      from: oldPath,
+      to: newPath
+    });
+  } catch (error) {
+    const err = error instanceof Error ? error : new Error(String(error));
+    throw err;
+  }
 }
-
-async function m(e, n, r) {
-	try {
-		await o("file:copy", { from: e, to: n });
-	} catch (i) {
-		throw i instanceof Error ? i : new Error(String(i));
-	}
+__name(rename, "rename");
+async function copyFile(src, dest, options) {
+  try {
+    await invokeTauri("file:copy", {
+      from: src,
+      to: dest
+    });
+  } catch (error) {
+    const err = error instanceof Error ? error : new Error(String(error));
+    throw err;
+  }
 }
-
-async function v(e, n) {
-	let r = { recursive: !1 };
-
-	typeof n == "boolean"
-		? (r.recursive = n)
-		: typeof n == "number"
-			? ((r.recursive = !1), (r.mode = n))
-			: n && ((r.recursive = n.recursive ?? !1), (r.mode = n.mode));
-
-	try {
-		await o("file:mkdir", {
-			path: e,
-			recursive: r.recursive ?? !1,
-			mode: r.mode ?? 493,
-		});
-	} catch (i) {
-		throw i instanceof Error ? i : new Error(String(i));
-	}
+__name(copyFile, "copyFile");
+async function mkdir(path, options) {
+  let opts2 = { recursive: false };
+  if (typeof options === "boolean") {
+    opts2.recursive = options;
+  } else if (typeof options === "number") {
+    opts2.recursive = false;
+    opts2.mode = options;
+  } else if (options) {
+    opts2.recursive = options.recursive ?? false;
+    opts2.mode = options.mode;
+  }
+  try {
+    await invokeTauri("file:mkdir", {
+      path,
+      recursive: opts2.recursive ?? false,
+      mode: opts2.mode ?? 493
+    });
+  } catch (error) {
+    const err = error instanceof Error ? error : new Error(String(error));
+    throw err;
+  }
 }
-
-async function b(e) {
-	try {
-		await o("file:delete", { path: e, recursive: !1, is_rmdir: !0 });
-	} catch (n) {
-		throw n instanceof Error ? n : new Error(String(n));
-	}
+__name(mkdir, "mkdir");
+async function rmdir(path) {
+  try {
+    await invokeTauri("file:delete", {
+      path,
+      recursive: false,
+      is_rmdir: true
+    });
+  } catch (error) {
+    const err = error instanceof Error ? error : new Error(String(error));
+    throw err;
+  }
 }
-
-async function y(e, n) {
-	try {
-		const r = n?.withFileTypes ?? !1,
-			i = await o("file:readdir", { path: e });
-
-		return r
-			? i.map((t) => E(t.name, `${e}/${t.name}`, !t.is_file))
-			: i.map((t) => t.name);
-	} catch (r) {
-		throw r instanceof Error ? r : new Error(String(r));
-	}
+__name(rmdir, "rmdir");
+async function readdir(path, options) {
+  try {
+    const withFileTypes = options?.withFileTypes ?? false;
+    const entries = await invokeTauri("file:readdir", {
+      path
+    });
+    if (withFileTypes) {
+      return entries.map(
+        (entry) => createDirent(
+          entry.name,
+          `${path}/${entry.name}`,
+          !entry.is_file
+        )
+      );
+    } else {
+      return entries.map((entry) => entry.name);
+    }
+  } catch (error) {
+    const err = error instanceof Error ? error : new Error(String(error));
+    throw err;
+  }
 }
-
-async function s(e) {
-	try {
-		const n = await o("file:stat", { path: e });
-
-		return p(n);
-	} catch (n) {
-		throw n instanceof Error ? n : new Error(String(n));
-	}
+__name(readdir, "readdir");
+async function stat(path) {
+  try {
+    const mountainStats = await invokeTauri("file:stat", {
+      path
+    });
+    return mountainStatsToStats(mountainStats);
+  } catch (error) {
+    const err = error instanceof Error ? error : new Error(String(error));
+    throw err;
+  }
 }
-
-async function g(e) {
-	try {
-		return (await s(e), !0);
-	} catch {
-		return !1;
-	}
+__name(stat, "stat");
+async function exists(path) {
+  try {
+    await stat(path);
+    return true;
+  } catch {
+    return false;
+  }
 }
-
-function k() {
-	throw new Error(
-		"fs.open() is not supported in browser/Tauri environment. No file descriptor operations available.",
-	);
+__name(exists, "exists");
+function open() {
+  throw new Error(
+    "fs.open() is not supported in browser/Tauri environment. No file descriptor operations available."
+  );
 }
-
-function F() {
-	throw new Error(
-		"fs.read() is not supported in browser/Tauri environment. Use readFile() instead.",
-	);
+__name(open, "open");
+function read() {
+  throw new Error(
+    "fs.read() is not supported in browser/Tauri environment. Use readFile() instead."
+  );
 }
-
-function _() {
-	throw new Error(
-		"fs.write() is not supported in browser/Tauri environment. Use writeFile() instead.",
-	);
+__name(read, "read");
+function write() {
+  throw new Error(
+    "fs.write() is not supported in browser/Tauri environment. Use writeFile() instead."
+  );
 }
-
-function D() {
-	throw new Error(
-		"fs.close() is not supported in browser/Tauri environment.",
-	);
+__name(write, "write");
+function close() {
+  throw new Error(
+    "fs.close() is not supported in browser/Tauri environment."
+  );
 }
-
-function T() {
-	throw new Error(
-		"fs.readFileSync() is not supported in browser/Tauri environment. Use async readFile() instead.",
-	);
+__name(close, "close");
+function readFileSync() {
+  throw new Error(
+    "fs.readFileSync() is not supported in browser/Tauri environment. Use async readFile() instead."
+  );
 }
-
-function S() {
-	throw new Error(
-		"fs.writeFileSync() is not supported in browser/Tauri environment. Use async writeFile() instead.",
-	);
+__name(readFileSync, "readFileSync");
+function writeFileSync() {
+  throw new Error(
+    "fs.writeFileSync() is not supported in browser/Tauri environment. Use async writeFile() instead."
+  );
 }
-
-function O() {
-	throw new Error(
-		"fs.watch() is not supported. Use the FileWatcher service instead.",
-	);
+__name(writeFileSync, "writeFileSync");
+function watch() {
+  throw new Error(
+    "fs.watch() is not supported. Use the FileWatcher service instead."
+  );
 }
-
-function R() {
-	throw new Error(
-		"fs.watchFile() is not supported. Use the FileWatcher service instead.",
-	);
+__name(watch, "watch");
+function watchFile() {
+  throw new Error(
+    "fs.watchFile() is not supported. Use the FileWatcher service instead."
+  );
 }
-
-function L() {
-	throw new Error(
-		"fs.symlink() is not fully supported in browser/Tauri environment.",
-	);
+__name(watchFile, "watchFile");
+function symlink() {
+  throw new Error(
+    "fs.symlink() is not fully supported in browser/Tauri environment."
+  );
 }
-
-function M() {
-	throw new Error(
-		"fs.readlink() is not fully supported in browser/Tauri environment.",
-	);
+__name(symlink, "symlink");
+function readlink() {
+  throw new Error(
+    "fs.readlink() is not fully supported in browser/Tauri environment."
+  );
 }
-
-function P() {
-	throw new Error(
-		"fs.chmod() is not supported in browser/Tauri environment.",
-	);
+__name(readlink, "readlink");
+function chmod() {
+  throw new Error(
+    "fs.chmod() is not supported in browser/Tauri environment."
+  );
 }
-
-function I() {
-	throw new Error(
-		"fs.chown() is not supported in browser/Tauri environment.",
-	);
+__name(chmod, "chmod");
+function chown() {
+  throw new Error(
+    "fs.chown() is not supported in browser/Tauri environment."
+  );
 }
-
-const a = {
-	readFile: f,
-
-	writeFile: u,
-
-	unlink: l,
-
-	rm: w,
-
-	rename: d,
-
-	copyFile: m,
-
-	mkdir: v,
-
-	rmdir: b,
-
-	readdir: y,
-
-	stat: s,
-
-	exists: g,
-
-	constants: {
-		O_RDONLY: 0,
-
-		O_WRONLY: 1,
-
-		O_RDWR: 2,
-
-		O_CREAT: 64,
-
-		O_TRUNC: 512,
-
-		O_APPEND: 1024,
-	},
-
-	open: k,
-
-	read: F,
-
-	write: _,
-
-	close: D,
-
-	readFileSync: T,
-
-	writeFileSync: S,
-
-	watch: O,
-
-	watchFile: R,
-
-	symlink: L,
-
-	readlink: M,
-
-	chmod: P,
-
-	chown: I,
-
-	promises: {
-		readFile: f,
-
-		writeFile: u,
-
-		unlink: l,
-
-		rm: w,
-
-		rename: d,
-
-		copyFile: m,
-
-		mkdir: v,
-
-		rmdir: b,
-
-		readdir: y,
-
-		stat: s,
-
-		exists: g,
-	},
+__name(chown, "chown");
+const fs = {
+  readFile,
+  writeFile,
+  unlink,
+  rm,
+  rename,
+  copyFile,
+  mkdir,
+  rmdir,
+  readdir,
+  stat,
+  exists,
+  // Constants (partial)
+  constants: {
+    O_RDONLY: 0,
+    O_WRONLY: 1,
+    O_RDWR: 2,
+    O_CREAT: 64,
+    O_TRUNC: 512,
+    O_APPEND: 1024
+  },
+  // Not supported but included for TypeScript compatibility
+  open,
+  read,
+  write,
+  close,
+  readFileSync,
+  writeFileSync,
+  watch,
+  watchFile,
+  symlink,
+  readlink,
+  chmod,
+  chown,
+  // Promise-based API for modern Node.js code
+  promises: {
+    readFile,
+    writeFile,
+    unlink,
+    rm,
+    rename,
+    copyFile,
+    mkdir,
+    rmdir,
+    readdir,
+    stat,
+    exists
+  }
 };
-
-function h() {
-	typeof window > "u" ||
-		window.__FILE_SYSTEM_POLYFILL_INSTALLED__ ||
-		((window.__FILE_SYSTEM_POLYFILL_INSTALLED__ = !0),
-		(window.fs = a),
-		(window.require = B()),
-		typeof window.vscode < "u" && (window.vscode.fs = a));
+function installFileSystemPolyfill() {
+  if (typeof window === "undefined") {
+    return;
+  }
+  if (window.__FILE_SYSTEM_POLYFILL_INSTALLED__) {
+    return;
+  }
+  window.__FILE_SYSTEM_POLYFILL_INSTALLED__ = true;
+  window.fs = fs;
+  window.require = createRequireShim();
+  if (typeof window.vscode !== "undefined") {
+    window.vscode.fs = fs;
+  }
 }
-
-function B() {
-	return (e) => {
-		if (e === "fs") return a;
-
-		throw new Error(`Require shim only supports 'fs' module. Got: ${e}`);
-	};
+__name(installFileSystemPolyfill, "installFileSystemPolyfill");
+function createRequireShim() {
+  return (id) => {
+    if (id === "fs") {
+      return fs;
+    }
+    throw new Error(`Require shim only supports 'fs' module. Got: ${id}`);
+  };
 }
-
-var C = {
-	install: h,
-
-	module: a,
-
-	readFile: f,
-
-	writeFile: u,
-
-	unlink: l,
-
-	rm: w,
-
-	rename: d,
-
-	copyFile: m,
-
-	mkdir: v,
-
-	rmdir: b,
-
-	readdir: y,
-
-	stat: s,
-
-	exists: g,
+__name(createRequireShim, "createRequireShim");
+var Polyfill_default = {
+  install: installFileSystemPolyfill,
+  module: fs,
+  // Individual exports for convenience
+  readFile,
+  writeFile,
+  unlink,
+  rm,
+  rename,
+  copyFile,
+  mkdir,
+  rmdir,
+  readdir,
+  stat,
+  exists
 };
-
-typeof window < "u" && h();
-
-export { C as default, h as installFileSystemPolyfill };
+if (typeof window !== "undefined") {
+  installFileSystemPolyfill();
+}
+export {
+  Polyfill_default as default,
+  installFileSystemPolyfill
+};
+//# sourceMappingURL=Polyfill.js.map

@@ -1,28 +1,22 @@
-const r =
-		"workbench/services/sharedProcess/electron-browser/sharedProcessService.js".replaceAll(
-			"/",
-
-			"\\/",
-		),
-	o = new RegExp(`${r}$`),
-	s = `export { SharedProcessService } from '../../../../platform/ipc/electron-browser/CELSharedProcessService.js';
-export { default } from '../../../../platform/ipc/electron-browser/CELSharedProcessService.js';
-
-`,
-	c = {
-		Kind: "Transform",
-
-		Name: "ReplaceSharedProcess",
-
-		Enabled: () => process.env.Electron === "true",
-
-		Match: ({ Path: e }) => o.test(e),
-
-		Transform() {
-			return { Kind: "Rewrite", Source: s };
-		},
-	};
-
-var t = c;
-
-export { t as default };
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+const Marker = "workbench/services/sharedProcess/electron-browser/sharedProcessService.js".replaceAll(
+  "/",
+  "\\/"
+);
+const PathRegex = new RegExp(`${Marker}$`);
+const ReExport = "export { SharedProcessService } from '../../../../platform/ipc/electron-browser/CELSharedProcessService.js';\nexport { default } from '../../../../platform/ipc/electron-browser/CELSharedProcessService.js';\n";
+const Plugin = {
+  Kind: "Transform",
+  Name: "ReplaceSharedProcess",
+  Enabled: /* @__PURE__ */ __name(() => process.env["Electron"] === "true", "Enabled"),
+  Match: /* @__PURE__ */ __name(({ Path }) => PathRegex.test(Path), "Match"),
+  Transform() {
+    return { Kind: "Rewrite", Source: ReExport };
+  }
+};
+var Process_default = Plugin;
+export {
+  Process_default as default
+};
+//# sourceMappingURL=Process.js.map

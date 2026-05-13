@@ -176,23 +176,45 @@ Dependency/ → Rest → Target/Rest/ → Configuration/ → Target/
 ## Directory Structure&#x2001;📁
 
 ```
-Element/Output/
+Output/
 ├── Source/
+│   ├── ESBuild.ts              # ESBuild entry point and configuration.
 │   ├── ESBuild/
-│   │   ├── Output.ts          # ESBuild configuration
-│   │   └── RestPlugin.ts      # Rest compiler plugin
-│   ├── prepublishOnly.sh      # Build orchestration
-│   └── Run.sh                 # Development watch script
+│   │   ├── Output.ts           # ESBuild output compilation settings.
+│   │   ├── CodeEditorLand/     # CodeEditorLand-specific build targets.
+│   │   ├── Microsoft/          # Microsoft/VSCode build targets.
+│   │   ├── Rest/               # Rest (OXC) compiler integration.
+│   │   └── Exclude/            # Module exclusion patterns.
+│   ├── Apply/
+│   │   └── Pipeline.ts         # Transform pipeline orchestration.
+│   ├── Plugin/
+│   │   ├── Index.ts            # Plugin registration and composition.
+│   │   ├── Type.ts             # Plugin type definitions.
+│   │   ├── Apply.ts            # Plugin application logic.
+│   │   ├── Copy/               # Asset copy plugin.
+│   │   ├── Polyfill/           # Polyfill injection plugin.
+│   │   └── Transform/          # AST transform plugin.
+│   ├── Polyfill/
+│   │   ├── Telemetry.ts        # Telemetry polyfill.
+│   │   ├── Child/              # Child process polyfills.
+│   │   ├── File/               # File system polyfills.
+│   │   ├── IPC/                # IPC polyfills.
+│   │   ├── Native/             # Native module polyfills.
+│   │   ├── Process/            # Process polyfills.
+│   │   └── Shared/             # Shared polyfill utilities.
+│   ├── Asset/
+│   │   └── Style/              # Asset style processing.
+│   ├── Service/
+│   │   ├── Trace.ts            # Build tracing utilities.
+│   │   ├── CEL/                # CodeEditorLand service helpers.
+│   │   ├── Dev/                # Development service helpers.
+│   │   └── Tauri/              # Tauri service helpers.
+│   ├── tsconfig/               # TypeScript configuration profiles.
+│   ├── prepublishOnly.sh       # Build orchestration script.
+│   └── Run.sh                  # Development watch mode.
 ├── Configuration/
-│   └── ESBuild/
-│       ├── Microsoft/VSCode.js
-│       └── CodeEditorLand/Editor.js
-├── Target/
-│   ├── Rest/                  # Rest compiler output (when Compiler=Rest)
-│   │   └── Microsoft/
-│   │       └── VSCode/
-│   └── Microsoft/             # Final merged output
-│       └── VSCode/
+│   └── ESBuild/               # ESBuild build profiles.
+├── Target/                    # Build output destination.
 └── package.json
 ```
 

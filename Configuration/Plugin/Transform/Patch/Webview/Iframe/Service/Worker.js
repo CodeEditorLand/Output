@@ -7,6 +7,8 @@ const HashThrowExpression = "throw new Error(`Expected '${parentOriginHash}' as 
 const HashThrowReplacement = `/* ${Marker} hash-soft */ console.warn(\`[Land] Webview parentOrigin hash mismatch (\${hostname} vs \${parentOriginHash}); proceeding anyway under Tauri\`); return start(parentOrigin);`;
 const CryptoCheckExpression = "throw new Error(`'crypto.subtle' is not available so webviews will not work. This is likely because the editor is not running in a secure context (https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts).`);";
 const CryptoCheckReplacement = `/* ${Marker} crypto-soft */ console.warn(\`[Land] crypto.subtle unavailable; skipping parentOrigin hash check\`); return start(parentOrigin);`;
+const DclConditionExpression = "if (!options.allowScripts && isSafari) {";
+const DclConditionReplacement = `/* ${Marker} dcl-poll */ if (isSafari) {`;
 const PathRegex = /\/vs\/workbench\/contrib\/webview\/browser\/pre\/index\.html$/;
 const Plugin = {
   Kind: "Transform",
@@ -28,6 +30,12 @@ const Plugin = {
     }
     if (Next.includes(CryptoCheckExpression)) {
       Next = Next.replace(CryptoCheckExpression, CryptoCheckReplacement);
+    }
+    if (Next.includes(DclConditionExpression)) {
+      Next = Next.replace(
+        DclConditionExpression,
+        DclConditionReplacement
+      );
     }
     return Next === Source ? { Kind: "Unchanged" } : { Kind: "Rewrite", Source: Next };
   }

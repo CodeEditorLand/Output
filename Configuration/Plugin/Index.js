@@ -47,7 +47,7 @@ import InjectWorkerBootstrapShim from "./Transform/Inject/Worker/Bootstrap/Shim.
 import InlineCSSImport from "./Transform/Inline/CSS/Import.js";
 import InstrumentVscodeGit from "./Transform/Instrument/Vscode/Git.js";
 import PatchLocalTerminalBackend from "./Transform/Patch/Local/Terminal/Backend.js";
-import PatchTerminalGpuAcceleration from "./Transform/Patch/Terminal/Gpu/Acceleration.js";
+import PatchTerminalGpuAcceleration from "./Transform/Patch/Terminal/GPU/Acceleration.js";
 import PatchWebviewIframeServiceWorker from "./Transform/Patch/Webview/Iframe/Service/Worker.js";
 import ReplaceElectronIPCService from "./Transform/Replace/Electron/IPC/Service.js";
 import ReplaceExtensionGalleryService from "./Transform/Replace/Extension/Gallery/Service.js";
@@ -113,7 +113,7 @@ import { default as default43 } from "./Transform/Replace/Search/Service.js";
 import { default as default44 } from "./Transform/Inject/Editor/GPU/Layer/CSS.js";
 import { default as default45 } from "./Transform/Inject/Terminal/GPU/Layer/CSS.js";
 import { default as default46 } from "./Transform/Patch/Local/Terminal/Backend.js";
-import { default as default47 } from "./Transform/Patch/Terminal/Gpu/Acceleration.js";
+import { default as default47 } from "./Transform/Patch/Terminal/GPU/Acceleration.js";
 import { default as default48 } from "./Transform/Patch/Webview/Iframe/Service/Worker.js";
 import {
   CopyVSOutput,

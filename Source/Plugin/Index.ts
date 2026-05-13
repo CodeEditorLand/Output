@@ -52,7 +52,7 @@ import InjectWorkerBootstrapShim from "./Transform/Inject/Worker/Bootstrap/Shim.
 import InlineCSSImport from "./Transform/Inline/CSS/Import.js";
 import InstrumentVscodeGit from "./Transform/Instrument/Vscode/Git.js";
 import PatchLocalTerminalBackend from "./Transform/Patch/Local/Terminal/Backend.js";
-import PatchTerminalGpuAcceleration from "./Transform/Patch/Terminal/Gpu/Acceleration.js";
+import PatchTerminalGpuAcceleration from "./Transform/Patch/Terminal/GPU/Acceleration.js";
 import PatchWebviewIframeServiceWorker from "./Transform/Patch/Webview/Iframe/Service/Worker.js";
 import ReplaceElectronIPCService from "./Transform/Replace/Electron/IPC/Service.js";
 import ReplaceExtensionGalleryService from "./Transform/Replace/Extension/Gallery/Service.js";
@@ -211,7 +211,7 @@ export { default as InjectTerminalGPULayerCSS } from "./Transform/Inject/Termina
 
 export { default as PatchLocalTerminalBackend } from "./Transform/Patch/Local/Terminal/Backend.js";
 
-export { default as PatchTerminalGpuAcceleration } from "./Transform/Patch/Terminal/Gpu/Acceleration.js";
+export { default as PatchTerminalGpuAcceleration } from "./Transform/Patch/Terminal/GPU/Acceleration.js";
 
 export { default as PatchWebviewIframeServiceWorker } from "./Transform/Patch/Webview/Iframe/Service/Worker.js";
 

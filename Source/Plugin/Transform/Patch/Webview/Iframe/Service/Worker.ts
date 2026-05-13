@@ -3,7 +3,7 @@
  * index.html`) so its bootstrap script doesn't strand the iframe before it
  * gets a chance to render extension HTML.
  *
- * Two narrow rewrites:
+ * Four narrow rewrites:
  *
  * 1. Default `disableServiceWorker = true`.
  *
@@ -50,6 +50,28 @@
  *    a defence-in-depth measure for browser-hosted VS Code that doesn't
  *    apply to the Tauri shell.
  *
+ * 3. Soft-fail the crypto.subtle availability check.
+ *
+ *    `crypto.subtle` may be undefined in WKWebView custom protocol contexts.
+ *    Treat its absence as non-fatal so the iframe can still signal ready.
+ *
+ * 4. Force inner-frame polling for all WebKit / Safari runtimes.
+ *
+ *    The bootstrap creates a nested `<iframe>` to host extension HTML,
+ *    loads `fake.html` to establish the correct origin, then waits for
+ *    `DOMContentLoaded` before injecting the real HTML via
+ *    `contentDocument.write()`. In WKWebView however, `DOMContentLoaded`
+ *    never fires on dynamically-created inner iframes (WebKit bug #33604),
+ *    even when `allow-scripts` is set in the sandbox. Without the event
+ *    the `document.write` call never runs and the webview stays stuck on
+ *    the empty fake.html placeholder forever.
+ *
+ *    Stock VS Code only falls back to polling when
+ *    `!options.allowScripts && isSafari`, assuming scripts-enabled
+ *    iframes reliably fire DCL. WKWebView does not. This rewrite drops
+ *    the `!options.allowScripts` guard so polling is used for every
+ *    Safari / WebKit runtime, scripts flag or not.
+ *
  * Idempotent via the `__LAND_DISABLE_WEBVIEW_SW__` marker comment.
  */
 
@@ -90,6 +112,20 @@ const CryptoCheckExpression =
 
 const CryptoCheckReplacement = `/* ${Marker} crypto-soft */ console.warn(\`[Land] crypto.subtle unavailable; skipping parentOrigin hash check\`); return start(parentOrigin);`;
 
+// In WKWebView (Tauri's macOS renderer), the `DOMContentLoaded` event
+// never fires on dynamically-created inner iframes (WebKit bug #33604).
+// Stock VS Code only works around this when `!options.allowScripts`,
+// assuming that scripts-enabled iframes will reliably fire DCL.
+// WKWebView does not, however — even with `allow-scripts` in the sandbox
+// the inner iframe's DCL never fires, so the extension HTML (delivered
+// via `contentDocument.write`) is never injected and the webview stays
+// stuck on `fake.html` forever. Force polling for every Safari /
+// WebKit-based runtime, regardless of the scripts flag.
+const DclConditionExpression =
+	"if (!options.allowScripts && isSafari) {";
+
+const DclConditionReplacement = `/* ${Marker} dcl-poll */ if (isSafari) {`;
+
 const PathRegex =
 	/\/vs\/workbench\/contrib\/webview\/browser\/pre\/index\.html$/;
 
@@ -121,6 +157,13 @@ const Plugin: TransformPlugin = {
 
 		if (Next.includes(CryptoCheckExpression)) {
 			Next = Next.replace(CryptoCheckExpression, CryptoCheckReplacement);
+		}
+
+		if (Next.includes(DclConditionExpression)) {
+			Next = Next.replace(
+				DclConditionExpression,
+				DclConditionReplacement,
+			);
 		}
 
 		return Next === Source

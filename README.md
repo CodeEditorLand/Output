@@ -52,17 +52,17 @@ _"Same commit. Same output. Every time."_
 
 Welcome to **Output**, the build output and artifact management package for the
 **Land Code Editor**. Output handles the compilation, processing, and
-distribution of source code from various dependencies including VSCode,
-CodeEditorLand Editor, and the Rest compiler pipeline.
+distribution of source code from various dependencies including `VSCode`,
+`CodeEditorLand` Editor, and the `Rest` compiler pipeline.
 
 **Output** is engineered to:
 
-1. **Orchestrate Multi-Compiler Builds:** Support both esbuild and Rest
-   (OXC-based) compilation pipelines with seamless integration.
-2. **Manage Build Artifacts:** Organize and deliver optimized JavaScript
+1. **Orchestrate Multi-Compiler Builds:** Support both `esbuild` and `Rest`
+   (`OXC`-based) compilation pipelines with seamless integration.
+2. **Manage Build Artifacts:** Organize and deliver optimized `JavaScript`
    artifacts for consumption by `Sky`, `Wind`, and `Cocoon`.
-3. **Provide Hybrid Workflows:** Enable incremental migration from esbuild to
-   Rest through conditional compilation and plugin-based architecture.
+3. **Provide Hybrid Workflows:** Enable incremental migration from `esbuild` to
+   `Rest` through conditional compilation and plugin-based architecture.
 4. **Ensure Build Reproducibility:** Maintain consistent output through
    deterministic build configurations and artifact verification.
 
@@ -70,10 +70,10 @@ CodeEditorLand Editor, and the Rest compiler pipeline.
 
 ## Key Features&#x2001;🔐
 
-- **Dual-Compiler Support:** Seamlessly switch between esbuild (default) and
-  Rest (OXC-powered) compilers via environment variables.
-- **Rest Plugin Integration:** Custom esbuild plugin that intercepts TypeScript
-  compilation and delegates to the Rest compiler.
+- **Dual-Compiler Support:** Seamlessly switch between `esbuild` (default) and
+  `Rest` (`OXC`-powered) compilers via environment variables.
+- **Rest Plugin Integration:** Custom `esbuild` plugin that intercepts
+  `TypeScript` compilation and delegates to the `Rest` compiler.
 - **Source Map Generation:** Full support for development source maps with
   configurable generation strategies.
 - **Artifact Merging:** Intelligent merging of Rest compiler output with esbuild

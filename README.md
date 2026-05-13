@@ -45,7 +45,7 @@ The Build Output & Artifact Management for Land 🏞️
 
 _"Same commit. Same output. Every time."_
 
-[![License: CC0-1.0](https://img.shields.io/badge/License-CC0_1.0-lightgrey.svg)](https://github.com/CodeEditorLand/Land/tree/Current/LICENSE)
+[![License: CC0-1.0](https://img.shields.io/badge/License-CC0_1.0-lightgrey.svg)](https://github.com/CodeEditorLand/Output/tree/Current/LICENSE)
 [![NPM Version](https://img.shields.io/npm/v/@codeeditorland/output.svg)](https://www.npmjs.com/package/@codeeditorland/output)
 [![esbuild Version](https://img.shields.io/badge/esbuild-0.25.x-blue.svg)](https://esbuild.github.io/)
 [![Rest Compiler](https://img.shields.io/badge/Rest-OXC-orange.svg)](https://oxc.rs/)
@@ -258,15 +258,15 @@ export NODE_ENV=development
 This project is released into the public domain under the **Creative Commons CC0
 Universal** license. You are free to use, modify, distribute, and build upon
 this work for any purpose, without any restrictions. For the full legal text,
-see the [`LICENSE`](https://github.com/CodeEditorLand/Land/tree/Current/LICENSE)
-file.
+see the
+[`LICENSE`](https://github.com/CodeEditorLand/Output/tree/Current/LICENSE) file.
 
 ---
 
 ## Changelog&#x2001;📜
 
 Stay updated with our progress! See
-[`CHANGELOG.md`](https://github.com/CodeEditorLand/Land/tree/Current/CHANGELOG.md)
+[`CHANGELOG.md`](https://github.com/CodeEditorLand/Output/tree/Current/CHANGELOG.md)
 for a history of changes specific to **Output**.
 
 ---

@@ -121,10 +121,20 @@ const CryptoCheckReplacement = `/* ${Marker} crypto-soft */ console.warn(\`[Land
 // via `contentDocument.write`) is never injected and the webview stays
 // stuck on `fake.html` forever. Force polling for every Safari /
 // WebKit-based runtime, regardless of the scripts flag.
-const DclConditionExpression =
-	"if (!options.allowScripts && isSafari) {";
+const DclConditionExpression = "if (!options.allowScripts && isSafari) {";
 
 const DclConditionReplacement = `/* ${Marker} dcl-poll */ if (isSafari) {`;
+
+// Stock VS Code's polling waits for `pathname.endsWith('/fake.html')` but
+// WKWebView custom-protocol contexts may not populate `location.pathname`
+// correctly (WebKit bug #238901).  We also drop the pathname gate and
+// just check `readyState !== 'loading'` — safe because this only runs on
+// a freshly-created inner frame with a known URL.
+const PathnameEndsWithExpression =
+	"if (contentDocument.location.pathname.endsWith('/fake.html') && contentDocument.readyState !== 'loading') {";
+
+const PathnameEndsWithReplacement =
+	"if (contentDocument.readyState !== 'loading') {";
 
 const PathRegex =
 	/\/vs\/workbench\/contrib\/webview\/browser\/pre\/index\.html$/;
@@ -163,6 +173,13 @@ const Plugin: TransformPlugin = {
 			Next = Next.replace(
 				DclConditionExpression,
 				DclConditionReplacement,
+			);
+		}
+
+		if (Next.includes(PathnameEndsWithExpression)) {
+			Next = Next.replace(
+				PathnameEndsWithExpression,
+				PathnameEndsWithReplacement,
 			);
 		}
 

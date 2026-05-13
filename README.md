@@ -76,8 +76,8 @@ distribution of source code from various dependencies including `VSCode`,
   `TypeScript` compilation and delegates to the `Rest` compiler.
 - **Source Map Generation:** Full support for development source maps with
   configurable generation strategies.
-- **Artifact Merging:** Intelligent merging of Rest compiler output with esbuild
-  bundles for hybrid workflows.
+- **Artifact Merging:** Intelligent merging of `Rest` compiler output with
+  `esbuild` bundles for hybrid workflows.
 - **Verbose Logging:** Comprehensive build diagnostics with configurable
   verbosity levels for troubleshooting.
 - **Path Override:** Flexible binary path configuration for Rest compiler

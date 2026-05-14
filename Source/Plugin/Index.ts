@@ -320,6 +320,32 @@ const LandDisableAll =
 	).toLowerCase() === "true";
 
 /**
+ * Targeted "disable UI/rendering/CSS customisations" gate. When
+ * `process.env.DisableUIFixes` is `true`, every transform that alters
+ * CSS rules, overrides JavaScript rendering APIs (rAF, IdleValue,
+ * IntersectionObserver), injects layout hints (z-index, isolation,
+ * GPU-layer promotion, paint-prime offsetHeight reads), or applies
+ * WKWebView compositor workarounds is skipped. All wire-level patches
+ * (Replace*, StripWebviewIframe, PatchWebviewIframe, ExposeWorkbench,
+ * Rewrite* URLs/CSP, DisableUnusedServices, EagerActivation, Storage
+ * + Configuration overlays, Telemetry, Polling, IPC, etc.) remain
+ * active. This restores stock VS Code CSS and rendering behaviour
+ * while keeping every non-visual Land integration wired up.
+ *
+ * Code is NOT removed - the transforms are simply spliced out of the
+ * pipeline array so flipping the env var back to `false` re-enables
+ * them in one rebuild.
+ */
+const LandDisableUIFixes =
+	(
+		(
+			globalThis as {
+				process?: { env?: Record<string, string | undefined> };
+			}
+		).process?.env?.DisableUIFixes ?? ""
+	).toLowerCase() === "true";
+
+/**
  * Compose the full default pipeline in the canonical order. Consumers can
  * still hand-assemble their own arrays if they want to skip / reorder.
  */
@@ -351,7 +377,7 @@ export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => {
 		];
 	}
 
-	return [
+	const Pipeline: Array<Plugin> = [
 		CopyVSOutputFactory(Input.VSOutput),
 
 		CopyVSRootFilesFactory(Input.VSRootFiles),
@@ -417,7 +443,7 @@ export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => {
 		// Code's Electron workbench entry. Runs at module-eval time so
 		// `window.requestIdleCallback` / `queryLocalFonts` are present
 		// before any contribution touches them. Idempotent.
-		InjectWebViewPolyfills,
+		...(LandDisableUIFixes ? [] : [InjectWebViewPolyfills]),
 
 		// Disable WKWebView lazy-paint mechanisms so workbench panels
 		// render on `display:flex` rather than waiting for a hover or
@@ -427,7 +453,7 @@ export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => {
 		// + `contain:paint` from workbench-level CSS rules.
 		// Idempotent. Runs after the polyfill injector so its
 		// rAF/IO overrides land on top of any earlier shim.
-		InjectDisableLazyPaint,
+		...(LandDisableUIFixes ? [] : [InjectDisableLazyPaint]),
 
 		// Force workbench parts/panels/composites to be interactive
 		// on `display:flex`. Strips `pointer-events:none`,
@@ -435,7 +461,7 @@ export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => {
 		// transition durations so panels appear instantly.
 		// Companion to InjectDisableLazyPaint: that one fixed paint;
 		// this fixes interactivity. Idempotent.
-		InjectWorkbenchInteractivityCSS,
+		...(LandDisableUIFixes ? [] : [InjectWorkbenchInteractivityCSS]),
 
 		// Force WKWebView's compositor to commit pending layout for
 		// each workbench part layer at boot and on the first
@@ -444,7 +470,7 @@ export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => {
 		// layer to the compositor; without it, panels may stay in
 		// a "first paint pending" state until something else
 		// triggers a forced layout. Idempotent.
-		InjectWorkbenchPaintPrime,
+		...(LandDisableUIFixes ? [] : [InjectWorkbenchPaintPrime]),
 
 		// Reserve the macOS traffic-light cluster width on the
 		// titlebar's left edge so the in-window menubar
@@ -452,7 +478,7 @@ export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => {
 		// quick-pick stop colliding with the OS-painted close /
 		// minimize / maximize buttons. Targets `.monaco-workbench.mac`
 		// only; non-macOS builds keep their stock layout. Idempotent.
-		InjectMacTitlebarOffsetCSS,
+		...(LandDisableUIFixes ? [] : [InjectMacTitlebarOffsetCSS]),
 
 		// Establish a deterministic z-index hierarchy across the
 		// workbench parts so a sibling that picked up an implicit
@@ -461,7 +487,7 @@ export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => {
 		// status bar progress badges, or the command-center
 		// quick-pick dropdown. Hardens stock CSS without changing
 		// its intent. Idempotent.
-		InjectPartZIndexCSS,
+		...(LandDisableUIFixes ? [] : [InjectPartZIndexCSS]),
 
 		// Pre-bake telemetry consent OFF so VS Code's TelemetryService
 		// starts in already-disabled state. Network.ts excludes the
@@ -516,7 +542,7 @@ export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => {
 		// generous synthetic IdleDeadline so VS Code's pervasive
 		// `IdleValue<T>` lazy-init pattern resolves eagerly. Trades
 		// tiny boot-time spike for predictable warm state. Idempotent.
-		InjectEagerIdleValue,
+		...(LandDisableUIFixes ? [] : [InjectEagerIdleValue]),
 
 		// Rewrite `new URL("./worker.html", import.meta.url)` patterns
 		// to absolute origin-pinned `/Static/Application/...` URLs so
@@ -655,13 +681,13 @@ export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => {
 		// doesn't expose the cleared canvas (the "terminal flashes on
 		// every click" symptom). CSS-only - degrades to inert hints if
 		// WebKit ever fixes the underlying compositor behaviour.
-		InjectTerminalGPULayerCSS,
+		...(LandDisableUIFixes ? [] : [InjectTerminalGPULayerCSS]),
 
 		// Same GPU-layer hint applied to Monaco's editor canvases.
 		// Targets the "underscore/cursor at a different place" symptom
 		// where WKWebView's compositor lifts the cursor onto a layer
 		// whose baseline diverges from the text layer during reflow.
-		InjectEditorGPULayerCSS,
+		...(LandDisableUIFixes ? [] : [InjectEditorGPULayerCSS]),
 
 		// `PatchTerminalGpuAcceleration` is intentionally NOT registered
 		// here. Forcing the DOM renderer fixed the WebGL atlas font
@@ -674,6 +700,17 @@ export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => {
 		// symptom was actually WebGL atlas drift or a deferred-create
 		// race side-effect.
 	];
+
+	if (LandDisableUIFixes) {
+		// UI/rendering transforms were spliced out above. Every wire
+		// patch (Replace*, StripWebviewIframe, PatchWebviewIframe,
+		// ExposeWorkbench, Rewrite* URLs/CSP, DisableUnusedServices,
+		// EagerActivation, Storage + Configuration overlays, Telemetry,
+		// Polling, IPC, etc.) remains active.
+		return Pipeline;
+	}
+
+	return Pipeline;
 };
 
 export default BuildPipeline;

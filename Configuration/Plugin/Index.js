@@ -184,6 +184,8 @@ export * from "./Type.js";
 
 const LandDisableAll =
 	(globalThis.process?.env?.Disable ?? "").toLowerCase() === "true";
+const LandDisableUIFixes =
+	(globalThis.process?.env?.DisableUIFixes ?? "").toLowerCase() === "true";
 const BuildPipeline = /* @__PURE__ */ __name((Input) => {
 	const IsRelease = (Input.Profile ?? "").startsWith("release");
 	const CSSStrategy = IsRelease ? InlineCSSImport : StripCSSImport;
@@ -198,7 +200,7 @@ const BuildPipeline = /* @__PURE__ */ __name((Input) => {
 			CopyTauriMainProcessServiceFactory(Input.TauriMainProcessService),
 		];
 	}
-	return [
+	const Pipeline = [
 		CopyVSOutputFactory(Input.VSOutput),
 		CopyVSRootFilesFactory(Input.VSRootFiles),
 		SupplementFromDependencyFactory(Input.Supplement),
@@ -251,7 +253,7 @@ const BuildPipeline = /* @__PURE__ */ __name((Input) => {
 		// Code's Electron workbench entry. Runs at module-eval time so
 		// `window.requestIdleCallback` / `queryLocalFonts` are present
 		// before any contribution touches them. Idempotent.
-		InjectWebViewPolyfills,
+		...(LandDisableUIFixes ? [] : [InjectWebViewPolyfills]),
 		// Disable WKWebView lazy-paint mechanisms so workbench panels
 		// render on `display:flex` rather than waiting for a hover or
 		// scroll. Replaces `requestAnimationFrame` with a coalesced
@@ -260,14 +262,14 @@ const BuildPipeline = /* @__PURE__ */ __name((Input) => {
 		// + `contain:paint` from workbench-level CSS rules.
 		// Idempotent. Runs after the polyfill injector so its
 		// rAF/IO overrides land on top of any earlier shim.
-		InjectDisableLazyPaint,
+		...(LandDisableUIFixes ? [] : [InjectDisableLazyPaint]),
 		// Force workbench parts/panels/composites to be interactive
 		// on `display:flex`. Strips `pointer-events:none`,
 		// `visibility:hidden`, `opacity:0` cascades and zeros panel
 		// transition durations so panels appear instantly.
 		// Companion to InjectDisableLazyPaint: that one fixed paint;
 		// this fixes interactivity. Idempotent.
-		InjectWorkbenchInteractivityCSS,
+		...(LandDisableUIFixes ? [] : [InjectWorkbenchInteractivityCSS]),
 		// Force WKWebView's compositor to commit pending layout for
 		// each workbench part layer at boot and on the first
 		// interaction with each part. One synchronous
@@ -275,14 +277,14 @@ const BuildPipeline = /* @__PURE__ */ __name((Input) => {
 		// layer to the compositor; without it, panels may stay in
 		// a "first paint pending" state until something else
 		// triggers a forced layout. Idempotent.
-		InjectWorkbenchPaintPrime,
+		...(LandDisableUIFixes ? [] : [InjectWorkbenchPaintPrime]),
 		// Reserve the macOS traffic-light cluster width on the
 		// titlebar's left edge so the in-window menubar
 		// (`File / Edit / View / ...`) and the command-center
 		// quick-pick stop colliding with the OS-painted close /
 		// minimize / maximize buttons. Targets `.monaco-workbench.mac`
 		// only; non-macOS builds keep their stock layout. Idempotent.
-		InjectMacTitlebarOffsetCSS,
+		...(LandDisableUIFixes ? [] : [InjectMacTitlebarOffsetCSS]),
 		// Establish a deterministic z-index hierarchy across the
 		// workbench parts so a sibling that picked up an implicit
 		// stacking context (transform, opacity, isolation) can't
@@ -290,7 +292,7 @@ const BuildPipeline = /* @__PURE__ */ __name((Input) => {
 		// status bar progress badges, or the command-center
 		// quick-pick dropdown. Hardens stock CSS without changing
 		// its intent. Idempotent.
-		InjectPartZIndexCSS,
+		...(LandDisableUIFixes ? [] : [InjectPartZIndexCSS]),
 		// Pre-bake telemetry consent OFF so VS Code's TelemetryService
 		// starts in already-disabled state. Network.ts excludes the
 		// wire-level appenders; this transform makes the consumers
@@ -337,7 +339,7 @@ const BuildPipeline = /* @__PURE__ */ __name((Input) => {
 		// generous synthetic IdleDeadline so VS Code's pervasive
 		// `IdleValue<T>` lazy-init pattern resolves eagerly. Trades
 		// tiny boot-time spike for predictable warm state. Idempotent.
-		InjectEagerIdleValue,
+		...(LandDisableUIFixes ? [] : [InjectEagerIdleValue]),
 		// Rewrite `new URL("./worker.html", import.meta.url)` patterns
 		// to absolute origin-pinned `/Static/Application/...` URLs so
 		// they resolve regardless of where the bundled chunk lives.
@@ -455,12 +457,12 @@ const BuildPipeline = /* @__PURE__ */ __name((Input) => {
 		// doesn't expose the cleared canvas (the "terminal flashes on
 		// every click" symptom). CSS-only - degrades to inert hints if
 		// WebKit ever fixes the underlying compositor behaviour.
-		InjectTerminalGPULayerCSS,
+		...(LandDisableUIFixes ? [] : [InjectTerminalGPULayerCSS]),
 		// Same GPU-layer hint applied to Monaco's editor canvases.
 		// Targets the "underscore/cursor at a different place" symptom
 		// where WKWebView's compositor lifts the cursor onto a layer
 		// whose baseline diverges from the text layer during reflow.
-		InjectEditorGPULayerCSS,
+		...(LandDisableUIFixes ? [] : [InjectEditorGPULayerCSS]),
 		// `PatchTerminalGpuAcceleration` is intentionally NOT registered
 		// here. Forcing the DOM renderer fixed the WebGL atlas font
 		// glitches but introduced a "black shadow over text" visual
@@ -472,6 +474,10 @@ const BuildPipeline = /* @__PURE__ */ __name((Input) => {
 		// symptom was actually WebGL atlas drift or a deferred-create
 		// race side-effect.
 	];
+	if (LandDisableUIFixes) {
+		return Pipeline;
+	}
+	return Pipeline;
 }, "BuildPipeline");
 var Index_default = BuildPipeline;
 export {

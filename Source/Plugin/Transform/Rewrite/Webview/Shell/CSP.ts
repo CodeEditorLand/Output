@@ -44,12 +44,12 @@ const CSPMetaPattern =
 const ReplacementMeta =
 	`<meta http-equiv="Content-Security-Policy" ` +
 	`content="default-src 'none'; ` +
-	`script-src 'unsafe-inline' 'self' blob:; ` +
+	`script-src 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' 'self' vscode-file: vscode-webview-resource: blob:; ` +
 	`frame-src 'self' vscode-webview:; ` +
-	`style-src 'unsafe-inline' 'self'; ` +
+	`style-src 'unsafe-inline' 'self' vscode-file: vscode-webview-resource: blob:; ` +
 	`img-src 'self' data: blob: https:; ` +
 	`font-src 'self' data: blob:; ` +
-	`connect-src 'self' https: blob: data:;">${Marker}`;
+	`connect-src 'self' vscode-file: vscode-webview-resource: https: blob: data:;">${Marker}`;
 
 const Plugin: TransformPlugin = {
 	Kind: "Transform",

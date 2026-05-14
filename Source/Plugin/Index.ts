@@ -46,6 +46,9 @@ import InjectStripBackgroundPolling from "./Transform/Inject/Strip/Background/Po
 import InjectTelemetryConsentOff from "./Transform/Inject/Telemetry/Consent/Off.js";
 import InjectTerminalGPULayerCSS from "./Transform/Inject/Terminal/GPU/Layer/CSS.js";
 import InjectWebViewPolyfills from "./Transform/Inject/Web/View/Polyfills.js";
+import InjectWebviewDebugLogging from "./Transform/Inject/Webview/Debug/Logging.js";
+import InjectWebviewRuntimeDiagnostics from "./Transform/Inject/Webview/Debug/RuntimeDiagnostics.js";
+import InjectWebviewRuntimeDiagnosticsInner from "./Transform/Inject/Webview/Debug/RuntimeDiagnosticsInner.js";
 import InjectWorkbenchInteractivityCSS from "./Transform/Inject/Workbench/Interactivity/CSS.js";
 import InjectWorkbenchPaintPrime from "./Transform/Inject/Workbench/Paint/Prime.js";
 import InjectWorkerBootstrapShim from "./Transform/Inject/Worker/Bootstrap/Shim.js";
@@ -480,14 +483,14 @@ export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => {
 		// only; non-macOS builds keep their stock layout. Idempotent.
 		...(LandDisableUIFixes ? [] : [InjectMacTitlebarOffsetCSS]),
 
-		// Establish a deterministic z-index hierarchy across the
-		// workbench parts so a sibling that picked up an implicit
-		// stacking context (transform, opacity, isolation) can't
-		// hide the activity bar, sidebar, panel resize handle,
-		// status bar progress badges, or the command-center
-		// quick-pick dropdown. Hardens stock CSS without changing
-		// its intent. Idempotent.
-		...(LandDisableUIFixes ? [] : [InjectPartZIndexCSS]),
+	// Establish a deterministic z-index hierarchy across the
+	// workbench parts so a sibling that picked up an implicit
+	// stacking context (transform, opacity, isolation) can't
+	// hide the activity bar, sidebar, panel resize handle,
+	// status bar progress badges, or the command-center
+	// quick-pick dropdown. Hardens stock CSS without changing
+	// its intent. Idempotent.
+	InjectPartZIndexCSS,
 
 		// Pre-bake telemetry consent OFF so VS Code's TelemetryService
 		// starts in already-disabled state. Network.ts excludes the
@@ -593,6 +596,16 @@ export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => {
 		CatchOutputFolderRejection,
 
 		StripWebviewIframeSandbox,
+
+		// Inject verbose console logging into the webview iframe
+		// preloader for diagnosing extension webview loading failures
+		// on WKWebView / Tauri. Logs every lifecycle stage: INDEX_BOOT,
+		// SW_REGISTER, SIGNAL_START, SIGNAL_OK, SIGNAL_FAIL,
+		// CONTENT_EVENT, INNER_FRAME_FAKE, INNER_FRAME_LOADED,
+		// INNER_WRITE. Idempotent via __LAND_WEBVIEW_DEBUG_INJECT__ marker.
+		InjectWebviewDebugLogging,
+		InjectWebviewRuntimeDiagnostics,
+		InjectWebviewRuntimeDiagnosticsInner,
 
 		// Default `disableServiceWorker = true` inside the webview iframe
 		// shell so the bootstrap script's `await workerReady` resolves

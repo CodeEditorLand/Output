@@ -116,7 +116,7 @@ const CryptoCheckReplacement = `/* ${Marker} crypto-soft */ console.warn(\`[Land
 // never fires on dynamically-created inner iframes (WebKit bug #33604).
 // Stock VS Code only works around this when `!options.allowScripts`,
 // assuming that scripts-enabled iframes will reliably fire DCL.
-// WKWebView does not, however — even with `allow-scripts` in the sandbox
+// WKWebView does not, however - even with `allow-scripts` in the sandbox
 // the inner iframe's DCL never fires, so the extension HTML (delivered
 // via `contentDocument.write`) is never injected and the webview stays
 // stuck on `fake.html` forever. Force polling for every Safari /
@@ -128,7 +128,7 @@ const DclConditionReplacement = `/* ${Marker} dcl-poll */ if (isSafari) {`;
 // Stock VS Code's polling waits for `pathname.endsWith('/fake.html')` but
 // WKWebView custom-protocol contexts may not populate `location.pathname`
 // correctly (WebKit bug #238901).  We also drop the pathname gate and
-// just check `readyState !== 'loading'` — safe because this only runs on
+// just check `readyState !== 'loading'` - safe because this only runs on
 // a freshly-created inner frame with a known URL.
 const PathnameEndsWithExpression =
 	"if (contentDocument.location.pathname.endsWith('/fake.html') && contentDocument.readyState !== 'loading') {";

@@ -82,6 +82,46 @@ function PartZIndexCSS() {
 			".monaco-workbench .notifications-toasts {",
 			"	z-index: 2575 !important;",
 			"}",
+			// Context-view container hosts every dropdown / context menu /
+			// hover popover that flows through `vs/base/browser/ui/contextview`:
+			//   - Menubar dropdowns (File / Edit / View / …) when clicked
+			//   - Right-click context menus on the editor, explorer, panels
+			//   - Quick-pick command palette (Cmd+Shift+P)
+			//   - Hover messages from `vscode.languages.registerHoverProvider`
+			//   - Inline suggestion popovers from extensions
+			//
+			// Stock VS Code relies on Chromium's implicit document-order
+			// stacking; the editor's `z-index: 1` (set above) defeats
+			// that ordering, causing dropdowns anchored to the menubar to
+			// render UNDER the editor's content. Pin context-view above
+			// the titlebar (2500) and quick-pick (2550) so it always wins.
+			".monaco-workbench .context-view,",
+			"body > .context-view {",
+			"	z-index: 2600 !important;",
+			"}",
+			// `.context-view.fixed` uses `all: initial` which RESETS z-index
+			// to `auto` after the rule above - defeats our pin. Add a more-
+			// specific selector that wins over `all: initial`.
+			".monaco-workbench .context-view.fixed,",
+			"body > .context-view.fixed {",
+			"	position: fixed !important;",
+			"	z-index: 2600 !important;",
+			"}",
+			// `.shadow-root-host` is the wrapper VS Code uses when the
+			// contextview is hosted in a shadow DOM (ContextView.ts:131).
+			// Pin its z-index too; shadow-root-host is what the parent
+			// compositor actually sees.
+			"body .shadow-root-host {",
+			"	z-index: 2600 !important;",
+			"}",
+			// Monaco's own popover containers used by certain hover providers
+			// occasionally bypass the contextview machinery. Pin them above
+			// the editor's `z-index: 1` so find/replace, parameter hints,
+			// and suggestion popups remain visible.
+			".monaco-workbench .monaco-hover,",
+			".monaco-workbench .editor-widget {",
+			"	z-index: 50 !important;",
+			"}",
 		].join("\n");
 		(document.head ?? document.documentElement).appendChild(Style);
 	}

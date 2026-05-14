@@ -1,14 +1,16 @@
 var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-const PathRegex = /\/vs\/workbench\/contrib\/webview\/browser\/pre\/index\.html$/;
+var __name = (target, value) =>
+	__defProp(target, "name", { value, configurable: true });
+const PathRegex =
+	/\/vs\/workbench\/contrib\/webview\/browser\/pre\/index\.html$/;
 const Marker = "__LAND_WEBVIEW_INNER_DIAG_INJECT__";
 const Plugin = {
-  Kind: "Transform",
-  Name: "InjectWebviewRuntimeDiagnosticsInner",
-  Match: /* @__PURE__ */ __name(({ Path }) => PathRegex.test(Path), "Match"),
-  Transform({ Source }) {
-    if (Source.includes(Marker)) return { Kind: "Unchanged" };
-    const diagnosticScript = `
+	Kind: "Transform",
+	Name: "InjectWebviewRuntimeDiagnosticsInner",
+	Match: /* @__PURE__ */ __name(({ Path }) => PathRegex.test(Path), "Match"),
+	Transform({ Source }) {
+		if (Source.includes(Marker)) return { Kind: "Unchanged" };
+		const diagnosticScript = `
 (function() {
 	'use strict';
 	// Capture parent before the vscode-api polyfill overwrites it
@@ -202,13 +204,13 @@ const Plugin = {
 	DI('INIT_COMPLETE', { ua: navigator.userAgent.slice(0, 80) });
 })();
 `.trim();
-    const markerRegex = /^(\s*)\/\/\s*Inject default styles/m;
-    const match = Source.match(markerRegex);
-    if (!match) {
-      return { Kind: "Unchanged" };
-    }
-    const indent = match[1] || "";
-    const injectedLines = `${indent}// --- DIAGNOSTIC INJECTION ---
+		const markerRegex = /^(\s*)\/\/\s*Inject default styles/m;
+		const match = Source.match(markerRegex);
+		if (!match) {
+			return { Kind: "Unchanged" };
+		}
+		const indent = match[1] || "";
+		const injectedLines = `${indent}// --- DIAGNOSTIC INJECTION ---
 ${indent}// ${Marker}
 ${indent}{
 ${indent}	const _diScript = document.createElement('script');
@@ -222,12 +224,10 @@ ${indent}	}
 ${indent}}
 ${indent}// --- END DIAGNOSTIC ---
 ${match[0]}`;
-    const nextSource = Source.replace(markerRegex, injectedLines);
-    return { Kind: "Rewrite", Source: nextSource };
-  }
+		const nextSource = Source.replace(markerRegex, injectedLines);
+		return { Kind: "Rewrite", Source: nextSource };
+	},
 };
 var RuntimeDiagnosticsInner_default = Plugin;
-export {
-  RuntimeDiagnosticsInner_default as default
-};
+export { RuntimeDiagnosticsInner_default as default };
 //# sourceMappingURL=RuntimeDiagnosticsInner.js.map

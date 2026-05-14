@@ -19,7 +19,8 @@ import type { TransformPlugin } from "../../../../../Type.js";
 
 const Marker = "<!-- __LAND_WEBVIEW_RUNTIME_DIAG__ -->";
 
-const PathRegex = /\/vs\/workbench\/contrib\/webview\/browser\/pre\/index\.html$/;
+const PathRegex =
+	/\/vs\/workbench\/contrib\/webview\/browser\/pre\/index\.html$/;
 
 const DiagnosticCode = `
 (function() {
@@ -107,25 +108,35 @@ const DiagnosticCode = `
       extScript.addEventListener('error', function(e) { DEBUG_WV('EXTENSION_MODULE_ERROR', e.message); });
     } else {
       DEBUG_WV('EXTENSION_MODULE_SCRIPT_NOT_FOUND');
+      // Dump DOM state to diagnose
+      var allScripts = document.querySelectorAll('script');
+      var scriptInfo = Array.from(allScripts).map(function(s) {
+        return { src: s.src, type: s.type, id: s.id, async: s.async, defer: s.defer };
+      });
+      DEBUG_WV('DOM_SCRIPTS_DUMP', { count: allScripts.length, scripts: scriptInfo });
+      var bodySnippet = document.body ? document.body.innerHTML.slice(0, 500) : 'NO_BODY';
+      DEBUG_WV('BODY_SNIPPET', { snippet: bodySnippet });
+      var htmlSnippet = document.documentElement ? document.documentElement.outerHTML.slice(0, 1000) : 'NO_DOCUMENT';
+      DEBUG_WV('HTML_SNIPPET', { snippet: htmlSnippet });
     }
   }, 0);
 })();
 `;
 
 const Plugin: TransformPlugin = {
-  Kind: "Transform",
-  Name: "InjectWebviewRuntimeDiagnostics",
-  Match: ({ Path }) => PathRegex.test(Path),
-  Transform({ Source }) {
-    if (Source.includes(Marker)) return { Kind: "Unchanged" };
-    // Inject before </body>
-    const closing = "</body>";
-    const idx = Source.lastIndexOf(closing);
-    if (idx < 0) return { Kind: "Unchanged" };
-    const injection = Marker + "<script>" + DiagnosticCode + "</script>";
-    const Next = Source.slice(0, idx) + injection + Source.slice(idx);
-    return { Kind: "Rewrite", Source: Next };
-  },
+	Kind: "Transform",
+	Name: "InjectWebviewRuntimeDiagnostics",
+	Match: ({ Path }) => PathRegex.test(Path),
+	Transform({ Source }) {
+		if (Source.includes(Marker)) return { Kind: "Unchanged" };
+		// Inject before </body>
+		const closing = "</body>";
+		const idx = Source.lastIndexOf(closing);
+		if (idx < 0) return { Kind: "Unchanged" };
+		const injection = Marker + "<script>" + DiagnosticCode + "</script>";
+		const Next = Source.slice(0, idx) + injection + Source.slice(idx);
+		return { Kind: "Rewrite", Source: Next };
+	},
 };
 
 export default Plugin;

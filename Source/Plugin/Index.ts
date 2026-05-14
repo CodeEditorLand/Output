@@ -483,14 +483,14 @@ export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => {
 		// only; non-macOS builds keep their stock layout. Idempotent.
 		...(LandDisableUIFixes ? [] : [InjectMacTitlebarOffsetCSS]),
 
-	// Establish a deterministic z-index hierarchy across the
-	// workbench parts so a sibling that picked up an implicit
-	// stacking context (transform, opacity, isolation) can't
-	// hide the activity bar, sidebar, panel resize handle,
-	// status bar progress badges, or the command-center
-	// quick-pick dropdown. Hardens stock CSS without changing
-	// its intent. Idempotent.
-	InjectPartZIndexCSS,
+		// Establish a deterministic z-index hierarchy across the
+		// workbench parts so a sibling that picked up an implicit
+		// stacking context (transform, opacity, isolation) can't
+		// hide the activity bar, sidebar, panel resize handle,
+		// status bar progress badges, or the command-center
+		// quick-pick dropdown. Hardens stock CSS without changing
+		// its intent. Idempotent.
+		InjectPartZIndexCSS,
 
 		// Pre-bake telemetry consent OFF so VS Code's TelemetryService
 		// starts in already-disabled state. Network.ts excludes the

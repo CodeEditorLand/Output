@@ -11,23 +11,23 @@ const Plugin: TransformPlugin = {
 	Transform({ Source }) {
 		if (Source.includes(Marker)) return { Kind: "Unchanged" };
 
-		// The diagnostic script to be injected into the toContentHtml function.
-		// It will be injected as a JS expression that creates an IIFE and
-		// inserts it into the HTML document before </head> or at start of <body>.
-		// We inject directly after `newDocument.head.prepend(defaultStyles.cloneNode(true));`
-		// inside toContentHtml, so it runs as the inner iframe document is built.
+		// Diagnostic script to be injected into the inner iframe's document.
+		// It must run BEFORE the VS Code API polyfill (which overwrites
+		// window.parent / window.top) so we capture a reference to the real
+		// parent (preloader) and use it for all logging.
 		const diagnosticScript = `
-// --- LAND WEBVIEW INNER DIAGNOSTICS INJECTION ---
 (function() {
 	'use strict';
-	const LAND_INNER_DEBUG = true;
-
+	// Capture parent before the vscode-api polyfill overwrites it
+	const _landParent = window.parent;
 	function DI(msg, data) {
-		if (window.parent && window.parent.DEBUG_WV) {
-			window.parent.DEBUG_WV('INNER_' + msg, data);
+		if (_landParent && _landParent.DEBUG_WV) {
+			_landParent.DEBUG_WV('INNER_' + msg, data);
+		} else if (_landParent) {
+			console.log('[WebviewDebug][INNER_no_parent_DEBUG_WV]', msg, data);
 		}
 	}
-	DI('BOOT', 'inner iframe diagnostics loaded');
+	DI('BOOT', 'inner iframe diagnostics loaded (captured real parent)');
 
 	// Intercept console early
 	const origError = console.error;
@@ -103,23 +103,38 @@ const Plugin: TransformPlugin = {
 
 	DI('INIT_COMPLETE', { ua: navigator.userAgent.slice(0, 80) });
 })();
-// --- END LAND WEBVIEW INNER DIAGNOSTICS ---
 `.trim();
 
-		// Find the marker line inside toContentHtml and inject after it.
-		// We match the line: `newDocument.head.prepend(defaultStyles.cloneNode(true));`
-		// using a regex that captures leading whitespace so we can preserve it.
-		const markerRegex = /^(\s*)newDocument\.head\.prepend\(defaultStyles\.cloneNode\(true\)\);/m;
+		// Inject after VS Code API script has been added to head, but before
+		// default styles, then prepend our diagnostic to be FIRST in head so
+		// it runs before the polyfill. Match the "// Inject default styles"
+		// comment line that appears after the `if (options.allowScripts) {}` block.
+		const markerRegex = /^(\s*)\/\/\s*Inject default styles/m;
 		const match = Source.match(markerRegex);
 		if (!match) {
-			// Can't find injection point; skip to avoid breaking the file.
 			return { Kind: "Unchanged" };
 		}
 		const indent = match[1] || '';
 
-		// Build the injected lines: original line + diagnostic block
-		// that appends a <script> element into newDocument.head.
-		const injectedLines = `${match[0]}\n${indent}\t// --- DIAGNOSTIC INJECTION ---\n${indent}\t// ${Marker}\n${indent}\t{\n${indent}\t\tconst diScript = document.createElement('script');\n${indent}\t\tdiScript.textContent = ${JSON.stringify(diagnosticScript)};\n${indent}\t\tnewDocument.head.appendChild(diScript);\n${indent}\t}\n${indent}\t// --- END DIAGNOSTIC ---`;
+		// Insert a block before that comment. The block:
+		//   1. create <script> element with diagnosticScript
+		//   2. insertBefore the current firstChild of head (which is the
+		//      _vscodeApiScript already prepended) to place our script first.
+		const injectedLines = `\
+${indent}// --- DIAGNOSTIC INJECTION ---
+${indent}// ${Marker}
+${indent}{
+${indent}\tconst _diScript = document.createElement('script');
+${indent}\t_diScript.textContent = ${JSON.stringify(diagnosticScript)};
+${indent}\t// Insert before the VSCode API script so it runs first
+${indent}\tif (newDocument.head.firstChild) {
+${indent}\t\tnewDocument.head.insertBefore(_diScript, newDocument.head.firstChild);
+${indent}\t} else {
+${indent}\t\tnewDocument.head.appendChild(_diScript);
+${indent}\t}
+${indent}}
+${indent}// --- END DIAGNOSTIC ---
+${match[0]}`;
 
 		const nextSource = Source.replace(markerRegex, injectedLines);
 		return { Kind: "Rewrite", Source: nextSource };

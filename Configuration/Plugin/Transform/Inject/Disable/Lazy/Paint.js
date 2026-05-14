@@ -1,11 +1,10 @@
-import DisableLazyPaint, {
-	Marker,
-} from "../../../../Polyfill/Disable/Lazy/Paint.js";
+import DisableLazyPaint from "../../../../Polyfill/Disable/Lazy/Paint.js";
 
 var __defProp = Object.defineProperty;
 var __name = (target, value) =>
 	__defProp(target, "name", { value, configurable: true });
 
+const Marker = "__LAND_DISABLE_LAZY_PAINT__";
 const Polyfill = `
 /* ${Marker} */
 (${DisableLazyPaint.toString()})();

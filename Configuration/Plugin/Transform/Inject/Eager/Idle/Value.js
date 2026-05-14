@@ -1,11 +1,10 @@
-import EagerIdleValue, {
-	Marker,
-} from "../../../../Polyfill/Eager/Idle/Value.js";
+import EagerIdleValue from "../../../../Polyfill/Eager/Idle/Value.js";
 
 var __defProp = Object.defineProperty;
 var __name = (target, value) =>
 	__defProp(target, "name", { value, configurable: true });
 
+const Marker = "__LAND_EAGER_IDLE_VALUE__";
 const Polyfill = `
 /* ${Marker} */
 (${EagerIdleValue.toString()})();

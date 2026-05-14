@@ -10,8 +10,6 @@
  * pervasive `IdleValue<T>` lazy-init pattern resolves eagerly.
  */
 
-export const Marker = "__LAND_EAGER_IDLE_VALUE__";
-
 interface SyntheticIdleDeadline {
 	didTimeout: boolean;
 
@@ -20,6 +18,8 @@ interface SyntheticIdleDeadline {
 
 export default function EagerIdleValue(): void {
 	if (typeof window === "undefined") return;
+
+	const Marker = "__LAND_EAGER_IDLE_VALUE__";
 
 	const Land = window as unknown as Record<string, unknown>;
 

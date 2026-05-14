@@ -1,9 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) =>
 	__defProp(target, "name", { value, configurable: true });
-const Marker = "__LAND_WORKBENCH_PAINT_PRIME_V2__";
 function WorkbenchPaintPrime() {
 	if (typeof window === "undefined") return;
+	const Marker = "__LAND_WORKBENCH_PAINT_PRIME_V2__";
 	const Land = window;
 	if (Land[Marker]) return;
 	Land[Marker] = true;
@@ -83,5 +83,5 @@ function WorkbenchPaintPrime() {
 	}
 }
 __name(WorkbenchPaintPrime, "WorkbenchPaintPrime");
-export { Marker, WorkbenchPaintPrime as default };
+export { WorkbenchPaintPrime as default };
 //# sourceMappingURL=Prime.js.map

@@ -6,10 +6,10 @@
  * Idempotent. Marker `__LAND_EAGER_IDLE_VALUE__`.
  */
 
-import EagerIdleValue, {
-	Marker,
-} from "../../../../Polyfill/Eager/Idle/Value.js";
+import EagerIdleValue from "../../../../Polyfill/Eager/Idle/Value.js";
 import type { TransformPlugin } from "../../../../Type.js";
+
+const Marker = "__LAND_EAGER_IDLE_VALUE__";
 
 const Polyfill = `\n/* ${Marker} */\n(${EagerIdleValue.toString()})();\n`;
 

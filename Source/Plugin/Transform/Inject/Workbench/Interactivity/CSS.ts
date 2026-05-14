@@ -12,10 +12,10 @@
  * Idempotent. Marker `__LAND_WORKBENCH_INTERACTIVITY_CSS__`.
  */
 
-import WorkbenchInteractivityCSS, {
-	Marker,
-} from "../../../../Polyfill/Workbench/Interactivity/CSS.js";
+import WorkbenchInteractivityCSS from "../../../../Polyfill/Workbench/Interactivity/CSS.js";
 import type { TransformPlugin } from "../../../../Type.js";
+
+const Marker = "__LAND_WORKBENCH_INTERACTIVITY_CSS_V2__";
 
 const Polyfill = `\n/* ${Marker} */\n(${WorkbenchInteractivityCSS.toString()})();\n`;
 

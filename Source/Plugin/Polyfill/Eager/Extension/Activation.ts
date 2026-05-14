@@ -11,8 +11,6 @@
  * immediately rather than after the stock 2-5 s scheduler.
  */
 
-export const Marker = "__LAND_EAGER_EXTENSION_ACTIVATION__";
-
 interface ServicesAccessor {
 	get<T = unknown>(Identifier: unknown): T;
 }
@@ -27,6 +25,8 @@ interface CelServices {
 
 export default function EagerExtensionActivation(): void {
 	if (typeof window === "undefined") return;
+
+	const Marker = "__LAND_EAGER_EXTENSION_ACTIVATION__";
 
 	const Land = window as unknown as Record<string, unknown>;
 

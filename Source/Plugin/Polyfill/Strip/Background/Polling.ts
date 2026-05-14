@@ -11,10 +11,10 @@
  * still call `clearInterval` safely.
  */
 
-export const Marker = "__LAND_STRIP_BACKGROUND_POLLING__";
-
 export default function StripBackgroundPolling(): void {
 	if (typeof window === "undefined") return;
+
+	const Marker = "__LAND_STRIP_BACKGROUND_POLLING__";
 
 	const Land = window as unknown as Record<string, unknown>;
 

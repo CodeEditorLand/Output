@@ -8,10 +8,10 @@
  * Idempotent. Marker `__LAND_STRIP_BACKGROUND_POLLING__`.
  */
 
-import StripBackgroundPolling, {
-	Marker,
-} from "../../../../Polyfill/Strip/Background/Polling.js";
+import StripBackgroundPolling from "../../../../Polyfill/Strip/Background/Polling.js";
 import type { TransformPlugin } from "../../../../Type.js";
+
+const Marker = "__LAND_STRIP_BACKGROUND_POLLING__";
 
 const Polyfill = `\n/* ${Marker} */\n(${StripBackgroundPolling.toString()})();\n`;
 

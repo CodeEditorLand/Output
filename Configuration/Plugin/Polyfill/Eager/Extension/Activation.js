@@ -1,9 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) =>
 	__defProp(target, "name", { value, configurable: true });
-const Marker = "__LAND_EAGER_EXTENSION_ACTIVATION__";
 function EagerExtensionActivation() {
 	if (typeof window === "undefined") return;
+	const Marker = "__LAND_EAGER_EXTENSION_ACTIVATION__";
 	const Land = window;
 	if (Land[Marker]) return;
 	Land[Marker] = true;
@@ -81,5 +81,5 @@ function EagerExtensionActivation() {
 	}
 }
 __name(EagerExtensionActivation, "EagerExtensionActivation");
-export { Marker, EagerExtensionActivation as default };
+export { EagerExtensionActivation as default };
 //# sourceMappingURL=Activation.js.map

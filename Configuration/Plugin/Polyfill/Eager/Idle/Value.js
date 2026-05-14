@@ -1,9 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) =>
 	__defProp(target, "name", { value, configurable: true });
-const Marker = "__LAND_EAGER_IDLE_VALUE__";
 function EagerIdleValue() {
 	if (typeof window === "undefined") return;
+	const Marker = "__LAND_EAGER_IDLE_VALUE__";
 	const Land = window;
 	if (Land[Marker]) return;
 	Land[Marker] = true;
@@ -38,5 +38,5 @@ function EagerIdleValue() {
 	);
 }
 __name(EagerIdleValue, "EagerIdleValue");
-export { Marker, EagerIdleValue as default };
+export { EagerIdleValue as default };
 //# sourceMappingURL=Value.js.map

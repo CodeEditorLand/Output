@@ -1,9 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) =>
 	__defProp(target, "name", { value, configurable: true });
-const Marker = "__LAND_EAGER_LIFECYCLE_PHASE__";
 function EagerLifecyclePhase() {
 	if (typeof window === "undefined") return;
+	const Marker = "__LAND_EAGER_LIFECYCLE_PHASE__";
 	const Land = window;
 	if (Land[Marker]) return;
 	Land[Marker] = true;
@@ -72,5 +72,5 @@ function EagerLifecyclePhase() {
 	}
 }
 __name(EagerLifecyclePhase, "EagerLifecyclePhase");
-export { Marker, EagerLifecyclePhase as default };
+export { EagerLifecyclePhase as default };
 //# sourceMappingURL=Phase.js.map

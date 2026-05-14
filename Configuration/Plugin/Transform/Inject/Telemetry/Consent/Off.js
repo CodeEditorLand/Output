@@ -1,11 +1,10 @@
-import TelemetryConsentOff, {
-	Marker,
-} from "../../../../Polyfill/Telemetry/Consent/Off.js";
+import TelemetryConsentOff from "../../../../Polyfill/Telemetry/Consent/Off.js";
 
 var __defProp = Object.defineProperty;
 var __name = (target, value) =>
 	__defProp(target, "name", { value, configurable: true });
 
+const Marker = "__LAND_TELEMETRY_CONSENT_OFF__";
 const Polyfill = `
 /* ${Marker} */
 (${TelemetryConsentOff.toString()})();

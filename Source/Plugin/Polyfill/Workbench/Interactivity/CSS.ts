@@ -15,10 +15,10 @@
 // idempotency check and skip re-applying the new (less-aggressive)
 // rules. Older `__LAND_WORKBENCH_INTERACTIVITY_CSS__` strings still
 // exist as dead comments in patched bundles - harmless.
-export const Marker = "__LAND_WORKBENCH_INTERACTIVITY_CSS_V2__";
-
 export default function WorkbenchInteractivityCSS(): void {
 	if (typeof window === "undefined") return;
+
+	const Marker = "__LAND_WORKBENCH_INTERACTIVITY_CSS_V2__";
 
 	const Land = window as unknown as Record<string, unknown>;
 

@@ -1,9 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) =>
 	__defProp(target, "name", { value, configurable: true });
-const Marker = "__LAND_TELEMETRY_CONSENT_OFF__";
 function TelemetryConsentOff() {
 	if (typeof window === "undefined") return;
+	const Marker = "__LAND_TELEMETRY_CONSENT_OFF__";
 	const Land = window;
 	if (Land[Marker]) return;
 	Land[Marker] = true;
@@ -62,5 +62,5 @@ function TelemetryConsentOff() {
 	);
 }
 __name(TelemetryConsentOff, "TelemetryConsentOff");
-export { Marker, TelemetryConsentOff as default };
+export { TelemetryConsentOff as default };
 //# sourceMappingURL=Off.js.map

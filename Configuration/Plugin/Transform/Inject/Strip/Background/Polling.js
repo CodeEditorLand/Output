@@ -1,11 +1,10 @@
-import StripBackgroundPolling, {
-	Marker,
-} from "../../../../Polyfill/Strip/Background/Polling.js";
+import StripBackgroundPolling from "../../../../Polyfill/Strip/Background/Polling.js";
 
 var __defProp = Object.defineProperty;
 var __name = (target, value) =>
 	__defProp(target, "name", { value, configurable: true });
 
+const Marker = "__LAND_STRIP_BACKGROUND_POLLING__";
 const Polyfill = `
 /* ${Marker} */
 (${StripBackgroundPolling.toString()})();

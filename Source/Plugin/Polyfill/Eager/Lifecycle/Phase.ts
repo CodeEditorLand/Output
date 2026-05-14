@@ -12,8 +12,6 @@
  * every `lifecycle.when(phase)` Promise.
  */
 
-export const Marker = "__LAND_EAGER_LIFECYCLE_PHASE__";
-
 interface ServicesAccessor {
 	get<T = unknown>(Identifier: unknown): T;
 }
@@ -28,6 +26,8 @@ interface CelServices {
 
 export default function EagerLifecyclePhase(): void {
 	if (typeof window === "undefined") return;
+
+	const Marker = "__LAND_EAGER_LIFECYCLE_PHASE__";
 
 	const Land = window as unknown as Record<string, unknown>;
 

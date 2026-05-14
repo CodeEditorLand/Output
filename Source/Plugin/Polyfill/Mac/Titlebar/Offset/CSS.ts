@@ -25,10 +25,10 @@
  * Idempotent. Marker `__LAND_MAC_TITLEBAR_OFFSET__`.
  */
 
-export const Marker = "__LAND_MAC_TITLEBAR_OFFSET__";
-
 export default function MacTitlebarOffsetCSS(): void {
 	if (typeof window === "undefined") return;
+
+	const Marker = "__LAND_MAC_TITLEBAR_OFFSET__";
 
 	const Land = window as unknown as Record<string, unknown>;
 

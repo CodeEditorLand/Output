@@ -7,10 +7,10 @@
  * Idempotent. Marker `__LAND_EAGER_EXTENSION_ACTIVATION__`.
  */
 
-import EagerExtensionActivation, {
-	Marker,
-} from "../../../../Polyfill/Eager/Extension/Activation.js";
+import EagerExtensionActivation from "../../../../Polyfill/Eager/Extension/Activation.js";
 import type { TransformPlugin } from "../../../../Type.js";
+
+const Marker = "__LAND_EAGER_EXTENSION_ACTIVATION__";
 
 const Polyfill = `\n/* ${Marker} */\n(${EagerExtensionActivation.toString()})();\n`;
 

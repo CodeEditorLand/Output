@@ -1,11 +1,10 @@
-import EagerExtensionActivation, {
-	Marker,
-} from "../../../../Polyfill/Eager/Extension/Activation.js";
+import EagerExtensionActivation from "../../../../Polyfill/Eager/Extension/Activation.js";
 
 var __defProp = Object.defineProperty;
 var __name = (target, value) =>
 	__defProp(target, "name", { value, configurable: true });
 
+const Marker = "__LAND_EAGER_EXTENSION_ACTIVATION__";
 const Polyfill = `
 /* ${Marker} */
 (${EagerExtensionActivation.toString()})();

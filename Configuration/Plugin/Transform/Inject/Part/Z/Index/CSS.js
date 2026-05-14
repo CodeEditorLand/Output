@@ -1,11 +1,10 @@
-import PartZIndexCSS, {
-	Marker,
-} from "../../../../../Polyfill/Part/Z/Index/CSS.js";
+import PartZIndexCSS from "../../../../../Polyfill/Part/Z/Index/CSS.js";
 
 var __defProp = Object.defineProperty;
 var __name = (target, value) =>
 	__defProp(target, "name", { value, configurable: true });
 
+const Marker = "__LAND_PART_ZINDEX__";
 const Polyfill = `
 /* ${Marker} */
 (${PartZIndexCSS.toString()})();

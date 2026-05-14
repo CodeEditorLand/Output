@@ -1,11 +1,10 @@
-import EagerLifecyclePhase, {
-	Marker,
-} from "../../../../Polyfill/Eager/Lifecycle/Phase.js";
+import EagerLifecyclePhase from "../../../../Polyfill/Eager/Lifecycle/Phase.js";
 
 var __defProp = Object.defineProperty;
 var __name = (target, value) =>
 	__defProp(target, "name", { value, configurable: true });
 
+const Marker = "__LAND_EAGER_LIFECYCLE_PHASE__";
 const Polyfill = `
 /* ${Marker} */
 (${EagerLifecyclePhase.toString()})();

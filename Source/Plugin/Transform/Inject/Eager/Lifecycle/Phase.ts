@@ -7,10 +7,10 @@
  * Idempotent. Marker `__LAND_EAGER_LIFECYCLE_PHASE__`.
  */
 
-import EagerLifecyclePhase, {
-	Marker,
-} from "../../../../Polyfill/Eager/Lifecycle/Phase.js";
+import EagerLifecyclePhase from "../../../../Polyfill/Eager/Lifecycle/Phase.js";
 import type { TransformPlugin } from "../../../../Type.js";
+
+const Marker = "__LAND_EAGER_LIFECYCLE_PHASE__";
 
 const Polyfill = `\n/* ${Marker} */\n(${EagerLifecyclePhase.toString()})();\n`;
 

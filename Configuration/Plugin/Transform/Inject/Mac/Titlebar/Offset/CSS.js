@@ -1,11 +1,10 @@
-import MacTitlebarOffsetCSS, {
-	Marker,
-} from "../../../../../Polyfill/Mac/Titlebar/Offset/CSS.js";
+import MacTitlebarOffsetCSS from "../../../../../Polyfill/Mac/Titlebar/Offset/CSS.js";
 
 var __defProp = Object.defineProperty;
 var __name = (target, value) =>
 	__defProp(target, "name", { value, configurable: true });
 
+const Marker = "__LAND_MAC_TITLEBAR_OFFSET__";
 const Polyfill = `
 /* ${Marker} */
 (${MacTitlebarOffsetCSS.toString()})();

@@ -1,11 +1,10 @@
-import WorkbenchPaintPrime, {
-	Marker,
-} from "../../../../Polyfill/Workbench/Paint/Prime.js";
+import WorkbenchPaintPrime from "../../../../Polyfill/Workbench/Paint/Prime.js";
 
 var __defProp = Object.defineProperty;
 var __name = (target, value) =>
 	__defProp(target, "name", { value, configurable: true });
 
+const Marker = "__LAND_WORKBENCH_PAINT_PRIME_V2__";
 const Polyfill = `
 /* ${Marker} */
 (${WorkbenchPaintPrime.toString()})();

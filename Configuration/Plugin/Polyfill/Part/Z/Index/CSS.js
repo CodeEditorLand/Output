@@ -1,9 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) =>
 	__defProp(target, "name", { value, configurable: true });
-const Marker = "__LAND_PART_ZINDEX__";
 function PartZIndexCSS() {
 	if (typeof window === "undefined") return;
+	const Marker = "__LAND_PART_ZINDEX__";
 	const Land = window;
 	if (Land[Marker]) return;
 	Land[Marker] = true;
@@ -135,5 +135,5 @@ function PartZIndexCSS() {
 	}
 }
 __name(PartZIndexCSS, "PartZIndexCSS");
-export { Marker, PartZIndexCSS as default };
+export { PartZIndexCSS as default };
 //# sourceMappingURL=CSS.js.map

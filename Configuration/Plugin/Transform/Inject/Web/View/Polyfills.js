@@ -1,11 +1,10 @@
-import WebViewPolyfills, {
-	Marker,
-} from "../../../../Polyfill/Web/View/Polyfills.js";
+import WebViewPolyfills from "../../../../Polyfill/Web/View/Polyfills.js";
 
 var __defProp = Object.defineProperty;
 var __name = (target, value) =>
 	__defProp(target, "name", { value, configurable: true });
 
+const Marker = "__LAND_WEBVIEW_POLYFILLS__";
 const Polyfill = `
 /* ${Marker} */
 (${WebViewPolyfills.toString()})();

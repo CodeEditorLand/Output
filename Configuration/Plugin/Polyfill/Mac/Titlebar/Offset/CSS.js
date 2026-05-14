@@ -1,9 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) =>
 	__defProp(target, "name", { value, configurable: true });
-const Marker = "__LAND_MAC_TITLEBAR_OFFSET__";
 function MacTitlebarOffsetCSS() {
 	if (typeof window === "undefined") return;
+	const Marker = "__LAND_MAC_TITLEBAR_OFFSET__";
 	const Land = window;
 	if (Land[Marker]) return;
 	Land[Marker] = true;
@@ -64,5 +64,5 @@ function MacTitlebarOffsetCSS() {
 	}
 }
 __name(MacTitlebarOffsetCSS, "MacTitlebarOffsetCSS");
-export { Marker, MacTitlebarOffsetCSS as default };
+export { MacTitlebarOffsetCSS as default };
 //# sourceMappingURL=CSS.js.map

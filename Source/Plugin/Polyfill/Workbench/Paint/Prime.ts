@@ -18,10 +18,10 @@
 // synchronous layout flush on every keystroke and broke Monaco's
 // textarea input on WKWebView. The V2 body keeps only the
 // pointer-down handler.
-export const Marker = "__LAND_WORKBENCH_PAINT_PRIME_V2__";
-
 export default function WorkbenchPaintPrime(): void {
 	if (typeof window === "undefined") return;
+
+	const Marker = "__LAND_WORKBENCH_PAINT_PRIME_V2__";
 
 	const Land = window as unknown as Record<string, unknown>;
 

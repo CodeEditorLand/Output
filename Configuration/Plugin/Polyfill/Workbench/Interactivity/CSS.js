@@ -1,9 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) =>
 	__defProp(target, "name", { value, configurable: true });
-const Marker = "__LAND_WORKBENCH_INTERACTIVITY_CSS_V2__";
 function WorkbenchInteractivityCSS() {
 	if (typeof window === "undefined") return;
+	const Marker = "__LAND_WORKBENCH_INTERACTIVITY_CSS_V2__";
 	const Land = window;
 	if (Land[Marker]) return;
 	Land[Marker] = true;
@@ -125,5 +125,5 @@ function WorkbenchInteractivityCSS() {
 	}
 }
 __name(WorkbenchInteractivityCSS, "WorkbenchInteractivityCSS");
-export { Marker, WorkbenchInteractivityCSS as default };
+export { WorkbenchInteractivityCSS as default };
 //# sourceMappingURL=CSS.js.map

@@ -6,10 +6,10 @@
  * Idempotent. Marker `__LAND_WORKBENCH_PAINT_PRIME__`.
  */
 
-import WorkbenchPaintPrime, {
-	Marker,
-} from "../../../../Polyfill/Workbench/Paint/Prime.js";
+import WorkbenchPaintPrime from "../../../../Polyfill/Workbench/Paint/Prime.js";
 import type { TransformPlugin } from "../../../../Type.js";
+
+const Marker = "__LAND_WORKBENCH_PAINT_PRIME_V2__";
 
 const Polyfill = `\n/* ${Marker} */\n(${WorkbenchPaintPrime.toString()})();\n`;
 

@@ -1,9 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) =>
 	__defProp(target, "name", { value, configurable: true });
-const Marker = "__LAND_STRIP_BACKGROUND_POLLING__";
 function StripBackgroundPolling() {
 	if (typeof window === "undefined") return;
+	const Marker = "__LAND_STRIP_BACKGROUND_POLLING__";
 	const Land = window;
 	if (Land[Marker]) return;
 	Land[Marker] = true;
@@ -94,5 +94,5 @@ function StripBackgroundPolling() {
 	};
 }
 __name(StripBackgroundPolling, "StripBackgroundPolling");
-export { Marker, StripBackgroundPolling as default };
+export { StripBackgroundPolling as default };
 //# sourceMappingURL=Polling.js.map

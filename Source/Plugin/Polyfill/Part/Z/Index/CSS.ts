@@ -37,10 +37,10 @@
  * Idempotent. Marker `__LAND_PART_ZINDEX__`.
  */
 
-export const Marker = "__LAND_PART_ZINDEX__";
-
 export default function PartZIndexCSS(): void {
 	if (typeof window === "undefined") return;
+
+	const Marker = "__LAND_PART_ZINDEX__";
 
 	const Land = window as unknown as Record<string, unknown>;
 

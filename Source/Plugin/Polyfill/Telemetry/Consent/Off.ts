@@ -11,8 +11,6 @@
  * connection.
  */
 
-export const Marker = "__LAND_TELEMETRY_CONSENT_OFF__";
-
 type PrebakeKey =
 	| "telemetry.telemetryLevel"
 	| "telemetry.feedback.enabled"
@@ -46,6 +44,8 @@ type PrebakeKey =
 
 export default function TelemetryConsentOff(): void {
 	if (typeof window === "undefined") return;
+
+	const Marker = "__LAND_TELEMETRY_CONSENT_OFF__";
 
 	const Land = window as unknown as Record<string, unknown>;
 

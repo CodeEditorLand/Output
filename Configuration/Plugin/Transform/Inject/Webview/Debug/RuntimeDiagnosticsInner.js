@@ -123,7 +123,7 @@ const Plugin = {
 	// Always log INIT_COMPLETE BEFORE any potentially-throwing code
 	DI('INIT_COMPLETE', { ua: navigator.userAgent.slice(0, 80) });
 
-	// ReactDOM hooks \u2014 poll continuously until page unload
+	// ReactDOM hooks - poll continuously until page unload
 	const waitRender = () => {
 		try {
 			// Safely check for ReactDOM (handle null/undefined)

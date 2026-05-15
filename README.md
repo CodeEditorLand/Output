@@ -37,7 +37,7 @@ Land
 
 # **Output**&#x2001;⚫
 
-The Build Output & Artifact Management for Land 🏞️
+The Build Output & Artifact Management for Land &#x2001;🏞️
 
 > **Build processes that produce different artifacts depending on the machine,
 > CI environment, or implicit tool versions make debugging production issues

@@ -35,6 +35,24 @@ import type { Plugin } from "../Plugin/Type.js";
 const Configuration = await import("../Plugin/Index.js");
 
 // -----------------------------------------------------------------------------
+// DisableUIFixes detection (mirrors Plugin/Index.ts's LandDisableUIFixes)
+// -----------------------------------------------------------------------------
+const LandDisableUIFixes =
+	(
+		(
+			globalThis as {
+				process?: { env?: Record<string, string | undefined> };
+			}
+		).process?.env?.["DisableUIFixes"] ?? ""
+	).toLowerCase() === "true";
+
+if (LandDisableUIFixes) {
+	console.log(
+		"[Output/Pipeline] DisableUIFixes=true — skipping 2 UI transforms (InjectMacTitlebarOffsetCSS, InjectPartZIndexCSS)",
+	);
+}
+
+// -----------------------------------------------------------------------------
 // COPY STEP: TauriMainProcessService.js into Target tree
 // -----------------------------------------------------------------------------
 // `ReplaceElectronIPCService` transform rewrites VS Code's
@@ -230,7 +248,7 @@ const Pipeline: Array<Plugin> = [
 	// OS-painted close / minimize / maximize buttons. Applies a
 	// prepended stylesheet via `.toString()` on the polyfill.
 	// Idempotent; marker `__LAND_MAC_TITLEBAR_OFFSET__`.
-	Configuration.InjectMacTitlebarOffsetCSS,
+	...(LandDisableUIFixes ? [] : [Configuration.InjectMacTitlebarOffsetCSS]),
 
 	// Establish a deterministic z-index hierarchy across workbench
 	// parts. Injects CSS rules that include: (1) `isolation: isolate`
@@ -238,7 +256,7 @@ const Pipeline: Array<Plugin> = [
 	// and floating UI (3) `.context-view` pinned at 2600 so menubar
 	// dropdowns and right-click context menus render above the editor.
 	// Idempotent; marker `__LAND_PART_ZINDEX__`.
-	Configuration.InjectPartZIndexCSS,
+	...(LandDisableUIFixes ? [] : [Configuration.InjectPartZIndexCSS]),
 ];
 
 const Target = resolve(process.cwd(), "Target/Microsoft/VSCode");

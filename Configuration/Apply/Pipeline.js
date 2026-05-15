@@ -8,6 +8,14 @@ var __name = (target, value) =>
 	__defProp(target, "name", { value, configurable: true });
 
 const Configuration = await import("../Plugin/Index.js");
+const LandDisableUIFixes =
+	(globalThis.process?.env?.["DisableUIFixes"] ?? "").toLowerCase() ===
+	"true";
+if (LandDisableUIFixes) {
+	console.log(
+		"[Output/Pipeline] DisableUIFixes=true \u2014 skipping 2 UI transforms (InjectMacTitlebarOffsetCSS, InjectPartZIndexCSS)",
+	);
+}
 const ServiceCopies = [
 	{
 		From: "Configuration/Service/Tauri/Main/Process/Service.js",
@@ -104,14 +112,14 @@ const Pipeline = [
 	// OS-painted close / minimize / maximize buttons. Applies a
 	// prepended stylesheet via `.toString()` on the polyfill.
 	// Idempotent; marker `__LAND_MAC_TITLEBAR_OFFSET__`.
-	Configuration.InjectMacTitlebarOffsetCSS,
+	...(LandDisableUIFixes ? [] : [Configuration.InjectMacTitlebarOffsetCSS]),
 	// Establish a deterministic z-index hierarchy across workbench
 	// parts. Injects CSS rules that include: (1) `isolation: isolate`
 	// per-part (2) explicit z-index ladder for editor/sidebar/statusbar
 	// and floating UI (3) `.context-view` pinned at 2600 so menubar
 	// dropdowns and right-click context menus render above the editor.
 	// Idempotent; marker `__LAND_PART_ZINDEX__`.
-	Configuration.InjectPartZIndexCSS,
+	...(LandDisableUIFixes ? [] : [Configuration.InjectPartZIndexCSS]),
 ];
 const Target = resolve(process.cwd(), "Target/Microsoft/VSCode");
 const Outcome = await ApplyPlugins({

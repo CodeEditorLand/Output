@@ -319,7 +319,7 @@ const LandDisableAll =
 			globalThis as {
 				process?: { env?: Record<string, string | undefined> };
 			}
-		).process?.env?.Disable ?? ""
+		).process?.env?.["Disable"] ?? ""
 	).toLowerCase() === "true";
 
 /**
@@ -345,7 +345,7 @@ const LandDisableUIFixes =
 			globalThis as {
 				process?: { env?: Record<string, string | undefined> };
 			}
-		).process?.env?.DisableUIFixes ?? ""
+		).process?.env?.["DisableUIFixes"] ?? ""
 	).toLowerCase() === "true";
 
 /**
@@ -445,8 +445,10 @@ export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => {
 		// Inject WKWebView polyfills + Blob worker URL rewrite into VS
 		// Code's Electron workbench entry. Runs at module-eval time so
 		// `window.requestIdleCallback` / `queryLocalFonts` are present
-		// before any contribution touches them. Idempotent.
-		...(LandDisableUIFixes ? [] : [InjectWebViewPolyfills]),
+		// before any contribution touches them. Always-on - the
+		// workbench crashes at module-eval time without these.
+		// Idempotent.
+		InjectWebViewPolyfills,
 
 		// Disable WKWebView lazy-paint mechanisms so workbench panels
 		// render on `display:flex` rather than waiting for a hover or
@@ -490,7 +492,7 @@ export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => {
 		// status bar progress badges, or the command-center
 		// quick-pick dropdown. Hardens stock CSS without changing
 		// its intent. Idempotent.
-		InjectPartZIndexCSS,
+		...(LandDisableUIFixes ? [] : [InjectPartZIndexCSS]),
 
 		// Pre-bake telemetry consent OFF so VS Code's TelemetryService
 		// starts in already-disabled state. Network.ts excludes the

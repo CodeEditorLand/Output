@@ -186,9 +186,10 @@ var __name = (target, value) =>
 export * from "./Type.js";
 
 const LandDisableAll =
-	(globalThis.process?.env?.Disable ?? "").toLowerCase() === "true";
+	(globalThis.process?.env?.["Disable"] ?? "").toLowerCase() === "true";
 const LandDisableUIFixes =
-	(globalThis.process?.env?.DisableUIFixes ?? "").toLowerCase() === "true";
+	(globalThis.process?.env?.["DisableUIFixes"] ?? "").toLowerCase() ===
+	"true";
 const BuildPipeline = /* @__PURE__ */ __name((Input) => {
 	const IsRelease = (Input.Profile ?? "").startsWith("release");
 	const CSSStrategy = IsRelease ? InlineCSSImport : StripCSSImport;
@@ -255,8 +256,10 @@ const BuildPipeline = /* @__PURE__ */ __name((Input) => {
 		// Inject WKWebView polyfills + Blob worker URL rewrite into VS
 		// Code's Electron workbench entry. Runs at module-eval time so
 		// `window.requestIdleCallback` / `queryLocalFonts` are present
-		// before any contribution touches them. Idempotent.
-		...(LandDisableUIFixes ? [] : [InjectWebViewPolyfills]),
+		// before any contribution touches them. Always-on - the
+		// workbench crashes at module-eval time without these.
+		// Idempotent.
+		InjectWebViewPolyfills,
 		// Disable WKWebView lazy-paint mechanisms so workbench panels
 		// render on `display:flex` rather than waiting for a hover or
 		// scroll. Replaces `requestAnimationFrame` with a coalesced
@@ -295,7 +298,7 @@ const BuildPipeline = /* @__PURE__ */ __name((Input) => {
 		// status bar progress badges, or the command-center
 		// quick-pick dropdown. Hardens stock CSS without changing
 		// its intent. Idempotent.
-		InjectPartZIndexCSS,
+		...(LandDisableUIFixes ? [] : [InjectPartZIndexCSS]),
 		// Pre-bake telemetry consent OFF so VS Code's TelemetryService
 		// starts in already-disabled state. Network.ts excludes the
 		// wire-level appenders; this transform makes the consumers

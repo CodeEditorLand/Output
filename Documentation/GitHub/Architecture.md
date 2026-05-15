@@ -1,9 +1,11 @@
-# Output: Build Artifact Management
+# Output: Build Artifact Management 📦
 
-This document describes Output, the build artifact management package for Land.
-Output handles compilation of VS Code platform source code through dual-compiler
-support (esbuild primary, Rest OXC optional) and produces the
-`@codeeditorland/output` npm package consumed by Cocoon, Sky, and Wind.
+This document describes `Output`, the build artifact management package for
+`Land`. `Output` handles compilation of `VS Code` platform source code through:
+
+- Dual-compiler support (`ESBuild` primary, `Rest` OXC optional)
+- Produces the `@codeeditorland/output` npm package consumed by `Cocoon`, `Sky`,
+  and `Wind`
 
 ---
 
@@ -42,24 +44,26 @@ graph TB
     PACKAGE --> WIND["Wind<br/>Service Layer"]
 ```
 
-## Overview
+## Overview 📋
 
-Output is the build orchestration layer for Land's TypeScript assets. It wraps
-ESBuild with Land-specific transforms, plugin hooks, and polyfill injection. It
-also supports an optional Rest (OXC-based) compiler pipeline for faster
-TypeScript compilation.
+`Output` is the build orchestration layer for `Land`'s `TypeScript` assets:
 
-| Attribute    | Value                                                         |
-| ------------ | ------------------------------------------------------------- |
-| Language     | TypeScript + JavaScript                                       |
-| Compiler     | ESBuild (default), Rest OXC (optional)                        |
-| Output       | `@codeeditorland/output` npm package                          |
-| Dependencies | `@codeeditorland/rest` (optional), `@playform/build`, esbuild |
-| Consumers    | Cocoon, Sky, Wind                                             |
+- Wraps `ESBuild` with `Land`-specific transforms, plugin hooks, and polyfill
+  injection
+- Supports an optional `Rest` (OXC-based) compiler pipeline for faster
+  `TypeScript` compilation
+
+| Attribute    | Value                                                           |
+| ------------ | --------------------------------------------------------------- |
+| Language     | `TypeScript` + `JavaScript`                                     |
+| Compiler     | `ESBuild` (default), `Rest` OXC (optional)                      |
+| Output       | `@codeeditorland/output` npm package                            |
+| Dependencies | `@codeeditorland/rest` (optional), `@playform/build`, `esbuild` |
+| Consumers    | `Cocoon`, `Sky`, `Wind`                                         |
 
 ---
 
-## Architecture
+## Architecture 🏗️
 
 ```
 +--------------------------------------------------------------+
@@ -90,7 +94,7 @@ TypeScript compilation.
 +--------------------------------------------------------------+
 ```
 
-### Module Map
+### Module Map 🗺️
 
 | Path                             | Purpose                                    |
 | -------------------------------- | ------------------------------------------ |
@@ -118,11 +122,11 @@ TypeScript compilation.
 
 ---
 
-## Compiler Modes
+## Compiler Modes ⚡
 
-Output supports two compiler backends:
+`Output` supports two compiler backends:
 
-### Default: ESBuild
+### Default: ESBuild ⚡
 
 ```
 TypeScript input (.ts, .tsx)
@@ -143,7 +147,7 @@ ESBuild codegen
 JavaScript output
 ```
 
-### Optional: Rest OXC
+### Optional: Rest OXC ⚡
 
 Activated via `Compiler=Rest` environment variable:
 
@@ -165,7 +169,7 @@ OXC codegen
 JavaScript output
 ```
 
-### Integration
+### Integration 🔗
 
 ```typescript
 // Output/ESBuild/Output.ts
@@ -181,9 +185,9 @@ if (compiler) {
 
 ---
 
-## Build Pipeline
+## Build Pipeline 🔧
 
-The Output build pipeline processes VS Code platform code:
+The `Output` build pipeline processes `VS Code` platform code:
 
 ```
 1. Input discovery
@@ -211,9 +215,9 @@ The Output build pipeline processes VS Code platform code:
 
 ---
 
-## Plugin System
+## Plugin System 🔌
 
-Output defines a plugin interface for extending the build pipeline:
+`Output` defines a plugin interface for extending the build pipeline:
 
 ```typescript
 export interface OutputPlugin {
@@ -222,7 +226,7 @@ export interface OutputPlugin {
 }
 ```
 
-### Built-in Plugins
+### Built-in Plugins 🔌
 
 | Plugin              | Purpose                                        |
 | ------------------- | ---------------------------------------------- |
@@ -234,10 +238,10 @@ export interface OutputPlugin {
 
 ---
 
-## Polyfill Injection
+## Polyfill Injection 🧩
 
-Output injects polyfills during compilation for APIs that don't exist in the
-Tauri WebView:
+`Output` injects polyfills during compilation for APIs that don't exist in the
+`Tauri` `WebView`:
 
 | Polyfill   | Target                    | Replaces                      |
 | ---------- | ------------------------- | ----------------------------- |
@@ -248,14 +252,14 @@ Tauri WebView:
 | `Process/` | `process` global          | Wind Preload shim integration |
 | `Shared/`  | Shared polyfill utilities | Shared initialization         |
 
-Polyfills are injected via ESBuild's `inject` configuration, which prepends the
-polyfill modules to output bundles.
+- Polyfills are injected via `ESBuild`'s `inject` configuration
+- Prepends the polyfill modules to output bundles
 
 ---
 
-## Output Layout
+## Output Layout 📁
 
-After compilation, Output produces the following structure:
+After compilation, `Output` produces the following structure:
 
 ```
 Output/Target/
@@ -277,20 +281,20 @@ Output/Target/
 
 ---
 
-## Related Documentation
+## Related Documentation 📚
 
-- [Cocoon](../Cocoon/Documentation/GitHub/Architecture.md) - Extension host
-  (Output consumer)
-- [Sky](../Sky/Documentation/GitHub/Architecture.md) - UI layer (Output
-  consumer)
-- [Wind](../Wind/Documentation/GitHub/Architecture.md) - Service layer (Output
-  consumer)
-- [Rest](../Rest/Documentation/GitHub/Architecture.md) - OXC compiler (optional
-  Output backend)
-- [BuildPipeline](../../../Documentation/GitHub/BuildPipeline.md) - Build
-  pipeline
-- [Polyfills](../../../Documentation/GitHub/Polyfills.md) - Full polyfill
-  documentation
+- [Cocoon](https://github.com/CodeEditorLand/Cocoon/tree/Current/Documentation/GitHub/Architecture.md) -
+  Extension host (`Output` consumer)
+- [Sky](https://github.com/CodeEditorLand/Sky/tree/Current/Documentation/GitHub/Architecture.md) -
+  UI layer (`Output` consumer)
+- [Wind](https://github.com/CodeEditorLand/Wind/tree/Current/Documentation/GitHub/Architecture.md) -
+  Service layer (`Output` consumer)
+- [Rest](https://github.com/CodeEditorLand/Rest/tree/Current/Documentation/GitHub/Architecture.md) -
+  OXC compiler (optional `Output` backend)
+- [BuildPipeline](https://github.com/CodeEditorLand/Land/tree/Current/Documentation/GitHub/BuildPipeline.md) -
+  Build pipeline
+- [Polyfills](https://github.com/CodeEditorLand/Land/tree/Current/Documentation/GitHub/Polyfills.md) -
+  Full polyfill documentation
 
 ---
 

@@ -158,6 +158,38 @@ const Plugin: TransformPlugin = {
 			Next = Next.replace(WriteHtml, LogWrite);
 		}
 
+		// Patch the CSP rewrite to add a font-src wildcard fallback.
+		// WKWebView does not recognise custom protocol scheme sources
+		// (e.g. "vscode-file:") in CSP font-src, causing all extension
+		// font loads (KaTeX, codicon) to be silently blocked. Add *
+		// as a fallback so fonts still render on WKWebView.
+		const CspSetAttribute = "csp.setAttribute('content', newCsp);";
+		if (Next.includes(CspSetAttribute)) {
+			const CspFontFallback =
+				"csp.setAttribute('content', newCsp); /* Land font-src wildcard fallback for WKWebView */ " +
+				"if (!/font-src\\s+\\*/.test(newCsp)) { " +
+				"try { csp.setAttribute('content', newCsp + '; font-src *'); } catch(_) {} }";
+			Next = Next.replace(CspSetAttribute, CspFontFallback);
+		}
+
+		// Patch the allowScripts check to ALWAYS inject the VS Code API
+		// script regardless of options.allowScripts value. Diagnostic data
+		// shows allowScripts=false despite module scripts executing, which
+		// means the VS Code API polyfill (_vscodeApiScript / acquireVsCodeApi)
+		// is never injected. Without it, extensions like Roo Code can't get
+		// the webview API and render nothing.
+		const AllowScriptsCheck = "if (options.allowScripts) {";
+		if (Next.includes(AllowScriptsCheck)) {
+			const AlwaysInjectApi =
+				"/* Land forced API injection */ DEBUG_WV('ALLOW_SCRIPTS', { allowScripts: options.allowScripts, hasState: !!data.state }); " +
+				"const defaultScript = newDocument.createElement('script'); " +
+				"defaultScript.id = '_vscodeApiScript'; " +
+				"defaultScript.textContent = getVsCodeApiScript(options.allowMultipleAPIAcquire, data.state); " +
+				"try { newDocument.head.prepend(defaultScript); } catch(_e) {} " +
+				"if (options.allowScripts) {";
+			Next = Next.replace(AllowScriptsCheck, AlwaysInjectApi);
+		}
+
 		return Next === Source
 			? { Kind: "Unchanged" }
 			: { Kind: "Rewrite", Source: Next };

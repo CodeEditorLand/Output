@@ -30,6 +30,7 @@ const Plugin = {
 				_landParent.postMessage(_payload, '*');
 			}
 		} catch (_) {}
+	}
 	DI('BOOT', 'inner iframe diagnostics loaded (captured real parent)');
 
 	// Intercept console early

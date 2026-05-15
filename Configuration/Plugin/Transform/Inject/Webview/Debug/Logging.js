@@ -102,6 +102,18 @@ const Plugin = {
 				"DEBUG_WV('INNER_WRITE', { htmlLen: newDocument.length }); contentDocument.write(newDocument);";
 			Next = Next.replace(WriteHtml, LogWrite);
 		}
+		const CspSetAttribute = "csp.setAttribute('content', newCsp);";
+		if (Next.includes(CspSetAttribute)) {
+			const CspFontFallback =
+				"csp.setAttribute('content', newCsp); /* Land font-src wildcard fallback for WKWebView */ if (!/font-src\\s+\\*/.test(newCsp)) { try { csp.setAttribute('content', newCsp + '; font-src *'); } catch(_) {} }";
+			Next = Next.replace(CspSetAttribute, CspFontFallback);
+		}
+		const AllowScriptsCheck = "if (options.allowScripts) {";
+		if (Next.includes(AllowScriptsCheck)) {
+			const LogAllowScripts =
+				"DEBUG_WV('ALLOW_SCRIPTS', { allowScripts: options.allowScripts, hasState: !!data.state }); if (options.allowScripts) {";
+			Next = Next.replace(AllowScriptsCheck, LogAllowScripts);
+		}
 		return Next === Source
 			? { Kind: "Unchanged" }
 			: { Kind: "Rewrite", Source: Next };

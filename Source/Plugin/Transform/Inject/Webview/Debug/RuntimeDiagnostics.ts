@@ -35,6 +35,39 @@ const DiagnosticCode = `
 
   DEBUG_WV('RUNTIME_DIAG_BOOT');
 
+  // Cross-frame message listener — logs postMessage events between
+  // inner iframe and extension host (limited to avoid spam)
+  var _msgCount = 0;
+  window.addEventListener('message', function(e) {
+    if (_msgCount >= 50) return; // cap at 50 to avoid log flood
+    _msgCount++;
+    var d = e.data;
+    if (d && typeof d === 'object') {
+      var keys = Object.keys(d).slice(0, 8);
+      DEBUG_WV('MSG_EVENT', {
+        count: _msgCount,
+        origin: e.origin ? e.origin.slice(0, 80) : 'null',
+        keys: keys,
+        channel: d.channel || d.type || '?',
+        target: d.target || '?',
+        hasData: d.data !== undefined || d.message !== undefined,
+        source: e.source === window ? 'self' : e.source ? 'other' : 'null',
+      });
+    }
+  });
+
+  // Track createWebviewPanel / set-html if SkyBridge globals exist
+  setTimeout(function() {
+    var lastInfo = window.__CEL_LATEST_SET_HTML_INFO__;
+    if (lastInfo) {
+      DEBUG_WV('SKY_SET_HTML', lastInfo);
+    }
+    var lastFirst = window.__CEL_LAST_SET_HTML_INFO__;
+    if (lastFirst) {
+      DEBUG_WV('SKY_FIRST_SET_HTML', lastFirst);
+    }
+  }, 3000);
+
   // Global errors
   window.addEventListener('error', function(e) {
     var err = e.error;

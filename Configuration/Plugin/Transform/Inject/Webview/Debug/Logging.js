@@ -67,10 +67,21 @@ const Plugin = {
 			const LogMismatch = `DEBUG_WV('SIGNAL_FAIL', { hashMismatch: true, hostname, parentOriginHash }); throw new Error(\`Expected '\${parentOriginHash}' as hostname or subdomain!\`);`;
 			Next = Next.replace(ThrowMismatch, LogMismatch);
 		}
+		const RealContentHandler = "hostMessaging.onMessage('content', async";
+		if (Next.includes(RealContentHandler)) {
+			const LogRealContent =
+				"DEBUG_WV('REAL_CONTENT', 'content handler fired'); hostMessaging.onMessage('content', async";
+			Next = Next.replace(RealContentHandler, LogRealContent);
+		}
+		const ContentProcessed = "const newDocument = toContentHtml(data);";
+		if (Next.includes(ContentProcessed)) {
+			const LogContentProcessed = `const newDocument = toContentHtml(data); DEBUG_WV('CONTENT_PROCESSED', { docLen: newDocument.length, hasRoot: newDocument.includes('id="root"'), hasModuleScript: newDocument.includes('type="module"'), snippet: newDocument.slice(0, 400) });`;
+			Next = Next.replace(ContentProcessed, LogContentProcessed);
+		}
 		const OnMessageContent = "hostMessaging.onMessage('content'";
 		if (Next.includes(OnMessageContent)) {
 			const LogContent =
-				"DEBUG_WV('CONTENT_EVENT', 'content handler invoked'); hostMessaging.onMessage('content'";
+				"DEBUG_WV('CONTENT_EVENT', 'content handler invoked (unloadMonitor)'); hostMessaging.onMessage('content'";
 			Next = Next.replace(OnMessageContent, LogContent);
 		}
 		const FakeHtml = "newFrame.src = `./fake.html";

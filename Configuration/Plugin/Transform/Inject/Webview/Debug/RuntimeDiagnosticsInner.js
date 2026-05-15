@@ -202,6 +202,96 @@ const Plugin = {
 	waitRender();
 
 	DI('INIT_COMPLETE', { ua: navigator.userAgent.slice(0, 80) });
+
+	// --- Periodic DOM state checker (every 500ms for 30s) ---
+	var _domCheckCount = 0;
+	var _domCheckInterval = setInterval(function() {
+		_domCheckCount++;
+		var root = document.getElementById('root');
+		if (root) {
+			DI('DOM_CHECK', {
+				tick: _domCheckCount,
+				rootChildren: root.childNodes.length,
+				rootInnerLen: root.innerHTML.length,
+				rootInnerSnippet: root.innerHTML.slice(0, 200),
+				bodyChildren: document.body ? document.body.childNodes.length : -1,
+				bodyHeight: document.body ? document.body.style.height || 'unspecified' : 'NO_BODY',
+			});
+		} else {
+			DI('DOM_CHECK_NO_ROOT', { tick: _domCheckCount, bodyExists: !!document.body });
+		}
+	}, 500);
+	setTimeout(function() { clearInterval(_domCheckInterval); }, 30000);
+
+	// --- React internal hook check (at 2s) ---
+	setTimeout(function() {
+		var hook = window.__REACT_DEVTOOLS_GLOBAL_HOOK__;
+		var rendererCount = 0;
+		var hasFiber = false;
+		try {
+			if (hook && hook.renderers && typeof hook.renderers.size === 'number') {
+				rendererCount = hook.renderers.size;
+				hasFiber = rendererCount > 0;
+			} else if (hook && hook.renderers && typeof hook.renderers.forEach === 'function') {
+				hook.renderers.forEach(function() { rendererCount++; });
+				hasFiber = rendererCount > 0;
+			}
+		} catch (_) {}
+		DI('REACT_HOOK', {
+			hasHook: !!hook,
+			numRenderers: rendererCount,
+			hasFiber: hasFiber,
+		});
+	}, 2000);
+
+	// --- Full DOM snapshot at 5s ---
+	setTimeout(function() {
+		try {
+			var fullHTML = document.documentElement ? document.documentElement.outerHTML : 'NO_DOC';
+			DI('FULL_DOM', { htmlLen: fullHTML.length, snippet: fullHTML.slice(0, 3000) });
+		} catch (e) {
+			DI('FULL_DOM_ERR', { error: String(e) });
+		}
+	}, 5000);
+
+	// --- acquireVsCodeApi availability check (immediate + delayed) ---
+	try {
+		DI('VSCODE_API_CHECK_EARLY', {
+			typeofApi: typeof acquireVsCodeApi,
+			isFunction: typeof acquireVsCodeApi === 'function',
+		});
+	} catch (e) {
+		DI('VSCODE_API_CHECK_EARLY_ERR', { error: String(e) });
+	}
+
+	// Deferred check at 3s \u2014 after module scripts have executed
+	setTimeout(function() {
+		try {
+			DI('VSCODE_API_CHECK_LATE', {
+				typeofApi: typeof acquireVsCodeApi,
+				isFunction: typeof acquireVsCodeApi === 'function',
+				hasVscodeApiScript: !!document.getElementById('_vscodeApiScript'),
+			});
+		} catch (e) {
+			DI('VSCODE_API_CHECK_LATE_ERR', { error: String(e) });
+		}
+	}, 3000);
+
+	// --- Body structure dump (one-time at 1s) ---
+	setTimeout(function() {
+		try {
+			if (document.body) {
+				var children = [];
+				for (var i = 0; i < document.body.childNodes.length; i++) {
+					var n = document.body.childNodes[i];
+					children.push(n.nodeName + (n.id ? '#' + n.id : '') + (n.className ? '.' + n.className : ''));
+				}
+				DI('BODY_STRUCTURE', { children: children });
+			}
+		} catch (e) {
+			DI('BODY_STRUCTURE_ERR', { error: String(e) });
+		}
+	}, 1000);
 })();
 `.trim();
 		const markerRegex = /^(\s*)\/\/\s*Inject default styles/m;

@@ -22,12 +22,20 @@ const Plugin: TransformPlugin = {
 	// Capture parent before the vscode-api polyfill overwrites it
 	const _landParent = window.parent;
 	function DI(msg, data) {
+		var _payload = { _landDiag: true, msg: msg, data: data };
 		if (_landParent && _landParent.DEBUG_WV) {
 			_landParent.DEBUG_WV('INNER_' + msg, data);
 		} else if (_landParent) {
 			console.log('[WebviewDebug][INNER_no_parent_DEBUG_WV]', msg, data);
 		}
-	}
+		// Also postMessage to the parent so the outer frame's MSG_EVENT
+		// listener captures diagnostics even when cross-origin policies
+		// block direct DEBUG_WV access
+		try {
+			if (_landParent && typeof _landParent.postMessage === 'function') {
+				_landParent.postMessage(_payload, '*');
+			}
+		} catch (_) {}
 	DI('BOOT', 'inner iframe diagnostics loaded (captured real parent)');
 
 	// Intercept console early
@@ -260,15 +268,28 @@ const Plugin: TransformPlugin = {
 		}
 	}, 5000);
 
-	// --- acquireVsCodeApi availability check ---
+	// --- acquireVsCodeApi availability check (immediate + delayed) ---
 	try {
-		DI('VSCODE_API_CHECK', {
+		DI('VSCODE_API_CHECK_EARLY', {
 			typeofApi: typeof acquireVsCodeApi,
 			isFunction: typeof acquireVsCodeApi === 'function',
 		});
 	} catch (e) {
-		DI('VSCODE_API_CHECK_ERR', { error: String(e) });
+		DI('VSCODE_API_CHECK_EARLY_ERR', { error: String(e) });
 	}
+
+	// Deferred check at 3s — after module scripts have executed
+	setTimeout(function() {
+		try {
+			DI('VSCODE_API_CHECK_LATE', {
+				typeofApi: typeof acquireVsCodeApi,
+				isFunction: typeof acquireVsCodeApi === 'function',
+				hasVscodeApiScript: !!document.getElementById('_vscodeApiScript'),
+			});
+		} catch (e) {
+			DI('VSCODE_API_CHECK_LATE_ERR', { error: String(e) });
+		}
+	}, 3000);
 
 	// --- Body structure dump (one-time at 1s) ---
 	setTimeout(function() {

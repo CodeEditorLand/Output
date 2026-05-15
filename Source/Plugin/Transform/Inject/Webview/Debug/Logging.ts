@@ -19,7 +19,7 @@ import type { TransformPlugin } from "../../../../../Type.js";
 
 const Marker = "/* __LAND_WEBVIEW_DEBUG_INJECT__ */";
 
-const InjectPoint = "\t\tconst isSafari = (";
+const InjectPoint = "		const isSafari = (";
 
 const DebugHelper = `/* __LAND_WEBVIEW_DEBUG_INJECT__ */
 const WV_ID = (() => {

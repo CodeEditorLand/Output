@@ -21,7 +21,17 @@ const DiagnosticCode = `
   // inner iframe and extension host (limited to avoid spam)
   var _msgCount = 0;
   window.addEventListener('message', function(e) {
-    if (_msgCount >= 50) return; // cap at 50 to avoid log flood
+    // Handle inner-frame diagnostics relayed via postMessage
+    var d = e.data;
+    if (d && d._landDiag) {
+      if (_msgCount < 200) {
+        _msgCount++;
+        DEBUG_WV('INNER_DIAG', { msg: d.msg, data: d.data });
+      }
+      return;
+    }
+    // Regular cross-frame messages (capped at 50)
+    if (_msgCount >= 50) return;
     _msgCount++;
     var d = e.data;
     if (d && typeof d === 'object') {

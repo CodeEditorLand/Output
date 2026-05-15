@@ -20,6 +20,28 @@ support (esbuild primary, Rest OXC optional) and produces the
 
 ---
 
+```mermaid
+graph TB
+    subgraph Output["Output Build Artifact Management"]
+        ESB["ESBuild Pipeline<br/>Output.ts"]
+        REST_P["Rest Plugin<br/>OXC compiler"]
+        PLUGINS["Plugin System<br/>Apply / Copy / Transform<br/>Polyfill"]
+        POLY["Polyfill Injection<br/>Child / File / IPC<br/>Native / Process / Shared"]
+        SVC["Services<br/>CEL / Dev / Tauri"]
+
+        ESB --> PLUGINS
+        ESB -.->|"optional"| REST_P
+        PLUGINS --> POLY
+        ESB --> SVC
+    end
+
+    VSC["VS Code Source<br/>Dependency/Editor/out/"] -->|"entry points"| ESB
+    ESB -->|"compiled bundles"| PACKAGE["@codeeditorland/output<br/>npm package"]
+    PACKAGE --> COCOON["Cocoon<br/>Extension Host"]
+    PACKAGE --> SKY["Sky<br/>UI Layer"]
+    PACKAGE --> WIND["Wind<br/>Service Layer"]
+```
+
 ## Overview
 
 Output is the build orchestration layer for Land's TypeScript assets. It wraps

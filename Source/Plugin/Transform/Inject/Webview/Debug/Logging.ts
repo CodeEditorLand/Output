@@ -168,7 +168,7 @@ const Plugin: TransformPlugin = {
 			const CspFontFallback =
 				"csp.setAttribute('content', newCsp); /* Land font-src wildcard fallback for WKWebView */ " +
 				"if (!/font-src\\s+\\*/.test(newCsp)) { " +
-				"try { csp.setAttribute('content', newCsp + '; font-src *'); } catch(_) {} }";
+				"try { csp.setAttribute('content', newCsp.replace(/(font-src\s+)([^;]+)/, '$1$2 *')); } catch(_) {} }";
 			Next = Next.replace(CspSetAttribute, CspFontFallback);
 		}
 

@@ -121,7 +121,7 @@ const Plugin: TransformPlugin = {
 		const ContentProcessed = "const newDocument = toContentHtml(data);";
 		if (Next.includes(ContentProcessed)) {
 			const LogContentProcessed =
-				"const newDocument = toContentHtml(data); DEBUG_WV('CONTENT_PROCESSED', { docLen: newDocument.length, hasRoot: newDocument.includes('id=\\\"root\\\"'), hasModuleScript: newDocument.includes('type=\\\"module\\\"'), snippet: newDocument.slice(0, 400) });";
+				"const newDocument = toContentHtml(data); DEBUG_WV('CONTENT_PROCESSED', { docLen: newDocument.length, hasRoot: newDocument.includes('id=\"root\"'), hasModuleScript: newDocument.includes('type=\"module\"'), snippet: newDocument.slice(0, 400) });";
 			Next = Next.replace(ContentProcessed, LogContentProcessed);
 		}
 

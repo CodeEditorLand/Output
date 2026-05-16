@@ -292,6 +292,31 @@ const Plugin: TransformPlugin = {
 		}
 	}, 3000);
 
+	// --- Test acquireVsCodeApi return value at 4s ---
+	setTimeout(function() {
+		try {
+			var apiResult = null;
+			var apiError = null;
+			if (typeof acquireVsCodeApi === 'function') {
+				try {
+					apiResult = acquireVsCodeApi();
+				} catch (e) {
+					apiError = String(e);
+				}
+			}
+			DI('VSCODE_API_TEST', {
+				isFunction: typeof acquireVsCodeApi === 'function',
+				resultType: apiResult ? typeof apiResult : 'null',
+				hasPostMessage: !!(apiResult && typeof apiResult.postMessage === 'function'),
+				hasGetState: !!(apiResult && typeof apiResult.getState === 'function'),
+				hasSetState: !!(apiResult && typeof apiResult.setState === 'function'),
+				error: apiError,
+			});
+		} catch (e) {
+			DI('VSCODE_API_TEST_ERR', { error: String(e) });
+		}
+	}, 4000);
+
 	// --- Body structure dump (one-time at 1s) ---
 	setTimeout(function() {
 		try {

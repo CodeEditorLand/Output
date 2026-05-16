@@ -105,14 +105,14 @@ const Plugin = {
 		const CspSetAttribute = "csp.setAttribute('content', newCsp);";
 		if (Next.includes(CspSetAttribute)) {
 			const CspFontFallback =
-				"csp.setAttribute('content', newCsp); /* Land font-src wildcard fallback for WKWebView */ if (!/font-src\\s+\\*/.test(newCsp)) { try { csp.setAttribute('content', newCsp + '; font-src *'); } catch(_) {} }";
+				"csp.setAttribute('content', newCsp); /* Land font-src wildcard fallback for WKWebView */ if (!/font-src\\s+\\*/.test(newCsp)) { try { csp.setAttribute('content', newCsp.replace(/(font-srcs+)([^;]+)/, '$1$2 *')); } catch(_) {} }";
 			Next = Next.replace(CspSetAttribute, CspFontFallback);
 		}
 		const AllowScriptsCheck = "if (options.allowScripts) {";
 		if (Next.includes(AllowScriptsCheck)) {
-			const LogAllowScripts =
-				"DEBUG_WV('ALLOW_SCRIPTS', { allowScripts: options.allowScripts, hasState: !!data.state }); if (options.allowScripts) {";
-			Next = Next.replace(AllowScriptsCheck, LogAllowScripts);
+			const AlwaysInjectApi =
+				"/* Land forced API injection */ DEBUG_WV('ALLOW_SCRIPTS', { allowScripts: options.allowScripts, hasState: !!data.state }); const defaultScript = newDocument.createElement('script'); defaultScript.id = '_vscodeApiScript'; defaultScript.textContent = getVsCodeApiScript(options.allowMultipleAPIAcquire, data.state); try { newDocument.head.prepend(defaultScript); } catch(_e) {} if (options.allowScripts) {";
+			Next = Next.replace(AllowScriptsCheck, AlwaysInjectApi);
 		}
 		return Next === Source
 			? { Kind: "Unchanged" }

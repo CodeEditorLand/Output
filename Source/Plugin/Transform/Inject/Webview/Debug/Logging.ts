@@ -106,7 +106,7 @@ const Plugin: TransformPlugin = {
 		}
 
 		// Patch content/event handlers
-		// Patch the REAL content handler (line ~958 — the async one that
+		// Patch the REAL content handler (line ~958 - the async one that
 		// actually processes extension HTML, NOT the unloadMonitor at ~375).
 		const RealContentHandler = "hostMessaging.onMessage('content', async";
 		if (Next.includes(RealContentHandler)) {
@@ -115,7 +115,7 @@ const Plugin: TransformPlugin = {
 			Next = Next.replace(RealContentHandler, LogRealContent);
 		}
 
-		// Patch after toContentHtml(data) returns — log processed HTML
+		// Patch after toContentHtml(data) returns - log processed HTML
 		// characteristics so we can verify the content has a root element
 		// and module script reference.
 		const ContentProcessed = "const newDocument = toContentHtml(data);";
@@ -125,7 +125,7 @@ const Plugin: TransformPlugin = {
 			Next = Next.replace(ContentProcessed, LogContentProcessed);
 		}
 
-		// Also keep the old unloadMonitor log — it's harmless and the
+		// Also keep the old unloadMonitor log - it's harmless and the
 		// data it receives (confirmBeforeClose) is still useful context.
 		const OnMessageContent = "hostMessaging.onMessage('content'";
 		if (Next.includes(OnMessageContent)) {

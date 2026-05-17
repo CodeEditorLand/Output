@@ -279,7 +279,7 @@ const Plugin: TransformPlugin = {
 		DI('VSCODE_API_CHECK_EARLY_ERR', { error: String(e) });
 	}
 
-	// Deferred check at 3s — after module scripts have executed
+	// Deferred check at 3s - after module scripts have executed
 	setTimeout(function() {
 		try {
 			DI('VSCODE_API_CHECK_LATE', {

@@ -48,7 +48,7 @@ const LandDisableUIFixes =
 
 if (LandDisableUIFixes) {
 	console.log(
-		"[Output/Pipeline] DisableUIFixes=true — skipping 2 UI transforms (InjectMacTitlebarOffsetCSS, InjectPartZIndexCSS)",
+		"[Output/Pipeline] DisableUIFixes=true - skipping 2 UI transforms (InjectMacTitlebarOffsetCSS, InjectPartZIndexCSS)",
 	);
 }
 

@@ -293,7 +293,7 @@ for a history of changes specific to **Output**.
 
 ---
 
-## Funding \& Acknowledgements&#x2001;🙏🏻
+## Funding & Acknowledgements&#x2001;🙏🏻
 
 **Output** is a core element of the **Land** ecosystem. This project is funded
 through [NGI0 Commons Fund](https://NLnet.NL/commonsfund), a fund established by

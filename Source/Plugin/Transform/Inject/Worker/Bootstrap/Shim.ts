@@ -64,7 +64,7 @@ const ShimLine =
 // the inserted shim line stays aligned with the surrounding array
 // entries.
 const AnchorRegex =
-	/(`\/\*\$\{label\}\*\/`,)([ \t]*\n[ \t]*)(`globalThis\._VSCODE_NLS_MESSAGES = )/;
+	/(`\/\*\$\{label\}\*\/`,)([ 	]*\n[ 	]*)(`globalThis\._VSCODE_NLS_MESSAGES = )/;
 
 const Plugin: TransformPlugin = {
 	Kind: "Transform",

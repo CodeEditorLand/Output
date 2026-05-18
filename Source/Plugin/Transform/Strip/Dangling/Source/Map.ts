@@ -22,7 +22,7 @@ import { stat } from "node:fs/promises";
 
 import type { TransformPlugin } from "../../../../Type.js";
 
-const SourceMapComment = /\n?\/\/[#@][ \t]*sourceMappingURL=[^\n]*\n?$/;
+const SourceMapComment = /\n?\/\/[#@][ 	]*sourceMappingURL=[^\n]*\n?$/;
 
 const HasSibling = async (Path: string): Promise<boolean> => {
 	try {

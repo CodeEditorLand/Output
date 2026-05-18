@@ -59,6 +59,7 @@ import PatchTerminalGpuAcceleration from "./Transform/Patch/Terminal/GPU/Acceler
 import PatchWebviewIframeServiceWorker from "./Transform/Patch/Webview/Iframe/Service/Worker.js";
 import ReplaceElectronIPCService from "./Transform/Replace/Electron/IPC/Service.js";
 import ReplaceExtensionGalleryService from "./Transform/Replace/Extension/Gallery/Service.js";
+import ReplaceProductIdentity from "./Transform/Replace/Product/Identity.js";
 import ReplaceSearchService from "./Transform/Replace/Search/Service.js";
 import ReplaceSharedProcess from "./Transform/Replace/Shared/Process.js";
 import ReplaceTelemetryService from "./Transform/Replace/Telemetry/Service.js";
@@ -205,6 +206,8 @@ export { default as ExposeWorkbenchAccessor } from "./Transform/Expose/Workbench
 export { default as InstrumentVscodeGit } from "./Transform/Instrument/Vscode/Git.js";
 
 export { default as DisableUnusedServices } from "./Transform/Disable/Unused/Services.js";
+
+export { default as ReplaceProductIdentity } from "./Transform/Replace/Product/Identity.js";
 
 export { default as ReplaceSearchService } from "./Transform/Replace/Search/Service.js";
 
@@ -398,6 +401,15 @@ export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => {
 		CSSStrategy,
 
 		InjectNameShim,
+
+		// LAND-PATCH: replace VS Code product identity strings with Land's
+		// values from Element/Sky/Public/product.json. Targets "Code - OSS",
+		// "code-oss", ".vscode-oss", darwinBundleIdentifier, urlProtocol,
+		// applicationName, and similar identity substrings embedded by VS
+		// Code's build scripts in compiled JS output. Runs on every JS file
+		// after copy; single-replacement per call so files are fully
+		// patched after one pass. Idempotent.
+		ReplaceProductIdentity,
 
 		// Inject the same `__name` / `__defProp` shim into the
 		// `webWorkerServiceImpl.js::getWorkerBootstrapUrl` blob factory

@@ -372,7 +372,7 @@ function StripCommentsAndStrings(
 		// brace counting or trigger comment-mode false positives.
 		if (c === "/") {
 			let k = i - 1;
-			while (k >= 0 && (Line[k] === " " || Line[k] === "\t")) k--;
+			while (k >= 0 && (Line[k] === " " || Line[k] === "	")) k--;
 			const Prev = k >= 0 ? Line[k]! : "";
 			let IsRegex = !/[A-Za-z_$0-9)\]]/.test(Prev) || Prev === "";
 			if (!IsRegex && /[A-Za-z_$]/.test(Prev)) {

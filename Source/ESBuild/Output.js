@@ -90,7 +90,7 @@ export default {
 										event: "land:output:build:complete",
 										properties: {
 											distinct_id: `land-dev-${process.env["USER"] || "unknown"}`,
-											$app: "land-editor",
+											$app: "fiddee",
 											$component: "output",
 											$tier: "output",
 											$build_mode: On

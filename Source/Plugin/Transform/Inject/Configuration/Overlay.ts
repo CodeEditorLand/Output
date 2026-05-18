@@ -65,8 +65,8 @@ const Replacement =
 	`$1$2${Marker}\n` +
 	`$2const __CEL_O = globalThis.__CEL_OVERRIDE_CONFIG__;\n` +
 	`$2if (__CEL_O && typeof arg1 === 'string'\n` +
-	`$2\t&& Object.prototype.hasOwnProperty.call(__CEL_O, arg1)) {\n` +
-	`$2\treturn __CEL_O[arg1];\n` +
+	`$2	&& Object.prototype.hasOwnProperty.call(__CEL_O, arg1)) {\n` +
+	`$2	return __CEL_O[arg1];\n` +
 	`$2}\n` +
 	`$2$3`;
 

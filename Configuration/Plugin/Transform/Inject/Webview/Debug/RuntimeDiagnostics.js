@@ -17,7 +17,7 @@ const DiagnosticCode = `
 
   DEBUG_WV('RUNTIME_DIAG_BOOT');
 
-  // Cross-frame message listener \u2014 logs postMessage events between
+  // Cross-frame message listener - logs postMessage events between
   // inner iframe and extension host (limited to avoid spam)
   var _msgCount = 0;
   window.addEventListener('message', function(e) {

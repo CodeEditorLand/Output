@@ -4,7 +4,7 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) =>
 	__defProp(target, "name", { value, configurable: true });
 
-const SourceMapComment = /\n?\/\/[#@][ \t]*sourceMappingURL=[^\n]*\n?$/;
+const SourceMapComment = /\n?\/\/[#@][ 	]*sourceMappingURL=[^\n]*\n?$/;
 const HasSibling = /* @__PURE__ */ __name(async (Path) => {
 	try {
 		await stat(`${Path}.map`);

@@ -94,10 +94,10 @@ const Plugin: TransformPlugin = {
 				`$1$2${Marker}\n` +
 					`$2const __CEL_O = globalThis.__CEL_OVERRIDE_STORAGE__;\n` +
 					`$2if (__CEL_O) {\n` +
-					`$2\tconst __CEL_K = scope + ':' + key;\n` +
-					`$2\tif (Object.prototype.hasOwnProperty.call(__CEL_O, __CEL_K)) {\n` +
-					`$2\t\treturn __CEL_O[__CEL_K];\n` +
-					`$2\t}\n` +
+					`$2	const __CEL_K = scope + ':' + key;\n` +
+					`$2	if (Object.prototype.hasOwnProperty.call(__CEL_O, __CEL_K)) {\n` +
+					`$2		return __CEL_O[__CEL_K];\n` +
+					`$2	}\n` +
 					`$2}\n` +
 					`$2$3`,
 			);

@@ -47,7 +47,7 @@ export default function MacTitlebarOffsetCSS(): void {
 			// their stock layout.
 			".monaco-workbench.mac .part.titlebar > .titlebar-container {",
 
-			"\tpadding-left: 80px;",
+			"	padding-left: 80px;",
 
 			"}",
 
@@ -59,7 +59,7 @@ export default function MacTitlebarOffsetCSS(): void {
 			// `row` makes the layout robust to future churn.
 			".monaco-workbench.mac .part.titlebar {",
 
-			"\tflex-direction: row !important;",
+			"	flex-direction: row !important;",
 
 			"}",
 
@@ -71,9 +71,9 @@ export default function MacTitlebarOffsetCSS(): void {
 			// pixel-clean.
 			".monaco-workbench.mac .part.titlebar > .titlebar-container > .titlebar-drag-region {",
 
-			"\tleft: 80px;",
+			"	left: 80px;",
 
-			"\twidth: calc(100% - 80px);",
+			"	width: calc(100% - 80px);",
 
 			"}",
 
@@ -91,7 +91,7 @@ export default function MacTitlebarOffsetCSS(): void {
 			// traffic lights on a 1024px-wide split.
 			".monaco-workbench.mac .part.titlebar > .titlebar-container.has-center > .titlebar-center {",
 
-			"\tmargin-inline-start: 16px;",
+			"	margin-inline-start: 16px;",
 
 			"}",
 		].join("\n");

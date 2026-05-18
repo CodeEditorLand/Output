@@ -13,7 +13,7 @@ const LandDisableUIFixes =
 	"true";
 if (LandDisableUIFixes) {
 	console.log(
-		"[Output/Pipeline] DisableUIFixes=true \u2014 skipping 2 UI transforms (InjectMacTitlebarOffsetCSS, InjectPartZIndexCSS)",
+		"[Output/Pipeline] DisableUIFixes=true - skipping 2 UI transforms (InjectMacTitlebarOffsetCSS, InjectPartZIndexCSS)",
 	);
 }
 const ServiceCopies = [

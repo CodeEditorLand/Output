@@ -2,38 +2,38 @@ import { default as default2 } from "./Apply.js";
 import {
 	CopyNodeModules,
 	CopyNodeModules as CopyNodeModulesFactory,
-	default as default53,
+	default as default54,
 	DefaultPackages,
 } from "./Copy/Copy/Node/Modules.js";
 import {
 	CopyTauriMainProcessService,
 	CopyTauriMainProcessService as CopyTauriMainProcessServiceFactory,
-	default as default55,
+	default as default56,
 } from "./Copy/Copy/Tauri/Main/Process/Service.js";
 import {
 	CopyVSOutput,
 	CopyVSOutput as CopyVSOutputFactory,
-	default as default49,
+	default as default50,
 } from "./Copy/Copy/VS/Output.js";
 import {
 	CopyVSRootFiles,
 	CopyVSRootFiles as CopyVSRootFilesFactory,
-	default as default50,
+	default as default51,
 } from "./Copy/Copy/VS/Root/Files.js";
 import {
 	CopyWorker,
 	CopyWorker as CopyWorkerFactory,
-	default as default52,
+	default as default53,
 } from "./Copy/Copy/Worker.js";
 import {
-	default as default54,
+	default as default55,
 	DefaultStubs,
 	StubDataPrefix,
 	StubUnpublishedAddons,
 	StubUnpublishedAddons as StubUnpublishedAddonsFactory,
 } from "./Copy/Stub/Unpublished/Addons.js";
 import {
-	default as default51,
+	default as default52,
 	SupplementFromDependency,
 	SupplementFromDependency as SupplementFromDependencyFactory,
 } from "./Copy/Supplement/From/Dependency.js";
@@ -71,7 +71,7 @@ import InjectEagerLifecyclePhase, {
 	default as default9,
 } from "./Transform/Inject/Eager/Lifecycle/Phase.js";
 import InjectEditorGPULayerCSS, {
-	default as default44,
+	default as default45,
 } from "./Transform/Inject/Editor/GPU/Layer/CSS.js";
 import InjectMacTitlebarOffsetCSS, {
 	default as default13,
@@ -92,7 +92,7 @@ import InjectTelemetryConsentOff, {
 	default as default11,
 } from "./Transform/Inject/Telemetry/Consent/Off.js";
 import InjectTerminalGPULayerCSS, {
-	default as default45,
+	default as default46,
 } from "./Transform/Inject/Terminal/GPU/Layer/CSS.js";
 import InjectWebViewPolyfills, {
 	default as default12,
@@ -116,13 +116,13 @@ import InstrumentVscodeGit, {
 	default as default41,
 } from "./Transform/Instrument/Vscode/Git.js";
 import PatchLocalTerminalBackend, {
-	default as default46,
+	default as default47,
 } from "./Transform/Patch/Local/Terminal/Backend.js";
 import PatchTerminalGpuAcceleration, {
-	default as default47,
+	default as default48,
 } from "./Transform/Patch/Terminal/GPU/Acceleration.js";
 import PatchWebviewIframeServiceWorker, {
-	default as default48,
+	default as default49,
 } from "./Transform/Patch/Webview/Iframe/Service/Worker.js";
 import ReplaceElectronIPCService, {
 	default as default30,
@@ -130,8 +130,11 @@ import ReplaceElectronIPCService, {
 import ReplaceExtensionGalleryService, {
 	default as default31,
 } from "./Transform/Replace/Extension/Gallery/Service.js";
-import ReplaceSearchService, {
+import ReplaceProductIdentity, {
 	default as default43,
+} from "./Transform/Replace/Product/Identity.js";
+import ReplaceSearchService, {
+	default as default44,
 } from "./Transform/Replace/Search/Service.js";
 import ReplaceSharedProcess, {
 	default as default32,
@@ -214,6 +217,14 @@ const BuildPipeline = /* @__PURE__ */ __name((Input) => {
 		CopyTauriMainProcessServiceFactory(Input.TauriMainProcessService),
 		CSSStrategy,
 		InjectNameShim,
+		// LAND-PATCH: replace VS Code product identity strings with Land's
+		// values from Element/Sky/Public/product.json. Targets "Code - OSS",
+		// "code-oss", ".vscode-oss", darwinBundleIdentifier, urlProtocol,
+		// applicationName, and similar identity substrings embedded by VS
+		// Code's build scripts in compiled JS output. Runs on every JS file
+		// after copy; single-replacement per call so files are fully
+		// patched after one pass. Idempotent.
+		ReplaceProductIdentity,
 		// Inject the same `__name` / `__defProp` shim into the
 		// `webWorkerServiceImpl.js::getWorkerBootstrapUrl` blob factory
 		// so Monaco's editor language workers (TS/CSS/HTML/JSON
@@ -500,15 +511,15 @@ export {
 	BuildPipeline,
 	default38 as CatchOutputFolderRejection,
 	CopyNodeModules,
-	default53 as CopyNodeModulesDefault,
+	default54 as CopyNodeModulesDefault,
 	CopyTauriMainProcessService,
-	default55 as CopyTauriMainProcessServiceDefault,
+	default56 as CopyTauriMainProcessServiceDefault,
 	CopyVSOutput,
-	default49 as CopyVSOutputDefault,
+	default50 as CopyVSOutputDefault,
 	CopyVSRootFiles,
-	default50 as CopyVSRootFilesDefault,
+	default51 as CopyVSRootFilesDefault,
 	CopyWorker,
-	default52 as CopyWorkerDefault,
+	default53 as CopyWorkerDefault,
 	DefaultPackages as DefaultNodeModulePackages,
 	DefaultStubs,
 	default42 as DisableUnusedServices,
@@ -521,26 +532,27 @@ export {
 	default7 as InjectEagerExtensionActivation,
 	default8 as InjectEagerIdleValue,
 	default9 as InjectEagerLifecyclePhase,
-	default44 as InjectEditorGPULayerCSS,
+	default45 as InjectEditorGPULayerCSS,
 	default13 as InjectMacTitlebarOffsetCSS,
 	default5 as InjectNameShim,
 	default14 as InjectPartZIndexCSS,
 	default19 as InjectStorageOverlay,
 	default10 as InjectStripBackgroundPolling,
 	default11 as InjectTelemetryConsentOff,
-	default45 as InjectTerminalGPULayerCSS,
+	default46 as InjectTerminalGPULayerCSS,
 	default12 as InjectWebViewPolyfills,
 	default15 as InjectWorkbenchInteractivityCSS,
 	default16 as InjectWorkbenchPaintPrime,
 	default17 as InjectWorkerBootstrapShim,
 	default4 as InlineCSSImport,
 	default41 as InstrumentVscodeGit,
-	default46 as PatchLocalTerminalBackend,
-	default47 as PatchTerminalGpuAcceleration,
-	default48 as PatchWebviewIframeServiceWorker,
+	default47 as PatchLocalTerminalBackend,
+	default48 as PatchTerminalGpuAcceleration,
+	default49 as PatchWebviewIframeServiceWorker,
 	default30 as ReplaceElectronIPCService,
 	default31 as ReplaceExtensionGalleryService,
-	default43 as ReplaceSearchService,
+	default43 as ReplaceProductIdentity,
+	default44 as ReplaceSearchService,
 	default32 as ReplaceSharedProcess,
 	default33 as ReplaceTelemetryService,
 	default34 as ReplaceUpdateService,
@@ -558,9 +570,9 @@ export {
 	default39 as StripWebviewIframeSandbox,
 	StubDataPrefix,
 	StubUnpublishedAddons,
-	default54 as StubUnpublishedAddonsDefault,
+	default55 as StubUnpublishedAddonsDefault,
 	SupplementFromDependency,
-	default51 as SupplementFromDependencyDefault,
+	default52 as SupplementFromDependencyDefault,
 	Index_default as default,
 };
 //# sourceMappingURL=Index.js.map

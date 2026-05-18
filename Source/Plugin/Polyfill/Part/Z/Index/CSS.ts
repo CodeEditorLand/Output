@@ -60,7 +60,7 @@ export default function PartZIndexCSS(): void {
 			// doesn't nudge subpixel rendering.
 			".monaco-workbench .part {",
 
-			"\tisolation: isolate;",
+			"	isolation: isolate;",
 
 			"}",
 
@@ -69,7 +69,7 @@ export default function PartZIndexCSS(): void {
 			// renders on top.
 			".monaco-workbench .part.editor {",
 
-			"\tz-index: 1;",
+			"	z-index: 1;",
 
 			"}",
 
@@ -79,7 +79,7 @@ export default function PartZIndexCSS(): void {
 			// (2500) and quick-pick (2550) ladder.
 			".monaco-workbench .part.activitybar {",
 
-			"\tz-index: 10;",
+			"	z-index: 10;",
 
 			"}",
 
@@ -92,7 +92,7 @@ export default function PartZIndexCSS(): void {
 
 			".monaco-workbench .part.panel {",
 
-			"\tz-index: 11;",
+			"	z-index: 11;",
 
 			"}",
 
@@ -100,7 +100,7 @@ export default function PartZIndexCSS(): void {
 			// sits above panels but below the status bar.
 			".monaco-workbench .part.banner {",
 
-			"\tz-index: 12;",
+			"	z-index: 12;",
 
 			"}",
 
@@ -110,7 +110,7 @@ export default function PartZIndexCSS(): void {
 			// occasionally clips the right-edge progress badges.
 			".monaco-workbench .part.statusbar {",
 
-			"\tz-index: 20;",
+			"	z-index: 20;",
 
 			"}",
 
@@ -120,7 +120,7 @@ export default function PartZIndexCSS(): void {
 			// the floating editor toolbar. Pin it.
 			".monaco-workbench .part.panel.maximized {",
 
-			"\tz-index: 13;",
+			"	z-index: 13;",
 
 			"}",
 
@@ -131,7 +131,7 @@ export default function PartZIndexCSS(): void {
 
 			".monaco-workbench .editor-group-watermark {",
 
-			"\tz-index: 5;",
+			"	z-index: 5;",
 
 			"}",
 
@@ -142,7 +142,7 @@ export default function PartZIndexCSS(): void {
 			// picker entirely. We hoist explicitly to defeat shenanigans.
 			".monaco-workbench .quick-input-widget {",
 
-			"\tz-index: 2550 !important;",
+			"	z-index: 2550 !important;",
 
 			"}",
 
@@ -154,7 +154,7 @@ export default function PartZIndexCSS(): void {
 			// command-palette session.
 			".monaco-workbench .notifications-toasts {",
 
-			"\tz-index: 2575 !important;",
+			"	z-index: 2575 !important;",
 
 			"}",
 
@@ -174,7 +174,7 @@ export default function PartZIndexCSS(): void {
 			".monaco-workbench .context-view,",
 			"body > .context-view {",
 
-			"\tz-index: 2600 !important;",
+			"	z-index: 2600 !important;",
 
 			"}",
 
@@ -184,9 +184,9 @@ export default function PartZIndexCSS(): void {
 			".monaco-workbench .context-view.fixed,",
 			"body > .context-view.fixed {",
 
-			"\tposition: fixed !important;",
+			"	position: fixed !important;",
 
-			"\tz-index: 2600 !important;",
+			"	z-index: 2600 !important;",
 
 			"}",
 
@@ -196,7 +196,7 @@ export default function PartZIndexCSS(): void {
 			// compositor actually sees.
 			"body .shadow-root-host {",
 
-			"\tz-index: 2600 !important;",
+			"	z-index: 2600 !important;",
 
 			"}",
 
@@ -207,7 +207,7 @@ export default function PartZIndexCSS(): void {
 			".monaco-workbench .monaco-hover,",
 			".monaco-workbench .editor-widget {",
 
-			"\tz-index: 50 !important;",
+			"	z-index: 50 !important;",
 
 			"}",
 		].join("\n");

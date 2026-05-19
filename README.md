@@ -160,6 +160,74 @@ Dependency/ → Rest → Target/Rest/ → Configuration/ → Target/
 
 ---
 
+## System Architecture Diagram&#x2001;🏗️
+
+```mermaid
+graph LR
+    classDef output   fill:#2c2c2c,stroke:#888,stroke-width:2px,color:#f0f0f0;
+    classDef esbuild  fill:#ffeecc,stroke:#e67e22,stroke-width:2px,color:#4a2000;
+    classDef rest     fill:#ffe0cc,stroke:#e67e22,stroke-width:1px,stroke-dasharray:5 5,color:#4a1500;
+    classDef plugin   fill:#d4f5d4,stroke:#27ae60,stroke-width:1px,color:#0a3a0a;
+    classDef polyfill fill:#d0d8ff,stroke:#4a6fa5,stroke-width:1px,color:#001050;
+    classDef consumer fill:#f0d0ff,stroke:#9b59b6,stroke-width:1px,color:#2c0050;
+
+    subgraph OUTPUT["Output ⚫ - Build Artifact Pipeline"]
+        direction TB
+        subgraph ESB["ESBuild/ - Compilation Targets"]
+            ESBMain["ESBuild.ts - entry point\nESM · Node.js · ES Next"]:::esbuild
+            MicrosoftTarget["ESBuild/Microsoft/ - VSCode sources"]:::esbuild
+            CELTarget["ESBuild/CodeEditorLand/ - CEL sources"]:::esbuild
+            RestPluginEsb["ESBuild/Rest/Plugin.ts\nintercepts .ts → Rest compiler\nfallback to esbuild on error"]:::rest
+            ESBMain --> MicrosoftTarget
+            ESBMain --> CELTarget
+            ESBMain --> RestPluginEsb
+        end
+        subgraph PLUGIN_SYS["Plugin/ - Transform Pipeline"]
+            PluginIndex["Plugin/Index.ts - registry"]:::plugin
+            CopyPlugin["Copy/ - asset copy"]:::plugin
+            PolyfillPlugin["Polyfill/ - polyfill injection"]:::plugin
+            TransformPlugin["Transform/ - AST transforms"]:::plugin
+            PluginIndex --> CopyPlugin
+            PluginIndex --> PolyfillPlugin
+            PluginIndex --> TransformPlugin
+        end
+        subgraph POLYFILLS["Polyfill/ - Compatibility Shims"]
+            ChildPoly["Child/ - child_process"]:::polyfill
+            FilePoly["File/ - fs"]:::polyfill
+            IPCPoly["IPC/ - electron IPC"]:::polyfill
+            NativePoly["Native/ - native modules"]:::polyfill
+            ProcessPoly["Process/ - process.*"]:::polyfill
+        end
+        subgraph SVC["Service/ - Runtime Helpers"]
+            TauriSvc["Tauri/ - Tauri IPC helpers"]:::plugin
+            CELSvc["CEL/ - CEL service helpers"]:::plugin
+        end
+
+        ESBMain --> PluginIndex
+        PolyfillPlugin --> POLYFILLS
+        ESBMain --> SVC
+    end
+
+    subgraph SOURCES["Source Dependencies"]
+        VSCode["Microsoft/VSCode\n(Dependency/)"]:::consumer
+        RestCompiler["Rest ⛱️ compiler binary\n(OXC-based)"]:::rest
+    end
+
+    subgraph CONSUMERS["Artifact Consumers"]
+        Sky["Sky 🌌\nworkbench.js + web.main.js"]:::consumer
+        Cocoon["Cocoon 🦋\n@codeeditorland/output"]:::consumer
+        Wind["Wind 🍃\noutput utilities"]:::consumer
+    end
+
+    VSCode --> MicrosoftTarget
+    RestPluginEsb -- spawns --> RestCompiler
+    OUTPUT -- Target/ artifacts --> Sky
+    OUTPUT -- Target/ artifacts --> Cocoon
+    OUTPUT -- Target/ artifacts --> Wind
+```
+
+---
+
 ## Deep Dive & Component Breakdown&#x2001;🔬
 
 - **[`Source/ESBuild/Output.ts`](https://github.com/CodeEditorLand/Output/tree/Current/Source/ESBuild/Output.ts)** -

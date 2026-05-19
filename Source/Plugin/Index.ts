@@ -46,6 +46,7 @@ import InjectStripBackgroundPolling from "./Transform/Inject/Strip/Background/Po
 import InjectTelemetryConsentOff from "./Transform/Inject/Telemetry/Consent/Off.js";
 import InjectTerminalGPULayerCSS from "./Transform/Inject/Terminal/GPU/Layer/CSS.js";
 import InjectWebViewPolyfills from "./Transform/Inject/Web/View/Polyfills.js";
+import InjectWebviewBlobUrlRewrite from "./Transform/Inject/Webview/Blob/Url/Rewrite.js";
 import InjectWebviewDebugLogging from "./Transform/Inject/Webview/Debug/Logging.js";
 import InjectWebviewRuntimeDiagnostics from "./Transform/Inject/Webview/Debug/RuntimeDiagnostics.js";
 import InjectWebviewRuntimeDiagnosticsInner from "./Transform/Inject/Webview/Debug/RuntimeDiagnosticsInner.js";
@@ -220,6 +221,8 @@ export { default as PatchLocalTerminalBackend } from "./Transform/Patch/Local/Te
 export { default as PatchTerminalGpuAcceleration } from "./Transform/Patch/Terminal/GPU/Acceleration.js";
 
 export { default as PatchWebviewIframeServiceWorker } from "./Transform/Patch/Webview/Iframe/Service/Worker.js";
+
+export { default as InjectWebviewBlobUrlRewrite } from "./Transform/Inject/Webview/Blob/Url/Rewrite.js";
 
 export {
 	CopyVSOutput,
@@ -630,6 +633,23 @@ export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => {
 		// `workerReady` promise and bails on `fatal-error` before rendering
 		// the extension HTML. Idempotent. Marker `__LAND_DISABLE_WEBVIEW_SW__`.
 		PatchWebviewIframeServiceWorker,
+
+		// Rewrite `vscode-file://` and `vscode-webview-resource://` URLs in
+		// the extension webview's inner-iframe HTML to `blob:` URLs fetched
+		// from the outer shell's privileged context. WKWebView silently
+		// blocks cross-protocol-scheme `<script src>` / `<link href>` loads
+		// when the inner frame is sandboxed under `vscode-webview://`, so
+		// without this rewrite the extension's React bundle never executes
+		// and the panel stays blank. Wraps `Document.prototype.write` on the
+		// inner frame's `contentDocument` at the `onFrameLoaded` call site
+		// and rewrites attributes via DOMParser + fetch + createObjectURL
+		// before forwarding to the original write. Blob URLs are cached per
+		// original URL for the outer shell's lifetime. Must run after
+		// `PatchWebviewIframeServiceWorker` (SW disabled, hash soft-fail)
+		// and before `RewriteWebviewShellCSP` (CSP `blob:` directive covers
+		// the rewritten URLs). Idempotent via
+		// `__LAND_WEBVIEW_BLOB_URL_REWRITE__` marker.
+		InjectWebviewBlobUrlRewrite,
 
 		// Loosen the webview shell's `<meta http-equiv="Content-Security-Policy">`
 		// from a stale sha256 hash on the inline bootstrap script to

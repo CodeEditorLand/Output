@@ -2,38 +2,38 @@ import { default as default2 } from "./Apply.js";
 import {
 	CopyNodeModules,
 	CopyNodeModules as CopyNodeModulesFactory,
-	default as default54,
+	default as default55,
 	DefaultPackages,
 } from "./Copy/Copy/Node/Modules.js";
 import {
 	CopyTauriMainProcessService,
 	CopyTauriMainProcessService as CopyTauriMainProcessServiceFactory,
-	default as default56,
+	default as default57,
 } from "./Copy/Copy/Tauri/Main/Process/Service.js";
 import {
 	CopyVSOutput,
 	CopyVSOutput as CopyVSOutputFactory,
-	default as default50,
+	default as default51,
 } from "./Copy/Copy/VS/Output.js";
 import {
 	CopyVSRootFiles,
 	CopyVSRootFiles as CopyVSRootFilesFactory,
-	default as default51,
+	default as default52,
 } from "./Copy/Copy/VS/Root/Files.js";
 import {
 	CopyWorker,
 	CopyWorker as CopyWorkerFactory,
-	default as default53,
+	default as default54,
 } from "./Copy/Copy/Worker.js";
 import {
-	default as default55,
+	default as default56,
 	DefaultStubs,
 	StubDataPrefix,
 	StubUnpublishedAddons,
 	StubUnpublishedAddons as StubUnpublishedAddonsFactory,
 } from "./Copy/Stub/Unpublished/Addons.js";
 import {
-	default as default52,
+	default as default53,
 	SupplementFromDependency,
 	SupplementFromDependency as SupplementFromDependencyFactory,
 } from "./Copy/Supplement/From/Dependency.js";
@@ -97,6 +97,9 @@ import InjectTerminalGPULayerCSS, {
 import InjectWebViewPolyfills, {
 	default as default12,
 } from "./Transform/Inject/Web/View/Polyfills.js";
+import InjectWebviewBlobUrlRewrite, {
+	default as default50,
+} from "./Transform/Inject/Webview/Blob/Url/Rewrite.js";
 import InjectWebviewDebugLogging from "./Transform/Inject/Webview/Debug/Logging.js";
 import InjectWebviewRuntimeDiagnostics from "./Transform/Inject/Webview/Debug/RuntimeDiagnostics.js";
 import InjectWebviewRuntimeDiagnosticsInner from "./Transform/Inject/Webview/Debug/RuntimeDiagnosticsInner.js";
@@ -413,6 +416,22 @@ const BuildPipeline = /* @__PURE__ */ __name((Input) => {
 		// `workerReady` promise and bails on `fatal-error` before rendering
 		// the extension HTML. Idempotent. Marker `__LAND_DISABLE_WEBVIEW_SW__`.
 		PatchWebviewIframeServiceWorker,
+		// Rewrite `vscode-file://` and `vscode-webview-resource://` URLs in
+		// the extension webview's inner-iframe HTML to `blob:` URLs fetched
+		// from the outer shell's privileged context. WKWebView silently
+		// blocks cross-protocol-scheme `<script src>` / `<link href>` loads
+		// when the inner frame is sandboxed under `vscode-webview://`, so
+		// without this rewrite the extension's React bundle never executes
+		// and the panel stays blank. Wraps `Document.prototype.write` on the
+		// inner frame's `contentDocument` at the `onFrameLoaded` call site
+		// and rewrites attributes via DOMParser + fetch + createObjectURL
+		// before forwarding to the original write. Blob URLs are cached per
+		// original URL for the outer shell's lifetime. Must run after
+		// `PatchWebviewIframeServiceWorker` (SW disabled, hash soft-fail)
+		// and before `RewriteWebviewShellCSP` (CSP `blob:` directive covers
+		// the rewritten URLs). Idempotent via
+		// `__LAND_WEBVIEW_BLOB_URL_REWRITE__` marker.
+		InjectWebviewBlobUrlRewrite,
 		// Loosen the webview shell's `<meta http-equiv="Content-Security-Policy">`
 		// from a stale sha256 hash on the inline bootstrap script to
 		// `'unsafe-inline'`. Stock VS Code pins the hash; WKWebView
@@ -511,15 +530,15 @@ export {
 	BuildPipeline,
 	default38 as CatchOutputFolderRejection,
 	CopyNodeModules,
-	default54 as CopyNodeModulesDefault,
+	default55 as CopyNodeModulesDefault,
 	CopyTauriMainProcessService,
-	default56 as CopyTauriMainProcessServiceDefault,
+	default57 as CopyTauriMainProcessServiceDefault,
 	CopyVSOutput,
-	default50 as CopyVSOutputDefault,
+	default51 as CopyVSOutputDefault,
 	CopyVSRootFiles,
-	default51 as CopyVSRootFilesDefault,
+	default52 as CopyVSRootFilesDefault,
 	CopyWorker,
-	default53 as CopyWorkerDefault,
+	default54 as CopyWorkerDefault,
 	DefaultPackages as DefaultNodeModulePackages,
 	DefaultStubs,
 	default42 as DisableUnusedServices,
@@ -541,6 +560,7 @@ export {
 	default11 as InjectTelemetryConsentOff,
 	default46 as InjectTerminalGPULayerCSS,
 	default12 as InjectWebViewPolyfills,
+	default50 as InjectWebviewBlobUrlRewrite,
 	default15 as InjectWorkbenchInteractivityCSS,
 	default16 as InjectWorkbenchPaintPrime,
 	default17 as InjectWorkerBootstrapShim,
@@ -570,9 +590,9 @@ export {
 	default39 as StripWebviewIframeSandbox,
 	StubDataPrefix,
 	StubUnpublishedAddons,
-	default55 as StubUnpublishedAddonsDefault,
+	default56 as StubUnpublishedAddonsDefault,
 	SupplementFromDependency,
-	default52 as SupplementFromDependencyDefault,
+	default53 as SupplementFromDependencyDefault,
 	Index_default as default,
 };
 //# sourceMappingURL=Index.js.map

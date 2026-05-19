@@ -4,7 +4,7 @@
  * Same body-rewrite rationale as `ReplaceTelemetryService.ts`. The gallery
  * service talks to `marketplace.visualstudio.com` for search / install /
  * update of extensions. Land does not - user extensions are sideloaded
- * from `~/.land/extensions/` and managed by `IExtensionManagementService`
+ * from `~/.fiddee/extensions/` and managed by `IExtensionManagementService`
  * (which stays live). Built-in extensions ship with the binary.
  *
  * The canonical no-op stub is authored at

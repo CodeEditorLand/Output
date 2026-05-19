@@ -391,7 +391,7 @@ const BuildPipeline = /* @__PURE__ */ __name((Input) => {
 		// LAND-PATCH: replace ExtensionGalleryService body. query()
 		// returns an empty pager; download/install reject with a
 		// helpful error. User extensions are sideloaded from
-		// ~/.land/extensions/ - no marketplace traffic.
+		// ~/.fiddee/extensions/ - no marketplace traffic.
 		ReplaceExtensionGalleryService,
 		StaticToDynamicImport,
 		StripDanglingSourceMap,

@@ -140,7 +140,7 @@ const ServiceCopies: ReadonlyArray<{
 
 		To: "Target/Microsoft/VSCode/vs/platform/extensionManagement/common/CELNullExtensionGalleryService.js",
 
-		Why: "ReplaceExtensionGalleryService reduces extensionGalleryService.js to a one-line re-export pointing at this no-op stub. User extensions are sideloaded from ~/.land/extensions/ - no marketplace traffic.",
+		Why: "ReplaceExtensionGalleryService reduces extensionGalleryService.js to a one-line re-export pointing at this no-op stub. User extensions are sideloaded from ~/.fiddee/extensions/ - no marketplace traffic.",
 	},
 ];
 

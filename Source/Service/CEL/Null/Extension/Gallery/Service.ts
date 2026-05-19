@@ -4,7 +4,7 @@
  *
  * No-op stub for VS Code's `ExtensionGalleryService`. Land does not talk
  * to `marketplace.visualstudio.com`. User extensions are sideloaded from
- * `~/.land/extensions/` and managed by `IExtensionManagementService`
+ * `~/.fiddee/extensions/` and managed by `IExtensionManagementService`
  * (which stays live). Built-in extensions ship with the binary.
  *
  * Returns:

@@ -29,7 +29,7 @@
  *     → `<origin>/Extension/<abs-fs-path>` so Mountain's vendored
  *       `tauri-plugin-localhost` `/Extension/<...>` route serves
  *       the file from disk (allowlist:
- *       `~/.land/extensions/`, `~/.vscode/extensions/`).
+ *       `~/.fiddee/extensions/`, `~/.vscode/extensions/`).
  *
  * Per-file marker so the second build pass over an already-patched
  * tree is a no-op:
@@ -54,7 +54,7 @@ interface AnchorSpec {
 //      Built-in extensions copied into Sky's `Static/Application/`.
 //   2. `vscode-file://vscode-app/<abs>` →
 //      `<origin>/Extension/<abs>`
-//      Sideloaded extensions under `~/.land/extensions/` etc.
+//      Sideloaded extensions under `~/.fiddee/extensions/` etc.
 //      Mountain's `/Extension/<abs>` route serves these from disk.
 //   3. `file:///<abs>` →
 //      `<origin>/Extension/<abs>`
@@ -63,7 +63,7 @@ interface AnchorSpec {
 //      which depends on a `process.versions.node` shim. Under
 //      Tauri/WKWebView the shim isn't always installed before
 //      `iconsStyleSheet.getCSS()` first runs, so the URL leaks
-//      through as `file:///<home>/.land/extensions/<id>/<font>.woff2`.
+//      through as `file:///<home>/.fiddee/extensions/<id>/<font>.woff2`.
 //      WKWebView refuses to load `file:` from an `http:` origin
 //      (mixed-scheme), so the @font-face rule fetches a 0-byte
 //      response and codicons render as missing-glyph boxes. This

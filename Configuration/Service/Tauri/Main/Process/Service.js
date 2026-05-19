@@ -124,6 +124,20 @@ const ChannelEventBridge = {
 			}, "Map"),
 		},
 	},
+	// Lockstep with Wind/Source/Service/TauriMainProcessService.ts
+	localFilesystem: {
+		fileChange: { Channel: "sky://vfs/fileChange" },
+	},
+	configuration: {
+		onDidChangeConfiguration: { Channel: "sky://configuration/changed" },
+	},
+	workspaces: {
+		onDidChangeWorkspaceFolders: { Channel: "sky://workspaces/changed" },
+	},
+	lifecycle: {
+		onWillShutdown: { Channel: "sky://lifecycle/willShutdown" },
+		onDidChangePhase: { Channel: "sky://lifecycle/phaseChanged" },
+	},
 };
 const FileSystemChannels = /* @__PURE__ */ new Set(["localFilesystem"]);
 const FileSystemThrowCommands = /* @__PURE__ */ new Set([

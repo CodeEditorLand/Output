@@ -689,6 +689,36 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 };
 
 // ============================================================================
+// Tier gate - dual-track IPC routing (lockstep with Wind's copy)
+// ============================================================================
+
+const _TierIPC: string =
+	(import.meta as any).env?.TierIPC ??
+	(typeof __LAND_TIERS__ !== "undefined" &&
+		(__LAND_TIERS__ as any).TierIPC) ??
+	"Mountain";
+
+async function _InvokeViaNode(
+	Method: string,
+	Params: unknown[],
+): Promise<unknown> {
+	const Invoke =
+		(window as any).__TAURI__?.core?.invoke ??
+		(window as any).__TAURI__?.invoke;
+
+	if (typeof Invoke !== "function") return undefined;
+
+	try {
+		return await Invoke("MountainIPCInvoke", {
+			method: "cocoon:request",
+			params: [Method, Params.length === 1 ? Params[0] : Params],
+		});
+	} catch {
+		return undefined;
+	}
+}
+
+// ============================================================================
 // Tauri Invoke
 // ============================================================================
 
@@ -860,6 +890,14 @@ class TauriChannel implements IChannel {
 			const Params =
 				Arg !== undefined ? (Array.isArray(Arg) ? Arg : [Arg]) : [];
 
+			if (_TierIPC === "Node") {
+				try {
+					return (await _InvokeViaNode(MountainMethod, Params)) as T;
+				} catch {
+					return undefined as T;
+				}
+			}
+
 			try {
 				const Result = await InvokeMountain(MountainMethod, Params);
 
@@ -916,6 +954,18 @@ class TauriChannel implements IChannel {
 					throw WrappedError;
 				}
 				_Trace("ipc", `error:${this.ChannelName}.${Command}`);
+				return undefined as T;
+			}
+		}
+
+		// NodeDeferred: no Mountain route, no stub - forward to Cocoon.
+		if (_TierIPC === "NodeDeferred" || _TierIPC === "Node") {
+			const NodeMethod = `${this.ChannelName}:${Command}`;
+			const NodeParams =
+				Arg !== undefined ? (Array.isArray(Arg) ? Arg : [Arg]) : [];
+			try {
+				return (await _InvokeViaNode(NodeMethod, NodeParams)) as T;
+			} catch {
 				return undefined as T;
 			}
 		}

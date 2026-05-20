@@ -694,7 +694,8 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 
 const _TierIPC: string =
 	(import.meta as any).env?.TierIPC ??
-	((globalThis as { __LandTiers?: Record<string, unknown> }).__LandTiers?.TierIPC as string | undefined) ??
+	((globalThis as { __LandTiers?: Record<string, unknown> }).__LandTiers
+		?.TierIPC as string | undefined) ??
 	"Mountain";
 
 async function _InvokeViaNode(

@@ -1,4 +1,3 @@
-
 // Mountain diagnostic bridge - used instead of console.* in browser context.
 const _CELLog = (Message: string): void => {
 	try {
@@ -90,12 +89,16 @@ export default function EagerLifecyclePhase(): void {
 				) {
 					ServiceReference.phase = 4;
 
-					_CELLog("[LandFix:Lifecycle] phase advanced eagerly to Eventually");
+					_CELLog(
+						"[LandFix:Lifecycle] phase advanced eagerly to Eventually",
+					);
 
 					return true;
 				}
 			} catch (Error) {
-				_CELLog("[LandFix:Lifecycle] phase setter rejected: ${String(Error)}");
+				_CELLog(
+					"[LandFix:Lifecycle] phase setter rejected: ${String(Error)}",
+				);
 			}
 
 			return false;

@@ -1,4 +1,3 @@
-
 // Mountain diagnostic bridge - used instead of console.* in browser context.
 const _CELLog = (Message: string): void => {
 	try {
@@ -98,5 +97,7 @@ export default function EagerIdleValue(): void {
 			EagerCancelIdleCallback;
 	}
 
-	_CELLog("[LandFix:EagerIdleValue] requestIdleCallback collapsed to setTimeout(0); IdleValue executors run eagerly");
+	_CELLog(
+		"[LandFix:EagerIdleValue] requestIdleCallback collapsed to setTimeout(0); IdleValue executors run eagerly",
+	);
 }

@@ -1,4 +1,3 @@
-
 // Mountain diagnostic bridge - used instead of console.* in browser context.
 const _CELLog = (Message: string): void => {
 	try {
@@ -99,25 +98,33 @@ export default function EagerExtensionActivation(): void {
 						typeof (Result as Promise<unknown>).then === "function"
 					) {
 						(Result as Promise<unknown>).catch((Error: unknown) => {
-							_CELLog("[LandFix:EagerActivation] activateByEvent ${EventName} rejected: ${String(Error)}");
+							_CELLog(
+								"[LandFix:EagerActivation] activateByEvent ${EventName} rejected: ${String(Error)}",
+							);
 						});
 					}
 
 					FireCount++;
 				} catch (Error) {
-					_CELLog("[LandFix:EagerActivation] activateByEvent ${EventName} threw: ${String(Error)}");
+					_CELLog(
+						"[LandFix:EagerActivation] activateByEvent ${EventName} threw: ${String(Error)}",
+					);
 				}
 			}
 
 			if (FireCount > 0) {
-				_CELLog("[LandFix:EagerActivation] fired ${FireCount} activation event(s) eagerly");
+				_CELLog(
+					"[LandFix:EagerActivation] fired ${FireCount} activation event(s) eagerly",
+				);
 
 				return true;
 			}
 
 			return false;
 		} catch (Error) {
-			_CELLog("[LandFix:EagerActivation] FireActivationEvents failed: ${String(Error)}");
+			_CELLog(
+				"[LandFix:EagerActivation] FireActivationEvents failed: ${String(Error)}",
+			);
 
 			return false;
 		}

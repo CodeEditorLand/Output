@@ -152,7 +152,10 @@ export default function TelemetryConsentOff(): void {
 		if (typeof Invoke === "function") {
 			Invoke("MountainIPCInvoke", {
 				method: "diagnostic:log",
-				params: ["cel-polyfill", `[LandFix:Telemetry] consent prebaked off; ${Object.keys(Prebake).length} keys seeded`],
+				params: [
+					"cel-polyfill",
+					`[LandFix:Telemetry] consent prebaked off; ${Object.keys(Prebake).length} keys seeded`,
+				],
 			}).catch(() => {});
 		}
 	} catch {}

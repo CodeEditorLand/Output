@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../../Source/Plugin/Transform/Inject/Workbench/Paint/Prime.ts"],
+  "sourcesContent": ["/**\n * Force WKWebView's compositor to commit pending layout for the\n * eight workbench part layers at boot and on first interaction.\n *\n * Body lives in `Polyfill/WorkbenchPaintPrime.ts` (type-checked).\n * Idempotent. Marker `__LAND_WORKBENCH_PAINT_PRIME__`.\n */\n\nimport WorkbenchPaintPrime from \"../../../../Polyfill/Workbench/Paint/Prime.js\";\nimport type { TransformPlugin } from \"../../../../Type.js\";\n\nconst Marker = \"__LAND_WORKBENCH_PAINT_PRIME_V2__\";\n\nconst Polyfill = `\\n/* ${Marker} */\\n(${WorkbenchPaintPrime.toString()})();\\n`;\n\nconst Plugin: TransformPlugin = {\n\tKind: \"Transform\",\n\n\tName: \"InjectWorkbenchPaintPrime\",\n\n\tMatch: ({ Path }) =>\n\t\tPath.endsWith(\"vs/code/electron-browser/workbench/workbench.js\"),\n\n\tTransform({ Source }) {\n\t\tif (Source.includes(Marker)) return { Kind: \"Unchanged\" };\n\n\t\treturn { Kind: \"Rewrite\", Source: Polyfill + Source };\n\t},\n};\n\nexport default Plugin;\n"],
+  "mappings": ";;AAQA,OAAO,yBAAyB;AAGhC,MAAM,SAAS;AAEf,MAAM,WAAW;AAAA,KAAQ,MAAM;AAAA,GAAS,oBAAoB,SAAS,CAAC;AAAA;AAEtE,MAAM,SAA0B;AAAA,EAC/B,MAAM;AAAA,EAEN,MAAM;AAAA,EAEN,OAAO,wBAAC,EAAE,KAAK,MACd,KAAK,SAAS,iDAAiD,GADzD;AAAA,EAGP,UAAU,EAAE,OAAO,GAAG;AACrB,QAAI,OAAO,SAAS,MAAM,EAAG,QAAO,EAAE,MAAM,YAAY;AAExD,WAAO,EAAE,MAAM,WAAW,QAAQ,WAAW,OAAO;AAAA,EACrD;AACD;AAEA,IAAO,gBAAQ;",
+  "names": []
+}

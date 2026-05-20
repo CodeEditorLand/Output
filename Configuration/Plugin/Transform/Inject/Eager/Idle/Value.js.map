@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../../Source/Plugin/Transform/Inject/Eager/Idle/Value.ts"],
+  "sourcesContent": ["/**\n * Override `requestIdleCallback` so VS Code's `IdleValue<T>` lazy-\n * init pattern resolves eagerly.\n *\n * Body lives in `Polyfill/EagerIdleValue.ts` (type-checked).\n * Idempotent. Marker `__LAND_EAGER_IDLE_VALUE__`.\n */\n\nimport EagerIdleValue from \"../../../../Polyfill/Eager/Idle/Value.js\";\nimport type { TransformPlugin } from \"../../../../Type.js\";\n\nconst Marker = \"__LAND_EAGER_IDLE_VALUE__\";\n\nconst Polyfill = `\\n/* ${Marker} */\\n(${EagerIdleValue.toString()})();\\n`;\n\nconst Plugin: TransformPlugin = {\n\tKind: \"Transform\",\n\n\tName: \"InjectEagerIdleValue\",\n\n\tMatch: ({ Path }) =>\n\t\tPath.endsWith(\"vs/code/electron-browser/workbench/workbench.js\"),\n\n\tTransform({ Source }) {\n\t\tif (Source.includes(Marker)) return { Kind: \"Unchanged\" };\n\n\t\treturn { Kind: \"Rewrite\", Source: Polyfill + Source };\n\t},\n};\n\nexport default Plugin;\n"],
+  "mappings": ";;AAQA,OAAO,oBAAoB;AAG3B,MAAM,SAAS;AAEf,MAAM,WAAW;AAAA,KAAQ,MAAM;AAAA,GAAS,eAAe,SAAS,CAAC;AAAA;AAEjE,MAAM,SAA0B;AAAA,EAC/B,MAAM;AAAA,EAEN,MAAM;AAAA,EAEN,OAAO,wBAAC,EAAE,KAAK,MACd,KAAK,SAAS,iDAAiD,GADzD;AAAA,EAGP,UAAU,EAAE,OAAO,GAAG;AACrB,QAAI,OAAO,SAAS,MAAM,EAAG,QAAO,EAAE,MAAM,YAAY;AAExD,WAAO,EAAE,MAAM,WAAW,QAAQ,WAAW,OAAO;AAAA,EACrD;AACD;AAEA,IAAO,gBAAQ;",
+  "names": []
+}

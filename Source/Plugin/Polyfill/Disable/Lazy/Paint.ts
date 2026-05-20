@@ -104,7 +104,7 @@ export default function DisableLazyPaint(): void {
 				try {
 					Entry.Callback(Timestamp);
 				} catch (Error) {
-					console.error(Error);
+					/* swallow - polyfill callback errors are non-fatal */
 				}
 			}
 		}
@@ -195,7 +195,7 @@ export default function DisableLazyPaint(): void {
 							Self as unknown as IntersectionObserver,
 						);
 					} catch (Error) {
-						console.error(Error);
+						/* swallow - polyfill callback errors are non-fatal */
 					}
 				});
 			}

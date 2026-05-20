@@ -145,7 +145,15 @@ export default function TelemetryConsentOff(): void {
 
 	Land["__LAND_TELEMETRY_ENABLED__"] = false;
 
-	console.log(
-		`[LandFix:Telemetry] consent prebaked off; ${Object.keys(Prebake).length} keys seeded`,
-	);
+	try {
+		const Invoke =
+			(window as any).__TAURI__?.core?.invoke ??
+			(window as any).__TAURI__?.invoke;
+		if (typeof Invoke === "function") {
+			Invoke("MountainIPCInvoke", {
+				method: "diagnostic:log",
+				params: ["cel-polyfill", `[LandFix:Telemetry] consent prebaked off; ${Object.keys(Prebake).length} keys seeded`],
+			}).catch(() => {});
+		}
+	} catch {}
 }

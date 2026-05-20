@@ -1,3 +1,19 @@
+
+// Mountain diagnostic bridge - used instead of console.* in browser context.
+const _CELLog = (Message: string): void => {
+	try {
+		const Invoke =
+			(window as any).__TAURI__?.core?.invoke ??
+			(window as any).__TAURI__?.invoke;
+		if (typeof Invoke === "function") {
+			Invoke("MountainIPCInvoke", {
+				method: "diagnostic:log",
+				params: ["cel-polyfill", Message],
+			}).catch(() => {});
+		}
+	} catch {}
+};
+
 /// <reference lib="dom" />
 /// <reference lib="dom.iterable" />
 /// <reference lib="es2022" />
@@ -40,7 +56,7 @@ export default function EagerIdleValue(): void {
 			try {
 				Callback(EagerDeadline as unknown as IdleDeadline);
 			} catch (Error) {
-				console.error("[LandFix:EagerIdle]", Error);
+				_CELLog(String("[LandFix:EagerIdle]", Error));
 			}
 		}, 0) as unknown as number;
 	};
@@ -82,7 +98,5 @@ export default function EagerIdleValue(): void {
 			EagerCancelIdleCallback;
 	}
 
-	console.log(
-		"[LandFix:EagerIdleValue] requestIdleCallback collapsed to setTimeout(0); IdleValue executors run eagerly",
-	);
+	_CELLog("[LandFix:EagerIdleValue] requestIdleCallback collapsed to setTimeout(0); IdleValue executors run eagerly");
 }

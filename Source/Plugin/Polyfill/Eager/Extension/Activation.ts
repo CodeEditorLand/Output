@@ -1,3 +1,19 @@
+
+// Mountain diagnostic bridge - used instead of console.* in browser context.
+const _CELLog = (Message: string): void => {
+	try {
+		const Invoke =
+			(window as any).__TAURI__?.core?.invoke ??
+			(window as any).__TAURI__?.invoke;
+		if (typeof Invoke === "function") {
+			Invoke("MountainIPCInvoke", {
+				method: "diagnostic:log",
+				params: ["cel-polyfill", Message],
+			}).catch(() => {});
+		}
+	} catch {}
+};
+
 /// <reference lib="dom" />
 /// <reference lib="dom.iterable" />
 /// <reference lib="es2022" />
@@ -83,33 +99,25 @@ export default function EagerExtensionActivation(): void {
 						typeof (Result as Promise<unknown>).then === "function"
 					) {
 						(Result as Promise<unknown>).catch((Error: unknown) => {
-							console.warn(
-								`[LandFix:EagerActivation] activateByEvent ${EventName} rejected: ${String(Error)}`,
-							);
+							_CELLog("[LandFix:EagerActivation] activateByEvent ${EventName} rejected: ${String(Error)}");
 						});
 					}
 
 					FireCount++;
 				} catch (Error) {
-					console.warn(
-						`[LandFix:EagerActivation] activateByEvent ${EventName} threw: ${String(Error)}`,
-					);
+					_CELLog("[LandFix:EagerActivation] activateByEvent ${EventName} threw: ${String(Error)}");
 				}
 			}
 
 			if (FireCount > 0) {
-				console.log(
-					`[LandFix:EagerActivation] fired ${FireCount} activation event(s) eagerly`,
-				);
+				_CELLog("[LandFix:EagerActivation] fired ${FireCount} activation event(s) eagerly");
 
 				return true;
 			}
 
 			return false;
 		} catch (Error) {
-			console.warn(
-				`[LandFix:EagerActivation] FireActivationEvents failed: ${String(Error)}`,
-			);
+			_CELLog("[LandFix:EagerActivation] FireActivationEvents failed: ${String(Error)}");
 
 			return false;
 		}

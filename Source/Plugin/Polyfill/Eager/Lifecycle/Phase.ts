@@ -1,3 +1,19 @@
+
+// Mountain diagnostic bridge - used instead of console.* in browser context.
+const _CELLog = (Message: string): void => {
+	try {
+		const Invoke =
+			(window as any).__TAURI__?.core?.invoke ??
+			(window as any).__TAURI__?.invoke;
+		if (typeof Invoke === "function") {
+			Invoke("MountainIPCInvoke", {
+				method: "diagnostic:log",
+				params: ["cel-polyfill", Message],
+			}).catch(() => {});
+		}
+	} catch {}
+};
+
 /// <reference lib="dom" />
 /// <reference lib="dom.iterable" />
 /// <reference lib="es2022" />
@@ -74,23 +90,17 @@ export default function EagerLifecyclePhase(): void {
 				) {
 					ServiceReference.phase = 4;
 
-					console.log(
-						"[LandFix:Lifecycle] phase advanced eagerly to Eventually",
-					);
+					_CELLog("[LandFix:Lifecycle] phase advanced eagerly to Eventually");
 
 					return true;
 				}
 			} catch (Error) {
-				console.warn(
-					`[LandFix:Lifecycle] phase setter rejected: ${String(Error)}`,
-				);
+				_CELLog("[LandFix:Lifecycle] phase setter rejected: ${String(Error)}");
 			}
 
 			return false;
 		} catch (Error) {
-			console.warn(
-				`[LandFix:Lifecycle] advance failed: ${String(Error)}`,
-			);
+			_CELLog("[LandFix:Lifecycle] advance failed: ${String(Error)}");
 
 			return false;
 		}

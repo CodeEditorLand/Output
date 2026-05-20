@@ -49,7 +49,18 @@ const Trace = (Tag: string, Detail?: object): void => {
 
 const Warn = (...Args: unknown[]): void => {
 	try {
-		console.warn("[Land Scanner]", ...Args);
+		// Forward to Mountain's dev-log via diagnostic:log so the warning
+		// appears in `tail -f Mountain.dev.log` alongside Rust-side events.
+		const Invoke =
+			(window as any).__TAURI__?.core?.invoke ??
+			(window as any).__TAURI__?.invoke;
+		if (typeof Invoke === "function") {
+			const Message = Args.map(String).join(" ");
+			Invoke("MountainIPCInvoke", {
+				method: "diagnostic:log",
+				params: ["land-scanner", Message],
+			}).catch(() => {});
+		}
 	} catch {
 		/* noop */
 	}

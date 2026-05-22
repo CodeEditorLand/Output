@@ -64,6 +64,7 @@ import { IMarkerService } from "../../platform/markers/common/markers.js";
 import { INotificationService } from "../../platform/notification/common/notification.js";
 import { IProductService } from "../../platform/product/common/productService.js";
 import { IProgressService } from "../../platform/progress/common/progress.js";
+import { IQuickInputService } from "../../platform/quickinput/common/quickInput.js";
 import { Registry } from "../../platform/registry/common/platform.js";
 import { IStorageService } from "../../platform/storage/common/storage.js";
 import { IThemeService } from "../../platform/theme/common/themeService.js";
@@ -251,6 +252,8 @@ export const ExposeAccessor = (InstantiationService) => {
 			),
 
 			Keybinding: Resolve(InstantiationService, IKeybindingService),
+
+			QuickInput: Resolve(InstantiationService, IQuickInputService),
 
 			Notification: Resolve(InstantiationService, INotificationService),
 

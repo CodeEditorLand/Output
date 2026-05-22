@@ -1,6 +1,8 @@
 var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-const PathRegex = /\/vs\/workbench\/contrib\/webview\/browser\/pre\/index\.html$/;
+var __name = (target, value) =>
+	__defProp(target, "name", { value, configurable: true });
+const PathRegex =
+	/\/vs\/workbench\/contrib\/webview\/browser\/pre\/index\.html$/;
 const Marker = "<!-- __LAND_WEBVIEW_BLOB_URL_REWRITE__ -->";
 const BlobRewriteScript = `${Marker}
 <script>
@@ -169,24 +171,27 @@ const BlobRewriteScript = `${Marker}
 })();
 </script>`;
 const Plugin = {
-  Kind: "Transform",
-  Name: "InjectWebviewBlobUrlRewrite",
-  Match: /* @__PURE__ */ __name(({ Path }) => PathRegex.test(Path), "Match"),
-  Transform({ Source }) {
-    if (Source.includes(Marker)) {
-      return { Kind: "Unchanged" };
-    }
-    const InsertBefore = "</body>";
-    const Idx = Source.lastIndexOf(InsertBefore);
-    if (Idx < 0) {
-      return { Kind: "Unchanged" };
-    }
-    const Next = Source.slice(0, Idx) + "\n" + BlobRewriteScript + "\n" + Source.slice(Idx);
-    return { Kind: "Rewrite", Source: Next };
-  }
+	Kind: "Transform",
+	Name: "InjectWebviewBlobUrlRewrite",
+	Match: /* @__PURE__ */ __name(({ Path }) => PathRegex.test(Path), "Match"),
+	Transform({ Source }) {
+		if (Source.includes(Marker)) {
+			return { Kind: "Unchanged" };
+		}
+		const InsertBefore = "</body>";
+		const Idx = Source.lastIndexOf(InsertBefore);
+		if (Idx < 0) {
+			return { Kind: "Unchanged" };
+		}
+		const Next =
+			Source.slice(0, Idx) +
+			"\n" +
+			BlobRewriteScript +
+			"\n" +
+			Source.slice(Idx);
+		return { Kind: "Rewrite", Source: Next };
+	},
 };
 var Rewrite_default = Plugin;
-export {
-  Rewrite_default as default
-};
+export { Rewrite_default as default };
 //# sourceMappingURL=Rewrite.js.map

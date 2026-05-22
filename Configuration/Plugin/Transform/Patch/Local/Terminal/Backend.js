@@ -1,11 +1,14 @@
 var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-const Marker = "workbench/contrib/terminal/electron-browser/localTerminalBackend.js".replaceAll(
-  "/",
-  "\\/"
-);
+var __name = (target, value) =>
+	__defProp(target, "name", { value, configurable: true });
+const Marker =
+	"workbench/contrib/terminal/electron-browser/localTerminalBackend.js".replaceAll(
+		"/",
+		"\\/",
+	);
 const PathRegex = new RegExp(`${Marker}$`);
-const FunctionRegex = /async\s+_connectToDirectProxy\s*\(\s*\)\s*\{[\s\S]*?\n\s*\}\)\;\s*\n\s*\}/;
+const FunctionRegex =
+	/async\s+_connectToDirectProxy\s*\(\s*\)\s*\{[\s\S]*?\n\s*\}\)\;\s*\n\s*\}/;
 const LandBody = `async _connectToDirectProxy() {
 		// [Land] Bypass acquirePort('vscode:createPtyHostMessageChannel');
 		// Tauri has no Electron utility-process MessagePort. Route every
@@ -53,25 +56,26 @@ const LandBody = `async _connectToDirectProxy() {
 		this.getEnvironment();
 	}`;
 const Plugin = {
-  Kind: "Transform",
-  Name: "PatchLocalTerminalBackend",
-  Enabled: /* @__PURE__ */ __name(() => process.env["Electron"] === "true", "Enabled"),
-  Match: /* @__PURE__ */ __name(({ Path }) => PathRegex.test(Path), "Match"),
-  Transform({ Source }) {
-    if (Source.includes("[Land] Bypass acquirePort")) {
-      return { Kind: "Unchanged" };
-    }
-    if (!FunctionRegex.test(Source)) {
-      return { Kind: "Unchanged" };
-    }
-    return {
-      Kind: "Rewrite",
-      Source: Source.replace(FunctionRegex, LandBody)
-    };
-  }
+	Kind: "Transform",
+	Name: "PatchLocalTerminalBackend",
+	Enabled: /* @__PURE__ */ __name(
+		() => process.env["Electron"] === "true",
+		"Enabled",
+	),
+	Match: /* @__PURE__ */ __name(({ Path }) => PathRegex.test(Path), "Match"),
+	Transform({ Source }) {
+		if (Source.includes("[Land] Bypass acquirePort")) {
+			return { Kind: "Unchanged" };
+		}
+		if (!FunctionRegex.test(Source)) {
+			return { Kind: "Unchanged" };
+		}
+		return {
+			Kind: "Rewrite",
+			Source: Source.replace(FunctionRegex, LandBody),
+		};
+	},
 };
 var Backend_default = Plugin;
-export {
-  Backend_default as default
-};
+export { Backend_default as default };
 //# sourceMappingURL=Backend.js.map

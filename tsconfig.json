@@ -8,7 +8,9 @@
 
 		"declarationMap": true,
 
-		"emitDeclarationOnly": true
+		"emitDeclarationOnly": true,
+
+		"composite": true
 	},
 
 	"extends": "@playform/build/tsconfig",

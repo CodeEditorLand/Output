@@ -183,7 +183,14 @@ const StubChannels = {
   NativeMcpDiscoveryHelper: { load: void 0 },
   sandboxHelper: {},
   mcpGateway: {},
-  browserViewGroup: {},
+  browserViewGroup: {
+    updateKeybindings: void 0,
+    updateTheme: void 0,
+    updateConfiguration: void 0,
+    getBrowserViews: [],
+    openDevTools: void 0,
+    closeDevTools: void 0
+  },
   // Fix: terminals.windows - IExternalTerminalService.getDefaultTerminalForPlatforms()
   externalTerminal: {
     getDefaultTerminalForPlatforms: {

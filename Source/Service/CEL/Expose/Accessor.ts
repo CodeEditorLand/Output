@@ -46,6 +46,7 @@ import { Disposable, toDisposable } from "../../base/common/lifecycle.js";
 import { ResourceTree } from "../../base/common/resourceTree.js";
 import { URI } from "../../base/common/uri.js";
 import { ILanguageService } from "../../editor/common/languages/language.js";
+import { ILanguageFeaturesService } from "../../editor/common/services/languageFeatures.js";
 import { IModelService } from "../../editor/common/services/model.js";
 import { IClipboardService } from "../../platform/clipboard/common/clipboardService.js";
 import {
@@ -222,6 +223,11 @@ export const ExposeAccessor = (InstantiationService) => {
 			Models: Resolve(InstantiationService, IModelService),
 
 			Languages: Resolve(InstantiationService, ILanguageService),
+
+			LanguageFeatures: Resolve(
+				InstantiationService,
+				ILanguageFeaturesService,
+			),
 
 			ResourceTree: ResourceTree,
 

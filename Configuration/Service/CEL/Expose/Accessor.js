@@ -50,6 +50,10 @@ import { ITextFileService } from "../services/textfile/common/textfiles.js";
 import { IWorkbenchThemeService } from "../services/themes/common/workbenchThemeService.js";
 import { ITitleService } from "../services/title/browser/titleService.js";
 import { IViewsService } from "../services/views/common/viewsService.js";
+import {
+  IEditorResolverService,
+  RegisteredEditorPriority
+} from "../services/editor/common/editorResolverService.js";
 const ViewsRegistryId = "workbench.registry.view";
 const ViewContainersRegistryId = "workbench.registry.view.containers";
 const Resolve = /* @__PURE__ */ __name((Service, Decorator) => {
@@ -114,6 +118,11 @@ const ExposeAccessor = /* @__PURE__ */ __name((InstantiationService) => {
       CommandRegistry: CommandsRegistry,
       Search: Resolve(InstantiationService, ISearchService),
       Views: Resolve(InstantiationService, IViewsService),
+      EditorResolver: Resolve(
+        InstantiationService,
+        IEditorResolverService
+      ),
+      RegisteredEditorPriority,
       URI,
       TreeViewByViewId: /* @__PURE__ */ __name((ViewId) => {
         try {

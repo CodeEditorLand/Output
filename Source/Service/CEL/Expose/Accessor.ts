@@ -79,6 +79,10 @@ import { IWebviewWorkbenchService } from "../contrib/webviewPanel/browser/webvie
 import { IWebviewViewService } from "../contrib/webviewView/browser/webviewViewService.js";
 import { IActivityService } from "../services/activity/common/activity.js";
 import { IEditorGroupsService } from "../services/editor/common/editorGroupsService.js";
+import {
+	IEditorResolverService,
+	RegisteredEditorPriority,
+} from "../services/editor/common/editorResolverService.js";
 import { IEditorService } from "../services/editor/common/editorService.js";
 import { IExtensionService } from "../services/extensions/common/extensions.js";
 import { IHostService } from "../services/host/browser/host.js";
@@ -191,6 +195,13 @@ export const ExposeAccessor = (InstantiationService) => {
 			Search: Resolve(InstantiationService, ISearchService),
 
 			Views: Resolve(InstantiationService, IViewsService),
+
+			EditorResolver: Resolve(
+				InstantiationService,
+				IEditorResolverService,
+			),
+
+			RegisteredEditorPriority,
 
 			URI: URI,
 

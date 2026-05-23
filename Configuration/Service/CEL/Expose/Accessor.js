@@ -38,6 +38,10 @@ import { IWebviewWorkbenchService } from "../contrib/webviewPanel/browser/webvie
 import { IWebviewViewService } from "../contrib/webviewView/browser/webviewViewService.js";
 import { IActivityService } from "../services/activity/common/activity.js";
 import { IEditorGroupsService } from "../services/editor/common/editorGroupsService.js";
+import {
+  IEditorResolverService,
+  RegisteredEditorPriority
+} from "../services/editor/common/editorResolverService.js";
 import { IEditorService } from "../services/editor/common/editorService.js";
 import { IExtensionService } from "../services/extensions/common/extensions.js";
 import { IHostService } from "../services/host/browser/host.js";
@@ -50,10 +54,6 @@ import { ITextFileService } from "../services/textfile/common/textfiles.js";
 import { IWorkbenchThemeService } from "../services/themes/common/workbenchThemeService.js";
 import { ITitleService } from "../services/title/browser/titleService.js";
 import { IViewsService } from "../services/views/common/viewsService.js";
-import {
-  IEditorResolverService,
-  RegisteredEditorPriority
-} from "../services/editor/common/editorResolverService.js";
 const ViewsRegistryId = "workbench.registry.view";
 const ViewContainersRegistryId = "workbench.registry.view.containers";
 const Resolve = /* @__PURE__ */ __name((Service, Decorator) => {

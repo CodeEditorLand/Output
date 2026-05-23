@@ -267,25 +267,25 @@ function createServiceProxy(service: SharedProcessService): ServiceProxy {
 			try {
 				if (service === "extension-host") {
 					return await invokeTauri<boolean>(
-						"cocoon_extension_host_health",
+						"CocoonExtensionHostHealth",
 
 						{},
 					);
 				} else if (service === "search") {
 					return await invokeTauri<boolean>(
-						"cocoon_search_service_health",
+						"CocoonSearchServiceHealth",
 
 						{},
 					);
 				} else if (service === "debug") {
 					return await invokeTauri<boolean>(
-						"cocoon_debug_service_health",
+						"CocoonDebugServiceHealth",
 
 						{},
 					);
 				} else {
 					return await invokeTauri<boolean>(
-						"shared_process_service_health",
+						"SharedProcessServiceHealth",
 
 						{ service },
 					);

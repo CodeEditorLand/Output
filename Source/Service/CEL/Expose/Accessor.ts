@@ -45,6 +45,7 @@ import { Emitter } from "../../base/common/event.js";
 import { Disposable, toDisposable } from "../../base/common/lifecycle.js";
 import { ResourceTree } from "../../base/common/resourceTree.js";
 import { URI } from "../../base/common/uri.js";
+import { ICodeEditorService } from "../../editor/browser/services/codeEditorService.js";
 import { ILanguageService } from "../../editor/common/languages/language.js";
 import { ILanguageFeaturesService } from "../../editor/common/services/languageFeatures.js";
 import { IModelService } from "../../editor/common/services/model.js";
@@ -320,6 +321,23 @@ export const ExposeAccessor = (InstantiationService) => {
 			Layout: Resolve(InstantiationService, IWorkbenchLayoutService),
 
 			Terminal: Resolve(InstantiationService, ITerminalService),
+
+			// Monaco editor service - needed for ICodeEditorService.
+			// registerDecorationType + setDecorationsByType so extensions'
+			// `editor.setDecorations(decorationType, ranges)` actually
+			// paints visible decorations (squiggles, gutter icons, inline
+			// hints). Without this, every extension that uses
+			// `createTextEditorDecorationType` silently no-ops. Both keys
+			// expose the SAME instance so the Sky bridge's pre-existing
+			// `Services.CodeEditorService.listCodeEditors()` call site
+			// and the new `Services.CodeEditor.registerDecorationType(...)`
+			// site both resolve to the live workbench service.
+			CodeEditor: Resolve(InstantiationService, ICodeEditorService),
+
+			CodeEditorService: Resolve(
+				InstantiationService,
+				ICodeEditorService,
+			),
 		};
 
 		// Defensive monkey-patch: short-circuit `IExtensionService.activateByEvent`

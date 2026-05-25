@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../Source/ESBuild/Exclude/Potential.ts"],
-  "sourcesContent": ["export default (Prefix: string) => [\n\t// `${Prefix}/platform/profiling/*`, // Removed: profiling.js is needed by extensions.js\n\n\t`${Prefix}/platform/cssDev/*`,\n\n\t// If no core markdown rendering needed\n\t// `${Prefix}/base/common/marked`,\n\n\t// `${Prefix}/base/browser/dompurify`,\n];\n"],
-  "mappings": ";;AAAA,IAAO,oBAAQ,wBAAC,WAAmB;AAAA;AAAA,EAGlC,GAAG,MAAM;AAAA;AAAA;AAAA;AAMV,GATe;",
-  "names": []
-}

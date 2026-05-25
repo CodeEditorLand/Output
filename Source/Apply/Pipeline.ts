@@ -248,7 +248,8 @@ const Pipeline: Array<Plugin> = [
 	// OS-painted close / minimize / maximize buttons. Applies a
 	// prepended stylesheet via `.toString()` on the polyfill.
 	// Idempotent; marker `__LAND_MAC_TITLEBAR_OFFSET__`.
-	...(LandDisableUIFixes ? [] : [Configuration.InjectMacTitlebarOffsetCSS]),
+	// Always active - structural fix, not a perf optimisation.
+	Configuration.InjectMacTitlebarOffsetCSS,
 
 	// Establish a deterministic z-index hierarchy across workbench
 	// parts. Injects CSS rules that include: (1) `isolation: isolate`
@@ -256,7 +257,8 @@ const Pipeline: Array<Plugin> = [
 	// and floating UI (3) `.context-view` pinned at 2600 so menubar
 	// dropdowns and right-click context menus render above the editor.
 	// Idempotent; marker `__LAND_PART_ZINDEX__`.
-	...(LandDisableUIFixes ? [] : [Configuration.InjectPartZIndexCSS]),
+	// Always active - structural fix, not a perf optimisation.
+	Configuration.InjectPartZIndexCSS,
 ];
 
 const Target = resolve(process.cwd(), "Target/Microsoft/VSCode");

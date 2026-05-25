@@ -498,7 +498,9 @@ export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => {
 		// quick-pick stop colliding with the OS-painted close /
 		// minimize / maximize buttons. Targets `.monaco-workbench.mac`
 		// only; non-macOS builds keep their stock layout. Idempotent.
-		...(LandDisableUIFixes ? [] : [InjectMacTitlebarOffsetCSS]),
+		// Always active - this is a structural fix, not a perf
+		// optimisation, so DisableUIFixes does not gate it.
+		InjectMacTitlebarOffsetCSS,
 
 		// Establish a deterministic z-index hierarchy across the
 		// workbench parts so a sibling that picked up an implicit
@@ -507,7 +509,8 @@ export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => {
 		// status bar progress badges, or the command-center
 		// quick-pick dropdown. Hardens stock CSS without changing
 		// its intent. Idempotent.
-		...(LandDisableUIFixes ? [] : [InjectPartZIndexCSS]),
+		// Always active for the same reason as InjectMacTitlebarOffsetCSS.
+		InjectPartZIndexCSS,
 
 		// Pre-bake telemetry consent OFF so VS Code's TelemetryService
 		// starts in already-disabled state. Network.ts excludes the

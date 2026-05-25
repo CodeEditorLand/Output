@@ -75,6 +75,7 @@ import { IViewDescriptorService } from "../common/views.js";
 import { ICustomEditorService } from "../contrib/customEditor/common/customEditor.js";
 import { IDebugService } from "../contrib/debug/common/debug.js";
 import { ISCMService } from "../contrib/scm/common/scm.js";
+import { ITerminalService } from "../contrib/terminal/browser/terminal.js";
 import { IWebviewWorkbenchService } from "../contrib/webviewPanel/browser/webviewWorkbenchService.js";
 import { IWebviewViewService } from "../contrib/webviewView/browser/webviewViewService.js";
 import { IActivityService } from "../services/activity/common/activity.js";
@@ -317,6 +318,8 @@ export const ExposeAccessor = (InstantiationService) => {
 			),
 
 			Layout: Resolve(InstantiationService, IWorkbenchLayoutService),
+
+			Terminal: Resolve(InstantiationService, ITerminalService),
 		};
 
 		// Defensive monkey-patch: short-circuit `IExtensionService.activateByEvent`

@@ -43,6 +43,7 @@ import InjectNameShim from "./Transform/Inject/Name/Shim.js";
 import InjectPartZIndexCSS from "./Transform/Inject/Part/Z/Index/CSS.js";
 import InjectStorageOverlay from "./Transform/Inject/Storage/Overlay.js";
 import InjectStripBackgroundPolling from "./Transform/Inject/Strip/Background/Polling.js";
+import InjectTauriDragRegion from "./Transform/Inject/Tauri/Drag/Region.js";
 import InjectTelemetryConsentOff from "./Transform/Inject/Telemetry/Consent/Off.js";
 import InjectTerminalGPULayerCSS from "./Transform/Inject/Terminal/GPU/Layer/CSS.js";
 import InjectWebViewPolyfills from "./Transform/Inject/Web/View/Polyfills.js";
@@ -151,6 +152,8 @@ export { default as InjectWebViewPolyfills } from "./Transform/Inject/Web/View/P
 export { default as InjectMacTitlebarOffsetCSS } from "./Transform/Inject/Mac/Titlebar/Offset/CSS.js";
 
 export { default as InjectPartZIndexCSS } from "./Transform/Inject/Part/Z/Index/CSS.js";
+
+export { default as InjectTauriDragRegion } from "./Transform/Inject/Tauri/Drag/Region.js";
 
 export { default as InjectWorkbenchInteractivityCSS } from "./Transform/Inject/Workbench/Interactivity/CSS.js";
 
@@ -497,10 +500,31 @@ export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => {
 		// (`File / Edit / View / ...`) and the command-center
 		// quick-pick stop colliding with the OS-painted close /
 		// minimize / maximize buttons. Targets `.monaco-workbench.mac`
-		// only; non-macOS builds keep their stock layout. Idempotent.
-		// Always active - this is a structural fix, not a perf
-		// optimisation, so DisableUIFixes does not gate it.
+		// only; non-macOS builds keep their stock layout. Includes a
+		// fullscreen detector that toggles `body.land-fullscreen` so
+		// the 80px reservation reclaims to 0 when traffic lights are
+		// hidden (macOS native fullscreen). Right side is left
+		// untouched - traffic lights only sit on the left on macOS,
+		// so no right-edge padding is applied.
+		// Always active - structural fix; not gated by DisableUIFixes.
+		// Idempotent (marker `__LAND_MAC_TITLEBAR_OFFSET__`).
 		InjectMacTitlebarOffsetCSS,
+
+		// Stamp `data-tauri-drag-region` on workbench titlebar drag
+		// regions so click-and-drag on those areas moves the Tauri 2
+		// window. Stock VS Code relies on Chromium's
+		// `-webkit-app-region: drag`, which Tauri's overlay-titlebar
+		// hit-test ignores - the equivalent attribute is the explicit
+		// `data-tauri-drag-region`. Stamps every match on first scan
+		// and observes `<body>` for late-mounted drag regions (titlebar
+		// repaints on profile switch / window-mode toggle). Interactive
+		// children (menubar items, command-center button, window
+		// controls) get `data-tauri-drag-region="false"` so click
+		// events still land on them. Cross-OS (drag handle wiring is
+		// needed everywhere, not just macOS).
+		// Always active - not a perf optimisation; not gated by
+		// DisableUIFixes. Idempotent (marker `__LAND_TAURI_DRAG_REGION__`).
+		InjectTauriDragRegion,
 
 		// Establish a deterministic z-index hierarchy across the
 		// workbench parts so a sibling that picked up an implicit
@@ -509,8 +533,14 @@ export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => {
 		// status bar progress badges, or the command-center
 		// quick-pick dropdown. Hardens stock CSS without changing
 		// its intent. Idempotent.
-		// Always active for the same reason as InjectMacTitlebarOffsetCSS.
-		InjectPartZIndexCSS,
+		// Gated behind `DisableUIFixes`: the `.monaco-workbench .part
+		// { isolation: isolate }` rule this transform emits has been
+		// observed to hide the in-window menubar under specific
+		// configurations, so operators running with the env var set
+		// (e.g. when diagnosing menubar / dropdown clipping) need this
+		// transform OFF. Skipping it returns workbench parts to stock
+		// CSS stacking-context behaviour.
+		...(LandDisableUIFixes ? [] : [InjectPartZIndexCSS]),
 
 		// Pre-bake telemetry consent OFF so VS Code's TelemetryService
 		// starts in already-disabled state. Network.ts excludes the

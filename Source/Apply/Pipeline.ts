@@ -48,7 +48,7 @@ const LandDisableUIFixes =
 
 if (LandDisableUIFixes) {
 	console.log(
-		"[Output/Pipeline] DisableUIFixes=true - skipping 2 UI transforms (InjectMacTitlebarOffsetCSS, InjectPartZIndexCSS)",
+		"[Output/Pipeline] DisableUIFixes=true - skipping InjectPartZIndexCSS (the `.monaco-workbench .part { isolation: isolate }` rule has been observed to hide the in-window menubar). InjectMacTitlebarOffsetCSS remains active - it is a structural fix that reserves macOS traffic-light cluster width and does not affect part stacking contexts.",
 	);
 }
 
@@ -245,11 +245,29 @@ const Pipeline: Array<Plugin> = [
 	// Reserve the macOS traffic-light cluster width on the titlebar's
 	// left edge so the in-window menubar (`File / Edit / View / ...`)
 	// and the command-center quick-pick stop colliding with the
-	// OS-painted close / minimize / maximize buttons. Applies a
-	// prepended stylesheet via `.toString()` on the polyfill.
+	// OS-painted close / minimize / maximize buttons. Includes a
+	// fullscreen detector (window resize + matchMedia +
+	// fullscreenchange) that toggles `body.land-fullscreen`, reclaiming
+	// the 80px reservation while the traffic lights are hidden (macOS
+	// native fullscreen). Right side gets `padding-right: 0` asserted
+	// explicitly - traffic lights only sit on the left on macOS.
+	// Applies a prepended stylesheet via `.toString()` on the polyfill.
 	// Idempotent; marker `__LAND_MAC_TITLEBAR_OFFSET__`.
 	// Always active - structural fix, not a perf optimisation.
 	Configuration.InjectMacTitlebarOffsetCSS,
+
+	// Stamp `data-tauri-drag-region` on the workbench titlebar drag
+	// regions so Tauri 2's window-drag hit-test picks them up. Stock
+	// VS Code uses Chromium's `-webkit-app-region: drag`; Tauri's
+	// overlay-titlebar ignores that property and looks at the
+	// `data-tauri-drag-region` HTML attribute instead. Interactive
+	// children (menubar, command-center, window-controls) get the
+	// negative form (`data-tauri-drag-region="false"`) so click events
+	// still land. Observes `<body>` for late-mounted drag regions.
+	// Idempotent; marker `__LAND_TAURI_DRAG_REGION__`.
+	// Always active - drag wiring is needed on every OS, not a perf
+	// optimisation.
+	Configuration.InjectTauriDragRegion,
 
 	// Establish a deterministic z-index hierarchy across workbench
 	// parts. Injects CSS rules that include: (1) `isolation: isolate`
@@ -257,8 +275,12 @@ const Pipeline: Array<Plugin> = [
 	// and floating UI (3) `.context-view` pinned at 2600 so menubar
 	// dropdowns and right-click context menus render above the editor.
 	// Idempotent; marker `__LAND_PART_ZINDEX__`.
-	// Always active - structural fix, not a perf optimisation.
-	Configuration.InjectPartZIndexCSS,
+	// Gated behind `DisableUIFixes`: the per-part `isolation: isolate`
+	// rule has been observed to hide the in-window menubar under
+	// specific configurations. Skipping returns parts to stock CSS
+	// stacking-context behaviour - useful when diagnosing dropdown /
+	// menubar clipping.
+	...(LandDisableUIFixes ? [] : [Configuration.InjectPartZIndexCSS]),
 ];
 
 const Target = resolve(process.cwd(), "Target/Microsoft/VSCode");

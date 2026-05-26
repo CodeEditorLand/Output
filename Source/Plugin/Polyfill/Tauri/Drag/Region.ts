@@ -7,7 +7,11 @@
  *
  * Bridges VS Code's existing `-webkit-app-region` CSS classification to
  * Tauri 2's `data-tauri-drag-region` HTML attribute so the workbench
- * titlebar drag system works under WKWebView.
+ * titlebar drag system works under WKWebView, AND ships the matching
+ * `mousedown` listener that calls `startDragging()` - Tauri's runtime
+ * only injects that listener when the webview loads via its custom
+ * `tauri://` protocol; Land's webview loads from the Astro dev server
+ * (`http://localhost:21100`), so the attribute alone does nothing.
  *
  * ## Why this is needed
  *
@@ -22,7 +26,12 @@
  * `-webkit-app-region` declarations at parse time, so runtime
  * inspection of `CSSStyleRule.style` returns nothing. Tauri 2 instead
  * reads the `data-tauri-drag-region` HTML attribute - `""` opts in,
- * `"false"` opts out.
+ * `"false"` opts out - but only when its own runtime drag listener is
+ * present, which it is NOT in the HTTP-loaded path. We install the
+ * listener ourselves: capture-phase `mousedown` on the document, walk
+ * the ancestor chain looking for an enabled drag region, and route
+ * single-click to `startDragging` / double-click to the toggle-maximise
+ * window command. Behaviour matches stock Tauri.
  *
  * ## Build-time extraction, runtime stamping
  *
@@ -117,6 +126,80 @@ export default function TauriDragRegion(): void {
 		StampMatching(NoDrag, "false", Root);
 	}
 
+	// Mirror Tauri's own drag-region runtime: walk from the mousedown
+	// target up the ancestor chain looking for the data-attribute, and
+	// if a draggable ancestor is found, dispatch `start_dragging` (single
+	// click) or `internal_toggle_maximize` (double click). We attach in
+	// CAPTURE phase so workbench-level mousedown listeners cannot
+	// `stopPropagation` away the event before we see it; we DO NOT call
+	// `preventDefault` because the workbench's own focus / pointer-capture
+	// logic still needs to receive the event for non-drag targets.
+	function IsDragTarget(El: Element | null): boolean {
+		while (El) {
+			if (
+				El.nodeType === 1 &&
+				El.hasAttribute &&
+				El.hasAttribute(Attribute)
+			) {
+				const Value = El.getAttribute(Attribute);
+				// `data-tauri-drag-region="false"` opts out; any other
+				// value (including empty string, which is the canonical
+				// "present" form) opts in.
+				return Value !== "false";
+			}
+			El = El.parentElement;
+		}
+		return false;
+	}
+
+	function InvokeWindowCommand(Command: string): void {
+		try {
+			const Tauri = (globalThis as any).__TAURI__;
+			const Invoke =
+				Tauri?.core?.invoke ??
+				(globalThis as any).__TAURI_INTERNALS__?.invoke;
+			if (typeof Invoke === "function") {
+				Invoke(Command).catch?.(() => {
+					/* ignore - Mountain may have torn down */
+				});
+				return;
+			}
+			// Fallback to the typed JS API if the raw invoke is gone.
+			const Win = Tauri?.window?.getCurrentWindow?.();
+			if (Command === "plugin:window|start_dragging") {
+				Win?.startDragging?.().catch?.(() => {});
+			} else if (Command === "plugin:window|internal_toggle_maximize") {
+				const Already = Win?.isMaximized?.();
+				if (typeof Already?.then === "function") {
+					Already.then((Yes: boolean) => {
+						(Yes ? Win.unmaximize?.() : Win.maximize?.())?.catch?.(
+							() => {},
+						);
+					}).catch?.(() => {});
+				} else {
+					Win?.toggleMaximize?.()?.catch?.(() => {});
+				}
+			}
+		} catch {
+			/* swallow - the mousedown listener must never throw */
+		}
+	}
+
+	function HandleMouseDown(Event: MouseEvent): void {
+		// Only the primary button starts a drag. Right-click context menus
+		// and middle-click paste must not trigger window-move.
+		if (Event.button !== 0) return;
+		const Target = Event.target as Element | null;
+		if (!IsDragTarget(Target)) return;
+		// Two consecutive primary clicks on a drag region = toggle
+		// maximise, matching native macOS / Windows titlebar behaviour.
+		if (Event.detail === 2) {
+			InvokeWindowCommand("plugin:window|internal_toggle_maximize");
+		} else {
+			InvokeWindowCommand("plugin:window|start_dragging");
+		}
+	}
+
 	function Initialise(): void {
 		StampAll();
 
@@ -126,6 +209,11 @@ export default function TauriDragRegion(): void {
 		if (document.readyState !== "complete") {
 			window.addEventListener("load", () => StampAll(), { once: true });
 		}
+
+		document.addEventListener("mousedown", HandleMouseDown, {
+			capture: true,
+			passive: true,
+		});
 
 		const Root = document.body ?? document.documentElement;
 

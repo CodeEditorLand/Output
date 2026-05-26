@@ -139,8 +139,16 @@ function ExtractSelectors(): Extracted {
 		RuleRegex.lastIndex = 0;
 
 		while ((Match = RuleRegex.exec(Text)) !== null) {
-			const Selectors = Match[1]
-				.split(",")
+			// CSS `/* … */` comments are legal in a selector list (CSS Syntax
+			// L3 strips them at tokenisation), but WebKit's `querySelectorAll`
+			// rejects a string that begins with one and the upstream CSS
+			// frequently prefixes the rule with a banner comment or a
+			// per-selector explanation. Strip every comment span - including
+			// multi-line ones - before splitting on commas so the baked-in
+			// arrays are pure selectors.
+			const Cleaned = Match[1].replace(/\/\*[\s\S]*?\*\//g, " ");
+
+			const Selectors = Cleaned.split(",")
 				.map((Segment) => Segment.replace(/\s+/g, " ").trim())
 				.filter(Boolean);
 

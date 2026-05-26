@@ -45,10 +45,10 @@ async function getProcessConfiguration() {
   try {
     if (typeof window.__TAURI__ !== "undefined") {
       const [execPath, platform, arch, pid] = await Promise.allSettled([
-        invokeTauri("ProcessGetExecPath", {}),
-        invokeTauri("ProcessGetPlatform", {}),
-        invokeTauri("ProcessGetArch", {}),
-        invokeTauri("ProcessGetPid", {})
+        invokeTauri("process_get_exec_path", {}),
+        invokeTauri("process_get_platform", {}),
+        invokeTauri("process_get_arch", {}),
+        invokeTauri("process_get_pid", {})
       ]);
       return {
         ...DEFAULT_PROCESS_CONFIG,
@@ -217,7 +217,7 @@ class ProcessPolyfill {
    */
   getProcessMemoryInfo() {
     return invokeTauri(
-      "ProcessGetMemoryInfo",
+      "process_get_memory_info",
       {}
     ).catch((error) => {
       return {
@@ -246,7 +246,7 @@ class ProcessPolyfill {
   async shellEnv() {
     try {
       return await invokeTauri(
-        "ProcessGetShellEnv",
+        "process_get_shell_env",
         {}
       );
     } catch (error) {

@@ -633,39 +633,51 @@ export const UpdateService: ServiceProxy = Object.assign(
 
 	{
 		/**
-		 * Check for updates
+		 * Check for updates.
+		 *
+		 * Routes through `MountainIPCInvoke` via the colon-prefixed
+		 * method name. Mountain's dispatcher arm lives in
+		 * `IPC/WindServiceHandlers/mod.rs:2202` and mirrors VS Code's
+		 * canonical `IUpdateService.checkForUpdates` method name. The
+		 * previous shorter name (`update:check`) had no matching arm
+		 * and silently failed - rename keeps Mountain as the single
+		 * source of truth for the API surface.
 		 */
 		async checkForUpdates(): Promise<{
 			available: boolean;
 			version?: string;
 		}> {
 			return await invokeTauri<{ available: boolean; version?: string }>(
-				"update:check",
+				"update:checkForUpdates",
 
 				{},
 			);
 		},
 
 		/**
-		 * Download update
+		 * Download update.
+		 * Mountain arm: `mod.rs:2203 update:downloadUpdate`.
 		 */
 		async downloadUpdate(): Promise<boolean> {
-			return await invokeTauri<boolean>("update:download", {});
+			return await invokeTauri<boolean>("update:downloadUpdate", {});
 		},
 
 		/**
-		 * Install update
+		 * Install update (apply staged download + relaunch on next
+		 * quit). VS Code's `IUpdateService.applyUpdate` is the
+		 * canonical name; Mountain arm: `mod.rs:2204 update:applyUpdate`.
 		 */
 		async installUpdate(): Promise<boolean> {
-			return await invokeTauri<boolean>("update:install", {});
+			return await invokeTauri<boolean>("update:applyUpdate", {});
 		},
 
 		/**
-		 * Get update status
+		 * Get update status (initial state).
+		 * Mountain arm: `mod.rs:2200 update:_getInitialState`.
 		 */
 		async getStatus(): Promise<{ state: string; progress: number }> {
 			return await invokeTauri<{ state: string; progress: number }>(
-				"update:get_status",
+				"update:_getInitialState",
 
 				{},
 			);

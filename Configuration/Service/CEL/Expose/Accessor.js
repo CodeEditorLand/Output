@@ -49,6 +49,7 @@ import { IExtensionService } from "../services/extensions/common/extensions.js";
 import { IHostService } from "../services/host/browser/host.js";
 import { IWorkbenchLayoutService } from "../services/layout/browser/layoutService.js";
 import { ILifecycleService } from "../services/lifecycle/common/lifecycle.js";
+import { IOutputService } from "../services/output/common/output.js";
 import { IPaneCompositePartService } from "../services/panecomposite/browser/panecomposite.js";
 import { ISearchService } from "../services/search/common/search.js";
 import { IStatusbarService } from "../services/statusbar/browser/statusbar.js";
@@ -167,6 +168,13 @@ const ExposeAccessor = /* @__PURE__ */ __name((InstantiationService) => {
       Keybinding: Resolve(InstantiationService, IKeybindingService),
       QuickInput: Resolve(InstantiationService, IQuickInputService),
       Notification: Resolve(InstantiationService, INotificationService),
+      // `IOutputService.getChannel(id).append(text)` is the only
+      // path that actually paints into the Output panel. Sky's
+      // `sky://output/append` previously routed through the
+      // workbench *logger* (a diagnostic console sink) which never
+      // surfaced in the panel - exposing the real service lets
+      // the bridge call `Output?.getChannel(id)?.append(text)`.
+      Output: Resolve(InstantiationService, IOutputService),
       File: Resolve(InstantiationService, IFileService),
       Dialog: Resolve(InstantiationService, IDialogService),
       FileDialog: Resolve(InstantiationService, IFileDialogService),

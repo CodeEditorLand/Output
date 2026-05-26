@@ -8,44 +8,17 @@ function TauriDragRegion() {
   if (Land[Marker]) return;
   Land[Marker] = true;
   const Attribute = "data-tauri-drag-region";
-  function Walk(Rules, Out) {
-    for (let Index = 0; Index < Rules.length; Index += 1) {
-      const Rule = Rules.item(Index);
-      if (!Rule) continue;
-      if (Rule instanceof CSSStyleRule) {
-        const Value = Rule.style.getPropertyValue("-webkit-app-region");
-        if (Value === "drag") {
-          Out.Drag.push(Rule.selectorText);
-        } else if (Value === "no-drag") {
-          Out.NoDrag.push(Rule.selectorText);
-        }
-      } else if (Rule instanceof CSSMediaRule || Rule instanceof CSSSupportsRule) {
-        Walk(Rule.cssRules, Out);
-      }
-    }
+  const Global = globalThis;
+  const Drag = Global.__LAND_DRAG_SELECTORS__ ?? [];
+  const NoDrag = Global.__LAND_NO_DRAG_SELECTORS__ ?? [];
+  if (Drag.length === 0 && NoDrag.length === 0) {
+    return;
   }
-  __name(Walk, "Walk");
-  function Collect() {
-    const Out = { Drag: [], NoDrag: [] };
-    for (let Index = 0; Index < document.styleSheets.length; Index += 1) {
-      const Sheet = document.styleSheets.item(Index);
-      if (!Sheet) continue;
-      let Rules;
-      try {
-        Rules = Sheet.cssRules;
-      } catch {
-        continue;
-      }
-      Walk(Rules, Out);
-    }
-    return Out;
-  }
-  __name(Collect, "Collect");
-  function StampMatching(Selectors, Value) {
+  function StampMatching(Selectors, Value, Root) {
     for (const Selector of Selectors) {
       let Matches;
       try {
-        Matches = document.querySelectorAll(Selector);
+        Matches = Root.querySelectorAll(Selector);
       } catch {
         continue;
       }
@@ -57,42 +30,15 @@ function TauriDragRegion() {
     }
   }
   __name(StampMatching, "StampMatching");
-  let Cached = { Drag: [], NoDrag: [] };
-  function Refresh() {
-    Cached = Collect();
-    StampMatching(Cached.Drag, "");
-    StampMatching(Cached.NoDrag, "false");
+  function StampAll(Root = document) {
+    StampMatching(Drag, "", Root);
+    StampMatching(NoDrag, "false", Root);
   }
-  __name(Refresh, "Refresh");
-  function ApplyToSubtree(Root) {
-    for (const Selector of Cached.Drag) {
-      try {
-        Root.querySelectorAll(Selector).forEach((Element) => {
-          if (Element.getAttribute(Attribute) !== "") {
-            Element.setAttribute(Attribute, "");
-          }
-        });
-      } catch {
-        continue;
-      }
-    }
-    for (const Selector of Cached.NoDrag) {
-      try {
-        Root.querySelectorAll(Selector).forEach((Element) => {
-          if (Element.getAttribute(Attribute) !== "false") {
-            Element.setAttribute(Attribute, "false");
-          }
-        });
-      } catch {
-        continue;
-      }
-    }
-  }
-  __name(ApplyToSubtree, "ApplyToSubtree");
+  __name(StampAll, "StampAll");
   function Initialise() {
-    Refresh();
+    StampAll();
     if (document.readyState !== "complete") {
-      window.addEventListener("load", Refresh, { once: true });
+      window.addEventListener("load", () => StampAll(), { once: true });
     }
     const Root = document.body ?? document.documentElement;
     if (!Root) return;
@@ -100,7 +46,7 @@ function TauriDragRegion() {
       for (const Mutation of Mutations) {
         Mutation.addedNodes.forEach((Node) => {
           if (Node.nodeType !== 1) return;
-          ApplyToSubtree(Node);
+          StampAll(Node);
         });
       }
     });

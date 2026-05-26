@@ -98,28 +98,40 @@ function createServiceProxy(service) {
       isReady = value;
     },
     /**
-     * Health check for the service
+     * Health check for the service.
+     *
+     * Invokes Mountain's per-service Tauri command. Names are
+     * snake_case per Rust function-name convention, matching the
+     * handlers registered at:
+     *   - `Mountain/Binary/IPC/HealthCommand/cocoon_extension_host_health.rs`
+     *   - `Mountain/Binary/IPC/HealthCommand/cocoon_search_service_health.rs`
+     *   - `Mountain/Binary/IPC/HealthCommand/cocoon_debug_service_health.rs`
+     *   - `Mountain/Binary/IPC/HealthCommand/shared_process_service_health.rs`
+     *
+     * (Previous PascalCase names produced "Command not found"
+     * because Tauri 2 takes the literal Rust function name and
+     * does not auto-camel.)
      */
     async healthCheck() {
       try {
         if (service === "extension-host") {
           return await invokeTauri(
-            "CocoonExtensionHostHealth",
+            "cocoon_extension_host_health",
             {}
           );
         } else if (service === "search") {
           return await invokeTauri(
-            "CocoonSearchServiceHealth",
+            "cocoon_search_service_health",
             {}
           );
         } else if (service === "debug") {
           return await invokeTauri(
-            "CocoonDebugServiceHealth",
+            "cocoon_debug_service_health",
             {}
           );
         } else {
           return await invokeTauri(
-            "SharedProcessServiceHealth",
+            "shared_process_service_health",
             { service }
           );
         }
@@ -341,32 +353,44 @@ const UpdateService = Object.assign(
   createServiceProxy("update"),
   {
     /**
-     * Check for updates
+     * Check for updates.
+     *
+     * Routes through `MountainIPCInvoke` via the colon-prefixed
+     * method name. Mountain's dispatcher arm lives in
+     * `IPC/WindServiceHandlers/mod.rs:2202` and mirrors VS Code's
+     * canonical `IUpdateService.checkForUpdates` method name. The
+     * previous shorter name (`update:check`) had no matching arm
+     * and silently failed - rename keeps Mountain as the single
+     * source of truth for the API surface.
      */
     async checkForUpdates() {
       return await invokeTauri(
-        "update:check",
+        "update:checkForUpdates",
         {}
       );
     },
     /**
-     * Download update
+     * Download update.
+     * Mountain arm: `mod.rs:2203 update:downloadUpdate`.
      */
     async downloadUpdate() {
-      return await invokeTauri("update:download", {});
+      return await invokeTauri("update:downloadUpdate", {});
     },
     /**
-     * Install update
+     * Install update (apply staged download + relaunch on next
+     * quit). VS Code's `IUpdateService.applyUpdate` is the
+     * canonical name; Mountain arm: `mod.rs:2204 update:applyUpdate`.
      */
     async installUpdate() {
-      return await invokeTauri("update:install", {});
+      return await invokeTauri("update:applyUpdate", {});
     },
     /**
-     * Get update status
+     * Get update status (initial state).
+     * Mountain arm: `mod.rs:2200 update:_getInitialState`.
      */
     async getStatus() {
       return await invokeTauri(
-        "update:get_status",
+        "update:_getInitialState",
         {}
       );
     }

@@ -38,6 +38,7 @@ import InjectNameShim from "./Transform/Inject/Name/Shim.js";
 import InjectPartZIndexCSS from "./Transform/Inject/Part/Z/Index/CSS.js";
 import InjectStorageOverlay from "./Transform/Inject/Storage/Overlay.js";
 import InjectStripBackgroundPolling from "./Transform/Inject/Strip/Background/Polling.js";
+import InjectTauriDragRegion from "./Transform/Inject/Tauri/Drag/Region.js";
 import InjectTelemetryConsentOff from "./Transform/Inject/Telemetry/Consent/Off.js";
 import InjectTerminalGPULayerCSS from "./Transform/Inject/Terminal/GPU/Layer/CSS.js";
 import InjectWebViewPolyfills from "./Transform/Inject/Web/View/Polyfills.js";
@@ -86,72 +87,73 @@ import { default as default11 } from "./Transform/Inject/Telemetry/Consent/Off.j
 import { default as default12 } from "./Transform/Inject/Web/View/Polyfills.js";
 import { default as default13 } from "./Transform/Inject/Mac/Titlebar/Offset/CSS.js";
 import { default as default14 } from "./Transform/Inject/Part/Z/Index/CSS.js";
-import { default as default15 } from "./Transform/Inject/Workbench/Interactivity/CSS.js";
-import { default as default16 } from "./Transform/Inject/Workbench/Paint/Prime.js";
-import { default as default17 } from "./Transform/Inject/Worker/Bootstrap/Shim.js";
-import { default as default18 } from "./Transform/Inject/Configuration/Overlay.js";
-import { default as default19 } from "./Transform/Inject/Storage/Overlay.js";
-import { default as default20 } from "./Transform/Force/Text/Area/Input.js";
-import { default as default21 } from "./Transform/Rewrite/Icons/Style/Sheet/URLs.js";
-import { default as default22 } from "./Transform/Rewrite/Webview/Shell/CSP.js";
-import { default as default23 } from "./Transform/Rewrite/Nested/Worker/Bootstrap.js";
-import { default as default24 } from "./Transform/Rewrite/Node/Modules/Path.js";
-import { default as default25 } from "./Transform/Rewrite/Perf/Baseline/Worker.js";
-import { default as default26 } from "./Transform/Rewrite/Worker/URLs.js";
-import { default as default27 } from "./Transform/Rewrite/Workbench/Base/URL.js";
-import { default as default28 } from "./Transform/Rewrite/Static/Block/Self/Ref.js";
-import { default as default29 } from "./Transform/Hoist/Function/Declarations.js";
-import { default as default30 } from "./Transform/Replace/Electron/IPC/Service.js";
-import { default as default31 } from "./Transform/Replace/Extension/Gallery/Service.js";
-import { default as default32 } from "./Transform/Replace/Shared/Process.js";
-import { default as default33 } from "./Transform/Replace/Telemetry/Service.js";
-import { default as default34 } from "./Transform/Replace/Update/Service.js";
-import { default as default35 } from "./Transform/Static/To/Dynamic/Import.js";
-import { default as default36 } from "./Transform/Strip/Dangling/Source/Map.js";
-import { default as default37 } from "./Transform/Extension/Scanner/IPC.js";
-import { default as default38 } from "./Transform/Catch/Output/Folder/Rejection.js";
-import { default as default39 } from "./Transform/Strip/Webview/Iframe/Sandbox.js";
-import { default as default40 } from "./Transform/Expose/Workbench/Accessor.js";
-import { default as default41 } from "./Transform/Instrument/Vscode/Git.js";
-import { default as default42 } from "./Transform/Disable/Unused/Services.js";
-import { default as default43 } from "./Transform/Replace/Product/Identity.js";
-import { default as default44 } from "./Transform/Replace/Search/Service.js";
-import { default as default45 } from "./Transform/Inject/Editor/GPU/Layer/CSS.js";
-import { default as default46 } from "./Transform/Inject/Terminal/GPU/Layer/CSS.js";
-import { default as default47 } from "./Transform/Patch/Local/Terminal/Backend.js";
-import { default as default48 } from "./Transform/Patch/Terminal/GPU/Acceleration.js";
-import { default as default49 } from "./Transform/Patch/Webview/Iframe/Service/Worker.js";
-import { default as default50 } from "./Transform/Inject/Webview/Blob/Url/Rewrite.js";
+import { default as default15 } from "./Transform/Inject/Tauri/Drag/Region.js";
+import { default as default16 } from "./Transform/Inject/Workbench/Interactivity/CSS.js";
+import { default as default17 } from "./Transform/Inject/Workbench/Paint/Prime.js";
+import { default as default18 } from "./Transform/Inject/Worker/Bootstrap/Shim.js";
+import { default as default19 } from "./Transform/Inject/Configuration/Overlay.js";
+import { default as default20 } from "./Transform/Inject/Storage/Overlay.js";
+import { default as default21 } from "./Transform/Force/Text/Area/Input.js";
+import { default as default22 } from "./Transform/Rewrite/Icons/Style/Sheet/URLs.js";
+import { default as default23 } from "./Transform/Rewrite/Webview/Shell/CSP.js";
+import { default as default24 } from "./Transform/Rewrite/Nested/Worker/Bootstrap.js";
+import { default as default25 } from "./Transform/Rewrite/Node/Modules/Path.js";
+import { default as default26 } from "./Transform/Rewrite/Perf/Baseline/Worker.js";
+import { default as default27 } from "./Transform/Rewrite/Worker/URLs.js";
+import { default as default28 } from "./Transform/Rewrite/Workbench/Base/URL.js";
+import { default as default29 } from "./Transform/Rewrite/Static/Block/Self/Ref.js";
+import { default as default30 } from "./Transform/Hoist/Function/Declarations.js";
+import { default as default31 } from "./Transform/Replace/Electron/IPC/Service.js";
+import { default as default32 } from "./Transform/Replace/Extension/Gallery/Service.js";
+import { default as default33 } from "./Transform/Replace/Shared/Process.js";
+import { default as default34 } from "./Transform/Replace/Telemetry/Service.js";
+import { default as default35 } from "./Transform/Replace/Update/Service.js";
+import { default as default36 } from "./Transform/Static/To/Dynamic/Import.js";
+import { default as default37 } from "./Transform/Strip/Dangling/Source/Map.js";
+import { default as default38 } from "./Transform/Extension/Scanner/IPC.js";
+import { default as default39 } from "./Transform/Catch/Output/Folder/Rejection.js";
+import { default as default40 } from "./Transform/Strip/Webview/Iframe/Sandbox.js";
+import { default as default41 } from "./Transform/Expose/Workbench/Accessor.js";
+import { default as default42 } from "./Transform/Instrument/Vscode/Git.js";
+import { default as default43 } from "./Transform/Disable/Unused/Services.js";
+import { default as default44 } from "./Transform/Replace/Product/Identity.js";
+import { default as default45 } from "./Transform/Replace/Search/Service.js";
+import { default as default46 } from "./Transform/Inject/Editor/GPU/Layer/CSS.js";
+import { default as default47 } from "./Transform/Inject/Terminal/GPU/Layer/CSS.js";
+import { default as default48 } from "./Transform/Patch/Local/Terminal/Backend.js";
+import { default as default49 } from "./Transform/Patch/Terminal/GPU/Acceleration.js";
+import { default as default50 } from "./Transform/Patch/Webview/Iframe/Service/Worker.js";
+import { default as default51 } from "./Transform/Inject/Webview/Blob/Url/Rewrite.js";
 import {
   CopyVSOutput,
-  default as default51
+  default as default52
 } from "./Copy/Copy/VS/Output.js";
 import {
   CopyVSRootFiles,
-  default as default52
+  default as default53
 } from "./Copy/Copy/VS/Root/Files.js";
 import {
   SupplementFromDependency,
-  default as default53
+  default as default54
 } from "./Copy/Supplement/From/Dependency.js";
 import {
   CopyWorker,
-  default as default54
+  default as default55
 } from "./Copy/Copy/Worker.js";
 import {
   CopyNodeModules,
   DefaultPackages,
-  default as default55
+  default as default56
 } from "./Copy/Copy/Node/Modules.js";
 import {
   StubUnpublishedAddons,
   DefaultStubs,
   StubDataPrefix,
-  default as default56
+  default as default57
 } from "./Copy/Stub/Unpublished/Addons.js";
 import {
   CopyTauriMainProcessService,
-  default as default57
+  default as default58
 } from "./Copy/Copy/Tauri/Main/Process/Service.js";
 const LandDisableAll = (globalThis.process?.env?.["Disable"] ?? "").toLowerCase() === "true";
 const LandDisableUIFixes = (globalThis.process?.env?.["DisableUIFixes"] ?? "").toLowerCase() === "true";
@@ -262,10 +264,30 @@ const BuildPipeline = /* @__PURE__ */ __name((Input) => {
     // (`File / Edit / View / ...`) and the command-center
     // quick-pick stop colliding with the OS-painted close /
     // minimize / maximize buttons. Targets `.monaco-workbench.mac`
-    // only; non-macOS builds keep their stock layout. Idempotent.
-    // Always active - this is a structural fix, not a perf
-    // optimisation, so DisableUIFixes does not gate it.
+    // only; non-macOS builds keep their stock layout. Includes a
+    // fullscreen detector that toggles `body.land-fullscreen` so
+    // the 80px reservation reclaims to 0 when traffic lights are
+    // hidden (macOS native fullscreen). Right side is left
+    // untouched - traffic lights only sit on the left on macOS,
+    // so no right-edge padding is applied.
+    // Always active - structural fix; not gated by DisableUIFixes.
+    // Idempotent (marker `__LAND_MAC_TITLEBAR_OFFSET__`).
     InjectMacTitlebarOffsetCSS,
+    // Stamp `data-tauri-drag-region` on workbench titlebar drag
+    // regions so click-and-drag on those areas moves the Tauri 2
+    // window. Stock VS Code relies on Chromium's
+    // `-webkit-app-region: drag`, which Tauri's overlay-titlebar
+    // hit-test ignores - the equivalent attribute is the explicit
+    // `data-tauri-drag-region`. Stamps every match on first scan
+    // and observes `<body>` for late-mounted drag regions (titlebar
+    // repaints on profile switch / window-mode toggle). Interactive
+    // children (menubar items, command-center button, window
+    // controls) get `data-tauri-drag-region="false"` so click
+    // events still land on them. Cross-OS (drag handle wiring is
+    // needed everywhere, not just macOS).
+    // Always active - not a perf optimisation; not gated by
+    // DisableUIFixes. Idempotent (marker `__LAND_TAURI_DRAG_REGION__`).
+    InjectTauriDragRegion,
     // Establish a deterministic z-index hierarchy across the
     // workbench parts so a sibling that picked up an implicit
     // stacking context (transform, opacity, isolation) can't
@@ -273,8 +295,14 @@ const BuildPipeline = /* @__PURE__ */ __name((Input) => {
     // status bar progress badges, or the command-center
     // quick-pick dropdown. Hardens stock CSS without changing
     // its intent. Idempotent.
-    // Always active for the same reason as InjectMacTitlebarOffsetCSS.
-    InjectPartZIndexCSS,
+    // Gated behind `DisableUIFixes`: the `.monaco-workbench .part
+    // { isolation: isolate }` rule this transform emits has been
+    // observed to hide the in-window menubar under specific
+    // configurations, so operators running with the env var set
+    // (e.g. when diagnosing menubar / dropdown clipping) need this
+    // transform OFF. Skipping it returns workbench parts to stock
+    // CSS stacking-context behaviour.
+    ...LandDisableUIFixes ? [] : [InjectPartZIndexCSS],
     // Pre-bake telemetry consent OFF so VS Code's TelemetryService
     // starts in already-disabled state. Network.ts excludes the
     // wire-level appenders; this transform makes the consumers
@@ -490,71 +518,72 @@ var Index_default = BuildPipeline;
 export {
   default2 as ApplyPlugins,
   BuildPipeline,
-  default38 as CatchOutputFolderRejection,
+  default39 as CatchOutputFolderRejection,
   CopyNodeModules,
-  default55 as CopyNodeModulesDefault,
+  default56 as CopyNodeModulesDefault,
   CopyTauriMainProcessService,
-  default57 as CopyTauriMainProcessServiceDefault,
+  default58 as CopyTauriMainProcessServiceDefault,
   CopyVSOutput,
-  default51 as CopyVSOutputDefault,
+  default52 as CopyVSOutputDefault,
   CopyVSRootFiles,
-  default52 as CopyVSRootFilesDefault,
+  default53 as CopyVSRootFilesDefault,
   CopyWorker,
-  default54 as CopyWorkerDefault,
+  default55 as CopyWorkerDefault,
   DefaultPackages as DefaultNodeModulePackages,
   DefaultStubs,
-  default42 as DisableUnusedServices,
-  default40 as ExposeWorkbenchAccessor,
-  default37 as ExtensionScannerIPC,
-  default20 as ForceTextAreaInput,
-  default29 as HoistFunctionDeclarations,
-  default18 as InjectConfigurationOverlay,
+  default43 as DisableUnusedServices,
+  default41 as ExposeWorkbenchAccessor,
+  default38 as ExtensionScannerIPC,
+  default21 as ForceTextAreaInput,
+  default30 as HoistFunctionDeclarations,
+  default19 as InjectConfigurationOverlay,
   default6 as InjectDisableLazyPaint,
   default7 as InjectEagerExtensionActivation,
   default8 as InjectEagerIdleValue,
   default9 as InjectEagerLifecyclePhase,
-  default45 as InjectEditorGPULayerCSS,
+  default46 as InjectEditorGPULayerCSS,
   default13 as InjectMacTitlebarOffsetCSS,
   default5 as InjectNameShim,
   default14 as InjectPartZIndexCSS,
-  default19 as InjectStorageOverlay,
+  default20 as InjectStorageOverlay,
   default10 as InjectStripBackgroundPolling,
+  default15 as InjectTauriDragRegion,
   default11 as InjectTelemetryConsentOff,
-  default46 as InjectTerminalGPULayerCSS,
+  default47 as InjectTerminalGPULayerCSS,
   default12 as InjectWebViewPolyfills,
-  default50 as InjectWebviewBlobUrlRewrite,
-  default15 as InjectWorkbenchInteractivityCSS,
-  default16 as InjectWorkbenchPaintPrime,
-  default17 as InjectWorkerBootstrapShim,
+  default51 as InjectWebviewBlobUrlRewrite,
+  default16 as InjectWorkbenchInteractivityCSS,
+  default17 as InjectWorkbenchPaintPrime,
+  default18 as InjectWorkerBootstrapShim,
   default4 as InlineCSSImport,
-  default41 as InstrumentVscodeGit,
-  default47 as PatchLocalTerminalBackend,
-  default48 as PatchTerminalGpuAcceleration,
-  default49 as PatchWebviewIframeServiceWorker,
-  default30 as ReplaceElectronIPCService,
-  default31 as ReplaceExtensionGalleryService,
-  default43 as ReplaceProductIdentity,
-  default44 as ReplaceSearchService,
-  default32 as ReplaceSharedProcess,
-  default33 as ReplaceTelemetryService,
-  default34 as ReplaceUpdateService,
-  default21 as RewriteIconsStyleSheetURLs,
-  default23 as RewriteNestedWorkerBootstrap,
-  default24 as RewriteNodeModulesPath,
-  default25 as RewritePerfBaselineWorker,
-  default28 as RewriteStaticBlockSelfRef,
-  default22 as RewriteWebviewShellCSP,
-  default27 as RewriteWorkbenchBaseURL,
-  default26 as RewriteWorkerURLs,
-  default35 as StaticToDynamicImport,
+  default42 as InstrumentVscodeGit,
+  default48 as PatchLocalTerminalBackend,
+  default49 as PatchTerminalGpuAcceleration,
+  default50 as PatchWebviewIframeServiceWorker,
+  default31 as ReplaceElectronIPCService,
+  default32 as ReplaceExtensionGalleryService,
+  default44 as ReplaceProductIdentity,
+  default45 as ReplaceSearchService,
+  default33 as ReplaceSharedProcess,
+  default34 as ReplaceTelemetryService,
+  default35 as ReplaceUpdateService,
+  default22 as RewriteIconsStyleSheetURLs,
+  default24 as RewriteNestedWorkerBootstrap,
+  default25 as RewriteNodeModulesPath,
+  default26 as RewritePerfBaselineWorker,
+  default29 as RewriteStaticBlockSelfRef,
+  default23 as RewriteWebviewShellCSP,
+  default28 as RewriteWorkbenchBaseURL,
+  default27 as RewriteWorkerURLs,
+  default36 as StaticToDynamicImport,
   default3 as StripCSSImport,
-  default36 as StripDanglingSourceMap,
-  default39 as StripWebviewIframeSandbox,
+  default37 as StripDanglingSourceMap,
+  default40 as StripWebviewIframeSandbox,
   StubDataPrefix,
   StubUnpublishedAddons,
-  default56 as StubUnpublishedAddonsDefault,
+  default57 as StubUnpublishedAddonsDefault,
   SupplementFromDependency,
-  default53 as SupplementFromDependencyDefault,
+  default54 as SupplementFromDependencyDefault,
   Index_default as default
 };
 //# sourceMappingURL=Index.js.map

@@ -152,36 +152,78 @@ export default function TauriDragRegion(): void {
 		return false;
 	}
 
-	function InvokeWindowCommand(Command: string): void {
+	function StartDragging(): void {
 		try {
 			const Tauri = (globalThis as any).__TAURI__;
+			// Prefer the typed JS API - it transparently injects the
+			// window `label` Tauri's `plugin:window|start_dragging` needs
+			// as its IPC payload. A bare `core.invoke("plugin:window|
+			// start_dragging")` without `{ label }` is accepted by the
+			// signature but, in Tauri 2.x, the IPC dispatcher drops it
+			// silently when no window matches the implicit context - and
+			// our overlay-titlebar window never moves.
+			const Win = Tauri?.window?.getCurrentWindow?.();
+			if (Win && typeof Win.startDragging === "function") {
+				const Result = Win.startDragging();
+				if (Result && typeof Result.catch === "function") {
+					Result.catch(() => {
+						/* swallow - Mountain may have torn down */
+					});
+				}
+				return;
+			}
+			// Fallback: raw invoke with an explicit `label` payload.
 			const Invoke =
 				Tauri?.core?.invoke ??
 				(globalThis as any).__TAURI_INTERNALS__?.invoke;
+			const Label =
+				Tauri?.window?.getCurrentWindow?.()?.label ??
+				Tauri?.webviewWindow?.getCurrentWebviewWindow?.()?.label ??
+				"main";
 			if (typeof Invoke === "function") {
-				Invoke(Command).catch?.(() => {
-					/* ignore - Mountain may have torn down */
+				const Result = Invoke("plugin:window|start_dragging", {
+					label: Label,
 				});
-				return;
-			}
-			// Fallback to the typed JS API if the raw invoke is gone.
-			const Win = Tauri?.window?.getCurrentWindow?.();
-			if (Command === "plugin:window|start_dragging") {
-				Win?.startDragging?.().catch?.(() => {});
-			} else if (Command === "plugin:window|internal_toggle_maximize") {
-				const Already = Win?.isMaximized?.();
-				if (typeof Already?.then === "function") {
-					Already.then((Yes: boolean) => {
-						(Yes ? Win.unmaximize?.() : Win.maximize?.())?.catch?.(
-							() => {},
-						);
-					}).catch?.(() => {});
-				} else {
-					Win?.toggleMaximize?.()?.catch?.(() => {});
+				if (Result && typeof Result.catch === "function") {
+					Result.catch(() => {});
 				}
 			}
 		} catch {
 			/* swallow - the mousedown listener must never throw */
+		}
+	}
+
+	function ToggleMaximize(): void {
+		try {
+			const Tauri = (globalThis as any).__TAURI__;
+			const Win = Tauri?.window?.getCurrentWindow?.();
+			if (Win && typeof Win.toggleMaximize === "function") {
+				const Result = Win.toggleMaximize();
+				if (Result && typeof Result.catch === "function") {
+					Result.catch(() => {});
+				}
+				return;
+			}
+			const Invoke =
+				Tauri?.core?.invoke ??
+				(globalThis as any).__TAURI_INTERNALS__?.invoke;
+			const Label =
+				Tauri?.window?.getCurrentWindow?.()?.label ??
+				Tauri?.webviewWindow?.getCurrentWebviewWindow?.()?.label ??
+				"main";
+			if (typeof Invoke === "function") {
+				const Result = Invoke(
+					"plugin:window|internal_toggle_maximize",
+					{
+						label: Label,
+					},
+				);
+				if (Result && typeof Result.catch === "function") {
+					Result.catch(() => {});
+				}
+			}
+		} catch {
+			/* swallow */
 		}
 	}
 
@@ -194,9 +236,9 @@ export default function TauriDragRegion(): void {
 		// Two consecutive primary clicks on a drag region = toggle
 		// maximise, matching native macOS / Windows titlebar behaviour.
 		if (Event.detail === 2) {
-			InvokeWindowCommand("plugin:window|internal_toggle_maximize");
+			ToggleMaximize();
 		} else {
-			InvokeWindowCommand("plugin:window|start_dragging");
+			StartDragging();
 		}
 	}
 

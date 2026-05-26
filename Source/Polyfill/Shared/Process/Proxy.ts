@@ -261,31 +261,43 @@ function createServiceProxy(service: SharedProcessService): ServiceProxy {
 		},
 
 		/**
-		 * Health check for the service
+		 * Health check for the service.
+		 *
+		 * Invokes Mountain's per-service Tauri command. Names are
+		 * snake_case per Rust function-name convention, matching the
+		 * handlers registered at:
+		 *   - `Mountain/Binary/IPC/HealthCommand/cocoon_extension_host_health.rs`
+		 *   - `Mountain/Binary/IPC/HealthCommand/cocoon_search_service_health.rs`
+		 *   - `Mountain/Binary/IPC/HealthCommand/cocoon_debug_service_health.rs`
+		 *   - `Mountain/Binary/IPC/HealthCommand/shared_process_service_health.rs`
+		 *
+		 * (Previous PascalCase names produced "Command not found"
+		 * because Tauri 2 takes the literal Rust function name and
+		 * does not auto-camel.)
 		 */
 		async healthCheck(): Promise<boolean> {
 			try {
 				if (service === "extension-host") {
 					return await invokeTauri<boolean>(
-						"CocoonExtensionHostHealth",
+						"cocoon_extension_host_health",
 
 						{},
 					);
 				} else if (service === "search") {
 					return await invokeTauri<boolean>(
-						"CocoonSearchServiceHealth",
+						"cocoon_search_service_health",
 
 						{},
 					);
 				} else if (service === "debug") {
 					return await invokeTauri<boolean>(
-						"CocoonDebugServiceHealth",
+						"cocoon_debug_service_health",
 
 						{},
 					);
 				} else {
 					return await invokeTauri<boolean>(
-						"SharedProcessServiceHealth",
+						"shared_process_service_health",
 
 						{ service },
 					);

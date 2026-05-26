@@ -35,11 +35,69 @@ function TauriDragRegion() {
     StampMatching(NoDrag, "false", Root);
   }
   __name(StampAll, "StampAll");
+  function IsDragTarget(El) {
+    while (El) {
+      if (El.nodeType === 1 && El.hasAttribute && El.hasAttribute(Attribute)) {
+        const Value = El.getAttribute(Attribute);
+        return Value !== "false";
+      }
+      El = El.parentElement;
+    }
+    return false;
+  }
+  __name(IsDragTarget, "IsDragTarget");
+  function InvokeWindowCommand(Command) {
+    try {
+      const Tauri = globalThis.__TAURI__;
+      const Invoke = Tauri?.core?.invoke ?? globalThis.__TAURI_INTERNALS__?.invoke;
+      if (typeof Invoke === "function") {
+        Invoke(Command).catch?.(() => {
+        });
+        return;
+      }
+      const Win = Tauri?.window?.getCurrentWindow?.();
+      if (Command === "plugin:window|start_dragging") {
+        Win?.startDragging?.().catch?.(() => {
+        });
+      } else if (Command === "plugin:window|internal_toggle_maximize") {
+        const Already = Win?.isMaximized?.();
+        if (typeof Already?.then === "function") {
+          Already.then((Yes) => {
+            (Yes ? Win.unmaximize?.() : Win.maximize?.())?.catch?.(
+              () => {
+              }
+            );
+          }).catch?.(() => {
+          });
+        } else {
+          Win?.toggleMaximize?.()?.catch?.(() => {
+          });
+        }
+      }
+    } catch {
+    }
+  }
+  __name(InvokeWindowCommand, "InvokeWindowCommand");
+  function HandleMouseDown(Event) {
+    if (Event.button !== 0) return;
+    const Target = Event.target;
+    if (!IsDragTarget(Target)) return;
+    if (Event.detail === 2) {
+      InvokeWindowCommand("plugin:window|internal_toggle_maximize");
+    } else {
+      InvokeWindowCommand("plugin:window|start_dragging");
+    }
+  }
+  __name(HandleMouseDown, "HandleMouseDown");
   function Initialise() {
     StampAll();
     if (document.readyState !== "complete") {
       window.addEventListener("load", () => StampAll(), { once: true });
     }
+    document.addEventListener("mousedown", HandleMouseDown, {
+      capture: true,
+      passive: true
+    });
     const Root = document.body ?? document.documentElement;
     if (!Root) return;
     const Observer = new MutationObserver((Mutations) => {

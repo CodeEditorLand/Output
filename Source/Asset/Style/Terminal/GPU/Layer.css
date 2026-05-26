@@ -1,4 +1,5 @@
 /* __LAND_TERMINAL_GPU_LAYER__ */
+
 /* Promote the xterm host elements to their own compositor layers without
  * clipping descendants. `contain: paint` was previously applied to the
  * viewport and screen containers, but on macOS WKWebView that creates a
@@ -7,6 +8,7 @@
  * get clipped - the user sees characters sliced in half. Keep the GPU
  * promotion hints, but only apply `contain: paint` to the canvas
  * itself (which owns its own pixel grid) - never to row containers. */
+
 .terminal-xterm-host,
 .terminal-wrapper,
 .xterm {
@@ -14,6 +16,7 @@
 	transform: translateZ(0);
 	backface-visibility: hidden;
 }
+
 .xterm canvas {
 	will-change: transform;
 	transform: translateZ(0);

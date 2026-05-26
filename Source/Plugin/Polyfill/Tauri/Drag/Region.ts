@@ -5,35 +5,52 @@
 /**
  * # TauriDragRegion polyfill
  *
- * Stamps `data-tauri-drag-region` on the workbench titlebar drag
- * regions so click-and-drag on those areas actually moves the window
- * under Tauri 2.
+ * Bridges VS Code's existing `-webkit-app-region` CSS classification to
+ * Tauri 2's `data-tauri-drag-region` HTML attribute so the workbench
+ * titlebar drag system Just Works under WKWebView.
  *
  * ## Why this is needed
  *
- * Stock VS Code Electron makes the titlebar draggable via a Chromium
- * `-webkit-app-region: drag` CSS rule set in `vs/workbench/.../titlebar`.
- * Tauri 2 with `decorations: false` + `TitleBarStyle::Overlay` ignores
- * `-webkit-app-region` and instead looks for the `data-tauri-drag-region`
- * HTML attribute (per Tauri docs - the attribute opts an element into
- * the OS-level window-drag hit-test). Without the attribute, dragging
- * the workbench titlebar selects text instead of moving the window.
+ * VS Code already has a complete drag classification baked into its
+ * own stylesheets (`vs/workbench/browser/parts/titlebar/media/titlebarpart.css`
+ * + `vs/sessions/browser/parts/media/sidebarPart.css` + others). Every
+ * draggable element has `-webkit-app-region: drag`; every interactive
+ * child that must not move the window has `-webkit-app-region: no-drag`.
+ * Chromium (Electron) implements this property natively, so stock VS Code
+ * runs unmodified.
  *
- * ## What this stamps
- *
- * The primary VS Code drag handle is `.titlebar-drag-region` (rendered
- * inside `.part.titlebar > .titlebar-container`). Older VS Code builds
- * fold it into the titlebar itself. We stamp every match on first scan
- * + observe `<body>` for late-mounted drag regions (titlebar repaints
- * on profile switch, window mode toggle, etc.).
+ * WKWebView (Tauri 2 on macOS) does not implement `-webkit-app-region`.
+ * Tauri 2 instead reads the `data-tauri-drag-region` HTML attribute -
+ * `""` opts in, `"false"` opts out. This polyfill walks VS Code's own
+ * stylesheets, extracts the selectors that already declare
+ * `-webkit-app-region: drag` / `no-drag`, and applies the equivalent
+ * attribute to every matching element. No new selectors. No new CSS.
+ * No new mechanism. Just a translator between two equivalent abstractions.
  *
  * ## Always active
  *
- * Drag region wiring is needed on every OS the editor runs on, not
- * a "fix". Runs unconditionally - even with `DisableUIFixes=true`.
+ * Drag-region wiring is needed on every OS the editor runs on, not a
+ * "fix". Runs unconditionally - even with `DisableUIFixes=true`.
  *
- * Idempotent. Marker `__LAND_TAURI_DRAG_REGION__`. Re-stamping a
- * node is a no-op (attribute presence check before set).
+ * ## Lifecycle
+ *
+ *   1. On install, walk every accessible stylesheet rule, collect the
+ *      selectors whose `-webkit-app-region` declaration is `drag` or
+ *      `no-drag`. WebKit's CSS parser preserves vendor-prefixed
+ *      declarations in `CSSStyleDeclaration` even when the engine does
+ *      not apply them, so `rule.style.getPropertyValue('-webkit-app-region')`
+ *      returns the declared value reliably.
+ *   2. Stamp every currently-matching element.
+ *   3. `MutationObserver` re-stamps on newly-added DOM (titlebar
+ *      repaints on profile switch, sidebar drag-region rebuilds, etc.).
+ *
+ * Stylesheet collection is opportunistic: cross-origin sheets throw on
+ * `cssRules` access and are skipped silently. The bundled workbench
+ * stylesheets are same-origin under both `tauri://localhost/` and the
+ * `vscode-file://` paths Land serves, so VS Code's own rules are always
+ * reachable.
+ *
+ * Idempotent. Marker `__LAND_TAURI_DRAG_REGION__`.
  */
 
 export default function TauriDragRegion(): void {
@@ -49,74 +66,132 @@ export default function TauriDragRegion(): void {
 
 	Land[Marker] = true;
 
-	// Primary drag handle plus the tabs-container fallback used when
-	// `window.titleBarStyle` is `custom` and the editor-area tabs are
-	// the window's draggable strip.
-	const DragSelectors = [
-		".monaco-workbench .part.titlebar > .titlebar-container > .titlebar-drag-region",
-		".monaco-workbench .part.titlebar .titlebar-drag-region",
-		".monaco-workbench .part.titlebar .titlebar-left .window-title",
-	];
+	const Attribute = "data-tauri-drag-region";
 
-	// On any drag region we ALSO want to flag descendants that contain
-	// `app-region: drag` in their stock CSS, so the dragability extends
-	// edge-to-edge of the visible drag strip.
-	const NoDragSelectors = [
-		".monaco-workbench .part.titlebar .window-controls-container",
-		".monaco-workbench .part.titlebar .menubar",
-		".monaco-workbench .part.titlebar .command-center-container",
-		".monaco-workbench .part.titlebar .titlebar-right",
-	];
+	type Selectors = { Drag: string[]; NoDrag: string[] };
 
-	function StampDrag(Node: Element): void {
-		if (Node.getAttribute("data-tauri-drag-region") === null) {
-			Node.setAttribute("data-tauri-drag-region", "");
+	// Walk every CSSRule list and collect the selectors that declare
+	// `-webkit-app-region: drag` / `no-drag`. CSSMediaRule and
+	// CSSSupportsRule are recursed so OS-scoped (`@media (-webkit-min...)`
+	// etc.) rules are picked up.
+	function Walk(Rules: CSSRuleList, Out: Selectors): void {
+		for (let Index = 0; Index < Rules.length; Index += 1) {
+			const Rule = Rules.item(Index);
+
+			if (!Rule) continue;
+
+			if (Rule instanceof CSSStyleRule) {
+				const Value = Rule.style.getPropertyValue("-webkit-app-region");
+
+				if (Value === "drag") {
+					Out.Drag.push(Rule.selectorText);
+				} else if (Value === "no-drag") {
+					Out.NoDrag.push(Rule.selectorText);
+				}
+			} else if (
+				Rule instanceof CSSMediaRule ||
+				Rule instanceof CSSSupportsRule
+			) {
+				Walk(Rule.cssRules, Out);
+			}
 		}
 	}
 
-	function StampNoDrag(Node: Element): void {
-		// Interactive children (menu items, traffic-light hover zones,
-		// command-center button) must not inherit drag behaviour or
-		// click-to-drag eats their click events.
-		if (Node.getAttribute("data-tauri-drag-region") !== "false") {
-			Node.setAttribute("data-tauri-drag-region", "false");
+	function Collect(): Selectors {
+		const Out: Selectors = { Drag: [], NoDrag: [] };
+
+		for (let Index = 0; Index < document.styleSheets.length; Index += 1) {
+			const Sheet = document.styleSheets.item(Index);
+
+			if (!Sheet) continue;
+
+			let Rules: CSSRuleList;
+
+			try {
+				Rules = Sheet.cssRules;
+			} catch {
+				// Cross-origin sheets throw on `cssRules` access. Skip.
+				continue;
+			}
+
+			Walk(Rules, Out);
+		}
+
+		return Out;
+	}
+
+	function StampMatching(Selectors: string[], Value: string): void {
+		for (const Selector of Selectors) {
+			let Matches: NodeListOf<Element>;
+
+			try {
+				Matches = document.querySelectorAll(Selector);
+			} catch {
+				// Defensive: some VS Code rules contain `:has()` /
+				// `:where()` selectors that older WebKit builds reject.
+				// Skip rather than abort the whole pass.
+				continue;
+			}
+
+			Matches.forEach((Element) => {
+				if (Element.getAttribute(Attribute) !== Value) {
+					Element.setAttribute(Attribute, Value);
+				}
+			});
 		}
 	}
 
-	function ScanOnce(Root: ParentNode = document): void {
-		for (const Selector of DragSelectors) {
-			Root.querySelectorAll(Selector).forEach(StampDrag);
-		}
+	// State shared between the initial scan and the observer: selector
+	// lists are extracted once after the workbench's stylesheets settle,
+	// then reused on every mutation. A second collection runs after
+	// `window.onload` to pick up late-loaded stylesheets (lazy-loaded
+	// extension CSS).
+	let Cached: Selectors = { Drag: [], NoDrag: [] };
 
-		for (const Selector of NoDragSelectors) {
-			Root.querySelectorAll(Selector).forEach(StampNoDrag);
-		}
+	function Refresh(): void {
+		Cached = Collect();
+
+		StampMatching(Cached.Drag, "");
+
+		StampMatching(Cached.NoDrag, "false");
 	}
 
-	function HandleAdded(Node: Node): void {
-		if (Node.nodeType !== 1) return;
-
-		const Element = Node as Element;
-
-		// Check the element itself...
-		for (const Selector of DragSelectors) {
-			if (Element.matches?.(Selector)) {
-				StampDrag(Element);
+	function ApplyToSubtree(Root: ParentNode): void {
+		// Cheap path: only check the cached selectors on the new subtree.
+		for (const Selector of Cached.Drag) {
+			try {
+				Root.querySelectorAll(Selector).forEach((Element) => {
+					if (Element.getAttribute(Attribute) !== "") {
+						Element.setAttribute(Attribute, "");
+					}
+				});
+			} catch {
+				continue;
 			}
 		}
 
-		for (const Selector of NoDragSelectors) {
-			if (Element.matches?.(Selector)) {
-				StampNoDrag(Element);
+		for (const Selector of Cached.NoDrag) {
+			try {
+				Root.querySelectorAll(Selector).forEach((Element) => {
+					if (Element.getAttribute(Attribute) !== "false") {
+						Element.setAttribute(Attribute, "false");
+					}
+				});
+			} catch {
+				continue;
 			}
 		}
-
-		// ...and any descendants the workbench renders inside it.
-		ScanOnce(Element);
 	}
 
-	function InstallObserver(): void {
-		ScanOnce();
+	function Initialise(): void {
+		// First pass: stylesheets may not all be parsed yet during early
+		// `DOMContentLoaded`. Refresh once now and once after `load` so
+		// late-loaded sheets get scanned too.
+		Refresh();
+
+		if (document.readyState !== "complete") {
+			window.addEventListener("load", Refresh, { once: true });
+		}
 
 		const Root = document.body ?? document.documentElement;
 
@@ -124,7 +199,11 @@ export default function TauriDragRegion(): void {
 
 		const Observer = new MutationObserver((Mutations) => {
 			for (const Mutation of Mutations) {
-				Mutation.addedNodes.forEach(HandleAdded);
+				Mutation.addedNodes.forEach((Node) => {
+					if (Node.nodeType !== 1) return;
+
+					ApplyToSubtree(Node as Element);
+				});
 			}
 		});
 
@@ -132,10 +211,10 @@ export default function TauriDragRegion(): void {
 	}
 
 	if (document.readyState === "loading") {
-		document.addEventListener("DOMContentLoaded", InstallObserver, {
+		document.addEventListener("DOMContentLoaded", Initialise, {
 			once: true,
 		});
 	} else {
-		InstallObserver();
+		Initialise();
 	}
 }

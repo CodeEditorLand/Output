@@ -46,46 +46,71 @@ function TauriDragRegion() {
     return false;
   }
   __name(IsDragTarget, "IsDragTarget");
-  function InvokeWindowCommand(Command) {
+  function StartDragging() {
     try {
       const Tauri = globalThis.__TAURI__;
-      const Invoke = Tauri?.core?.invoke ?? globalThis.__TAURI_INTERNALS__?.invoke;
-      if (typeof Invoke === "function") {
-        Invoke(Command).catch?.(() => {
-        });
+      const Win = Tauri?.window?.getCurrentWindow?.();
+      if (Win && typeof Win.startDragging === "function") {
+        const Result = Win.startDragging();
+        if (Result && typeof Result.catch === "function") {
+          Result.catch(() => {
+          });
+        }
         return;
       }
-      const Win = Tauri?.window?.getCurrentWindow?.();
-      if (Command === "plugin:window|start_dragging") {
-        Win?.startDragging?.().catch?.(() => {
+      const Invoke = Tauri?.core?.invoke ?? globalThis.__TAURI_INTERNALS__?.invoke;
+      const Label = Tauri?.window?.getCurrentWindow?.()?.label ?? Tauri?.webviewWindow?.getCurrentWebviewWindow?.()?.label ?? "main";
+      if (typeof Invoke === "function") {
+        const Result = Invoke("plugin:window|start_dragging", {
+          label: Label
         });
-      } else if (Command === "plugin:window|internal_toggle_maximize") {
-        const Already = Win?.isMaximized?.();
-        if (typeof Already?.then === "function") {
-          Already.then((Yes) => {
-            (Yes ? Win.unmaximize?.() : Win.maximize?.())?.catch?.(
-              () => {
-              }
-            );
-          }).catch?.(() => {
-          });
-        } else {
-          Win?.toggleMaximize?.()?.catch?.(() => {
+        if (Result && typeof Result.catch === "function") {
+          Result.catch(() => {
           });
         }
       }
     } catch {
     }
   }
-  __name(InvokeWindowCommand, "InvokeWindowCommand");
+  __name(StartDragging, "StartDragging");
+  function ToggleMaximize() {
+    try {
+      const Tauri = globalThis.__TAURI__;
+      const Win = Tauri?.window?.getCurrentWindow?.();
+      if (Win && typeof Win.toggleMaximize === "function") {
+        const Result = Win.toggleMaximize();
+        if (Result && typeof Result.catch === "function") {
+          Result.catch(() => {
+          });
+        }
+        return;
+      }
+      const Invoke = Tauri?.core?.invoke ?? globalThis.__TAURI_INTERNALS__?.invoke;
+      const Label = Tauri?.window?.getCurrentWindow?.()?.label ?? Tauri?.webviewWindow?.getCurrentWebviewWindow?.()?.label ?? "main";
+      if (typeof Invoke === "function") {
+        const Result = Invoke(
+          "plugin:window|internal_toggle_maximize",
+          {
+            label: Label
+          }
+        );
+        if (Result && typeof Result.catch === "function") {
+          Result.catch(() => {
+          });
+        }
+      }
+    } catch {
+    }
+  }
+  __name(ToggleMaximize, "ToggleMaximize");
   function HandleMouseDown(Event) {
     if (Event.button !== 0) return;
     const Target = Event.target;
     if (!IsDragTarget(Target)) return;
     if (Event.detail === 2) {
-      InvokeWindowCommand("plugin:window|internal_toggle_maximize");
+      ToggleMaximize();
     } else {
-      InvokeWindowCommand("plugin:window|start_dragging");
+      StartDragging();
     }
   }
   __name(HandleMouseDown, "HandleMouseDown");

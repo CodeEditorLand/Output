@@ -31,28 +31,38 @@ import type { TransformPlugin } from "../../../Type.js";
 const NameShim = `var __defProp=Object.defineProperty;var __name=(t,v)=>__defProp(t,"name",{value:v,configurable:true});`;
 
 const IframeMarker = "`/*extensionHostWorker*/`,";
+
 const IframeReplacement = "`/*extensionHostWorker*/${NameShim}`,";
 
 const CSPScriptSrcMatcher = /script-src ([^;]+);/;
 
 const Plugin: TransformPlugin = {
 	Kind: "Transform",
+
 	Name: "InjectNameShim",
+
 	Match: ({ Path }) => /webWorkerExtensionHostIframe\.html$/.test(Path),
+
 	Transform({ Source }) {
 		if (!Source.includes(IframeMarker)) return { Kind: "Unchanged" };
+
 		let Next = Source.replace(
 			IframeMarker,
+
 			IframeReplacement.replace("${NameShim}", NameShim),
 		);
+
 		// Add 'unsafe-inline' to script-src if not already present.
 		const CSPMatch = Next.match(CSPScriptSrcMatcher);
+
 		if (CSPMatch && !CSPMatch[1].includes("'unsafe-inline'")) {
 			Next = Next.replace(
 				CSPScriptSrcMatcher,
+
 				`script-src 'unsafe-inline' $1;`,
 			);
 		}
+
 		return Next === Source
 			? { Kind: "Unchanged" }
 			: { Kind: "Rewrite", Source: Next };

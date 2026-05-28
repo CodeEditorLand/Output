@@ -54,6 +54,7 @@ export const StubUnpublishedAddons = ({
 
 	Entries: Stubs.map((Stub) => {
 		const FileName = Stub.Package.split("/").pop()!;
+
 		return {
 			From: [DataPrefix + Stub.Body],
 			To: join(Destination, Stub.Package, "lib", `${FileName}.js`),

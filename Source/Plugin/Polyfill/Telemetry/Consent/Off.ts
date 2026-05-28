@@ -149,6 +149,7 @@ export default function TelemetryConsentOff(): void {
 		const Invoke =
 			(window as any).__TAURI__?.core?.invoke ??
 			(window as any).__TAURI__?.invoke;
+
 		if (typeof Invoke === "function") {
 			Invoke("MountainIPCInvoke", {
 				method: "diagnostic:log",

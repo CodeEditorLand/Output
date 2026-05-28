@@ -243,6 +243,7 @@ const ChannelEventBridge: Record<
 
 	lifecycle: {
 		onWillShutdown: { Channel: "sky://lifecycle/willShutdown" },
+
 		onDidChangePhase: { Channel: "sky://lifecycle/phaseChanged" },
 	},
 };
@@ -326,10 +327,15 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 
 	browserViewGroup: {
 		updateKeybindings: undefined,
+
 		updateTheme: undefined,
+
 		updateConfiguration: undefined,
+
 		getBrowserViews: [],
+
 		openDevTools: undefined,
+
 		closeDevTools: undefined,
 	},
 
@@ -488,16 +494,23 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 	// `undefined is not an object (evaluating 'servers.map')`. Empty = no MCP servers.
 	mcpManagement: {
 		getInstalled: [],
+
 		install: undefined,
+
 		uninstall: undefined,
+
 		getGalleryServers: [],
+
 		getLatest: undefined,
 	},
 
 	mcpWorkbenchManagement: {
 		getInstalled: [],
+
 		getLocalServers: [],
+
 		install: undefined,
+
 		uninstall: undefined,
 	},
 
@@ -510,20 +523,31 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 	// never synced - disables sync without surfacing a bogus error.
 	userDataSync: {
 		_getInitialData: [0, [], null],
+
 		accept: undefined,
+
 		resolveContent: null,
+
 		replace: undefined,
+
 		reset: undefined,
+
 		stop: undefined,
+
 		pull: undefined,
+
 		hasPreviouslySynced: false,
+
 		hasLocalData: false,
+
 		turnOn: undefined,
+
 		turnOff: undefined,
 	},
 
 	userDataSyncAccount: {
 		_getInitialData: undefined,
+
 		getAccount: undefined,
 	},
 
@@ -535,6 +559,7 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 	// `fileExtensions.extensions` and crashes on undefined result.
 	languageDetection: {
 		detectLanguage: null,
+
 		provideLanguageDetectionHints: { fileExtensions: { extensions: [] } },
 	},
 
@@ -553,7 +578,9 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 	// stub is cheaper than letting it fall through.
 	test: {
 		getResults: [],
+
 		addResult: undefined,
+
 		clearResults: undefined,
 	},
 
@@ -577,7 +604,9 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 	// Land's current non-localised state.
 	languagePacks: {
 		getAvailableLanguages: [],
+
 		getInstalledLanguages: [],
+
 		getBuiltInExtensionTranslationsUri: undefined,
 	},
 
@@ -585,10 +614,14 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 	// resolution. Shape: { resolveDefaultIgnoredSettings, resolveUserKeybindings, resolveFormattingOptions }.
 	userDataSyncUtil: {
 		resolveDefaultIgnoredSettings: [],
+
 		resolveUserKeybindings: {},
+
 		resolveFormattingOptions: {
 			eol: "\n",
+
 			insertSpaces: true,
+
 			tabSize: 4,
 		},
 	},
@@ -597,9 +630,13 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 	// the backend. `getMachines` returns the array the UI iterates.
 	userDataSyncMachines: {
 		getMachines: [],
+
 		addCurrentMachine: undefined,
+
 		removeCurrentMachine: undefined,
+
 		renameMachine: undefined,
+
 		setEnablements: undefined,
 	},
 
@@ -609,12 +646,19 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 	// identifier here. Empty arrays = "no sync resources configured".
 	IUserDataSyncResourceProviderService: {
 		getRemoteSyncedProfiles: [],
+
 		getLocalSyncedProfiles: [],
+
 		getRemoteSyncResourceHandles: [],
+
 		getLocalSyncResourceHandles: [],
+
 		getAssociatedResources: [],
+
 		getMachineId: undefined,
+
 		getLocalSyncedMachines: [],
+
 		resolveContent: null,
 	},
 
@@ -623,6 +667,7 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 	// methods are no-ops.
 	customEndpointTelemetry: {
 		publicLog: undefined,
+
 		publicLogError: undefined,
 	},
 
@@ -632,9 +677,13 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 	// an object with `id` so the workbench destructure doesn't throw.
 	process: {
 		createTunnel: { id: "" },
+
 		startTunnel: {},
+
 		setAddress: undefined,
+
 		setTunnelInUse: undefined,
+
 		destroyTunnel: undefined,
 	},
 
@@ -644,12 +693,19 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 	// try to spin up a tunnel session.
 	remoteTunnel: {
 		getTunnelStatus: { type: "disconnected" },
+
 		getMode: { active: false },
+
 		initialize: { type: "disconnected" },
+
 		startTunnel: { type: "disconnected" },
+
 		stopTunnel: undefined,
+
 		getTunnelName: null,
+
 		getAccount: null,
+
 		getSessionToken: null,
 	},
 
@@ -670,13 +726,21 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 		// the previous boot. No-op acknowledgement leaves the client in
 		// its default disconnected state.
 		__initialize: undefined,
+
 		click: undefined,
+
 		hover: undefined,
+
 		drag: undefined,
+
 		fill: undefined,
+
 		select: undefined,
+
 		screenshot: null,
+
 		snapshot: null,
+
 		evaluate: null,
 	},
 
@@ -685,11 +749,16 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 	// id string; empty = "no active session" which the UI disables.
 	v8InspectProfiling: {
 		startProfiling: "",
+
 		stopProfiling: {
 			nodes: [],
+
 			samples: [],
+
 			timeDeltas: [],
+
 			startTime: 0,
+
 			endTime: 0,
 		},
 	},
@@ -711,60 +780,89 @@ function _ReadTier(Name: string): string | undefined {
 	const FromEnv = (import.meta as any).env?.[`Tier${Name}`] as
 		| string
 		| undefined;
+
 	if (FromEnv !== undefined) return FromEnv;
+
 	const FromGlobal = (globalThis as { __LandTiers?: Record<string, unknown> })
 		.__LandTiers?.[`Tier${Name}`];
+
 	return typeof FromGlobal === "string" ? FromGlobal : undefined;
 }
 
 const _TierTerminal = _ReadTier("Terminal") ?? "Mountain";
+
 const _TierSCM = _ReadTier("SCM") ?? "Mountain";
+
 const _TierDebug = _ReadTier("Debug") ?? "Mountain";
+
 const _TierLanguageFeatures = _ReadTier("LanguageFeatures") ?? "Mountain";
+
 const _TierSearch = _ReadTier("Search") ?? "Mountain";
+
 const _TierOutputChannel = _ReadTier("OutputChannel") ?? "Mountain";
+
 const _TierNativeHost = _ReadTier("NativeHost") ?? "Mountain";
+
 const _TierTreeView = _ReadTier("TreeView") ?? "Mountain";
+
 const _TierStorage = _ReadTier("Storage") ?? "Mountain";
+
 const _TierModel = _ReadTier("Model") ?? "Mountain";
+
 const _TierTasks = _ReadTier("Tasks") ?? "Node";
+
 const _TierAuth = _ReadTier("Auth") ?? "Node";
+
 const _TierEncryption = _ReadTier("Encryption") ?? "Mountain";
 
 function _ResolveTierForRoute(RoutePrefix: string | null): string {
 	if (!RoutePrefix) return _TierIPC;
+
 	switch (RoutePrefix) {
 		case "terminal":
 		case "localPty":
 			return _TierTerminal;
+
 		case "git":
 			return _TierSCM;
+
 		case "extensionhostdebugservice":
 		case "extensionHostStarter":
 			return _TierDebug;
+
 		case "language":
 		case "languages":
 			return _TierLanguageFeatures;
+
 		case "search":
 			return _TierSearch;
+
 		case "output":
 			return _TierOutputChannel;
+
 		case "nativeHost":
 			return _TierNativeHost;
+
 		case "tree":
 			return _TierTreeView;
+
 		case "storage":
 			return _TierStorage;
+
 		case "model":
 		case "textFile":
 		case "file":
 			return _TierModel;
+
 		case "tasks":
 			return _TierTasks;
+
 		case "auth":
 			return _TierAuth;
+
 		case "encryption":
 			return _TierEncryption;
+
 		default:
 			return _TierIPC;
 	}
@@ -772,6 +870,7 @@ function _ResolveTierForRoute(RoutePrefix: string | null): string {
 
 async function _InvokeViaNode(
 	Method: string,
+
 	Params: unknown[],
 ): Promise<unknown> {
 	const Invoke =
@@ -796,6 +895,7 @@ async function _InvokeViaNode(
 
 async function InvokeMountain(
 	Method: string,
+
 	Params: unknown[],
 ): Promise<unknown> {
 	const Invoke =
@@ -828,6 +928,7 @@ async function InvokeMountain(
 	// stack-trace context is worth the cost).
 	const Start =
 		typeof performance !== "undefined" ? performance.now() : Date.now();
+
 	try {
 		return await Invoke("MountainIPCInvoke", {
 			method: Method,
@@ -838,6 +939,7 @@ async function InvokeMountain(
 			(typeof performance !== "undefined"
 				? performance.now()
 				: Date.now()) - Start;
+
 		// ENOENT on the file:*  methods is expected - extensions probe
 		// for optional workspace files (`.vscode/settings.json`,
 		// `.vscode/tasks.json`, etc.) that don't exist on fresh installs.
@@ -847,17 +949,21 @@ async function InvokeMountain(
 		// `short` log into a distraction. Suppress benign ENOENTs on the
 		// filesystem methods; everything else still forwards.
 		const Message = String(Error);
+
 		const IsBenignEnoent =
 			(Method === "file:stat" || Method === "file:readFile") &&
 			(Message.includes("No such file or directory") ||
 				Message.includes("os error 2") ||
 				/Resource not found/i.test(Message));
+
 		if (!IsBenignEnoent) {
 			_DevLogForward(
 				"tauri-invoke-error",
+
 				`[TauriInvoke] method=${Method} ok=false elapsed_ms=${Elapsed.toFixed(2)} err=${Message}`,
 			);
 		}
+
 		throw Error;
 	}
 }
@@ -869,12 +975,15 @@ async function InvokeMountain(
 class TauriChannel implements IChannel {
 	constructor(
 		private readonly ChannelName: string,
+
 		private readonly RoutePrefix: string | null,
 	) {}
 
 	async call<T>(
 		Command: string,
+
 		Arg?: unknown,
+
 		_CancellationToken?: unknown,
 	): Promise<T> {
 		// Promise-protocol probe short-circuit. When VS Code resolves a
@@ -909,9 +1018,11 @@ class TauriChannel implements IChannel {
 			if (this.RoutePrefix) {
 				InvokeMountain(
 					`${this.RoutePrefix}:${Command}`,
+
 					Arg !== undefined ? (Array.isArray(Arg) ? Arg : [Arg]) : [],
 				).catch(() => {});
 			}
+
 			// Was: `_DevLogForward("channel-stub", "fire-and-forget …")`.
 			// Same IPC-saturation issue as the success-case `tauri-invoke`
 			// forward above - logger / status-bar / file-watcher channels
@@ -924,9 +1035,12 @@ class TauriChannel implements IChannel {
 		}
 
 		const Stubs = StubChannels[this.ChannelName];
+
 		if (Stubs !== undefined) {
 			_Trace("ipc", `stub:${this.ChannelName}.${Command}`);
+
 			const StubValue = Stubs[Command];
+
 			// Three-state disposition so the tag stops conflating
 			// "stub present but value is intentionally undefined (no-op sink)"
 			// with "key missing from stub object (drift - should be added)":
@@ -938,12 +1052,14 @@ class TauriChannel implements IChannel {
 			//     because renderer gets undefined either way.
 			const Disposition = Object.prototype.hasOwnProperty.call(
 				Stubs,
+
 				Command,
 			)
 				? StubValue === undefined
 					? "noop"
 					: "value"
 				: "drift";
+
 			// Only forward for `drift` - the noteworthy case (a stub key
 			// was added for this channel but THIS command isn't covered).
 			// `value` and `noop` are routine and would saturate the IPC
@@ -951,19 +1067,23 @@ class TauriChannel implements IChannel {
 			if (Disposition === "drift") {
 				_DevLogForward(
 					"channel-stub",
+
 					`stub-hit channel=${this.ChannelName} cmd=${Command} disposition=${Disposition}`,
 				);
 			}
+
 			return (StubValue !== undefined ? StubValue : undefined) as T;
 		}
 
 		if (this.RoutePrefix) {
 			const MountainMethod = `${this.RoutePrefix}:${Command}`;
+
 			const Params =
 				Arg !== undefined ? (Array.isArray(Arg) ? Arg : [Arg]) : [];
 
 			// Per-subsystem Node track (TIER-SYSTEM Step 4b, lockstep with Wind).
 			const _EffectiveTier = _ResolveTierForRoute(this.RoutePrefix);
+
 			if (_EffectiveTier === "Node") {
 				try {
 					return (await _InvokeViaNode(MountainMethod, Params)) as T;
@@ -984,19 +1104,24 @@ class TauriChannel implements IChannel {
 						| number[]
 						| null
 						| undefined;
+
 					if (Raw !== null && Raw !== undefined) {
 						const Arr = Array.isArray(Raw)
 							? Raw
 							: (Raw as { buffer: number[] }).buffer;
+
 						if (Array.isArray(Arr)) {
 							const Bytes = new Uint8Array(Arr);
+
 							return {
 								buffer: Bytes,
+
 								byteLength: Bytes.byteLength,
 							} as unknown as T;
 						}
 					}
 				}
+
 				return Result as T;
 			} catch (RawError) {
 				if (
@@ -1004,30 +1129,38 @@ class TauriChannel implements IChannel {
 					FileSystemThrowCommands.has(Command)
 				) {
 					const ErrorMsg = String(RawError);
+
 					const WrappedError = new Error(ErrorMsg) as any;
+
 					if (
 						ErrorMsg.includes("No such file or directory") ||
 						ErrorMsg.includes("ENOENT") ||
 						ErrorMsg.includes("not found")
 					) {
 						WrappedError.code = "FileNotFound";
+
 						WrappedError.fileOperationResult = 1;
 					} else if (
 						ErrorMsg.includes("Permission denied") ||
 						ErrorMsg.includes("EACCES")
 					) {
 						WrappedError.code = "NoPermissions";
+
 						WrappedError.fileOperationResult = 6;
 					} else if (
 						ErrorMsg.includes("File exists") ||
 						ErrorMsg.includes("EEXIST")
 					) {
 						WrappedError.code = "FileExists";
+
 						WrappedError.fileOperationResult = 4;
 					}
+
 					throw WrappedError;
 				}
+
 				_Trace("ipc", `error:${this.ChannelName}.${Command}`);
+
 				return undefined as T;
 			}
 		}
@@ -1037,6 +1170,7 @@ class TauriChannel implements IChannel {
 		// defaults are "Node") attempt the Cocoon path even when the global
 		// `_TierIPC` is "Mountain" (TIER-SYSTEM Step 4b, lockstep with Wind).
 		const _NoRouteTier = _ResolveTierForRoute(this.ChannelName);
+
 		if (
 			_TierIPC === "NodeDeferred" ||
 			_TierIPC === "Node" ||
@@ -1044,8 +1178,10 @@ class TauriChannel implements IChannel {
 			_NoRouteTier === "NodeDeferred"
 		) {
 			const NodeMethod = `${this.ChannelName}:${Command}`;
+
 			const NodeParams =
 				Arg !== undefined ? (Array.isArray(Arg) ? Arg : [Arg]) : [];
+
 			try {
 				return (await _InvokeViaNode(NodeMethod, NodeParams)) as T;
 			} catch {
@@ -1054,10 +1190,13 @@ class TauriChannel implements IChannel {
 		}
 
 		_Trace("ipc", `unknown:${this.ChannelName}.${Command}`);
+
 		_DevLogForward(
 			"channel-stub",
+
 			`miss channel=${this.ChannelName} cmd=${Command} (no route, no stub)`,
 		);
+
 		return undefined as T;
 	}
 
@@ -1079,17 +1218,22 @@ class TauriChannel implements IChannel {
 		// `sky://terminal/data` 100s of times. Same for `onProcessReady`,
 		// `onProcessExit`, and the entire async-channel-event surface.
 		const SkyEventBridge = ChannelEventBridge[this.ChannelName]?.[Event];
+
 		if (SkyEventBridge) {
 			return ((Listener: (Payload: unknown) => void) => {
 				let Disposed = false;
+
 				let Unlisten: (() => void) | null = null;
+
 				import("@tauri-apps/api/event")
 					.then(({ listen }) => {
 						if (Disposed) return;
+
 						return listen(SkyEventBridge.Channel, (TauriEvent) => {
 							const Mapped = SkyEventBridge.Map
 								? SkyEventBridge.Map(TauriEvent.payload)
 								: TauriEvent.payload;
+
 							if (Mapped !== undefined) Listener(Mapped);
 						});
 					})
@@ -1100,9 +1244,11 @@ class TauriChannel implements IChannel {
 						}
 					})
 					.catch(() => {});
+
 				return {
 					dispose: () => {
 						Disposed = true;
+
 						Unlisten?.();
 					},
 				};
@@ -1121,6 +1267,7 @@ class TauriChannel implements IChannel {
 					import("../../../base/common/buffer.js") as Promise<{
 						VSBuffer: { wrap(buffer: Uint8Array): unknown };
 					}>,
+
 					InvokeMountain(`${this.RoutePrefix}:readFile`, Params),
 				])
 					.then(([{ VSBuffer }, Result]) => {
@@ -1129,14 +1276,17 @@ class TauriChannel implements IChannel {
 							| number[]
 							| null
 							| undefined;
+
 						if (Raw !== null && Raw !== undefined) {
 							const Arr = Array.isArray(Raw)
 								? Raw
 								: (Raw as { buffer: number[] }).buffer;
+
 							if (Array.isArray(Arr)) {
 								Listener(VSBuffer.wrap(new Uint8Array(Arr)));
 							}
 						}
+
 						Listener("end" as unknown);
 					})
 					.catch((Err) => {
@@ -1166,16 +1316,21 @@ export class TauriMainProcessService {
 
 	getChannel(ChannelName: string): IChannel {
 		let Channel = this.Channels.get(ChannelName);
+
 		if (!Channel) {
 			const RoutePrefix = ChannelRouteMap[ChannelName] ?? null;
+
 			Channel = new TauriChannel(ChannelName, RoutePrefix);
+
 			this.Channels.set(ChannelName, Channel);
 		}
+
 		return Channel;
 	}
 
 	registerChannel(
 		_ChannelName: string,
+
 		_Channel: IServerChannel<string>,
 	): void {}
 

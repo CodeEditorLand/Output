@@ -28,6 +28,7 @@ class NullTelemetryService {
 	readonly sendErrorTelemetry = false;
 
 	readonly telemetryLevel = 0; // TelemetryLevel.NONE
+
 	readonly sessionId = "";
 
 	readonly machineId = "";

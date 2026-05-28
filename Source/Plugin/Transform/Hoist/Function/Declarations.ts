@@ -98,6 +98,7 @@ interface Block {
 	readonly StartLine: number;
 
 	readonly EndLine: number; // inclusive
+
 	readonly Source: string;
 
 	readonly Name: string;
@@ -141,6 +142,7 @@ function FindTopLevelFunctionBlocks(Lines: ReadonlyArray<string>): Block[] {
 	let i = 0;
 	while (i < Lines.length) {
 		const Line = Lines[i]!;
+
 		const Stripped = StripCommentsAndStrings(Line, State);
 
 		// Only recognise a top-level function declaration when we are
@@ -152,28 +154,39 @@ function FindTopLevelFunctionBlocks(Lines: ReadonlyArray<string>): Block[] {
 			State.BraceStack.length === 0
 		) {
 			const Match = FunctionStart.exec(Line);
+
 			if (Match) {
 				const StartLine = i;
+
 				const Name = Match[1]!;
+
 				// Walk forward until depth returns to 0.
 				let LocalDepth = Stripped.Open - Stripped.Close;
+
 				let Inner: WalkerState = {
 					InBlockComment: Stripped.InBlockComment,
 					StringChar: Stripped.StringChar,
 					BraceStack: Stripped.BraceStack,
 				};
+
 				let j = i + 1;
+
 				while (j < Lines.length && LocalDepth > 0) {
 					const Next = StripCommentsAndStrings(Lines[j]!, Inner);
+
 					Inner = {
 						InBlockComment: Next.InBlockComment,
 						StringChar: Next.StringChar,
 						BraceStack: Next.BraceStack,
 					};
+
 					LocalDepth += Next.Open - Next.Close;
+
 					j++;
 				}
+
 				const EndLine = j - 1;
+
 				// Do NOT extend the block to cover the trailing
 				// `__name(NAME, "NAME");` companion call. ESBuild emits
 				// `var __name = ...` near the top of the file (after the
@@ -189,19 +202,25 @@ function FindTopLevelFunctionBlocks(Lines: ReadonlyArray<string>): Block[] {
 				// later in-place `__name(NAME, "NAME")` call still finds
 				// the hoisted binding.
 				const Source = Lines.slice(StartLine, EndLine + 1).join("\n");
+
 				Blocks.push({ StartLine, EndLine, Source, Name });
+
 				State = Inner;
+
 				i = EndLine + 1;
+
 				continue;
 			}
 		}
 
 		Depth += Stripped.Open - Stripped.Close;
+
 		State = {
 			InBlockComment: Stripped.InBlockComment,
 			StringChar: Stripped.StringChar,
 			BraceStack: Stripped.BraceStack,
 		};
+
 		i++;
 	}
 
@@ -225,6 +244,7 @@ function FindTopLevelHelperVars(Lines: ReadonlyArray<string>): Block[] {
 	let i = 0;
 	while (i < Lines.length) {
 		const Line = Lines[i]!;
+
 		const Stripped = StripCommentsAndStrings(Line, State);
 
 		if (
@@ -234,45 +254,62 @@ function FindTopLevelHelperVars(Lines: ReadonlyArray<string>): Block[] {
 			State.BraceStack.length === 0
 		) {
 			const Match = HelperStart.exec(Line);
+
 			if (Match) {
 				const StartLine = i;
+
 				const Name = Match[1] as HelperName;
+
 				let LocalDepth = Stripped.Open - Stripped.Close;
+
 				let Inner: WalkerState = {
 					InBlockComment: Stripped.InBlockComment,
 					StringChar: Stripped.StringChar,
 					BraceStack: Stripped.BraceStack,
 				};
+
 				let j = i + 1;
+
 				// Multi-line declarations (e.g. `var __decorate =
 				// function(...) { ... };`) keep LocalDepth > 0 until the
 				// closing `};`. Single-line declarations have LocalDepth
 				// == 0 immediately and the loop is a no-op.
 				while (j < Lines.length && LocalDepth > 0) {
 					const Next = StripCommentsAndStrings(Lines[j]!, Inner);
+
 					Inner = {
 						InBlockComment: Next.InBlockComment,
 						StringChar: Next.StringChar,
 						BraceStack: Next.BraceStack,
 					};
+
 					LocalDepth += Next.Open - Next.Close;
+
 					j++;
 				}
+
 				const EndLine = j - 1;
+
 				const Source = Lines.slice(StartLine, EndLine + 1).join("\n");
+
 				Blocks.push({ StartLine, EndLine, Source, Name });
+
 				State = Inner;
+
 				i = EndLine + 1;
+
 				continue;
 			}
 		}
 
 		Depth += Stripped.Open - Stripped.Close;
+
 		State = {
 			InBlockComment: Stripped.InBlockComment,
 			StringChar: Stripped.StringChar,
 			BraceStack: Stripped.BraceStack,
 		};
+
 		i++;
 	}
 
@@ -310,15 +347,20 @@ function StripCommentsAndStrings(
 
 	while (i < Line.length) {
 		const c = Line[i]!;
+
 		const next = Line[i + 1];
 
 		if (InBlockComment) {
 			if (c === "*" && next === "/") {
 				InBlockComment = false;
+
 				i += 2;
+
 				continue;
 			}
+
 			i++;
+
 			continue;
 		}
 
@@ -327,32 +369,47 @@ function StripCommentsAndStrings(
 			// mode and pushes a marker so the matching `}` can return.
 			if (StringChar === "`" && c === "$" && next === "{") {
 				BraceStack.push("${");
+
 				StringChar = null;
+
 				i += 2;
+
 				continue;
 			}
+
 			if (c === "\\") {
 				i += 2;
+
 				continue;
 			}
+
 			if (c === StringChar) {
 				StringChar = null;
 			}
+
 			i++;
+
 			continue;
 		}
 
 		if (c === "/" && next === "/") break; // rest is line comment
+
 		if (c === "/" && next === "*") {
 			InBlockComment = true;
+
 			i += 2;
+
 			continue;
 		}
+
 		if (c === '"' || c === "'" || c === "`") {
 			StringChar = c;
+
 			i++;
+
 			continue;
 		}
+
 		// Escape sequence in code mode. The only place `\` appears
 		// outside strings is inside a regex literal (e.g. `/foo\/bar/`).
 		// Skipping the escape pair prevents the trailing `/` of patterns
@@ -361,8 +418,10 @@ function StripCommentsAndStrings(
 		// any closing brace - from brace counting.
 		if (c === "\\") {
 			i += 2;
+
 			continue;
 		}
+
 		// Regex-literal start (`/.../FLAGS`). Disambiguated from division
 		// by inspecting the previous non-whitespace token on this line.
 		// Identifier / digit / closing bracket → division. Anything else
@@ -372,61 +431,90 @@ function StripCommentsAndStrings(
 		// brace counting or trigger comment-mode false positives.
 		if (c === "/") {
 			let k = i - 1;
+
 			while (k >= 0 && (Line[k] === " " || Line[k] === "	")) k--;
+
 			const Prev = k >= 0 ? Line[k]! : "";
+
 			let IsRegex = !/[A-Za-z_$0-9)\]]/.test(Prev) || Prev === "";
+
 			if (!IsRegex && /[A-Za-z_$]/.test(Prev)) {
 				let WordStart = k;
+
 				while (
 					WordStart > 0 &&
 					/[A-Za-z_$0-9]/.test(Line[WordStart - 1]!)
 				) {
 					WordStart--;
 				}
+
 				const Word = Line.slice(WordStart, k + 1);
+
 				if (RegexAllowingKeywords.has(Word)) IsRegex = true;
 			}
+
 			if (IsRegex) {
 				let m = i + 1;
+
 				let InCharClass = false;
+
 				while (m < Line.length) {
 					const Ch = Line[m]!;
+
 					if (Ch === "\\") {
 						m += 2;
+
 						continue;
 					}
+
 					if (Ch === "[" && !InCharClass) {
 						InCharClass = true;
+
 						m++;
+
 						continue;
 					}
+
 					if (Ch === "]" && InCharClass) {
 						InCharClass = false;
+
 						m++;
+
 						continue;
 					}
+
 					if (Ch === "/" && !InCharClass) {
 						m++;
+
 						while (m < Line.length && /[gimsuyd]/.test(Line[m]!)) {
 							m++;
 						}
+
 						break;
 					}
+
 					m++;
 				}
+
 				i = m;
+
 				continue;
 			}
 		}
 
 		if (c === "{") {
 			BraceStack.push("{");
+
 			Open++;
+
 			i++;
+
 			continue;
 		}
+
 		if (c === "}") {
 			const Top = BraceStack.pop();
+
 			if (Top === "${") {
 				// Closing a template-literal interpolation; resume
 				// string mode without counting this brace.
@@ -434,9 +522,12 @@ function StripCommentsAndStrings(
 			} else {
 				Close++;
 			}
+
 			i++;
+
 			continue;
 		}
+
 		i++;
 	}
 
@@ -456,8 +547,11 @@ const Plugin: TransformPlugin = {
 		if (Source.includes(Marker)) return { Kind: "Unchanged" };
 
 		const Lines = Source.split("\n");
+
 		const Blocks = FindTopLevelFunctionBlocks(Lines);
+
 		const HelperBlocks = FindTopLevelHelperVars(Lines);
+
 		const HasLegacyMarker = Source.includes(LegacyMarker);
 
 		if (Blocks.length === 0 && HelperBlocks.length === 0) {
@@ -470,15 +564,19 @@ const Plugin: TransformPlugin = {
 		// need a re-pass to fix `__name` ordering, even if the cheap
 		// preamble check would otherwise short-circuit).
 		const FirstBlockStart = Blocks[0]?.StartLine ?? Lines.length;
+
 		const PreambleLines = Lines.slice(0, FirstBlockStart);
+
 		const PreambleHasCallsToHoistedFns = Blocks.some((Block) =>
 			PreambleLines.some((PrevLine) =>
 				new RegExp(`\\b${Block.Name}\\s*\\(`).test(PrevLine),
 			),
 		);
+
 		const HelpersNeedHoisting = HelperBlocks.some(
 			(Block) => Block.StartLine > 0,
 		);
+
 		if (
 			!PreambleHasCallsToHoistedFns &&
 			!HelpersNeedHoisting &&
@@ -491,11 +589,13 @@ const Plugin: TransformPlugin = {
 		// by removing them from their original spots and prepending the
 		// concatenated source after the comment/import preamble.
 		const SkipRanges = new Set<number>();
+
 		for (const Block of Blocks) {
 			for (let n = Block.StartLine; n <= Block.EndLine; n++) {
 				SkipRanges.add(n);
 			}
 		}
+
 		for (const Block of HelperBlocks) {
 			for (let n = Block.StartLine; n <= Block.EndLine; n++) {
 				SkipRanges.add(n);
@@ -505,8 +605,10 @@ const Plugin: TransformPlugin = {
 		// Find where the leading comment/import preamble ends (first
 		// non-import, non-comment, non-blank line).
 		let HoistInsertAt = 0;
+
 		for (let n = 0; n < Lines.length; n++) {
 			const Trimmed = Lines[n]!.trim();
+
 			if (
 				Trimmed === "" ||
 				Trimmed.startsWith("//") ||
@@ -527,19 +629,25 @@ const Plugin: TransformPlugin = {
 		// MUST land before any function body that triggers `__name()`
 		// calls in the surrounding scope.
 		const HelpersSource = HelperBlocks.map((B) => B.Source).join("\n");
+
 		const FunctionsSource = Blocks.map((B) => B.Source).join("\n");
+
 		const HoistedSource = [HelpersSource, FunctionsSource]
 			.filter((Part) => Part.length > 0)
 			.join("\n");
 
 		const Output: string[] = [];
+
 		// Lines before the hoist point (typically the license comment).
 		for (let n = 0; n < HoistInsertAt; n++) {
 			if (!SkipRanges.has(n)) Output.push(Lines[n]!);
 		}
+
 		// Hoisted helpers + functions.
 		Output.push(Marker);
+
 		if (HoistedSource.length > 0) Output.push(HoistedSource);
+
 		// Remaining lines, skipping the original block ranges.
 		for (let n = HoistInsertAt; n < Lines.length; n++) {
 			if (!SkipRanges.has(n)) Output.push(Lines[n]!);

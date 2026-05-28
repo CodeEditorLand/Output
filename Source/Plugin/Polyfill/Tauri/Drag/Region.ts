@@ -81,6 +81,7 @@ export default function TauriDragRegion(): void {
 
 	const Global = globalThis as unknown as {
 		__LAND_DRAG_SELECTORS__?: string[];
+
 		__LAND_NO_DRAG_SELECTORS__?: string[];
 	};
 
@@ -97,7 +98,9 @@ export default function TauriDragRegion(): void {
 
 	function StampMatching(
 		Selectors: string[],
+
 		Value: string,
+
 		Root: ParentNode,
 	): void {
 		for (const Selector of Selectors) {
@@ -142,19 +145,23 @@ export default function TauriDragRegion(): void {
 				El.hasAttribute(Attribute)
 			) {
 				const Value = El.getAttribute(Attribute);
+
 				// `data-tauri-drag-region="false"` opts out; any other
 				// value (including empty string, which is the canonical
 				// "present" form) opts in.
 				return Value !== "false";
 			}
+
 			El = El.parentElement;
 		}
+
 		return false;
 	}
 
 	function StartDragging(): void {
 		try {
 			const Tauri = (globalThis as any).__TAURI__;
+
 			// Prefer the typed JS API - it transparently injects the
 			// window `label` Tauri's `plugin:window|start_dragging` needs
 			// as its IPC payload. A bare `core.invoke("plugin:window|
@@ -163,27 +170,34 @@ export default function TauriDragRegion(): void {
 			// silently when no window matches the implicit context - and
 			// our overlay-titlebar window never moves.
 			const Win = Tauri?.window?.getCurrentWindow?.();
+
 			if (Win && typeof Win.startDragging === "function") {
 				const Result = Win.startDragging();
+
 				if (Result && typeof Result.catch === "function") {
 					Result.catch(() => {
 						/* swallow - Mountain may have torn down */
 					});
 				}
+
 				return;
 			}
+
 			// Fallback: raw invoke with an explicit `label` payload.
 			const Invoke =
 				Tauri?.core?.invoke ??
 				(globalThis as any).__TAURI_INTERNALS__?.invoke;
+
 			const Label =
 				Tauri?.window?.getCurrentWindow?.()?.label ??
 				Tauri?.webviewWindow?.getCurrentWebviewWindow?.()?.label ??
 				"main";
+
 			if (typeof Invoke === "function") {
 				const Result = Invoke("plugin:window|start_dragging", {
 					label: Label,
 				});
+
 				if (Result && typeof Result.catch === "function") {
 					Result.catch(() => {});
 				}
@@ -196,28 +210,37 @@ export default function TauriDragRegion(): void {
 	function ToggleMaximize(): void {
 		try {
 			const Tauri = (globalThis as any).__TAURI__;
+
 			const Win = Tauri?.window?.getCurrentWindow?.();
+
 			if (Win && typeof Win.toggleMaximize === "function") {
 				const Result = Win.toggleMaximize();
+
 				if (Result && typeof Result.catch === "function") {
 					Result.catch(() => {});
 				}
+
 				return;
 			}
+
 			const Invoke =
 				Tauri?.core?.invoke ??
 				(globalThis as any).__TAURI_INTERNALS__?.invoke;
+
 			const Label =
 				Tauri?.window?.getCurrentWindow?.()?.label ??
 				Tauri?.webviewWindow?.getCurrentWebviewWindow?.()?.label ??
 				"main";
+
 			if (typeof Invoke === "function") {
 				const Result = Invoke(
 					"plugin:window|internal_toggle_maximize",
+
 					{
 						label: Label,
 					},
 				);
+
 				if (Result && typeof Result.catch === "function") {
 					Result.catch(() => {});
 				}
@@ -231,8 +254,11 @@ export default function TauriDragRegion(): void {
 		// Only the primary button starts a drag. Right-click context menus
 		// and middle-click paste must not trigger window-move.
 		if (Event.button !== 0) return;
+
 		const Target = Event.target as Element | null;
+
 		if (!IsDragTarget(Target)) return;
+
 		// Two consecutive primary clicks on a drag region = toggle
 		// maximise, matching native macOS / Windows titlebar behaviour.
 		if (Event.detail === 2) {

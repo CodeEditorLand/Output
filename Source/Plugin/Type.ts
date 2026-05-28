@@ -36,7 +36,9 @@ export type FileRole = "original" | "out" | "out-build" | "app";
  */
 export interface TransformInput {
 	readonly Path: string;
+
 	readonly Source: string;
+
 	readonly Role: FileRole;
 }
 
@@ -53,11 +55,15 @@ export type TransformResult =
 
 export interface TransformPlugin {
 	readonly Kind: "Transform";
+
 	readonly Name: string;
+
 	readonly Match: (Input: Pick<TransformInput, "Path" | "Role">) => boolean;
+
 	readonly Transform: (
 		Input: TransformInput,
 	) => Promise<TransformResult> | TransformResult;
+
 	/**
 	 * Optional predicate evaluated once before the plugin runs. When it
 	 * returns `false` the runner skips the plugin entirely. Used by the
@@ -82,17 +88,25 @@ export interface TransformPlugin {
  */
 export interface CopyEntry {
 	readonly From: ReadonlyArray<string>;
+
 	readonly To: string;
+
 	readonly Recursive?: boolean;
+
 	readonly Force?: boolean;
 }
 
 export interface CopyPlugin {
 	readonly Kind: "Copy";
+
 	readonly Name: string;
+
 	readonly Entries: ReadonlyArray<CopyEntry>;
+
 	readonly Required?: boolean;
+
 	readonly Enabled?: () => boolean;
+
 	/**
 	 * Optional side-effect run after every entry resolves. Used by Step 11b
 	 * (strip-dangling-sourcemap) which is logically attached to Step 11
@@ -115,9 +129,11 @@ export type Plugin = TransformPlugin | CopyPlugin;
  */
 export const AsEsbuildPlugin = (
 	Plugin: TransformPlugin,
+
 	Options: {
 		readonly Roots: ReadonlyArray<{
 			readonly Path: string;
+
 			readonly Role: FileRole;
 		}>;
 	},
@@ -128,21 +144,28 @@ export const AsEsbuildPlugin = (
 			const Matched = Options.Roots.find((Root) =>
 				Args.path.startsWith(Root.Path),
 			);
+
 			if (!Matched) return null;
+
 			if (
 				!Plugin.Match({ Path: Args.path, Role: Matched.Role }) ||
 				(Plugin.Enabled && !Plugin.Enabled())
 			) {
 				return null;
 			}
+
 			const { readFile } = await import("node:fs/promises");
+
 			const Source = await readFile(Args.path, "utf-8");
+
 			const Result = await Plugin.Transform({
 				Path: Args.path,
 				Source,
 				Role: Matched.Role,
 			});
+
 			if (Result.Kind === "Unchanged") return null;
+
 			return {
 				contents: Result.Source,
 				loader: Args.path.endsWith(".html") ? "text" : "js",

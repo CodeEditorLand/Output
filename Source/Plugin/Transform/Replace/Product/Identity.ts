@@ -35,17 +35,28 @@ import type { TransformPlugin } from "../../../Type.js";
 // ---------------------------------------------------------------------------
 const RepoRoot = resolve(
 	dirname(fileURLToPath(import.meta.url)),
+
 	"..",
+
 	"..",
+
 	"..",
+
 	"..",
+
 	"..",
+
 	"..",
+
 	"..",
+
 	"Element",
+
 	"Sky",
+
 	"Public",
 );
+
 const ProductJsonPath = join(RepoRoot, "product.json");
 
 /** Read product.json once at module init (safe: file is stable during build). */
@@ -56,6 +67,7 @@ function LoadProduct(): Record<string, string | undefined> {
 		return {};
 	}
 }
+
 const Product = LoadProduct();
 
 // ---------------------------------------------------------------------------
@@ -64,6 +76,7 @@ const Product = LoadProduct();
 interface Replacement {
 	/** The VS Code substring to find (case-sensitive). */
 	From: string;
+
 	/** The Land replacement string. */
 	To: string;
 }
@@ -71,28 +84,39 @@ interface Replacement {
 const Replacements: Replacement[] = [
 	// ---- Product name strings ----
 	{ From: "Code - OSS", To: Product.nameShort ?? "FIDDEE" },
+
 	{ From: "code-oss", To: Product.applicationName ?? "fiddee" },
+
 	{ From: ".vscode-oss", To: Product.dataFolderName ?? ".fiddee" },
+
 	{
 		From: ".vscode-oss-shared",
+
 		To: `${Product.dataFolderName ?? ".fiddee"}-shared`,
 	},
+
 	{
 		From: "code-server-oss",
+
 		To: Product.serverApplicationName ?? "fiddee-server",
 	},
+
 	{
 		From: ".vscode-server-oss",
+
 		To: Product.serverDataFolderName ?? ".fiddee-server",
 	},
+
 	{
 		From: "code-tunnel-oss",
+
 		To: `${Product.applicationName ?? "fiddee"}-tunnel`,
 	},
 
 	// ---- Bundle identifiers ----
 	{
 		From: "com.visualstudio.code.oss",
+
 		To: Product.darwinBundleIdentifier ?? "fiddee.editor",
 	},
 
@@ -101,11 +125,14 @@ const Replacements: Replacement[] = [
 
 	// ---- Application IDs ----
 	{ From: "Microsoft.CodeOSS", To: "FIDDEE.Editor" },
+
 	{ From: "Microsoft Code OSS", To: "FIDDEE" },
+
 	{ From: "CodeOSS", To: "FIDDEE" },
 
 	// ---- Metric / telemetry names ----
 	{ From: "vscodeoss", To: "fiddee" },
+
 	{ From: "vscode-oss", To: Product.applicationName ?? "fiddee" },
 ];
 
@@ -114,6 +141,7 @@ const Replacements: Replacement[] = [
 // ---------------------------------------------------------------------------
 const Plugin: TransformPlugin = {
 	Kind: "Transform",
+
 	Name: "ReplaceProductIdentity",
 
 	/** Match any JS/HTML file that could contain product identity strings. */
@@ -124,6 +152,7 @@ const Plugin: TransformPlugin = {
 
 	Transform({ Source }) {
 		let Current = Source;
+
 		let Changed = false;
 
 		for (const { From, To } of Replacements) {
@@ -137,8 +166,10 @@ const Plugin: TransformPlugin = {
 			}
 
 			const Replaced = Current.split(From).join(To);
+
 			if (Replaced !== Current) {
 				Changed = true;
+
 				Current = Replaced;
 			}
 		}

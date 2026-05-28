@@ -168,16 +168,25 @@ const DiagnosticCode = `
 
 const Plugin: TransformPlugin = {
 	Kind: "Transform",
+
 	Name: "InjectWebviewRuntimeDiagnostics",
+
 	Match: ({ Path }) => PathRegex.test(Path),
+
 	Transform({ Source }) {
 		if (Source.includes(Marker)) return { Kind: "Unchanged" };
+
 		// Inject before </body>
 		const closing = "</body>";
+
 		const idx = Source.lastIndexOf(closing);
+
 		if (idx < 0) return { Kind: "Unchanged" };
+
 		const injection = Marker + "<script>" + DiagnosticCode + "</script>";
+
 		const Next = Source.slice(0, idx) + injection + Source.slice(idx);
+
 		return { Kind: "Rewrite", Source: Next };
 	},
 };

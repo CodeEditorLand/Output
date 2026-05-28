@@ -249,11 +249,14 @@ class MountainTauriSearchProvider extends Disposable {
 
 			const Hits = Matches.map((M) => {
 				const Line = Math.max(0, ((M && M.lineNumber) || 1) - 1);
+
 				const Cols = Array.isArray(M && M.columns) ? M.columns : [];
+
 				const Ranges =
 					Cols.length > 0
 						? Cols
 						: [{ start: 0, end: ((M && M.preview) || "").length }];
+
 				return {
 					rangeLocations: Ranges.map((R) => ({
 						source: {

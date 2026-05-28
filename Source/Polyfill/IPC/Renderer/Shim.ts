@@ -294,21 +294,25 @@ function SerializeIPC(Data: unknown): Uint8Array {
 			const Encoded = new TextEncoder().encode(Value);
 
 			Parts.push(new Uint8Array([1])); // String
+
 			WriteVQL(Encoded.length);
 
 			Parts.push(Encoded);
 		} else if (Array.isArray(Value)) {
 			Parts.push(new Uint8Array([4])); // Array
+
 			WriteVQL(Value.length);
 
 			for (const Item of Value) Write(Item);
 		} else if (typeof Value === "number" && (Value | 0) === Value) {
 			Parts.push(new Uint8Array([6])); // Int
+
 			WriteVQL(Value);
 		} else {
 			const Encoded = new TextEncoder().encode(JSON.stringify(Value));
 
 			Parts.push(new Uint8Array([5])); // Object
+
 			WriteVQL(Encoded.length);
 
 			Parts.push(Encoded);
@@ -809,6 +813,7 @@ class IPCRendererImpl implements IpcRenderer {
 
 								Result,
 							);
+
 							this.emitMessage(Response);
 						})
 						.catch((Error) => {
@@ -816,11 +821,13 @@ class IPCRendererImpl implements IpcRenderer {
 								Error instanceof Error
 									? Error.message
 									: String(Error);
+
 							const Response = BuildIPCMessage(
 								[202, RequestId],
 
 								Message,
 							);
+
 							this.emitMessage(Response);
 						});
 
@@ -957,6 +964,7 @@ class IPCRendererImpl implements IpcRenderer {
 			// Send it asynchronously so the listener is registered first.
 			setTimeout(() => {
 				const InitMessage = BuildIPCMessage([200], undefined);
+
 				this.emitMessage(InitMessage);
 			}, 0);
 
@@ -1134,15 +1142,19 @@ class IPCRendererImpl implements IpcRenderer {
 		this.invoke(channel, ...args)
 			.then((response) => {
 				const handler = this.replyHandlers.get(requestId);
+
 				if (handler) {
 					handler.callback(response);
+
 					this.replyHandlers.delete(requestId);
 				}
 			})
 			.catch((error) => {
 				const handler = this.replyHandlers.get(requestId);
+
 				if (handler) {
 					handler.callback({ error: error.message });
+
 					this.replyHandlers.delete(requestId);
 				}
 			});

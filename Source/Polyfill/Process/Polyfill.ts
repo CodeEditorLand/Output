@@ -213,9 +213,13 @@ const DEFAULT_PROCESS_CONFIG: ProcessConfig = {
 		// set in Base.astro.
 		VSCODE_DEV: "true",
 	},
+
 	platform: "darwin",
+
 	arch: "arm64",
+
 	pid: 1,
+
 	ppid: 0,
 };
 
@@ -262,6 +266,7 @@ async function getProcessConfiguration(): Promise<ProcessConfig> {
  */
 function detectChromeVersion(): string {
 	const match = navigator.userAgent.match(/Chrome\/(\d+\.\d+\.\d+\.\d+)/);
+
 	return match ? match[1] : "0.0.0.0";
 }
 
@@ -316,11 +321,14 @@ let hrtimeStart: [number, number] = [0, 0];
  */
 function hrtime(time?: [number, number]): [number, number] {
 	const now = performance.now() * 1e6; // Convert to nanoseconds
+
 	const seconds = Math.floor(now / 1e9);
+
 	const nanoseconds = Math.floor(now % 1e9);
 
 	if (time) {
 		const diff = now - (time[0] * 1e9 + time[1]);
+
 		return [Math.floor(diff / 1e9), Math.floor(diff % 1e9)];
 	}
 
@@ -343,17 +351,20 @@ function cpuUsage(previousValue?: ProcessCpuUsage): ProcessCpuUsage {
 	// In a browser environment, we can only approximate CPU usage
 	// This is a simplified implementation
 	const user = Math.floor(Math.random() * 10000); // Mock user CPU time
+
 	const system = Math.floor(Math.random() * 5000); // Mock system CPU time
 
 	if (previousValue && lastCpuUsage) {
 		// Calculate diff from previous value
 		return {
 			user: user - previousValue.user,
+
 			system: system - previousValue.system,
 		};
 	}
 
 	lastCpuUsage = { user, system };
+
 	return { user, system };
 }
 
@@ -367,14 +378,23 @@ function cpuUsage(previousValue?: ProcessCpuUsage): ProcessCpuUsage {
 class ProcessPolyfill {
 	// Core properties
 	public readonly platform: string;
+
 	public readonly arch: string;
+
 	public readonly version: string;
+
 	public readonly versions: ProcessVersions;
+
 	public readonly pid: number;
+
 	public readonly ppid: number;
+
 	public execPath: string;
+
 	public execArgv: string[];
+
 	public env: Record<string, string>;
+
 	public title: string;
 
 	// Event listener storage
@@ -383,22 +403,32 @@ class ProcessPolyfill {
 
 	// Process state
 	private _exitCode: number | null = null;
+
 	private _exited: boolean = false;
 
 	constructor(config: ProcessConfig) {
 		// Initialize core properties
 		this.platform =
 			config.platform ?? DEFAULT_PROCESS_CONFIG.platform ?? "darwin";
+
 		this.arch = config.arch ?? DEFAULT_PROCESS_CONFIG.arch ?? "x64";
+
 		this.version = "v20.11.0";
+
 		this.versions = createVersions();
+
 		this.pid = config.pid ?? DEFAULT_PROCESS_CONFIG.pid ?? 1;
+
 		this.ppid = config.ppid ?? DEFAULT_PROCESS_CONFIG.ppid ?? 0;
+
 		this.execPath =
 			config.execPath ?? DEFAULT_PROCESS_CONFIG.execPath ?? "";
+
 		this.execArgv =
 			config.execArgv ?? DEFAULT_PROCESS_CONFIG.execArgv ?? [];
+
 		this.env = config.env ?? DEFAULT_PROCESS_CONFIG.env ?? {};
+
 		this.title = "codeeditorland";
 
 		// Add additional process properties
@@ -539,6 +569,7 @@ class ProcessPolyfill {
 	 */
 	exit(code?: number): never {
 		this._exitCode = code ?? 0;
+
 		this._exited = true;
 
 		// Emit 'exit' event
@@ -561,6 +592,7 @@ class ProcessPolyfill {
 			invokeTauri("process_kill", { pid, signal }).catch(() => {
 				// Ignore errors
 			});
+
 			return true;
 		} catch {
 			return false;
@@ -583,6 +615,7 @@ class ProcessPolyfill {
 	 */
 	setTitle(title: string): void {
 		this.title = title;
+
 		// In browser, we can update document.title
 		if (typeof document !== "undefined") {
 			document.title = title;
@@ -607,7 +640,9 @@ class ProcessPolyfill {
 		if (!this.listeners.has(event)) {
 			this.listeners.set(event, new Set());
 		}
+
 		this.listeners.get(event)!.add(listener);
+
 		return this;
 	}
 
@@ -617,8 +652,10 @@ class ProcessPolyfill {
 	once(event: ProcessEventType, listener: ProcessEventListener): this {
 		const wrappedListener: ProcessEventListener = (...args) => {
 			this.removeListener(event, wrappedListener);
+
 			listener(...args);
 		};
+
 		return this.on(event, wrappedListener);
 	}
 
@@ -631,12 +668,15 @@ class ProcessPolyfill {
 		listener: ProcessEventListener,
 	): this {
 		const listeners = this.listeners.get(event);
+
 		if (listeners) {
 			listeners.delete(listener);
+
 			if (listeners.size === 0) {
 				this.listeners.delete(event);
 			}
 		}
+
 		return this;
 	}
 
@@ -649,6 +689,7 @@ class ProcessPolyfill {
 		} else {
 			this.listeners.clear();
 		}
+
 		return this;
 	}
 
@@ -657,6 +698,7 @@ class ProcessPolyfill {
 	 */
 	private emit(event: ProcessEventType, ...args: unknown[]): boolean {
 		const listeners = this.listeners.get(event);
+
 		if (!listeners || listeners.size === 0) {
 			return false;
 		}
@@ -693,6 +735,7 @@ class ProcessPolyfill {
 // ============================================================================
 
 let processInstance: ProcessPolyfill | null = null;
+
 let processConfigPromise: Promise<ProcessConfig> | null = null;
 
 /**
@@ -703,9 +746,12 @@ export async function getProcess(): Promise<ProcessPolyfill> {
 		if (!processConfigPromise) {
 			processConfigPromise = getProcessConfiguration();
 		}
+
 		const config = await processConfigPromise;
+
 		processInstance = new ProcessPolyfill(config);
 	}
+
 	return processInstance;
 }
 
@@ -716,6 +762,7 @@ export function getProcessSync(): ProcessPolyfill {
 	if (!processInstance) {
 		processInstance = new ProcessPolyfill(DEFAULT_PROCESS_CONFIG);
 	}
+
 	return processInstance;
 }
 
@@ -735,7 +782,9 @@ export async function installProcessPolyfill(): Promise<void> {
 	if ((window as any).__PROCESS_POLYFILL_INSTALLED__) {
 		return;
 	}
+
 	(window as any).__PROCESS_POLYFILL_INSTALLED__ = true;
+
 	// Get process configuration and create instance
 	const proc = await getProcess();
 
@@ -762,9 +811,11 @@ export function installProcessPolyfillSync(): void {
 	if ((window as any).__PROCESS_POLYFILL_INSTALLED__) {
 		return;
 	}
+
 	(window as any).__PROCESS_POLYFILL_INSTALLED__ = true;
 
 	const proc = getProcessSync();
+
 	(window as any).process = proc;
 
 	if (typeof (window as any).vscode !== "undefined") {
@@ -780,8 +831,11 @@ export { ProcessPolyfill };
 
 export default {
 	install: installProcessPolyfill,
+
 	installSync: installProcessPolyfillSync,
+
 	get: getProcess,
+
 	getSync: getProcessSync,
 };
 
@@ -799,6 +853,7 @@ if (typeof window !== "undefined") {
 
 			{ Polyfill: "ProcessPolyfill", Phase: "async-fallback-to-sync" },
 		);
+
 		installProcessPolyfillSync();
 	});
 }

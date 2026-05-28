@@ -54,8 +54,10 @@ const Warn = (...Args: unknown[]): void => {
 		const Invoke =
 			(window as any).__TAURI__?.core?.invoke ??
 			(window as any).__TAURI__?.invoke;
+
 		if (typeof Invoke === "function") {
 			const Message = Args.map(String).join(" ");
+
 			Invoke("MountainIPCInvoke", {
 				method: "diagnostic:log",
 				params: ["land-scanner", Message],

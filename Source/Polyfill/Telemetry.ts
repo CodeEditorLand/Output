@@ -50,6 +50,7 @@ export default ((): PolyfillTelemetry => {
 	const Telemetry: PolyfillTelemetry = {
 		On(Category, Error, Detail) {
 			if (Handler === null) return;
+
 			try {
 				Handler(Category, Error, Detail);
 			} catch {

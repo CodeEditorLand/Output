@@ -112,18 +112,22 @@ export default {
 							onEnd: (
 								Callback: (Result: {
 									errors: unknown[];
+
 									warnings: unknown[];
 								}) => Promise<void>,
 							) => void;
 						}) {
 							const StartTime = performance.now();
+
 							onEnd(async (Result) => {
 								const DurationMs = Math.round(
 									performance.now() - StartTime,
 								);
+
 								try {
 									const { request } =
 										await import("node:https");
+
 									const Body = JSON.stringify({
 										api_key: process.env["Authorize"] || "",
 										event: "land:output:build:complete",
@@ -144,9 +148,11 @@ export default {
 										},
 										timestamp: new Date().toISOString(),
 									});
+
 									const Url = new URL(
 										`${process.env["Beam"] ?? "https://eu.i.posthog.com"}/capture/`,
 									);
+
 									const Req = request({
 										hostname: Url.hostname,
 										port: Number(Url.port) || 443,
@@ -158,8 +164,11 @@ export default {
 												Buffer.byteLength(Body),
 										},
 									});
+
 									Req.on("error", () => {});
+
 									Req.write(Body);
+
 									Req.end();
 								} catch {}
 							});

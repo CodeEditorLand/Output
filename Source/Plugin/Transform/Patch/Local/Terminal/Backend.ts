@@ -49,8 +49,10 @@ import type { TransformPlugin } from "../../../../Type.js";
 const Marker =
 	"workbench/contrib/terminal/electron-browser/localTerminalBackend.js".replaceAll(
 		"/",
+
 		"\\/",
 	);
+
 const PathRegex = new RegExp(`${Marker}$`);
 
 // Match the upstream `_connectToDirectProxy` method body. The method is
@@ -110,19 +112,26 @@ const LandBody = `async _connectToDirectProxy() {
 
 const Plugin: TransformPlugin = {
 	Kind: "Transform",
+
 	Name: "PatchLocalTerminalBackend",
+
 	Enabled: () => process.env["Electron"] === "true",
+
 	Match: ({ Path }) => PathRegex.test(Path),
+
 	Transform({ Source }) {
 		if (Source.includes("[Land] Bypass acquirePort")) {
 			// Already patched (idempotent guard).
 			return { Kind: "Unchanged" };
 		}
+
 		if (!FunctionRegex.test(Source)) {
 			return { Kind: "Unchanged" };
 		}
+
 		return {
 			Kind: "Rewrite",
+
 			Source: Source.replace(FunctionRegex, LandBody),
 		};
 	},

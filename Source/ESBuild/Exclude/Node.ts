@@ -38,6 +38,7 @@ export default (Prefix: string) => [
 	// and excluding it breaks Vite's bundled-tree resolution chain. The
 	// previous wildcard `${Prefix}/platform/native/*` was over-broad.
 	`${Prefix}/platform/native/electron-main/*`,
+
 	`${Prefix}/platform/native/node/*`,
 
 	`${Prefix}/platform/policy/node/*`,

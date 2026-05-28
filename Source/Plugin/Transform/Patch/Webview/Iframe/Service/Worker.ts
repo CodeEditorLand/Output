@@ -172,6 +172,7 @@ const Plugin: TransformPlugin = {
 		if (Next.includes(DclConditionExpression)) {
 			Next = Next.replace(
 				DclConditionExpression,
+
 				DclConditionReplacement,
 			);
 		}
@@ -179,6 +180,7 @@ const Plugin: TransformPlugin = {
 		if (Next.includes(PathnameEndsWithExpression)) {
 			Next = Next.replace(
 				PathnameEndsWithExpression,
+
 				PathnameEndsWithReplacement,
 			);
 		}

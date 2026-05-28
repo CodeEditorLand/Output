@@ -39,6 +39,7 @@ const Marker = "/* Land: sandbox attribute stripped";
 
 const PreIndexPathRegex =
 	/\/workbench\/contrib\/webview\/browser\/pre\/index\.html$/;
+
 const WebviewElementPathRegex =
 	/\/workbench\/contrib\/webview\/browser\/webviewElement\.js$/;
 

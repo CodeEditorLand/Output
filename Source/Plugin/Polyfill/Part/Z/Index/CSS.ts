@@ -172,6 +172,7 @@ export default function PartZIndexCSS(): void {
 			// render UNDER the editor's content. Pin context-view above
 			// the titlebar (2500) and quick-pick (2550) so it always wins.
 			".monaco-workbench .context-view,",
+
 			"body > .context-view {",
 
 			"	z-index: 2600 !important;",
@@ -182,6 +183,7 @@ export default function PartZIndexCSS(): void {
 			// to `auto` after the rule above - defeats our pin. Add a more-
 			// specific selector that wins over `all: initial`.
 			".monaco-workbench .context-view.fixed,",
+
 			"body > .context-view.fixed {",
 
 			"	position: fixed !important;",
@@ -205,6 +207,7 @@ export default function PartZIndexCSS(): void {
 			// the editor's `z-index: 1` so find/replace, parameter hints,
 			// and suggestion popups remain visible.
 			".monaco-workbench .monaco-hover,",
+
 			".monaco-workbench .editor-widget {",
 
 			"	z-index: 50 !important;",

@@ -85,11 +85,16 @@ const Plugin: TransformPlugin = {
 							: ""
 					}}catch(_e){console.error("[workbench.desktop.main] FAILED #${Index}: ${Path}",_e)}`,
 			),
+
 			`console.log("[workbench.desktop.main] Done: "+_n+"/${Imports.length} in "+(performance.now()-_t0).toFixed(0)+"ms");`,
+
 			``,
+
 			`registerSingleton(IUserDataInitializationService, new SyncDescriptor(UserDataInitializationService, [[]], true));`,
+
 			`export { main } from './electron-browser/desktop.main.js';`,
 		];
+
 		return { Kind: "Rewrite", Source: Lines.join("\n") };
 	},
 };

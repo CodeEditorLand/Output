@@ -4,6 +4,7 @@ const _CELLog = (Message: string): void => {
 		const Invoke =
 			(window as any).__TAURI__?.core?.invoke ??
 			(window as any).__TAURI__?.invoke;
+
 		if (typeof Invoke === "function") {
 			Invoke("MountainIPCInvoke", {
 				method: "diagnostic:log",

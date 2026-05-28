@@ -1,7 +1,11 @@
 var __defProp = Object.defineProperty;
+
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+
 const AppDataPattern = /land\.editor\.binary\.[^\s/\\)]+/g;
+
 const Format = /* @__PURE__ */ __name((Message) => Message.replace(AppDataPattern, "$APP"), "Format");
+
 const Trace = /* @__PURE__ */ __name((Tag, Message, Detail) => {
   try {
     performance.mark(`land:${Tag}:${Message}`, {
@@ -10,12 +14,15 @@ const Trace = /* @__PURE__ */ __name((Tag, Message, Detail) => {
   } catch {
   }
 }, "Trace");
+
 const TraceSpan = /* @__PURE__ */ __name((Tag, SpanName) => {
   const MarkName = `land:${Tag}:${SpanName}:start`;
+
   try {
     performance.mark(MarkName);
   } catch {
   }
+
   return () => {
     try {
       performance.measure(`land:${Tag}:${SpanName}`, MarkName);
@@ -23,6 +30,7 @@ const TraceSpan = /* @__PURE__ */ __name((Tag, SpanName) => {
     }
   };
 }, "TraceSpan");
+
 const TraceError = /* @__PURE__ */ __name((Tag, Message, Error2) => {
   try {
     performance.mark(`land:error:${Tag}:${Format(Message)}`, {
@@ -31,7 +39,9 @@ const TraceError = /* @__PURE__ */ __name((Tag, Message, Error2) => {
   } catch {
   }
 }, "TraceError");
+
 var Trace_default = Trace;
+
 export {
   Format,
   Trace,
@@ -39,4 +49,5 @@ export {
   TraceSpan,
   Trace_default as default
 };
+
 //# sourceMappingURL=Trace.js.map

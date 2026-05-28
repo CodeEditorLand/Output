@@ -654,7 +654,9 @@ export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => {
 		// CONTENT_EVENT, INNER_FRAME_FAKE, INNER_FRAME_LOADED,
 		// INNER_WRITE. Idempotent via __LAND_WEBVIEW_DEBUG_INJECT__ marker.
 		InjectWebviewDebugLogging,
+
 		InjectWebviewRuntimeDiagnostics,
+
 		InjectWebviewRuntimeDiagnosticsInner,
 
 		// Default `disableServiceWorker = true` inside the webview iframe

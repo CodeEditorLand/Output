@@ -66,6 +66,7 @@ interface StaticBlock {
 	readonly ClassName: string;
 
 	readonly InnerStart: number; // index of first char inside `{`
+
 	readonly InnerEnd: number; // index of `}` (exclusive of it)
 }
 
@@ -244,6 +245,7 @@ function FindStaticBlocks(Source: string): StaticBlock[] {
 		// `static {` recognition - only when we are directly inside a
 		// class body (the class's `{` is the most recent depth bump).
 		const Top = ClassStack[ClassStack.length - 1];
+
 		if (
 			Top !== undefined &&
 			Top.OpenedAtDepth === Depth - 1 &&
@@ -251,33 +253,46 @@ function FindStaticBlocks(Source: string): StaticBlock[] {
 			StaticKeyword.test(Slice)
 		) {
 			let j = i + 6;
+
 			while (j < Source.length && /\s/.test(Source[j]!)) j++;
+
 			if (Source[j] === "{") {
 				const Close = FindMatchingClose(Source, j);
+
 				Blocks.push({
 					ClassName: Top.Name,
 					InnerStart: j + 1,
 					InnerEnd: Close,
 				});
+
 				i = Close + 1;
+
 				continue;
 			}
 		}
 
 		const c = Source[i];
+
 		if (c === "{") {
 			Depth++;
+
 			i++;
+
 			continue;
 		}
+
 		if (c === "}") {
 			Depth--;
+
 			if (Top !== undefined && Top.OpenedAtDepth === Depth) {
 				ClassStack.pop();
 			}
+
 			i++;
+
 			continue;
 		}
+
 		i++;
 	}
 
@@ -286,13 +301,17 @@ function FindStaticBlocks(Source: string): StaticBlock[] {
 
 const Plugin: TransformPlugin = {
 	Kind: "Transform",
+
 	Name: "RewriteStaticBlockSelfRef",
+
 	Match: ({ Path }) =>
 		/\/vs\/.*\.js$/.test(Path) && !/\.d\.ts\.map$/.test(Path),
+
 	Transform({ Source }) {
 		if (Source.includes(Marker)) return { Kind: "Unchanged" };
 
 		const Blocks = FindStaticBlocks(Source);
+
 		if (Blocks.length === 0) return { Kind: "Unchanged" };
 
 		// Stitch the file back together, rewriting `<ClassName>.` to
@@ -301,24 +320,35 @@ const Plugin: TransformPlugin = {
 		// mangled names like `$Q9b` don't accidentally chain into longer
 		// identifiers (e.g. `XX$Q9b.foo` must not rewrite).
 		const Pieces: string[] = [];
+
 		let Cursor = 0;
+
 		let Changed = false;
+
 		for (const Block of Blocks) {
 			Pieces.push(Source.slice(Cursor, Block.InnerStart));
+
 			const Body = Source.slice(Block.InnerStart, Block.InnerEnd);
+
 			const Pattern = new RegExp(
 				`(^|[^\\w$])${EscapeRegex(Block.ClassName)}\\.`,
 
 				"g",
 			);
+
 			const NewBody = Body.replace(Pattern, "$1this.");
+
 			if (NewBody !== Body) Changed = true;
+
 			Pieces.push(NewBody);
+
 			Cursor = Block.InnerEnd;
 		}
+
 		Pieces.push(Source.slice(Cursor));
 
 		if (!Changed) return { Kind: "Unchanged" };
+
 		return { Kind: "Rewrite", Source: Marker + "\n" + Pieces.join("") };
 	},
 };

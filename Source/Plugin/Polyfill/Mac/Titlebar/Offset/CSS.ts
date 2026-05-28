@@ -215,6 +215,7 @@ export default function MacTitlebarOffsetCSS(): void {
 
 	function Initialise(): void {
 		InstallStylesheet();
+
 		InstallFullscreenDetector();
 	}
 

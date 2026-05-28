@@ -724,6 +724,7 @@ function createElectronModule(): ElectronModule {
 		ipcRenderer: getCachedModule("ipcRenderer", () => {
 			// Import from IPCRendererShim
 			const shim = (window as any).__IPC_RENDERER__;
+
 			if (shim) {
 				return shim;
 			}

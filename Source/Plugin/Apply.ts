@@ -122,14 +122,17 @@ const RunCopy = async (
 					}`,
 				);
 			}
+
 			Log?.(
 				`[${Plugin.Name}] no candidate resolved for ${Entry.To}; skipping`,
 			);
 		}
 	}
+
 	if (Plugin.AfterCopy && Resolved.length > 0) {
 		await Plugin.AfterCopy(Resolved);
 	}
+
 	return { Name: Plugin.Name, Copied, Skipped };
 };
 
@@ -139,11 +142,13 @@ const RunTransforms = async (
 	Transforms: ReadonlyArray<TransformPlugin>,
 ): Promise<ReadonlyArray<TransformResult>> => {
 	const Counters = new Map<string, { Rewritten: number; Stubbed: number }>();
+
 	for (const T of Transforms) {
 		Counters.set(T.Name, { Rewritten: 0, Stubbed: 0 });
 	}
 
 	const Active = Transforms.filter((T) => !(T.Enabled && !T.Enabled()));
+
 	if (Active.length === 0) {
 		return [...Counters.entries()].map(([Name, Count]) => ({
 			Name,
@@ -157,24 +162,33 @@ const RunTransforms = async (
 		} catch {
 			continue;
 		}
+
 		for await (const File of WalkFiles(Root.Path)) {
 			let Source: string;
+
 			try {
 				Source = await readFile(File, "utf-8");
 			} catch {
 				continue;
 			}
+
 			let Current = Source;
+
 			for (const Plugin of Active) {
 				if (!Plugin.Match({ Path: File, Role: Root.Role })) continue;
+
 				const Result = await Plugin.Transform({
 					Path: File,
 					Source: Current,
 					Role: Root.Role,
 				});
+
 				if (Result.Kind === "Unchanged") continue;
+
 				Current = Result.Source;
+
 				const Counter = Counters.get(Plugin.Name)!;
+
 				if (Result.Kind === "Rewrite") {
 					Counters.set(Plugin.Name, {
 						Rewritten: Counter.Rewritten + 1,
@@ -187,6 +201,7 @@ const RunTransforms = async (
 					});
 				}
 			}
+
 			if (Current !== Source) {
 				try {
 					await writeFile(File, Current, "utf-8");
@@ -209,15 +224,19 @@ const ApplyPlugins = async ({
 	Log,
 }: ApplyInput): Promise<ApplyOutcome> => {
 	const CopyResults: CopyResult[] = [];
+
 	const Transforms: TransformPlugin[] = [];
 
 	for (const Plugin of Plugins) {
 		if (Plugin.Kind === "Copy") {
 			Log?.(`[${Plugin.Name}] starting`);
+
 			const Result = await RunCopy(Plugin, Log);
+
 			Log?.(
 				`[${Plugin.Name}] copied=${Result.Copied} skipped=${Result.Skipped}`,
 			);
+
 			CopyResults.push(Result);
 		} else {
 			Transforms.push(Plugin);
@@ -225,6 +244,7 @@ const ApplyPlugins = async ({
 	}
 
 	const TransformResults = await RunTransforms(Roots, Transforms);
+
 	for (const Result of TransformResults) {
 		Log?.(
 			`[${Result.Name}] rewritten=${Result.Rewritten} stubbed=${Result.Stubbed}`,

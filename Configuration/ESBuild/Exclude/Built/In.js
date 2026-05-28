@@ -1,5 +1,7 @@
 var __defProp = Object.defineProperty;
+
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+
 var In_default = /* @__PURE__ */ __name((_Prefix) => [
   // --- 7. Built-in Extensions (Selectively Exclude - HIGH RISK, Test Carefully!) ---
   // Keep: typescript-language-features, json-language-features, html-language-features, css-language-features, emmet, git-base
@@ -23,7 +25,9 @@ var In_default = /* @__PURE__ */ __name((_Prefix) => [
   // `${Prefix}/extensions/vscode-test-resolver`,
   // ... other language extensions ...
 ], "default");
+
 export {
   In_default as default
 };
+
 //# sourceMappingURL=In.js.map

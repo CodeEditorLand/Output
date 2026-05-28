@@ -57,8 +57,11 @@ const Plugin: TransformPlugin = {
 	Match: ({ Path }) => PathRegex.test(Path),
 	Transform({ Source }) {
 		if (Source.includes(Marker)) return { Kind: "Unchanged" };
+
 		if (!Pattern.test(Source)) return { Kind: "Unchanged" };
+
 		const Next = Source.replace(Pattern, `${Marker} $1false$2`);
+
 		return Next === Source
 			? { Kind: "Unchanged" }
 			: { Kind: "Rewrite", Source: Next };

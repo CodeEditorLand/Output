@@ -223,6 +223,7 @@ function createServiceProxy(service: SharedProcessService): ServiceProxy {
 
 		(payload: unknown) => {
 			const event = payload as { event: string; args: unknown[] };
+
 			emitEvent(event.event, ...event.args);
 		},
 	);
@@ -330,6 +331,7 @@ function createServiceProxy(service: SharedProcessService): ServiceProxy {
 				// Send request to Tauri
 				invokeTauri("shared_process:invoke", request).catch((error) => {
 					pendingRequests.delete(correlationId);
+
 					reject(error);
 				});
 			});
@@ -450,6 +452,7 @@ export const ExtensionHostService: ServiceProxy = Object.assign(
 		async getStatus(): Promise<{ running: boolean; extensions: string[] }> {
 			return (await this.invoke("getStatus")) as Promise<{
 				running: boolean;
+
 				extensions: string[];
 			}>;
 		},
@@ -483,6 +486,7 @@ export const SearchService: ServiceProxy = Object.assign(
 		async getIndexStatus(): Promise<{ ready: boolean; documents: number }> {
 			return (await this.invoke("getIndexStatus")) as Promise<{
 				ready: boolean;
+
 				documents: number;
 			}>;
 		},
@@ -645,6 +649,7 @@ export const UpdateService: ServiceProxy = Object.assign(
 		 */
 		async checkForUpdates(): Promise<{
 			available: boolean;
+
 			version?: string;
 		}> {
 			return await invokeTauri<{ available: boolean; version?: string }>(

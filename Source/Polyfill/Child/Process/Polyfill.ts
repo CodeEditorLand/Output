@@ -397,12 +397,18 @@ class ChildProcess {
 			(payload: unknown) => {
 				const data = payload as {
 					exit_code: number;
+
 					signal: Signal | null;
 				};
+
 				this.exitCode = data.exit_code;
+
 				this.signalCode = data.signal;
+
 				this.killed = true;
+
 				this.emit("exit", this.exitCode, this.signalCode);
+
 				this.emit("close", this.exitCode, this.signalCode);
 			},
 		);
@@ -422,6 +428,7 @@ class ChildProcess {
 
 			(payload: unknown) => {
 				const data = payload as { data: string | Buffer };
+
 				this.stdout.emit(
 					"data",
 
@@ -438,6 +445,7 @@ class ChildProcess {
 
 			(payload: unknown) => {
 				const data = payload as { data: string | Buffer };
+
 				this.stderr.emit(
 					"data",
 
@@ -686,6 +694,7 @@ function spawn(
 		.then((result) => {
 			if (result.success) {
 				proc.pid = result.pid;
+
 				proc.emit("spawn");
 			} else {
 				proc.emit(
@@ -739,8 +748,10 @@ function exec(
 	proc.on("exit", (code: number | null) => {
 		if (code !== 0) {
 			error = new Error(`Command failed: ${command}\n${stderr}`);
+
 			(error as Error & { code?: number; killed?: boolean }).code =
 				code ?? undefined;
+
 			(error as Error & { killed?: boolean }).killed = proc.killed;
 		}
 
@@ -772,11 +783,13 @@ function exec(
 				proc.pid = result.pid;
 			} else {
 				error = new Error(result.error ?? "Failed to execute command");
+
 				proc.emit("error", error);
 			}
 		})
 		.catch((err) => {
 			error = err;
+
 			proc.emit("error", err);
 		});
 
@@ -852,6 +865,7 @@ function fork(
 			.then((result) => {
 				if (result.success) {
 					proc.pid = result.pid;
+
 					proc.emit("spawn");
 				} else {
 					proc.emit(

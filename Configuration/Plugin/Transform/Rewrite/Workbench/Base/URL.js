@@ -1,8 +1,13 @@
 var __defProp = Object.defineProperty;
+
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+
 const Marker = "/* __LAND_WORKBENCH_BASE_URL_REWRITTEN__ */";
+
 const SearchPattern = /const baseUrl = new URL\(`\$\{fileUriFromPath\([\s\S]+?\)\}\/out\/`\);/;
+
 const Replacement = 'const baseUrl = new URL(location.origin + "/Static/Application/");';
+
 const ConditionalSearchPattern = /let (\w+);\s*if \(!!safeProcess\.env\[[`'"]VSCODE_DEV[`'"]\] && globalThis\._VSCODE_USE_RELATIVE_IMPORTS\) \{[\s\S]+?\}\s*else \{[\s\S]+?\}\s*const (\w+) = await import\(\1\);/;
 const Plugin = {
   Kind: "Transform",

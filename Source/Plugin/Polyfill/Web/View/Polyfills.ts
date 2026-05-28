@@ -126,6 +126,7 @@ export default function WebViewPolyfills(): void {
 		) {
 			RewrittenParts = Parts.map((Part) => {
 				if (typeof Part !== "string") return Part;
+
 				return Part.replace(
 					/vscode-file:\/\/vscode-app\/Static\/Application\/out\//g,
 

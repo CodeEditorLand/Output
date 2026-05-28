@@ -36,10 +36,15 @@ import type { CopyPlugin } from "../../../../Type.js";
 
 export interface CopyVSRootFilesInput {
 	readonly OutputRoot: string;
+
 	readonly DependencyOutBuild: string;
+
 	readonly DependencyOut: string;
+
 	readonly Destination: string;
+
 	readonly Files?: ReadonlyArray<string>;
+
 	/**
 	 * When set, overrides the runtime `NODE_ENV` detection. Used by
 	 * tests and ad-hoc invocations that want explicit ordering.
@@ -49,11 +54,17 @@ export interface CopyVSRootFilesInput {
 
 const DefaultFiles = [
 	"nls.keys.json",
+
 	"nls.messages.js",
+
 	"nls.messages.json",
+
 	"nls.metadata.json",
+
 	"bootstrap-esm.js",
+
 	"bootstrap-import.js",
+
 	"bootstrap-meta.js",
 ] as const;
 
@@ -69,24 +80,33 @@ const InlineStubs: Record<string, string> = {
 	// every workbench `localize(id, fallback, …)` callsite already passes.
 	"nls.messages.js":
 		"globalThis._VSCODE_NLS_MESSAGES=globalThis._VSCODE_NLS_MESSAGES??[];export{};",
+
 	// Empty JSON tables - workbench code reads these via `JSON.parse`
 	// expecting either an array or object.
 	"nls.keys.json": "[]",
+
 	"nls.messages.json": "[]",
+
 	"nls.metadata.json": "{}",
 };
 
 const InlineCandidate = (File: string): string | null => {
 	const Body = InlineStubs[File];
+
 	if (!Body) return null;
+
 	return `data:text/javascript,${Body}`;
 };
 
 const ResolveOnDevelopment = (Override?: boolean): boolean => {
 	if (typeof Override === "boolean") return Override;
+
 	const Env = process.env["NODE_ENV"];
+
 	if (Env === "production") return false;
+
 	if (Env === "development") return true;
+
 	// `TAURI_ENV_DEBUG=true` is the convention the rest of the Sky
 	// pipeline uses to mark debug-profile tauri runs; honour it here so
 	// the ordering matches whatever path the active build claims.
@@ -101,27 +121,41 @@ const ResolveOnDevelopment = (Override?: boolean): boolean => {
  */
 const BuildCandidates = (
 	File: string,
+
 	OutputRoot: string,
+
 	DependencyOutBuild: string,
+
 	DependencyOut: string,
+
 	OnDevelopment: boolean,
 ): string[] => {
 	const PrimaryDependency = OnDevelopment
 		? DependencyOut
 		: DependencyOutBuild;
+
 	const SecondaryDependency = OnDevelopment
 		? DependencyOutBuild
 		: DependencyOut;
+
 	const Candidates = [
 		join(OutputRoot, File),
+
 		join(OutputRoot, "vs", File),
+
 		join(PrimaryDependency, File),
+
 		join(PrimaryDependency, "vs", File),
+
 		join(SecondaryDependency, File),
+
 		join(SecondaryDependency, "vs", File),
 	];
+
 	const Inline = InlineCandidate(File);
+
 	if (Inline) Candidates.push(Inline);
+
 	return Candidates;
 };
 
@@ -134,15 +168,22 @@ export const CopyVSRootFiles = ({
 	OnDevelopment,
 }: CopyVSRootFilesInput): CopyPlugin => {
 	const Dev = ResolveOnDevelopment(OnDevelopment);
+
 	return {
 		Kind: "Copy",
+
 		Name: "CopyVSRootFiles",
+
 		Entries: Files.map((File) => ({
 			From: BuildCandidates(
 				File,
+
 				OutputRoot,
+
 				DependencyOutBuild,
+
 				DependencyOut,
+
 				Dev,
 			),
 			To: join(Destination, File),

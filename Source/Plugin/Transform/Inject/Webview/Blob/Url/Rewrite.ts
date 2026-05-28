@@ -259,7 +259,9 @@ const Plugin: TransformPlugin = {
 		}
 
 		const InsertBefore = "</body>";
+
 		const Idx = Source.lastIndexOf(InsertBefore);
+
 		if (Idx < 0) {
 			return { Kind: "Unchanged" };
 		}

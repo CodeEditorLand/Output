@@ -201,6 +201,7 @@ export const ExposeAccessor = (InstantiationService) => {
 
 			EditorResolver: Resolve(
 				InstantiationService,
+
 				IEditorResolverService,
 			),
 
@@ -240,6 +241,7 @@ export const ExposeAccessor = (InstantiationService) => {
 
 			LanguageFeatures: Resolve(
 				InstantiationService,
+
 				ILanguageFeaturesService,
 			),
 
@@ -345,6 +347,7 @@ export const ExposeAccessor = (InstantiationService) => {
 
 			CodeEditorService: Resolve(
 				InstantiationService,
+
 				ICodeEditorService,
 			),
 		};
@@ -431,6 +434,7 @@ export const ExposeAccessor = (InstantiationService) => {
 						(MessageEvent) => {
 							try {
 								const Data = MessageEvent?.data;
+
 								if (
 									Data &&
 									Data.channel === "webview-ready" &&
@@ -443,6 +447,7 @@ export const ExposeAccessor = (InstantiationService) => {
 
 										MessageEvent.ports[0],
 									);
+
 									Diagnostic(
 										"webview-port",
 

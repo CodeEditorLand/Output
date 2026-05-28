@@ -45,15 +45,20 @@ const URLPattern =
 
 const Plugin: TransformPlugin = {
 	Kind: "Transform",
+
 	Name: "RewriteWorkerURLs",
+
 	// Every JS file under `vs/` is in scope - the URLPattern test below
 	// short-circuits when no matching `new URL(...)` is present, so
 	// non-affected files are walked-and-skipped with no rewrite.
 	Match: ({ Path }) =>
 		/\/vs\/.*\.js$/.test(Path) && !/\.d\.ts\.map$/.test(Path),
+
 	Transform({ Path, Source }) {
 		if (Source.includes(Marker)) return { Kind: "Unchanged" };
+
 		if (!URLPattern.test(Source)) return { Kind: "Unchanged" };
+
 		URLPattern.lastIndex = 0;
 
 		const SourceFileDir = Path.split("/").slice(0, -1).join("/");
@@ -68,6 +73,7 @@ const Plugin: TransformPlugin = {
 			// the query has no consumer downstream and just adds noise
 			// to the request path.
 			const QueryIndex = RelPath.indexOf("?");
+
 			let PathOnly =
 				QueryIndex >= 0 ? RelPath.slice(0, QueryIndex) : RelPath;
 
@@ -86,13 +92,18 @@ const Plugin: TransformPlugin = {
 
 			// Resolve `./` and `../` segments against the source file dir.
 			const Segments = (SourceFileDir + "/" + PathOnly).split("/");
+
 			const Resolved: string[] = [];
+
 			for (const Segment of Segments) {
 				if (Segment === "" || Segment === ".") continue;
+
 				if (Segment === "..") {
 					Resolved.pop();
+
 					continue;
 				}
+
 				Resolved.push(Segment);
 			}
 
@@ -100,6 +111,7 @@ const Plugin: TransformPlugin = {
 			// path included it; the canonical Sky-served prefix is
 			// `/Static/Application/`.
 			let Joined = Resolved.join("/");
+
 			Joined = Joined.replace(/^.*?\/Target\/Microsoft\/VSCode\//, "");
 
 			return `new URL("/Static/Application/${Joined}", location.origin)`;

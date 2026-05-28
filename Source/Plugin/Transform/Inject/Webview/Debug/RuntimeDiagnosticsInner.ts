@@ -7,8 +7,11 @@ const Marker = "__LAND_WEBVIEW_INNER_DIAG_INJECT__";
 
 const Plugin: TransformPlugin = {
 	Kind: "Transform",
+
 	Name: "InjectWebviewRuntimeDiagnosticsInner",
+
 	Match: ({ Path }) => PathRegex.test(Path),
+
 	Transform({ Source }) {
 		if (Source.includes(Marker)) return { Kind: "Unchanged" };
 
@@ -340,10 +343,13 @@ const Plugin: TransformPlugin = {
 		// it runs before the polyfill. Match the "// Inject default styles"
 		// comment line that appears after the `if (options.allowScripts) {}` block.
 		const markerRegex = /^(\s*)\/\/\s*Inject default styles/m;
+
 		const match = Source.match(markerRegex);
+
 		if (!match) {
 			return { Kind: "Unchanged" };
 		}
+
 		const indent = match[1] || "";
 
 		// Insert a block before that comment. The block:
@@ -367,6 +373,7 @@ ${indent}// --- END DIAGNOSTIC ---
 ${match[0]}`;
 
 		const nextSource = Source.replace(markerRegex, injectedLines);
+
 		return { Kind: "Rewrite", Source: nextSource };
 	},
 };

@@ -1,8 +1,12 @@
 var __defProp = Object.defineProperty;
+
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+
 async function invokeTauri(command, args = {}) {
+
   try {
     const Invoke = window.__TAURI__?.core?.invoke ?? window.__TAURI__?.invoke ?? window.TAURI?.invoke;
+
     if (typeof Invoke === "function") {
       if (command.includes(":")) {
         return await Invoke("MountainIPCInvoke", {
@@ -10,51 +14,69 @@ async function invokeTauri(command, args = {}) {
           params: args
         });
       }
+
       return await Invoke(command, args);
     }
+
     throw new Error(`Tauri invoke not available for command: ${command}`);
   } catch (error) {
     throw error;
   }
 }
+
 __name(invokeTauri, "invokeTauri");
+
 function listenToTauri(event, handler) {
+
   if (typeof window.__TAURI__?.event?.listen === "function") {
     const unlistenPromise = window.__TAURI__.event.listen(event, ({ payload }) => {
       handler(payload);
     }).catch(() => {
     });
+
     return () => {
       unlistenPromise.then(
         (unlisten) => unlisten?.()
       );
     };
   }
+
   if (typeof window.TAURI?.event?.listen === "function") {
     const unlistenPromise = window.TAURI.event.listen(event, ({ payload }) => {
       handler(payload);
     }).catch(() => {
     });
+
     return () => {
       unlistenPromise.then(
         (unlisten) => unlisten?.()
       );
     };
   }
+
   return () => {
   };
 }
+
 __name(listenToTauri, "listenToTauri");
+
 function createServiceProxy(service) {
+
   const listeners = /* @__PURE__ */ new Map();
+
   const pendingRequests = /* @__PURE__ */ new Map();
+
   let isReady = false;
+
   const unlistenResponse = listenToTauri(
     `shared_process:response:${service}`,
+
     (payload) => {
       const response = payload;
+
       if (response.correlationId && pendingRequests.has(response.correlationId)) {
         const pending = pendingRequests.get(response.correlationId);
+
         if (response.success) {
           pending.resolve(response.data);
         } else {
@@ -62,19 +84,25 @@ function createServiceProxy(service) {
             new Error(response.error ?? "Unknown error")
           );
         }
+
         pendingRequests.delete(response.correlationId);
       }
     }
   );
+
   const unlistenEvent = listenToTauri(
     `shared_process:event:${service}`,
+
     (payload) => {
       const event = payload;
+
       emitEvent(event.event, ...event.args);
     }
   );
+
   function emitEvent(event, ...args) {
     const eventListeners = listeners.get(event);
+
     if (eventListeners) {
       eventListeners.forEach((listener) => {
         try {
@@ -84,19 +112,26 @@ function createServiceProxy(service) {
       });
     }
   }
+
   __name(emitEvent, "emitEvent");
+
   function generateCorrelationId() {
     return `${service}_${Date.now()}_${Math.random().toString(36).substring(7)}`;
   }
+
   __name(generateCorrelationId, "generateCorrelationId");
+
   return {
     service,
+
     get ready() {
       return isReady;
     },
+
     set ready(value) {
       isReady = value;
     },
+
     /**
      * Health check for the service.
      *
@@ -117,21 +152,25 @@ function createServiceProxy(service) {
         if (service === "extension-host") {
           return await invokeTauri(
             "cocoon_extension_host_health",
+
             {}
           );
         } else if (service === "search") {
           return await invokeTauri(
             "cocoon_search_service_health",
+
             {}
           );
         } else if (service === "debug") {
           return await invokeTauri(
             "cocoon_debug_service_health",
+
             {}
           );
         } else {
           return await invokeTauri(
             "shared_process_service_health",
+
             { service }
           );
         }
@@ -139,25 +178,34 @@ function createServiceProxy(service) {
         return false;
       }
     },
+
     /**
      * Invoke a method on the service
      */
     async invoke(method, ...args) {
       const correlationId = generateCorrelationId();
+
       const request = {
         service,
+
         method,
+
         args,
+
         correlationId
       };
+
       return new Promise((resolve, reject) => {
         pendingRequests.set(correlationId, { resolve, reject });
+
         invokeTauri("shared_process:invoke", request).catch((error) => {
           pendingRequests.delete(correlationId);
+
           reject(error);
         });
       });
     },
+
     /**
      * Register event listener
      */
@@ -165,30 +213,38 @@ function createServiceProxy(service) {
       if (!listeners.has(event)) {
         listeners.set(event, /* @__PURE__ */ new Set());
       }
+
       listeners.get(event).add(handler);
     },
+
     /**
      * Register one-time event listener
      */
     once(event, handler) {
       const wrappedHandler = /* @__PURE__ */ __name((...args) => {
         handler(...args);
+
         this.removeListener(event, wrappedHandler);
       }, "wrappedHandler");
+
       this.on(event, wrappedHandler);
     },
+
     /**
      * Remove event listener
      */
     removeListener(event, handler) {
       const eventListeners = listeners.get(event);
+
       if (eventListeners) {
         eventListeners.delete(handler);
+
         if (eventListeners.size === 0) {
           listeners.delete(event);
         }
       }
     },
+
     /**
      * Remove all event listeners
      */
@@ -201,9 +257,12 @@ function createServiceProxy(service) {
     }
   };
 }
+
 __name(createServiceProxy, "createServiceProxy");
+
 const ExtensionHostService = Object.assign(
   createServiceProxy("extension-host"),
+
   {
     /**
      * Start extension host
@@ -211,6 +270,7 @@ const ExtensionHostService = Object.assign(
     async start(extensionId) {
       return await this.invoke(
         "start",
+
         extensionId
       );
     },
@@ -226,6 +286,7 @@ const ExtensionHostService = Object.assign(
     async restart(extensionId) {
       return await this.invoke(
         "restart",
+
         extensionId
       );
     },
@@ -243,8 +304,10 @@ const ExtensionHostService = Object.assign(
     }
   }
 );
+
 const SearchService = Object.assign(
   createServiceProxy("search"),
+
   {
     /**
      * Perform search
@@ -266,8 +329,10 @@ const SearchService = Object.assign(
     }
   }
 );
+
 const DebugService = Object.assign(
   createServiceProxy("debug"),
+
   {
     /**
      * Start debug session
@@ -275,6 +340,7 @@ const DebugService = Object.assign(
     async startSession(configuration) {
       return await this.invoke(
         "startSession",
+
         configuration
       );
     },
@@ -284,6 +350,7 @@ const DebugService = Object.assign(
     async stopSession(sessionId) {
       return await this.invoke(
         "stopSession",
+
         sessionId
       );
     },
@@ -293,7 +360,9 @@ const DebugService = Object.assign(
     async sendCommand(sessionId, command, ...args) {
       return await this.invoke(
         "sendCommand",
+
         sessionId,
+
         command,
         ...args
       );
@@ -306,8 +375,10 @@ const DebugService = Object.assign(
     }
   }
 );
+
 const StorageService = Object.assign(
   createServiceProxy("storage"),
+
   {
     /**
      * Get item from storage
@@ -338,6 +409,7 @@ const StorageService = Object.assign(
     async getAllItems() {
       return await invokeTauri(
         "storage:get_all_items",
+
         {}
       );
     },
@@ -349,8 +421,10 @@ const StorageService = Object.assign(
     }
   }
 );
+
 const UpdateService = Object.assign(
   createServiceProxy("update"),
+
   {
     /**
      * Check for updates.
@@ -366,6 +440,7 @@ const UpdateService = Object.assign(
     async checkForUpdates() {
       return await invokeTauri(
         "update:checkForUpdates",
+
         {}
       );
     },
@@ -391,44 +466,58 @@ const UpdateService = Object.assign(
     async getStatus() {
       return await invokeTauri(
         "update:_getInitialState",
+
         {}
       );
     }
   }
 );
+
 class SharedProcessManager {
+
   static {
     __name(this, "SharedProcessManager");
   }
+
   // Service proxies
   services = /* @__PURE__ */ new Map();
+
   // Health check interval
   healthCheckInterval = null;
+
   constructor() {
     this.registerService(ExtensionHostService);
+
     this.registerService(SearchService);
+
     this.registerService(DebugService);
+
     this.registerService(StorageService);
+
     this.registerService(UpdateService);
   }
+
   /**
    * Register a service proxy
    */
   registerService(proxy) {
     this.services.set(proxy.service, proxy);
   }
+
   /**
    * Get service proxy
    */
   getService(service) {
     return this.services.get(service);
   }
+
   /**
    * Get all services
    */
   getAllServices() {
     return new Map(this.services);
   }
+
   /**
    * Start health checks
    */
@@ -436,6 +525,7 @@ class SharedProcessManager {
     if (this.healthCheckInterval !== null) {
       return;
     }
+
     this.healthCheckInterval = window.setInterval(async () => {
       for (const [, proxy] of this.services.entries()) {
         try {
@@ -446,15 +536,18 @@ class SharedProcessManager {
       }
     }, intervalMs);
   }
+
   /**
    * Stop health checks
    */
   stopHealthChecks() {
     if (this.healthCheckInterval !== null) {
       clearInterval(this.healthCheckInterval);
+
       this.healthCheckInterval = null;
     }
   }
+
   /**
    * Initialize all services
    */
@@ -462,82 +555,124 @@ class SharedProcessManager {
     for (const [serviceName, proxy] of this.services.entries()) {
       try {
         const isHealthy = await proxy.healthCheck();
+
         proxy.ready = isHealthy;
       } catch (error) {
         proxy.ready = false;
       }
     }
+
     this.startHealthChecks();
   }
+
   /**
    * Shutdown all services
    */
   async shutdown() {
     this.stopHealthChecks();
+
     for (const proxy of this.services.values()) {
       proxy.removeAllListeners();
     }
   }
 }
+
 let sharedProcessManager = null;
+
 function getSharedProcessManager() {
+
   if (!sharedProcessManager) {
     sharedProcessManager = new SharedProcessManager();
   }
+
   return sharedProcessManager;
 }
+
 __name(getSharedProcessManager, "getSharedProcessManager");
+
 async function installSharedProcessProxy() {
+
   if (typeof window === "undefined") {
     return;
   }
+
   if (window.__SHARED_PROCESS_PROXY_INSTALLED__) {
     return;
   }
+
   window.__SHARED_PROCESS_PROXY_INSTALLED__ = true;
+
   const manager = getSharedProcessManager();
+
   await manager.initialize();
+
   if (typeof window.vscode !== "undefined") {
     window.vscode.sharedProcess = {
       manager,
+
       ExtensionHostService,
+
       SearchService,
+
       DebugService,
+
       StorageService,
+
       UpdateService
     };
   }
+
   window.__SHARED_PROCESS__ = {
     manager,
+
     ExtensionHostService,
+
     SearchService,
+
     DebugService,
+
     StorageService,
+
     UpdateService
   };
 }
+
 __name(installSharedProcessProxy, "installSharedProcessProxy");
+
 var Proxy_default = {
+
   install: installSharedProcessProxy,
+
   getManager: getSharedProcessManager,
+
   // Service exports
   ExtensionHostService,
+
   SearchService,
+
   DebugService,
+
   StorageService,
+
   UpdateService,
+
   // Types
   SharedProcessManager
 };
+
 if (typeof window !== "undefined") {
+
   installSharedProcessProxy().catch((Error2) => {
     globalThis.__LAND_POLYFILL_TELEMETRY__?.On(
       "polyfill.install",
+
       Error2,
+
       { Polyfill: "SharedProcessProxy" }
     );
   });
 }
+
 export {
   DebugService,
   ExtensionHostService,
@@ -548,4 +683,5 @@ export {
   getSharedProcessManager,
   installSharedProcessProxy
 };
+
 //# sourceMappingURL=Proxy.js.map

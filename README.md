@@ -13,18 +13,18 @@
 		</td>
 		<td align="left" valign="middle">
 			<h3 align="left">
-				<a href="https://Land.PlayForm.Cloud" target="_blank">
+				<a href="https://editor.land" target="_blank">
 					<picture>
-						<source media="(prefers-color-scheme: dark)" srcset="https://PlayForm.Cloud/Dark/Image/GitHub/Land.svg" />
-						<source media="(prefers-color-scheme: light)" srcset="https://PlayForm.Cloud/Image/GitHub/Land.svg" />
-						<img width="28" alt="Land Logo" src="https://PlayForm.Cloud/Image/GitHub/Land.svg" />
+						<source media="(prefers-color-scheme: dark)" srcset="https://editor.land/Dark/Image/GitHub/Land.svg" />
+						<source media="(prefers-color-scheme: light)" srcset="https://editor.land/Image/GitHub/Land.svg" />
+						<img width="28" alt="Land Logo" src="https://editor.land/Image/GitHub/Land.svg" />
 					</picture>
 				</a>
 			</h3>
 		</td>
 		<td align="left" valign="middle">
 			<h3 align="left">
-				<a href="https://Land.PlayForm.Cloud" target="_blank">
+				<a href="https://editor.land" target="_blank">
 					Land
 					🏞️
 				</a>
@@ -336,8 +336,8 @@ export NODE_ENV=development
 
 ## See Also
 
-- [Output Documentation](https://land.playform.cloud/Doc/output)
-- [Architecture Overview](https://land.playform.cloud/Doc/architecture)
+- [Output Documentation](https://editor.land/Doc/output)
+- [Architecture Overview](https://editor.land/Doc/architecture)
 - [Rest](https://github.com/CodeEditorLand/Rest)
 - [Cocoon](https://github.com/CodeEditorLand/Cocoon)
 
@@ -402,12 +402,12 @@ Commons Fund grant.
 	<tbody>
 		<tr>
 			<td align="left" valign="middle">
-				<a href="https://Land.PlayForm.Cloud">
+				<a href="https://editor.land">
 					<img width="60" src="https://raw.githubusercontent.com/CodeEditorLand/Asset/refs/heads/Current/Logo/Land.svg" alt="Land" />
 				</a>
 			</td>
 			<td align="left" valign="middle">
-				<a href="https://PlayForm.Cloud">
+				<a href="https://editor.land">
 					<img width="76" src="https://raw.githubusercontent.com/PlayForm/Asset/refs/heads/Current/Logo/PlayForm.svg" alt="PlayForm" />
 				</a>
 			</td>
@@ -428,7 +428,7 @@ Commons Fund grant.
 ---
 
 **Project Maintainers**: Source Open
-([Source/Open@Land.PlayForm.Cloud](mailto:Source/Open@Land.PlayForm.Cloud)) |
+([Source/Open@editor.land](mailto:Source/Open@editor.land)) |
 [GitHub Repository](https://github.com/CodeEditorLand/Output) |
 [Report an Issue](https://github.com/CodeEditorLand/Output/issues) |
 [Security Policy](https://github.com/CodeEditorLand/Output/security/policy)

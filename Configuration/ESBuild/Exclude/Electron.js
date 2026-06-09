@@ -1,90 +1,47 @@
 var __defProp = Object.defineProperty;
-
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-
 const { Browser, Electron } = await import("../../ESBuild.js");
-
 var Electron_default = /* @__PURE__ */ __name((Prefix) => Browser && !Electron ? [
   `${Prefix}/base/parts/contextmenu/electron-main/*`,
-
   `${Prefix}/base/parts/contextmenu/electron-browser/*`,
-
   `${Prefix}/base/parts/ipc/electron-main/*`,
-
   `${Prefix}/base/parts/ipc/electron-browser/*`,
-
   `${Prefix}/base/parts/sandbox/electron-browser/*`,
-
   `${Prefix}/code/electron-*`,
-
   `${Prefix}/platform/**/electron-*`,
-
   `${Prefix}/platform/webContentExtractor/test/electron-main/*`,
-
   `${Prefix}/workbench/contrib/chat/electron-browser/*`,
-
   `${Prefix}/workbench/contrib/codeEditor/electron-browser/*`,
-
   `${Prefix}/workbench/contrib/debug/electron-browser/*`,
-
   `${Prefix}/workbench/contrib/emergencyAlert/electron-browser/*`,
-
   `${Prefix}/workbench/contrib/encryption/electron-browser/*`,
-
   `${Prefix}/workbench/contrib/extensions/electron-browser/*`,
-
   `${Prefix}/workbench/contrib/externalTerminal/electron-browser/*`,
-
   `${Prefix}/workbench/contrib/files/electron-browser/*`,
-
   `${Prefix}/workbench/contrib/inlineChat/electron-browser/*`,
-
   `${Prefix}/workbench/contrib/issue/electron-browser/*`,
-
   `${Prefix}/workbench/contrib/localHistory/electron-browser/*`,
-
   `${Prefix}/workbench/contrib/localization/electron-browser/*`,
-
   `${Prefix}/workbench/contrib/logs/electron-browser/*`,
-
   `${Prefix}/workbench/contrib/mcp/electron-browser/*`,
-
   `${Prefix}/workbench/contrib/mergeEditor/electron-browser/*`,
-
   `${Prefix}/workbench/contrib/performance/electron-browser/*`,
-
   `${Prefix}/workbench/contrib/remote/electron-browser/*`,
-
   `${Prefix}/workbench/contrib/remoteTunnel/electron-browser/*`,
-
   `${Prefix}/workbench/contrib/splash/electron-browser/*`,
-
   `${Prefix}/workbench/contrib/tags/electron-browser/*`,
-
   `${Prefix}/workbench/contrib/tasks/electron-browser/*`,
-
   `${Prefix}/workbench/contrib/terminal/electron-browser/*`,
-
   `${Prefix}/workbench/contrib/userDataSync/electron-browser/*`,
-
   `${Prefix}/workbench/contrib/webview/electron-browser/*`,
-
   `${Prefix}/workbench/electron-*`,
-
   `${Prefix}/workbench/services/**/electron-*`,
-
   `${Prefix}/base/parts/ipc/common/ipc.electron.js`,
-
   `${Prefix}/base/parts/ipc/electron-main/ipc.electron.js`,
-
   `${Prefix}/base/parts/ipc/electron-browser/ipc.electron.js`,
-
   `${Prefix}/base/parts/sandbox/common/electronTypes.js`,
-
   `${Prefix}/base/parts/sandbox/electron-browser/electronTypes.js`,
-
   `${Prefix}/platform/menubar/common/menubar.js`,
-
   `${Prefix}/platform/remote/common/electronRemoteResources.js`
   // `${Prefix}/platform/download/common/*`,
   // `${Prefix}/platform/update/common/*`,
@@ -95,11 +52,9 @@ var Electron_default = /* @__PURE__ */ __name((Prefix) => Browser && !Electron ?
   // `${Prefix}/workbench/services/host/browser/browserHostService.js`,
   // `${Prefix}/workbench/services/title/browser/titleService.js`,
 ] : [], "default");
-
 export {
   Browser,
   Electron,
   Electron_default as default
 };
-
 //# sourceMappingURL=Electron.js.map

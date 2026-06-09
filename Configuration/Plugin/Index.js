@@ -1,288 +1,165 @@
 var __defProp = Object.defineProperty;
-
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-
 import {
   CopyNodeModules as CopyNodeModulesFactory
 } from "./Copy/Copy/Node/Modules.js";
-
 import {
   CopyTauriMainProcessService as CopyTauriMainProcessServiceFactory
 } from "./Copy/Copy/Tauri/Main/Process/Service.js";
-
 import {
   CopyVSOutput as CopyVSOutputFactory
 } from "./Copy/Copy/VS/Output.js";
-
 import {
   CopyVSRootFiles as CopyVSRootFilesFactory
 } from "./Copy/Copy/VS/Root/Files.js";
-
 import {
   CopyWorker as CopyWorkerFactory
 } from "./Copy/Copy/Worker.js";
-
 import {
   StubUnpublishedAddons as StubUnpublishedAddonsFactory
 } from "./Copy/Stub/Unpublished/Addons.js";
-
 import {
   SupplementFromDependency as SupplementFromDependencyFactory
 } from "./Copy/Supplement/From/Dependency.js";
-
 import CatchOutputFolderRejection from "./Transform/Catch/Output/Folder/Rejection.js";
-
 import DisableUnusedServices from "./Transform/Disable/Unused/Services.js";
-
 import ExposeWorkbenchAccessor from "./Transform/Expose/Workbench/Accessor.js";
-
 import ExtensionScannerIPC from "./Transform/Extension/Scanner/IPC.js";
-
 import ForceTextAreaInput from "./Transform/Force/Text/Area/Input.js";
-
 import HoistFunctionDeclarations from "./Transform/Hoist/Function/Declarations.js";
-
 import InjectConfigurationOverlay from "./Transform/Inject/Configuration/Overlay.js";
-
 import InjectDisableLazyPaint from "./Transform/Inject/Disable/Lazy/Paint.js";
-
 import InjectEagerExtensionActivation from "./Transform/Inject/Eager/Extension/Activation.js";
-
 import InjectEagerIdleValue from "./Transform/Inject/Eager/Idle/Value.js";
-
 import InjectEagerLifecyclePhase from "./Transform/Inject/Eager/Lifecycle/Phase.js";
-
 import InjectEditorGPULayerCSS from "./Transform/Inject/Editor/GPU/Layer/CSS.js";
-
 import InjectMacTitlebarOffsetCSS from "./Transform/Inject/Mac/Titlebar/Offset/CSS.js";
-
 import InjectNameShim from "./Transform/Inject/Name/Shim.js";
-
 import InjectPartZIndexCSS from "./Transform/Inject/Part/Z/Index/CSS.js";
-
 import InjectStorageOverlay from "./Transform/Inject/Storage/Overlay.js";
-
 import InjectStripBackgroundPolling from "./Transform/Inject/Strip/Background/Polling.js";
-
 import InjectTauriDragRegion from "./Transform/Inject/Tauri/Drag/Region.js";
-
 import InjectTelemetryConsentOff from "./Transform/Inject/Telemetry/Consent/Off.js";
-
 import InjectTerminalGPULayerCSS from "./Transform/Inject/Terminal/GPU/Layer/CSS.js";
-
 import InjectWebViewPolyfills from "./Transform/Inject/Web/View/Polyfills.js";
-
 import InjectWebviewBlobUrlRewrite from "./Transform/Inject/Webview/Blob/Url/Rewrite.js";
-
 import InjectWebviewDebugLogging from "./Transform/Inject/Webview/Debug/Logging.js";
-
 import InjectWebviewRuntimeDiagnostics from "./Transform/Inject/Webview/Debug/RuntimeDiagnostics.js";
-
 import InjectWebviewRuntimeDiagnosticsInner from "./Transform/Inject/Webview/Debug/RuntimeDiagnosticsInner.js";
-
 import InjectWorkbenchInteractivityCSS from "./Transform/Inject/Workbench/Interactivity/CSS.js";
-
 import InjectWorkbenchPaintPrime from "./Transform/Inject/Workbench/Paint/Prime.js";
-
 import InjectWorkerBootstrapShim from "./Transform/Inject/Worker/Bootstrap/Shim.js";
-
 import InlineCSSImport from "./Transform/Inline/CSS/Import.js";
-
 import InstrumentVscodeGit from "./Transform/Instrument/Vscode/Git.js";
-
 import PatchLocalTerminalBackend from "./Transform/Patch/Local/Terminal/Backend.js";
-
 import PatchTerminalGpuAcceleration from "./Transform/Patch/Terminal/GPU/Acceleration.js";
-
 import PatchWebviewIframeServiceWorker from "./Transform/Patch/Webview/Iframe/Service/Worker.js";
-
 import ReplaceElectronIPCService from "./Transform/Replace/Electron/IPC/Service.js";
-
 import ReplaceExtensionGalleryService from "./Transform/Replace/Extension/Gallery/Service.js";
-
 import ReplaceProductIdentity from "./Transform/Replace/Product/Identity.js";
-
 import ReplaceSearchService from "./Transform/Replace/Search/Service.js";
-
 import ReplaceSharedProcess from "./Transform/Replace/Shared/Process.js";
-
 import ReplaceTelemetryService from "./Transform/Replace/Telemetry/Service.js";
-
 import ReplaceUpdateService from "./Transform/Replace/Update/Service.js";
-
 import RewriteIconsStyleSheetURLs from "./Transform/Rewrite/Icons/Style/Sheet/URLs.js";
-
 import RewriteNestedWorkerBootstrap from "./Transform/Rewrite/Nested/Worker/Bootstrap.js";
-
 import RewriteNodeModulesPath from "./Transform/Rewrite/Node/Modules/Path.js";
-
 import RewritePerfBaselineWorker from "./Transform/Rewrite/Perf/Baseline/Worker.js";
-
 import RewriteStaticBlockSelfRef from "./Transform/Rewrite/Static/Block/Self/Ref.js";
-
 import RewriteWebviewShellCSP from "./Transform/Rewrite/Webview/Shell/CSP.js";
-
 import RewriteWorkbenchBaseURL from "./Transform/Rewrite/Workbench/Base/URL.js";
-
 import RewriteWorkerURLs from "./Transform/Rewrite/Worker/URLs.js";
-
 import StaticToDynamicImport from "./Transform/Static/To/Dynamic/Import.js";
-
 import StripCSSImport from "./Transform/Strip/CSS/Import.js";
-
 import StripDanglingSourceMap from "./Transform/Strip/Dangling/Source/Map.js";
-
 import StripWebviewIframeSandbox from "./Transform/Strip/Webview/Iframe/Sandbox.js";
-
 export * from "./Type.js";
-
 import { default as default2 } from "./Apply.js";
-
 import { default as default3 } from "./Transform/Strip/CSS/Import.js";
-
 import { default as default4 } from "./Transform/Inline/CSS/Import.js";
-
 import { default as default5 } from "./Transform/Inject/Name/Shim.js";
-
 import { default as default6 } from "./Transform/Inject/Disable/Lazy/Paint.js";
-
 import { default as default7 } from "./Transform/Inject/Eager/Extension/Activation.js";
-
 import { default as default8 } from "./Transform/Inject/Eager/Idle/Value.js";
-
 import { default as default9 } from "./Transform/Inject/Eager/Lifecycle/Phase.js";
-
 import { default as default10 } from "./Transform/Inject/Strip/Background/Polling.js";
-
 import { default as default11 } from "./Transform/Inject/Telemetry/Consent/Off.js";
-
 import { default as default12 } from "./Transform/Inject/Web/View/Polyfills.js";
-
 import { default as default13 } from "./Transform/Inject/Mac/Titlebar/Offset/CSS.js";
-
 import { default as default14 } from "./Transform/Inject/Part/Z/Index/CSS.js";
-
 import { default as default15 } from "./Transform/Inject/Tauri/Drag/Region.js";
-
 import { default as default16 } from "./Transform/Inject/Workbench/Interactivity/CSS.js";
-
 import { default as default17 } from "./Transform/Inject/Workbench/Paint/Prime.js";
-
 import { default as default18 } from "./Transform/Inject/Worker/Bootstrap/Shim.js";
-
 import { default as default19 } from "./Transform/Inject/Configuration/Overlay.js";
-
 import { default as default20 } from "./Transform/Inject/Storage/Overlay.js";
-
 import { default as default21 } from "./Transform/Force/Text/Area/Input.js";
-
 import { default as default22 } from "./Transform/Rewrite/Icons/Style/Sheet/URLs.js";
-
 import { default as default23 } from "./Transform/Rewrite/Webview/Shell/CSP.js";
-
 import { default as default24 } from "./Transform/Rewrite/Nested/Worker/Bootstrap.js";
-
 import { default as default25 } from "./Transform/Rewrite/Node/Modules/Path.js";
-
 import { default as default26 } from "./Transform/Rewrite/Perf/Baseline/Worker.js";
-
 import { default as default27 } from "./Transform/Rewrite/Worker/URLs.js";
-
 import { default as default28 } from "./Transform/Rewrite/Workbench/Base/URL.js";
-
 import { default as default29 } from "./Transform/Rewrite/Static/Block/Self/Ref.js";
-
 import { default as default30 } from "./Transform/Hoist/Function/Declarations.js";
-
 import { default as default31 } from "./Transform/Replace/Electron/IPC/Service.js";
-
 import { default as default32 } from "./Transform/Replace/Extension/Gallery/Service.js";
-
 import { default as default33 } from "./Transform/Replace/Shared/Process.js";
-
 import { default as default34 } from "./Transform/Replace/Telemetry/Service.js";
-
 import { default as default35 } from "./Transform/Replace/Update/Service.js";
-
 import { default as default36 } from "./Transform/Static/To/Dynamic/Import.js";
-
 import { default as default37 } from "./Transform/Strip/Dangling/Source/Map.js";
-
 import { default as default38 } from "./Transform/Extension/Scanner/IPC.js";
-
 import { default as default39 } from "./Transform/Catch/Output/Folder/Rejection.js";
-
 import { default as default40 } from "./Transform/Strip/Webview/Iframe/Sandbox.js";
-
 import { default as default41 } from "./Transform/Expose/Workbench/Accessor.js";
-
 import { default as default42 } from "./Transform/Instrument/Vscode/Git.js";
-
 import { default as default43 } from "./Transform/Disable/Unused/Services.js";
-
 import { default as default44 } from "./Transform/Replace/Product/Identity.js";
-
 import { default as default45 } from "./Transform/Replace/Search/Service.js";
-
 import { default as default46 } from "./Transform/Inject/Editor/GPU/Layer/CSS.js";
-
 import { default as default47 } from "./Transform/Inject/Terminal/GPU/Layer/CSS.js";
-
 import { default as default48 } from "./Transform/Patch/Local/Terminal/Backend.js";
-
 import { default as default49 } from "./Transform/Patch/Terminal/GPU/Acceleration.js";
-
 import { default as default50 } from "./Transform/Patch/Webview/Iframe/Service/Worker.js";
-
 import { default as default51 } from "./Transform/Inject/Webview/Blob/Url/Rewrite.js";
-
 import {
   CopyVSOutput,
   default as default52
 } from "./Copy/Copy/VS/Output.js";
-
 import {
   CopyVSRootFiles,
   default as default53
 } from "./Copy/Copy/VS/Root/Files.js";
-
 import {
   SupplementFromDependency,
   default as default54
 } from "./Copy/Supplement/From/Dependency.js";
-
 import {
   CopyWorker,
   default as default55
 } from "./Copy/Copy/Worker.js";
-
 import {
   CopyNodeModules,
   DefaultPackages,
   default as default56
 } from "./Copy/Copy/Node/Modules.js";
-
 import {
   StubUnpublishedAddons,
   DefaultStubs,
   StubDataPrefix,
   default as default57
 } from "./Copy/Stub/Unpublished/Addons.js";
-
 import {
   CopyTauriMainProcessService,
   default as default58
 } from "./Copy/Copy/Tauri/Main/Process/Service.js";
-
 const LandDisableAll = (globalThis.process?.env?.["Disable"] ?? "").toLowerCase() === "true";
-
 const LandDisableUIFixes = (globalThis.process?.env?.["DisableUIFixes"] ?? "").toLowerCase() === "true";
-
 const BuildPipeline = /* @__PURE__ */ __name((Input) => {
   const IsRelease = (Input.Profile ?? "").startsWith("release");
-
   const CSSStrategy = IsRelease ? InlineCSSImport : StripCSSImport;
-
   if (LandDisableAll) {
     return [
       CopyVSOutputFactory(Input.VSOutput),
@@ -294,7 +171,6 @@ const BuildPipeline = /* @__PURE__ */ __name((Input) => {
       CopyTauriMainProcessServiceFactory(Input.TauriMainProcessService)
     ];
   }
-
   const Pipeline = [
     CopyVSOutputFactory(Input.VSOutput),
     CopyVSRootFilesFactory(Input.VSRootFiles),
@@ -633,16 +509,12 @@ const BuildPipeline = /* @__PURE__ */ __name((Input) => {
     // symptom was actually WebGL atlas drift or a deferred-create
     // race side-effect.
   ];
-
   if (LandDisableUIFixes) {
     return Pipeline;
   }
-
   return Pipeline;
 }, "BuildPipeline");
-
 var Index_default = BuildPipeline;
-
 export {
   default2 as ApplyPlugins,
   BuildPipeline,
@@ -714,5 +586,4 @@ export {
   default54 as SupplementFromDependencyDefault,
   Index_default as default
 };
-
 //# sourceMappingURL=Index.js.map

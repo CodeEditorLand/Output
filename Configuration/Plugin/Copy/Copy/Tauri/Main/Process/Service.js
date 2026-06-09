@@ -1,7 +1,5 @@
 var __defProp = Object.defineProperty;
-
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-
 const CopyTauriMainProcessService = /* @__PURE__ */ __name(({
   OutputService,
   WindService,
@@ -17,12 +15,9 @@ const CopyTauriMainProcessService = /* @__PURE__ */ __name(({
     }
   ]
 }), "CopyTauriMainProcessService");
-
 var Service_default = CopyTauriMainProcessService;
-
 export {
   CopyTauriMainProcessService,
   Service_default as default
 };
-
 //# sourceMappingURL=Service.js.map

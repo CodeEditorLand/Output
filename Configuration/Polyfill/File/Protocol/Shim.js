@@ -1,8 +1,12 @@
 var __defProp = Object.defineProperty;
+
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+
 async function invokeTauri(command, args = {}) {
+
   try {
     const Invoke = window.__TAURI__?.core?.invoke ?? window.__TAURI__?.invoke ?? window.TAURI?.invoke;
+
     if (typeof Invoke === "function") {
       if (command.includes(":")) {
         return await Invoke("MountainIPCInvoke", {
@@ -10,111 +14,153 @@ async function invokeTauri(command, args = {}) {
           params: args
         });
       }
+
       return await Invoke(command, args);
     }
+
     throw new Error(`Tauri invoke not available for command: ${command}`);
   } catch (error) {
     throw error;
   }
 }
+
 __name(invokeTauri, "invokeTauri");
+
 const VSCodeFileHandler = {
+
   matches(req) {
     return req.protocol === "vscode-file";
   },
+
   async handle(req) {
     try {
       const decodedPath = decodeURIComponent(req.path);
+
       const method = req.headers?.get("X-Http-Method") || "GET";
+
       if (method === "GET" || !method) {
         const Raw = await invokeTauri("file:read", [decodedPath]);
+
         const Bytes = UnwrapReadResult(Raw);
+
         return {
           content: Bytes,
+
           metadata: {
             mime: inferMimeType(decodedPath),
+
             lastModified: (/* @__PURE__ */ new Date()).toISOString()
           }
         };
       } else if (method === "PUT" || method === "POST") {
         throw new Error("File write not implemented via GET handler");
       }
+
       throw new Error(`Unsupported method: ${method}`);
     } catch (error) {
       return {
         content: null,
+
         error: error instanceof Error ? error : new Error(String(error))
       };
     }
   }
 };
+
 function UnwrapReadResult(Raw) {
+
   if (Raw === null || Raw === void 0) {
     return new Uint8Array(0);
   }
+
   if (typeof Raw === "string") {
     return Raw;
   }
+
   if (Raw instanceof Uint8Array) {
     return Raw;
   }
+
   if (Array.isArray(Raw)) {
     return new Uint8Array(Raw);
   }
+
   const Buffer2 = Raw.buffer;
+
   if (Buffer2 instanceof Uint8Array) {
     return Buffer2;
   }
+
   if (Array.isArray(Buffer2)) {
     return new Uint8Array(Buffer2);
   }
+
   return new Uint8Array(0);
 }
+
 __name(UnwrapReadResult, "UnwrapReadResult");
+
 const VSCodeUserDataHandler = {
+
   matches(req) {
     return req.protocol === "vscode-userdata";
   },
+
   async handle(req) {
     try {
       const userDataPath = await invokeTauri(
         "file:user_data_path",
+
         {}
       );
+
       const fullPath = `${userDataPath}/${req.path.replace(/^\//, "")}`;
+
       const Raw = await invokeTauri("file:read", [fullPath]);
+
       return {
         content: UnwrapReadResult(Raw),
+
         metadata: {
           mime: inferMimeType(req.path),
+
           lastModified: (/* @__PURE__ */ new Date()).toISOString()
         }
       };
     } catch (error) {
       return {
         content: "",
+
         error: void 0
       };
     }
   }
 };
+
 const VSCodeResourceHandler = {
+
   matches(req) {
     return req.protocol === "vscode-resource";
   },
+
   async handle(req) {
     try {
       const [extensionId, ...pathParts] = req.path.split("/").filter(Boolean);
+
       const resourcePath = pathParts.join("/");
+
       const content = await invokeTauri(
         "cocoon:get_extension_resource",
+
         {
           extension_id: extensionId,
           resource_path: resourcePath
         }
       );
+
       return {
         content,
+
         metadata: {
           mime: inferMimeType(resourcePath)
         }
@@ -122,28 +168,37 @@ const VSCodeResourceHandler = {
     } catch (error) {
       return {
         content: null,
+
         error: error instanceof Error ? error : new Error(String(error))
       };
     }
   }
 };
+
 const VSCodeRemoteHandler = {
+
   matches(req) {
     return req.protocol === "vscode-remote";
   },
+
   async handle(req) {
     try {
       const [host, ...pathParts] = req.path.split("/").filter(Boolean);
+
       const remotePath = pathParts.join("/");
+
       const content = await invokeTauri(
         "cocoon:read_remote_file",
+
         {
           host,
           path: remotePath
         }
       );
+
       return {
         content,
+
         metadata: {
           mime: inferMimeType(remotePath)
         }
@@ -151,49 +206,70 @@ const VSCodeRemoteHandler = {
     } catch (error) {
       return {
         content: null,
+
         error: error instanceof Error ? error : new Error(String(error))
       };
     }
   }
 };
+
 const FileHandler = {
+
   matches(req) {
     return req.protocol === "file";
   },
+
   async handle(req) {
     try {
       const decodedPath = decodeURIComponent(req.path);
+
       const Raw = await invokeTauri("file:read", [decodedPath]);
+
       return {
         content: UnwrapReadResult(Raw),
+
         metadata: {
           mime: inferMimeType(decodedPath),
+
           lastModified: (/* @__PURE__ */ new Date()).toISOString()
         }
       };
     } catch (error) {
       return {
         content: null,
+
         error: error instanceof Error ? error : new Error(String(error))
       };
     }
   }
 };
+
 const PROTOCOL_HANDLERS = [
   VSCodeFileHandler,
+
   VSCodeUserDataHandler,
+
   VSCodeResourceHandler,
+
   VSCodeRemoteHandler,
+
   FileHandler
 ];
+
 function findHandler(req) {
+
   return PROTOCOL_HANDLERS.find((handler) => handler.matches(req)) ?? null;
 }
+
 __name(findHandler, "findHandler");
+
 function parseProtocolURL(url) {
+
   try {
     const parsed = new URL(url);
+
     const protocol = parsed.protocol.replace(/:$/, "");
+
     const path = parsed.pathname.replace(/^\//, "");
     const query = {};
     parsed.searchParams.forEach((value, key) => {
@@ -213,19 +289,33 @@ function inferMimeType(path) {
   const extension = path.split(".").pop()?.toLowerCase();
   const mimeMap = {
     js: "application/javascript",
+
     json: "application/json",
+
     ts: "application/typescript",
+
     html: "text/html",
+
     htm: "text/html",
+
     css: "text/css",
+
     md: "text/markdown",
+
     txt: "text/plain",
+
     xml: "application/xml",
+
     png: "image/png",
+
     jpg: "image/jpeg",
+
     jpeg: "image/jpeg",
+
     gif: "image/gif",
+
     svg: "image/svg+xml",
+
     wasm: "application/wasm"
   };
   return mimeMap[extension ?? ""] ?? "application/octet-stream";
@@ -236,17 +326,22 @@ function installFetchInterception() {
   window.fetch = /* @__PURE__ */ __name(async function interceptFetch(input, init) {
     try {
       const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+
       if (needsInterception(url)) {
         const request = parseProtocolURL(url);
+
         const handler = findHandler(request);
+
         if (handler) {
           const result = await handler.handle({
             ...request,
             headers: new Headers(init?.headers)
           });
+
           if (result.error) {
             throw result.error;
           }
+
           return new Response(result.content, {
             status: 200,
             headers: {
@@ -259,6 +354,7 @@ function installFetchInterception() {
           });
         }
       }
+
       return originalFetch(input, init);
     } catch (error) {
       return originalFetch(input, init);

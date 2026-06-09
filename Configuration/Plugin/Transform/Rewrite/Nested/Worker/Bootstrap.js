@@ -1,7 +1,11 @@
 var __defProp = Object.defineProperty;
+
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+
 const Marker = "/* __LAND_NESTED_WORKER_BOOTSTRAP_INLINED__ */";
+
 const Anchor = `const _bootstrapFnSource = (function _bootstrapFn(workerUrl) {`;
+
 const ReplacementSource = `const _bootstrapFnSource = ${JSON.stringify(
   [
     "function _bootstrapFn(workerUrl) {",
@@ -37,29 +41,46 @@ const ReplacementSource = `const _bootstrapFnSource = ${JSON.stringify(
     "}"
   ].join("\n")
 )};`;
+
 const Plugin = {
+
   Kind: "Transform",
+
   Name: "RewriteNestedWorkerBootstrap",
+
   Match: /* @__PURE__ */ __name(({ Path }) => /\/vs\/workbench\/services\/extensions\/worker\/polyfillNestedWorker\.js$/.test(
     Path
   ), "Match"),
+
   Transform({ Source }) {
     if (Source.includes(Marker)) return { Kind: "Unchanged" };
+
     const Index = Source.indexOf(Anchor);
+
     if (Index < 0) return { Kind: "Unchanged" };
+
     const TailMarker = `}).toString();`;
+
     const TailIdx = Source.indexOf(TailMarker, Index);
+
     if (TailIdx < 0) return { Kind: "Unchanged" };
+
     const BlockEnd = TailIdx + TailMarker.length;
+
     const Next = Source.slice(0, Index) + ReplacementSource + Source.slice(BlockEnd);
+
     return {
       Kind: "Rewrite",
+
       Source: Marker + "\n" + Next
     };
   }
 };
+
 var Bootstrap_default = Plugin;
+
 export {
   Bootstrap_default as default
 };
+
 //# sourceMappingURL=Bootstrap.js.map

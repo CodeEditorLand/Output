@@ -98,9 +98,9 @@ export default function EagerExtensionActivation(): void {
 						Result &&
 						typeof (Result as Promise<unknown>).then === "function"
 					) {
-						(Result as Promise<unknown>).catch((Error: unknown) => {
+						(Result as Promise<unknown>).catch((_Error: unknown) => {
 							_CELLog(
-								"[LandFix:EagerActivation] activateByEvent ${EventName} rejected: ${String(Error)}",
+								"[LandFix:EagerActivation] activateByEvent ${EventName} rejected: ${String(_Error)}",
 							);
 						});
 					}

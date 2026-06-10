@@ -15,7 +15,7 @@
  * Idempotent via __LAND_WEBVIEW_RUNTIME_DIAG__ marker (HTML comment).
  */
 
-import type { TransformPlugin } from "../../../../../Type.js";
+import type { TransformPlugin } from "../../../../Type.js";
 
 const Marker = "<!-- __LAND_WEBVIEW_RUNTIME_DIAG__ -->";
 

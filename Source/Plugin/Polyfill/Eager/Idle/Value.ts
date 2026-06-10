@@ -56,7 +56,7 @@ export default function EagerIdleValue(): void {
 			try {
 				Callback(EagerDeadline as unknown as IdleDeadline);
 			} catch (Error) {
-				_CELLog(String("[LandFix:EagerIdle]", Error));
+				_CELLog("[LandFix:EagerIdle] " + String(Error));
 			}
 		}, 0) as unknown as number;
 	};

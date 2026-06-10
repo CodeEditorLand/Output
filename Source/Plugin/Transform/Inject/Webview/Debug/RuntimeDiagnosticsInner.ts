@@ -1,4 +1,4 @@
-import type { TransformPlugin } from "../../../../../Type.js";
+import type { TransformPlugin } from "../../../../Type.js";
 
 const PathRegex =
 	/\/vs\/workbench\/contrib\/webview\/browser\/pre\/index\.html$/;

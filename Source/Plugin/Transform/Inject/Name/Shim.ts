@@ -55,7 +55,7 @@ const Plugin: TransformPlugin = {
 		// Add 'unsafe-inline' to script-src if not already present.
 		const CSPMatch = Next.match(CSPScriptSrcMatcher);
 
-		if (CSPMatch && !CSPMatch[1].includes("'unsafe-inline'")) {
+		if (CSPMatch?.[1] && !CSPMatch[1].includes("'unsafe-inline'")) {
 			Next = Next.replace(
 				CSPScriptSrcMatcher,
 

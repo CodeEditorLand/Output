@@ -15,7 +15,7 @@
  * Idempotent via the __LAND_WEBVIEW_DEBUG_INJECT__ marker.
  */
 
-import type { TransformPlugin } from "../../../../../Type.js";
+import type { TransformPlugin } from "../../../../Type.js";
 
 const Marker = "/* __LAND_WEBVIEW_DEBUG_INJECT__ */";
 

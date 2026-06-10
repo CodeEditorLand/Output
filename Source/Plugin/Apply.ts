@@ -99,8 +99,10 @@ const RunCopy = async (
 		const Candidates = Entry.From.map((From) => ({
 			From,
 			To: Entry.To,
-			Recursive: Entry.Recursive,
-			Force: Entry.Force,
+			...(Entry.Recursive !== undefined
+				? { Recursive: Entry.Recursive }
+				: {}),
+			...(Entry.Force !== undefined ? { Force: Entry.Force } : {}),
 		}));
 
 		const Outcome = await CopyFirstAvailable(Candidates);

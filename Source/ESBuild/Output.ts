@@ -42,6 +42,8 @@ export default {
 
 	outdir: "Configuration",
 
+	outbase: "Source",
+
 	platform: "node",
 
 	target: "esnext",
@@ -64,7 +66,7 @@ export default {
 
 	keepNames: On,
 
-	plugins: [
+	plugins: ([
 		{
 			name: "Target",
 
@@ -176,7 +178,7 @@ export default {
 					},
 				]
 			: []),
-	].filter(Boolean),
+] as import("esbuild").Plugin[]).filter(Boolean),
 
 	loader: {
 		".json": "copy",

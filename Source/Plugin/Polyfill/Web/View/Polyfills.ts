@@ -45,14 +45,6 @@ type IdleCallback = (Deadline: IdleDeadline) => void;
 
 declare global {
 	interface Window {
-		requestIdleCallback?: (
-			Callback: IdleCallback,
-
-			Options?: IdleCallbackOptions,
-		) => number;
-
-		cancelIdleCallback?: (Id: number) => void;
-
 		queryLocalFonts?: () => Promise<unknown[]>;
 	}
 }

@@ -146,7 +146,7 @@ function ExtractSelectors(): Extracted {
 			// per-selector explanation. Strip every comment span - including
 			// multi-line ones - before splitting on commas so the baked-in
 			// arrays are pure selectors.
-			const Cleaned = Match[1].replace(/\/\*[\s\S]*?\*\//g, " ");
+			const Cleaned = (Match[1] ?? "").replace(/\/\*[\s\S]*?\*\//g, " ");
 
 			const Selectors = Cleaned.split(",")
 				.map((Segment) => Segment.replace(/\s+/g, " ").trim())

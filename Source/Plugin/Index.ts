@@ -31,7 +31,7 @@ import DisableUnusedServices from "./Transform/Disable/Unused/Services.js";
 import ExposeWorkbenchAccessor from "./Transform/Expose/Workbench/Accessor.js";
 import ExtensionScannerIPC from "./Transform/Extension/Scanner/IPC.js";
 import ForceTextAreaInput from "./Transform/Force/Text/Area/Input.js";
-import HoistFunctionDeclarations from "./Transform/Hoist/Function/Declarations.js";
+// HoistFunctionDeclarations re-exported below
 import InjectConfigurationOverlay from "./Transform/Inject/Configuration/Overlay.js";
 import InjectDisableLazyPaint from "./Transform/Inject/Disable/Lazy/Paint.js";
 import InjectEagerExtensionActivation from "./Transform/Inject/Eager/Extension/Activation.js";
@@ -57,7 +57,7 @@ import InjectWorkerBootstrapShim from "./Transform/Inject/Worker/Bootstrap/Shim.
 import InlineCSSImport from "./Transform/Inline/CSS/Import.js";
 import InstrumentVscodeGit from "./Transform/Instrument/Vscode/Git.js";
 import PatchLocalTerminalBackend from "./Transform/Patch/Local/Terminal/Backend.js";
-import PatchTerminalGpuAcceleration from "./Transform/Patch/Terminal/GPU/Acceleration.js";
+// PatchTerminalGpuAcceleration re-exported below
 import PatchWebviewIframeServiceWorker from "./Transform/Patch/Webview/Iframe/Service/Worker.js";
 import ReplaceElectronIPCService from "./Transform/Replace/Electron/IPC/Service.js";
 import ReplaceExtensionGalleryService from "./Transform/Replace/Extension/Gallery/Service.js";
@@ -70,7 +70,7 @@ import RewriteIconsStyleSheetURLs from "./Transform/Rewrite/Icons/Style/Sheet/UR
 import RewriteNestedWorkerBootstrap from "./Transform/Rewrite/Nested/Worker/Bootstrap.js";
 import RewriteNodeModulesPath from "./Transform/Rewrite/Node/Modules/Path.js";
 import RewritePerfBaselineWorker from "./Transform/Rewrite/Perf/Baseline/Worker.js";
-import RewriteStaticBlockSelfRef from "./Transform/Rewrite/Static/Block/Self/Ref.js";
+// RewriteStaticBlockSelfRef re-exported below
 import RewriteWebviewShellCSP from "./Transform/Rewrite/Webview/Shell/CSP.js";
 import RewriteWorkbenchBaseURL from "./Transform/Rewrite/Workbench/Base/URL.js";
 import RewriteWorkerURLs from "./Transform/Rewrite/Worker/URLs.js";

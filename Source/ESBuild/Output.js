@@ -26,6 +26,7 @@ export default {
     metafile: Meta,
     minify: !On,
     outdir: "Configuration",
+    outbase: "Source",
     platform: "node",
     target: "esnext",
     tsconfig: "tsconfig.json",

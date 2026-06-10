@@ -5,7 +5,7 @@
 		"rootDir": "./Source",
 		"declarationMap": true,
 		"emitDeclarationOnly": true,
-		"composite": true
+		"composite": true,
 	},
 	"extends": "@playform/build/tsconfig",
 	"include": ["Source"],

@@ -20,6 +20,11 @@ export default async (Current: BuildOptions): Promise<BuildOptions> =>
 		{
 			outdir: `Target/${Dependency}`,
 
+			// Strip the source prefix so vs/base/common/uri.js lands at
+			// Target/Microsoft/VSCode/vs/base/common/uri.js (not at the
+			// full Dependency/... path that esbuild's LCA algorithm picks).
+			outbase: `../../Dependency/Microsoft/Dependency/Editor/out`,
+
 			tsconfig: `tsconfig/${Dependency}.json`,
 
 			drop: On ? [] : ["debugger", "console"],

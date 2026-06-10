@@ -1,2 +1,146 @@
-function h(){if(typeof window>"u")return;const l="__LAND_DISABLE_LAZY_PAINT__",i=window;if(i[l])return;i[l]=!0;{let u=function(){c=!1;const t=a;a=[];const e=performance.now();for(const n of t){if(s.has(n.Id)){s.delete(n.Id);continue}try{n.Callback(e)}catch{}}};var w=u;let r=0,a=[],c=!1;const s=new Set;window.requestAnimationFrame=t=>{const e=++r;return a.push({Id:e,Callback:t}),c||(c=!0,setTimeout(u,0)),e},window.cancelAnimationFrame=t=>{s.add(t)};const b=window.IntersectionObserver;class m{Callback;Disconnected=!1;Observed=new Set;constructor(e,n){this.Callback=e}observe(e){if(this.Disconnected||this.Observed.has(e))return;this.Observed.add(e);const n=this;queueMicrotask(()=>{if(n.Disconnected||!n.Observed.has(e))return;let o;try{o=e.getBoundingClientRect()}catch{o={top:0,left:0,right:0,bottom:0,width:0,height:0,x:0,y:0,toJSON(){return{}}}}const v={target:e,isIntersecting:!0,intersectionRatio:1,time:performance.now(),boundingClientRect:o,intersectionRect:o,rootBounds:null};try{n.Callback([v],n)}catch{}})}unobserve(e){this.Observed.delete(e)}disconnect(){this.Disconnected=!0,this.Observed.clear()}takeRecords(){return[]}}b&&(i.__OriginalIntersectionObserver__=b),window.IntersectionObserver=m}function d(){const r=document.createElement("style");r.setAttribute("data-land-disable-lazy-paint","1"),r.textContent=["*, ::before, ::after { content-visibility: visible !important; }",".monaco-workbench .part > .content,",".monaco-workbench .panel,",".monaco-workbench .viewlet,",".monaco-workbench .pane,",".monaco-workbench .pane-body,",".monaco-workbench .composite,",".monaco-workbench .activitybar,",".monaco-workbench .sidebar {","  contain: none !important;","  content-visibility: visible !important;","}"].join(`
-`),(document.head??document.documentElement).appendChild(r)}document.readyState==="loading"?document.addEventListener("DOMContentLoaded",d,{once:!0}):d()}export{h as default};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+function DisableLazyPaint() {
+  if (typeof window === "undefined") return;
+  const Marker = "__LAND_DISABLE_LAZY_PAINT__";
+  const Land = window;
+  if (Land[Marker]) return;
+  Land[Marker] = true;
+  {
+    let FlushRAF2 = function() {
+      RAFFlushScheduled = false;
+      const Drain = RAFQueue;
+      RAFQueue = [];
+      const Timestamp = performance.now();
+      for (const Entry of Drain) {
+        if (RAFCancelled.has(Entry.Id)) {
+          RAFCancelled.delete(Entry.Id);
+          continue;
+        }
+        try {
+          Entry.Callback(Timestamp);
+        } catch (Error2) {
+        }
+      }
+    };
+    var FlushRAF = FlushRAF2;
+    __name(FlushRAF2, "FlushRAF");
+    let RAFCounter = 0;
+    let RAFQueue = [];
+    let RAFFlushScheduled = false;
+    const RAFCancelled = /* @__PURE__ */ new Set();
+    window.requestAnimationFrame = (Callback) => {
+      const Identifier = ++RAFCounter;
+      RAFQueue.push({ Id: Identifier, Callback });
+      if (!RAFFlushScheduled) {
+        RAFFlushScheduled = true;
+        setTimeout(FlushRAF2, 0);
+      }
+      return Identifier;
+    };
+    window.cancelAnimationFrame = (Identifier) => {
+      RAFCancelled.add(Identifier);
+    };
+    const OriginalIO = window.IntersectionObserver;
+    class FastIntersectionObserver {
+      static {
+        __name(this, "FastIntersectionObserver");
+      }
+      Callback;
+      Disconnected = false;
+      Observed = /* @__PURE__ */ new Set();
+      constructor(Callback, _Options) {
+        this.Callback = Callback;
+      }
+      observe(Target) {
+        if (this.Disconnected) return;
+        if (this.Observed.has(Target)) return;
+        this.Observed.add(Target);
+        const Self = this;
+        queueMicrotask(() => {
+          if (Self.Disconnected || !Self.Observed.has(Target)) return;
+          let Rectangle;
+          try {
+            Rectangle = Target.getBoundingClientRect();
+          } catch {
+            Rectangle = {
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              width: 0,
+              height: 0,
+              x: 0,
+              y: 0,
+              toJSON() {
+                return {};
+              }
+            };
+          }
+          const Entry = {
+            target: Target,
+            isIntersecting: true,
+            intersectionRatio: 1,
+            time: performance.now(),
+            boundingClientRect: Rectangle,
+            intersectionRect: Rectangle,
+            rootBounds: null
+          };
+          try {
+            Self.Callback(
+              [Entry],
+              Self
+            );
+          } catch (Error2) {
+          }
+        });
+      }
+      unobserve(Target) {
+        this.Observed.delete(Target);
+      }
+      disconnect() {
+        this.Disconnected = true;
+        this.Observed.clear();
+      }
+      takeRecords() {
+        return [];
+      }
+    }
+    if (OriginalIO) {
+      Land["__OriginalIntersectionObserver__"] = OriginalIO;
+    }
+    window["IntersectionObserver"] = FastIntersectionObserver;
+  }
+  function InstallStylesheet() {
+    const Style = document.createElement("style");
+    Style.setAttribute("data-land-disable-lazy-paint", "1");
+    Style.textContent = [
+      "*, ::before, ::after { content-visibility: visible !important; }",
+      ".monaco-workbench .part > .content,",
+      ".monaco-workbench .panel,",
+      ".monaco-workbench .viewlet,",
+      ".monaco-workbench .pane,",
+      ".monaco-workbench .pane-body,",
+      ".monaco-workbench .composite,",
+      ".monaco-workbench .activitybar,",
+      ".monaco-workbench .sidebar {",
+      "  contain: none !important;",
+      "  content-visibility: visible !important;",
+      "}"
+    ].join("\n");
+    (document.head ?? document.documentElement).appendChild(Style);
+  }
+  __name(InstallStylesheet, "InstallStylesheet");
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", InstallStylesheet, {
+      once: true
+    });
+  } else {
+    InstallStylesheet();
+  }
+}
+__name(DisableLazyPaint, "DisableLazyPaint");
+export {
+  DisableLazyPaint as default
+};
+//# sourceMappingURL=Paint.js.map

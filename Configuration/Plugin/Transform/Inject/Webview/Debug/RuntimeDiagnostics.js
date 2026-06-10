@@ -1,4 +1,8 @@
-const r="<!-- __LAND_WEBVIEW_RUNTIME_DIAG__ -->",o=/\/vs\/workbench\/contrib\/webview\/browser\/pre\/index\.html$/,i=`
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+const Marker = "<!-- __LAND_WEBVIEW_RUNTIME_DIAG__ -->";
+const PathRegex = /\/vs\/workbench\/contrib\/webview\/browser\/pre\/index\.html$/;
+const DiagnosticCode = `
 (function() {
   // Helper
   var WV_ID = (function() { try { var p = new URL(location.toString()).searchParams.get('id'); return p || ''; } catch(e) { return ''; } })();
@@ -140,4 +144,23 @@ const r="<!-- __LAND_WEBVIEW_RUNTIME_DIAG__ -->",o=/\/vs\/workbench\/contrib\/we
     }
   }, 0);
 })();
-`,a={Kind:"Transform",Name:"InjectWebviewRuntimeDiagnostics",Match:({Path:e})=>o.test(e),Transform({Source:e}){if(e.includes(r))return{Kind:"Unchanged"};const t=e.lastIndexOf("</body>");if(t<0)return{Kind:"Unchanged"};const n=r+"<script>"+i+"</script>";return{Kind:"Rewrite",Source:e.slice(0,t)+n+e.slice(t)}}};var d=a;export{d as default};
+`;
+const Plugin = {
+  Kind: "Transform",
+  Name: "InjectWebviewRuntimeDiagnostics",
+  Match: /* @__PURE__ */ __name(({ Path }) => PathRegex.test(Path), "Match"),
+  Transform({ Source }) {
+    if (Source.includes(Marker)) return { Kind: "Unchanged" };
+    const closing = "</body>";
+    const idx = Source.lastIndexOf(closing);
+    if (idx < 0) return { Kind: "Unchanged" };
+    const injection = Marker + "<script>" + DiagnosticCode + "</script>";
+    const Next = Source.slice(0, idx) + injection + Source.slice(idx);
+    return { Kind: "Rewrite", Source: Next };
+  }
+};
+var RuntimeDiagnostics_default = Plugin;
+export {
+  RuntimeDiagnostics_default as default
+};
+//# sourceMappingURL=RuntimeDiagnostics.js.map

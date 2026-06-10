@@ -3,6 +3,7 @@
 if [ -z "$Dependency" ]; then
 	Dependency="Microsoft/VSCode"
 fi
+export Dependency
 
 # shellcheck disable=SC2154
 case "$Dependency" in

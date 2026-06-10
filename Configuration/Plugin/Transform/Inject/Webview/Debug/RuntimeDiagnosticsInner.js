@@ -1,4 +1,14 @@
-const c=/\/vs\/workbench\/contrib\/webview\/browser\/pre\/index\.html$/,n="__LAND_WEBVIEW_INNER_DIAG_INJECT__",s={Kind:"Transform",Name:"InjectWebviewRuntimeDiagnosticsInner",Match:({Path:t})=>c.test(t),Transform({Source:t}){if(t.includes(n))return{Kind:"Unchanged"};const i=`
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+const PathRegex = /\/vs\/workbench\/contrib\/webview\/browser\/pre\/index\.html$/;
+const Marker = "__LAND_WEBVIEW_INNER_DIAG_INJECT__";
+const Plugin = {
+  Kind: "Transform",
+  Name: "InjectWebviewRuntimeDiagnosticsInner",
+  Match: /* @__PURE__ */ __name(({ Path }) => PathRegex.test(Path), "Match"),
+  Transform({ Source }) {
+    if (Source.includes(Marker)) return { Kind: "Unchanged" };
+    const diagnosticScript = `
 (function() {
 	'use strict';
 	// Capture parent before the vscode-api polyfill overwrites it
@@ -315,17 +325,33 @@ const c=/\/vs\/workbench\/contrib\/webview\/browser\/pre\/index\.html$/,n="__LAN
 		}
 	}, 1000);
 })();
-`.trim(),o=/^(\s*)\/\/\s*Inject default styles/m,r=t.match(o);if(!r)return{Kind:"Unchanged"};const e=r[1]||"",a=`${e}// --- DIAGNOSTIC INJECTION ---
-${e}// ${n}
-${e}{
-${e}	const _diScript = document.createElement('script');
-${e}	_diScript.textContent = ${JSON.stringify(i)};
-${e}	// Insert before the VSCode API script so it runs first
-${e}	if (newDocument.head.firstChild) {
-${e}		newDocument.head.insertBefore(_diScript, newDocument.head.firstChild);
-${e}	} else {
-${e}		newDocument.head.appendChild(_diScript);
-${e}	}
-${e}}
-${e}// --- END DIAGNOSTIC ---
-${r[0]}`;return{Kind:"Rewrite",Source:t.replace(o,a)}}};var l=s;export{l as default};
+`.trim();
+    const markerRegex = /^(\s*)\/\/\s*Inject default styles/m;
+    const match = Source.match(markerRegex);
+    if (!match) {
+      return { Kind: "Unchanged" };
+    }
+    const indent = match[1] || "";
+    const injectedLines = `${indent}// --- DIAGNOSTIC INJECTION ---
+${indent}// ${Marker}
+${indent}{
+${indent}	const _diScript = document.createElement('script');
+${indent}	_diScript.textContent = ${JSON.stringify(diagnosticScript)};
+${indent}	// Insert before the VSCode API script so it runs first
+${indent}	if (newDocument.head.firstChild) {
+${indent}		newDocument.head.insertBefore(_diScript, newDocument.head.firstChild);
+${indent}	} else {
+${indent}		newDocument.head.appendChild(_diScript);
+${indent}	}
+${indent}}
+${indent}// --- END DIAGNOSTIC ---
+${match[0]}`;
+    const nextSource = Source.replace(markerRegex, injectedLines);
+    return { Kind: "Rewrite", Source: nextSource };
+  }
+};
+var RuntimeDiagnosticsInner_default = Plugin;
+export {
+  RuntimeDiagnosticsInner_default as default
+};
+//# sourceMappingURL=RuntimeDiagnosticsInner.js.map

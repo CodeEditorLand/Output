@@ -1,2 +1,0 @@
-import{stat as e}from"node:fs/promises";const t=/\n?\/\/[#@][ 	]*sourceMappingURL=[^\n]*\n?$/,i=async n=>{try{return await e(`${n}.map`),!0}catch{return!1}},s={Kind:"Transform",Name:"StripDanglingSourceMap",Match:({Path:n,Role:r})=>r==="app"&&/\.js$/.test(n),async Transform({Path:n,Source:r}){if(!t.test(r))return{Kind:"Unchanged"};if(await i(n))return{Kind:"Unchanged"};t.lastIndex=0;const a=r.replace(t,`
-`);return a===r?{Kind:"Unchanged"}:{Kind:"Rewrite",Source:a}}};var c=s;export{c as default};

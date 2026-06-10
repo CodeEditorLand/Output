@@ -1,1 +1,56 @@
-const i=n=>{try{const e=window.__TAURI__?.core?.invoke??window.__TAURI__?.invoke;typeof e=="function"&&e("MountainIPCInvoke",{method:"diagnostic:log",params:["cel-polyfill",n]}).catch(()=>{})}catch{}};function s(){if(typeof window>"u")return;const n="__LAND_EAGER_IDLE_VALUE__",e=window;if(e[n])return;e[n]=!0;const d={didTimeout:!1,timeRemaining:()=>50},a=o=>window.setTimeout(()=>{try{o(d)}catch(t){i("[LandFix:EagerIdle] "+String(t))}},0),l=o=>{window.clearTimeout(o)};window.requestIdleCallback=a,window.cancelIdleCallback=l,typeof globalThis<"u"&&(globalThis.requestIdleCallback=a,globalThis.cancelIdleCallback=l),typeof self<"u"&&self!==window&&(self.requestIdleCallback=a,self.cancelIdleCallback=l),i("[LandFix:EagerIdleValue] requestIdleCallback collapsed to setTimeout(0); IdleValue executors run eagerly")}export{s as default};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+const _CELLog = /* @__PURE__ */ __name((Message) => {
+  try {
+    const Invoke = window.__TAURI__?.core?.invoke ?? window.__TAURI__?.invoke;
+    if (typeof Invoke === "function") {
+      Invoke("MountainIPCInvoke", {
+        method: "diagnostic:log",
+        params: ["cel-polyfill", Message]
+      }).catch(() => {
+      });
+    }
+  } catch {
+  }
+}, "_CELLog");
+function EagerIdleValue() {
+  if (typeof window === "undefined") return;
+  const Marker = "__LAND_EAGER_IDLE_VALUE__";
+  const Land = window;
+  if (Land[Marker]) return;
+  Land[Marker] = true;
+  const EagerDeadline = {
+    didTimeout: false,
+    timeRemaining: /* @__PURE__ */ __name(() => 50, "timeRemaining")
+  };
+  const EagerRequestIdleCallback = /* @__PURE__ */ __name((Callback) => {
+    return window.setTimeout(() => {
+      try {
+        Callback(EagerDeadline);
+      } catch (Error2) {
+        _CELLog("[LandFix:EagerIdle] " + String(Error2));
+      }
+    }, 0);
+  }, "EagerRequestIdleCallback");
+  const EagerCancelIdleCallback = /* @__PURE__ */ __name((Identifier) => {
+    window.clearTimeout(Identifier);
+  }, "EagerCancelIdleCallback");
+  window.requestIdleCallback = EagerRequestIdleCallback;
+  window.cancelIdleCallback = EagerCancelIdleCallback;
+  if (typeof globalThis !== "undefined") {
+    globalThis["requestIdleCallback"] = EagerRequestIdleCallback;
+    globalThis["cancelIdleCallback"] = EagerCancelIdleCallback;
+  }
+  if (typeof self !== "undefined" && self !== window) {
+    self["requestIdleCallback"] = EagerRequestIdleCallback;
+    self["cancelIdleCallback"] = EagerCancelIdleCallback;
+  }
+  _CELLog(
+    "[LandFix:EagerIdleValue] requestIdleCallback collapsed to setTimeout(0); IdleValue executors run eagerly"
+  );
+}
+__name(EagerIdleValue, "EagerIdleValue");
+export {
+  EagerIdleValue as default
+};
+//# sourceMappingURL=Value.js.map

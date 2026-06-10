@@ -1,1 +1,125 @@
-let o=null,u=null;const s=new Map;let v=1,l=!1,d=0,g=0,_;const b=3e4,m=[100,200,400,1e3,2e3,5e3],y=(n,e)=>{try{performance.mark(`land:${n}:${e}`)}catch{}};function h(){const n=Math.min(d,m.length-1);return m[n]??5e3}function p(n){for(const e of s.values())e(void 0,n);s.clear()}function w(){if(!u||l)return;const{port:n,secret:e}=u,f=`ws://127.0.0.1:${n}/?secret=${encodeURIComponent(e)}`;try{const r=new WebSocket(f,[e]);r.onopen=()=>{o=r,d=0,y("mist-ws","connected")},r.onmessage=c=>{try{const t=JSON.parse(c.data),i=t.id;if(i==null)return;const a=s.get(i);if(!a)return;s.delete(i),t.error!==void 0?a(void 0,String(t.error)):a(t.result??null)}catch{}},r.onclose=()=>{o=null,p("WebSocket connection closed"),S()},r.onerror=()=>{}}catch{S()}}function S(){if(!(l||!u)){if(d===0&&(g=Date.now()),d++,Date.now()-g>=b){l=!0,p("MistWS dead after 30s of failed reconnect");return}clearTimeout(_),_=setTimeout(w,h())}}function E(n,e){u||(u={port:n,secret:e},l=!1,d=0,w())}function k(){return!l&&o!==null&&o.readyState===WebSocket.OPEN}function I(n,e){return new Promise((f,r)=>{if(!k()||!o){r(new Error("MistWS: not connected"));return}const c=v++;s.set(c,(t,i)=>{i!==void 0?r(new Error(i)):f(t)});try{o.send(JSON.stringify({id:c,method:n,params:e}))}catch(t){s.delete(c),r(t instanceof Error?t:new Error(String(t)))}})}function M(n,e){if(!(!k()||!o))try{o.send(JSON.stringify({id:null,method:n,params:e}))}catch{}}export{E as Initialize,k as IsAvailable,I as invoke,M as notify};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+let _ws = null;
+let _config = null;
+const _pending = /* @__PURE__ */ new Map();
+let _nextId = 1;
+let _dead = false;
+let _reconnectAttempts = 0;
+let _reconnectStart = 0;
+let _reconnectTimer;
+const _DeadAfterMs = 3e4;
+const _BackoffSteps = [100, 200, 400, 1e3, 2e3, 5e3];
+const _Trace = /* @__PURE__ */ __name((Tag, Message) => {
+  try {
+    performance.mark(`land:${Tag}:${Message}`);
+  } catch {
+  }
+}, "_Trace");
+function _BackoffMs() {
+  const Idx = Math.min(_reconnectAttempts, _BackoffSteps.length - 1);
+  return _BackoffSteps[Idx] ?? 5e3;
+}
+__name(_BackoffMs, "_BackoffMs");
+function _DrainPending(Reason) {
+  for (const Fn of _pending.values()) Fn(void 0, Reason);
+  _pending.clear();
+}
+__name(_DrainPending, "_DrainPending");
+function _Connect() {
+  if (!_config || _dead) return;
+  const { port, secret } = _config;
+  const Url = `ws://127.0.0.1:${port}/?secret=${encodeURIComponent(secret)}`;
+  try {
+    const Ws = new WebSocket(Url, [secret]);
+    Ws.onopen = () => {
+      _ws = Ws;
+      _reconnectAttempts = 0;
+      _Trace("mist-ws", "connected");
+    };
+    Ws.onmessage = (Ev) => {
+      try {
+        const Envelope = JSON.parse(Ev.data);
+        const Id = Envelope.id;
+        if (Id === void 0 || Id === null) return;
+        const Fn = _pending.get(Id);
+        if (!Fn) return;
+        _pending.delete(Id);
+        if (Envelope.error !== void 0)
+          Fn(void 0, String(Envelope.error));
+        else Fn(Envelope.result ?? null);
+      } catch {
+      }
+    };
+    Ws.onclose = () => {
+      _ws = null;
+      _DrainPending("WebSocket connection closed");
+      _ScheduleReconnect();
+    };
+    Ws.onerror = () => {
+    };
+  } catch {
+    _ScheduleReconnect();
+  }
+}
+__name(_Connect, "_Connect");
+function _ScheduleReconnect() {
+  if (_dead || !_config) return;
+  if (_reconnectAttempts === 0) _reconnectStart = Date.now();
+  _reconnectAttempts++;
+  if (Date.now() - _reconnectStart >= _DeadAfterMs) {
+    _dead = true;
+    _DrainPending("MistWS dead after 30s of failed reconnect");
+    return;
+  }
+  clearTimeout(_reconnectTimer);
+  _reconnectTimer = setTimeout(_Connect, _BackoffMs());
+}
+__name(_ScheduleReconnect, "_ScheduleReconnect");
+function Initialize(port, secret) {
+  if (_config) return;
+  _config = { port, secret };
+  _dead = false;
+  _reconnectAttempts = 0;
+  _Connect();
+}
+__name(Initialize, "Initialize");
+function IsAvailable() {
+  return !_dead && _ws !== null && _ws.readyState === WebSocket.OPEN;
+}
+__name(IsAvailable, "IsAvailable");
+function invoke(method, params) {
+  return new Promise((Resolve, Reject) => {
+    if (!IsAvailable() || !_ws) {
+      Reject(new Error("MistWS: not connected"));
+      return;
+    }
+    const Id = _nextId++;
+    _pending.set(Id, (Result, Err) => {
+      if (Err !== void 0) Reject(new Error(Err));
+      else Resolve(Result);
+    });
+    try {
+      _ws.send(JSON.stringify({ id: Id, method, params }));
+    } catch (E) {
+      _pending.delete(Id);
+      Reject(E instanceof Error ? E : new Error(String(E)));
+    }
+  });
+}
+__name(invoke, "invoke");
+function notify(method, params) {
+  if (!IsAvailable() || !_ws) return;
+  try {
+    _ws.send(JSON.stringify({ id: null, method, params }));
+  } catch {
+  }
+}
+__name(notify, "notify");
+export {
+  Initialize,
+  IsAvailable,
+  invoke,
+  notify
+};
+//# sourceMappingURL=MistWebSocketTransport.js.map

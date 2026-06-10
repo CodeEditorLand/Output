@@ -1,1 +1,153 @@
-import{readdir as u,readFile as y,stat as f,writeFile as m}from"node:fs/promises";import{join as R}from"node:path";import b from"./Copy.js";const w=r=>/\.(m?js|cjs|ts|tsx|html)$/.test(r),c=async function*(r){let i=[];try{i=await u(r,{withFileTypes:!0})}catch{return}for(const o of i){const s=R(r,o.name);o.isDirectory()?yield*c(s):o.isFile()&&w(o.name)&&(yield s)}},C=async(r,i)=>{if(r.Enabled&&!r.Enabled())return{Name:r.Name,Copied:0,Skipped:1};let o=0,s=0;const e=[];for(const t of r.Entries){const n=t.From.map(l=>({From:l,To:t.To,...t.Recursive!==void 0?{Recursive:t.Recursive}:{},...t.Force!==void 0?{Force:t.Force}:{}})),a=await b(n);if(a.Resolved)o++,e.push({From:a.Resolved.From,To:a.Resolved.To});else{if(s++,r.Required)throw new Error(`Plugin ${r.Name}: no candidate resolved for ${t.To}${a.Error?` (${a.Error})`:""}`);i?.(`[${r.Name}] no candidate resolved for ${t.To}; skipping`)}}return r.AfterCopy&&e.length>0&&await r.AfterCopy(e),{Name:r.Name,Copied:o,Skipped:s}},g=async(r,i)=>{const o=new Map;for(const e of i)o.set(e.Name,{Rewritten:0,Stubbed:0});const s=i.filter(e=>!(e.Enabled&&!e.Enabled()));if(s.length===0)return[...o.entries()].map(([e,t])=>({Name:e,...t}));for(const e of r){try{await f(e.Path)}catch{continue}for await(const t of c(e.Path)){let n;try{n=await y(t,"utf-8")}catch{continue}let a=n;for(const l of s){if(!l.Match({Path:t,Role:e.Role}))continue;const p=await l.Transform({Path:t,Source:a,Role:e.Role});if(p.Kind==="Unchanged")continue;a=p.Source;const d=o.get(l.Name);p.Kind==="Rewrite"?o.set(l.Name,{Rewritten:d.Rewritten+1,Stubbed:d.Stubbed}):o.set(l.Name,{Rewritten:d.Rewritten,Stubbed:d.Stubbed+1})}if(a!==n)try{await m(t,a,"utf-8")}catch{}}}return[...o.entries()].map(([e,t])=>({Name:e,...t}))},A=async({Plugins:r,Roots:i,Log:o})=>{const s=[],e=[];for(const n of r)if(n.Kind==="Copy"){o?.(`[${n.Name}] starting`);const a=await C(n,o);o?.(`[${n.Name}] copied=${a.Copied} skipped=${a.Skipped}`),s.push(a)}else e.push(n);const t=await g(i,e);for(const n of t)o?.(`[${n.Name}] rewritten=${n.Rewritten} stubbed=${n.Stubbed}`);return{Copy:s,Transform:t}};var v=A;export{v as default};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { readdir, readFile, stat, writeFile } from "node:fs/promises";
+import { join } from "node:path";
+import CopyFirstAvailable from "./Copy.js";
+const IsTransformable = /* @__PURE__ */ __name((Name) => /\.(m?js|cjs|ts|tsx|html)$/.test(Name), "IsTransformable");
+const WalkFiles = /* @__PURE__ */ __name(async function* (Dir) {
+  let Entries = [];
+  try {
+    Entries = await readdir(Dir, { withFileTypes: true });
+  } catch {
+    return;
+  }
+  for (const Entry of Entries) {
+    const Full = join(Dir, Entry.name);
+    if (Entry.isDirectory()) {
+      yield* WalkFiles(Full);
+    } else if (Entry.isFile() && IsTransformable(Entry.name)) {
+      yield Full;
+    }
+  }
+}, "WalkFiles");
+const RunCopy = /* @__PURE__ */ __name(async (Plugin, Log) => {
+  if (Plugin.Enabled && !Plugin.Enabled()) {
+    return { Name: Plugin.Name, Copied: 0, Skipped: 1 };
+  }
+  let Copied = 0;
+  let Skipped = 0;
+  const Resolved = [];
+  for (const Entry of Plugin.Entries) {
+    const Candidates = Entry.From.map((From) => ({
+      From,
+      To: Entry.To,
+      ...Entry.Recursive !== void 0 ? { Recursive: Entry.Recursive } : {},
+      ...Entry.Force !== void 0 ? { Force: Entry.Force } : {}
+    }));
+    const Outcome = await CopyFirstAvailable(Candidates);
+    if (Outcome.Resolved) {
+      Copied++;
+      Resolved.push({
+        From: Outcome.Resolved.From,
+        To: Outcome.Resolved.To
+      });
+    } else {
+      Skipped++;
+      if (Plugin.Required) {
+        throw new Error(
+          `Plugin ${Plugin.Name}: no candidate resolved for ${Entry.To}${Outcome.Error ? ` (${Outcome.Error})` : ""}`
+        );
+      }
+      Log?.(
+        `[${Plugin.Name}] no candidate resolved for ${Entry.To}; skipping`
+      );
+    }
+  }
+  if (Plugin.AfterCopy && Resolved.length > 0) {
+    await Plugin.AfterCopy(Resolved);
+  }
+  return { Name: Plugin.Name, Copied, Skipped };
+}, "RunCopy");
+const RunTransforms = /* @__PURE__ */ __name(async (Roots, Transforms) => {
+  const Counters = /* @__PURE__ */ new Map();
+  for (const T of Transforms) {
+    Counters.set(T.Name, { Rewritten: 0, Stubbed: 0 });
+  }
+  const Active = Transforms.filter((T) => !(T.Enabled && !T.Enabled()));
+  if (Active.length === 0) {
+    return [...Counters.entries()].map(([Name, Count]) => ({
+      Name,
+      ...Count
+    }));
+  }
+  for (const Root of Roots) {
+    try {
+      await stat(Root.Path);
+    } catch {
+      continue;
+    }
+    for await (const File of WalkFiles(Root.Path)) {
+      let Source;
+      try {
+        Source = await readFile(File, "utf-8");
+      } catch {
+        continue;
+      }
+      let Current = Source;
+      for (const Plugin of Active) {
+        if (!Plugin.Match({ Path: File, Role: Root.Role })) continue;
+        const Result = await Plugin.Transform({
+          Path: File,
+          Source: Current,
+          Role: Root.Role
+        });
+        if (Result.Kind === "Unchanged") continue;
+        Current = Result.Source;
+        const Counter = Counters.get(Plugin.Name);
+        if (Result.Kind === "Rewrite") {
+          Counters.set(Plugin.Name, {
+            Rewritten: Counter.Rewritten + 1,
+            Stubbed: Counter.Stubbed
+          });
+        } else {
+          Counters.set(Plugin.Name, {
+            Rewritten: Counter.Rewritten,
+            Stubbed: Counter.Stubbed + 1
+          });
+        }
+      }
+      if (Current !== Source) {
+        try {
+          await writeFile(File, Current, "utf-8");
+        } catch {
+        }
+      }
+    }
+  }
+  return [...Counters.entries()].map(([Name, Count]) => ({
+    Name,
+    ...Count
+  }));
+}, "RunTransforms");
+const ApplyPlugins = /* @__PURE__ */ __name(async ({
+  Plugins,
+  Roots,
+  Log
+}) => {
+  const CopyResults = [];
+  const Transforms = [];
+  for (const Plugin of Plugins) {
+    if (Plugin.Kind === "Copy") {
+      Log?.(`[${Plugin.Name}] starting`);
+      const Result = await RunCopy(Plugin, Log);
+      Log?.(
+        `[${Plugin.Name}] copied=${Result.Copied} skipped=${Result.Skipped}`
+      );
+      CopyResults.push(Result);
+    } else {
+      Transforms.push(Plugin);
+    }
+  }
+  const TransformResults = await RunTransforms(Roots, Transforms);
+  for (const Result of TransformResults) {
+    Log?.(
+      `[${Result.Name}] rewritten=${Result.Rewritten} stubbed=${Result.Stubbed}`
+    );
+  }
+  return { Copy: CopyResults, Transform: TransformResults };
+}, "ApplyPlugins");
+var Apply_default = ApplyPlugins;
+export {
+  Apply_default as default
+};
+//# sourceMappingURL=Apply.js.map

@@ -1,1 +1,104 @@
-const r=o=>{try{const n=window.__TAURI__?.core?.invoke??window.__TAURI__?.invoke;typeof n=="function"&&n("MountainIPCInvoke",{method:"diagnostic:log",params:["cel-polyfill",o]}).catch(()=>{})}catch{}};function u(){if(typeof window>"u")return;const o="__LAND_EAGER_EXTENSION_ACTIVATION__",n=window;if(n[o])return;n[o]=!0;function a(){try{const t=n.__CEL_SERVICES__;if(!t||typeof t.invokeFunction!="function")return!1;let i=null;if(t.invokeFunction(c=>{try{const e=n.__CEL_BRANDS__;e&&e.IExtensionService&&(i=c.get(e.IExtensionService))}catch{}}),!i||typeof i.activateByEvent!="function")return!1;let v=0;for(const c of["onStartupFinished","*"])try{const e=i.activateByEvent(c);e&&typeof e.then=="function"&&e.catch(E=>{r("[LandFix:EagerActivation] activateByEvent ${EventName} rejected: ${String(_Error)}")}),v++}catch{r("[LandFix:EagerActivation] activateByEvent ${EventName} threw: ${String(Error)}")}return v>0?(r("[LandFix:EagerActivation] fired ${FireCount} activation event(s) eagerly"),!0):!1}catch{return r("[LandFix:EagerActivation] FireActivationEvents failed: ${String(Error)}"),!1}}function s(){setTimeout(()=>{if(!a()){let t=0;const i=setInterval(()=>{t++,(a()||t>24)&&clearInterval(i)},200)}},50)}document.readyState==="loading"?document.addEventListener("DOMContentLoaded",s,{once:!0}):s()}export{u as default};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+const _CELLog = /* @__PURE__ */ __name((Message) => {
+  try {
+    const Invoke = window.__TAURI__?.core?.invoke ?? window.__TAURI__?.invoke;
+    if (typeof Invoke === "function") {
+      Invoke("MountainIPCInvoke", {
+        method: "diagnostic:log",
+        params: ["cel-polyfill", Message]
+      }).catch(() => {
+      });
+    }
+  } catch {
+  }
+}, "_CELLog");
+function EagerExtensionActivation() {
+  if (typeof window === "undefined") return;
+  const Marker = "__LAND_EAGER_EXTENSION_ACTIVATION__";
+  const Land = window;
+  if (Land[Marker]) return;
+  Land[Marker] = true;
+  function FireActivationEvents() {
+    try {
+      const Services = Land["__CEL_SERVICES__"];
+      if (!Services || typeof Services.invokeFunction !== "function") {
+        return false;
+      }
+      let ExtSvc = null;
+      Services.invokeFunction((Accessor) => {
+        try {
+          const Brands = Land["__CEL_BRANDS__"];
+          if (Brands && Brands["IExtensionService"]) {
+            ExtSvc = Accessor.get(
+              Brands["IExtensionService"]
+            );
+          }
+        } catch {
+        }
+      });
+      if (!ExtSvc || typeof ExtSvc.activateByEvent !== "function") {
+        return false;
+      }
+      let FireCount = 0;
+      for (const EventName of ["onStartupFinished", "*"]) {
+        try {
+          const Result = ExtSvc.activateByEvent(
+            EventName
+          );
+          if (Result && typeof Result.then === "function") {
+            Result.catch((_Error) => {
+              _CELLog(
+                "[LandFix:EagerActivation] activateByEvent ${EventName} rejected: ${String(_Error)}"
+              );
+            });
+          }
+          FireCount++;
+        } catch (Error2) {
+          _CELLog(
+            "[LandFix:EagerActivation] activateByEvent ${EventName} threw: ${String(Error)}"
+          );
+        }
+      }
+      if (FireCount > 0) {
+        _CELLog(
+          "[LandFix:EagerActivation] fired ${FireCount} activation event(s) eagerly"
+        );
+        return true;
+      }
+      return false;
+    } catch (Error2) {
+      _CELLog(
+        "[LandFix:EagerActivation] FireActivationEvents failed: ${String(Error)}"
+      );
+      return false;
+    }
+  }
+  __name(FireActivationEvents, "FireActivationEvents");
+  function ScheduleFire() {
+    setTimeout(() => {
+      if (!FireActivationEvents()) {
+        let Attempts = 0;
+        const Interval = setInterval(() => {
+          Attempts++;
+          if (FireActivationEvents() || Attempts > 24) {
+            clearInterval(Interval);
+          }
+        }, 200);
+      }
+    }, 50);
+  }
+  __name(ScheduleFire, "ScheduleFire");
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", ScheduleFire, {
+      once: true
+    });
+  } else {
+    ScheduleFire();
+  }
+}
+__name(EagerExtensionActivation, "EagerExtensionActivation");
+export {
+  EagerExtensionActivation as default
+};
+//# sourceMappingURL=Activation.js.map

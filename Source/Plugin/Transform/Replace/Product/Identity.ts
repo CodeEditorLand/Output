@@ -83,45 +83,45 @@ interface Replacement {
 
 const Replacements: Replacement[] = [
 	// ---- Product name strings ----
-	{ From: "Code - OSS", To: Product.nameShort ?? "FIDDEE" },
+	{ From: "Code - OSS", To: Product["nameShort"] ?? "FIDDEE" },
 
-	{ From: "code-oss", To: Product.applicationName ?? "fiddee" },
+	{ From: "code-oss", To: Product["applicationName"] ?? "fiddee" },
 
-	{ From: ".vscode-oss", To: Product.dataFolderName ?? ".fiddee" },
+	{ From: ".vscode-oss", To: Product["dataFolderName"] ?? ".fiddee" },
 
 	{
 		From: ".vscode-oss-shared",
 
-		To: `${Product.dataFolderName ?? ".fiddee"}-shared`,
+		To: `${Product["dataFolderName"] ?? ".fiddee"}-shared`,
 	},
 
 	{
 		From: "code-server-oss",
 
-		To: Product.serverApplicationName ?? "fiddee-server",
+		To: Product["serverApplicationName"] ?? "fiddee-server",
 	},
 
 	{
 		From: ".vscode-server-oss",
 
-		To: Product.serverDataFolderName ?? ".fiddee-server",
+		To: Product["serverDataFolderName"] ?? ".fiddee-server",
 	},
 
 	{
 		From: "code-tunnel-oss",
 
-		To: `${Product.applicationName ?? "fiddee"}-tunnel`,
+		To: `${Product["applicationName"] ?? "fiddee"}-tunnel`,
 	},
 
 	// ---- Bundle identifiers ----
 	{
 		From: "com.visualstudio.code.oss",
 
-		To: Product.darwinBundleIdentifier ?? "fiddee.editor",
+		To: Product["darwinBundleIdentifier"] ?? "fiddee.editor",
 	},
 
 	// ---- URL protocol ----
-	{ From: "code-oss://", To: `${Product.urlProtocol ?? "fiddee"}://` },
+	{ From: "code-oss://", To: `${Product["urlProtocol"] ?? "fiddee"}://` },
 
 	// ---- Application IDs ----
 	{ From: "Microsoft.CodeOSS", To: "FIDDEE.Editor" },
@@ -133,7 +133,7 @@ const Replacements: Replacement[] = [
 	// ---- Metric / telemetry names ----
 	{ From: "vscodeoss", To: "fiddee" },
 
-	{ From: "vscode-oss", To: Product.applicationName ?? "fiddee" },
+	{ From: "vscode-oss", To: Product["applicationName"] ?? "fiddee" },
 ];
 
 // ---------------------------------------------------------------------------

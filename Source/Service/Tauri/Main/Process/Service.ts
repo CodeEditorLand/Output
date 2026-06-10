@@ -8,7 +8,9 @@
  * Build-baked OTEL bridge (OTELBridge.ts) collects marks automatically.
  */
 
+// @ts-ignore - self-referential type; resolved from built Target at runtime
 import type { Event as VSCodeEvent } from "@codeeditorland/output/Target/Microsoft/VSCode/vs/base/common/event.js";
+// @ts-ignore - self-referential type; resolved from built Target at runtime
 import type {
 	IChannel,
 	IServerChannel,

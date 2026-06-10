@@ -23,7 +23,7 @@ let _reconnectAttempts = 0;
 
 let _reconnectStart = 0;
 
-let _reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+let _reconnectTimer: ReturnType<typeof setTimeout> | undefined;
 
 const _DeadAfterMs = 30_000;
 
@@ -38,7 +38,7 @@ const _Trace = (Tag: string, Message: string): void => {
 function _BackoffMs(): number {
 	const Idx = Math.min(_reconnectAttempts, _BackoffSteps.length - 1);
 
-	return _BackoffSteps[Idx];
+	return _BackoffSteps[Idx] ?? 5_000;
 }
 
 function _DrainPending(Reason: string): void {
@@ -120,6 +120,7 @@ function _ScheduleReconnect(): void {
 		return;
 	}
 
+	clearTimeout(_reconnectTimer);
 	_reconnectTimer = setTimeout(_Connect, _BackoffMs());
 }
 

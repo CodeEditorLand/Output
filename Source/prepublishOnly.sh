@@ -48,10 +48,10 @@ Build "Source/**/*.{ts,json}" \
 	--ESBuild Source/ESBuild/Output.ts
 
 Build "../../Dependency/Microsoft/Dependency/Editor/$Build/**/*.{css,fish,html,js,json,jsx,cjs,mjs,md,mp3,png,ps1,psm1,scm,scpt,sh,svg,ts,tsx,ttf,zsh}" \
-	--ESBuild Configuration/ESBuild/"$Dependency".js
+	--ESBuild Configuration/Element/Output/Source/ESBuild/"$Dependency".js
 
 # Apply transform plugins to Output's own Target so every consumer
 # (Sky's /Static/Application copy AND Sky's bundled Vite walk) sees
 # pre-shimmed VS Code files. Compiled `Configuration/Apply/Pipeline.js`
 # is emitted by the first Build step above (Source/**/*.ts pass).
-node Configuration/Apply/Pipeline.js
+node Configuration/Element/Output/Source/Apply/Pipeline.js

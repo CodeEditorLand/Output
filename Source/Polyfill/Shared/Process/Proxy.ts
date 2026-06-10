@@ -409,7 +409,7 @@ export const ExtensionHostService: ServiceProxy = Object.assign(
 		 * Start extension host
 		 */
 		async start(extensionId: string): Promise<boolean> {
-			return (await this.invoke(
+			return (await (this as ServiceProxy).invoke(
 				"start",
 
 				extensionId,
@@ -420,14 +420,14 @@ export const ExtensionHostService: ServiceProxy = Object.assign(
 		 * Stop extension host
 		 */
 		async stop(extensionId: string): Promise<boolean> {
-			return (await this.invoke("stop", extensionId)) as Promise<boolean>;
+			return (await (this as ServiceProxy).invoke("stop", extensionId)) as Promise<boolean>;
 		},
 
 		/**
 		 * Restart extension host
 		 */
 		async restart(extensionId: string): Promise<boolean> {
-			return (await this.invoke(
+			return (await (this as ServiceProxy).invoke(
 				"restart",
 
 				extensionId,
@@ -443,14 +443,14 @@ export const ExtensionHostService: ServiceProxy = Object.assign(
 			method: string,
 			...args: unknown[]
 		): Promise<unknown> {
-			return await this.invoke("callAPI", extensionId, method, ...args);
+			return await (this as ServiceProxy).invoke("callAPI", extensionId, method, ...args);
 		},
 
 		/**
 		 * Get extension host status
 		 */
 		async getStatus(): Promise<{ running: boolean; extensions: string[] }> {
-			return (await this.invoke("getStatus")) as Promise<{
+			return (await (this as ServiceProxy).invoke("getStatus")) as Promise<{
 				running: boolean;
 
 				extensions: string[];
@@ -475,7 +475,7 @@ export const SearchService: ServiceProxy = Object.assign(
 		 * Perform search
 		 */
 		async search(query: string, options?: unknown): Promise<unknown[]> {
-			return (await this.invoke("search", query, options)) as Promise<
+			return (await (this as ServiceProxy).invoke("search", query, options)) as Promise<
 				unknown[]
 			>;
 		},
@@ -484,7 +484,7 @@ export const SearchService: ServiceProxy = Object.assign(
 		 * Get search index status
 		 */
 		async getIndexStatus(): Promise<{ ready: boolean; documents: number }> {
-			return (await this.invoke("getIndexStatus")) as Promise<{
+			return (await (this as ServiceProxy).invoke("getIndexStatus")) as Promise<{
 				ready: boolean;
 
 				documents: number;
@@ -495,7 +495,7 @@ export const SearchService: ServiceProxy = Object.assign(
 		 * Clear search index
 		 */
 		async clearIndex(): Promise<boolean> {
-			return (await this.invoke("clearIndex")) as Promise<boolean>;
+			return (await (this as ServiceProxy).invoke("clearIndex")) as Promise<boolean>;
 		},
 	},
 );
@@ -516,7 +516,7 @@ export const DebugService: ServiceProxy = Object.assign(
 		 * Start debug session
 		 */
 		async startSession(configuration: unknown): Promise<string> {
-			return (await this.invoke(
+			return (await (this as ServiceProxy).invoke(
 				"startSession",
 
 				configuration,
@@ -527,7 +527,7 @@ export const DebugService: ServiceProxy = Object.assign(
 		 * Stop debug session
 		 */
 		async stopSession(sessionId: string): Promise<boolean> {
-			return (await this.invoke(
+			return (await (this as ServiceProxy).invoke(
 				"stopSession",
 
 				sessionId,
@@ -543,7 +543,7 @@ export const DebugService: ServiceProxy = Object.assign(
 			command: string,
 			...args: unknown[]
 		): Promise<unknown> {
-			return await this.invoke(
+			return await (this as ServiceProxy).invoke(
 				"sendCommand",
 
 				sessionId,
@@ -559,7 +559,7 @@ export const DebugService: ServiceProxy = Object.assign(
 		async getActiveSessions(): Promise<
 			Array<{ id: string; name: string }>
 		> {
-			return (await this.invoke("getActiveSessions")) as Promise<
+			return (await (this as ServiceProxy).invoke("getActiveSessions")) as Promise<
 				Array<{ id: string; name: string }>
 			>;
 		},
@@ -773,7 +773,7 @@ class SharedProcessManager {
 	 * Initialize all services
 	 */
 	async initialize(): Promise<void> {
-		for (const [serviceName, proxy] of this.services.entries()) {
+		for (const [, proxy] of this.services.entries()) {
 			try {
 				const isHealthy = await proxy.healthCheck();
 

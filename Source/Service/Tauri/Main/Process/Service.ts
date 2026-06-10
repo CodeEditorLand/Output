@@ -816,6 +816,7 @@ const _TierTasks = _ReadTier("Tasks") ?? "Node";
 const _TierAuth = _ReadTier("Auth") ?? "Node";
 
 const _TierEncryption = _ReadTier("Encryption") ?? "Mountain";
+
 const _TierWebSocket: string = _ReadTier("WebSocket") ?? "Disabled";
 
 function _ResolveTierForRoute(RoutePrefix: string | null): string {

@@ -8,6 +8,7 @@
  * Build-baked OTEL bridge (OTELBridge.ts) collects marks automatically.
  */
 
+import * as MistWS from "./MistWebSocketTransport.js";
 import type { Event as VSCodeEvent } from "@codeeditorland/output/Target/Microsoft/VSCode/vs/base/common/event.js";
 import type {
 	IChannel,
@@ -814,6 +815,8 @@ const _TierTasks = _ReadTier("Tasks") ?? "Node";
 const _TierAuth = _ReadTier("Auth") ?? "Node";
 
 const _TierEncryption = _ReadTier("Encryption") ?? "Mountain";
+const _TierWebSocket: string = _ReadTier("WebSocket") ?? "Disabled";
+
 
 function _ResolveTierForRoute(RoutePrefix: string | null): string {
 	if (!RoutePrefix) return _TierIPC;
@@ -1084,7 +1087,13 @@ class TauriChannel implements IChannel {
 			// Per-subsystem Node track (TIER-SYSTEM Step 4b, lockstep with Wind).
 			const _EffectiveTier = _ResolveTierForRoute(this.RoutePrefix);
 
-			if (_EffectiveTier === "Node") {
+			if (_EffectiveTier === "WebSocket" && MistWS.IsAvailable()) {
+				try {
+					return (await MistWS.invoke(MountainMethod, Params)) as T;
+				} catch {}
+			}
+
+				if (_EffectiveTier === "Node") {
 				try {
 					return (await _InvokeViaNode(MountainMethod, Params)) as T;
 				} catch {
@@ -1337,6 +1346,10 @@ export class TauriMainProcessService {
 	dispose(): void {
 		this.Channels.clear();
 	}
+}
+
+export function InitializeWebSocket(port: number, secret: string): void {
+	MistWS.Initialize(port, secret);
 }
 
 export default TauriMainProcessService;

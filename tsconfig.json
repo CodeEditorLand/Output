@@ -1,21 +1,18 @@
 {
 	"compilerOptions": {
 		"baseUrl": "./",
-
 		"outDir": "Target",
-
 		"rootDir": "./Source",
-
 		"declarationMap": true,
-
 		"emitDeclarationOnly": true,
-
 		"composite": true
 	},
-
 	"extends": "@playform/build/tsconfig",
-
-	"include": ["Source"],
-
-	"exclude": ["Target", "node_modules"]
+	"include": [
+		"Source"
+	],
+	"exclude": [
+		"Target",
+		"node_modules"
+	]
 }

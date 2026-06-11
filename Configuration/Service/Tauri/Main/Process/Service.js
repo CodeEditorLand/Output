@@ -654,6 +654,16 @@ class TauriChannel {
             const Arr = Array.isArray(Raw) ? Raw : Raw.buffer;
             if (Array.isArray(Arr)) {
               const Bytes = new Uint8Array(Arr);
+              if (Command === "read") {
+                const BytesRead = !Array.isArray(Raw) && typeof Raw.bytesRead === "number" ? Raw.bytesRead : Bytes.byteLength;
+                return [
+                  {
+                    buffer: Bytes,
+                    byteLength: Bytes.byteLength
+                  },
+                  BytesRead
+                ];
+              }
               return {
                 buffer: Bytes,
                 byteLength: Bytes.byteLength
@@ -730,10 +740,16 @@ class TauriChannel {
     if (FileSystemChannels.has(this.ChannelName) && Event === "readFileStream") {
       return ((Listener) => {
         const Params = Arg !== void 0 ? Array.isArray(Arg) ? Arg : [Arg] : [];
+        const ResolveVSBuffer = /* @__PURE__ */ __name(async () => {
+          const Exposed = globalThis.__CEL_SERVICES__?.VSBuffer;
+          if (Exposed?.wrap) return Exposed;
+          const Module = await import("@codeeditorland/output/Target/Microsoft/VSCode/vs/base/common/buffer.js");
+          return Module.VSBuffer;
+        }, "ResolveVSBuffer");
         Promise.all([
-          import("@codeeditorland/output/Target/Microsoft/VSCode/vs/base/common/buffer.js"),
+          ResolveVSBuffer(),
           InvokeMountain(`${this.RoutePrefix}:readFile`, Params)
-        ]).then(([{ VSBuffer }, Result]) => {
+        ]).then(([VSBuffer, Result]) => {
           const Raw = Result;
           if (Raw !== null && Raw !== void 0) {
             const Arr = Array.isArray(Raw) ? Raw : Raw.buffer;

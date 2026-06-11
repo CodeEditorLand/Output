@@ -41,6 +41,7 @@
  * file's source location. esbuild with `bundle: false` emits them unchanged.
  */
 
+import { VSBuffer } from "../../base/common/buffer.js";
 import { Emitter } from "../../base/common/event.js";
 import { Disposable, toDisposable } from "../../base/common/lifecycle.js";
 import { ResourceTree } from "../../base/common/resourceTree.js";
@@ -208,6 +209,15 @@ export const ExposeAccessor = (InstantiationService) => {
 			RegisteredEditorPriority,
 
 			URI: URI,
+
+			// The workbench's OWN VSBuffer class. Channel shims that emit
+			// `ReadableStreamEventPayload<VSBuffer>` (Wind's
+			// `readFileStream` listen bridge) MUST wrap with this exact
+			// class: `DiskFileSystemProviderClient` discriminates data vs
+			// error via `instanceof VSBuffer`, so a duplicate module copy
+			// makes every data chunk register as an error
+			// ("Unknown (FileSystemError)") and every editor open fail.
+			VSBuffer: VSBuffer,
 
 			TreeViewByViewId: (ViewId) => {
 				try {

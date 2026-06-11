@@ -1111,7 +1111,7 @@ class TauriChannel implements IChannel {
 					(Command === "readFile" || Command === "read")
 				) {
 					const Raw = Result as
-						| { buffer: number[] }
+						| { buffer: number[]; bytesRead?: number }
 						| number[]
 						| null
 						| undefined;
@@ -1123,6 +1123,29 @@ class TauriChannel implements IChannel {
 
 						if (Array.isArray(Arr)) {
 							const Bytes = new Uint8Array(Arr);
+
+							// fd-based `read` (DiskFileSystemProviderClient.read)
+							// destructures a `[VSBuffer, bytesRead]` tuple and
+							// copies `bytes.buffer.slice(0, bytesRead)` into its
+							// own buffer. `readFile` destructures `{ buffer }`.
+							// Lockstep with Wind's TauriMainProcessService.
+							if (Command === "read") {
+								const BytesRead =
+									!Array.isArray(Raw) &&
+									typeof Raw.bytesRead === "number"
+										? Raw.bytesRead
+										: Bytes.byteLength;
+
+								return [
+									{
+										buffer: Bytes,
+
+										byteLength: Bytes.byteLength,
+									},
+
+									BytesRead,
+								] as unknown as T;
+							}
 
 							return {
 								buffer: Bytes,
@@ -1274,14 +1297,33 @@ class TauriChannel implements IChannel {
 				const Params =
 					Arg !== undefined ? (Array.isArray(Arg) ? Arg : [Arg]) : [];
 
-				Promise.all([
-					import("@codeeditorland/output/Target/Microsoft/VSCode/vs/base/common/buffer.js") as Promise<{
+				// Same-class requirement as Wind's TauriMainProcessService:
+				// the workbench checks `instanceof VSBuffer`, so prefer the
+				// instance exposed by the CEL accessor; a duplicate module
+				// copy makes every data chunk register as an error.
+				const ResolveVSBuffer = async (): Promise<{
+					wrap(buffer: Uint8Array): unknown;
+				}> => {
+					const Exposed = (globalThis as any).__CEL_SERVICES__
+						?.VSBuffer;
+
+					if (Exposed?.wrap) return Exposed;
+
+					const Module = (await import(
+						"@codeeditorland/output/Target/Microsoft/VSCode/vs/base/common/buffer.js"
+					)) as {
 						VSBuffer: { wrap(buffer: Uint8Array): unknown };
-					}>,
+					};
+
+					return Module.VSBuffer;
+				};
+
+				Promise.all([
+					ResolveVSBuffer(),
 
 					InvokeMountain(`${this.RoutePrefix}:readFile`, Params),
 				])
-					.then(([{ VSBuffer }, Result]) => {
+					.then(([VSBuffer, Result]) => {
 						const Raw = Result as
 							| { buffer: number[] }
 							| number[]

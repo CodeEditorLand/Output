@@ -1,5 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { VSBuffer } from "../../base/common/buffer.js";
 import { Emitter } from "../../base/common/event.js";
 import { Disposable, toDisposable } from "../../base/common/lifecycle.js";
 import { ResourceTree } from "../../base/common/resourceTree.js";
@@ -127,6 +128,14 @@ const ExposeAccessor = /* @__PURE__ */ __name((InstantiationService) => {
       ),
       RegisteredEditorPriority,
       URI,
+      // The workbench's OWN VSBuffer class. Channel shims that emit
+      // `ReadableStreamEventPayload<VSBuffer>` (Wind's
+      // `readFileStream` listen bridge) MUST wrap with this exact
+      // class: `DiskFileSystemProviderClient` discriminates data vs
+      // error via `instanceof VSBuffer`, so a duplicate module copy
+      // makes every data chunk register as an error
+      // ("Unknown (FileSystemError)") and every editor open fail.
+      VSBuffer,
       TreeViewByViewId: /* @__PURE__ */ __name((ViewId) => {
         try {
           const Reg = Registry.as(ViewsRegistryId);

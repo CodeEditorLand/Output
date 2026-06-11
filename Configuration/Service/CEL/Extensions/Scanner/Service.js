@@ -53,7 +53,7 @@ const FetchFromMountain = /* @__PURE__ */ __name(async (Method, ForceBuiltin) =>
     });
     Warn("IPC", Method, "returned", Extensions.length, "extensions");
     if (Extensions.length === 0 && (Method === "extensions:scanSystemExtensions" || Method === "extensions:scanUserExtensions")) {
-      const Schedule = [100, 200, 400, 800, 1500];
+      const Schedule = Method === "extensions:scanUserExtensions" ? [50, 150, 400] : [100, 200, 400, 800, 1500];
       for (let Retry = 0; Retry < Schedule.length; Retry++) {
         Warn(
           "0 extensions for",

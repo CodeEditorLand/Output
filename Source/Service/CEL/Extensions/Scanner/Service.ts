@@ -124,7 +124,15 @@ const FetchFromMountain = async (
 			(Method === "extensions:scanSystemExtensions" ||
 				Method === "extensions:scanUserExtensions")
 		) {
-			const Schedule = [100, 200, 400, 800, 1500];
+			// System extensions need the full retry budget because Mountain
+			// scans them asynchronously at boot (~500ms). User extensions live
+			// in ~/.fiddee/extensions which may simply not exist - use a
+			// shorter schedule so an empty user directory doesn't burn 3s on
+			// startup. Both still retry in case Mountain's scan is in-flight.
+			const Schedule =
+				Method === "extensions:scanUserExtensions"
+					? [50, 150, 400]
+					: [100, 200, 400, 800, 1500];
 
 			for (let Retry = 0; Retry < Schedule.length; Retry++) {
 				Warn(

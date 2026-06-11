@@ -422,6 +422,7 @@ export const ExtensionHostService: ServiceProxy = Object.assign(
 		async stop(extensionId: string): Promise<boolean> {
 			return (await (this as unknown as ServiceProxy).invoke(
 				"stop",
+
 				extensionId,
 			)) as Promise<boolean>;
 		},
@@ -448,7 +449,9 @@ export const ExtensionHostService: ServiceProxy = Object.assign(
 		): Promise<unknown> {
 			return await (this as unknown as ServiceProxy).invoke(
 				"callAPI",
+
 				extensionId,
+
 				method,
 				...args,
 			);
@@ -487,7 +490,9 @@ export const SearchService: ServiceProxy = Object.assign(
 		async search(query: string, options?: unknown): Promise<unknown[]> {
 			return (await (this as unknown as ServiceProxy).invoke(
 				"search",
+
 				query,
+
 				options,
 			)) as Promise<unknown[]>;
 		},

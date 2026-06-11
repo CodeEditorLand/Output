@@ -121,6 +121,7 @@ function _ScheduleReconnect(): void {
 	}
 
 	clearTimeout(_reconnectTimer);
+
 	_reconnectTimer = setTimeout(_Connect, _BackoffMs());
 }
 

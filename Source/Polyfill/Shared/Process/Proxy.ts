@@ -420,7 +420,10 @@ export const ExtensionHostService: ServiceProxy = Object.assign(
 		 * Stop extension host
 		 */
 		async stop(extensionId: string): Promise<boolean> {
-			return (await (this as unknown as ServiceProxy).invoke("stop", extensionId)) as Promise<boolean>;
+			return (await (this as unknown as ServiceProxy).invoke(
+				"stop",
+				extensionId,
+			)) as Promise<boolean>;
 		},
 
 		/**
@@ -443,14 +446,21 @@ export const ExtensionHostService: ServiceProxy = Object.assign(
 			method: string,
 			...args: unknown[]
 		): Promise<unknown> {
-			return await (this as unknown as ServiceProxy).invoke("callAPI", extensionId, method, ...args);
+			return await (this as unknown as ServiceProxy).invoke(
+				"callAPI",
+				extensionId,
+				method,
+				...args,
+			);
 		},
 
 		/**
 		 * Get extension host status
 		 */
 		async getStatus(): Promise<{ running: boolean; extensions: string[] }> {
-			return (await (this as unknown as ServiceProxy).invoke("getStatus")) as Promise<{
+			return (await (this as unknown as ServiceProxy).invoke(
+				"getStatus",
+			)) as Promise<{
 				running: boolean;
 
 				extensions: string[];
@@ -475,16 +485,20 @@ export const SearchService: ServiceProxy = Object.assign(
 		 * Perform search
 		 */
 		async search(query: string, options?: unknown): Promise<unknown[]> {
-			return (await (this as unknown as ServiceProxy).invoke("search", query, options)) as Promise<
-				unknown[]
-			>;
+			return (await (this as unknown as ServiceProxy).invoke(
+				"search",
+				query,
+				options,
+			)) as Promise<unknown[]>;
 		},
 
 		/**
 		 * Get search index status
 		 */
 		async getIndexStatus(): Promise<{ ready: boolean; documents: number }> {
-			return (await (this as unknown as ServiceProxy).invoke("getIndexStatus")) as Promise<{
+			return (await (this as unknown as ServiceProxy).invoke(
+				"getIndexStatus",
+			)) as Promise<{
 				ready: boolean;
 
 				documents: number;
@@ -495,7 +509,9 @@ export const SearchService: ServiceProxy = Object.assign(
 		 * Clear search index
 		 */
 		async clearIndex(): Promise<boolean> {
-			return (await (this as unknown as ServiceProxy).invoke("clearIndex")) as Promise<boolean>;
+			return (await (this as unknown as ServiceProxy).invoke(
+				"clearIndex",
+			)) as Promise<boolean>;
 		},
 	},
 );
@@ -559,9 +575,9 @@ export const DebugService: ServiceProxy = Object.assign(
 		async getActiveSessions(): Promise<
 			Array<{ id: string; name: string }>
 		> {
-			return (await (this as unknown as ServiceProxy).invoke("getActiveSessions")) as Promise<
-				Array<{ id: string; name: string }>
-			>;
+			return (await (this as unknown as ServiceProxy).invoke(
+				"getActiveSessions",
+			)) as Promise<Array<{ id: string; name: string }>>;
 		},
 	},
 );

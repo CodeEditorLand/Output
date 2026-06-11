@@ -66,119 +66,124 @@ export default {
 
 	keepNames: On,
 
-	plugins: ([
-		{
-			name: "Target",
+	plugins: (
+		[
+			{
+				name: "Target",
 
-			// @ts-ignore
-			setup({ onStart, initialOptions: { outdir } }) {
-				switch (true) {
-					case Clean === true:
-						onStart(async () => {
-							try {
-								outdir
-									? await (
-											await import("node:fs/promises")
-										).rm(outdir, {
-											recursive: true,
-										})
-									: {};
-							} catch (_Error) {
-								console.log(_Error);
-							}
-						});
-
-						break;
-
-					default:
-						break;
-				}
-			},
-		},
-
-		// RestPlugin activated only when Compiler=Rest env var is set.
-		...(RestPlugin ? [RestPlugin] : []),
-
-		// PostHog build telemetry - debug only, skipped in production and
-		// when `Capture=false` (master telemetry kill switch shared with
-		// Mountain / Cocoon / Sky / Build.sh).
-		...(process.env["NODE_ENV"] !== "production" &&
-		process.env["Capture"] !== "false" &&
-		process.env["Report"] !== "false"
-			? [
-					{
-						name: "PostHogBuildTelemetry",
-						setup({
-							onEnd,
-						}: {
-							onEnd: (
-								Callback: (Result: {
-									errors: unknown[];
-
-									warnings: unknown[];
-								}) => Promise<void>,
-							) => void;
-						}) {
-							const StartTime = performance.now();
-
-							onEnd(async (Result) => {
-								const DurationMs = Math.round(
-									performance.now() - StartTime,
-								);
-
+				// @ts-ignore
+				setup({ onStart, initialOptions: { outdir } }) {
+					switch (true) {
+						case Clean === true:
+							onStart(async () => {
 								try {
-									const { request } =
-										await import("node:https");
+									outdir
+										? await (
+												await import("node:fs/promises")
+											).rm(outdir, {
+												recursive: true,
+											})
+										: {};
+								} catch (_Error) {
+									console.log(_Error);
+								}
+							});
 
-									const Body = JSON.stringify({
-										api_key: process.env["Authorize"] || "",
-										event: "land:output:build:complete",
-										properties: {
-											distinct_id: `land-dev-${process.env["USER"] || "unknown"}`,
-											$app: "fiddee",
-											$component: "output",
-											$tier: "output",
-											$build_mode: On
-												? "development"
-												: "production",
-											duration_ms: DurationMs,
-											errors: Result.errors.length,
-											warnings: Result.warnings.length,
-											compiler:
-												process.env["Compiler"] ||
-												"esbuild",
-										},
-										timestamp: new Date().toISOString(),
-									});
+							break;
 
-									const Url = new URL(
-										`${process.env["Beam"] ?? "https://eu.i.posthog.com"}/capture/`,
+						default:
+							break;
+					}
+				},
+			},
+
+			// RestPlugin activated only when Compiler=Rest env var is set.
+			...(RestPlugin ? [RestPlugin] : []),
+
+			// PostHog build telemetry - debug only, skipped in production and
+			// when `Capture=false` (master telemetry kill switch shared with
+			// Mountain / Cocoon / Sky / Build.sh).
+			...(process.env["NODE_ENV"] !== "production" &&
+			process.env["Capture"] !== "false" &&
+			process.env["Report"] !== "false"
+				? [
+						{
+							name: "PostHogBuildTelemetry",
+							setup({
+								onEnd,
+							}: {
+								onEnd: (
+									Callback: (Result: {
+										errors: unknown[];
+
+										warnings: unknown[];
+									}) => Promise<void>,
+								) => void;
+							}) {
+								const StartTime = performance.now();
+
+								onEnd(async (Result) => {
+									const DurationMs = Math.round(
+										performance.now() - StartTime,
 									);
 
-									const Req = request({
-										hostname: Url.hostname,
-										port: Number(Url.port) || 443,
-										path: Url.pathname,
-										method: "POST",
-										headers: {
-											"Content-Type": "application/json",
-											"Content-Length":
-												Buffer.byteLength(Body),
-										},
-									});
+									try {
+										const { request } =
+											await import("node:https");
 
-									Req.on("error", () => {});
+										const Body = JSON.stringify({
+											api_key:
+												process.env["Authorize"] || "",
+											event: "land:output:build:complete",
+											properties: {
+												distinct_id: `land-dev-${process.env["USER"] || "unknown"}`,
+												$app: "fiddee",
+												$component: "output",
+												$tier: "output",
+												$build_mode: On
+													? "development"
+													: "production",
+												duration_ms: DurationMs,
+												errors: Result.errors.length,
+												warnings:
+													Result.warnings.length,
+												compiler:
+													process.env["Compiler"] ||
+													"esbuild",
+											},
+											timestamp: new Date().toISOString(),
+										});
 
-									Req.write(Body);
+										const Url = new URL(
+											`${process.env["Beam"] ?? "https://eu.i.posthog.com"}/capture/`,
+										);
 
-									Req.end();
-								} catch {}
-							});
+										const Req = request({
+											hostname: Url.hostname,
+											port: Number(Url.port) || 443,
+											path: Url.pathname,
+											method: "POST",
+											headers: {
+												"Content-Type":
+													"application/json",
+												"Content-Length":
+													Buffer.byteLength(Body),
+											},
+										});
+
+										Req.on("error", () => {});
+
+										Req.write(Body);
+
+										Req.end();
+									} catch {}
+								});
+							},
 						},
-					},
-				]
-			: []),
-] as import("esbuild").Plugin[]).filter(Boolean),
+					]
+				: []),
+		] as import("esbuild").Plugin[]
+	).filter(Boolean),
 
 	loader: {
 		".json": "copy",

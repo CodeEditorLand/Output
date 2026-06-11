@@ -1,7 +1,11 @@
 var __defProp = Object.defineProperty;
+
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+
 const Marker = "<!-- __LAND_WEBVIEW_RUNTIME_DIAG__ -->";
+
 const PathRegex = /\/vs\/workbench\/contrib\/webview\/browser\/pre\/index\.html$/;
+
 const DiagnosticCode = `
 (function() {
   // Helper
@@ -145,22 +149,36 @@ const DiagnosticCode = `
   }, 0);
 })();
 `;
+
 const Plugin = {
+
   Kind: "Transform",
+
   Name: "InjectWebviewRuntimeDiagnostics",
+
   Match: /* @__PURE__ */ __name(({ Path }) => PathRegex.test(Path), "Match"),
+
   Transform({ Source }) {
     if (Source.includes(Marker)) return { Kind: "Unchanged" };
+
     const closing = "</body>";
+
     const idx = Source.lastIndexOf(closing);
+
     if (idx < 0) return { Kind: "Unchanged" };
+
     const injection = Marker + "<script>" + DiagnosticCode + "</script>";
+
     const Next = Source.slice(0, idx) + injection + Source.slice(idx);
+
     return { Kind: "Rewrite", Source: Next };
   }
 };
+
 var RuntimeDiagnostics_default = Plugin;
+
 export {
   RuntimeDiagnostics_default as default
 };
+
 //# sourceMappingURL=RuntimeDiagnostics.js.map

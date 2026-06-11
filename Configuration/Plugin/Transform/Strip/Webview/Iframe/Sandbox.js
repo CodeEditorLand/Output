@@ -1,8 +1,13 @@
 var __defProp = Object.defineProperty;
+
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+
 const Marker = "/* Land: sandbox attribute stripped";
+
 const PreIndexPathRegex = /\/workbench\/contrib\/webview\/browser\/pre\/index\.html$/;
+
 const WebviewElementPathRegex = /\/workbench\/contrib\/webview\/browser\/webviewElement\.js$/;
+
 const PreIndexSandboxCall = /newFrame\.setAttribute\(\s*['"]sandbox['"]\s*,\s*Array\.from\(sandboxRules\)\.join\(\s*['"] ['"]\s*\)\s*\);/;
 const WebviewElementSandboxCall = /element\.sandbox\.add\([^)]*'allow-scripts'[^)]*\);/;
 const Replacement = `${Marker} - WKWebView blocks custom-protocol main-resource loads from sandboxed iframes. */`;

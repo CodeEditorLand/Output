@@ -1,5 +1,7 @@
 var __defProp = Object.defineProperty;
+
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+
 const CSSImport = /import\s*(['"])([^'"]+\.css)\1\s*;?/g;
 const Plugin = {
   Kind: "Transform",

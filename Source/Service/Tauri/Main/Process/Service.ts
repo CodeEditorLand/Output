@@ -1275,9 +1275,7 @@ class TauriChannel implements IChannel {
 					Arg !== undefined ? (Array.isArray(Arg) ? Arg : [Arg]) : [];
 
 				Promise.all([
-					import(
-						"@codeeditorland/output/Target/Microsoft/VSCode/vs/base/common/buffer.js"
-					) as Promise<{
+					import("@codeeditorland/output/Target/Microsoft/VSCode/vs/base/common/buffer.js") as Promise<{
 						VSBuffer: { wrap(buffer: Uint8Array): unknown };
 					}>,
 

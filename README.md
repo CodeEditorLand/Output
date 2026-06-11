@@ -336,8 +336,8 @@ export NODE_ENV=development
 
 ## See Also
 
-- [Output Documentation](https://editor.land/Doc/output)
-- [Architecture Overview](https://editor.land/Doc/architecture)
+- [Output Documentation](https://Editor.Land/Doc/output)
+- [Architecture Overview](https://Editor.Land/Doc/architecture)
 - [Rest](https://github.com/CodeEditorLand/Rest)
 - [Cocoon](https://github.com/CodeEditorLand/Cocoon)
 

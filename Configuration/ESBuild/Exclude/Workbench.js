@@ -1,7 +1,5 @@
 var __defProp = Object.defineProperty;
-
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-
 var Workbench_default = /* @__PURE__ */ __name((Prefix) => [
   // Examples - KEEP core ones like files, preferences, output, terminal UI
   // `${Prefix}/workbench/contrib/chat`,
@@ -32,19 +30,14 @@ var Workbench_default = /* @__PURE__ */ __name((Prefix) => [
   // `${Prefix}/workbench/contrib/userDataSync/browser`,
   // `${Prefix}/workbench/contrib/welcome*`,
   `${Prefix}/code/browser/workbench/callback.html`,
-
   `${Prefix}/code/browser/workbench/workbench-dev.html`,
-
   `${Prefix}/code/browser/workbench/workbench.html`,
-
   // `${Prefix}/workbench/contrib/webview/browser/pre/fake.html`,
   // `${Prefix}/workbench/contrib/webview/browser/pre/index-no-csp.html`,
   // `${Prefix}/workbench/contrib/webview/browser/pre/index.html`,
   `${Prefix}/workbench/contrib/terminalContrib/README.md`
 ], "default");
-
 export {
   Workbench_default as default
 };
-
 //# sourceMappingURL=Workbench.js.map

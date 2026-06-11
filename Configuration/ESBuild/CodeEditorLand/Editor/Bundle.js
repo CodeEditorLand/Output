@@ -1,6 +1,5 @@
 var Bundle_default = (await import("deepmerge-ts")).deepmerge(
   (await import("../../../ESBuild.js")).default,
-
   {
     bundle: true,
     external: [
@@ -63,13 +62,10 @@ var Bundle_default = (await import("deepmerge-ts")).deepmerge(
     ]
   }
 );
-
 const { sep, posix } = await import("node:path");
-
 export {
   Bundle_default as default,
   posix,
   sep
 };
-
 //# sourceMappingURL=Bundle.js.map

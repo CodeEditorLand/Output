@@ -1,11 +1,7 @@
 var __defProp = Object.defineProperty;
-
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-
 import { readFile } from "node:fs/promises";
-
 import { dirname, resolve } from "node:path";
-
 const CSSImport = /import\s*(['"])([^'"]+\.css)\1\s*;?/g;
 const Plugin = {
   Kind: "Transform",

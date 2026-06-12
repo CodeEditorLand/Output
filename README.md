@@ -24,7 +24,7 @@
 				<picture>
 					<source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/github/stars/CodeEditorLand/Output?style=flat&label=Star&logo=github&color=black&labelColor=black&logoColor=white&logoWidth=0" />
 					<source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/github/stars/CodeEditorLand/Output?style=flat&label=Star&logo=github&color=white&labelColor=white&logoColor=black&logoWidth=0" />
-					<img src="https://img.shields.io/github/stars/CodeEditorLand/Output?style=flat&label=Star&logo=github&color=black&labelColor=black&logoColor=white&logoWidth=0" alt="Star" />
+					<img src="https://img.shields.io/github/stars/CodeEditorLand/Output?style=flat&label=Star&logo=github&color=black&labelColor=black&logoColor=white&logoWidth=0" alt="Star" title="Star" />
 				</picture>
 			</a>
 			<br />
@@ -127,7 +127,7 @@ development mode (`NODE_ENV=development`) for both compilers.
 
 ---
 
-## System Architecture&#x2001;
+## System Architecture
 
 ```mermaid
 graph LR
@@ -181,9 +181,9 @@ graph LR
     end
 
     subgraph CONSUMERS["Artifact Consumers"]
-        Sky["Sky 🌌\nworkbench.js + web.main.js"]:::consumer
+        Sky["Sky ☀️\nworkbench.js + web.main.js"]:::consumer
         Cocoon["Cocoon 🦋\n@codeeditorland/output"]:::consumer
-        Wind["Wind 🍃\noutput utilities"]:::consumer
+        Wind["Wind 🌬️\noutput utilities"]:::consumer
     end
 
     VSCode --> MicrosoftTarget
@@ -221,19 +221,19 @@ graph LR
 | Plugin Types | `Source/Plugin/Type.ts` | Plugin type definitions |
 | Plugin Apply | `Source/Plugin/Apply.ts` | Plugin application logic |
 | Apply Pipeline | `Source/Apply/Pipeline.ts` | Transform pipeline orchestration |
-| Copy Plugin | `Source/Plugin/Copy/` | Asset copy plugin |
+| Copy Plugin | `Source/Plugin/Copy.ts` | Asset copy plugin |
 | Polyfill Plugin | `Source/Plugin/Polyfill/` | Polyfill injection plugin |
-| Transform Plugin | `Source/Plugin/Transform/` | AST transform plugin (20+ transform sub-modules) |
-| Child Process Polyfill | `Source/Polyfill/Child/` | `child_process` polyfills |
+| Transform Plugin | `Source/Plugin/Transform/` | AST transform plugin (30+ transform sub-modules) |
+| Child Process Polyfill | `Source/Polyfill/Child/Process/Polyfill.ts` | `child_process` polyfills |
 | File System Polyfill | `Source/Polyfill/File/` | `fs` polyfills |
 | IPC Polyfill | `Source/Polyfill/IPC/` | `Electron` IPC polyfills |
-| Native Module Polyfill | `Source/Polyfill/Native/` | Native module polyfills |
-| Process Polyfill | `Source/Polyfill/Process/` | `process.*` polyfills |
+| Native Module Polyfill | `Source/Polyfill/Native/Module/Polyfill.ts` | Native module polyfills |
+| Process Polyfill | `Source/Polyfill/Process/Polyfill.ts` | `process.*` polyfills |
 | Telemetry Polyfill | `Source/Polyfill/Telemetry.ts` | Telemetry polyfill |
-| Asset Style | `Source/Asset/Style/` | Asset style processing |
+| Asset Style | `Source/Asset/Style/` | Asset style processing (Editor and Terminal GPU layers) |
 | Tauri Service | `Source/Service/Tauri/` | Tauri IPC service helpers |
 | CEL Service | `Source/Service/CEL/` | CodeEditorLand service helpers |
-| Dev Service | `Source/Service/Dev/` | Development service helpers |
+| Dev Service | `Source/Service/Dev/Log.ts` | Development service helpers |
 | Trace Service | `Source/Service/Trace.ts` | Build tracing utilities |
 | Build Script | `Source/prepublishOnly.sh` | Build orchestration script |
 | Dev Script | `Source/Run.sh` | Development watch mode |
@@ -258,9 +258,9 @@ Output/
 │   │   ├── Index.ts            # Plugin registration and composition.
 │   │   ├── Type.ts             # Plugin type definitions.
 │   │   ├── Apply.ts            # Plugin application logic.
-│   │   ├── Copy/               # Asset copy plugin.
+│   │   ├── Copy.ts             # Asset copy plugin.
 │   │   ├── Polyfill/           # Polyfill injection plugin.
-│   │   └── Transform/          # AST transform plugin (20+ modules).
+│   │   └── Transform/          # AST transform plugin (30+ modules).
 │   ├── Polyfill/
 │   │   ├── Telemetry.ts        # Telemetry polyfill.
 │   │   ├── Child/              # Child process polyfills.
@@ -271,6 +271,8 @@ Output/
 │   │   └── Shared/             # Shared polyfill utilities.
 │   ├── Asset/
 │   │   └── Style/              # Asset style processing.
+│   │       ├── Editor/         # Editor GPU layer CSS.
+│   │       └── Terminal/       # Terminal GPU layer CSS.
 │   ├── Service/
 │   │   ├── Trace.ts            # Build tracing utilities.
 │   │   ├── CEL/                # CodeEditorLand service helpers.
@@ -282,6 +284,7 @@ Output/
 ├── Configuration/
 │   └── ESBuild/                # ESBuild build profiles.
 ├── Target/                     # Build output destination.
+├── CHANGELOG.md                # Release history.
 └── package.json
 ```
 
@@ -389,6 +392,20 @@ export NODE_ENV=development
 
 ---
 
+## Security&#x2001;🔒
+
+Output enforces security at multiple layers:
+
+| Layer | Mechanism |
+|-------|-----------|
+| **Deterministic Outputs** | Same commit produces same artifacts — no supply-chain drift |
+| **Plugin Isolation** | Plugin transforms operate on AST nodes, never raw system access |
+| **Polyfill Boundaries** | Polyfills shim specific `Node.js` APIs only — no ambient `Electron` privileges |
+| **Compiler Separation** | Rest and esbuild run as separate processes — compiler crashes don't affect the host |
+| **Dependency Locking** | `package.json` locks all dependencies; `esbuild` version pinned via badge contract |
+
+---
+
 ## Compatibility
 
 Output is designed to be compatible with:
@@ -405,6 +422,12 @@ Output is designed to be compatible with:
 
 ## API Reference
 
+- [ESBuild.ts](https://github.com/CodeEditorLand/Output/blob/Current/Source/ESBuild.ts) — ESBuild entry point and configuration
+- [ESBuild/Output.ts](https://github.com/CodeEditorLand/Output/blob/Current/Source/ESBuild/Output.ts) — ESBuild output compilation settings with ESM format
+- [ESBuild/Rest/Plugin.ts](https://github.com/CodeEditorLand/Output/blob/Current/Source/ESBuild/Rest/Plugin.ts) — Rest (OXC) compiler plugin integration
+- [Plugin/Index.ts](https://github.com/CodeEditorLand/Output/blob/Current/Source/Plugin/Index.ts) — Plugin registration and composition
+- [Plugin/Type.ts](https://github.com/CodeEditorLand/Output/blob/Current/Source/Plugin/Type.ts) — Plugin type definitions
+- [Apply/Pipeline.ts](https://github.com/CodeEditorLand/Output/blob/Current/Source/Apply/Pipeline.ts) — Transform pipeline orchestration
 - [Output NPM Package](https://www.npmjs.com/package/@codeeditorland/output)
 
 ---
@@ -418,6 +441,25 @@ Output is designed to be compatible with:
 - [Cocoon](https://github.com/CodeEditorLand/Cocoon) — `Node.js` extension host
 - [Sky](https://github.com/CodeEditorLand/Sky) — Workbench shell
 - [Wind](https://github.com/CodeEditorLand/Wind) — Build tooling and utilities
+- [CHANGELOG.md](https://github.com/CodeEditorLand/Output/tree/Current/CHANGELOG.md) — Release history for **Output** 📦
+
+---
+
+## License
+
+This project is released into the public domain under the **Creative Commons CC0
+Universal** license. You are free to use, modify, distribute, and build upon
+this work for any purpose, without any restrictions. For the full legal text,
+see the
+[`LICENSE`](https://github.com/CodeEditorLand/Output/tree/Current/LICENSE) file.
+
+---
+
+## Changelog&#x2001;📜
+
+See
+[`CHANGELOG.md`](https://github.com/CodeEditorLand/Output/tree/Current/CHANGELOG.md)
+for a history of changes specific to **Output** 📦.
 
 ---
 

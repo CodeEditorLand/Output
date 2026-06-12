@@ -9,5 +9,17 @@
 	},
 	"extends": "@playform/build/tsconfig",
 	"include": ["Source"],
-	"exclude": ["Target", "node_modules"]
+	"exclude": [
+		"Target",
+		"node_modules",
+		"Source/Plugin/Transform/Replace/Product",
+		"Source/Polyfill/Child/Process",
+		"Source/Polyfill/File/Protocol",
+		"Source/Polyfill/File/System",
+		"Source/Polyfill/IPC/Renderer",
+		"Source/Polyfill/Native/Module",
+		"Source/Polyfill/Shared/Process",
+		"Source/Polyfill/Process",
+		"Source/Service/Tauri/Main/Process"
+	]
 }

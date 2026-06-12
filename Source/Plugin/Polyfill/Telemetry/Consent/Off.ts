@@ -43,7 +43,6 @@ type PrebakeKey =
 	| "workbench.experimental.share.enabled";
 
 export default function TelemetryConsentOff(): void {
-
 	if (typeof window === "undefined") return;
 
 	const Marker = "__LAND_TELEMETRY_CONSENT_OFF__";

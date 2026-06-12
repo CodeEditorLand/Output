@@ -27,11 +27,9 @@
  */
 
 import { copyFile, mkdir } from "node:fs/promises";
-
 import { dirname, resolve } from "node:path";
 
 import ApplyPlugins from "../Plugin/Apply.js";
-
 import type { Plugin } from "../Plugin/Type.js";
 
 const Configuration = await import("../Plugin/Index.js");
@@ -49,7 +47,6 @@ const LandDisableUIFixes =
 	).toLowerCase() === "true";
 
 if (LandDisableUIFixes) {
-
 	console.log(
 		"[Output/Pipeline] DisableUIFixes=true - skipping InjectPartZIndexCSS (the `.monaco-workbench .part { isolation: isolate }` rule has been observed to hide the in-window menubar). InjectMacTitlebarOffsetCSS remains active - it is a structural fix that reserves macOS traffic-light cluster width and does not affect part stacking contexts.",
 	);
@@ -76,7 +73,6 @@ if (LandDisableUIFixes) {
 // transform pipeline runs so every transform's injected `import './Foo.js'`
 // already has its sibling on disk.
 const ServiceCopies: ReadonlyArray<{
-
 	From: string;
 
 	To: string;
@@ -84,7 +80,6 @@ const ServiceCopies: ReadonlyArray<{
 	Why: string;
 }> = [
 	{
-
 		From: "Configuration/Service/Tauri/Main/Process/Service.js",
 
 		To: "Target/Microsoft/VSCode/vs/platform/ipc/electron-browser/TauriMainProcessService.js",
@@ -93,7 +88,6 @@ const ServiceCopies: ReadonlyArray<{
 	},
 
 	{
-
 		From: "Configuration/Service/CEL/Expose/Accessor.js",
 
 		To: "Target/Microsoft/VSCode/vs/workbench/browser/CELExposeAccessor.js",
@@ -102,7 +96,6 @@ const ServiceCopies: ReadonlyArray<{
 	},
 
 	{
-
 		From: "Configuration/Service/CEL/Shared/Process/Service.js",
 
 		To: "Target/Microsoft/VSCode/vs/platform/ipc/electron-browser/CELSharedProcessService.js",
@@ -111,7 +104,6 @@ const ServiceCopies: ReadonlyArray<{
 	},
 
 	{
-
 		From: "Configuration/Service/CEL/Extensions/Scanner/Service.js",
 
 		To: "Target/Microsoft/VSCode/vs/workbench/services/extensions/common/CELExtensionsScannerService.js",
@@ -120,7 +112,6 @@ const ServiceCopies: ReadonlyArray<{
 	},
 
 	{
-
 		From: "Configuration/Service/CEL/Search/Service.js",
 
 		To: "Target/Microsoft/VSCode/vs/workbench/services/search/common/CELSearchService.js",
@@ -129,7 +120,6 @@ const ServiceCopies: ReadonlyArray<{
 	},
 
 	{
-
 		From: "Configuration/Service/CEL/Null/Telemetry/Service.js",
 
 		To: "Target/Microsoft/VSCode/vs/platform/telemetry/common/CELNullTelemetryService.js",
@@ -138,7 +128,6 @@ const ServiceCopies: ReadonlyArray<{
 	},
 
 	{
-
 		From: "Configuration/Service/CEL/Null/Update/Service.js",
 
 		To: "Target/Microsoft/VSCode/vs/platform/update/common/CELNullUpdateService.js",
@@ -147,7 +136,6 @@ const ServiceCopies: ReadonlyArray<{
 	},
 
 	{
-
 		From: "Configuration/Service/CEL/Null/Extension/Gallery/Service.js",
 
 		To: "Target/Microsoft/VSCode/vs/platform/extensionManagement/common/CELNullExtensionGalleryService.js",
@@ -157,7 +145,6 @@ const ServiceCopies: ReadonlyArray<{
 ];
 
 for (const Entry of ServiceCopies) {
-
 	const From = resolve(process.cwd(), Entry.From);
 
 	const To = resolve(process.cwd(), Entry.To);

@@ -7,7 +7,6 @@
  */
 
 import EagerIdleValue from "../../../../Polyfill/Eager/Idle/Value.js";
-
 import type { TransformPlugin } from "../../../../Type.js";
 
 const Marker = "__LAND_EAGER_IDLE_VALUE__";
@@ -15,7 +14,6 @@ const Marker = "__LAND_EAGER_IDLE_VALUE__";
 const Polyfill = `\n/* ${Marker} */\n(${EagerIdleValue.toString()})();\n`;
 
 const Plugin: TransformPlugin = {
-
 	Kind: "Transform",
 
 	Name: "InjectEagerIdleValue",

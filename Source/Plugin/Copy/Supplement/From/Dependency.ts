@@ -10,7 +10,6 @@
 import type { CopyPlugin } from "../../../Type.js";
 
 export interface SupplementFromDependencyInput {
-
 	readonly From: string;
 
 	readonly To: string;

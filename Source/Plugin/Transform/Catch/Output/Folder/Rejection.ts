@@ -53,7 +53,6 @@ const ChainRegex =
 	/(createFolder\([^)]*\)\.then\(\(\)\s*=>\s*(?:undefined|void\s+0)\))/g;
 
 const Plugin: TransformPlugin = {
-
 	Kind: "Transform",
 
 	Name: "CatchOutputFolderRejection",

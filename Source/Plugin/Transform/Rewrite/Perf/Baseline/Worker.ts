@@ -75,7 +75,6 @@ const ReplacementSource =
 	";";
 
 const Plugin: TransformPlugin = {
-
 	Kind: "Transform",
 
 	Name: "RewritePerfBaselineWorker",

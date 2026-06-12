@@ -28,7 +28,6 @@ const ReExport =
 	"export { default } from './CELNullUpdateService.js';\n";
 
 const Plugin: TransformPlugin = {
-
 	Kind: "Transform",
 
 	Name: "ReplaceUpdateService",

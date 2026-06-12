@@ -25,7 +25,6 @@ import type { TransformPlugin } from "../../../../Type.js";
 const SourceMapComment = /\n?\/\/[#@][ 	]*sourceMappingURL=[^\n]*\n?$/;
 
 const HasSibling = async (Path: string): Promise<boolean> => {
-
 	try {
 		await stat(`${Path}.map`);
 
@@ -36,7 +35,6 @@ const HasSibling = async (Path: string): Promise<boolean> => {
 };
 
 const Plugin: TransformPlugin = {
-
 	Kind: "Transform",
 
 	Name: "StripDanglingSourceMap",
@@ -54,7 +52,6 @@ const Plugin: TransformPlugin = {
 
 		return Next === Source
 			? { Kind: "Unchanged" }
-
 			: { Kind: "Rewrite", Source: Next };
 	},
 };

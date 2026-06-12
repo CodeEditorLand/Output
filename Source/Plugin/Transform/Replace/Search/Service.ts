@@ -45,7 +45,6 @@ const ReExport =
 	"export { RemoteSearchService, LocalFileSearchWorkerClient } from '../common/CELSearchService.js';\n";
 
 const Plugin: TransformPlugin = {
-
 	Kind: "Transform",
 
 	Name: "ReplaceSearchService",

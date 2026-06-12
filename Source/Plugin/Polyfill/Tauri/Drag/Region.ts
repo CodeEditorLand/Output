@@ -65,7 +65,6 @@
  */
 
 export default function TauriDragRegion(): void {
-
 	if (typeof window === "undefined") return;
 
 	if (typeof document === "undefined") return;

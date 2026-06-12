@@ -37,7 +37,6 @@ const NoopEvent = (
 ): typeof NoopDisposable => NoopDisposable;
 
 class NullUpdateService {
-
 	readonly state = { type: "idle", updateType: 0 }; // StateType.Idle
 
 	readonly onStateChange = NoopEvent;

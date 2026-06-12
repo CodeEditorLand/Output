@@ -36,7 +36,6 @@ const Marker = "/* __LAND_STORAGE_OVERLAY__ */";
 const PathRegex = /\/vs\/platform\/storage\/common\/storage\.js$/;
 
 interface MethodPatch {
-
 	readonly Method: "get" | "getBoolean" | "getNumber" | "getObject";
 
 	readonly Pattern: RegExp;
@@ -44,7 +43,6 @@ interface MethodPatch {
 
 const Patches: ReadonlyArray<MethodPatch> = [
 	{
-
 		Method: "get",
 
 		Pattern:

@@ -43,8 +43,8 @@ The Build Output & Artifact Management for Land&#x2001;🏞️
 
 > **Build processes that produce different artifacts depending on the machine,
 > CI environment, or implicit tool versions make debugging production issues
-> impossible. Output ensures the same commit produces the same output every
-> time — deterministic, reproducible, and verifiable.**
+> impossible. Output ensures the same commit produces the same output every time
+> — deterministic, reproducible, and verifiable.**
 
 _"Compile once, ship anywhere. The build is part of the source, not the
 environment."_
@@ -78,8 +78,8 @@ through deterministic build configurations and artifact verification.
    (`OXC`-based) compilation pipelines with seamless integration.
 2. **Manage Build Artifacts** — Organize and deliver optimized `JavaScript`
    artifacts for consumption by Sky, Wind, and Cocoon.
-3. **Provide Hybrid Workflows** — Enable incremental migration from `esbuild`
-   to Rest through conditional compilation and plugin-based architecture.
+3. **Provide Hybrid Workflows** — Enable incremental migration from `esbuild` to
+   Rest through conditional compilation and plugin-based architecture.
 4. **Ensure Build Reproducibility** — Maintain consistent output through
    deterministic build configurations and artifact verification.
 
@@ -97,10 +97,10 @@ supporting asset copy, polyfill injection, and AST transforms. Plugins register
 through `Plugin/Index.ts` and compose into the build pipeline via
 `Apply/Pipeline.ts`.
 
-**Compatibility Polyfills** — Comprehensive polyfill layer
-(`Source/Polyfill/`) for `Node.js` APIs including `child_process`, `fs`, `IPC`,
-native modules, and `process.*`. Enables VS Code platform code to run outside
-its native `Electron` environment.
+**Compatibility Polyfills** — Comprehensive polyfill layer (`Source/Polyfill/`)
+for `Node.js` APIs including `child_process`, `fs`, `IPC`, native modules, and
+`process.*`. Enables VS Code platform code to run outside its native `Electron`
+environment.
 
 **Asset Management** — Asset copy and style processing through
 `Source/Asset/Style/`, with transform plugins for CSS imports, icon stylesheet
@@ -118,12 +118,12 @@ development mode (`NODE_ENV=development`) for both compilers.
 
 ## Core Architecture Principles&#x2001;🏗️
 
-| Principle | Description | Key Components |
-|-----------|-------------|----------------|
-| **Compiler Agnosticism** | Multiple compiler backends behind a unified plugin interface so compiler choice is a config flag, not a code change. | `ESBuild/Output`, `ESBuild/Rest/Plugin`, `Plugin/Index` |
-| **Deterministic Builds** | Same commit produces same output every time through locked configurations and reproducible build pipelines. | `Configuration/ESBuild/`, `ESBuild/Exclude/` |
-| **Plugin Composability** | Modular plugin system where transforms, polyfills, and copies compose into a single pipeline. | `Plugin/Index`, `Plugin/Type`, `Apply/Pipeline` |
-| **Polyfill Completeness** | Ensure platform code runs outside `Electron` by providing compatible shims for all `Node.js` APIs. | `Polyfill/Child/`, `Polyfill/File/`, `Polyfill/IPC/`, `Polyfill/Native/`, `Polyfill/Process/` |
+| Principle                 | Description                                                                                                          | Key Components                                                                                |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| **Compiler Agnosticism**  | Multiple compiler backends behind a unified plugin interface so compiler choice is a config flag, not a code change. | `ESBuild/Output`, `ESBuild/Rest/Plugin`, `Plugin/Index`                                       |
+| **Deterministic Builds**  | Same commit produces same output every time through locked configurations and reproducible build pipelines.          | `Configuration/ESBuild/`, `ESBuild/Exclude/`                                                  |
+| **Plugin Composability**  | Modular plugin system where transforms, polyfills, and copies compose into a single pipeline.                        | `Plugin/Index`, `Plugin/Type`, `Apply/Pipeline`                                               |
+| **Polyfill Completeness** | Ensure platform code runs outside `Electron` by providing compatible shims for all `Node.js` APIs.                   | `Polyfill/Child/`, `Polyfill/File/`, `Polyfill/IPC/`, `Polyfill/Native/`, `Polyfill/Process/` |
 
 ---
 
@@ -195,48 +195,48 @@ graph LR
 
 **Connection paths:**
 
-| Path | Protocol | Use Case |
-|------|----------|----------|
-| Source → `ESBuild/Microsoft/` | Direct file read | VSCode platform code compilation |
-| Source → `ESBuild/CodeEditorLand/` | Direct file read | CEL platform code compilation |
-| `.ts` → RestPlugin → Rest binary | `Compiler=Rest` env flag | `OXC`-based TypeScript compilation |
-| `Plugin/Index` → `Copy/`, `Polyfill/`, `Transform/` | Plugin registry | Composable transform pipeline |
-| `Output/` → Sky | `Target/` artifacts (`workbench.js`, `web.main.js`) | Workbench delivery |
-| `Output/` → Cocoon | `@codeeditorland/output` npm package | Extension host consumption |
-| `Output/` → Wind | `Target/` utilities | Build tooling integration |
+| Path                                                | Protocol                                            | Use Case                           |
+| --------------------------------------------------- | --------------------------------------------------- | ---------------------------------- |
+| Source → `ESBuild/Microsoft/`                       | Direct file read                                    | VSCode platform code compilation   |
+| Source → `ESBuild/CodeEditorLand/`                  | Direct file read                                    | CEL platform code compilation      |
+| `.ts` → RestPlugin → Rest binary                    | `Compiler=Rest` env flag                            | `OXC`-based TypeScript compilation |
+| `Plugin/Index` → `Copy/`, `Polyfill/`, `Transform/` | Plugin registry                                     | Composable transform pipeline      |
+| `Output/` → Sky                                     | `Target/` artifacts (`workbench.js`, `web.main.js`) | Workbench delivery                 |
+| `Output/` → Cocoon                                  | `@codeeditorland/output` npm package                | Extension host consumption         |
+| `Output/` → Wind                                    | `Target/` utilities                                 | Build tooling integration          |
 
 ---
 
 ## Key Components
 
-| Component | Path | Description |
-|-----------|------|-------------|
-| ESBuild Entry | `Source/ESBuild.ts` | ESBuild entry point and configuration |
-| ESBuild Output | `Source/ESBuild/Output.ts` | ESBuild configuration with ESM format, Node.js platform, ES Next target, and conditional Rest plugin integration |
-| Rest Plugin | `Source/ESBuild/Rest/Plugin.ts` | TypeScript file interception, Rest compiler invocation, source map generation, and fallback to esbuild on errors |
-| Microsoft Targets | `Source/ESBuild/Microsoft/` | VSCode build targets |
-| CodeEditorLand Targets | `Source/ESBuild/CodeEditorLand/` | CEL build targets |
-| Exclude Patterns | `Source/ESBuild/Exclude/` | Module exclusion patterns for build filtering |
-| Plugin Index | `Source/Plugin/Index.ts` | Plugin registration and composition |
-| Plugin Types | `Source/Plugin/Type.ts` | Plugin type definitions |
-| Plugin Apply | `Source/Plugin/Apply.ts` | Plugin application logic |
-| Apply Pipeline | `Source/Apply/Pipeline.ts` | Transform pipeline orchestration |
-| Copy Plugin | `Source/Plugin/Copy.ts` | Asset copy plugin |
-| Polyfill Plugin | `Source/Plugin/Polyfill/` | Polyfill injection plugin |
-| Transform Plugin | `Source/Plugin/Transform/` | AST transform plugin (30+ transform sub-modules) |
-| Child Process Polyfill | `Source/Polyfill/Child/Process/Polyfill.ts` | `child_process` polyfills |
-| File System Polyfill | `Source/Polyfill/File/` | `fs` polyfills |
-| IPC Polyfill | `Source/Polyfill/IPC/` | `Electron` IPC polyfills |
-| Native Module Polyfill | `Source/Polyfill/Native/Module/Polyfill.ts` | Native module polyfills |
-| Process Polyfill | `Source/Polyfill/Process/Polyfill.ts` | `process.*` polyfills |
-| Telemetry Polyfill | `Source/Polyfill/Telemetry.ts` | Telemetry polyfill |
-| Asset Style | `Source/Asset/Style/` | Asset style processing (Editor and Terminal GPU layers) |
-| Tauri Service | `Source/Service/Tauri/` | Tauri IPC service helpers |
-| CEL Service | `Source/Service/CEL/` | CodeEditorLand service helpers |
-| Dev Service | `Source/Service/Dev/Log.ts` | Development service helpers |
-| Trace Service | `Source/Service/Trace.ts` | Build tracing utilities |
-| Build Script | `Source/prepublishOnly.sh` | Build orchestration script |
-| Dev Script | `Source/Run.sh` | Development watch mode |
+| Component              | Path                                        | Description                                                                                                      |
+| ---------------------- | ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| ESBuild Entry          | `Source/ESBuild.ts`                         | ESBuild entry point and configuration                                                                            |
+| ESBuild Output         | `Source/ESBuild/Output.ts`                  | ESBuild configuration with ESM format, Node.js platform, ES Next target, and conditional Rest plugin integration |
+| Rest Plugin            | `Source/ESBuild/Rest/Plugin.ts`             | TypeScript file interception, Rest compiler invocation, source map generation, and fallback to esbuild on errors |
+| Microsoft Targets      | `Source/ESBuild/Microsoft/`                 | VSCode build targets                                                                                             |
+| CodeEditorLand Targets | `Source/ESBuild/CodeEditorLand/`            | CEL build targets                                                                                                |
+| Exclude Patterns       | `Source/ESBuild/Exclude/`                   | Module exclusion patterns for build filtering                                                                    |
+| Plugin Index           | `Source/Plugin/Index.ts`                    | Plugin registration and composition                                                                              |
+| Plugin Types           | `Source/Plugin/Type.ts`                     | Plugin type definitions                                                                                          |
+| Plugin Apply           | `Source/Plugin/Apply.ts`                    | Plugin application logic                                                                                         |
+| Apply Pipeline         | `Source/Apply/Pipeline.ts`                  | Transform pipeline orchestration                                                                                 |
+| Copy Plugin            | `Source/Plugin/Copy.ts`                     | Asset copy plugin                                                                                                |
+| Polyfill Plugin        | `Source/Plugin/Polyfill/`                   | Polyfill injection plugin                                                                                        |
+| Transform Plugin       | `Source/Plugin/Transform/`                  | AST transform plugin (30+ transform sub-modules)                                                                 |
+| Child Process Polyfill | `Source/Polyfill/Child/Process/Polyfill.ts` | `child_process` polyfills                                                                                        |
+| File System Polyfill   | `Source/Polyfill/File/`                     | `fs` polyfills                                                                                                   |
+| IPC Polyfill           | `Source/Polyfill/IPC/`                      | `Electron` IPC polyfills                                                                                         |
+| Native Module Polyfill | `Source/Polyfill/Native/Module/Polyfill.ts` | Native module polyfills                                                                                          |
+| Process Polyfill       | `Source/Polyfill/Process/Polyfill.ts`       | `process.*` polyfills                                                                                            |
+| Telemetry Polyfill     | `Source/Polyfill/Telemetry.ts`              | Telemetry polyfill                                                                                               |
+| Asset Style            | `Source/Asset/Style/`                       | Asset style processing (Editor and Terminal GPU layers)                                                          |
+| Tauri Service          | `Source/Service/Tauri/`                     | Tauri IPC service helpers                                                                                        |
+| CEL Service            | `Source/Service/CEL/`                       | CodeEditorLand service helpers                                                                                   |
+| Dev Service            | `Source/Service/Dev/Log.ts`                 | Development service helpers                                                                                      |
+| Trace Service          | `Source/Service/Trace.ts`                   | Build tracing utilities                                                                                          |
+| Build Script           | `Source/prepublishOnly.sh`                  | Build orchestration script                                                                                       |
+| Dev Script             | `Source/Run.sh`                             | Development watch mode                                                                                           |
 
 ---
 
@@ -300,22 +300,22 @@ the Rest compiler binary. Output supports dual-compiler operation via the
 intercepts `.ts` files and spawns the Rest binary for `OXC`-based compilation,
 merging results into the `esbuild` output stream.
 
-The plugin system (`Plugin/Index.ts`) composes transforms, polyfills, and
-copies into a single build pipeline orchestrated by `Apply/Pipeline.ts`.
+The plugin system (`Plugin/Index.ts`) composes transforms, polyfills, and copies
+into a single build pipeline orchestrated by `Apply/Pipeline.ts`.
 
-| Consumer | Artifact | Format |
-|----------|----------|--------|
-| **Sky** | `workbench.js` + `web.main.js` | ESM bundles from `Target/` |
-| **Cocoon** | `@codeeditorland/output` npm package | Node.js ESM |
-| **Wind** | Output utilities | Build tooling modules |
+| Consumer   | Artifact                             | Format                     |
+| ---------- | ------------------------------------ | -------------------------- |
+| **Sky**    | `workbench.js` + `web.main.js`       | ESM bundles from `Target/` |
+| **Cocoon** | `@codeeditorland/output` npm package | Node.js ESM                |
+| **Wind**   | Output utilities                     | Build tooling modules      |
 
 ### Compiler Backends
 
 Output supports two compilation backends:
 
-| Backend | Runtime | Strength |
-|---------|---------|----------|
-| **esbuild** | Go-based | Rich plugin ecosystem, general bundling |
+| Backend        | Runtime            | Strength                                               |
+| -------------- | ------------------ | ------------------------------------------------------ |
+| **esbuild**    | Go-based           | Rich plugin ecosystem, general bundling                |
 | **Rest (OXC)** | Rust-based (`OXC`) | Ultra-fast TypeScript compilation, parallel processing |
 
 Rest leverages the **OXC (Oxidation Compiler)** ecosystem:
@@ -329,14 +329,14 @@ Rest leverages the **OXC (Oxidation Compiler)** ecosystem:
 
 ### Configuration Options
 
-| Variable | Default | Description |
-| :--- | :--- | :--- |
-| `Compiler` | `esbuild` | Compiler to use (`esbuild` or `Rest`) |
-| `REST_BINARY_PATH` | auto-detect | Override Rest binary location |
-| `REST_OPTIONS` | empty | Additional Rest compiler flags |
-| `REST_VERBOSE` | `false` | Enable verbose Rest logging |
-| `Dependency` | `Microsoft/VSCode` | Source dependency to process |
-| `NODE_ENV` | `production` | Build environment (`development` or `production`) |
+| Variable           | Default            | Description                                       |
+| :----------------- | :----------------- | :------------------------------------------------ |
+| `Compiler`         | `esbuild`          | Compiler to use (`esbuild` or `Rest`)             |
+| `REST_BINARY_PATH` | auto-detect        | Override Rest binary location                     |
+| `REST_OPTIONS`     | empty              | Additional Rest compiler flags                    |
+| `REST_VERBOSE`     | `false`            | Enable verbose Rest logging                       |
+| `Dependency`       | `Microsoft/VSCode` | Source dependency to process                      |
+| `NODE_ENV`         | `production`       | Build environment (`development` or `production`) |
 
 ---
 
@@ -396,13 +396,13 @@ export NODE_ENV=development
 
 Output enforces security at multiple layers:
 
-| Layer | Mechanism |
-|-------|-----------|
-| **Deterministic Outputs** | Same commit produces same artifacts — no supply-chain drift |
-| **Plugin Isolation** | Plugin transforms operate on AST nodes, never raw system access |
-| **Polyfill Boundaries** | Polyfills shim specific `Node.js` APIs only — no ambient `Electron` privileges |
-| **Compiler Separation** | Rest and esbuild run as separate processes — compiler crashes don't affect the host |
-| **Dependency Locking** | `package.json` locks all dependencies; `esbuild` version pinned via badge contract |
+| Layer                     | Mechanism                                                                           |
+| ------------------------- | ----------------------------------------------------------------------------------- |
+| **Deterministic Outputs** | Same commit produces same artifacts — no supply-chain drift                         |
+| **Plugin Isolation**      | Plugin transforms operate on AST nodes, never raw system access                     |
+| **Polyfill Boundaries**   | Polyfills shim specific `Node.js` APIs only — no ambient `Electron` privileges      |
+| **Compiler Separation**   | Rest and esbuild run as separate processes — compiler crashes don't affect the host |
+| **Dependency Locking**    | `package.json` locks all dependencies; `esbuild` version pinned via badge contract  |
 
 ---
 
@@ -410,24 +410,30 @@ Output enforces security at multiple layers:
 
 Output is designed to be compatible with:
 
-| Target | Integration |
-|--------|-------------|
-| **Sky** | Produces `workbench.js` and `web.main.js` ESM bundles |
-| **Cocoon** | Published as `@codeeditorland/output` npm package |
-| **Wind** | Build tooling integration via `Target/` artifacts |
-| **esbuild** | Full plugin ecosystem support via `ESBuild/` configuration |
+| Target         | Integration                                                     |
+| -------------- | --------------------------------------------------------------- |
+| **Sky**        | Produces `workbench.js` and `web.main.js` ESM bundles           |
+| **Cocoon**     | Published as `@codeeditorland/output` npm package               |
+| **Wind**       | Build tooling integration via `Target/` artifacts               |
+| **esbuild**    | Full plugin ecosystem support via `ESBuild/` configuration      |
 | **Rest (OXC)** | `OXC`-based TypeScript compilation via `ESBuild/Rest/Plugin.ts` |
 
 ---
 
 ## API Reference
 
-- [ESBuild.ts](https://github.com/CodeEditorLand/Output/blob/Current/Source/ESBuild.ts) — ESBuild entry point and configuration
-- [ESBuild/Output.ts](https://github.com/CodeEditorLand/Output/blob/Current/Source/ESBuild/Output.ts) — ESBuild output compilation settings with ESM format
-- [ESBuild/Rest/Plugin.ts](https://github.com/CodeEditorLand/Output/blob/Current/Source/ESBuild/Rest/Plugin.ts) — Rest (OXC) compiler plugin integration
-- [Plugin/Index.ts](https://github.com/CodeEditorLand/Output/blob/Current/Source/Plugin/Index.ts) — Plugin registration and composition
-- [Plugin/Type.ts](https://github.com/CodeEditorLand/Output/blob/Current/Source/Plugin/Type.ts) — Plugin type definitions
-- [Apply/Pipeline.ts](https://github.com/CodeEditorLand/Output/blob/Current/Source/Apply/Pipeline.ts) — Transform pipeline orchestration
+- [ESBuild.ts](https://github.com/CodeEditorLand/Output/blob/Current/Source/ESBuild.ts)
+  — ESBuild entry point and configuration
+- [ESBuild/Output.ts](https://github.com/CodeEditorLand/Output/blob/Current/Source/ESBuild/Output.ts)
+  — ESBuild output compilation settings with ESM format
+- [ESBuild/Rest/Plugin.ts](https://github.com/CodeEditorLand/Output/blob/Current/Source/ESBuild/Rest/Plugin.ts)
+  — Rest (OXC) compiler plugin integration
+- [Plugin/Index.ts](https://github.com/CodeEditorLand/Output/blob/Current/Source/Plugin/Index.ts)
+  — Plugin registration and composition
+- [Plugin/Type.ts](https://github.com/CodeEditorLand/Output/blob/Current/Source/Plugin/Type.ts)
+  — Plugin type definitions
+- [Apply/Pipeline.ts](https://github.com/CodeEditorLand/Output/blob/Current/Source/Apply/Pipeline.ts)
+  — Transform pipeline orchestration
 - [Output NPM Package](https://www.npmjs.com/package/@codeeditorland/output)
 
 ---
@@ -441,7 +447,8 @@ Output is designed to be compatible with:
 - [Cocoon](https://github.com/CodeEditorLand/Cocoon) — `Node.js` extension host
 - [Sky](https://github.com/CodeEditorLand/Sky) — Workbench shell
 - [Wind](https://github.com/CodeEditorLand/Wind) — Build tooling and utilities
-- [CHANGELOG.md](https://github.com/CodeEditorLand/Output/tree/Current/CHANGELOG.md) — Release history for **Output** 📦
+- [CHANGELOG.md](https://github.com/CodeEditorLand/Output/tree/Current/CHANGELOG.md)
+  — Release history for **Output** 📦
 
 ---
 

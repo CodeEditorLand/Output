@@ -8,7 +8,6 @@
  */
 
 import EagerExtensionActivation from "../../../../Polyfill/Eager/Extension/Activation.js";
-
 import type { TransformPlugin } from "../../../../Type.js";
 
 const Marker = "__LAND_EAGER_EXTENSION_ACTIVATION__";
@@ -16,7 +15,6 @@ const Marker = "__LAND_EAGER_EXTENSION_ACTIVATION__";
 const Polyfill = `\n/* ${Marker} */\n(${EagerExtensionActivation.toString()})();\n`;
 
 const Plugin: TransformPlugin = {
-
 	Kind: "Transform",
 
 	Name: "InjectEagerExtensionActivation",

@@ -32,11 +32,9 @@
  */
 
 import { readdirSync, readFileSync, statSync } from "node:fs";
-
 import { join, resolve } from "node:path";
 
 import TauriDragRegion from "../../../../Polyfill/Tauri/Drag/Region.js";
-
 import type { TransformPlugin } from "../../../../Type.js";
 
 const Marker = "__LAND_TAURI_DRAG_REGION__";
@@ -51,7 +49,6 @@ const VSCodeRoot = resolve(process.cwd(), "Target/Microsoft/VSCode");
  * not contain it, but the safeguard is cheap.
  */
 function CollectCSSFiles(Root: string): string[] {
-
 	const Out: string[] = [];
 
 	const Walk = (Dir: string): void => {
@@ -109,14 +106,12 @@ const RuleRegex =
 	/([^{}]+)\{[^{}]*-webkit-app-region\s*:\s*(no-drag|drag)\b[^{}]*\}/g;
 
 interface Extracted {
-
 	Drag: string[];
 
 	NoDrag: string[];
 }
 
 function ExtractSelectors(): Extracted {
-
 	const Drag = new Set<string>();
 
 	const NoDrag = new Set<string>();

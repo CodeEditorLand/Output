@@ -33,7 +33,6 @@ const ReExport =
 	"export { ExtensionsScannerService, IExtensionsScannerService } from '../common/CELExtensionsScannerService.js';\n";
 
 const Plugin: TransformPlugin = {
-
 	Kind: "Transform",
 
 	Name: "ExtensionScannerIPC",

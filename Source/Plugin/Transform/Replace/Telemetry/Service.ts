@@ -33,7 +33,6 @@ const ReExport =
 	"export { default } from './CELNullTelemetryService.js';\n";
 
 const Plugin: TransformPlugin = {
-
 	Kind: "Transform",
 
 	Name: "ReplaceTelemetryService",

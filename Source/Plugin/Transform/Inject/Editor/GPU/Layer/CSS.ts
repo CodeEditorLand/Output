@@ -29,7 +29,6 @@
  */
 
 import { readFile } from "node:fs/promises";
-
 import { fileURLToPath } from "node:url";
 
 import type { TransformPlugin } from "../../../../../Type.js";
@@ -53,7 +52,6 @@ const InjectedCSS = "\n" + (await readFile(StylesheetPath, "utf8"));
 const PathRegex = /editor\/browser\/(?:[^/]+\/)*[^/]+\.css$/;
 
 const Plugin: TransformPlugin = {
-
 	Kind: "Transform",
 
 	Name: "InjectEditorGPULayerCSS",

@@ -40,38 +40,24 @@
  */
 
 import { Disposable } from "../../../../base/common/lifecycle.js";
-
 import { Schemas } from "../../../../base/common/network.js";
-
 import { URI } from "../../../../base/common/uri.js";
-
 import { IModelService } from "../../../../editor/common/services/model.js";
-
 import { IFileService } from "../../../../platform/files/common/files.js";
-
 import {
 	InstantiationType,
 	registerSingleton,
 } from "../../../../platform/instantiation/common/extensions.js";
-
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-
 import { ILogService } from "../../../../platform/log/common/log.js";
-
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-
 import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-
 import { IEditorService } from "../../editor/common/editorService.js";
-
 import { IExtensionService } from "../../extensions/common/extensions.js";
-
 import { ISearchService, SearchProviderType } from "../common/search.js";
-
 import { SearchService } from "../common/searchService.js";
 
 const TauriInvoke = (Channel, Args) => {
-
 	const Bridge = (globalThis && globalThis.__TAURI__) || null;
 
 	const Invoke =
@@ -97,7 +83,6 @@ const TauriInvoke = (Channel, Args) => {
 };
 
 const ToUri = (Raw) => {
-
 	try {
 		return typeof Raw === "string" ? URI.parse(Raw) : URI.revive(Raw);
 	} catch {
@@ -106,7 +91,6 @@ const ToUri = (Raw) => {
 };
 
 const BuildIncludePattern = (Query) => {
-
 	if (!Query) return "**";
 
 	if (typeof Query.filePattern === "string" && Query.filePattern.length > 0) {
@@ -114,7 +98,6 @@ const BuildIncludePattern = (Query) => {
 	}
 
 	const Folders = Array.isArray(Query.folderQueries)
-
 		? Query.folderQueries
 		: [];
 
@@ -124,7 +107,6 @@ const BuildIncludePattern = (Query) => {
 };
 
 const BuildExcludePattern = (Query) => {
-
 	if (!Query) return "";
 
 	const Sources = [];
@@ -134,7 +116,6 @@ const BuildExcludePattern = (Query) => {
 	}
 
 	const Folders = Array.isArray(Query.folderQueries)
-
 		? Query.folderQueries
 		: [];
 
@@ -160,7 +141,6 @@ const BuildExcludePattern = (Query) => {
 };
 
 class MountainTauriSearchProvider extends Disposable {
-
 	async getAIName() {
 		return undefined;
 	}
@@ -325,7 +305,6 @@ class MountainTauriSearchProvider extends Disposable {
 // Mirrors the upstream `out/.../browser/searchService.js` block so the DI
 // container resolves each service the same way it does for stock VS Code.
 class RemoteSearchService extends SearchService {
-
 	declare instantiationService: any;
 
 	constructor(

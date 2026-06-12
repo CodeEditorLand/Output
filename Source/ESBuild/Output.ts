@@ -6,7 +6,6 @@ import type { BuildOptions } from "esbuild";
 let RestPlugin: import("esbuild").Plugin | null = null;
 
 if (process.env["Compiler"]?.toLowerCase() === "rest") {
-
 	try {
 		const { createRestPluginIfEnabled } = await import("./Rest/Plugin.js");
 
@@ -31,7 +30,6 @@ export const On =
  *
  */
 export default {
-
 	color: true,
 
 	format: "esm",
@@ -85,7 +83,6 @@ export default {
 											).rm(outdir, {
 												recursive: true,
 											})
-
 										: {};
 								} catch (_Error) {
 									console.log(_Error);

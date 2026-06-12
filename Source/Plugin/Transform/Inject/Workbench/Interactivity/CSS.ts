@@ -13,7 +13,6 @@
  */
 
 import WorkbenchInteractivityCSS from "../../../../Polyfill/Workbench/Interactivity/CSS.js";
-
 import type { TransformPlugin } from "../../../../Type.js";
 
 const Marker = "__LAND_WORKBENCH_INTERACTIVITY_CSS_V2__";
@@ -21,7 +20,6 @@ const Marker = "__LAND_WORKBENCH_INTERACTIVITY_CSS_V2__";
 const Polyfill = `\n/* ${Marker} */\n(${WorkbenchInteractivityCSS.toString()})();\n`;
 
 const Plugin: TransformPlugin = {
-
 	Kind: "Transform",
 
 	Name: "InjectWorkbenchInteractivityCSS",

@@ -17,7 +17,6 @@
  */
 
 interface PolyfillTelemetry {
-
 	readonly On: (
 		Category: string,
 
@@ -46,7 +45,6 @@ export default ((): PolyfillTelemetry => {
 
 				Detail?: Record<string, unknown>,
 		  ) => void)
-
 		| null = null;
 
 	const Telemetry: PolyfillTelemetry = {

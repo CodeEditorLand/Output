@@ -28,18 +28,14 @@
  */
 
 import { Emitter } from "../../../../base/common/event.js";
-
 import { URI } from "../../../../base/common/uri.js";
-
 import { IExtensionsScannerService } from "../../../../platform/extensionManagement/common/extensionsScannerService.js";
-
 import {
 	InstantiationType,
 	registerSingleton,
 } from "../../../../platform/instantiation/common/extensions.js";
 
 const Trace = (Tag: string, Detail?: object): void => {
-
 	try {
 		performance.mark(
 			"land:exthost:" + Tag,
@@ -52,7 +48,6 @@ const Trace = (Tag: string, Detail?: object): void => {
 };
 
 const Warn = (...Args: unknown[]): void => {
-
 	try {
 		// Forward to Mountain's dev-log via diagnostic:log so the warning
 		// appears in `tail -f Mountain.dev.log` alongside Rust-side events.
@@ -78,7 +73,6 @@ const FetchFromMountain = async (
 
 	ForceBuiltin: boolean,
 ): Promise<unknown[]> => {
-
 	Trace("scanner:fetch:start", { method: Method });
 
 	try {
@@ -224,9 +218,7 @@ const FetchFromMountain = async (
 				const Location = RawLocation
 					? typeof RawLocation === "string"
 						? URI.parse(RawLocation)
-
 						: URI.revive(RawLocation)
-
 					: URI.file("/extensions/" + (Manifest.name || "unknown"));
 
 				const Identifier =
@@ -338,7 +330,6 @@ const FetchFromMountain = async (
 };
 
 class ExtensionsScannerService {
-
 	private readonly _onDidChangeCache = new Emitter<void>();
 
 	readonly onDidChangeCache = this._onDidChangeCache.event;

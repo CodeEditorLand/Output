@@ -25,7 +25,6 @@
  */
 
 import DisableLazyPaint from "../../../../Polyfill/Disable/Lazy/Paint.js";
-
 import type { TransformPlugin } from "../../../../Type.js";
 
 const Marker = "__LAND_DISABLE_LAZY_PAINT__";
@@ -37,7 +36,6 @@ const Marker = "__LAND_DISABLE_LAZY_PAINT__";
 const Polyfill = `\n/* ${Marker} */\n(${DisableLazyPaint.toString()})();\n`;
 
 const Plugin: TransformPlugin = {
-
 	Kind: "Transform",
 
 	Name: "InjectDisableLazyPaint",

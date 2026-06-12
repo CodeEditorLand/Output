@@ -27,7 +27,6 @@ const ReExport =
 	"export { TauriMainProcessService as ElectronIPCMainProcessService } from './TauriMainProcessService.js';\n";
 
 const Plugin: TransformPlugin = {
-
 	Kind: "Transform",
 
 	Name: "ReplaceElectronIPCService",

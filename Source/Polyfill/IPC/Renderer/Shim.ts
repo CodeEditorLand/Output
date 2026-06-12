@@ -46,7 +46,6 @@ import type {
  * Channel mapping from Electron to Tauri commands
  */
 interface IPCChannelMapping {
-
 	electronPattern: RegExp;
 
 	tauriCommand: string;
@@ -63,7 +62,6 @@ type ReplyHandler = (response: unknown) => void;
  * SendTo request with callback
  */
 interface SendToRequest {
-
 	channel: string;
 
 	args: unknown[];
@@ -85,7 +83,6 @@ async function invokeTauri<T>(
 
 	args: Record<string, unknown> = {},
 ): Promise<T> {
-
 	try {
 		// Tauri 2.x: core.invoke, Tauri 1.x: invoke
 		const Invoke =
@@ -122,7 +119,6 @@ async function invokeTauri<T>(
  * Send Tauri command (no response)
  */
 function sendTauri(command: string, args: Record<string, unknown> = {}): void {
-
 	try {
 		// Tauri 2.x: core.invoke, Tauri 1.x: invoke
 		const Invoke =
@@ -135,12 +131,10 @@ function sendTauri(command: string, args: Record<string, unknown> = {}): void {
 			// keep the fire-and-forget form symmetric with the awaited
 			// form so both paths reach Mountain consistently.
 			const Call = command.includes(":")
-
 				? Invoke("MountainIPCInvoke", {
 						method: command,
 						params: args,
 					})
-
 				: Invoke(command, args);
 
 			Call.catch((Error: unknown) => {
@@ -174,7 +168,6 @@ function sendTauri(command: string, args: Record<string, unknown> = {}): void {
 const IPC_CHANNEL_MAPPINGS: IPCChannelMapping[] = [
 	// Logger service
 	{
-
 		electronPattern: /^logger:(log|warn|error|info|debug|trace|critical)$/,
 
 		tauriCommand: "logger:log",
@@ -188,7 +181,6 @@ const IPC_CHANNEL_MAPPINGS: IPCChannelMapping[] = [
 
 	// Policy service
 	{
-
 		electronPattern: /^policy:(get|set|validate|enforce|check)$/,
 
 		tauriCommand: "policy:handle",
@@ -201,7 +193,6 @@ const IPC_CHANNEL_MAPPINGS: IPCChannelMapping[] = [
 
 	// Signing service
 	{
-
 		electronPattern: /^sign:(sign|verify|generate|validate)$/,
 
 		tauriCommand: "sign:handle",
@@ -215,7 +206,6 @@ const IPC_CHANNEL_MAPPINGS: IPCChannelMapping[] = [
 
 	// User data profiles service
 	{
-
 		electronPattern: /^userDataProfiles:(create|delete|update|get|list)$/,
 
 		tauriCommand: "user_data:handle_profile",
@@ -229,7 +219,6 @@ const IPC_CHANNEL_MAPPINGS: IPCChannelMapping[] = [
 
 	// Local file system service
 	{
-
 		electronPattern:
 			/^localFileSystem:(read|write|delete|exists|stat|readdir)$/,
 
@@ -249,7 +238,6 @@ const IPC_CHANNEL_MAPPINGS: IPCChannelMapping[] = [
 function mapElectronChannelToTauri(
 	channel: string,
 ): { command: string; args: Record<string, unknown> } | null {
-
 	for (const mapping of IPC_CHANNEL_MAPPINGS) {
 		if (mapping.electronPattern.test(channel)) {
 			const args = mapping.transform?.([]) ?? {};
@@ -269,7 +257,6 @@ function transformChannelArgs(
 
 	args: unknown[],
 ): Record<string, unknown> {
-
 	for (const mapping of IPC_CHANNEL_MAPPINGS) {
 		if (mapping.electronPattern.test(channel) && mapping.transform) {
 			return mapping.transform(args);
@@ -298,7 +285,6 @@ function transformChannelArgs(
  */
 
 function SerializeIPC(Data: unknown): Uint8Array {
-
 	const Parts: Uint8Array[] = [];
 
 	function Write(Value: unknown): void {
@@ -369,7 +355,6 @@ function SerializeIPC(Data: unknown): Uint8Array {
 }
 
 function DeserializeIPC(Buffer: ArrayBuffer): unknown {
-
 	const View = new Uint8Array(Buffer);
 
 	let Pos = 0;
@@ -448,7 +433,6 @@ function DeserializeIPC(Buffer: ArrayBuffer): unknown {
 
 /** Build a complete IPC message: serialize(header) + serialize(body) */
 function BuildIPCMessage(Header: unknown, Body: unknown): Uint8Array {
-
 	const H = SerializeIPC(Header);
 
 	const B = SerializeIPC(Body);
@@ -464,12 +448,10 @@ function BuildIPCMessage(Header: unknown, Body: unknown): Uint8Array {
 
 /** Parse an incoming IPC message into header + body */
 function ParseIPCMessage(Buffer: ArrayBuffer): {
-
 	Header: unknown;
 
 	Body: unknown;
 } {
-
 	const View = new Uint8Array(Buffer);
 
 	let Pos = 0;
@@ -572,7 +554,6 @@ function MapChannelMethodToTauri(
 
 	Method: string,
 ): string | null {
-
 	const Prefix = MapChannelToMountainPrefix(Channel);
 
 	if (!Prefix) {
@@ -583,7 +564,6 @@ function MapChannelMethodToTauri(
 }
 
 function MapChannelToMountainPrefix(Channel: string): string | null {
-
 	switch (Channel) {
 		case "localFilesystem":
 		case "localFileSystem":
@@ -691,7 +671,6 @@ function CoerceTauriParameters(
 
 	Body: unknown,
 ): unknown[] {
-
 	if (Body === undefined || Body === null) {
 		return [];
 	}
@@ -715,7 +694,6 @@ async function InvokeMountainRaw<T>(
 
 	Parameters: unknown[],
 ): Promise<T> {
-
 	const Invoke =
 		(window as any).__TAURI__?.core?.invoke ??
 		(window as any).__TAURI__?.invoke ??
@@ -740,11 +718,9 @@ async function InvokeMountainRaw<T>(
  * with a built-in binary IPC loopback that speaks VS Code's ChannelClient protocol.
  */
 class IPCRendererImpl implements IpcRenderer {
-
 	// Track event listeners by channel
 	listeners = new Map<
 		string,
-
 		Set<(event: IpcRendererEvent, ...args: unknown[]) => void>
 	>();
 
@@ -756,7 +732,6 @@ class IPCRendererImpl implements IpcRenderer {
 	// Track once listeners
 	onceListeners = new Map<
 		string,
-
 		Set<WeakRef<(event: IpcRendererEvent, ...args: unknown[]) => void>>
 	>();
 
@@ -1228,7 +1203,6 @@ let ipcRendererInstance: IPCRendererImpl | null = null;
  * Get or create the IPC renderer singleton
  */
 export function getIPCRenderer(): IpcRenderer {
-
 	if (!ipcRendererInstance) {
 		ipcRendererInstance = new IPCRendererImpl();
 	}
@@ -1244,7 +1218,6 @@ export function getIPCRenderer(): IpcRenderer {
  * Install the IPC renderer shim into window.vscode.ipcRenderer
  */
 export function installIPCRendererShim(): void {
-
 	if (typeof window === "undefined") {
 		return;
 	}
@@ -1286,7 +1259,6 @@ export function installIPCRendererShim(): void {
 export { IPCRendererImpl as IPCRendererClass };
 
 export default {
-
 	install: installIPCRendererShim,
 
 	get: getIPCRenderer,
@@ -1294,6 +1266,5 @@ export default {
 
 // Auto-install on import
 if (typeof window !== "undefined") {
-
 	installIPCRendererShim();
 }

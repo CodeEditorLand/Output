@@ -7,7 +7,6 @@
  */
 
 import WorkbenchPaintPrime from "../../../../Polyfill/Workbench/Paint/Prime.js";
-
 import type { TransformPlugin } from "../../../../Type.js";
 
 const Marker = "__LAND_WORKBENCH_PAINT_PRIME_V2__";
@@ -15,7 +14,6 @@ const Marker = "__LAND_WORKBENCH_PAINT_PRIME_V2__";
 const Polyfill = `\n/* ${Marker} */\n(${WorkbenchPaintPrime.toString()})();\n`;
 
 const Plugin: TransformPlugin = {
-
 	Kind: "Transform",
 
 	Name: "InjectWorkbenchPaintPrime",

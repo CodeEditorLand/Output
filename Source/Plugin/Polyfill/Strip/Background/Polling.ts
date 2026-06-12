@@ -12,7 +12,6 @@
  */
 
 export default function StripBackgroundPolling(): void {
-
 	if (typeof window === "undefined") return;
 
 	const Marker = "__LAND_STRIP_BACKGROUND_POLLING__";

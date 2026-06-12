@@ -7,7 +7,6 @@
  */
 
 import { copyFile, cp, mkdir, stat, writeFile } from "node:fs/promises";
-
 import { dirname } from "node:path";
 
 /**
@@ -20,7 +19,6 @@ import { dirname } from "node:path";
 const DataPrefix = "data:text/javascript,";
 
 export interface CopyCandidate {
-
 	readonly From: string;
 
 	readonly To: string;
@@ -31,14 +29,12 @@ export interface CopyCandidate {
 }
 
 export interface CopyOutcome {
-
 	readonly Resolved: CopyCandidate | null;
 
 	readonly Error?: string;
 }
 
 const Exists = async (Path: string): Promise<boolean> => {
-
 	try {
 		await stat(Path);
 
@@ -51,7 +47,6 @@ const Exists = async (Path: string): Promise<boolean> => {
 export const CopyFirstAvailable = async (
 	Candidates: ReadonlyArray<CopyCandidate>,
 ): Promise<CopyOutcome> => {
-
 	for (const Candidate of Candidates) {
 		// Inline-body branch: `From` holds the literal file body prefixed
 		// by `data:text/javascript,`. Used by StubUnpublishedAddons to

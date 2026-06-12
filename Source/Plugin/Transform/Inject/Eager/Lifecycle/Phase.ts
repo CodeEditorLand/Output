@@ -8,7 +8,6 @@
  */
 
 import EagerLifecyclePhase from "../../../../Polyfill/Eager/Lifecycle/Phase.js";
-
 import type { TransformPlugin } from "../../../../Type.js";
 
 const Marker = "__LAND_EAGER_LIFECYCLE_PHASE__";
@@ -16,7 +15,6 @@ const Marker = "__LAND_EAGER_LIFECYCLE_PHASE__";
 const Polyfill = `\n/* ${Marker} */\n(${EagerLifecyclePhase.toString()})();\n`;
 
 const Plugin: TransformPlugin = {
-
 	Kind: "Transform",
 
 	Name: "InjectEagerLifecyclePhase",

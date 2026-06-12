@@ -35,7 +35,6 @@ const ReExport =
 	"export { default } from '../../../../platform/ipc/electron-browser/CELSharedProcessService.js';\n";
 
 const Plugin: TransformPlugin = {
-
 	Kind: "Transform",
 
 	Name: "ReplaceSharedProcess",

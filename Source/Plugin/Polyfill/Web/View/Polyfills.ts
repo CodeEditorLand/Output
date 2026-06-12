@@ -32,12 +32,10 @@
 export const Marker = "__LAND_WEBVIEW_POLYFILLS__";
 
 interface IdleCallbackOptions {
-
 	timeout?: number;
 }
 
 interface IdleDeadline {
-
 	didTimeout: boolean;
 
 	timeRemaining: () => number;
@@ -46,14 +44,12 @@ interface IdleDeadline {
 type IdleCallback = (Deadline: IdleDeadline) => void;
 
 declare global {
-
 	interface Window {
 		queryLocalFonts?: () => Promise<unknown[]>;
 	}
 }
 
 export default function WebViewPolyfills(): void {
-
 	if (typeof window === "undefined") return;
 
 	if (typeof window.requestIdleCallback !== "function") {

@@ -167,7 +167,6 @@ const DiagnosticCode = `
 `;
 
 const Plugin: TransformPlugin = {
-
 	Kind: "Transform",
 
 	Name: "InjectWebviewRuntimeDiagnostics",

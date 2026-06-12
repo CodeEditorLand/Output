@@ -25,7 +25,6 @@ const ReExport =
 	"export { default } from './CELNullExtensionGalleryService.js';\n";
 
 const Plugin: TransformPlugin = {
-
 	Kind: "Transform",
 
 	Name: "ReplaceExtensionGalleryService",

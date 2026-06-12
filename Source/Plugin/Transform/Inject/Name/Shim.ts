@@ -37,7 +37,6 @@ const IframeReplacement = "`/*extensionHostWorker*/${NameShim}`,";
 const CSPScriptSrcMatcher = /script-src ([^;]+);/;
 
 const Plugin: TransformPlugin = {
-
 	Kind: "Transform",
 
 	Name: "InjectNameShim",
@@ -66,7 +65,6 @@ const Plugin: TransformPlugin = {
 
 		return Next === Source
 			? { Kind: "Unchanged" }
-
 			: { Kind: "Rewrite", Source: Next };
 	},
 };

@@ -23,7 +23,6 @@
 import { TauriMainProcessService } from "./TauriMainProcessService.js";
 
 class SharedProcessService extends TauriMainProcessService {
-
 	constructor(WindowId: number, _LogService: unknown) {
 		super(WindowId);
 	}

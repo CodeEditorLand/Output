@@ -16,7 +16,6 @@ import { join } from "node:path";
 import type { CopyPlugin } from "../../../Type.js";
 
 export interface CopyNodeModulesInput {
-
 	readonly LocalRoot: string;
 
 	readonly DependencyRoot: string;

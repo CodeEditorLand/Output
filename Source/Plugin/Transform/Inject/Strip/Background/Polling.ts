@@ -9,7 +9,6 @@
  */
 
 import StripBackgroundPolling from "../../../../Polyfill/Strip/Background/Polling.js";
-
 import type { TransformPlugin } from "../../../../Type.js";
 
 const Marker = "__LAND_STRIP_BACKGROUND_POLLING__";
@@ -17,7 +16,6 @@ const Marker = "__LAND_STRIP_BACKGROUND_POLLING__";
 const Polyfill = `\n/* ${Marker} */\n(${StripBackgroundPolling.toString()})();\n`;
 
 const Plugin: TransformPlugin = {
-
 	Kind: "Transform",
 
 	Name: "InjectStripBackgroundPolling",

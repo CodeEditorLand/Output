@@ -33,7 +33,6 @@ const PathRegex = new RegExp(`${Marker}$`);
 const SideEffectRE = /^import\s+['"]([^'"]+)['"]\s*;?\s*$/gm;
 
 const Plugin: TransformPlugin = {
-
 	Kind: "Transform",
 
 	Name: "StaticToDynamicImport",

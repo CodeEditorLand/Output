@@ -6,7 +6,6 @@ const PathRegex =
 const Marker = "__LAND_WEBVIEW_INNER_DIAG_INJECT__";
 
 const Plugin: TransformPlugin = {
-
 	Kind: "Transform",
 
 	Name: "InjectWebviewRuntimeDiagnosticsInner",

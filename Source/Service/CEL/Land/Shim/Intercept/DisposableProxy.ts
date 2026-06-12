@@ -19,7 +19,7 @@ const __LandTier_Shim__: string =
 		? (globalThis as any).__LandTier_Shim__
 		: "None";
 
-const DisposableProxy = (): void => {
+const DisposableProxy = async (): Promise<void> => {
 	if (__LandTier_Shim__ !== "Own" && __LandTier_Shim__ !== "Preempt") {
 		return;
 	}
@@ -31,21 +31,9 @@ const DisposableProxy = (): void => {
 	}
 
 	try {
-		const lifecycleModule: any = require("../../base/common/lifecycle.js");
+		const lifecycleModule = await import("../../base/common/lifecycle.js");
 
 		if (!lifecycleModule || !lifecycleModule.DisposableStore) {
-			let attempts: number = 0;
-			const maxAttempts: number = 50;
-			const poll: ReturnType<typeof setInterval> = setInterval(() => {
-				attempts++;
-				const mod: any = require("../../base/common/lifecycle.js");
-				if (mod?.DisposableStore?.prototype) {
-					clearInterval(poll);
-					patchDisposableStore(mod.DisposableStore, marker);
-				} else if (attempts >= maxAttempts) {
-					clearInterval(poll);
-				}
-			}, 100);
 			return;
 		}
 

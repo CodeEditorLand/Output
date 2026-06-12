@@ -19,7 +19,7 @@ const __LandTier_Shim__: string =
 		? (globalThis as any).__LandTier_Shim__
 		: "None";
 
-const CancellationProxy = (): void => {
+const CancellationProxy = async (): Promise<void> => {
 	if (__LandTier_Shim__ !== "Own" && __LandTier_Shim__ !== "Preempt") {
 		return;
 	}
@@ -31,24 +31,12 @@ const CancellationProxy = (): void => {
 	}
 
 	try {
-		const cancellationModule: any = require("../../base/common/cancellation.js");
+		const cancellationModule = await import("../../base/common/cancellation.js");
 
 		if (
 			!cancellationModule ||
 			!cancellationModule.CancellationTokenSource
 		) {
-			let attempts: number = 0;
-			const maxAttempts: number = 50;
-			const poll: ReturnType<typeof setInterval> = setInterval(() => {
-				attempts++;
-				const mod: any = require("../../base/common/cancellation.js");
-				if (mod?.CancellationTokenSource?.prototype) {
-					clearInterval(poll);
-					patchCancellation(mod.CancellationTokenSource, marker);
-				} else if (attempts >= maxAttempts) {
-					clearInterval(poll);
-				}
-			}, 100);
 			return;
 		}
 

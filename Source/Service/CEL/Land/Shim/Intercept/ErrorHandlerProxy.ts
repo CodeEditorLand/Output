@@ -6,7 +6,7 @@
  * into LandErrorTrace BEFORE VS Code processes them.
  *
  * Gate: only active when TierShim = Own | Preempt
- * Idempotent: checks `__LAND_SHIM_ERROR_HANDLER_PROXY__` marker
+ * Idempotent: checks `__LAND_SHIM_LOW_ERROR_HANDLER_PROXY__` marker
  *
  * Import paths resolve at final on-disk location inside the VS Code tree
  * (depth 3 under `vs/workbench/browser/`).
@@ -20,7 +20,7 @@ const __LandTier_Shim__: string =
 		? (globalThis as any).__LandTier_Shim__
 		: "None";
 
-const ErrorHandlerProxy = (): void => {
+const ErrorHandlerProxy = async (): Promise<void> => {
 	// Only activate at Own or Preempt tiers
 	if (__LandTier_Shim__ !== "Own" && __LandTier_Shim__ !== "Preempt") {
 		return;
@@ -35,23 +35,10 @@ const ErrorHandlerProxy = (): void => {
 	try {
 		// errorHandler is imported dynamically — it lives at
 		// vs/base/common/errors.js and is a singleton module.
-		// At this point in workbench startup it should already be loaded.
-		const errorHandlerModule: any = require("../../base/common/errors.js");
+		// At this point in workbench startup it is guaranteed loaded.
+		const errorHandlerModule = await import("../../base/common/errors.js");
 
 		if (!errorHandlerModule || !errorHandlerModule.errorHandler) {
-			// errorHandler not yet initialised — defer via poll
-			let attempts: number = 0;
-			const maxAttempts: number = 50; // 5 seconds max
-			const poll: ReturnType<typeof setInterval> = setInterval(() => {
-				attempts++;
-				const mod: any = require("../../base/common/errors.js");
-				if (mod?.errorHandler) {
-					clearInterval(poll);
-					patchErrorHandler(mod.errorHandler, marker);
-				} else if (attempts >= maxAttempts) {
-					clearInterval(poll);
-				}
-			}, 100);
 			return;
 		}
 

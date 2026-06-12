@@ -31,7 +31,7 @@ const BATCH_WINDOW_MS: number = 0;
  */
 const MAX_BATCH_SIZE: number = 64;
 
-const AsyncProxy = (): void => {
+const AsyncProxy = async (): Promise<void> => {
 	if (__LandTier_Shim__ !== "Own" && __LandTier_Shim__ !== "Preempt") {
 		return;
 	}
@@ -43,21 +43,9 @@ const AsyncProxy = (): void => {
 	}
 
 	try {
-		const platformModule: any = require("../../base/common/platform.js");
+		const platformModule = await import("../../base/common/platform.js");
 
 		if (!platformModule || typeof platformModule.setTimeout0 !== "function") {
-			let attempts: number = 0;
-			const maxAttempts: number = 50;
-			const poll: ReturnType<typeof setInterval> = setInterval(() => {
-				attempts++;
-				const mod: any = require("../../base/common/platform.js");
-				if (mod && typeof mod.setTimeout0 === "function") {
-					clearInterval(poll);
-					patchSetTimeout0(mod, marker);
-				} else if (attempts >= maxAttempts) {
-					clearInterval(poll);
-				}
-			}, 100);
 			return;
 		}
 

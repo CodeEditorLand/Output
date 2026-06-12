@@ -30,7 +30,7 @@ let stopwatchIdCounter: number = 0;
  */
 const TIMING_SAMPLE_RATE: number = 1.0;
 
-const TimingProxy = (): void => {
+const TimingProxy = async (): Promise<void> => {
 	if (__LandTier_Shim__ !== "Own" && __LandTier_Shim__ !== "Preempt") {
 		return;
 	}
@@ -42,25 +42,13 @@ const TimingProxy = (): void => {
 	}
 
 	try {
-		const stopwatchModule: any = require("../../base/common/stopwatch.js");
+		const stopwatchModule = await import("../../base/common/stopwatch.js");
 
 		if (!stopwatchModule || !stopwatchModule.StopWatch) {
-			let attempts: number = 0;
-			const maxAttempts: number = 50;
-			const poll: ReturnType<typeof setInterval> = setInterval(() => {
-				attempts++;
-				const mod: any = require("../../base/common/stopwatch.js");
-				if (mod?.StopWatch) {
-					clearInterval(poll);
-					patchStopWatch(mod.StopWatch, marker);
-				} else if (attempts >= maxAttempts) {
-					clearInterval(poll);
-				}
-			}, 100);
 			return;
 		}
 
-		patchStopWatch(stopwatchModule.StopWatch, marker);
+		patchStopWatch(stopwatchModule.StopWatch, marker, stopwatchModule);
 	} catch {
 		// Non-fatal
 	}
@@ -71,7 +59,7 @@ const TimingProxy = (): void => {
  * Records high-precision timing data with microsecond resolution where
  * available (performance.now or process.hrtime).
  */
-function patchStopWatch(StopWatch: any, marker: string): void {
+function patchStopWatch(StopWatch: any, marker: string, stopwatchModule: any): void {
 	if (StopWatch[marker]) {
 		return;
 	}
@@ -197,8 +185,6 @@ function patchStopWatch(StopWatch: any, marker: string): void {
 	}
 
 	// Replace the module-level StopWatch reference
-	// This is delicate — we must replace it on the module itself
-	const stopwatchModule: any = require("../../base/common/stopwatch.js");
 	if (stopwatchModule) {
 		stopwatchModule.StopWatch = ProxiedStopWatch;
 	}

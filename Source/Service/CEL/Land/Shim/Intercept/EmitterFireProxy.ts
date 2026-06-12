@@ -34,7 +34,7 @@ const SAMPLE_RATE: number =
 /** Tick counter for approximate throttling — avoids Date.now() on hot path */
 let tickCount: number = 0;
 
-const EmitterFireProxy = (): void => {
+const EmitterFireProxy = async (): Promise<void> => {
 	if (__LandTier_Shim__ !== "Own" && __LandTier_Shim__ !== "Preempt") {
 		return;
 	}
@@ -46,22 +46,9 @@ const EmitterFireProxy = (): void => {
 	}
 
 	try {
-		const eventModule: any = require("../../base/common/event.js");
+		const eventModule = await import("../../base/common/event.js");
 
 		if (!eventModule || !eventModule.Emitter) {
-			// Emitter module not yet loaded — retry via poll
-			let attempts: number = 0;
-			const maxAttempts: number = 50;
-			const poll: ReturnType<typeof setInterval> = setInterval(() => {
-				attempts++;
-				const mod: any = require("../../base/common/event.js");
-				if (mod?.Emitter?.prototype) {
-					clearInterval(poll);
-					patchEmitterFire(mod.Emitter, marker);
-				} else if (attempts >= maxAttempts) {
-					clearInterval(poll);
-				}
-			}, 100);
 			return;
 		}
 

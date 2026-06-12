@@ -182,7 +182,9 @@ const Plugin: TransformPlugin = {
 			Changed = true;
 		}
 
-		return Changed ? { Kind: "Rewrite", Source: Current } as const : { Kind: "Unchanged" } as const;
+		return Changed
+			? ({ Kind: "Rewrite", Source: Current } as const)
+			: ({ Kind: "Unchanged" } as const);
 	},
 };
 

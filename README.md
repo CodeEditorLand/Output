@@ -1,4 +1,4 @@
-# **Output** 📦
+# **Output**&#x2001;📦
 
 <table>
 	<tr>

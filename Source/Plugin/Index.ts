@@ -719,6 +719,14 @@ export const BuildPipeline = (Input: BuildPipelineInput): Array<Plugin> => {
 		// the renderer and the entire Sky→workbench integration is dead.
 		ExposeWorkbenchAccessor,
 
+		// ── Shim (experimental) ─────────────────────────────────────
+		// Inject Land's deep-shim interception layer into the workbench
+		// immediately after IInstantiationService is created. Gated by
+		// TierShim env var (None → no-op). Audit proxy / service
+		// replacement / container ownership per the shim level.
+		// See: .hermes/microsoft/04-Atomic-Task-List.md
+		InjectShimHook,
+
 		// Instrument the bundled vscode.git extension's `out/main.js` +
 		// `out/model.js` with `process.stdout.write('[GIT-MARK-X] ...')`
 		// markers at strategic activation-pipeline points. Bypasses the

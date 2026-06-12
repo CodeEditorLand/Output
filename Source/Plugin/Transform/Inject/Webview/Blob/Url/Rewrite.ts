@@ -1,5 +1,5 @@
 /**
- * InjectWebviewBlobUrlRewrite — rewrite `vscode-file://` and
+ * InjectWebviewBlobUrlRewrite - rewrite `vscode-file://` and
  * `vscode-webview-resource://` asset URLs in the webview inner-iframe's
  * rendered HTML to `blob:` URLs fetched via the outer shell's `fetch()`.
  *
@@ -25,27 +25,29 @@
  *
  * This transform injects a script into `pre/index.html` that:
  *
- * 1. Intercepts the `hostMessaging.onMessage('content', …)` path
- *    **before** `toContentHtml()` is called, by wrapping
- *    `contentDocument.write()` on the inner frame.
- * 2. Parses the HTML string with `DOMParser`.
- * 3. For every `<script src>` and `<link href>` that points at a
- *    `vscode-file://` or `vscode-webview-resource://` URL, fetches
- *    the bytes from the outer shell's context and creates a `blob:`
- *    URL via `URL.createObjectURL()`.
- * 4. Replaces the original `src`/`href` attribute with the blob URL.
- * 5. Passes the rewritten HTML string to the original
- *    `contentDocument.write()` call.
+ * 1. Wraps `Document.prototype.write` so the inner frame's
+ *    `contentDocument.write(html)` stays **synchronous** -
+ *    `document.write` is a synchronous API and deferring it breaks
+ *    multi-write callers (empty first write, double document-open).
+ * 2. Synchronously substitutes every `vscode-file://` /
+ *    `vscode-webview-resource://` `src`/`href` URL that already has a
+ *    cached `blob:` URL into the HTML string before calling the
+ *    original `write`.
+ * 3. URLs without a cached blob are fetched **after** the synchronous
+ *    write; each resolved asset is patched into the already-written
+ *    document - `<link>` gets a live `href` swap, `<script>` is
+ *    replaced with a clone carrying the `blob:` `src` so the bytes
+ *    actually execute.
  *
  * Blob URLs are cached by original URL for the lifetime of the outer
  * shell so repeated `setHtml()` calls (e.g. after an extension reload)
- * don't re-fetch unchanged assets.
+ * hit the synchronous substitution path and never need the patch pass.
  *
  * ## Ordering
  *
  * Must run **after** `PatchWebviewIframeServiceWorker` (which disables
  * the SW and soft-fails the hash check) and **before**
- * `RewriteWebviewShellCSP` (which loosens the CSP — the blob: URLs
+ * `RewriteWebviewShellCSP` (which loosens the CSP - the blob: URLs
  * must already be present so the CSP `script-src blob:` directive
  * covers them). The pipeline in `Index.ts` places it between those two.
  *
@@ -69,11 +71,13 @@ const Marker = "<!-- __LAND_WEBVIEW_BLOB_URL_REWRITE__ -->";
  *
  * It wraps `Document.prototype.write` on the inner iframe's
  * `contentDocument` at the point where the outer shell calls
- * `onFrameLoaded(contentDocument)`. The wrapper intercepts every
- * `write(html)` call, rewrites all `vscode-file://` and
- * `vscode-webview-resource://` `src`/`href` attributes to `blob:`
- * URLs fetched from the outer shell's privileged context, then
- * forwards the rewritten HTML to the original `write`.
+ * `onFrameLoaded(contentDocument)`. The wrapper keeps every
+ * `write(html)` call synchronous: `vscode-file://` and
+ * `vscode-webview-resource://` `src`/`href` URLs with a cached
+ * `blob:` URL are substituted into the HTML string before the
+ * original `write` runs; uncached URLs are fetched afterwards and
+ * patched into the written document (`<link>` href swap, `<script>`
+ * node replacement).
  *
  * A module-level `Map` caches blob URLs by original URL so repeated
  * `setHtml()` calls (extension reload, panel re-open) do not
@@ -105,6 +109,22 @@ const BlobRewriteScript = `${Marker}
 	}
 
 	/**
+	 * Surface a blob-fetch failure. Mountain registers scheme handlers
+	 * for every entry in VSCODE_SCHEMES, so a failure here means the
+	 * outer shell's origin could not reach the handler (e.g. a CORS
+	 * rejection) - never swallow it silently.
+	 * @param {string} url
+	 * @param {Object} detail
+	 */
+	function warnFetchFailure(url, detail) {
+		if (typeof DEBUG_WV === 'function') {
+			DEBUG_WV('BLOB_REWRITE_FETCH_FAIL', detail);
+		} else if (typeof console !== 'undefined' && console.warn) {
+			console.warn('[LandBlobUrlRewrite] fetch failed, falling back to original URL', url, detail);
+		}
+	}
+
+	/**
 	 * Fetch \`url\` from the outer shell's privileged context and return
 	 * a stable \`blob:\` URL for it. Resolves to the original URL on
 	 * fetch failure so the inner frame can still attempt the load
@@ -117,9 +137,7 @@ const BlobRewriteScript = `${Marker}
 		try {
 			var resp = await fetch(url, { credentials: 'include' });
 			if (!resp.ok) {
-				if (typeof DEBUG_WV === 'function') {
-					DEBUG_WV('BLOB_REWRITE_FETCH_FAIL', { url: url, status: resp.status });
-				}
+				warnFetchFailure(url, { url: url, status: resp.status });
 				return url;
 			}
 			var blob = await resp.blob();
@@ -130,55 +148,93 @@ const BlobRewriteScript = `${Marker}
 			}
 			return blobUrl;
 		} catch (err) {
-			if (typeof DEBUG_WV === 'function') {
-				DEBUG_WV('BLOB_REWRITE_ERROR', { url: url.slice(0, 120), err: String(err) });
-			}
+			warnFetchFailure(url, { url: url.slice(0, 120), err: String(err) });
 			return url;
 		}
 	}
 
 	/**
-	 * Parse \`html\` with DOMParser, rewrite every vscode-file:// /
-	 * vscode-webview-resource:// \`src\`/\`href\` attribute to a blob: URL,
-	 * and return the serialised outer HTML of the rewritten document.
+	 * Synchronously substitute every vscode-file:// /
+	 * vscode-webview-resource:// \`src\`/\`href\` URL that already has a
+	 * cached blob: URL into \`html\`. URLs without a cached blob are
+	 * appended to \`pendingOut\` for the post-write patch pass.
 	 * @param {string} html
-	 * @returns {Promise<string>}
+	 * @param {string[]} pendingOut
+	 * @returns {string}
 	 */
-	async function rewriteHtml(html) {
-		if (!needsRewriteHtml(html)) { return html; }
-		var parser = new DOMParser();
-		var doc = parser.parseFromString(html, 'text/html');
-		var tasks = [];
-
-		var scripts = doc.querySelectorAll('script[src]');
-		for (var i = 0; i < scripts.length; i++) {
-			(function(el) {
-				var src = el.getAttribute('src');
-				if (needsRewrite(src)) {
-					tasks.push(toBlobUrl(src).then(function(blob) { el.setAttribute('src', blob); }));
-				}
-			})(scripts[i]);
+	function rewriteCachedUrls(html, pendingOut) {
+		var pattern = /(?:src|href)\\s*=\\s*("|')([^"']+)\\1/g;
+		var seen = {};
+		var urls = [];
+		var match;
+		while ((match = pattern.exec(html)) !== null) {
+			var url = match[2];
+			if (needsRewrite(url) && !seen[url]) {
+				seen[url] = true;
+				urls.push(url);
+			}
 		}
+		var out = html;
+		for (var i = 0; i < urls.length; i++) {
+			var cached = _cache.get(urls[i]);
+			if (cached) {
+				out = out.split(urls[i]).join(cached);
+			} else {
+				pendingOut.push(urls[i]);
+			}
+		}
+		return out;
+	}
 
+	/**
+	 * Patch every element in \`doc\` whose \`src\`/\`href\` still points at
+	 * \`url\` to \`blobUrl\`. \`<link>\` reloads on a live href swap;
+	 * \`<script>\` must be replaced with a clone for the blob to execute
+	 * (a src swap on an already-parsed script never re-runs it).
+	 * @param {Document} doc
+	 * @param {string} url
+	 * @param {string} blobUrl
+	 */
+	function applyBlobUrl(doc, url, blobUrl) {
 		var links = doc.querySelectorAll('link[href]');
-		for (var j = 0; j < links.length; j++) {
-			(function(el) {
-				var href = el.getAttribute('href');
-				if (needsRewrite(href)) {
-					tasks.push(toBlobUrl(href).then(function(blob) { el.setAttribute('href', blob); }));
-				}
-			})(links[j]);
+		for (var i = 0; i < links.length; i++) {
+			if (links[i].getAttribute('href') === url) {
+				links[i].setAttribute('href', blobUrl);
+			}
 		}
-
-		if (tasks.length === 0) { return html; }
-
-		await Promise.all(tasks);
-
-		if (typeof DEBUG_WV === 'function') {
-			DEBUG_WV('BLOB_REWRITE_COMPLETE', { rewrote: tasks.length });
+		var scripts = doc.querySelectorAll('script[src]');
+		for (var j = 0; j < scripts.length; j++) {
+			var el = scripts[j];
+			if (el.getAttribute('src') !== url) { continue; }
+			var clone = doc.createElement('script');
+			for (var a = 0; a < el.attributes.length; a++) {
+				clone.setAttribute(el.attributes[a].name, el.attributes[a].value);
+			}
+			clone.setAttribute('src', blobUrl);
+			if (el.parentNode) { el.parentNode.replaceChild(clone, el); }
 		}
+	}
 
-		return doc.documentElement.outerHTML;
+	/**
+	 * Post-write patch pass: fetch every pending URL and patch the
+	 * written document in place once its blob: URL resolves. Runs
+	 * after the synchronous write so the write itself is never
+	 * deferred and multi-write callers keep a single document-open.
+	 * @param {Document} doc
+	 * @param {string[]} pendingUrls
+	 */
+	function patchWrittenDocument(doc, pendingUrls) {
+		for (var i = 0; i < pendingUrls.length; i++) {
+			(function(url) {
+				toBlobUrl(url).then(function(blobUrl) {
+					if (blobUrl === url) { return; }
+					applyBlobUrl(doc, url, blobUrl);
+					if (typeof DEBUG_WV === 'function') {
+						DEBUG_WV('BLOB_REWRITE_PATCHED', { url: url.slice(0, 120) });
+					}
+				});
+			})(pendingUrls[i]);
+		}
 	}
 
 	/**
@@ -233,7 +289,7 @@ const BlobRewriteScript = `${Marker}
 			});
 			// Return immediately; the async path handles the write.
 			// The inner frame will be in a loading state until the
-			// promise resolves, which is fine — the extension's module
+			// promise resolves, which is fine - the extension's module
 			// scripts won't execute until the document is closed anyway.
 			return;
 		}

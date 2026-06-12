@@ -312,7 +312,7 @@ const StubChannels: Record<string, Record<string, unknown>> = {
 	sharedProcess: {},
 
 	utilityProcessWorker: {
-		createWorker: new Promise(() => {}),
+		createWorker: Promise.resolve(undefined),
 
 		disposeWorker: undefined,
 	},

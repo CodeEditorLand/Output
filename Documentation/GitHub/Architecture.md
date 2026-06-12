@@ -1,7 +1,26 @@
-# Output: Build Artifact Management 📦
+<table>
+	<tr>
+		<td colspan="1">
+			<h3 align="center">
+				<picture>
+					<source media="(prefers-color-scheme: dark)" srcset="https://editor.land/Dark/Image/GitHub/Land.svg">
+					<source media="(prefers-color-scheme: light)" srcset="https://editor.land/Image/GitHub/Land.svg">
+					<img width="28" alt="Land Logo" src="https://editor.land/Image/GitHub/Land.svg">
+				</picture>
+			</h3>
+		</td>
+		<td colspan="3" valign="top">
+			<h3 align="center"> Output 📦</h3>
+		</td>
+	</tr>
+</table>
 
-This document describes `Output`, the build artifact management package for
-`Land`. `Output` handles compilation of `VS Code` platform source code through:
+---
+
+# **Output** 📦 Architecture
+
+`Output` is the build artifact management package for `Land`. It handles
+compilation of `VS Code` platform source code through:
 
 - Dual-compiler support (`ESBuild` primary, `Rest` OXC optional)
 - Produces the `@codeeditorland/output` npm package consumed by `Cocoon`, `Sky`,

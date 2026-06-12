@@ -1,6 +1,6 @@
 # Output - Deep Dive
 
-This document provides the technical foundation for the Output build artifact
+Output provides the technical foundation build artifact
 management package within the Land ecosystem. **Output** orchestrates
 compilation of VSCode's TypeScript source and CodeEditorLand editor code into
 JavaScript bundles consumed by Sky, Wind, and Cocoon.

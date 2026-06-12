@@ -4,8 +4,20 @@
 
 # Build output (compiled JS artifacts)
 /Configuration/
+/Target/
 
 # Editor / OS files
 *.backup
 .DS_Store
 Thumbs.db
+
+# Environment files
+.env
+.env.local
+
+# Logs
+*.log
+
+# IDE
+.vscode/
+.idea/

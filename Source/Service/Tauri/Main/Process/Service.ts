@@ -1309,11 +1309,10 @@ class TauriChannel implements IChannel {
 
 					if (Exposed?.wrap) return Exposed;
 
-					const Module = (await import(
-						"@codeeditorland/output/Target/Microsoft/VSCode/vs/base/common/buffer.js"
-					)) as {
-						VSBuffer: { wrap(buffer: Uint8Array): unknown };
-					};
+					const Module =
+						(await import("@codeeditorland/output/Target/Microsoft/VSCode/vs/base/common/buffer.js")) as {
+							VSBuffer: { wrap(buffer: Uint8Array): unknown };
+						};
 
 					return Module.VSBuffer;
 				};

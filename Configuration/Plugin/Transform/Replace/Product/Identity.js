@@ -2,30 +2,33 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
-const RepoRoot = resolve(
-  dirname(fileURLToPath(import.meta.url)),
-  "..",
-  "..",
-  "..",
-  "..",
-  "..",
-  "..",
-  "..",
-  "Element",
-  "Sky",
-  "Public"
-);
-const ProductJsonPath = join(RepoRoot, "product.json");
-function LoadProduct() {
+let Cached = null;
+function GetProduct() {
+  if (Cached) return Cached;
   try {
-    return JSON.parse(readFileSync(ProductJsonPath, "utf8"));
+    const ThisDir = dirname(new URL(import.meta.url).pathname);
+    const ProductPath = resolve(
+      join(ThisDir, "../../../../../../../Sky/Public/product.json")
+    );
+    const Raw = readFileSync(ProductPath, "utf-8");
+    Cached = JSON.parse(Raw);
+    return Cached;
   } catch {
-    return {};
+    Cached = {
+      nameShort: "FIDDEE",
+      nameLong: "FIDDEE",
+      applicationName: "fiddee",
+      dataFolderName: ".fiddee",
+      urlProtocol: "fiddee",
+      serverApplicationName: "fiddee-server",
+      serverDataFolderName: ".fiddee-server",
+      darwinBundleIdentifier: "fiddee.editor"
+    };
+    return Cached;
   }
 }
-__name(LoadProduct, "LoadProduct");
-const Product = LoadProduct();
+__name(GetProduct, "GetProduct");
+const Product = GetProduct();
 const Replacements = [
   // ---- Product name strings ----
   { From: "Code - OSS", To: Product["nameShort"] ?? "FIDDEE" },
@@ -74,13 +77,8 @@ const Plugin = {
     let Changed = false;
     for (const { From, To } of Replacements) {
       if (!Current.includes(From)) continue;
-      if (Current.includes(To) && Current.includes(From)) {
-      }
-      const Replaced = Current.split(From).join(To);
-      if (Replaced !== Current) {
-        Changed = true;
-        Current = Replaced;
-      }
+      Current = Current.split(From).join(To);
+      Changed = true;
     }
     return Changed ? { Kind: "Rewrite", Source: Current } : { Kind: "Unchanged" };
   }

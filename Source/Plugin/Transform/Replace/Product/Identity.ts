@@ -26,60 +26,78 @@
  */
 import { readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 
-import type { TransformPlugin } from "../../../Type.js";
+import type { TransformPlugin } from "../../Type.js";
 
 // ---------------------------------------------------------------------------
-// Resolve the Land repo root and load the authoritative product.json
+// Product identity resolution (matches ResolveProductConfig.sh defaults)
 // ---------------------------------------------------------------------------
-const RepoRoot = resolve(
-	dirname(fileURLToPath(import.meta.url)),
 
-	"..",
+interface ProductInfo {
+	nameShort: string;
 
-	"..",
+	nameLong: string;
 
-	"..",
+	applicationName: string;
 
-	"..",
+	dataFolderName: string;
 
-	"..",
+	urlProtocol: string;
 
-	"..",
+	serverApplicationName: string;
 
-	"..",
+	serverDataFolderName: string;
 
-	"Element",
+	darwinBundleIdentifier: string;
+}
 
-	"Sky",
+let Cached: ProductInfo | null = null;
 
-	"Public",
-);
+function GetProduct(): ProductInfo {
+	if (Cached) return Cached;
 
-const ProductJsonPath = join(RepoRoot, "product.json");
-
-/** Read product.json once at module init (safe: file is stable during build). */
-function LoadProduct(): Record<string, string | undefined> {
 	try {
-		return JSON.parse(readFileSync(ProductJsonPath, "utf8"));
+		const ThisDir = dirname(new URL(import.meta.url).pathname);
+
+		const ProductPath = resolve(
+			join(ThisDir, "../../../../../../../Sky/Public/product.json"),
+		);
+
+		const Raw = readFileSync(ProductPath, "utf-8");
+
+		Cached = JSON.parse(Raw) as ProductInfo;
+
+		return Cached!;
 	} catch {
-		return {};
+		Cached = {
+			nameShort: "FIDDEE",
+
+			nameLong: "FIDDEE",
+
+			applicationName: "fiddee",
+
+			dataFolderName: ".fiddee",
+
+			urlProtocol: "fiddee",
+
+			serverApplicationName: "fiddee-server",
+
+			serverDataFolderName: ".fiddee-server",
+
+			darwinBundleIdentifier: "fiddee.editor",
+		};
+
+		return Cached;
 	}
 }
 
-const Product = LoadProduct();
-
-// ---------------------------------------------------------------------------
-// Replacement table — maps VS Code identity strings → Land values
-// ---------------------------------------------------------------------------
 interface Replacement {
-	/** The VS Code substring to find (case-sensitive). */
 	From: string;
 
-	/** The Land replacement string. */
 	To: string;
 }
+
+const Product = GetProduct();
 
 const Replacements: Replacement[] = [
 	// ---- Product name strings ----
@@ -159,24 +177,12 @@ const Plugin: TransformPlugin = {
 			// Skip if the target file doesn't contain this string
 			if (!Current.includes(From)) continue;
 
-			// Skip if already replaced (idempotency check)
-			if (Current.includes(To) && Current.includes(From)) {
-				// Partial replacement needed (some occurrences may already be Land)
-				// We still replace because the file could be a hybrid.
-			}
+			Current = Current.split(From).join(To);
 
-			const Replaced = Current.split(From).join(To);
-
-			if (Replaced !== Current) {
-				Changed = true;
-
-				Current = Replaced;
-			}
+			Changed = true;
 		}
 
-		return Changed
-			? { Kind: "Rewrite", Source: Current }
-			: { Kind: "Unchanged" };
+		return Changed ? { Kind: "Rewrite", Source: Current } as const : { Kind: "Unchanged" } as const;
 	},
 };
 

@@ -54,6 +54,7 @@ import InjectWebviewRuntimeDiagnosticsInner from "./Transform/Inject/Webview/Deb
 import InjectWorkbenchInteractivityCSS from "./Transform/Inject/Workbench/Interactivity/CSS.js";
 import InjectWorkbenchPaintPrime from "./Transform/Inject/Workbench/Paint/Prime.js";
 import InjectWorkerBootstrapShim from "./Transform/Inject/Worker/Bootstrap/Shim.js";
+import InjectShimHook from "./Transform/Inject/Shim/Hook.js";
 import InlineCSSImport from "./Transform/Inline/CSS/Import.js";
 import InstrumentVscodeGit from "./Transform/Instrument/Vscode/Git.js";
 import PatchLocalTerminalBackend from "./Transform/Patch/Local/Terminal/Backend.js";
@@ -206,6 +207,8 @@ export { default as CatchOutputFolderRejection } from "./Transform/Catch/Output/
 export { default as StripWebviewIframeSandbox } from "./Transform/Strip/Webview/Iframe/Sandbox.js";
 
 export { default as ExposeWorkbenchAccessor } from "./Transform/Expose/Workbench/Accessor.js";
+
+export { default as InjectShimHook } from "./Transform/Inject/Shim/Hook.js";
 
 export { default as InstrumentVscodeGit } from "./Transform/Instrument/Vscode/Git.js";
 

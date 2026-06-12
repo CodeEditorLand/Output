@@ -317,6 +317,22 @@ Output/Target/
 
 ---
 
+## Shim Compatibility
+
+| 🟠 Low-Level Shim | 🔵 Coverage Shim |
+|-------------------|-----------------|
+| Tier: `TierShim=Own\|Preempt` | Tier: `TierShim=Proxy\|Replace` |
+| Engine prototype hooks | Service routing + audit |
+
+> This Element supports the Land deep-shim interception system. Gated behind
+> `TierShim` env var (default: `None` — zero overhead).
+>
+> **Output shim architecture:** `Source/Plugin/Transform/Inject/Shim/Hook.ts` —
+> injects the shim into `web.main.js` at build time. Also
+> `Source/Service/CEL/Land/Shim/` with 7 files — the 🟠 engine hook runtime.
+
+---
+
 **Project Maintainers:** Source Open
 ([Source/Open@Editor.Land](mailto:Source/Open@Editor.Land)) |
 [GitHub Repository](https://github.com/CodeEditorLand/Output) |

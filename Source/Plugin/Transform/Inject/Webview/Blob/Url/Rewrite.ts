@@ -238,8 +238,8 @@ const BlobRewriteScript = `${Marker}
 	}
 
 	/**
-	 * Quick pre-check: skip DOMParser allocation entirely when the HTML
-	 * string contains no vscode-file:// or vscode-webview-resource://
+	 * Quick pre-check: skip the regex URL extraction entirely when the
+	 * HTML string contains no vscode-file:// or vscode-webview-resource://
 	 * substrings at all.
 	 * @param {string} html
 	 * @returns {boolean}
@@ -257,43 +257,40 @@ const BlobRewriteScript = `${Marker}
 	// The outer shell calls onFrameLoaded(contentDocument) after the inner
 	// frame's fake.html has loaded. Inside onFrameLoaded, it calls
 	// contentDocument.write(newDocument) to inject the extension HTML.
-	// We wrap Document.prototype.write so that when the inner frame's
-	// document.write is called with HTML that contains vscode-file:// URLs,
-	// we rewrite them to blob: URLs first.
+	// document.write is a synchronous API: the wrapper calls the original
+	// write before returning, otherwise multi-write callers get an empty
+	// first write followed by a second document-open. Cached blob: URLs
+	// are substituted into the string synchronously; uncached URLs are
+	// fetched afterwards and patched into the written document. The
+	// caller's own write/close sequence is untouched, so no synthetic
+	// close() is issued.
 	//
-	// We use a property descriptor on the prototype so the wrapper applies
-	// to every Document instance created in this window context, including
-	// the inner iframe's contentDocument.
+	// The wrapper sits on the prototype so it applies to every Document
+	// instance created in this window context, including the inner
+	// iframe's contentDocument.
 	// -----------------------------------------------------------------------
 	var _origWrite = Document.prototype.write;
 
-	Document.prototype.write = function landBlobRewriteWrite(html) {
-		var self = this;
-		if (typeof html === 'string' && needsRewriteHtml(html)) {
-			// Async: rewrite then write. We must close the document after
-			// writing to flush the parser, matching what the original sync
-			// write + close sequence does.
-			rewriteHtml(html).then(function(rewritten) {
-				if (typeof DEBUG_WV === 'function') {
-					DEBUG_WV('INNER_WRITE_BLOB', { origLen: html.length, newLen: rewritten.length });
-				}
-				_origWrite.call(self, rewritten);
-				try { self.close(); } catch (_) {}
-			}).catch(function(err) {
-				if (typeof DEBUG_WV === 'function') {
-					DEBUG_WV('INNER_WRITE_BLOB_ERR', { err: String(err) });
-				}
-				// Fall back to original HTML on error
-				_origWrite.call(self, html);
-				try { self.close(); } catch (_) {}
-			});
-			// Return immediately; the async path handles the write.
-			// The inner frame will be in a loading state until the
-			// promise resolves, which is fine - the extension's module
-			// scripts won't execute until the document is closed anyway.
-			return;
+	Document.prototype.write = function landBlobRewriteWrite() {
+		var pending = [];
+		var args = new Array(arguments.length);
+		var rewrote = false;
+		for (var i = 0; i < arguments.length; i++) {
+			var chunk = arguments[i];
+			if (typeof chunk === 'string' && needsRewriteHtml(chunk)) {
+				chunk = rewriteCachedUrls(chunk, pending);
+				rewrote = true;
+			}
+			args[i] = chunk;
 		}
-		return _origWrite.apply(this, arguments);
+		var result = _origWrite.apply(this, args);
+		if (rewrote && typeof DEBUG_WV === 'function') {
+			DEBUG_WV('INNER_WRITE_BLOB_SYNC', { pending: pending.length });
+		}
+		if (pending.length > 0) {
+			patchWrittenDocument(this, pending);
+		}
+		return result;
 	};
 
 	if (typeof DEBUG_WV === 'function') {

@@ -44,7 +44,7 @@ The Build Output & Artifact Management for Land&#x2001;🏞️
 > **Build processes that produce different artifacts depending on the machine,
 > CI environment, or implicit tool versions make debugging production issues
 > impossible. Output ensures the same commit produces the same output every time
-> — deterministic, reproducible, and verifiable.**
+> - deterministic, reproducible, and verifiable.**
 
 _"Compile once, ship anywhere. The build is part of the source, not the
 environment."_
@@ -69,48 +69,48 @@ integration.
 
 Build processes that produce different artifacts depending on the machine, CI
 environment, or implicit tool versions make debugging production issues
-impossible — Output ensures the same commit produces the same output every time
+impossible - Output ensures the same commit produces the same output every time
 through deterministic build configurations and artifact verification.
 
 **Output is engineered to:**
 
-1. **Orchestrate Multi-Compiler Builds** — Support both `esbuild` and Rest
+1. **Orchestrate Multi-Compiler Builds** - Support both `esbuild` and Rest
    (`OXC`-based) compilation pipelines with seamless integration.
-2. **Manage Build Artifacts** — Organize and deliver optimized `JavaScript`
+2. **Manage Build Artifacts** - Organize and deliver optimized `JavaScript`
    artifacts for consumption by Sky, Wind, and Cocoon.
-3. **Provide Hybrid Workflows** — Enable incremental migration from `esbuild` to
+3. **Provide Hybrid Workflows** - Enable incremental migration from `esbuild` to
    Rest through conditional compilation and plugin-based architecture.
-4. **Ensure Build Reproducibility** — Maintain consistent output through
+4. **Ensure Build Reproducibility** - Maintain consistent output through
    deterministic build configurations and artifact verification.
 
 ---
 
 ## Key Features&#x2001;📦
 
-**Dual-Compiler Pipeline** — Supports both `esbuild` and Rest (`OXC`-based)
+**Dual-Compiler Pipeline** - Supports both `esbuild` and Rest (`OXC`-based)
 compilation. The `Compiler` environment variable selects the active compiler,
 and the RestPlugin intercepts `.ts` files for `OXC` processing with automatic
 fallback to `esbuild` on errors.
 
-**Plugin Architecture** — A composable plugin system (`Source/Plugin/`)
+**Plugin Architecture** - A composable plugin system (`Source/Plugin/`)
 supporting asset copy, polyfill injection, and AST transforms. Plugins register
 through `Plugin/Index.ts` and compose into the build pipeline via
 `Apply/Pipeline.ts`.
 
-**Compatibility Polyfills** — Comprehensive polyfill layer (`Source/Polyfill/`)
+**Compatibility Polyfills** - Comprehensive polyfill layer (`Source/Polyfill/`)
 for `Node.js` APIs including `child_process`, `fs`, `IPC`, native modules, and
 `process.*`. Enables VS Code platform code to run outside its native `Electron`
 environment.
 
-**Asset Management** — Asset copy and style processing through
+**Asset Management** - Asset copy and style processing through
 `Source/Asset/Style/`, with transform plugins for CSS imports, icon stylesheet
 URLs, and webview blob URL rewriting.
 
-**Service Layer** — Runtime service helpers for Tauri (`IPC` helpers) and
+**Service Layer** - Runtime service helpers for Tauri (`IPC` helpers) and
 CodeEditorLand (shared process, search, updates, telemetry, extension gallery)
 providing platform-specific backend integration.
 
-**Hybrid TypeScript Workflow** — Support for incremental migration from
+**Hybrid TypeScript Workflow** - Support for incremental migration from
 `esbuild` to Rest through conditional compilation. Source maps are generated in
 development mode (`NODE_ENV=development`) for both compilers.
 
@@ -320,12 +320,12 @@ Output supports two compilation backends:
 
 Rest leverages the **OXC (Oxidation Compiler)** ecosystem:
 
-- `oxc_parser` — Ultra-fast `JavaScript`/`TypeScript` parser with ESTree
+- `oxc_parser` - Ultra-fast `JavaScript`/`TypeScript` parser with ESTree
   compatibility
-- `oxc_transformer` — AST transformation engine supporting `TypeScript`, `JSX`,
+- `oxc_transformer` - AST transformation engine supporting `TypeScript`, `JSX`,
   and modern `ECMAScript` features
-- `oxc_codegen` — Efficient code generation from AST
-- `oxc_semantic` — Semantic analysis and symbol table construction
+- `oxc_codegen` - Efficient code generation from AST
+- `oxc_semantic` - Semantic analysis and symbol table construction
 
 ### Configuration Options
 
@@ -378,7 +378,7 @@ npm run Run
 export REST_BINARY_PATH=/usr/local/bin/rest
 ```
 
-**Compilation Errors — enable verbose logging:**
+**Compilation Errors - enable verbose logging:**
 
 ```bash
 export REST_VERBOSE=true
@@ -398,10 +398,10 @@ Output enforces security at multiple layers:
 
 | Layer                     | Mechanism                                                                           |
 | ------------------------- | ----------------------------------------------------------------------------------- |
-| **Deterministic Outputs** | Same commit produces same artifacts — no supply-chain drift                         |
+| **Deterministic Outputs** | Same commit produces same artifacts - no supply-chain drift                         |
 | **Plugin Isolation**      | Plugin transforms operate on AST nodes, never raw system access                     |
-| **Polyfill Boundaries**   | Polyfills shim specific `Node.js` APIs only — no ambient `Electron` privileges      |
-| **Compiler Separation**   | Rest and esbuild run as separate processes — compiler crashes don't affect the host |
+| **Polyfill Boundaries**   | Polyfills shim specific `Node.js` APIs only - no ambient `Electron` privileges      |
+| **Compiler Separation**   | Rest and esbuild run as separate processes - compiler crashes don't affect the host |
 | **Dependency Locking**    | `package.json` locks all dependencies; `esbuild` version pinned via badge contract  |
 
 ---
@@ -423,32 +423,32 @@ Output is designed to be compatible with:
 ## API Reference
 
 - [ESBuild.ts](https://github.com/CodeEditorLand/Output/blob/Current/Source/ESBuild.ts)
-  — ESBuild entry point and configuration
+  - ESBuild entry point and configuration
 - [ESBuild/Output.ts](https://github.com/CodeEditorLand/Output/blob/Current/Source/ESBuild/Output.ts)
-  — ESBuild output compilation settings with ESM format
+  - ESBuild output compilation settings with ESM format
 - [ESBuild/Rest/Plugin.ts](https://github.com/CodeEditorLand/Output/blob/Current/Source/ESBuild/Rest/Plugin.ts)
-  — Rest (OXC) compiler plugin integration
+  - Rest (OXC) compiler plugin integration
 - [Plugin/Index.ts](https://github.com/CodeEditorLand/Output/blob/Current/Source/Plugin/Index.ts)
-  — Plugin registration and composition
+  - Plugin registration and composition
 - [Plugin/Type.ts](https://github.com/CodeEditorLand/Output/blob/Current/Source/Plugin/Type.ts)
-  — Plugin type definitions
+  - Plugin type definitions
 - [Apply/Pipeline.ts](https://github.com/CodeEditorLand/Output/blob/Current/Source/Apply/Pipeline.ts)
-  — Transform pipeline orchestration
+  - Transform pipeline orchestration
 - [Output NPM Package](https://www.npmjs.com/package/@codeeditorland/output)
 
 ---
 
 ## Related Documentation
 
-- [Architecture Overview](https://Editor.Land/Doc/architecture) — Land system
+- [Architecture Overview](https://Editor.Land/Doc/architecture) - Land system
   architecture
-- [Rest](https://github.com/CodeEditorLand/Rest) — `Rust`/`OXC` TypeScript
+- [Rest](https://github.com/CodeEditorLand/Rest) - `Rust`/`OXC` TypeScript
   compiler
-- [Cocoon](https://github.com/CodeEditorLand/Cocoon) — `Node.js` extension host
-- [Sky](https://github.com/CodeEditorLand/Sky) — Workbench shell
-- [Wind](https://github.com/CodeEditorLand/Wind) — Build tooling and utilities
+- [Cocoon](https://github.com/CodeEditorLand/Cocoon) - `Node.js` extension host
+- [Sky](https://github.com/CodeEditorLand/Sky) - Workbench shell
+- [Wind](https://github.com/CodeEditorLand/Wind) - Build tooling and utilities
 - [CHANGELOG.md](https://github.com/CodeEditorLand/Output/tree/Current/CHANGELOG.md)
-  — Release history for **Output** 📦
+  - Release history for **Output** 📦
 
 ---
 

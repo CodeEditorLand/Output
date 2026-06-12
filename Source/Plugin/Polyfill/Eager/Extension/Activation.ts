@@ -39,6 +39,10 @@ interface CelServices {
 	invokeFunction: (Callback: (Accessor: ServicesAccessor) => void) => void;
 }
 
+// Module-level so the activation events fire exactly once regardless of
+// how the immediate check and the `cel:services-ready` listener race.
+let Fired = false;
+
 export default function EagerExtensionActivation(): void {
 	if (typeof window === "undefined") return;
 
@@ -133,27 +137,31 @@ export default function EagerExtensionActivation(): void {
 		}
 	}
 
-	function ScheduleFire(): void {
-		setTimeout(() => {
-			if (!FireActivationEvents()) {
-				let Attempts = 0;
+	function FireOnce(): void {
+		if (Fired) return;
 
-				const Interval = setInterval(() => {
-					Attempts++;
-
-					if (FireActivationEvents() || Attempts > 24) {
-						clearInterval(Interval);
-					}
-				}, 200);
-			}
-		}, 50);
+		if (FireActivationEvents()) {
+			Fired = true;
+		}
 	}
 
-	if (document.readyState === "loading") {
-		document.addEventListener("DOMContentLoaded", ScheduleFire, {
-			once: true,
-		});
-	} else {
-		ScheduleFire();
+	// `ExposeAccessor` dispatches `cel:services-ready` on `window` once
+	// `__CEL_SERVICES__` is populated. Listen for that instead of
+	// polling; the immediate check below covers the case where the
+	// event already fired before this polyfill ran.
+	if (Land["__CEL_SERVICES__"]) {
+		FireOnce();
+	}
+
+	if (!Fired) {
+		window.addEventListener(
+			"cel:services-ready",
+
+			() => {
+				FireOnce();
+			},
+
+			{ once: true },
+		);
 	}
 }

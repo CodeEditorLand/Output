@@ -21,6 +21,12 @@
 const TierShim =
 	typeof __LandTier_Shim__ !== "undefined" ? __LandTier_Shim__ : "None";
 
+// ── Import LandDiagnostics (unified tracer) ──
+import {
+	recordAuditEntry,
+	forceFlush,
+} from "./Diagnostics/LandDiagnostics.js";
+
 if (TierShim === "None") {
 	// No-op — shim disabled. The entire module body is dead code.
 } else {
@@ -37,47 +43,55 @@ if (TierShim === "None") {
 		try {
 			const IS = instantiationService;
 
-			// ─── Proxy Level: Audit-only observation ───
+			// ─── Proxy Level: Audit-only observation 🔵 ───
 			if (TierShim === "Proxy") {
-				// Wrap the ServiceCollection with a logging proxy
-				// We access it via the internal _services field
 				const originalSC = IS["_services"];
 				if (originalSC && !originalSC["__LAND_SHIM_WRAPPED__"]) {
 					wrapServiceCollectionForAudit(originalSC);
 				}
-
-				// Start periodic audit flush (every 30s)
 				setInterval(() => {
 					flushAuditLog();
 				}, 30000);
 
 				console.log(
-					"[LandShim:Proxy] ServiceCollection audit active — logging all service resolutions",
+					"[LandShim:🔵 Proxy] ServiceCollection audit active — logging all service resolutions",
 				);
 				return;
 			}
 
-			// ─── Replace Level: Service descriptor replacement ───
+			// ─── Replace Level: Service descriptor replacement 🔵 ───
 			if (
 				TierShim === "Replace" ||
 				TierShim === "Own" ||
 				TierShim === "Preempt"
 			) {
 				const originalSC = IS["_services"];
-
-				// Replace ITelemetryService with no-op (zero risk)
-				replaceTelemetryService(originalSC);
-
-				// More replacements added per TierSwallow* gates
+				if (originalSC) {
+					replaceTelemetryService(originalSC);
+				}
 
 				console.log(
-					"[LandShim:Replace] Service replacement active — telemetry silenced",
+					"[LandShim:🔵 Replace] Service replacement active — telemetry silenced",
 				);
-				return;
 			}
 
-			// ─── Own / Preempt: Container ownership ───
-			// (future: override _getOrCreateServiceInstance)
+			// ─── Own / Preempt: 🟠 Low-Level Engine Hooks ───
+			if (TierShim === "Own" || TierShim === "Preempt") {
+				// Activate all 6 low-level prototype intercepts
+				activateLowLevelHooks();
+
+				console.log(
+					"[LandShim:🟠 Own] Low-level engine hooks active — Error, Emitter, Cancel, Dispose, Async, Timing",
+				);
+			}
+
+			// ─── Preempt: Nuclear — Land controls BrowserMain.open() ───
+			if (TierShim === "Preempt") {
+				console.log(
+					"[LandShim:🟠 Preempt] Full container ownership — Land IS the engine",
+				);
+				// future: Land owns the entire InstantiationService
+			}
 		} catch (error) {
 			console.error("[LandShim] Init failed:", error);
 			// Never crash the workbench — shim failures are non-fatal
@@ -85,9 +99,52 @@ if (TierShim === "None") {
 	};
 }
 
-// ─────────────────────────────────────────────────────────────────────
-// ServiceCollection audit wrapper (Proxy level)
-// ─────────────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════
+// 🟠 LOW-LEVEL HOOK ACTIVATION
+// ══════════════════════════════════════════════════════════════════════
+
+function activateLowLevelHooks() {
+	// These modules are compiled alongside Init.js and resolve at the final
+	// on-disk location under vs/workbench/browser/CEL/Land/Shim/Intercept/
+
+	try {
+		// L1: ErrorHandler — catches ALL errors
+		import("./Intercept/ErrorHandlerProxy.js").then((m) => {
+			if (m.default) m.default();
+		}).catch(() => {});
+
+		// L2: Emitter.fire — catches ALL events
+		import("./Intercept/EmitterFireProxy.js").then((m) => {
+			if (m.default) m.default();
+		}).catch(() => {});
+
+		// L3: CancellationToken — catches ALL cancellations
+		import("./Intercept/CancellationProxy.js").then((m) => {
+			if (m.default) m.default();
+		}).catch(() => {});
+
+		// L4: DisposableStore — tracks ALL resources
+		import("./Intercept/DisposableProxy.js").then((m) => {
+			if (m.default) m.default();
+		}).catch(() => {});
+
+		// L5: Async scheduling — controls setTimeout0
+		import("./Intercept/AsyncProxy.js").then((m) => {
+			if (m.default) m.default();
+		}).catch(() => {});
+
+		// L8: Timing — microsecond-level tracing
+		import("./Intercept/TimingProxy.js").then((m) => {
+			if (m.default) m.default();
+		}).catch(() => {});
+	} catch (e) {
+		// Non-fatal
+	}
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// 🔵 ServiceCollection audit wrapper
+// ══════════════════════════════════════════════════════════════════════
 
 function wrapServiceCollectionForAudit(sc) {
 	sc["__LAND_SHIM_WRAPPED__"] = true;
@@ -107,20 +164,15 @@ function wrapServiceCollectionForAudit(sc) {
 	};
 }
 
-// ─────────────────────────────────────────────────────────────────────
-// Audit log (in-memory ring buffer, flushed to Mountain dev log)
-// ─────────────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════
+// 🔵 Audit log (in-memory ring buffer, flushed to Mountain dev log)
+// ══════════════════════════════════════════════════════════════════════
 
 const auditEntries = [];
 const MAX_AUDIT = 500;
 
-function recordAuditEntry(serviceId, action, resolved) {
-	auditEntries.push({
-		ts: Date.now(),
-		serviceId,
-		action,
-		resolved,
-	});
+function recordAuditEntryLocal(serviceId, action, resolved) {
+	auditEntries.push({ ts: Date.now(), serviceId, action, resolved });
 	if (auditEntries.length > MAX_AUDIT) {
 		auditEntries.splice(0, auditEntries.length - MAX_AUDIT);
 	}
@@ -135,13 +187,10 @@ function flushAuditLog() {
 		summary[e.serviceId] = (summary[e.serviceId] || 0) + 1;
 	}
 
-	// Send to Mountain dev log via Tauri IPC
 	try {
-		const invoke =
-			(
-				(globalThis || window)["__TAURI__"] || {}
-			)["core"]?.["invoke"] ??
-			((globalThis || window)["__TAURI__"] || {})["invoke"];
+		const g = globalThis || window;
+		const tauri = g["__TAURI__"] || {};
+		const invoke = tauri["core"]?.["invoke"] ?? tauri["invoke"];
 		if (typeof invoke === "function") {
 			invoke("MountainIPCInvoke", {
 				method: "diagnostic:log",
@@ -152,27 +201,15 @@ function flushAuditLog() {
 			}).catch(() => {});
 		}
 	} catch {
-		/* diagnostic is fire-and-forget */
+		/* fire-and-forget */
 	}
 }
 
-// ─────────────────────────────────────────────────────────────────────
-// Service replacement helpers (Replace level)
-// ─────────────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════
+// 🔵 Service replacement helpers
+// ══════════════════════════════════════════════════════════════════════
 
 function replaceTelemetryService(sc) {
-	// ITelemetryService decorator function — VS Code registers
-	// telemetry services via this identifier. We swap the
-	// SyncDescriptor with a no-op factory.
-	//
-	// The actual ServiceIdentifier is created by createDecorator(), but
-	// we don't have access to it at this scope. Instead, we intercept
-	// at the set() level: when VS Code tries to register a telemetry
-	// service, we store our no-op instead.
-	//
-	// Simplest approach: patch the ServiceCollection.get() to check
-	// if the service ID string contains "telemetry" and return a
-	// pre-built no-op.
 	const originalGet = sc.get.bind(sc);
 
 	sc.get = function (id) {
@@ -181,7 +218,6 @@ function replaceTelemetryService(sc) {
 			idStr.toLowerCase().includes("telemetry") ||
 			idStr.toLowerCase().includes("itelemetry")
 		) {
-			// Return a no-op telemetry service
 			return createNoopTelemetryService();
 		}
 		return originalGet(id);
@@ -193,9 +229,11 @@ function createNoopTelemetryService() {
 		setEnabled: function () {},
 		telemetryLevel: {
 			value: 0,
-			onDidChange: { Event: function () {
-				return { dispose: function () {} };
-			} },
+			onDidChange: {
+				Event: function () {
+					return { dispose: function () {} };
+				},
+			},
 		},
 		publicLog: function () {},
 		publicLog2: function () {},

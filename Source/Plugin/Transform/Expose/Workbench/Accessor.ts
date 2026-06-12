@@ -74,6 +74,7 @@ const WorkbenchReadyInjection =
 	WorkbenchReadyMarker + "\n        __CEL_OnWorkbenchReady(workbench);";
 
 const Plugin: TransformPlugin = {
+
 	Kind: "Transform",
 
 	Name: "ExposeWorkbenchAccessor",
@@ -120,6 +121,7 @@ const Plugin: TransformPlugin = {
 
 			return Next === Source
 				? { Kind: "Unchanged" }
+
 				: { Kind: "Rewrite", Source: Next };
 		}
 
@@ -140,6 +142,7 @@ const Plugin: TransformPlugin = {
 
 			return Next === Source
 				? { Kind: "Unchanged" }
+
 				: { Kind: "Rewrite", Source: Next };
 		}
 

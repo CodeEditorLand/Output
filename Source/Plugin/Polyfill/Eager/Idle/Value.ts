@@ -1,5 +1,6 @@
 // Mountain diagnostic bridge - used instead of console.* in browser context.
 const _CELLog = (Message: string): void => {
+
 	try {
 		const Invoke =
 			(window as any).__TAURI__?.core?.invoke ??
@@ -27,12 +28,14 @@ const _CELLog = (Message: string): void => {
  */
 
 interface SyntheticIdleDeadline {
+
 	didTimeout: boolean;
 
 	timeRemaining(): number;
 }
 
 export default function EagerIdleValue(): void {
+
 	if (typeof window === "undefined") return;
 
 	const Marker = "__LAND_EAGER_IDLE_VALUE__";

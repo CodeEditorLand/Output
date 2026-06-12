@@ -38,6 +38,7 @@
  */
 
 export default function PartZIndexCSS(): void {
+
 	if (typeof window === "undefined") return;
 
 	const Marker = "__LAND_PART_ZINDEX__";

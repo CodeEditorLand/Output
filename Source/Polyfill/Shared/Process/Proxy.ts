@@ -45,6 +45,7 @@ type SharedProcessService =
  * Shared process message
  */
 interface SharedProcessMessage {
+
 	service: SharedProcessService;
 
 	method: string;
@@ -58,6 +59,7 @@ interface SharedProcessMessage {
  * Shared process response
  */
 interface SharedProcessResponse {
+
 	success: boolean;
 
 	data?: unknown;
@@ -71,6 +73,7 @@ interface SharedProcessResponse {
  * Service proxy interface
  */
 interface ServiceProxy {
+
 	service: SharedProcessService;
 
 	ready: boolean;
@@ -100,6 +103,7 @@ async function invokeTauri<T>(
 
 	args: Record<string, unknown> = {},
 ): Promise<T> {
+
 	try {
 		// Tauri 2.x: core.invoke, Tauri 1.x: invoke
 		const Invoke =
@@ -140,6 +144,7 @@ function listenToTauri(
 
 	handler: (payload: unknown) => void,
 ): () => void {
+
 	if (typeof (window as any).__TAURI__?.event?.listen === "function") {
 		const unlistenPromise = (window as any).__TAURI__.event
 			.listen(event, ({ payload }: { payload: unknown }) => {
@@ -182,11 +187,14 @@ function listenToTauri(
  * Create a service proxy for a specific shared process service
  */
 function createServiceProxy(service: SharedProcessService): ServiceProxy {
+
 	const listeners: Map<string, Set<(...args: unknown[]) => void>> = new Map();
 
 	const pendingRequests: Map<
 		string,
+
 		{ resolve: (value: unknown) => void; reject: (error: Error) => void }
+
 	> = new Map();
 
 	let isReady = false;
@@ -720,6 +728,7 @@ export const UpdateService: ServiceProxy = Object.assign(
  * Manages all shared process services
  */
 class SharedProcessManager {
+
 	// Service proxies
 	private services: Map<SharedProcessService, ServiceProxy> = new Map();
 
@@ -831,6 +840,7 @@ let sharedProcessManager: SharedProcessManager | null = null;
  * Get or create the shared process manager
  */
 export function getSharedProcessManager(): SharedProcessManager {
+
 	if (!sharedProcessManager) {
 		sharedProcessManager = new SharedProcessManager();
 	}
@@ -846,6 +856,7 @@ export function getSharedProcessManager(): SharedProcessManager {
  * Install the shared process proxy
  */
 export async function installSharedProcessProxy(): Promise<void> {
+
 	if (typeof window === "undefined") {
 		return;
 	}
@@ -901,6 +912,7 @@ export async function installSharedProcessProxy(): Promise<void> {
 // ============================================================================
 
 export default {
+
 	install: installSharedProcessProxy,
 
 	getManager: getSharedProcessManager,
@@ -922,6 +934,7 @@ export default {
 
 // Auto-install on import
 if (typeof window !== "undefined") {
+
 	installSharedProcessProxy().catch((Error: unknown) => {
 		(globalThis as any).__LAND_POLYFILL_TELEMETRY__?.On(
 			"polyfill.install",

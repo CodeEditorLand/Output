@@ -20,6 +20,7 @@
 // ============================================================================
 
 interface FileSystemRequest {
+
 	protocol: string;
 
 	path: string;
@@ -30,6 +31,7 @@ interface FileSystemRequest {
 }
 
 interface FileSystemResponse {
+
 	/**
 	 * Body for the synthetic `Response`. `Uint8Array` is the canonical
 	 * binary shape (WASM, fonts, images); `string` is used for text
@@ -54,6 +56,7 @@ interface FileSystemResponse {
 }
 
 interface ProtocolHandler {
+
 	matches(req: FileSystemRequest): boolean;
 
 	handle(req: FileSystemRequest): Promise<FileSystemResponse>;
@@ -67,6 +70,7 @@ interface ProtocolHandler {
  * Interface for Tauri command communication
  */
 interface TauriCommand {
+
 	cmd: string;
 
 	args?: Record<string, unknown>;
@@ -80,6 +84,7 @@ async function invokeTauri<T>(
 
 	args: Record<string, unknown> = {},
 ): Promise<T> {
+
 	try {
 		// Tauri 2.x: core.invoke, Tauri 1.x: invoke
 		const Invoke =
@@ -121,6 +126,7 @@ async function invokeTauri<T>(
  * This is Electron's custom file protocol that replaces file://
  */
 const VSCodeFileHandler: ProtocolHandler = {
+
 	matches(req: FileSystemRequest): boolean {
 		return req.protocol === "vscode-file";
 	},
@@ -158,6 +164,7 @@ const VSCodeFileHandler: ProtocolHandler = {
 				// so `new Response(content, …)` emits the correct bytes.
 				const Raw = await invokeTauri<
 					| { buffer?: number[] | Uint8Array }
+
 					| number[]
 					| string
 					| null
@@ -217,6 +224,7 @@ function UnwrapReadResult(
 		| null
 		| undefined,
 ): Uint8Array | string {
+
 	if (Raw === null || Raw === undefined) {
 		return new Uint8Array(0);
 	}
@@ -254,6 +262,7 @@ function UnwrapReadResult(
  * Routes to user data directory in Mountain
  */
 const VSCodeUserDataHandler: ProtocolHandler = {
+
 	matches(req: FileSystemRequest): boolean {
 		return req.protocol === "vscode-userdata";
 	},
@@ -276,6 +285,7 @@ const VSCodeUserDataHandler: ProtocolHandler = {
 			// `{ buffer: … }` envelope reach `new Response(…)`.
 			const Raw = await invokeTauri<
 				| { buffer?: number[] | Uint8Array }
+
 				| number[]
 				| string
 				| null
@@ -307,6 +317,7 @@ const VSCodeUserDataHandler: ProtocolHandler = {
  * Routes to extension resources via Cocoon
  */
 const VSCodeResourceHandler: ProtocolHandler = {
+
 	matches(req: FileSystemRequest): boolean {
 		return req.protocol === "vscode-resource";
 	},
@@ -353,6 +364,7 @@ const VSCodeResourceHandler: ProtocolHandler = {
  * Routes to remote file system via Cocoon
  */
 const VSCodeRemoteHandler: ProtocolHandler = {
+
 	matches(req: FileSystemRequest): boolean {
 		return req.protocol === "vscode-remote";
 	},
@@ -396,6 +408,7 @@ const VSCodeRemoteHandler: ProtocolHandler = {
  * Handle standard file:// protocol requests
  */
 const FileHandler: ProtocolHandler = {
+
 	matches(req: FileSystemRequest): boolean {
 		return req.protocol === "file";
 	},
@@ -408,6 +421,7 @@ const FileHandler: ProtocolHandler = {
 			// `VSCodeFileHandler` comment for the full reasoning.
 			const Raw = await invokeTauri<
 				| { buffer?: number[] | Uint8Array }
+
 				| number[]
 				| string
 				| null
@@ -454,6 +468,7 @@ const PROTOCOL_HANDLERS: ProtocolHandler[] = [
  * Find matching handler for a request
  */
 function findHandler(req: FileSystemRequest): ProtocolHandler | null {
+
 	return PROTOCOL_HANDLERS.find((handler) => handler.matches(req)) ?? null;
 }
 
@@ -465,6 +480,7 @@ function findHandler(req: FileSystemRequest): ProtocolHandler | null {
  * Parse custom protocol URL
  */
 function parseProtocolURL(url: string): FileSystemRequest {
+
 	try {
 		const parsed = new URL(url);
 
@@ -561,6 +577,7 @@ function installFetchInterception(): void {
 					? input
 					: input instanceof URL
 						? input.toString()
+
 						: input.url;
 
 			if (needsInterception(url)) {

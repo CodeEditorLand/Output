@@ -44,6 +44,7 @@ import type {
  * Electron-like module structure
  */
 interface ElectronModule {
+
 	ipcRenderer: IpcRenderer;
 
 	webFrame: WebFrame;
@@ -72,6 +73,7 @@ interface ElectronModule {
  * WebFrame interface (partial)
  */
 interface WebFrame {
+
 	setZoomLevel(level: number): void;
 
 	setZoomFactor(factor: number): void;
@@ -89,6 +91,7 @@ interface WebFrame {
  * App interface (partial, mock for renderer)
  */
 interface App {
+
 	getName(): string;
 
 	getVersion(): string;
@@ -104,6 +107,7 @@ interface App {
  * Screen interface (partial)
  */
 interface Screen {
+
 	getDisplayNearestPoint(point: { x: number; y: number }): {
 		id: number;
 
@@ -127,6 +131,7 @@ interface Screen {
  * Shell interface (partial)
  */
 interface Shell {
+
 	openExternal(url: string): Promise<void>;
 
 	openPath(path: string): Promise<string>;
@@ -142,6 +147,7 @@ interface Shell {
  * Dialog interface (partial)
  */
 interface Dialog {
+
 	showOpenDialog(
 		options?: unknown,
 	): Promise<{ filePaths: string[]; canceled: boolean }>;
@@ -159,6 +165,7 @@ interface Dialog {
  * Clipboard interface (partial)
  */
 interface Clipboard {
+
 	writeText(text: string): Promise<void>;
 
 	readText(): Promise<string>;
@@ -174,6 +181,7 @@ interface Clipboard {
  * NativeTheme interface (partial)
  */
 interface NativeTheme {
+
 	shouldUseDarkColors: boolean;
 
 	shouldUseInvertedColorScheme: boolean;
@@ -185,6 +193,7 @@ interface NativeTheme {
  * BrowserWindow interface (partial, mock for renderer)
  */
 interface BrowserWindow {
+
 	id: number;
 
 	isFocused(): boolean;
@@ -216,6 +225,7 @@ async function invokeTauri<T>(
 
 	args: Record<string, unknown> = {},
 ): Promise<T> {
+
 	try {
 		// Tauri 2.x: core.invoke, Tauri 1.x: invoke
 		const Invoke =
@@ -257,6 +267,7 @@ async function invokeTauri<T>(
  */
 const MODULE_CACHE: Map<
 	string,
+
 	| ElectronModule
 	| IpcRenderer
 	| WebFrame
@@ -271,6 +282,7 @@ const MODULE_CACHE: Map<
  * Get or create cached module
  */
 function getCachedModule<T>(key: string, factory: () => T): T {
+
 	if (MODULE_CACHE.has(key)) {
 		return MODULE_CACHE.get(key) as T;
 	}
@@ -290,6 +302,7 @@ function getCachedModule<T>(key: string, factory: () => T): T {
  * Create WebFrame polyfill
  */
 function createWebFrame(): WebFrame {
+
 	return {
 		setZoomLevel(level: number): void {
 			// This is a no-op in browser as zoom is handled by CSS/transform
@@ -329,6 +342,7 @@ function createWebFrame(): WebFrame {
  * Create App mock
  */
 function createApp(): App {
+
 	return {
 		getName(): string {
 			return "CodeEditorLand";
@@ -360,6 +374,7 @@ function createApp(): App {
  * Create Screen polyfill
  */
 function createScreen(): Screen {
+
 	return {
 		getDisplayNearestPoint(point: { x: number; y: number }): {
 			id: number;
@@ -434,6 +449,7 @@ function createScreen(): Screen {
  * Create Shell polyfill
  */
 function createShell(): Shell {
+
 	return {
 		async openExternal(url: string): Promise<void> {
 			// Use Tauri's shell module
@@ -500,6 +516,7 @@ function createShell(): Shell {
  * Create Dialog polyfill
  */
 function createDialog(): Dialog {
+
 	return {
 		async showOpenDialog(
 			options?: unknown,
@@ -515,6 +532,7 @@ function createDialog(): Dialog {
 
 					return {
 						filePaths: Array.isArray(selected)
+
 							? selected
 							: selected
 								? [selected]
@@ -579,6 +597,7 @@ function createDialog(): Dialog {
  * Create Clipboard polyfill
  */
 function createClipboard(): Clipboard {
+
 	return {
 		async writeText(text: string): Promise<void> {
 			// Use Tauri's clipboard module
@@ -636,6 +655,7 @@ function createClipboard(): Clipboard {
  * Create NativeTheme polyfill
  */
 function createNativeTheme(): NativeTheme {
+
 	return {
 		get shouldUseDarkColors(): boolean {
 			return window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -667,6 +687,7 @@ function createNativeTheme(): NativeTheme {
  * Create BrowserWindow mock for renderer process
  */
 function createBrowserWindow(): BrowserWindow {
+
 	return {
 		id: 1,
 
@@ -720,6 +741,7 @@ function createBrowserWindow(): BrowserWindow {
  * Create Electron module with all sub-modules
  */
 function createElectronModule(): ElectronModule {
+
 	return {
 		ipcRenderer: getCachedModule("ipcRenderer", () => {
 			// Import from IPCRendererShim
@@ -770,6 +792,7 @@ function createElectronModule(): ElectronModule {
  * Monkey-patch global require() to intercept electron module imports
  */
 function installRequireShim(): void {
+
 	if (typeof window === "undefined" || typeof require !== "function") {
 		return;
 	}
@@ -847,6 +870,7 @@ function installRequireShim(): void {
 
 // Also need to install the function on its own for later invocations
 (window as any).__electron_require__ = (id: string) => {
+
 	if (id === "electron") {
 		return createElectronModule();
 	}
@@ -900,6 +924,7 @@ function installRequireShim(): void {
  * Install the native module polyfill
  */
 export function installNativeModulePolyfill(): void {
+
 	if (typeof window === "undefined") {
 		return;
 	}
@@ -930,6 +955,7 @@ export function installNativeModulePolyfill(): void {
 // ============================================================================
 
 export default {
+
 	install: installNativeModulePolyfill,
 
 	// Individual modules
@@ -954,5 +980,6 @@ export default {
 
 // Auto-install on import
 if (typeof window !== "undefined") {
+
 	installNativeModulePolyfill();
 }

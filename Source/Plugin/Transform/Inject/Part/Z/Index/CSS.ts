@@ -14,6 +14,7 @@
  */
 
 import PartZIndexCSS from "../../../../../Polyfill/Part/Z/Index/CSS.js";
+
 import type { TransformPlugin } from "../../../../../Type.js";
 
 const Marker = "__LAND_PART_ZINDEX__";
@@ -21,6 +22,7 @@ const Marker = "__LAND_PART_ZINDEX__";
 const Polyfill = `\n/* ${Marker} */\n(${PartZIndexCSS.toString()})();\n`;
 
 const Plugin: TransformPlugin = {
+
 	Kind: "Transform",
 
 	Name: "InjectPartZIndexCSS",

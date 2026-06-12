@@ -63,6 +63,7 @@ import type { TransformPlugin } from "../../../../../Type.js";
 const Marker = "/* __LAND_STATIC_BLOCK_SELFREF_REWRITTEN__ */";
 
 interface StaticBlock {
+
 	readonly ClassName: string;
 
 	readonly InnerStart: number; // index of first char inside `{`
@@ -71,6 +72,7 @@ interface StaticBlock {
 }
 
 function EscapeRegex(Value: string): string {
+
 	return Value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
@@ -80,6 +82,7 @@ function EscapeRegex(Value: string): string {
  * if no construct started here.
  */
 function SkipNonCode(Source: string, i: number): number {
+
 	const c = Source[i];
 
 	const next = Source[i + 1];
@@ -135,6 +138,7 @@ function SkipNonCode(Source: string, i: number): number {
  * `Source.length` if unmatched.
  */
 function FindMatchingClose(Source: string, OpenIndex: number): number {
+
 	let depth = 1;
 
 	let i = OpenIndex + 1;
@@ -151,6 +155,7 @@ function FindMatchingClose(Source: string, OpenIndex: number): number {
 		const c = Source[i];
 
 		if (c === "{") depth++;
+
 		else if (c === "}") {
 			depth--;
 
@@ -169,6 +174,7 @@ function FindMatchingClose(Source: string, OpenIndex: number): number {
  * detected from `class <Id>` (declaration or expression) syntax.
  */
 function FindStaticBlocks(Source: string): StaticBlock[] {
+
 	const Blocks: StaticBlock[] = [];
 
 	const ClassStack: Array<{ Name: string; OpenedAtDepth: number }> = [];
@@ -300,6 +306,7 @@ function FindStaticBlocks(Source: string): StaticBlock[] {
 }
 
 const Plugin: TransformPlugin = {
+
 	Kind: "Transform",
 
 	Name: "RewriteStaticBlockSelfRef",

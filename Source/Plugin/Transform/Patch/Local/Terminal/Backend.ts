@@ -111,6 +111,7 @@ const LandBody = `async _connectToDirectProxy() {
 	}`;
 
 const Plugin: TransformPlugin = {
+
 	Kind: "Transform",
 
 	Name: "PatchLocalTerminalBackend",

@@ -35,6 +35,7 @@ export type FileRole = "original" | "out" | "out-build" | "app";
  * in-memory input).
  */
 export interface TransformInput {
+
 	readonly Path: string;
 
 	readonly Source: string;
@@ -50,10 +51,13 @@ export interface TransformInput {
  */
 export type TransformResult =
 	| { readonly Kind: "Unchanged" }
+
 	| { readonly Kind: "Rewrite"; readonly Source: string }
+
 	| { readonly Kind: "Stub"; readonly Source: string };
 
 export interface TransformPlugin {
+
 	readonly Kind: "Transform";
 
 	readonly Name: string;
@@ -87,6 +91,7 @@ export interface TransformPlugin {
  * (local node_modules → Dependency node_modules).
  */
 export interface CopyEntry {
+
 	readonly From: ReadonlyArray<string>;
 
 	readonly To: string;
@@ -97,6 +102,7 @@ export interface CopyEntry {
 }
 
 export interface CopyPlugin {
+
 	readonly Kind: "Copy";
 
 	readonly Name: string;

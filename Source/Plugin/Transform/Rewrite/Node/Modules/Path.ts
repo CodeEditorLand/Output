@@ -75,6 +75,7 @@ const Replacements: ReadonlyArray<[string, string]> = [
 ];
 
 const Plugin: TransformPlugin = {
+
 	Kind: "Transform",
 
 	Name: "RewriteNodeModulesPath",

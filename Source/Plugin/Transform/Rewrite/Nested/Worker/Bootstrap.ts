@@ -116,6 +116,7 @@ const ReplacementSource = `const _bootstrapFnSource = ${JSON.stringify(
 )};`;
 
 const Plugin: TransformPlugin = {
+
 	Kind: "Transform",
 
 	Name: "RewriteNestedWorkerBootstrap",

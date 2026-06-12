@@ -44,6 +44,7 @@ const URLPattern =
 	/new URL\(\s*[`'"]([^`'"]+(?:WorkerMain\.tsx?(?:\?[^`'"]*)?|Iframe\.html))[`'"]\s*,\s*import\.meta\.url\s*\)/g;
 
 const Plugin: TransformPlugin = {
+
 	Kind: "Transform",
 
 	Name: "RewriteWorkerURLs",

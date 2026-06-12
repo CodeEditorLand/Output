@@ -34,6 +34,7 @@
  * Process versions object
  */
 interface ProcessVersions {
+
 	node: string;
 
 	chrome: string;
@@ -63,6 +64,7 @@ interface ProcessVersions {
  * Process CPU usage snapshot
  */
 interface ProcessCpuUsage {
+
 	user: number;
 
 	system: number;
@@ -72,6 +74,7 @@ interface ProcessCpuUsage {
  * Process memory info
  */
 interface ProcessMemoryInfo {
+
 	workingSetSize: number;
 
 	peakWorkingSetSize: number;
@@ -115,6 +118,7 @@ type ProcessEventListener = (...args: unknown[]) => void;
  * Process configuration
  */
 interface ProcessConfig {
+
 	execPath?: string;
 
 	execArgv?: string[];
@@ -146,6 +150,7 @@ async function invokeTauri<T>(
 
 	args: Record<string, unknown> = {},
 ): Promise<T> {
+
 	try {
 		// Tauri 2.x: core.invoke, Tauri 1.x: invoke
 		const Invoke =
@@ -186,6 +191,7 @@ async function invokeTauri<T>(
  * Default process configuration
  */
 const DEFAULT_PROCESS_CONFIG: ProcessConfig = {
+
 	execPath: "/Applications/CodeEditorLand.app/Contents/MacOS/codeeditorland",
 
 	execArgv: [],
@@ -227,6 +233,7 @@ const DEFAULT_PROCESS_CONFIG: ProcessConfig = {
  * Get process configuration from Tauri or use defaults
  */
 async function getProcessConfiguration(): Promise<ProcessConfig> {
+
 	try {
 		if (typeof (window as any).__TAURI__ !== "undefined") {
 			// Try to get actual process info from Tauri
@@ -265,6 +272,7 @@ async function getProcessConfiguration(): Promise<ProcessConfig> {
  * Detect Chrome version from user agent
  */
 function detectChromeVersion(): string {
+
 	const match = navigator.userAgent.match(/Chrome\/(\d+\.\d+\.\d+\.\d+)/);
 
 	return match ? match[1] : "0.0.0.0";
@@ -274,6 +282,7 @@ function detectChromeVersion(): string {
  * Create versions object
  */
 function createVersions(): ProcessVersions {
+
 	const chromeVersion = detectChromeVersion();
 
 	return {
@@ -320,6 +329,7 @@ let hrtimeStart: [number, number] = [0, 0];
  * Based on performance.now() for browser compatibility
  */
 function hrtime(time?: [number, number]): [number, number] {
+
 	const now = performance.now() * 1e6; // Convert to nanoseconds
 
 	const seconds = Math.floor(now / 1e9);
@@ -348,6 +358,7 @@ let lastCpuUsage: ProcessCpuUsage | null = null;
  * Get process CPU usage
  */
 function cpuUsage(previousValue?: ProcessCpuUsage): ProcessCpuUsage {
+
 	// In a browser environment, we can only approximate CPU usage
 	// This is a simplified implementation
 	const user = Math.floor(Math.random() * 10000); // Mock user CPU time
@@ -376,6 +387,7 @@ function cpuUsage(previousValue?: ProcessCpuUsage): ProcessCpuUsage {
  * ProcessPolyfill class implementing Node.js process object
  */
 class ProcessPolyfill {
+
 	// Core properties
 	public readonly platform: string;
 
@@ -742,6 +754,7 @@ let processConfigPromise: Promise<ProcessConfig> | null = null;
  * Get or create the process singleton
  */
 export async function getProcess(): Promise<ProcessPolyfill> {
+
 	if (!processInstance) {
 		if (!processConfigPromise) {
 			processConfigPromise = getProcessConfiguration();
@@ -759,6 +772,7 @@ export async function getProcess(): Promise<ProcessPolyfill> {
  * Get process synchronously (may return basic instance)
  */
 export function getProcessSync(): ProcessPolyfill {
+
 	if (!processInstance) {
 		processInstance = new ProcessPolyfill(DEFAULT_PROCESS_CONFIG);
 	}
@@ -774,6 +788,7 @@ export function getProcessSync(): ProcessPolyfill {
  * Install the process polyfill
  */
 export async function installProcessPolyfill(): Promise<void> {
+
 	if (typeof window === "undefined") {
 		return;
 	}
@@ -804,6 +819,7 @@ export async function installProcessPolyfill(): Promise<void> {
  * Install process polyfill synchronously
  */
 export function installProcessPolyfillSync(): void {
+
 	if (typeof window === "undefined") {
 		return;
 	}
@@ -830,6 +846,7 @@ export function installProcessPolyfillSync(): void {
 export { ProcessPolyfill };
 
 export default {
+
 	install: installProcessPolyfill,
 
 	installSync: installProcessPolyfillSync,
@@ -841,6 +858,7 @@ export default {
 
 // Auto-install on import (async)
 if (typeof window !== "undefined") {
+
 	installProcessPolyfill().catch((Error: unknown) => {
 		// Fallback to sync installation. The async path is preferred
 		// (it queries Tauri for env / cwd / argv); the sync path uses

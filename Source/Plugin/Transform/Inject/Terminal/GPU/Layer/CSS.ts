@@ -40,6 +40,7 @@
  */
 
 import { readFile } from "node:fs/promises";
+
 import { fileURLToPath } from "node:url";
 
 import type { TransformPlugin } from "../../../../../Type.js";
@@ -59,6 +60,7 @@ const InjectedCSS = "\n" + (await readFile(StylesheetPath, "utf8"));
 const PathRegex = /workbench\/contrib\/terminal\/browser\/media\/[^/]+\.css$/;
 
 const Plugin: TransformPlugin = {
+
 	Kind: "Transform",
 
 	Name: "InjectTerminalGPULayerCSS",

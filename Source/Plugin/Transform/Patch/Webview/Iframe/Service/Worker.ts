@@ -140,6 +140,7 @@ const PathRegex =
 	/\/vs\/workbench\/contrib\/webview\/browser\/pre\/index\.html$/;
 
 const Plugin: TransformPlugin = {
+
 	Kind: "Transform",
 
 	Name: "PatchWebviewIframeServiceWorker",
@@ -187,6 +188,7 @@ const Plugin: TransformPlugin = {
 
 		return Next === Source
 			? { Kind: "Unchanged" }
+
 			: { Kind: "Rewrite", Source: Next };
 	},
 };

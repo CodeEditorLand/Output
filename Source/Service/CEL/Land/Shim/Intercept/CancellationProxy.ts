@@ -26,12 +26,14 @@ const CancellationProxy = async (): Promise<void> => {
 
 	// Idempotency guard
 	const marker: string = "__LAND_SHIM_LOW_CANCELLATION_PROXY__";
+
 	if ((globalThis as any)[marker]) {
 		return;
 	}
 
 	try {
-		const cancellationModule = await import("../../base/common/cancellation.js");
+		const cancellationModule =
+			await import("../../base/common/cancellation.js");
 
 		if (
 			!cancellationModule ||
@@ -52,6 +54,7 @@ const CancellationProxy = async (): Promise<void> => {
  */
 function patchCancellation(CancellationTokenSource: any, marker: string): void {
 	const proto: any = CancellationTokenSource.prototype;
+
 	if (!proto || proto[marker]) {
 		return;
 	}
@@ -62,12 +65,16 @@ function patchCancellation(CancellationTokenSource: any, marker: string): void {
 		// Record cancellation before the original runs
 		try {
 			const stack: string = new Error().stack?.slice(0, 1024) ?? "";
+
 			const trace: any = {
 				ts: Date.now(),
+
 				stack,
+
 				alreadyCancelled:
 					this.token && this.token.isCancellationRequested === true,
 			};
+
 			recordCancellationTrace(trace);
 		} catch {
 			// Tracing must not throw

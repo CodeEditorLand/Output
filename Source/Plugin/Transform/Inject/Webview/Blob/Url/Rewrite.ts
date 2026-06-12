@@ -253,6 +253,7 @@ const BlobRewriteScript = `${Marker}
 	 * @returns {string}
 	 */
 	function rewriteToLocalhost(html) {
+
 		var pattern = /vscode-webview-resource:\/\/[^"'\s)]+/g;
 		return html.replace(pattern, function(match) {
 			var path = match.replace('vscode-webview-resource://', '');

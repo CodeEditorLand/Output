@@ -69,12 +69,14 @@ const Plugin: TransformPlugin = {
 	 * still needs to NOT inject anything. We check the env var here.
 	 */
 	Enabled: () => {
-		const tier =
+		const tier = (
 			(
-				(globalThis as {
+				globalThis as {
 					process?: { env?: Record<string, string | undefined> };
-				}).process?.env?.["TierShim"] ?? "None"
-			).toLowerCase();
+				}
+			).process?.env?.["TierShim"] ?? "None"
+		).toLowerCase();
+
 		return tier !== "none";
 	},
 
@@ -90,8 +92,8 @@ const Plugin: TransformPlugin = {
 
 		const IsDesktopMain =
 			/\/vs\/workbench\/electron-browser\/desktop\.main\.js$/.test(Path);
-		const IsWebMain =
-			/\/vs\/workbench\/browser\/web\.main\.js$/.test(Path);
+
+		const IsWebMain = /\/vs\/workbench\/browser\/web\.main\.js$/.test(Path);
 
 		if (!IsWebMain && !IsDesktopMain) {
 			return { Kind: "Unchanged" };
@@ -117,6 +119,7 @@ const Plugin: TransformPlugin = {
 		// Inject the import statement at the top of the module
 		const Next = Source.replace(
 			ImportMarker,
+
 			ImportMarker + ImportInjection,
 		).replace(StartupMarker, StartupInjection);
 

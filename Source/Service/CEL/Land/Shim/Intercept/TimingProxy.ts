@@ -37,6 +37,7 @@ const TimingProxy = async (): Promise<void> => {
 
 	// Idempotency guard
 	const marker: string = "__LAND_SHIM_LOW_TIMING_PROXY__";
+
 	if ((globalThis as any)[marker]) {
 		return;
 	}
@@ -59,23 +60,33 @@ const TimingProxy = async (): Promise<void> => {
  * Records high-precision timing data with microsecond resolution where
  * available (performance.now or process.hrtime).
  */
-function patchStopWatch(StopWatch: any, marker: string, stopwatchModule: any): void {
+function patchStopWatch(
+	StopWatch: any,
+
+	marker: string,
+
+	stopwatchModule: any,
+): void {
 	if (StopWatch[marker]) {
 		return;
 	}
 
 	const proto: any = StopWatch.prototype;
+
 	if (!proto) {
 		return;
 	}
 
 	// Capture the high-resolution time source
 	const hrNow: () => number =
-		typeof performance !== "undefined" && typeof performance.now === "function"
+		typeof performance !== "undefined" &&
+		typeof performance.now === "function"
 			? () => performance.now()
-			: typeof process !== "undefined" && typeof process.hrtime === "function"
+			: typeof process !== "undefined" &&
+				  typeof process.hrtime === "function"
 				? () => {
 						const t: [number, number] = process.hrtime();
+
 						return t[0] * 1e6 + t[1] / 1e3; // microseconds
 					}
 				: () => Date.now() * 1000; // fallback: milliseconds → microseconds
@@ -84,30 +95,48 @@ function patchStopWatch(StopWatch: any, marker: string, stopwatchModule: any): v
 	const originalConstructor: Function = StopWatch;
 
 	// We use a proxy function to intercept construction
-	const ProxiedStopWatch: any = function (this: any, highResolution?: boolean): any {
+	const ProxiedStopWatch: any = function (
+		this: any,
+
+		highResolution?: boolean,
+	): any {
 		const id: number = ++stopwatchIdCounter;
+
 		let _startTime: number = 0;
+
 		let _stopTime: number = 0;
+
 		let _hasRun: boolean = false;
 
 		// Call original constructor (which is actually StaticStopWatch.create)
 		const instance: any =
-			originalConstructor.create && typeof originalConstructor.create === "function"
-				? originalConstructor.create.call(originalConstructor, highResolution)
+			originalConstructor.create &&
+			typeof originalConstructor.create === "function"
+				? originalConstructor.create.call(
+						originalConstructor,
+
+						highResolution,
+					)
 				: new (Function.prototype.bind.apply(
 						originalConstructor,
-						[null].concat(Array.prototype.slice.call(arguments))
+
+						[null].concat(Array.prototype.slice.call(arguments)),
 					))();
 
 		// Record construction
 		try {
 			const trace: any = {
 				action: "create",
+
 				id,
+
 				ts: Date.now(),
+
 				highResolution: !!highResolution,
+
 				micros: hrNow(),
 			};
+
 			recordTimingTrace(trace);
 		} catch {
 			// Non-blocking
@@ -123,13 +152,19 @@ function patchStopWatch(StopWatch: any, marker: string, stopwatchModule: any): v
 				// Record stop event
 				try {
 					const nowMicros: number = hrNow();
+
 					const trace: any = {
 						action: "stop",
+
 						id,
+
 						ts: Date.now(),
+
 						micros: nowMicros,
+
 						elapsedRaw: result,
 					};
+
 					recordTimingTrace(trace);
 				} catch {
 					// Non-blocking
@@ -150,11 +185,16 @@ function patchStopWatch(StopWatch: any, marker: string, stopwatchModule: any): v
 				try {
 					const trace: any = {
 						action: "elapsed",
+
 						id,
+
 						ts: Date.now(),
+
 						micros: hrNow(),
+
 						value: result,
 					};
+
 					recordTimingTrace(trace);
 				} catch {
 					// Non-blocking
@@ -176,6 +216,7 @@ function patchStopWatch(StopWatch: any, marker: string, stopwatchModule: any): v
 
 	// Preserve static methods/properties
 	ProxiedStopWatch.prototype = StopWatch.prototype;
+
 	for (const key of Object.keys(StopWatch)) {
 		try {
 			(ProxiedStopWatch as any)[key] = (StopWatch as any)[key];
@@ -190,6 +231,7 @@ function patchStopWatch(StopWatch: any, marker: string, stopwatchModule: any): v
 	}
 
 	ProxiedStopWatch[marker] = true;
+
 	stopwatchModule[marker] = true;
 }
 

@@ -28,6 +28,7 @@ const ErrorHandlerProxy = async (): Promise<void> => {
 
 	// Idempotency guard
 	const marker: string = "__LAND_SHIM_LOW_ERROR_HANDLER_PROXY__";
+
 	if ((globalThis as any)[marker]) {
 		return;
 	}
@@ -64,16 +65,20 @@ function patchErrorHandler(errorHandler: any, marker: string): void {
 		try {
 			const trace: any = {
 				ts: Date.now(),
+
 				message:
 					error instanceof Error
 						? error.message
 						: String(error ?? "unknown"),
+
 				stack:
 					error instanceof Error
-						? error.stack?.slice(0, 1024) ?? ""
+						? (error.stack?.slice(0, 1024) ?? "")
 						: "",
+
 				name: error instanceof Error ? error.name : "non-error",
 			};
+
 			recordErrorTrace(trace);
 		} catch {
 			// Tracing itself must not throw

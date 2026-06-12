@@ -12,7 +12,10 @@
  * Must access Emitter from ../../base/common/event.js
  */
 
-import { recordEmitterTrace, checkLandSwallowMap } from "../Diagnostics/LandDiagnostics.js";
+import {
+	checkLandSwallowMap,
+	recordEmitterTrace,
+} from "../Diagnostics/LandDiagnostics.js";
 
 /** @type {boolean} — gate baked at build time by esbuild define */
 const __LandTier_Shim__: string =
@@ -25,8 +28,8 @@ const __LandTier_Shim__: string =
  */
 const SAMPLE_RATE: number =
 	__LandTier_Shim__ === "Own" || __LandTier_Shim__ === "Preempt"
-		? (typeof (globalThis as any)?.__LandDevMode__ === "boolean" &&
-			(globalThis as any).__LandDevMode__)
+		? typeof (globalThis as any)?.__LandDevMode__ === "boolean" &&
+			(globalThis as any).__LandDevMode__
 			? 1.0
 			: 0.01
 		: 0;
@@ -41,6 +44,7 @@ const EmitterFireProxy = async (): Promise<void> => {
 
 	// Idempotency guard
 	const marker: string = "__LAND_SHIM_LOW_EMITTER_FIRE_PROXY__";
+
 	if ((globalThis as any)[marker]) {
 		return;
 	}
@@ -63,6 +67,7 @@ const EmitterFireProxy = async (): Promise<void> => {
  */
 function patchEmitterFire(Emitter: any, marker: string): void {
 	const proto: any = Emitter.prototype;
+
 	if (!proto || proto[marker]) {
 		return;
 	}
@@ -87,12 +92,19 @@ function patchEmitterFire(Emitter: any, marker: string): void {
 			}
 
 			// Sample-based tracing
-			if (SAMPLE_RATE > 0 && tickCount % _sampleThreshold(SAMPLE_RATE) === 0) {
+			if (
+				SAMPLE_RATE > 0 &&
+				tickCount % _sampleThreshold(SAMPLE_RATE) === 0
+			) {
 				const trace: any = {
 					ts: Date.now(),
+
 					eventName: eventName || "(anonymous)",
-					listenerCount: (this._listeners && this._listeners.size) ?? 0,
+
+					listenerCount:
+						(this._listeners && this._listeners.size) ?? 0,
 				};
+
 				recordEmitterTrace(trace);
 			}
 		} catch {

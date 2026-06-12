@@ -41,6 +41,7 @@ import InjectEditorGPULayerCSS from "./Transform/Inject/Editor/GPU/Layer/CSS.js"
 import InjectMacTitlebarOffsetCSS from "./Transform/Inject/Mac/Titlebar/Offset/CSS.js";
 import InjectNameShim from "./Transform/Inject/Name/Shim.js";
 import InjectPartZIndexCSS from "./Transform/Inject/Part/Z/Index/CSS.js";
+import InjectShimHook from "./Transform/Inject/Shim/Hook.js";
 import InjectStorageOverlay from "./Transform/Inject/Storage/Overlay.js";
 import InjectStripBackgroundPolling from "./Transform/Inject/Strip/Background/Polling.js";
 import InjectTauriDragRegion from "./Transform/Inject/Tauri/Drag/Region.js";
@@ -54,7 +55,6 @@ import InjectWebviewRuntimeDiagnosticsInner from "./Transform/Inject/Webview/Deb
 import InjectWorkbenchInteractivityCSS from "./Transform/Inject/Workbench/Interactivity/CSS.js";
 import InjectWorkbenchPaintPrime from "./Transform/Inject/Workbench/Paint/Prime.js";
 import InjectWorkerBootstrapShim from "./Transform/Inject/Worker/Bootstrap/Shim.js";
-import InjectShimHook from "./Transform/Inject/Shim/Hook.js";
 import InlineCSSImport from "./Transform/Inline/CSS/Import.js";
 import InstrumentVscodeGit from "./Transform/Instrument/Vscode/Git.js";
 import PatchLocalTerminalBackend from "./Transform/Patch/Local/Terminal/Backend.js";

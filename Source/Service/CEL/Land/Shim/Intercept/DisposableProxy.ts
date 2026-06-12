@@ -26,6 +26,7 @@ const DisposableProxy = async (): Promise<void> => {
 
 	// Idempotency guard
 	const marker: string = "__LAND_SHIM_LOW_DISPOSABLE_PROXY__";
+
 	if ((globalThis as any)[marker]) {
 		return;
 	}
@@ -54,6 +55,7 @@ let disposableIdCounter: number = 0;
  */
 function patchDisposableStore(DisposableStore: any, marker: string): void {
 	const proto: any = DisposableStore.prototype;
+
 	if (!proto || proto[marker]) {
 		return;
 	}
@@ -68,20 +70,26 @@ function patchDisposableStore(DisposableStore: any, marker: string): void {
 		try {
 			if (disposable && typeof disposable === "object") {
 				disposable.__landDisposableId = id;
+
 				disposable.__landDisposableStore =
 					this.__landStoreId ?? "unknown";
 			}
 
 			const trace: any = {
 				action: "add",
+
 				id,
+
 				ts: Date.now(),
+
 				storeId: this.__landStoreId ?? "anonymous",
+
 				typeName:
 					disposable && typeof disposable === "object"
 						? (disposable.constructor?.name ?? "object")
 						: String(disposable),
 			};
+
 			recordDisposableTrace(trace);
 		} catch {
 			// Non-blocking
@@ -97,15 +105,18 @@ function patchDisposableStore(DisposableStore: any, marker: string): void {
 		// Track disposal before resources are released
 		try {
 			// Count tracked disposables before disposal
-			const trackedCount: number =
-				this._store ? this._store.size : 0;
+			const trackedCount: number = this._store ? this._store.size : 0;
 
 			const trace: any = {
 				action: "dispose",
+
 				ts: Date.now(),
+
 				storeId: this.__landStoreId ?? "anonymous",
+
 				trackedCount,
 			};
+
 			recordDisposableTrace(trace);
 		} catch {
 			// Non-blocking

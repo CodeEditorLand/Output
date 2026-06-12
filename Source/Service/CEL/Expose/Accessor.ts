@@ -534,6 +534,17 @@ export const ExposeAccessor = (InstantiationService) => {
 		}
 
 		Diagnostic("cel-services", "ready (sync via static import)");
+
+		// ── Shim activation (gated behind TierShim) ──
+		try {
+			const landShimInit = (globalThis as any).LandShimInit;
+
+			if (typeof landShimInit === "function") {
+				landShimInit(InstantiationService);
+			}
+		} catch {
+			/* shim not loaded or failed — non-fatal */
+		}
 	} catch (Error) {
 		Diagnostic(
 			"cel-services",

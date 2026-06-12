@@ -38,6 +38,7 @@ const AsyncProxy = async (): Promise<void> => {
 
 	// Idempotency guard
 	const marker: string = "__LAND_SHIM_LOW_ASYNC_PROXY__";
+
 	if ((globalThis as any)[marker]) {
 		return;
 	}
@@ -45,7 +46,10 @@ const AsyncProxy = async (): Promise<void> => {
 	try {
 		const platformModule = await import("../../base/common/platform.js");
 
-		if (!platformModule || typeof platformModule.setTimeout0 !== "function") {
+		if (
+			!platformModule ||
+			typeof platformModule.setTimeout0 !== "function"
+		) {
 			return;
 		}
 
@@ -59,7 +63,9 @@ const AsyncProxy = async (): Promise<void> => {
  * Batching state — module-level so patches survive re-entry.
  */
 let batchQueue: Array<() => void> = [];
+
 let batchFlushPending: boolean = false;
+
 let batchCallCount: number = 0;
 
 /**
@@ -131,11 +137,14 @@ function patchSetTimeout0(platformModule: any, marker: string): void {
 function flushBatch(originalSetTimeout0: Function): void {
 	if (batchQueue.length === 0) {
 		batchFlushPending = false;
+
 		return;
 	}
 
 	const batch: Array<() => void> = batchQueue;
+
 	batchQueue = [];
+
 	batchFlushPending = false;
 
 	// Execute all callbacks via original setTimeout0 to maintain

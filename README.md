@@ -41,10 +41,11 @@
 
 The Build Output & Artifact Management for Land&#x2001;🏞️
 
-> **Build processes that produce different artifacts depending on the machine,
+> \*\*Build processes that produce different artifacts depending on the machine,
 > CI environment, or implicit tool versions make debugging production issues
 > impossible. Output ensures the same commit produces the same output every time
-> - deterministic, reproducible, and verifiable.**
+>
+> - deterministic, reproducible, and verifiable.\*\*
 
 _"Compile once, ship anywhere. The build is part of the source, not the
 environment."_
@@ -423,17 +424,17 @@ Output is designed to be compatible with:
 ## API Reference
 
 - [ESBuild.ts](https://github.com/CodeEditorLand/Output/blob/Current/Source/ESBuild.ts)
-  - ESBuild entry point and configuration
+    - ESBuild entry point and configuration
 - [ESBuild/Output.ts](https://github.com/CodeEditorLand/Output/blob/Current/Source/ESBuild/Output.ts)
-  - ESBuild output compilation settings with ESM format
+    - ESBuild output compilation settings with ESM format
 - [ESBuild/Rest/Plugin.ts](https://github.com/CodeEditorLand/Output/blob/Current/Source/ESBuild/Rest/Plugin.ts)
-  - Rest (OXC) compiler plugin integration
+    - Rest (OXC) compiler plugin integration
 - [Plugin/Index.ts](https://github.com/CodeEditorLand/Output/blob/Current/Source/Plugin/Index.ts)
-  - Plugin registration and composition
+    - Plugin registration and composition
 - [Plugin/Type.ts](https://github.com/CodeEditorLand/Output/blob/Current/Source/Plugin/Type.ts)
-  - Plugin type definitions
+    - Plugin type definitions
 - [Apply/Pipeline.ts](https://github.com/CodeEditorLand/Output/blob/Current/Source/Apply/Pipeline.ts)
-  - Transform pipeline orchestration
+    - Transform pipeline orchestration
 - [Output NPM Package](https://www.npmjs.com/package/@codeeditorland/output)
 
 ---
@@ -448,7 +449,7 @@ Output is designed to be compatible with:
 - [Sky](https://github.com/CodeEditorLand/Sky) - Workbench shell
 - [Wind](https://github.com/CodeEditorLand/Wind) - Build tooling and utilities
 - [CHANGELOG.md](https://github.com/CodeEditorLand/Output/tree/Current/CHANGELOG.md)
-  - Release history for **Output** 📦
+    - Release history for **Output** 📦
 
 ---
 

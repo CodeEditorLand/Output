@@ -93,7 +93,12 @@ const BlobRewriteScript = `${Marker}
 	/** @type {Map<string, string>} */
 	var _cache = new Map();
 
-	var VSCODE_SCHEMES = ['vscode-file://', 'vscode-webview-resource://'];
+	// Mountain registers only 'vscode-file://' as a custom scheme handler.
+	// 'vscode-webview-resource://' is NOT registered — fetches to it fail
+	// silently, so do not include it in the async blob-fetch path.
+	// vscode-webview-resource:// URLs are instead handled by the sync
+	// regex rewriting pass (see rewriteToLocalhost below).
+	var VSCODE_SCHEMES = ['vscode-file://'];
 
 	/**
 	 * Returns true when the URL needs to be rewritten to a blob: URL.
@@ -238,9 +243,27 @@ const BlobRewriteScript = `${Marker}
 	}
 
 	/**
-	 * Quick pre-check: skip the regex URL extraction entirely when the
-	 * HTML string contains no vscode-file:// or vscode-webview-resource://
-	 * substrings at all.
+	 * Synchronously rewrite every vscode-webview-resource:// URL in `html`
+	 * to its `http://localhost:18992/` equivalent. Mountain does not
+	 * register the `vscode-webview-resource://` scheme, but it serves
+	 * the same assets under `http://localhost:18992/`. This pre-rewrite
+	 * runs before `document.write` is called so the inner iframe can
+	 * load scripts/stylesheets from a resolvable origin.
+	 * @param {string} html
+	 * @returns {string}
+	 */
+	function rewriteToLocalhost(html) {
+		var pattern = /vscode-webview-resource:\/\/[^"'\s)]+/g;
+		return html.replace(pattern, function(match) {
+			var path = match.replace('vscode-webview-resource://', '');
+			return 'http://localhost:18992/' + path;
+		});
+	}
+
+	/**
+	 * Quick pre-check: returns true when `html` contains any vscode-file://
+	 * or vscode-webview-resource:// substring (so we don't waste time on
+	 * clean HTML strings).
 	 * @param {string} html
 	 * @returns {boolean}
 	 */
@@ -277,9 +300,20 @@ const BlobRewriteScript = `${Marker}
 		var rewrote = false;
 		for (var i = 0; i < arguments.length; i++) {
 			var chunk = arguments[i];
-			if (typeof chunk === 'string' && needsRewriteHtml(chunk)) {
-				chunk = rewriteCachedUrls(chunk, pending);
-				rewrote = true;
+			if (typeof chunk === 'string') {
+				// 1. Sync rewrite vscode-webview-resource:// → localhost.
+				//    Must run FIRST — this scheme is not registered by
+				//    Mountain and will fail on fetch/cache lookup.
+				if (chunk.indexOf('vscode-webview-resource://') !== -1) {
+					chunk = rewriteToLocalhost(chunk);
+					rewrote = true;
+				}
+				// 2. Sync substitute cached blob: URLs for
+				//    vscode-file:// assets (the async fetch path).
+				if (chunk.indexOf('vscode-file://') !== -1) {
+					chunk = rewriteCachedUrls(chunk, pending);
+					rewrote = true;
+				}
 			}
 			args[i] = chunk;
 		}

@@ -46,6 +46,7 @@ import { Emitter } from "../../base/common/event.js";
 import { Disposable, toDisposable } from "../../base/common/lifecycle.js";
 import { ResourceTree } from "../../base/common/resourceTree.js";
 import { URI } from "../../base/common/uri.js";
+import { IBulkEditService } from "../../editor/browser/services/bulkEditService.js";
 import { ICodeEditorService } from "../../editor/browser/services/codeEditorService.js";
 import { ILanguageService } from "../../editor/common/languages/language.js";
 import { ILanguageFeaturesService } from "../../editor/common/services/languageFeatures.js";
@@ -321,6 +322,13 @@ export const ExposeAccessor = (InstantiationService) => {
 
 			EditorGroups: Resolve(InstantiationService, IEditorGroupsService),
 
+			// `IBulkEditService.apply(resourceEdits)` is the workbench's
+			// transactional edit applier - it handles text edits AND file
+			// operations (create/rename/delete) in one undo group. Sky's
+			// `sky://workspace/applyEdit` bridge prefers `Services.BulkEdit`
+			// over the per-model fallback path.
+			BulkEdit: Resolve(InstantiationService, IBulkEditService),
+
 			TextFile: Resolve(InstantiationService, ITextFileService),
 
 			Activity: Resolve(InstantiationService, IActivityService),
@@ -363,18 +371,23 @@ export const ExposeAccessor = (InstantiationService) => {
 		};
 
 		// Defensive monkey-patch: short-circuit `IExtensionService.activateByEvent`
-		// for `onView:<viewId>` events. WebviewViewPane.activate() awaits
+		// for `onView:<viewId>` events - but only once the `*` activation
+		// pass has settled. WebviewViewPane.activate() awaits
 		// `await this.extensionService.activateByEvent("onView:" + this.id)`
 		// BEFORE it calls `webviewViewService.resolve(...)`; under Land the
-		// `*` activation already runs every extension at boot, so per-view
-		// events are redundant - and Cocoon's RequestRoutingHandler doesn't
+		// EagerExtensionActivation polyfill fires `activateByEvent("*")` at
+		// workbench-loaded, so per-view events become redundant AFTER that
+		// pass completes - and Cocoon's RequestRoutingHandler doesn't
 		// short-circuit them, so the workbench's standard codepath can hang
 		// the pane forever waiting on a Cocoon round-trip that never settles.
-		// Returning a resolved promise immediately is safe because Land does
-		// NOT rely on per-event activation: every contribution that could
-		// match `onView:X` was already pulled in by the `*` activation pass.
-		// Without this patch, every extension sidebar stalls at the bare
-		// `pre/index.html` chrome because resolve() never runs.
+		//
+		// Three phases per `onView:*` call:
+		//   1. before any `*` activation started -> pass through to the
+		//      original so lazily-activated view extensions still activate;
+		//   2. `*` in flight -> return the in-flight `*` promise so the pane
+		//      waits for the bulk pass instead of issuing its own round-trip;
+		//   3. `*` settled -> resolve immediately (every contribution that
+		//      could match `onView:X` was already pulled in by `*`).
 		try {
 			const ExtensionSvc = Resolve(
 				InstantiationService,
@@ -390,12 +403,43 @@ export const ExposeAccessor = (InstantiationService) => {
 				const Original =
 					ExtensionSvc.activateByEvent.bind(ExtensionSvc);
 
+				let StarSettled = false;
+
+				let StarInFlight = null;
+
 				ExtensionSvc.activateByEvent = function (Event) {
+					if (Event === "*") {
+						const Result = Original(Event);
+
+						StarInFlight = Promise.resolve(Result).then(
+							() => {
+								StarSettled = true;
+							},
+
+							() => {
+								// Even a rejected `*` pass means every
+								// extension had its activation attempted -
+								// re-running per-view events would not help.
+								StarSettled = true;
+							},
+						);
+
+						return Result;
+					}
+
 					if (
 						typeof Event === "string" &&
 						Event.indexOf("onView:") === 0
 					) {
-						return Promise.resolve();
+						if (StarSettled) {
+							return Promise.resolve();
+						}
+
+						if (StarInFlight) {
+							return StarInFlight;
+						}
+
+						return Original(Event);
 					}
 
 					return Original(Event);
@@ -406,7 +450,7 @@ export const ExposeAccessor = (InstantiationService) => {
 				Diagnostic(
 					"cel-services",
 
-					"activateByEvent onView:* short-circuit installed",
+					"activateByEvent onView:* short-circuit installed (gated on * settling)",
 				);
 			}
 		} catch (PatchError) {

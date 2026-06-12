@@ -145,7 +145,10 @@ const ChannelRouteMap: Record<string, string> = {
 	localGit: "git",
 };
 
-const FireAndForgetChannels = new Set(["logger", "output"]);
+// `output` deliberately NOT fire-and-forget: `output:registerLogger` /
+// `output:createOutputChannel` callers expect a handle/ack back, and the
+// channel is low-frequency anyway - it must round-trip through Mountain.
+const FireAndForgetChannels = new Set(["logger"]);
 
 // Channel-event → `sky://` Tauri event mapping.
 //

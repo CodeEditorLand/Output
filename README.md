@@ -1,166 +1,26 @@
-<table>
-	<tr>
-		<td align="left" valign="middle">
-			<h3 align="left">
-				Output
-				⚫
-			</h3>
-		</td>
-		<td align="left" valign="middle">
-			<h3 align="left">
-				+
-			</h3>
-		</td>
-		<td align="left" valign="middle">
-			<h3 align="left">
-				<a href="https://editor.land" target="_blank">
-					<picture>
-						<source media="(prefers-color-scheme: dark)" srcset="https://editor.land/Dark/Image/GitHub/Land.svg" />
-						<source media="(prefers-color-scheme: light)" srcset="https://editor.land/Image/GitHub/Land.svg" />
-						<img width="28" alt="Land Logo" src="https://editor.land/Image/GitHub/Land.svg" />
-					</picture>
-				</a>
-			</h3>
-		</td>
-		<td align="left" valign="middle">
-			<h3 align="left">
-				<a href="https://editor.land" target="_blank">
-					Land
-					🏞️
-				</a>
-			</h3>
-		</td>
-	</tr>
-</table>
+# **Output** 📦
 
----
+The Build Output & Artifact Management for Land 🏞️
 
-# **Output**&#x2001;⚫
-
-The Build Output & Artifact Management for Land &#x2001;🏞️
-
-> **Build processes that produce different artifacts depending on the machine,
-> CI environment, or implicit tool versions make debugging production issues
-> impossible.**
-
-_"Same commit. Same output. Every time."_
-
-[![License: CC0-1.0](https://img.shields.io/badge/License-CC0_1.0-lightgrey.svg)](https://github.com/CodeEditorLand/Output/tree/Current/LICENSE)
+[![License: CC0-1.0](https://img.shields.io/badge/License-CC0_1.0-lightgrey.svg)](https://github.com/CodeEditorLand/Output/blob/Current/LICENSE)
 [![NPM Version](https://img.shields.io/npm/v/@codeeditorland/output.svg)](https://www.npmjs.com/package/@codeeditorland/output)
 [![esbuild Version](https://img.shields.io/badge/esbuild-0.25.x-blue.svg)](https://esbuild.github.io/)
 [![Rest Compiler](https://img.shields.io/badge/Rest-OXC-orange.svg)](https://oxc.rs/)
 
-Welcome to **Output**, the build output and artifact management package for the
-**Land Code Editor**. Output handles the compilation, processing, and
-distribution of source code from various dependencies including `VSCode`,
-`CodeEditorLand` Editor, and the `Rest` compiler pipeline.
-
-**Output** is engineered to:
-
-1. **Orchestrate Multi-Compiler Builds:** Support both `esbuild` and `Rest`
-   (`OXC`-based) compilation pipelines with seamless integration.
-2. **Manage Build Artifacts:** Organize and deliver optimized `JavaScript`
-   artifacts for consumption by `Sky`, `Wind`, and `Cocoon`.
-3. **Provide Hybrid Workflows:** Enable incremental migration from `esbuild` to
-   `Rest` through conditional compilation and plugin-based architecture.
-4. **Ensure Build Reproducibility:** Maintain consistent output through
-   deterministic build configurations and artifact verification.
-
 ---
 
-## Key Features&#x2001;🔐
+## Overview
 
-- **Dual-Compiler Support:** Seamlessly switch between `esbuild` (default) and
-  `Rest` (`OXC`-powered) compilers via environment variables.
-- **Rest Plugin Integration:** Custom `esbuild` plugin that intercepts
-  `TypeScript` compilation and delegates to the `Rest` compiler.
-- **Source Map Generation:** Full support for development source maps with
-  configurable generation strategies.
-- **Artifact Merging:** Intelligent merging of `Rest` compiler output with
-  `esbuild` bundles for hybrid workflows.
-- **Verbose Logging:** Comprehensive build diagnostics with configurable
-  verbosity levels for troubleshooting.
-- **Path Override:** Flexible binary path configuration for Rest compiler
-  discovery in diverse environments.
+Output is the build output and artifact management package for the Land Code Editor. It handles the compilation, processing, and distribution of source code from various dependencies including VSCode, CodeEditorLand Editor, and the Rest compiler pipeline. Build processes that produce different artifacts depending on the machine, CI environment, or implicit tool versions make debugging production issues impossible — Output ensures the same commit produces the same output every time.
 
----
+**Output is engineered to:**
 
-## Core Architecture Principles&#x2001;🏗️
+1. **Orchestrate Multi-Compiler Builds:** Support both esbuild and Rest (OXC-based) compilation pipelines with seamless integration.
+2. **Manage Build Artifacts:** Organize and deliver optimized JavaScript artifacts for consumption by Sky, Wind, and Cocoon.
+3. **Provide Hybrid Workflows:** Enable incremental migration from esbuild to Rest through conditional compilation and plugin-based architecture.
+4. **Ensure Build Reproducibility:** Maintain consistent output through deterministic build configurations and artifact verification.
 
-| Principle         | Description                                                                                                     | Key Components Involved                                    |
-| :---------------- | :-------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------- |
-| **Compatibility** | Maintain backward compatibility with esbuild while enabling Rest compiler adoption through plugin architecture. | `Source/ESBuild/RestPlugin.ts`, `Source/prepublishOnly.sh` |
-| **Modularity**    | Separation of concerns between build orchestration, compiler plugins, and artifact management.                  | `Source/ESBuild/Output.ts`, `Source/ESBuild/RestPlugin.ts` |
-| **Performance**   | Leverage Rest's OXC-based compiler for 10-100x speedup on TypeScript transpilation tasks.                       | Rest compiler integration, parallel processing             |
-| **Flexibility**   | Environment-driven configuration enables different build strategies per deployment scenario.                    | `Compiler` environment variable, `REST_*` variables        |
-| **Observability** | Comprehensive logging and diagnostics for build process visibility and troubleshooting.                         | `REST_VERBOSE`, `REST_OPTIONS` configuration               |
-
----
-
-## Rest Compiler Integration&#x2001;⛱️
-
-The Rest compiler integration enables OXC-based TypeScript compilation as an
-alternative or complement to esbuild.
-
-### Overview of OXC-Based Compilation
-
-Rest leverages the **OXC (Oxidation Compiler)** ecosystem, a high-performance
-JavaScript/TypeScript toolchain written in Rust. The OXC stack provides:
-
-- **`oxc_parser`**: Ultra-fast JavaScript/TypeScript parser with ESTree
-  compatibility
-- **`oxc_transformer`**: AST transformation engine supporting TypeScript, JSX,
-  and modern ECMAScript features
-- **`oxc_codegen`**: Efficient code generation from AST
-- **`oxc_semantic`**: Semantic analysis and symbol table construction
-
-When `Compiler=Rest` is configured, the build pipeline intercepts TypeScript
-file processing and delegates to the Rest compiler before merging results back
-into the esbuild output stream.
-
-### Build Pipeline Architecture
-
-#### Standard Pipeline (esbuild only)
-
-```
-Source/ → esbuild → Configuration/ → Target/
-```
-
-#### Rest Compiler Pipeline (hybrid)
-
-```
-Source/ → esbuild → Configuration/ → Target/
-Dependency/ → Rest → Target/Rest/ → Configuration/ → Target/
-```
-
-### Configuration Options
-
-| Variable           | Default            | Description                                       |
-| :----------------- | :----------------- | :------------------------------------------------ |
-| `Compiler`         | `esbuild`          | Compiler to use (`esbuild` or `Rest`)             |
-| `REST_BINARY_PATH` | auto-detect        | Override Rest binary location                     |
-| `REST_OPTIONS`     | empty              | Additional Rest compiler flags                    |
-| `REST_VERBOSE`     | `false`            | Enable verbose Rest logging                       |
-| `Dependency`       | `Microsoft/VSCode` | Source dependency to process                      |
-| `NODE_ENV`         | `production`       | Build environment (`development` or `production`) |
-
-### esbuild vs Rest Comparison
-
-| Feature                | esbuild                 | Rest (OXC)                 |
-| :--------------------- | :---------------------- | :------------------------- |
-| **Implementation**     | Go-based                | Rust-based (OXC)           |
-| **TypeScript Support** | Full                    | Full                       |
-| **Speed**              | Very Fast (10-100x tsc) | Ultra-Fast (parallel, OXC) |
-| **Source Maps**        | Yes                     | Yes                        |
-| **Tree Shaking**       | Yes                     | Yes                        |
-| **Plugin System**      | Rich ecosystem          | Emerging                   |
-| **Best For**           | General bundling        | TypeScript-heavy projects  |
-| **Watch Mode**         | Yes                     | Yes (via notify)           |
-| **Minification**       | Yes                     | Yes (oxc_minifier)         |
-
----
-
-## System Architecture Diagram&#x2001;🏗️
+## Architecture
 
 ```mermaid
 graph LR
@@ -171,7 +31,7 @@ graph LR
     classDef polyfill fill:#d0d8ff,stroke:#4a6fa5,stroke-width:1px,color:#001050;
     classDef consumer fill:#f0d0ff,stroke:#9b59b6,stroke-width:1px,color:#2c0050;
 
-    subgraph OUTPUT["Output ⚫ - Build Artifact Pipeline"]
+    subgraph OUTPUT["Output 📦 - Build Artifact Pipeline"]
         direction TB
         subgraph ESB["ESBuild/ - Compilation Targets"]
             ESBMain["ESBuild.ts - entry point\nESM · Node.js · ES Next"]:::esbuild
@@ -210,7 +70,7 @@ graph LR
 
     subgraph SOURCES["Source Dependencies"]
         VSCode["Microsoft/VSCode\n(Dependency/)"]:::consumer
-        RestCompiler["Rest ⛱️ compiler binary\n(OXC-based)"]:::rest
+        RestCompiler["Rest 🛠️ compiler binary\n(OXC-based)"]:::rest
     end
 
     subgraph CONSUMERS["Artifact Consumers"]
@@ -226,22 +86,57 @@ graph LR
     OUTPUT -- Target/ artifacts --> Wind
 ```
 
----
+## Key Components
 
-## Deep Dive & Component Breakdown&#x2001;🔬
+| Component | Path | Description |
+| --------- | ---- | ----------- |
+| ESBuild Entry | `Source/ESBuild.ts` | ESBuild entry point and configuration |
+| ESBuild Output | `Source/ESBuild/Output.ts` | ESBuild configuration with ESM format, Node.js platform, ES Next target, and conditional Rest plugin integration |
+| Rest Plugin | `Source/ESBuild/Rest/Plugin.ts` | TypeScript file interception, Rest compiler invocation, source map generation, and fallback to esbuild on errors |
+| Microsoft Targets | `Source/ESBuild/Microsoft/` | VSCode build targets |
+| CodeEditorLand Targets | `Source/ESBuild/CodeEditorLand/` | CEL build targets |
+| Plugin Index | `Source/Plugin/Index.ts` | Plugin registration and composition |
+| Apply Pipeline | `Source/Apply/Pipeline.ts` | Transform pipeline orchestration |
+| Build Script | `Source/prepublishOnly.sh` | Build orchestration script |
 
-- **[`Source/ESBuild/Output.ts`](https://github.com/CodeEditorLand/Output/tree/Current/Source/ESBuild/Output.ts)** -
-  ESBuild configuration with ESM format, Node.js platform, ES Next target, and
-  conditional Rest plugin integration
-- **[`Source/ESBuild/Rest/Plugin.ts`](https://github.com/CodeEditorLand/Output/tree/Current/Source/ESBuild/Rest/Plugin.ts)** -
-  TypeScript file interception, Rest compiler invocation, source map generation,
-  and fallback to esbuild on errors
-- **[`Source/prepublishOnly.sh`](https://github.com/CodeEditorLand/Output/tree/Current/Source/prepublishOnly.sh)** -
-  Build orchestration script
+## In the Land Project
 
----
+Output provides the compilation and artifact pipeline consumed by Sky (workbench.js + web.main.js), Cocoon (`@codeeditorland/output`), and Wind (output utilities). It pulls source from VSCode (Dependency/) and optionally the Rest compiler binary. Output supports dual-compiler operation via the `Compiler` environment variable. When `Compiler=Rest` is set, the RestPlugin intercepts `.ts` files and spawns the Rest binary for OXC-based compilation, merging results into the esbuild output stream.
 
-## Directory Structure&#x2001;📁
+### Rest Compiler Integration
+
+Rest leverages the **OXC (Oxidation Compiler)** ecosystem:
+- `oxc_parser`: Ultra-fast JavaScript/TypeScript parser with ESTree compatibility
+- `oxc_transformer`: AST transformation engine supporting TypeScript, JSX, and modern ECMAScript features
+- `oxc_codegen`: Efficient code generation from AST
+- `oxc_semantic`: Semantic analysis and symbol table construction
+
+### Configuration Options
+
+| Variable | Default | Description |
+| :------- | :------ | :---------- |
+| `Compiler` | `esbuild` | Compiler to use (`esbuild` or `Rest`) |
+| `REST_BINARY_PATH` | auto-detect | Override Rest binary location |
+| `REST_OPTIONS` | empty | Additional Rest compiler flags |
+| `REST_VERBOSE` | `false` | Enable verbose Rest logging |
+| `Dependency` | `Microsoft/VSCode` | Source dependency to process |
+| `NODE_ENV` | `production` | Build environment (`development` or `production`) |
+
+### esbuild vs Rest Comparison
+
+| Feature | esbuild | Rest (OXC) |
+| :------ | :------ | :---------- |
+| Implementation | Go-based | Rust-based (OXC) |
+| TypeScript Support | Full | Full |
+| Speed | Very Fast (10-100x tsc) | Ultra-Fast (parallel, OXC) |
+| Source Maps | Yes | Yes |
+| Tree Shaking | Yes | Yes |
+| Plugin System | Rich ecosystem | Emerging |
+| Best For | General bundling | TypeScript-heavy projects |
+| Watch Mode | Yes | Yes (via notify) |
+| Minification | Yes | Yes (oxc_minifier) |
+
+### Directory Structure
 
 ```
 Output/
@@ -286,17 +181,15 @@ Output/
 └── package.json
 ```
 
----
+## Getting Started
 
-## Getting Started&#x2001;🚀
-
-### Installation&#x2001;📥
+### Installation
 
 ```sh
 pnpm add @codeeditorland/output
 ```
 
-### Usage&#x2001;🚀
+### Usage
 
 ```bash
 # Default esbuild build
@@ -315,120 +208,39 @@ npm run Run
 ### Troubleshooting
 
 **Rest Binary Not Found:**
-
 ```bash
 export REST_BINARY_PATH=/usr/local/bin/rest
 ```
 
-**Compilation Errors - enable verbose logging:**
-
+**Compilation Errors — enable verbose logging:**
 ```bash
 export REST_VERBOSE=true
 ```
 
 **Source Maps Not Generated:**
-
 ```bash
 export NODE_ENV=development
 ```
 
----
+## API Reference
 
-## See Also
+- [Output NPM Package](https://www.npmjs.com/package/@codeeditorland/output)
 
-- [Output Documentation](https://Editor.Land/Doc/output)
+## Related Documentation
+
 - [Architecture Overview](https://Editor.Land/Doc/architecture)
-- [Rest](https://github.com/CodeEditorLand/Rest)
-- [Cocoon](https://github.com/CodeEditorLand/Cocoon)
+- [Rest](https://github.com/CodeEditorLand/Rest) — Rust/OXC TypeScript compiler
+- [Cocoon](https://github.com/CodeEditorLand/Cocoon) — Node.js extension host
 
 ---
 
-## License&#x2001;⚖️
+## Funding
 
-This project is released into the public domain under the **Creative Commons CC0
-Universal** license. You are free to use, modify, distribute, and build upon
-this work for any purpose, without any restrictions. For the full legal text,
-see the
-[`LICENSE`](https://github.com/CodeEditorLand/Output/tree/Current/LICENSE) file.
+This project is funded through [NGI0 Commons Fund](https://NLnet.NL/commonsfund), a fund established by [NLnet](https://NLnet.NL) with financial support from the European Commission's Next Generation Internet program, under grant agreement No 101135429.
 
----
+The project is operated by PlayForm, based in Sofia, Bulgaria. PlayForm acts as the open-source steward for Code Editor Land under the NGI0 Commons Fund grant.
 
-## Changelog&#x2001;📜
-
-Stay updated with our progress! See
-[`CHANGELOG.md`](https://github.com/CodeEditorLand/Output/tree/Current/CHANGELOG.md)
-for a history of changes specific to **Output**.
-
----
-
-## Funding & Acknowledgements&#x2001;🙏🏻
-
-**Output** is a core element of the **Land** ecosystem. This project is funded
-through [NGI0 Commons Fund](https://NLnet.NL/commonsfund), a fund established by
-[NLnet](https://NLnet.NL) with financial support from the European Commission's
-[Next Generation Internet](https://ngi.eu) program. Learn more at the
-[NLnet project page](https://NLnet.NL/project/Land).
-
-The project is operated by PlayForm, based in Sofia, Bulgaria.
-
-PlayForm acts as the open-source steward for Code Editor Land under the NGI0
-Commons Fund grant.
-
-<table>
-	<thead>
-		<tr>
-			<th align="left">
-				<strong>
-					Land
-				</strong>
-			</th>
-			<th align="left">
-				<strong>
-					PlayForm
-				</strong>
-			</th>
-			<th align="left">
-				<strong>
-					NLnet
-				</strong>
-			</th>
-			<th align="left">
-				<strong>
-					NGI0 Commons Fund
-				</strong>
-			</th>
-		</tr>
-	</thead>
-	<tbody>
-		<tr>
-			<td align="left" valign="middle">
-				<a href="https://editor.land">
-					<img width="60" src="https://raw.githubusercontent.com/CodeEditorLand/Asset/refs/heads/Current/Logo/Land.svg" alt="Land" />
-				</a>
-			</td>
-			<td align="left" valign="middle">
-				<a href="https://PlayForm.Cloud">
-					<img width="76" src="https://raw.githubusercontent.com/PlayForm/Asset/refs/heads/Current/Logo/PlayForm.svg" alt="PlayForm" />
-				</a>
-			</td>
-			<td align="left" valign="middle">
-				<a href="https://NLnet.NL">
-					<img width="240" src="https://NLnet.NL/logo/banner.svg" alt="NLnet" />
-				</a>
-			</td>
-			<td align="left" valign="middle">
-				<a href="https://NLnet.NL/commonsfund">
-					<img width="240" src="https://NLnet.NL/image/logos/NGI0CommonsFund_tag_black_mono.svg" alt="NGI0 Commons Fund" />
-				</a>
-			</td>
-		</tr>
-	</tbody>
-</table>
-
----
-
-**Project Maintainers**: Source Open
-([Source/Open@editor.land](mailto:Source/Open@editor.land)) |
-[GitHub Repository](https://github.com/CodeEditorLand/Output) |
-[Report an Issue](https://github.com/CodeEditorLand/Output/issues) |
-[Security Policy](https://github.com/CodeEditorLand/Output/security/policy)
+| | |
+| --- | --- |
+| [![Land](https://raw.githubusercontent.com/CodeEditorLand/Asset/refs/heads/Current/Logo/Dual/Land.svg)](https://Editor.Land) | [![PlayForm](https://raw.githubusercontent.com/PlayForm/Asset/refs/heads/Current/Logo/PlayForm.svg)](https://PlayForm.Cloud) |
+| [![NLnet](https://raw.githubusercontent.com/CodeEditorLand/Asset/refs/heads/Current/Logo/NLnet.svg)](https://NLnet.NL) | [![NGI0](https://raw.githubusercontent.com/CodeEditorLand/Asset/refs/heads/Current/Logo/NGI0.svg)](https://NLnet.NL/commonsfund) |

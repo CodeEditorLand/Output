@@ -77,6 +77,7 @@ import { IWorkspaceContextService } from "../../platform/workspace/common/worksp
 import { IViewDescriptorService } from "../common/views.js";
 import { ICustomEditorService } from "../contrib/customEditor/common/customEditor.js";
 import { IDebugService } from "../contrib/debug/common/debug.js";
+import { ITestService } from "../contrib/testing/common/testService.js";
 import { ISCMService } from "../contrib/scm/common/scm.js";
 import { ITerminalService } from "../contrib/terminal/browser/terminal.js";
 import { IWebviewWorkbenchService } from "../contrib/webviewPanel/browser/webviewWorkbenchService.js";
@@ -237,6 +238,8 @@ export const ExposeAccessor = (InstantiationService) => {
 			SCM: Resolve(InstantiationService, ISCMService),
 
 			Debug: Resolve(InstantiationService, IDebugService),
+
+			TestService: Resolve(InstantiationService, ITestService),
 
 			CustomEditor: Resolve(InstantiationService, ICustomEditorService),
 
@@ -543,7 +546,7 @@ export const ExposeAccessor = (InstantiationService) => {
 				landShimInit(InstantiationService);
 			}
 		} catch {
-			/* shim not loaded or failed — non-fatal */
+			/* shim not loaded or failed - non-fatal */
 		}
 	} catch (Error) {
 		Diagnostic(

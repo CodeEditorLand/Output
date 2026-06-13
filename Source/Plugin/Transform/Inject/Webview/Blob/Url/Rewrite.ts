@@ -1,59 +1,59 @@
 /**
- * InjectWebviewBlobUrlRewrite - rewrite `vscode-file://` and
- * `vscode-webview-resource://` asset URLs in the webview inner-iframe's
- * rendered HTML to `blob:` URLs fetched via the outer shell's `fetch()`.
+ * InjectWebviewBlobUrlRewrite - rewrite 'vscode-file://' and
+ * 'vscode-webview-resource://' asset URLs in the webview inner-iframe's
+ * rendered HTML to 'blob:' URLs fetched via the outer shell's 'fetch()'.
  *
  * ## Why this is needed
  *
  * Roo Code (and every other extension webview that ships a React/Vite
- * bundle) delivers its HTML to the inner `<iframe>` via
- * `contentDocument.write(newDocument)`. That HTML contains `<script
- * type="module" src="vscode-file://vscode-app/...">` and `<link
- * rel="stylesheet" href="vscode-file://...">` tags.
+ * bundle) delivers its HTML to the inner '<iframe>' via
+ * 'contentDocument.write(newDocument)'. That HTML contains '<script
+ * type="module" src="vscode-file://vscode-app/...">' and '<link
+ * rel="stylesheet" href="vscode-file://...">' tags.
  *
  * In WKWebView, the inner iframe is sandboxed under the
- * `vscode-webview://` custom protocol. WKWebView's security model
- * silently blocks `<script src>` and `<link href>` loads that cross
+ * 'vscode-webview://' custom protocol. WKWebView's security model
+ * silently blocks '<script src>' and '<link href>' loads that cross
  * from a custom protocol origin to a different custom protocol
- * (`vscode-file://`). The scripts are never executed, the React bundle
+ * ('vscode-file://'). The scripts are never executed, the React bundle
  * never initialises, and the extension panel stays blank.
  *
- * The outer shell (`pre/index.html`) runs under a context where
+ * The outer shell ('pre/index.html') runs under a context where
  * Mountain's scheme handler has already registered
- * `vscode-file://` and `vscode-webview-resource://` as navigable
- * origins. `fetch()` from that context resolves them correctly.
+ * 'vscode-file://' and 'vscode-webview-resource://' as navigable
+ * origins. 'fetch()' from that context resolves them correctly.
  *
- * This transform injects a script into `pre/index.html` that:
+ * This transform injects a script into 'pre/index.html' that:
  *
- * 1. Wraps `Document.prototype.write` so the inner frame's
- *    `contentDocument.write(html)` stays **synchronous** -
- *    `document.write` is a synchronous API and deferring it breaks
+ * 1. Wraps 'Document.prototype.write' so the inner frame's
+ *    'contentDocument.write(html)' stays **synchronous** -
+ *    'document.write' is a synchronous API and deferring it breaks
  *    multi-write callers (empty first write, double document-open).
- * 2. Synchronously substitutes every `vscode-file://` /
- *    `vscode-webview-resource://` `src`/`href` URL that already has a
- *    cached `blob:` URL into the HTML string before calling the
- *    original `write`.
+ * 2. Synchronously substitutes every 'vscode-file://' /
+ *    'vscode-webview-resource://' 'src'/'href' URL that already has a
+ *    cached 'blob:' URL into the HTML string before calling the
+ *    original 'write'.
  * 3. URLs without a cached blob are fetched **after** the synchronous
  *    write; each resolved asset is patched into the already-written
- *    document - `<link>` gets a live `href` swap, `<script>` is
- *    replaced with a clone carrying the `blob:` `src` so the bytes
+ *    document - '<link>' gets a live 'href' swap, '<script>' is
+ *    replaced with a clone carrying the 'blob:' 'src' so the bytes
  *    actually execute.
  *
  * Blob URLs are cached by original URL for the lifetime of the outer
- * shell so repeated `setHtml()` calls (e.g. after an extension reload)
+ * shell so repeated 'setHtml()' calls (e.g. after an extension reload)
  * hit the synchronous substitution path and never need the patch pass.
  *
  * ## Ordering
  *
- * Must run **after** `PatchWebviewIframeServiceWorker` (which disables
+ * Must run **after** 'PatchWebviewIframeServiceWorker' (which disables
  * the SW and soft-fails the hash check) and **before**
- * `RewriteWebviewShellCSP` (which loosens the CSP - the blob: URLs
- * must already be present so the CSP `script-src blob:` directive
- * covers them). The pipeline in `Index.ts` places it between those two.
+ * 'RewriteWebviewShellCSP' (which loosens the CSP - the blob: URLs
+ * must already be present so the CSP 'script-src blob:' directive
+ * covers them). The pipeline in 'Index.ts' places it between those two.
  *
  * ## Idempotency
  *
- * Guarded by the `__LAND_WEBVIEW_BLOB_URL_REWRITE__` HTML comment
+ * Guarded by the '__LAND_WEBVIEW_BLOB_URL_REWRITE__' HTML comment
  * marker so re-running the transform on an already-patched file is a
  * no-op.
  */
@@ -66,21 +66,21 @@ const PathRegex =
 const Marker = "<!-- __LAND_WEBVIEW_BLOB_URL_REWRITE__ -->";
 
 /**
- * The blob-URL rewrite script is injected into `pre/index.html`
- * immediately before the closing `</body>` tag.
+ * The blob-URL rewrite script is injected into 'pre/index.html'
+ * immediately before the closing '</body>' tag.
  *
- * It wraps `Document.prototype.write` on the inner iframe's
- * `contentDocument` at the point where the outer shell calls
- * `onFrameLoaded(contentDocument)`. The wrapper keeps every
- * `write(html)` call synchronous: `vscode-file://` and
- * `vscode-webview-resource://` `src`/`href` URLs with a cached
- * `blob:` URL are substituted into the HTML string before the
- * original `write` runs; uncached URLs are fetched afterwards and
- * patched into the written document (`<link>` href swap, `<script>`
+ * It wraps 'Document.prototype.write' on the inner iframe's
+ * 'contentDocument' at the point where the outer shell calls
+ * 'onFrameLoaded(contentDocument)'. The wrapper keeps every
+ * 'write(html)' call synchronous: 'vscode-file://' and
+ * 'vscode-webview-resource://' 'src'/'href' URLs with a cached
+ * 'blob:' URL are substituted into the HTML string before the
+ * original 'write' runs; uncached URLs are fetched afterwards and
+ * patched into the written document ('<link>' href swap, '<script>'
  * node replacement).
  *
- * A module-level `Map` caches blob URLs by original URL so repeated
- * `setHtml()` calls (extension reload, panel re-open) do not
+ * A module-level 'Map' caches blob URLs by original URL so repeated
+ * 'setHtml()' calls (extension reload, panel re-open) do not
  * re-fetch unchanged assets.
  */
 const BlobRewriteScript = `${Marker}
@@ -130,8 +130,8 @@ const BlobRewriteScript = `${Marker}
 	}
 
 	/**
-	 * Fetch \`url\` from the outer shell's privileged context and return
-	 * a stable \`blob:\` URL for it. Resolves to the original URL on
+	 * Fetch url from the outer shell's privileged context and return
+	 * a stable blob: URL for it. Resolves to the original URL on
 	 * fetch failure so the inner frame can still attempt the load
 	 * (useful for diagnosing which assets are missing vs. blocked).
 	 * @param {string} url
@@ -160,9 +160,9 @@ const BlobRewriteScript = `${Marker}
 
 	/**
 	 * Synchronously substitute every vscode-file:// /
-	 * vscode-webview-resource:// \`src\`/\`href\` URL that already has a
-	 * cached blob: URL into \`html\`. URLs without a cached blob are
-	 * appended to \`pendingOut\` for the post-write patch pass.
+	 * vscode-webview-resource:// src/href URL that already has a
+	 * cached blob: URL into html. URLs without a cached blob are
+	 * appended to pendingOut for the post-write patch pass.
 	 * @param {string} html
 	 * @param {string[]} pendingOut
 	 * @returns {string}
@@ -192,9 +192,9 @@ const BlobRewriteScript = `${Marker}
 	}
 
 	/**
-	 * Patch every element in \`doc\` whose \`src\`/\`href\` still points at
-	 * \`url\` to \`blobUrl\`. \`<link>\` reloads on a live href swap;
-	 * \`<script>\` must be replaced with a clone for the blob to execute
+	 * Patch every element in doc whose src/href still points at
+	 * url to blobUrl. <link> reloads on a live href swap;
+	 * <script> must be replaced with a clone for the blob to execute
 	 * (a src swap on an already-parsed script never re-runs it).
 	 * @param {Document} doc
 	 * @param {string} url
@@ -243,11 +243,11 @@ const BlobRewriteScript = `${Marker}
 	}
 
 	/**
-	 * Synchronously rewrite every vscode-webview-resource:// URL in `html`
-	 * to its `http://localhost:18992/` equivalent. Mountain does not
-	 * register the `vscode-webview-resource://` scheme, but it serves
-	 * the same assets under `http://localhost:18992/`. This pre-rewrite
-	 * runs before `document.write` is called so the inner iframe can
+	 * Synchronously rewrite every vscode-webview-resource:// URL in 'html'
+	 * to its 'http://localhost:18992/' equivalent. Mountain does not
+	 * register the 'vscode-webview-resource://' scheme, but it serves
+	 * the same assets under 'http://localhost:18992/'. This pre-rewrite
+	 * runs before 'document.write' is called so the inner iframe can
 	 * load scripts/stylesheets from a resolvable origin.
 	 * @param {string} html
 	 * @returns {string}
@@ -262,7 +262,7 @@ const BlobRewriteScript = `${Marker}
 	}
 
 	/**
-	 * Quick pre-check: returns true when `html` contains any vscode-file://
+	 * Quick pre-check: returns true when 'html' contains any vscode-file://
 	 * or vscode-webview-resource:// substring (so we don't waste time on
 	 * clean HTML strings).
 	 * @param {string} html

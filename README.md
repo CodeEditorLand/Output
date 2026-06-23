@@ -5,17 +5,17 @@
 		<td>
 			<a href="https://GitHub.Com/CodeEditorLand/Output" target="_blank">
 				<picture>
-					<source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/github/last-commit/CodeEditorLand/Output?label=Last-commit&color=black&labelColor=black&logoColor=white&logoWidth=0" />
-					<source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/github/last-commit/CodeEditorLand/Output?label=Last-commit&color=white&labelColor=white&logoColor=black&logoWidth=0" />
-					<img src="https://img.shields.io/github/last-commit/CodeEditorLand/Output?label=Last-commit&color=black&labelColor=black&logoColor=white&logoWidth=0" alt="Last-commit" title="Last-commit" />
+					<source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/github/last-commit/CodeEditorLand/Output?label=Update&color=black&labelColor=black&logoColor=white&logoWidth=0" />
+					<source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/github/last-commit/CodeEditorLand/Output?label=Update&color=white&labelColor=white&logoColor=black&logoWidth=0" />
+					<img src="https://img.shields.io/github/last-commit/CodeEditorLand/Output?label=Update&color=black&labelColor=black&logoColor=white&logoWidth=0" alt="Update" title="Update" />
 				</picture>
 			</a>
 			<br />
 			<a href="https://GitHub.Com/CodeEditorLand/Output" target="_blank">
 				<picture>
-					<source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/github/issues/CodeEditorLand/Output?label=Issues&color=black&labelColor=black&logoColor=white&logoWidth=0" />
-					<source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/github/issues/CodeEditorLand/Output?label=Issues&color=white&labelColor=white&logoColor=black&logoWidth=0" />
-					<img src="https://img.shields.io/github/issues/CodeEditorLand/Output?label=Issues&color=black&labelColor=black&logoColor=white&logoWidth=0" alt="Issues" title="Issues" />
+					<source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/github/issues/CodeEditorLand/Output?label=Issue&color=black&labelColor=black&logoColor=white&logoWidth=0" />
+					<source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/github/issues/CodeEditorLand/Output?label=Issue&color=white&labelColor=white&logoColor=black&logoWidth=0" />
+					<img src="https://img.shields.io/github/issues/CodeEditorLand/Output?label=Issue&color=black&labelColor=black&logoColor=white&logoWidth=0" alt="Issue" title="Issue" />
 				</picture>
 			</a>
 		</td>
@@ -30,9 +30,9 @@
 			<br />
 			<a href="https://GitHub.Com/CodeEditorLand/Output" target="_blank">
 				<picture>
-					<source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/github/downloads/CodeEditorLand/Output?label=Downloads&color=black&labelColor=black&logoColor=white&logoWidth=0" />
-					<source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/github/downloads/CodeEditorLand/Output?label=Downloads&color=white&labelColor=white&logoColor=black&logoWidth=0" />
-					<img src="https://img.shields.io/github/downloads/CodeEditorLand/Output?label=Downloads&color=black&labelColor=black&logoColor=white&logoWidth=0" alt="Downloads" title="Downloads" />
+					<source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/github/downloads/CodeEditorLand/Output/total?label=Download&color=black&labelColor=black&logoColor=white&logoWidth=0" />
+					<source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/github/downloads/CodeEditorLand/Output/total?label=Download&color=white&labelColor=white&logoColor=black&logoWidth=0" />
+					<img src="https://img.shields.io/github/downloads/CodeEditorLand/Output/total?label=Download&color=black&labelColor=black&logoColor=white&logoWidth=0" alt="Download" title="Download" />
 				</picture>
 			</a>
 		</td>
@@ -62,16 +62,16 @@ environment."_
 ## Overview
 
 **Output** is the build system and artifact management package for the **Land**
-Code Editor. It handles the compilation, processing, and distribution of source
-code from various dependencies including VSCode, CodeEditorLand Editor, and the
-Rest compiler pipeline. Output orchestrates multi-compiler builds supporting
-both `esbuild` and Rest (`OXC`-based) compilation pipelines with seamless
-integration.
+Code Editor. It takes source code from multiple places — the VS Code codebase,
+CodeEditorLand's own editor code, and the Rest compiler — and turns it all into
+the optimized JavaScript bundles that `Sky` ☀️, `Wind` 🌬️, and `Cocoon` 🦋
+consume.
 
-Build processes that produce different artifacts depending on the machine, CI
-environment, or implicit tool versions make debugging production issues
-impossible - Output ensures the same commit produces the same output every time
-through deterministic build configurations and artifact verification.
+Output supports two compilation pipelines side by side: `esbuild` (fast,
+established) and Rest (newer, `OXC`-based). Projects can use either one, or
+mix both during migration. The same build configuration on any machine produces
+the same output — the build result is a function of the source code, not the
+environment.
 
 **Output is engineered to:**
 
@@ -93,15 +93,15 @@ compilation. The `Compiler` environment variable selects the active compiler,
 and the RestPlugin intercepts `.ts` files for `OXC` processing with automatic
 fallback to `esbuild` on errors.
 
-**Plugin Architecture** - A composable plugin system (`Source/Plugin/`)
-supporting asset copy, polyfill injection, and AST transforms. Plugins register
-through `Plugin/Index.ts` and compose into the build pipeline via
-`Apply/Pipeline.ts`.
+**Plugin Architecture** — A composable plugin system where transforms,
+polyfills, and asset copies plug into a shared build pipeline. Plugins
+register through `Plugin/Index.ts` and compose into the build via
+`Apply/Pipeline.ts`. No hard-coded build steps — everything is a plugin.
 
-**Compatibility Polyfills** - Comprehensive polyfill layer (`Source/Polyfill/`)
-for `Node.js` APIs including `child_process`, `fs`, `IPC`, native modules, and
-`process.*`. Enables VS Code platform code to run outside its native `Electron`
-environment.
+**Compatibility Polyfills** — The VS Code codebase was written for `Electron`,
+which provides `Node.js` APIs like `child_process`, `fs`, and `process.*`.
+Output ships polyfills for all of these so the same code runs inside Tauri's
+webview without modification.
 
 **Asset Management** - Asset copy and style processing through
 `Source/Asset/Style/`, with transform plugins for CSS imports, icon stylesheet

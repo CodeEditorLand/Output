@@ -1,4 +1,4 @@
-# **Output**&#x2001;📦
+# **Output**&#x2001;⚫
 
 <table>
 	<tr>
@@ -64,7 +64,7 @@ environment."_
 **Output** is the build system and artifact management package for the **Land**
 Code Editor. It takes source code from multiple places — the VS Code codebase,
 CodeEditorLand's own editor code, and the Rest compiler — and turns it all into
-the optimized JavaScript bundles that `Sky` ☀️, `Wind` 🌬️, and `Cocoon` 🦋
+the optimized JavaScript bundles that `Sky` 🌌, `Wind` 🍃, and `Cocoon` 🦋
 consume.
 
 Output supports two compilation pipelines side by side: `esbuild` (fast,
@@ -139,7 +139,7 @@ graph LR
     classDef polyfill fill:#d0d8ff,stroke:#4a6fa5,stroke-width:1px,color:#001050;
     classDef consumer fill:#f0d0ff,stroke:#9b59b6,stroke-width:1px,color:#2c0050;
 
-    subgraph OUTPUT["Output 📦 - Build Artifact Pipeline"]
+    subgraph OUTPUT["Output ⚫ - Build Artifact Pipeline"]
         direction TB
         subgraph ESB["ESBuild/ - Compilation Targets"]
             ESBMain["ESBuild.ts - entry point\nESM · Node.js · ES Next"]:::esbuild
@@ -178,13 +178,13 @@ graph LR
 
     subgraph SOURCES["Source Dependencies"]
         VSCode["Microsoft/VSCode\n(Dependency/)"]:::consumer
-        RestCompiler["Rest 🛠️ compiler binary\n(OXC-based)"]:::rest
+        RestCompiler["Rest ⛱️ compiler binary\n(OXC-based)"]:::rest
     end
 
     subgraph CONSUMERS["Artifact Consumers"]
-        Sky["Sky ☀️\nworkbench.js + web.main.js"]:::consumer
+        Sky["Sky 🌌\nworkbench.js + web.main.js"]:::consumer
         Cocoon["Cocoon 🦋\n@codeeditorland/output"]:::consumer
-        Wind["Wind 🌬️\noutput utilities"]:::consumer
+        Wind["Wind 🍃\noutput utilities"]:::consumer
     end
 
     VSCode --> MicrosoftTarget
@@ -449,7 +449,7 @@ Output is designed to be compatible with:
 - [Sky](https://github.com/CodeEditorLand/Sky) - Workbench shell
 - [Wind](https://github.com/CodeEditorLand/Wind) - Build tooling and utilities
 - [CHANGELOG.md](https://github.com/CodeEditorLand/Output/tree/Current/CHANGELOG.md)
-    - Release history for **Output** 📦
+    - Release history for **Output** ⚫
 
 ---
 

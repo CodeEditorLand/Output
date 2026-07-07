@@ -9,15 +9,13 @@
 				</picture>
 			</h3>
 		</td>
-		<td colspan="3" valign="top">
-			<h3 align="center"> Output 📦</h3>
-		</td>
+		<td colspan="3" valign="top"><h3 align="center">Output&#x2001;📦</h3></td>
 	</tr>
 </table>
 
 ---
 
-# **Output** 📦 Architecture
+# **Output**&#x2001;📦&#x2001;Architecture
 
 `Output` is the build artifact management package for `Land`. It handles
 compilation of `VS Code` platform source code through:
@@ -63,7 +61,7 @@ graph TB
     PACKAGE --> WIND["Wind<br/>Service Layer"]
 ```
 
-## Overview 📋
+## Overview&#x2001;📋
 
 `Output` is the build orchestration layer for `Land`'s `TypeScript` assets:
 
@@ -82,7 +80,7 @@ graph TB
 
 ---
 
-## Architecture 🏗️
+## Architecture&#x2001;🏗️
 
 ```
 +--------------------------------------------------------------+
@@ -113,7 +111,7 @@ graph TB
 +--------------------------------------------------------------+
 ```
 
-### Module Map 🗺️
+### Module Map&#x2001;🗺️
 
 | Path                             | Purpose                                    |
 | -------------------------------- | ------------------------------------------ |
@@ -141,11 +139,11 @@ graph TB
 
 ---
 
-## Compiler Modes ⚡
+## Compiler Modes&#x2001;⚡
 
 `Output` supports two compiler backends:
 
-### Default: ESBuild ⚡
+### Default: ESBuild&#x2001;⚡
 
 ```
 TypeScript input (.ts, .tsx)
@@ -166,7 +164,7 @@ ESBuild codegen
 JavaScript output
 ```
 
-### Optional: Rest OXC ⚡
+### Optional: Rest OXC&#x2001;⚡
 
 Activated via `Compiler=Rest` environment variable:
 
@@ -188,7 +186,7 @@ OXC codegen
 JavaScript output
 ```
 
-### Integration 🔗
+### Integration&#x2001;🔗
 
 ```typescript
 // Output/ESBuild/Output.ts
@@ -204,7 +202,7 @@ if (compiler) {
 
 ---
 
-## Build Pipeline 🔧
+## Build Pipeline&#x2001;🔧
 
 The `Output` build pipeline processes `VS Code` platform code:
 
@@ -234,7 +232,7 @@ The `Output` build pipeline processes `VS Code` platform code:
 
 ---
 
-## Plugin System 🔌
+## Plugin System&#x2001;🔌
 
 `Output` defines a plugin interface for extending the build pipeline:
 
@@ -245,7 +243,7 @@ export interface OutputPlugin {
 }
 ```
 
-### Built-in Plugins 🔌
+### Built-in Plugins&#x2001;🔌
 
 | Plugin              | Purpose                                        |
 | ------------------- | ---------------------------------------------- |
@@ -257,7 +255,7 @@ export interface OutputPlugin {
 
 ---
 
-## Polyfill Injection 🧩
+## Polyfill Injection&#x2001;🧩
 
 `Output` injects polyfills during compilation for APIs that don't exist in the
 `Tauri` `WebView`:
@@ -276,7 +274,7 @@ export interface OutputPlugin {
 
 ---
 
-## Output Layout 📁
+## Output Layout&#x2001;📁
 
 After compilation, `Output` produces the following structure:
 
@@ -300,7 +298,7 @@ Output/Target/
 
 ---
 
-## Related Documentation 📚
+## Related Documentation&#x2001;📚
 
 - [Cocoon](https://github.com/CodeEditorLand/Cocoon/tree/Current/Documentation/GitHub/Architecture.md) -
   Extension host (`Output` consumer)

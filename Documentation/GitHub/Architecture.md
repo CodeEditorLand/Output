@@ -9,13 +9,13 @@
 				</picture>
 			</h3>
 		</td>
-		<td colspan="3" valign="top"><h3 align="center">Output&#x2001;📦</h3></td>
+		<td colspan="3" valign="top"><h3 align="center">Output&#x2001;⚫</h3></td>
 	</tr>
 </table>
 
 ---
 
-# **Output**&#x2001;📦&#x2001;Architecture
+# **Output**&#x2001;⚫&#x2001;Architecture
 
 `Output` is the build artifact management package for `Land`. It handles
 compilation of `VS Code` platform source code through:
@@ -323,11 +323,11 @@ Output/Target/
 | Engine prototype hooks        | Service routing + audit         |
 
 > This Element supports the Land deep-shim interception system. Gated behind
-> `TierShim` env var (default: `None` — zero overhead).
+> `TierShim` env var (default: `None` - zero overhead).
 >
-> **Output shim architecture:** `Source/Plugin/Transform/Inject/Shim/Hook.ts` —
+> **Output shim architecture:** `Source/Plugin/Transform/Inject/Shim/Hook.ts` -
 > injects the shim into `web.main.js` at build time. Also
-> `Source/Service/CEL/Land/Shim/` with 7 files — the 🟠 engine hook runtime.
+> `Source/Service/CEL/Land/Shim/` with 7 files - the 🟠 engine hook runtime.
 
 ---
 

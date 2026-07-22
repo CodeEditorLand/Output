@@ -19,6 +19,7 @@ import { join } from "node:path";
 import type { CopyPlugin } from "../../../Type.js";
 
 export interface StubUnpublishedAddonsInput {
+
 	readonly Destination: string;
 
 	readonly Stubs?: ReadonlyArray<{
@@ -30,6 +31,7 @@ export interface StubUnpublishedAddonsInput {
 
 export const DefaultStubs = [
 	{
+
 		Package: "@xterm/addon-progress",
 
 		Body: "define([],function(){var n=function(){};var P=function(){this.activate=n;this.dispose=n;this.onChange=function(){return{dispose:n}}};return{ProgressAddon:P}})",

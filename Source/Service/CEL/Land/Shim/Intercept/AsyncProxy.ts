@@ -32,6 +32,7 @@ const BATCH_WINDOW_MS: number = 0;
 const MAX_BATCH_SIZE: number = 64;
 
 const AsyncProxy = async (): Promise<void> => {
+
 	if (__LandTier_Shim__ !== "Own" && __LandTier_Shim__ !== "Preempt") {
 		return;
 	}
@@ -72,6 +73,7 @@ let batchCallCount: number = 0;
  * Replaces `setTimeout0` with a batching scheduler.
  */
 function patchSetTimeout0(platformModule: any, marker: string): void {
+
 	if (platformModule[marker]) {
 		return;
 	}
@@ -135,6 +137,7 @@ function patchSetTimeout0(platformModule: any, marker: string): void {
  * to preserve async semantics while coalescing scheduling.
  */
 function flushBatch(originalSetTimeout0: Function): void {
+
 	if (batchQueue.length === 0) {
 		batchFlushPending = false;
 

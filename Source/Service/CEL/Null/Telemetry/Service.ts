@@ -25,6 +25,7 @@
 const NoopPromise: Promise<undefined> = Promise.resolve(undefined);
 
 class NullTelemetryService {
+
 	readonly sendErrorTelemetry = false;
 
 	readonly telemetryLevel = 0; // TelemetryLevel.NONE

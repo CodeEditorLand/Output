@@ -50,6 +50,7 @@
  */
 
 export default function MacTitlebarOffsetCSS(): void {
+
 	if (typeof window === "undefined") return;
 
 	const Marker = "__LAND_MAC_TITLEBAR_OFFSET__";

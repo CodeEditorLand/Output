@@ -20,6 +20,7 @@
  */
 
 import WebViewPolyfills from "../../../../Polyfill/Web/View/Polyfills.js";
+
 import type { TransformPlugin } from "../../../../Type.js";
 
 const Marker = "__LAND_WEBVIEW_POLYFILLS__";
@@ -27,6 +28,7 @@ const Marker = "__LAND_WEBVIEW_POLYFILLS__";
 const Polyfill = `\n/* ${Marker} */\n(${WebViewPolyfills.toString()})();\n`;
 
 const Plugin: TransformPlugin = {
+
 	Kind: "Transform",
 
 	Name: "InjectWebViewPolyfills",

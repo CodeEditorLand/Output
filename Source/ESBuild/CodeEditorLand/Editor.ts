@@ -1,4 +1,5 @@
 import type Interface from "@playform/build/Target/Interface/Build/Set.js";
+
 import type { BuildOptions } from "esbuild";
 
 const Prefix = "Source/vs";

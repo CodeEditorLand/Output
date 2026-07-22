@@ -48,6 +48,7 @@ const Marker = (Letter: string, Note: string): string =>
 // are stable lines from vscode.git's `extensions/git/out/main.js` /
 // `out/model.js` (verified at 2026-04-26).
 type MainPatch = {
+
 	Letter: string;
 
 	Anchor: string;
@@ -59,6 +60,7 @@ type MainPatch = {
 
 const MainPatches: MainPatch[] = [
 	{
+
 		Letter: "A",
 
 		Anchor: "async function activate(context) {",
@@ -69,6 +71,7 @@ const MainPatches: MainPatch[] = [
 	},
 
 	{
+
 		Letter: "B",
 
 		Anchor: "context.subscriptions.push(new vscode_1.Disposable(() => vscode_1.Disposable.from(...disposables).dispose()));",
@@ -79,6 +82,7 @@ const MainPatches: MainPatch[] = [
 	},
 
 	{
+
 		Letter: "C",
 
 		Anchor: "const logger = vscode_1.window.createOutputChannel('Git', { log: true });",
@@ -89,6 +93,7 @@ const MainPatches: MainPatch[] = [
 	},
 
 	{
+
 		Letter: "D",
 
 		Anchor: "const enabled = config.get('enabled');",
@@ -99,6 +104,7 @@ const MainPatches: MainPatch[] = [
 	},
 
 	{
+
 		Letter: "E",
 
 		Anchor: "const { model, cloneManager } = await createModel(context, logger, telemetryReporter, disposables);",
@@ -109,6 +115,7 @@ const MainPatches: MainPatch[] = [
 	},
 
 	{
+
 		// F = `_activate await createModel done`. Fires only on the
 		// success branch of the `try` - if createModel rejects, the
 		// `catch` runs and F never appears, disambiguating "createModel
@@ -124,6 +131,7 @@ const MainPatches: MainPatch[] = [
 	},
 
 	{
+
 		Letter: "G",
 
 		Anchor: "async function createModel(context, logger, telemetryReporter, disposables) {",
@@ -134,6 +142,7 @@ const MainPatches: MainPatch[] = [
 	},
 
 	{
+
 		Letter: "H",
 
 		Anchor: "const info = await (0, git_1.findGit)(pathHints, gitPath => {",
@@ -144,6 +153,7 @@ const MainPatches: MainPatch[] = [
 	},
 
 	{
+
 		Letter: "I",
 
 		Anchor: "const model = new model_1.Model(git, askpass, context.globalState, context.workspaceState, logger, telemetryReporter);",
@@ -156,6 +166,7 @@ const MainPatches: MainPatch[] = [
 
 const ModelPatches: MainPatch[] = [
 	{
+
 		Letter: "J",
 
 		Anchor: "async doInitialScan() {",
@@ -166,6 +177,7 @@ const ModelPatches: MainPatch[] = [
 	},
 
 	{
+
 		Letter: "K",
 
 		Anchor: "async openRepository(repoPath, openIfClosed = false, openIfParent = false) {",
@@ -176,6 +188,7 @@ const ModelPatches: MainPatch[] = [
 	},
 
 	{
+
 		// L = `Model openRepository getRepositoryRoot done`. Fires after
 		// the `await this.getRepositoryRoot(repoPath)` resolves so we can
 		// distinguish "openRepository entered but spawn hangs" (K only)
@@ -193,6 +206,7 @@ const ModelPatches: MainPatch[] = [
 ];
 
 const ApplyPatches = (Source: string, Patches: MainPatch[]): string => {
+
 	let Next = Source;
 
 	for (const Patch of Patches) {
@@ -219,6 +233,7 @@ const ApplyPatches = (Source: string, Patches: MainPatch[]): string => {
 };
 
 const Plugin: TransformPlugin = {
+
 	Kind: "Transform",
 
 	Name: "InstrumentVscodeGit",
@@ -234,6 +249,7 @@ const Plugin: TransformPlugin = {
 
 		return Next === Source
 			? { Kind: "Unchanged" }
+
 			: { Kind: "Rewrite", Source: Next };
 	},
 };

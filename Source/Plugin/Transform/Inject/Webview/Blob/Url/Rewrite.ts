@@ -335,6 +335,7 @@ const BlobRewriteScript = `${Marker}
 </script>`;
 
 const Plugin: TransformPlugin = {
+
 	Kind: "Transform",
 
 	Name: "InjectWebviewBlobUrlRewrite",

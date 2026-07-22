@@ -38,6 +38,7 @@ const SAMPLE_RATE: number =
 let tickCount: number = 0;
 
 const EmitterFireProxy = async (): Promise<void> => {
+
 	if (__LandTier_Shim__ !== "Own" && __LandTier_Shim__ !== "Preempt") {
 		return;
 	}
@@ -66,6 +67,7 @@ const EmitterFireProxy = async (): Promise<void> => {
  * Patches Emitter.prototype.fire to intercept event dispatching.
  */
 function patchEmitterFire(Emitter: any, marker: string): void {
+
 	const proto: any = Emitter.prototype;
 
 	if (!proto || proto[marker]) {
@@ -82,6 +84,7 @@ function patchEmitterFire(Emitter: any, marker: string): void {
 			const eventName: string =
 				event && typeof event === "object" && "name" in event
 					? String(event.name)
+
 					: typeof event === "string"
 						? event
 						: "";
@@ -123,6 +126,7 @@ function patchEmitterFire(Emitter: any, marker: string): void {
  * rate=0.01 => every 100th call).
  */
 function _sampleThreshold(rate: number): number {
+
 	return rate >= 1.0 ? 1 : Math.max(1, Math.round(1 / rate));
 }
 

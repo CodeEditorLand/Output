@@ -59,6 +59,7 @@ const StartupInjection =
 	"        LandShimInit(instantiationService);";
 
 const Plugin: TransformPlugin = {
+
 	Kind: "Transform",
 
 	Name: "InjectShimHook",
@@ -125,6 +126,7 @@ const Plugin: TransformPlugin = {
 
 		return Next === Source
 			? { Kind: "Unchanged" }
+
 			: { Kind: "Rewrite", Source: Next };
 	},
 };

@@ -36,6 +36,7 @@
  * File stats interface (partial Node.js fs.Stats)
  */
 interface Stats {
+
 	dev: number;
 
 	ino: number;
@@ -87,6 +88,7 @@ interface Stats {
  * Stats result from Mountain
  */
 interface MountainStats {
+
 	path: string;
 
 	size: number;
@@ -108,6 +110,7 @@ interface MountainStats {
  * Directory entry
  */
 interface Dirent {
+
 	name: string;
 
 	path: string;
@@ -131,6 +134,7 @@ interface Dirent {
  * Mkdir options
  */
 interface MkdirOptions {
+
 	recursive?: boolean;
 
 	mode?: number;
@@ -140,6 +144,7 @@ interface MkdirOptions {
  * Rm options
  */
 interface RmOptions {
+
 	recursive?: boolean;
 
 	force?: boolean;
@@ -153,6 +158,7 @@ interface RmOptions {
  * Read file options
  */
 interface ReadFileOptions {
+
 	encoding?: BufferEncoding | null;
 
 	flag?: string;
@@ -162,6 +168,7 @@ interface ReadFileOptions {
  * Write file options
  */
 interface WriteFileOptions {
+
 	encoding?: BufferEncoding | null;
 
 	mode?: number;
@@ -173,6 +180,7 @@ interface WriteFileOptions {
  * Copy file options
  */
 interface CopyFileOptions {
+
 	mode?: number;
 
 	flags?: number;
@@ -190,6 +198,7 @@ async function invokeTauri<T>(
 
 	args: Record<string, unknown> = {},
 ): Promise<T> {
+
 	try {
 		// Tauri 2.x: core.invoke, Tauri 1.x: invoke
 		const Invoke =
@@ -230,6 +239,7 @@ async function invokeTauri<T>(
  * Convert Mountain stats to Node.js Stats
  */
 function mountainStatsToStats(mountainStats: MountainStats): Stats {
+
 	return {
 		dev: 1,
 
@@ -301,6 +311,7 @@ function mountainStatsToStats(mountainStats: MountainStats): Stats {
  * Create Dirent from name and path
  */
 function createDirent(name: string, path: string, isDir: boolean): Dirent {
+
 	return {
 		name,
 
@@ -348,6 +359,7 @@ async function readFile(
 
 	options?: ReadFileOptions | BufferEncoding,
 ): Promise<string | Buffer> {
+
 	// Normalize options
 	const encoding =
 		typeof options === "string" ? options : (options?.encoding ?? "utf8");
@@ -378,6 +390,7 @@ async function writeFile(
 
 	options?: WriteFileOptions | BufferEncoding,
 ): Promise<void> {
+
 	// Normalize options
 	let encoding: BufferEncoding | null = "utf8";
 
@@ -414,6 +427,7 @@ async function writeFile(
  * Delete file from Mountain file system
  */
 async function unlink(path: string): Promise<void> {
+
 	try {
 		await invokeTauri("file:delete", {
 			path,
@@ -430,6 +444,7 @@ async function unlink(path: string): Promise<void> {
  * Remove file or directory (recursive)
  */
 async function rm(path: string, options?: RmOptions): Promise<void> {
+
 	opts = {
 		recursive: false,
 
@@ -457,6 +472,7 @@ async function rm(path: string, options?: RmOptions): Promise<void> {
  * Rename/move file or directory
  */
 async function rename(oldPath: string, newPath: string): Promise<void> {
+
 	try {
 		await invokeTauri("file:move", {
 			from: oldPath,
@@ -479,6 +495,7 @@ async function copyFile(
 
 	options?: CopyFileOptions,
 ): Promise<void> {
+
 	try {
 		await invokeTauri("file:copy", {
 			from: src,
@@ -499,6 +516,7 @@ async function mkdir(
 
 	options?: MkdirOptions | number | boolean,
 ): Promise<void> {
+
 	// Normalize options
 	let opts: RecursiveMkdirOptions = { recursive: false };
 
@@ -529,6 +547,7 @@ async function mkdir(
 
 // Fix the type reference issue
 interface RecursiveMkdirOptions {
+
 	recursive?: boolean;
 
 	mode?: number;
@@ -538,6 +557,7 @@ interface RecursiveMkdirOptions {
  * Remove directory
  */
 async function rmdir(path: string): Promise<void> {
+
 	try {
 		await invokeTauri("file:delete", {
 			path,
@@ -559,6 +579,7 @@ async function readdir(
 
 	options?: { withFileTypes?: boolean },
 ): Promise<string[] | Dirent[]> {
+
 	try {
 		const withFileTypes = options?.withFileTypes ?? false;
 
@@ -595,6 +616,7 @@ async function readdir(
  * Get file stats
  */
 async function stat(path: string): Promise<Stats> {
+
 	try {
 		// Call Mountain to get file stats
 		const mountainStats = await invokeTauri<MountainStats>("file:stat", {
@@ -613,6 +635,7 @@ async function stat(path: string): Promise<Stats> {
  * Check if file exists
  */
 async function exists(path: string): Promise<boolean> {
+
 	try {
 		await stat(path);
 
@@ -630,6 +653,7 @@ async function exists(path: string): Promise<boolean> {
  * Not supported: Cannot open file descriptors in browser/Tauri
  */
 function open(): never {
+
 	throw new Error(
 		"fs.open() is not supported in browser/Tauri environment. No file descriptor operations available.",
 	);
@@ -639,6 +663,7 @@ function open(): never {
  * Not supported: Cannot read from file descriptors in browser/Tauri
  */
 function read(): never {
+
 	throw new Error(
 		"fs.read() is not supported in browser/Tauri environment. Use readFile() instead.",
 	);
@@ -648,6 +673,7 @@ function read(): never {
  * Not supported: Cannot write to file descriptors in browser/Tauri
  */
 function write(): never {
+
 	throw new Error(
 		"fs.write() is not supported in browser/Tauri environment. Use writeFile() instead.",
 	);
@@ -657,6 +683,7 @@ function write(): never {
  * Not supported: Cannot close file descriptors in browser/Tauri
  */
 function close(): never {
+
 	throw new Error(
 		"fs.close() is not supported in browser/Tauri environment.",
 	);
@@ -666,6 +693,7 @@ function close(): never {
  * Not supported: Synchronous operations not supported
  */
 function readFileSync(): never {
+
 	throw new Error(
 		"fs.readFileSync() is not supported in browser/Tauri environment. Use async readFile() instead.",
 	);
@@ -675,6 +703,7 @@ function readFileSync(): never {
  * Not supported: Synchronous operations not supported
  */
 function writeFileSync(): never {
+
 	throw new Error(
 		"fs.writeFileSync() is not supported in browser/Tauri environment. Use async writeFile() instead.",
 	);
@@ -684,6 +713,7 @@ function writeFileSync(): never {
  * Not supported: File watching requires backend service
  */
 function watch(): never {
+
 	throw new Error(
 		"fs.watch() is not supported. Use the FileWatcher service instead.",
 	);
@@ -693,6 +723,7 @@ function watch(): never {
  * Not supported: File watching requires backend service
  */
 function watchFile(): never {
+
 	throw new Error(
 		"fs.watchFile() is not supported. Use the FileWatcher service instead.",
 	);
@@ -702,6 +733,7 @@ function watchFile(): never {
  * Not supported: Symbolic links not fully supported in sandbox
  */
 function symlink(): never {
+
 	throw new Error(
 		"fs.symlink() is not fully supported in browser/Tauri environment.",
 	);
@@ -711,6 +743,7 @@ function symlink(): never {
  * Not supported: Symbolic links not fully supported in sandbox
  */
 function readlink(): never {
+
 	throw new Error(
 		"fs.readlink() is not fully supported in browser/Tauri environment.",
 	);
@@ -720,6 +753,7 @@ function readlink(): never {
  * Not supported: Cannot modify file permissions in sandbox
  */
 function chmod(): never {
+
 	throw new Error(
 		"fs.chmod() is not supported in browser/Tauri environment.",
 	);
@@ -729,6 +763,7 @@ function chmod(): never {
  * Not supported: Cannot modify file permissions in sandbox
  */
 function chown(): never {
+
 	throw new Error(
 		"fs.chown() is not supported in browser/Tauri environment.",
 	);
@@ -742,6 +777,7 @@ function chown(): never {
  * File System exports (mimicking Node.js fs module)
  */
 const fs = {
+
 	readFile,
 
 	writeFile,
@@ -838,6 +874,7 @@ const fs = {
  * Install the file system polyfill
  */
 export function installFileSystemPolyfill(): void {
+
 	if (typeof window === "undefined") {
 		return;
 	}
@@ -864,6 +901,7 @@ export function installFileSystemPolyfill(): void {
  * Create require() shim for fs module
  */
 function createRequireShim() {
+
 	return (id: string) => {
 		if (id === "fs") {
 			return fs;
@@ -878,6 +916,7 @@ function createRequireShim() {
 // ============================================================================
 
 export default {
+
 	install: installFileSystemPolyfill,
 
 	module: fs,
@@ -908,5 +947,6 @@ export default {
 
 // Auto-install on import
 if (typeof window !== "undefined") {
+
 	installFileSystemPolyfill();
 }

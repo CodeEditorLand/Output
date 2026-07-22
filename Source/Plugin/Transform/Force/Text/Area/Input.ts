@@ -64,6 +64,7 @@ const Plugin: TransformPlugin = {
 
 		return Next === Source
 			? { Kind: "Unchanged" }
+
 			: { Kind: "Rewrite", Source: Next };
 	},
 };

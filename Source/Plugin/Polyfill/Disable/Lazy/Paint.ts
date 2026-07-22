@@ -22,12 +22,14 @@
  */
 
 interface RAFEntry {
+
 	Id: number;
 
 	Callback: FrameRequestCallback;
 }
 
 interface FastIntersectionObserverInit {
+
 	root?: Element | Document | null;
 
 	rootMargin?: string;
@@ -36,6 +38,7 @@ interface FastIntersectionObserverInit {
 }
 
 interface FastIntersectionEntry {
+
 	target: Element;
 
 	isIntersecting: boolean;
@@ -52,6 +55,7 @@ interface FastIntersectionEntry {
 }
 
 export default function DisableLazyPaint(): void {
+
 	if (typeof window === "undefined") return;
 
 	const Marker = "__LAND_DISABLE_LAZY_PAINT__";

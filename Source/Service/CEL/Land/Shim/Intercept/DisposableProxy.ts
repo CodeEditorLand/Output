@@ -20,6 +20,7 @@ const __LandTier_Shim__: string =
 		: "None";
 
 const DisposableProxy = async (): Promise<void> => {
+
 	if (__LandTier_Shim__ !== "Own" && __LandTier_Shim__ !== "Preempt") {
 		return;
 	}
@@ -54,6 +55,7 @@ let disposableIdCounter: number = 0;
  * resource lifecycle.
  */
 function patchDisposableStore(DisposableStore: any, marker: string): void {
+
 	const proto: any = DisposableStore.prototype;
 
 	if (!proto || proto[marker]) {
@@ -87,6 +89,7 @@ function patchDisposableStore(DisposableStore: any, marker: string): void {
 				typeName:
 					disposable && typeof disposable === "object"
 						? (disposable.constructor?.name ?? "object")
+
 						: String(disposable),
 			};
 

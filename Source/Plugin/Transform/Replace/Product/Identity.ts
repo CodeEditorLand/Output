@@ -25,6 +25,7 @@
  * survives (benign: the workbench still boots, just shows "Code - OSS").
  */
 import { readFileSync } from "node:fs";
+
 import { dirname, join, resolve } from "node:path";
 
 import type { TransformPlugin } from "../../Type.js";
@@ -34,6 +35,7 @@ import type { TransformPlugin } from "../../Type.js";
 // ---------------------------------------------------------------------------
 
 interface ProductInfo {
+
 	nameShort: string;
 
 	nameLong: string;
@@ -54,6 +56,7 @@ interface ProductInfo {
 let Cached: ProductInfo | null = null;
 
 function GetProduct(): ProductInfo {
+
 	if (Cached) return Cached;
 
 	try {
@@ -92,6 +95,7 @@ function GetProduct(): ProductInfo {
 }
 
 interface Replacement {
+
 	From: string;
 
 	To: string;
@@ -108,24 +112,28 @@ const Replacements: Replacement[] = [
 	{ From: ".vscode-oss", To: Product["dataFolderName"] ?? ".fiddee" },
 
 	{
+
 		From: ".vscode-oss-shared",
 
 		To: `${Product["dataFolderName"] ?? ".fiddee"}-shared`,
 	},
 
 	{
+
 		From: "code-server-oss",
 
 		To: Product["serverApplicationName"] ?? "fiddee-server",
 	},
 
 	{
+
 		From: ".vscode-server-oss",
 
 		To: Product["serverDataFolderName"] ?? ".fiddee-server",
 	},
 
 	{
+
 		From: "code-tunnel-oss",
 
 		To: `${Product["applicationName"] ?? "fiddee"}-tunnel`,
@@ -133,6 +141,7 @@ const Replacements: Replacement[] = [
 
 	// ---- Bundle identifiers ----
 	{
+
 		From: "com.visualstudio.code.oss",
 
 		To: Product["darwinBundleIdentifier"] ?? "fiddee.editor",
@@ -158,6 +167,7 @@ const Replacements: Replacement[] = [
 // Transform plugin
 // ---------------------------------------------------------------------------
 const Plugin: TransformPlugin = {
+
 	Kind: "Transform",
 
 	Name: "ReplaceProductIdentity",
@@ -184,6 +194,7 @@ const Plugin: TransformPlugin = {
 
 		return Changed
 			? ({ Kind: "Rewrite", Source: Current } as const)
+
 			: ({ Kind: "Unchanged" } as const);
 	},
 };

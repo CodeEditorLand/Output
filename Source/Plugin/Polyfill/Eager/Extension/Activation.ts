@@ -1,5 +1,6 @@
 // Mountain diagnostic bridge - used instead of console.* in browser context.
 const _CELLog = (Message: string): void => {
+
 	try {
 		const Invoke =
 			(window as any).__TAURI__?.core?.invoke ??
@@ -28,14 +29,17 @@ const _CELLog = (Message: string): void => {
  */
 
 interface ServicesAccessor {
+
 	get<T = unknown>(Identifier: unknown): T;
 }
 
 interface ExtensionService {
+
 	activateByEvent: (Event: string) => Promise<unknown>;
 }
 
 interface CelServices {
+
 	invokeFunction: (Callback: (Accessor: ServicesAccessor) => void) => void;
 }
 
@@ -44,6 +48,7 @@ interface CelServices {
 let Fired = false;
 
 export default function EagerExtensionActivation(): void {
+
 	if (typeof window === "undefined") return;
 
 	const Marker = "__LAND_EAGER_EXTENSION_ACTIVATION__";

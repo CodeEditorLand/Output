@@ -28,6 +28,7 @@
  * Spawn options
  */
 interface SpawnOptions {
+
 	cwd?: string;
 
 	env?: Record<string, string>;
@@ -57,6 +58,7 @@ interface SpawnOptions {
  * Exec options
  */
 interface ExecOptions {
+
 	cwd?: string;
 
 	env?: Record<string, string>;
@@ -82,6 +84,7 @@ interface ExecOptions {
  * Fork options
  */
 interface ForkOptions {
+
 	cwd?: string;
 
 	env?: Record<string, string>;
@@ -181,6 +184,7 @@ type ChildProcessEventListener = (...args: unknown[]) => void;
  * Mock Stream for stdin/stdout/stderr
  */
 interface Stream {
+
 	write(data: string | Buffer): boolean;
 
 	end(data?: string | Buffer): void;
@@ -206,6 +210,7 @@ async function invokeTauri<T>(
 
 	args: Record<string, unknown> = {},
 ): Promise<T> {
+
 	try {
 		// Tauri 2.x: core.invoke, Tauri 1.x: invoke
 		const Invoke =
@@ -246,6 +251,7 @@ function listenToTauri(
 
 	handler: (payload: unknown) => void,
 ): () => void {
+
 	if (typeof (window as any).__TAURI__?.event?.listen === "function") {
 		const unlistenPromise = (window as any).__TAURI__.event
 			.listen(event, ({ payload }: { payload: unknown }) => {
@@ -289,6 +295,7 @@ function listenToTauri(
  * Create a mock stream for stdin/stdout/stderr
  */
 function createMockStream(direction: "read" | "write"): Stream {
+
 	const listeners: Map<string, Set<(...args: unknown[]) => void>> = new Map();
 
 	return {
@@ -338,6 +345,7 @@ function createMockStream(direction: "read" | "write"): Stream {
  * ChildProcess class implementing mock child process behavior
  */
 class ChildProcess {
+
 	// Process state
 	pid: number = 0;
 
@@ -666,6 +674,7 @@ function spawn(
 
 	options?: SpawnOptions,
 ): ChildProcess {
+
 	// Generate unique spawn ID
 	const spawnId = `spawn_${Date.now()}_${Math.random().toString(36).substring(7)}`;
 
@@ -725,6 +734,7 @@ function exec(
 
 	callback?: (error: Error | null, stdout: string, stderr: string) => void,
 ): ChildProcess {
+
 	// Generate unique exec ID
 	const execId = `exec_${Date.now()}_${Math.random().toString(36).substring(7)}`;
 
@@ -804,6 +814,7 @@ function execPromise(
 
 	options?: ExecOptions,
 ): Promise<{ stdout: string; stderr: string }> {
+
 	return new Promise((resolve, reject) => {
 		const proc = exec(command, options, (error, stdout, stderr) => {
 			if (error) {
@@ -830,6 +841,7 @@ function fork(
 
 	options?: ForkOptions,
 ): ChildProcess {
+
 	// Generate unique fork ID
 	const forkId = `fork_${Date.now()}_${Math.random().toString(36).substring(7)}`;
 
@@ -909,6 +921,7 @@ function fork(
  * Child process exports (mimicking Node.js child_process module)
  */
 const childProcess = {
+
 	spawn,
 
 	exec,
@@ -932,6 +945,7 @@ const childProcess = {
  * Install the child process polyfill
  */
 export function installChildProcessPolyfill(): void {
+
 	if (typeof window === "undefined") {
 		return;
 	}
@@ -977,6 +991,7 @@ const process =
 // ============================================================================
 
 export default {
+
 	install: installChildProcessPolyfill,
 
 	module: childProcess,
@@ -996,5 +1011,6 @@ export default {
 
 // Auto-install on import
 if (typeof window !== "undefined") {
+
 	installChildProcessPolyfill();
 }

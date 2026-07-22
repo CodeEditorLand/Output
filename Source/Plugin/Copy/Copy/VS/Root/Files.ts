@@ -35,6 +35,7 @@ import { join } from "node:path";
 import type { CopyPlugin } from "../../../../Type.js";
 
 export interface CopyVSRootFilesInput {
+
 	readonly OutputRoot: string;
 
 	readonly DependencyOutBuild: string;
@@ -74,6 +75,7 @@ const DefaultFiles = [
  * a valid module (`.js`) or JSON (`.json`) per the file extension.
  */
 const InlineStubs: Record<string, string> = {
+
 	// Empty NLS message table: `vs/nls.js` reads
 	// `globalThis._VSCODE_NLS_MESSAGES` by integer index; an empty array
 	// causes the runtime to fall through to the per-call fallback string
@@ -91,6 +93,7 @@ const InlineStubs: Record<string, string> = {
 };
 
 const InlineCandidate = (File: string): string | null => {
+
 	const Body = InlineStubs[File];
 
 	if (!Body) return null;
@@ -99,6 +102,7 @@ const InlineCandidate = (File: string): string | null => {
 };
 
 const ResolveOnDevelopment = (Override?: boolean): boolean => {
+
 	if (typeof Override === "boolean") return Override;
 
 	const Env = process.env["NODE_ENV"];
@@ -130,6 +134,7 @@ const BuildCandidates = (
 
 	OnDevelopment: boolean,
 ): string[] => {
+
 	const PrimaryDependency = OnDevelopment
 		? DependencyOut
 		: DependencyOutBuild;
@@ -167,6 +172,7 @@ export const CopyVSRootFiles = ({
 	Files = DefaultFiles,
 	OnDevelopment,
 }: CopyVSRootFilesInput): CopyPlugin => {
+
 	const Dev = ResolveOnDevelopment(OnDevelopment);
 
 	return {

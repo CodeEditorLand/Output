@@ -91,6 +91,7 @@ const PathRegex = new RegExp(
 );
 
 const Plugin: TransformPlugin = {
+
 	Kind: "Transform",
 
 	Name: "DisableUnusedServices",

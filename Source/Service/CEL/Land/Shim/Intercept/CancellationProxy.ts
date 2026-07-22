@@ -20,6 +20,7 @@ const __LandTier_Shim__: string =
 		: "None";
 
 const CancellationProxy = async (): Promise<void> => {
+
 	if (__LandTier_Shim__ !== "Own" && __LandTier_Shim__ !== "Preempt") {
 		return;
 	}
@@ -53,6 +54,7 @@ const CancellationProxy = async (): Promise<void> => {
  * every cancellation event with metadata.
  */
 function patchCancellation(CancellationTokenSource: any, marker: string): void {
+
 	const proto: any = CancellationTokenSource.prototype;
 
 	if (!proto || proto[marker]) {

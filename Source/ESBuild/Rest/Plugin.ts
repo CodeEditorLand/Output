@@ -24,9 +24,13 @@
  */
 
 import { spawnSync } from "node:child_process";
+
 import { existsSync, mkdtempSync, readFileSync } from "node:fs";
+
 import { tmpdir } from "node:os";
+
 import { basename, dirname, extname, join } from "node:path";
+
 import { fileURLToPath } from "node:url";
 
 import type { OnLoadResult, Plugin } from "esbuild";
@@ -242,6 +246,7 @@ const ENABLE_SOURCE_MAPS =
  * @returns {Plugin} The esbuild plugin configuration
  */
 export default function RestPlugin(): Plugin {
+
 	return {
 		name: "rest",
 
@@ -544,6 +549,7 @@ export default function RestPlugin(): Plugin {
  * @returns {boolean} True if Rest compiler is enabled
  */
 export function isRestEnabled(): boolean {
+
 	return USE_REST_COMPILER;
 }
 
@@ -553,6 +559,7 @@ export function isRestEnabled(): boolean {
  * @returns {string} The resolved binary path
  */
 export function getRestBinaryPath(): string {
+
 	return REST_BINARY_PATH;
 }
 
@@ -562,5 +569,6 @@ export function getRestBinaryPath(): string {
  * @returns {Plugin | null} Rest plugin if enabled, null otherwise
  */
 export function createRestPluginIfEnabled(): Plugin | null {
+
 	return USE_REST_COMPILER ? RestPlugin() : null;
 }

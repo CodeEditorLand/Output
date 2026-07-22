@@ -21,6 +21,7 @@ const __LandTier_Shim__: string =
 		: "None";
 
 const ErrorHandlerProxy = async (): Promise<void> => {
+
 	// Only activate at Own or Preempt tiers
 	if (__LandTier_Shim__ !== "Own" && __LandTier_Shim__ !== "Preempt") {
 		return;
@@ -53,6 +54,7 @@ const ErrorHandlerProxy = async (): Promise<void> => {
  * Patches errorHandler.onUnexpectedError to intercept calls.
  */
 function patchErrorHandler(errorHandler: any, marker: string): void {
+
 	if (errorHandler[marker]) {
 		return; // already patched
 	}
@@ -74,6 +76,7 @@ function patchErrorHandler(errorHandler: any, marker: string): void {
 				stack:
 					error instanceof Error
 						? (error.stack?.slice(0, 1024) ?? "")
+
 						: "",
 
 				name: error instanceof Error ? error.name : "non-error",

@@ -46,6 +46,7 @@ const FLUSH_INTERVAL_MS = 30000;
 
 // ── Tier gate ──
 function isEnabled() {
+
 	return (
 		typeof __LandTier_Shim__ !== "undefined" && __LandTier_Shim__ !== "None"
 	);
@@ -56,6 +57,7 @@ function isEnabled() {
 // ─────────────────────────────────────────────────────────────────────
 
 export function recordErrorTrace(trace) {
+
 	if (!isEnabled()) return;
 
 	errorBuffer.push(trace);
@@ -66,6 +68,7 @@ export function recordErrorTrace(trace) {
 }
 
 export function recordEmitterTrace(trace) {
+
 	if (!isEnabled()) return;
 
 	emitterBuffer.push(trace);
@@ -76,6 +79,7 @@ export function recordEmitterTrace(trace) {
 }
 
 export function recordCancelTrace(trace) {
+
 	if (!isEnabled()) return;
 
 	cancelBuffer.push(trace);
@@ -86,6 +90,7 @@ export function recordCancelTrace(trace) {
 }
 
 export function recordDisposableTrace(trace) {
+
 	if (!isEnabled()) return;
 
 	disposableBuffer.push(trace);
@@ -96,6 +101,7 @@ export function recordDisposableTrace(trace) {
 }
 
 export function recordAsyncTrace(trace) {
+
 	if (!isEnabled()) return;
 
 	asyncBuffer.push(trace);
@@ -106,6 +112,7 @@ export function recordAsyncTrace(trace) {
 }
 
 export function recordTimingTrace(trace) {
+
 	if (!isEnabled()) return;
 
 	timingBuffer.push(trace);
@@ -120,6 +127,7 @@ export function recordTimingTrace(trace) {
 // ─────────────────────────────────────────────────────────────────────
 
 export function recordAuditEntry(serviceId, action, resolved) {
+
 	if (!isEnabled()) return;
 
 	auditBuffer.push({ ts: Date.now(), serviceId, action, resolved });
@@ -138,6 +146,7 @@ export function recordAuditEntry(serviceId, action, resolved) {
  * Simple prefix check — for full pattern matching, see Wind/Shim/SwallowMap.ts.
  */
 export function checkLandSwallowMap(eventName) {
+
 	if (!isEnabled()) return false;
 
 	// Fast prefix checks for high-frequency events
@@ -148,10 +157,12 @@ export function checkLandSwallowMap(eventName) {
 		eventName.startsWith("status") ||
 		eventName.startsWith("onDidChangeStatus")
 	)
+
 		return true;
 
 	// Telemetry events — always discard
 	if (eventName.includes("telemetry") || eventName.includes("Telemetry"))
+
 		return true;
 
 	return false;
@@ -162,12 +173,14 @@ export function checkLandSwallowMap(eventName) {
 // ─────────────────────────────────────────────────────────────────────
 
 function ensureFlushTimer() {
+
 	if (flushTimer) return;
 
 	flushTimer = setInterval(flushAll, FLUSH_INTERVAL_MS);
 }
 
 function flushAll() {
+
 	const payload = {
 		type: "shim-trace",
 
@@ -237,6 +250,7 @@ function flushAll() {
  * Force immediate flush (for shutdown / manual trigger).
  */
 export function forceFlush() {
+
 	if (flushTimer) {
 		clearInterval(flushTimer);
 

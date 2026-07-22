@@ -25,8 +25,10 @@ const TierShim =
 	typeof __LandTier_Shim__ !== "undefined" ? __LandTier_Shim__ : "None";
 
 if (TierShim === "None") {
+
 	// No-op — shim disabled. The entire module body is dead code.
 } else {
+
 	/**
 	 * Called from InjectShimHook's injection site in web.main.js /
 	 * desktop.main.js, immediately after `const instantiationService =
@@ -106,6 +108,7 @@ if (TierShim === "None") {
 // ══════════════════════════════════════════════════════════════════════
 
 function activateLowLevelHooks() {
+
 	// These modules are compiled alongside Init.js and resolve at the final
 	// on-disk location under vs/workbench/browser/CEL/Land/Shim/Intercept/
 
@@ -161,6 +164,7 @@ function activateLowLevelHooks() {
 // ══════════════════════════════════════════════════════════════════════
 
 function wrapServiceCollectionForAudit(sc) {
+
 	sc["__LAND_SHIM_WRAPPED__"] = true;
 
 	const originalGet = sc.get.bind(sc);
@@ -191,6 +195,7 @@ const auditEntries = [];
 const MAX_AUDIT = 500;
 
 function recordAuditEntryLocal(serviceId, action, resolved) {
+
 	auditEntries.push({ ts: Date.now(), serviceId, action, resolved });
 
 	if (auditEntries.length > MAX_AUDIT) {
@@ -199,6 +204,7 @@ function recordAuditEntryLocal(serviceId, action, resolved) {
 }
 
 function flushAuditLog() {
+
 	if (auditEntries.length === 0) return;
 
 	const batch = auditEntries.splice(0);
@@ -235,6 +241,7 @@ function flushAuditLog() {
 // ══════════════════════════════════════════════════════════════════════
 
 function replaceTelemetryService(sc) {
+
 	const originalGet = sc.get.bind(sc);
 
 	sc.get = function (id) {
@@ -252,6 +259,7 @@ function replaceTelemetryService(sc) {
 }
 
 function createNoopTelemetryService() {
+
 	return {
 		setEnabled: function () {},
 

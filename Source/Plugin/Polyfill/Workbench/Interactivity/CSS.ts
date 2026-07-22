@@ -16,6 +16,7 @@
 // rules. Older `__LAND_WORKBENCH_INTERACTIVITY_CSS__` strings still
 // exist as dead comments in patched bundles - harmless.
 export default function WorkbenchInteractivityCSS(): void {
+
 	if (typeof window === "undefined") return;
 
 	const Marker = "__LAND_WORKBENCH_INTERACTIVITY_CSS_V2__";

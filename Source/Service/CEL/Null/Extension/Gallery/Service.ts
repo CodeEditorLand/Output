@@ -27,6 +27,7 @@
  */
 
 const EmptyPager = {
+
 	firstPage: [] as unknown[],
 
 	total: 0,
@@ -45,6 +46,7 @@ const Reject = (Operation: string) => (): Promise<never> =>
 	);
 
 class NullExtensionGalleryService {
+
 	readonly _serviceBrand: undefined = undefined;
 
 	isEnabled(): boolean {

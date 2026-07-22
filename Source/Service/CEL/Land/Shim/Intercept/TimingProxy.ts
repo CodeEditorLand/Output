@@ -31,6 +31,7 @@ let stopwatchIdCounter: number = 0;
 const TIMING_SAMPLE_RATE: number = 1.0;
 
 const TimingProxy = async (): Promise<void> => {
+
 	if (__LandTier_Shim__ !== "Own" && __LandTier_Shim__ !== "Preempt") {
 		return;
 	}
@@ -67,6 +68,7 @@ function patchStopWatch(
 
 	stopwatchModule: any,
 ): void {
+
 	if (StopWatch[marker]) {
 		return;
 	}
@@ -82,6 +84,7 @@ function patchStopWatch(
 		typeof performance !== "undefined" &&
 		typeof performance.now === "function"
 			? () => performance.now()
+
 			: typeof process !== "undefined" &&
 				  typeof process.hrtime === "function"
 				? () => {
@@ -89,6 +92,7 @@ function patchStopWatch(
 
 						return t[0] * 1e6 + t[1] / 1e3; // microseconds
 					}
+
 				: () => Date.now() * 1000; // fallback: milliseconds → microseconds
 
 	// ── Patch constructor ────────────────────────────────────────────
@@ -117,6 +121,7 @@ function patchStopWatch(
 
 						highResolution,
 					)
+
 				: new (Function.prototype.bind.apply(
 						originalConstructor,
 

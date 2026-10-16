@@ -1,52 +1,52 @@
 {
-	"name": "@codeeditorland/output",
-	"version": "0.0.1",
-	"private": false,
-	"description": "Output ⚫",
-	"homepage": "https://GitHub.Com/CodeEditorLand/Output?tab=readme-ov-file",
-	"bugs": {
-		"url": "https://GitHub.Com/CodeEditorLand/Output/issues"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/CodeEditorLand/Output.git"
-	},
-	"license": "SEE LICENSE IN LICENSE",
-	"author": {
-		"name": "Source 🖋️ Open 👐🏻",
-		"email": "Source/Open@Editor.Land",
-		"url": "https://Editor.Land"
-	},
-	"type": "module",
-	"scripts": {
-		"Run": "sh Source/Run.sh",
-		"prepublishOnly": "sh Source/prepublishOnly.sh"
-	},
-	"devDependencies": {
-		"@playform/build": "0.3.4",
-		"@types/mocha": "10.0.10",
-		"@types/node": "26.2.0",
-		"@types/semver": "7.8.0",
-		"@types/sinon": "22.0.0",
-		"@types/trusted-types": "2.0.7",
-		"@types/wicg-file-system-access": "2023.10.7",
-		"@types/winreg": "1.2.36",
-		"@webgpu/types": "0.1.71",
-		"browserslist": "4.28.8",
-		"cross-env": "10.1.0",
-		"deepmerge-ts": "7.1.6",
-		"mocha": "11.8.0",
-		"semver": "7.8.5",
-		"sinon": "22.1.0",
-		"trusted-types": "2.0.0",
-		"typescript": "7.0.2",
-		"winreg": "1.2.5"
-	},
-	"optionalDependencies": {
-		"@codeeditorland/rest": "0.0.1"
-	},
-	"publishConfig": {
-		"access": "public",
-		"provenance": true
-	}
+    "name": "@codeeditorland/output",
+    "version": "0.0.1",
+    "private": false,
+    "description": "Output ⚫",
+    "homepage": "https://GitHub.Com/CodeEditorLand/Output?tab=readme-ov-file",
+    "bugs": {
+        "url": "https://GitHub.Com/CodeEditorLand/Output/issues"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/CodeEditorLand/Output.git"
+    },
+    "license": "SEE LICENSE IN LICENSE",
+    "author": {
+        "name": "Source 🖋️ Open 👐🏻",
+        "email": "Source/Open@Editor.Land",
+        "url": "https://Editor.Land"
+    },
+    "type": "module",
+    "scripts": {
+        "Run": "bash Source/Run.sh",
+        "prepublishOnly": "bash Source/prepublishOnly.sh"
+    },
+    "devDependencies": {
+        "@playform/build": "0.3.4",
+        "@types/mocha": "10.0.10",
+        "@types/node": "26.4.1",
+        "@types/semver": "7.8.0",
+        "@types/sinon": "22.0.0",
+        "@types/trusted-types": "2.0.7",
+        "@types/wicg-file-system-access": "2023.10.7",
+        "@types/winreg": "1.2.36",
+        "@webgpu/types": "0.1.72",
+        "browserslist": "4.28.8",
+        "cross-env": "10.1.0",
+        "deepmerge-ts": "8.0.2",
+        "mocha": "12.0.0",
+        "semver": "7.8.5",
+        "sinon": "22.1.0",
+        "trusted-types": "2.0.0",
+        "typescript": "7.0.2",
+        "winreg": "1.2.5"
+    },
+    "optionalDependencies": {
+        "@codeeditorland/rest": "0.0.1"
+    },
+    "publishConfig": {
+        "access": "public",
+        "provenance": true
+    }
 }

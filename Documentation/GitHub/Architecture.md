@@ -9,24 +9,22 @@
 				</picture>
 			</h3>
 		</td>
-		<td colspan="3" valign="top"><h3 align="center">Output&#x2001;⚫</h3></td>
+		<td colspan="3" valign="top"><h3 align="center">Output</h3></td>
 	</tr>
 </table>
 
 ---
 
-# **Output**&#x2001;⚫&#x2001;Architecture
+# Output Architecture
 
-`Output` is the build artifact management package for `Land`. It handles
-compilation of `VS Code` platform source code through:
+`Output` is the build artifact management package for `Land`. It handles compilation of `VS Code` platform source code through:
 
 - Dual-compiler support (`ESBuild` primary, `Rest` OXC optional)
-- Produces the `@codeeditorland/output` npm package consumed by `Cocoon`, `Sky`,
-  and `Wind`
+- Produces the `@codeeditorland/output` npm package consumed by `Cocoon`, `Sky`, and `Wind`
 
 ---
 
-## Table of Contents
+## Table of Contents 📖
 
 1. [Overview](#overview)
 2. [Architecture](#architecture)
@@ -35,7 +33,8 @@ compilation of `VS Code` platform source code through:
 5. [Plugin System](#plugin-system)
 6. [Polyfill Injection](#polyfill-injection)
 7. [Output Layout](#output-layout)
-8. [Related Documentation](#related-documentation)
+8. [Shim Compatibility](#shim-compatibility)
+9. [Related Documentation](#related-documentation)
 
 ---
 
@@ -61,42 +60,40 @@ graph TB
     PACKAGE --> WIND["Wind<br/>Service Layer"]
 ```
 
-## Overview&#x2001;📋
+## Overview 📋
 
 `Output` is the build orchestration layer for `Land`'s `TypeScript` assets:
 
-- Wraps `ESBuild` with `Land`-specific transforms, plugin hooks, and polyfill
-  injection
-- Supports an optional `Rest` (OXC-based) compiler pipeline for faster
-  `TypeScript` compilation
+- Wraps `ESBuild` with `Land`-specific transforms, plugin hooks, and polyfill injection
+- Supports an optional `Rest` (OXC-based) compiler pipeline for faster `TypeScript` compilation
 
-| Attribute    | Value                                                           |
-| ------------ | --------------------------------------------------------------- |
-| Language     | `TypeScript` + `JavaScript`                                     |
-| Compiler     | `ESBuild` (default), `Rest` OXC (optional)                      |
-| Output       | `@codeeditorland/output` npm package                            |
+| Attribute | Value |
+| -------- | -------- |
+| Language | `TypeScript` + `JavaScript` |
+| Compiler | `ESBuild` (default), `Rest` OXC (optional) |
+| Output | `@codeeditorland/output` npm package |
 | Dependencies | `@codeeditorland/rest` (optional), `@playform/build`, `esbuild` |
-| Consumers    | `Cocoon`, `Sky`, `Wind`                                         |
+| Consumers | `Cocoon`, `Sky`, `Wind` |
 
 ---
 
-## Architecture&#x2001;🏗️
+## Architecture 🏗️
 
-```
+```text
 +--------------------------------------------------------------+
 |                       Output                                  |
 |                                                               |
-|  +------------------+  +------------------+                    |
-|  | ESBuild/Output.ts |  | ESBuild/Rest.ts  |                   |
-|  | Default esbuild   |  | Rest plugin      |                   |
-|  | pipeline          |  | (OXC compiler)   |                   |
-|  +------------------+  +------------------+                    |
+|  +------------------+  +------------------------+             |
+|  | ESBuild/Output.ts|  | ESBuild/Rest/Plugin.ts |             |
+|  | Default esbuild  |  | Rest plugin            |             |
+|  | pipeline         |  | (OXC compiler)         |             |
+|  +------------------+  +------------------------+             |
 |                                                               |
 |  +------------------+  +------------------+                    |
 |  | Plugin/          |  | Polyfill/        |                    |
 |  | - Apply.ts       |  | - Child/         |                    |
 |  | - Copy.ts        |  | - File/          |                    |
-|  | - Transform.ts   |  | - IPC/           |                    |
+|  | - Transform/     |  | - IPC/           |                    |
 |  | - Index.ts       |  | - Native/        |                    |
 |  | - Type.ts        |  | - Process/       |                    |
 |  |                  |  | - Shared/        |                    |
@@ -111,41 +108,41 @@ graph TB
 +--------------------------------------------------------------+
 ```
 
-### Module Map&#x2001;🗺️
+### Module Map 🗺️
 
-| Path                             | Purpose                                    |
-| -------------------------------- | ------------------------------------------ |
-| `Source/ESBuild/Output.ts`       | Primary ESBuild compilation pipeline       |
-| `Source/ESBuild/Rest/`           | Rest OXC compiler plugin integration       |
-| `Source/ESBuild/Microsoft/`      | VS Code source-specific compilation config |
-| `Source/ESBuild/CodeEditorLand/` | Land-specific compilation config           |
-| `Source/ESBuild/Exclude/`        | Exclude patterns for compilation           |
-| `Source/Plugin/Apply.ts`         | ESBuild plugin for applying transforms     |
-| `Source/Plugin/Copy/`            | Asset copying plugin                       |
-| `Source/Plugin/Transform/`       | Code transform plugins                     |
-| `Source/Plugin/Polyfill/`        | Polyfill injection plugins                 |
-| `Source/Plugin/Index.ts`         | Plugin registry                            |
-| `Source/Polyfill/Child/`         | Child process polyfills                    |
-| `Source/Polyfill/File/`          | File system polyfills                      |
-| `Source/Polyfill/IPC/`           | IPC polyfills                              |
-| `Source/Polyfill/Native/`        | Native module polyfills                    |
-| `Source/Polyfill/Process/`       | Process polyfills                          |
-| `Source/Polyfill/Shared/`        | Shared polyfill utilities                  |
-| `Source/Service/CEL/`            | Code Editor Land specific services         |
-| `Source/Service/Dev/`            | Development-time services                  |
-| `Source/Service/Tauri/`          | Tauri-specific services                    |
-| `Source/Asset/Style/`            | CSS asset management                       |
-| `Source/Apply/Pipeline.ts`       | Apply pipeline orchestration               |
+| Path | Purpose |
+| -------- | -------- |
+| `Source/ESBuild/Output.ts` | Primary ESBuild compilation pipeline |
+| `Source/ESBuild/Rest/` | Rest OXC compiler plugin integration |
+| `Source/ESBuild/Microsoft/` | VS Code source-specific compilation config |
+| `Source/ESBuild/CodeEditorLand/` | Land-specific compilation config |
+| `Source/ESBuild/Exclude/` | Exclude patterns for compilation |
+| `Source/Plugin/Apply.ts` | ESBuild plugin for applying transforms |
+| `Source/Plugin/Copy/` | Asset copying plugin |
+| `Source/Plugin/Transform/` | Code transform plugins |
+| `Source/Plugin/Polyfill/` | Polyfill injection plugins |
+| `Source/Plugin/Index.ts` | Plugin registry |
+| `Source/Polyfill/Child/` | Child process polyfills |
+| `Source/Polyfill/File/` | File system polyfills |
+| `Source/Polyfill/IPC/` | IPC polyfills |
+| `Source/Polyfill/Native/` | Native module polyfills |
+| `Source/Polyfill/Process/` | Process polyfills |
+| `Source/Polyfill/Shared/` | Shared polyfill utilities |
+| `Source/Service/CEL/` | Code Editor Land specific services |
+| `Source/Service/Dev/` | Development-time services |
+| `Source/Service/Tauri/` | Tauri-specific services |
+| `Source/Asset/Style/` | CSS asset management |
+| `Source/Apply/Pipeline.ts` | Apply pipeline orchestration |
 
 ---
 
-## Compiler Modes&#x2001;⚡
+## Compiler Modes ⚡
 
 `Output` supports two compiler backends:
 
-### Default: ESBuild&#x2001;⚡
+### Default: ESBuild 📦
 
-```
+```text
 TypeScript input (.ts, .tsx)
     |
     v
@@ -164,11 +161,11 @@ ESBuild codegen
 JavaScript output
 ```
 
-### Optional: Rest OXC&#x2001;⚡
+### Optional: Rest OXC 📦
 
 Activated via `Compiler=Rest` environment variable:
 
-```
+```text
 TypeScript input (.ts, .tsx)
     |
     v
@@ -186,27 +183,52 @@ OXC codegen
 JavaScript output
 ```
 
-### Integration&#x2001;🔗
+```mermaid
+sequenceDiagram
+    participant Input as TypeScript input
+    participant ESBuild as ESBuild
+    participant RestPlugin as RestPlugin
+    participant RestBin as Rest binary
+
+    Input->>ESBuild: .ts, .tsx files
+    alt Compiler = esbuild (default)
+        ESBuild->>ESBuild: transforms + codegen
+        ESBuild->>Input: JavaScript output
+    else Compiler = Rest
+        ESBuild->>RestPlugin: onLoad .ts
+        RestPlugin->>RestBin: compile --input --output
+        RestBin->>RestPlugin: JavaScript text
+        RestPlugin->>ESBuild: transformed source
+        ESBuild->>Input: JavaScript output
+    end
+```
+
+### Integration 🧩
+
+The Rest plugin is loaded lazily only when `Compiler=Rest` is set:
 
 ```typescript
-// Output/ESBuild/Output.ts
-const compiler =
-	process.env.Compiler === "Rest" ? await import("./Rest/RestPlugin") : null;
-
-const plugins = [];
-if (compiler) {
-	plugins.push(compiler.createPlugin());
+// Source/ESBuild/Output.ts
+let RestPlugin = null;
+if (process.env.Compiler?.toLowerCase() === "rest") {
+	try {
+		const { createRestPluginIfEnabled } = await import("./Rest/Plugin.js");
+		RestPlugin = createRestPluginIfEnabled();
+	} catch {
+		// Fall back to the esbuild TypeScript loader.
+	}
 }
+const plugins = RestPlugin ? [RestPlugin] : [];
 // Standard ESBuild build with optional Rest plugin
 ```
 
 ---
 
-## Build Pipeline&#x2001;🔧
+## Build Pipeline 🗺️
 
 The `Output` build pipeline processes `VS Code` platform code:
 
-```
+```text
 1. Input discovery
    - Reads from Dependency/Editor/out/ (Stage 1 compiled VS Code)
    - Identifies entry points (workbench, extHost files)
@@ -223,16 +245,24 @@ The `Output` build pipeline processes `VS Code` platform code:
 
 4. Bundle compilation
    - ESBuild compiles to single or multiple output files
-   - Source maps generated for debugging
+   - Source maps produced for debugging
 
 5. Output packaging
    - Produces @codeeditorland/output package
    - Versioned and cached in Output/Target/
 ```
 
+```mermaid
+graph LR
+    A["1. Input discovery<br/>Dependency/Editor/out/"] --> B["2. Module resolution<br/>electron to Tauri stubs<br/>Node.js to polyfills"]
+    B --> C["3. Transform application<br/>polyfills, source maps, CEL markers"]
+    C --> D["4. Bundle compilation<br/>ESBuild to output files"]
+    D --> E["5. Output packaging<br/>@codeeditorland/output<br/>Target/"]
+```
+
 ---
 
-## Plugin System&#x2001;🔌
+## Plugin System 🧩
 
 `Output` defines a plugin interface for extending the build pipeline:
 
@@ -243,42 +273,67 @@ export interface OutputPlugin {
 }
 ```
 
-### Built-in Plugins&#x2001;🔌
+### Built-in Plugins 🧩
 
-| Plugin              | Purpose                                        |
-| ------------------- | ---------------------------------------------- |
-| `Apply.ts`          | Applies Land-specific code transforms          |
-| `Copy.ts`           | Copies static assets to output directory       |
-| `Transform.ts`      | TypeScript-to-JavaScript transformation config |
-| `Polyfill/Index.ts` | Polyfill injection orchestration               |
-| `RestPlugin.ts`     | Rest OXC compiler integration (optional)       |
+| Plugin | Purpose |
+| -------- | -------- |
+| `Apply.ts` | Applies Land-specific code transforms |
+| `Copy.ts` | Copies static assets to output directory |
+| `Transform.ts` | TypeScript-to-JavaScript transformation config |
+| `Polyfill/Index.ts` | Polyfill injection orchestration |
+| `RestPlugin.ts` | Rest OXC compiler integration (optional) |
+
+```mermaid
+graph LR
+    IDX["Plugin/Index.ts<br/>registry"] --> APPLY["Apply.ts<br/>transforms"]
+    IDX --> COPY["Copy.ts<br/>static assets"]
+    IDX --> TRANSFORM["Transform.ts<br/>TS to JS config"]
+    IDX --> POLY["Polyfill/Index.ts<br/>injection"]
+    IDX --> REST["RestPlugin.ts<br/>OXC optional"]
+```
 
 ---
 
-## Polyfill Injection&#x2001;🧩
+## Polyfill Injection 🧩
 
-`Output` injects polyfills during compilation for APIs that don't exist in the
-`Tauri` `WebView`:
+`Output` injects polyfills during compilation for APIs that don't exist in the `Tauri` `WebView`:
 
-| Polyfill   | Target                    | Replaces                      |
-| ---------- | ------------------------- | ----------------------------- |
-| `Child/`   | `child_process` module    | No-op stubs                   |
-| `File/`    | `fs` module               | Tauri invoke wrappers         |
-| `IPC/`     | `ipcRenderer`             | Tauri event system            |
-| `Native/`  | Native Node modules       | No-op stubs                   |
-| `Process/` | `process` global          | Wind Preload shim integration |
-| `Shared/`  | Shared polyfill utilities | Shared initialization         |
+| Polyfill | Target | Replaces |
+| -------- | -------- | -------- |
+| `Child/` | `child_process` module | No-op stubs |
+| `File/` | `fs` module | Tauri invoke wrappers |
+| `IPC/` | `ipcRenderer` | Tauri event system |
+| `Native/` | Native Node modules | No-op stubs |
+| `Process/` | `process` global | Wind Preload shim integration |
+| `Shared/` | Shared polyfill utilities | Shared initialization |
 
 - Polyfills are injected via `ESBuild`'s `inject` configuration
 - Prepends the polyfill modules to output bundles
 
+```mermaid
+graph LR
+    SRC["VS Code platform code<br/>Node.js + Electron APIs"] --> INJ["ESBuild inject config"]
+    INJ --> CHILD["Child/: child_process"]
+    INJ --> FILE["File/: fs"]
+    INJ --> IPC["IPC/: ipcRenderer"]
+    INJ --> NATIVE["Native/: native modules"]
+    INJ --> PROC["Process/: process global"]
+    INJ --> SHARED["Shared/: utilities"]
+    CHILD --> WEBVIEW["Tauri WebView"]
+    FILE --> WEBVIEW
+    IPC --> WEBVIEW
+    NATIVE --> WEBVIEW
+    PROC --> WEBVIEW
+    SHARED --> WEBVIEW
+```
+
 ---
 
-## Output Layout&#x2001;📁
+## Output Layout 🗺️
 
 After compilation, `Output` produces the following structure:
 
-```
+```text
 Output/Target/
 +-- @codeeditorland/output/
     +-- index.js                    # Main entry point
@@ -298,36 +353,30 @@ Output/Target/
 
 ---
 
-## Related Documentation&#x2001;📚
+## Shim Compatibility 🛡️
 
-- [Cocoon](https://github.com/CodeEditorLand/Cocoon/tree/Current/Documentation/GitHub/Architecture.md) -
-  Extension host (`Output` consumer)
-- [Sky](https://github.com/CodeEditorLand/Sky/tree/Current/Documentation/GitHub/Architecture.md) -
-  UI layer (`Output` consumer)
-- [Wind](https://github.com/CodeEditorLand/Wind/tree/Current/Documentation/GitHub/Architecture.md) -
-  Service layer (`Output` consumer)
-- [Rest](https://github.com/CodeEditorLand/Rest/tree/Current/Documentation/GitHub/Architecture.md) -
-  OXC compiler (optional `Output` backend)
-- [BuildPipeline](https://github.com/CodeEditorLand/Land/tree/Current/Documentation/GitHub/BuildPipeline.md) -
-  Build pipeline
-- [Polyfills](https://github.com/CodeEditorLand/Land/tree/Current/Documentation/GitHub/Polyfills.md) -
-  Full polyfill documentation
+| Low-Level Shim | Coverage Shim |
+| -------- | -------- |
+| Tier: `TierShim=Own\|Preempt` | Tier: `TierShim=Proxy\|Replace` |
+| Engine prototype hooks | Service routing + audit |
+
+> This Element supports the `Land` deep-shim interception system. Gated behind
+> `TierShim` env var (default: `None` - zero overhead).
+>
+> **`Output` shim architecture:** `Source/Plugin/Transform/Inject/Shim/Hook.ts` -
+> injects the shim into `web.main.js` at build time. Also
+> `Source/Service/CEL/Land/Shim/` with 7 files - the low-level shim engine hook runtime.
 
 ---
 
-## Shim Compatibility
+## Related Documentation 📖
 
-| 🟠 Low-Level Shim             | 🔵 Coverage Shim                |
-| ----------------------------- | ------------------------------- |
-| Tier: `TierShim=Own\|Preempt` | Tier: `TierShim=Proxy\|Replace` |
-| Engine prototype hooks        | Service routing + audit         |
-
-> This Element supports the Land deep-shim interception system. Gated behind
-> `TierShim` env var (default: `None` - zero overhead).
->
-> **Output shim architecture:** `Source/Plugin/Transform/Inject/Shim/Hook.ts` -
-> injects the shim into `web.main.js` at build time. Also
-> `Source/Service/CEL/Land/Shim/` with 7 files - the 🟠 engine hook runtime.
+- [Cocoon](https://github.com/CodeEditorLand/Cocoon/tree/Current/Documentation/GitHub/Architecture.md) - Extension host (`Output` consumer)
+- [Sky](https://github.com/CodeEditorLand/Sky/tree/Current/Documentation/GitHub/Architecture.md) - UI layer (`Output` consumer)
+- [Wind](https://github.com/CodeEditorLand/Wind/tree/Current/Documentation/GitHub/Architecture.md) - Service layer (`Output` consumer)
+- [Rest](https://github.com/CodeEditorLand/Rest/tree/Current/Documentation/GitHub/Architecture.md) - OXC compiler (optional `Output` backend)
+- [BuildPipeline](https://github.com/CodeEditorLand/Land/tree/Current/Documentation/GitHub/BuildPipeline.md) - Build pipeline
+- [Polyfills](https://github.com/CodeEditorLand/Land/tree/Current/Documentation/GitHub/Polyfills.md) - Full polyfill documentation
 
 ---
 

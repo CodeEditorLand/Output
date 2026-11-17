@@ -66,11 +66,52 @@ import { IEditorService } from "../../editor/common/editorService.js";
 
 import { IExtensionService } from "../../extensions/common/extensions.js";
 
-import { ISearchService, SearchProviderType } from "../common/search.js";
+import {
+	ISearchService,
+	SearchErrorCode,
+	SearchProviderType,
+} from "../common/search.js";
 
 import { SearchService } from "../common/searchService.js";
 
-const TauriInvoke = (Channel, Args) => {
+// A failed backend call is reported as a tagged rejection, never as an empty
+// success. `SearchService#searchWithProviders` deserializes the rejection into
+// a `SearchError` which the search view surfaces as a visible workbench error.
+class SearchBackendError extends Error {
+
+	constructor(Operation, Detail) {
+		super(`Search backend failure in ${Operation}: ${Detail}`);
+
+		this.name = "SearchBackendError";
+
+		this.operation = Operation;
+
+		this.code = SearchErrorCode.other;
+	}
+}
+
+const DescribeError = (Error) =>
+	Error && Error.message ? String(Error.message) : String(Error);
+
+const Warn = (LogService, Message) => {
+
+	if (LogService && typeof LogService.warn === "function") {
+		LogService.warn(Message);
+	} else {
+		console.warn(Message);
+	}
+};
+
+// Always throws; callers `return FailSearch(...)` so a rejected invoke cannot
+// fall through into an empty-result return.
+const FailSearch = (LogService, Error) => {
+
+	Warn(LogService, Error && Error.message ? Error.message : String(Error));
+
+	throw Error;
+};
+
+const TauriInvoke = (Operation, Channel, Args) => {
 
 	const Bridge = (globalThis && globalThis.__TAURI__) || null;
 
@@ -79,7 +120,9 @@ const TauriInvoke = (Channel, Args) => {
 		(Bridge && Bridge.invoke);
 
 	if (typeof Invoke !== "function") {
-		return Promise.resolve(null);
+		return Promise.reject(
+			new SearchBackendError(Operation, "the Tauri IPC bridge is absent"),
+		);
 	}
 
 	// Mirror of `TauriMainProcessService.InvokeMountain` (Wind/Output): the
@@ -90,9 +133,30 @@ const TauriInvoke = (Channel, Args) => {
 		return Invoke("MountainIPCInvoke", {
 			method: Channel,
 			params: Args,
-		}).catch(() => null);
-	} catch {
-		return Promise.resolve(null);
+		}).then(
+			(Value) => {
+
+				if (Value === undefined || Value === null) {
+					throw new SearchBackendError(
+						Operation,
+						"the backend returned no result",
+					);
+				}
+
+				return Value;
+			},
+			(Error) => {
+				throw Error instanceof SearchBackendError
+					? Error
+					: new SearchBackendError(Operation, DescribeError(Error));
+			},
+		);
+	} catch (Error) {
+		return Promise.reject(
+			Error instanceof SearchBackendError
+				? Error
+				: new SearchBackendError(Operation, DescribeError(Error)),
+		);
 	}
 };
 
@@ -161,6 +225,12 @@ const BuildExcludePattern = (Query) => {
 
 class MountainTauriSearchProvider extends Disposable {
 
+	constructor(LogService) {
+		super();
+
+		this.LogService = LogService || null;
+	}
+
 	async getAIName() {
 		return undefined;
 	}
@@ -169,33 +239,65 @@ class MountainTauriSearchProvider extends Disposable {
 		/* Mountain manages its own LRU cache. */
 	}
 
-	async fileSearch(Query, _Token) {
+	async fileSearch(Query, Token) {
 		const Include = BuildIncludePattern(Query);
 
 		const Exclude = BuildExcludePattern(Query);
 
 		const Cap = (Query && Query.maxResults) || 10000;
 
-		const Raw = await TauriInvoke("search:findFiles", [
-			Include,
+		if (!Token) {
+			Warn(this.LogService, "fileSearch: no cancellation token supplied");
+		}
 
-			Exclude,
+		let Raw;
 
-			Cap,
+		try {
+			Raw = await TauriInvoke("fileSearch", "search:findFiles", [
+				Include,
 
-			true,
+				Exclude,
 
-			false,
-		]);
+				Cap,
 
-		const Uris = Array.isArray(Raw) ? Raw : [];
+				true,
 
-		const Results = Uris.map((U) => ({ resource: ToUri(U) }));
+				false,
+			]);
+		} catch (Error) {
+			return FailSearch(this.LogService, Error);
+		}
+
+		if (!Array.isArray(Raw)) {
+			return FailSearch(
+				this.LogService,
+				new SearchBackendError(
+					"fileSearch",
+					"the backend returned a malformed result",
+				),
+			);
+		}
+
+		const Uris = Raw;
+
+		const Results = [];
+
+		for (const Uri of Uris) {
+			if (Token && Token.isCancellationRequested) {
+				return {
+					results: Results,
+					messages: [],
+					limitHit: Results.length >= Cap,
+				};
+			}
+
+			Results.push({ resource: ToUri(Uri) });
+		}
 
 		return { results: Results, messages: [], limitHit: Uris.length >= Cap };
 	}
 
-	async textSearch(Query, OnProgress, _Token) {
+	async textSearch(Query, OnProgress, Token) {
 		const Pattern =
 			(Query && Query.contentPattern && Query.contentPattern.pattern) ||
 			"";
@@ -228,6 +330,10 @@ class MountainTauriSearchProvider extends Disposable {
 
 		const Cap = (Query && Query.maxResults) || 10000;
 
+		if (!Token) {
+			Warn(this.LogService, "textSearch: no cancellation token supplied");
+		}
+
 		const QueryShape = {
 			pattern: Pattern,
 
@@ -248,59 +354,117 @@ class MountainTauriSearchProvider extends Disposable {
 			maxResults: Cap,
 		};
 
-		const Raw = await TauriInvoke("search:findInFiles", [
-			QueryShape,
+		let Raw;
 
-			OptionsShape,
-		]);
+		try {
+			Raw = await TauriInvoke("textSearch", "search:findInFiles", [
+				QueryShape,
 
-		const Files = Array.isArray(Raw) ? Raw : [];
+				OptionsShape,
+			]);
+		} catch (Error) {
+			return FailSearch(this.LogService, Error);
+		}
+
+		if (!Array.isArray(Raw)) {
+			return FailSearch(
+				this.LogService,
+				new SearchBackendError(
+					"textSearch",
+					"the backend returned a malformed result",
+				),
+			);
+		}
+
+		const Files = Raw;
 
 		const Results = [];
 
 		let TotalMatches = 0;
 
 		for (const File of Files) {
+			if (Token && Token.isCancellationRequested) {
+				return {
+					results: Results,
+					messages: [],
+					limitHit: TotalMatches >= Cap,
+				};
+			}
+
 			if (!File || typeof File !== "object") continue;
 
 			const Resource = ToUri(File.resource);
 
-			const Matches = Array.isArray(File.matches) ? File.matches : [];
+			if (!Array.isArray(File.matches)) {
+				return FailSearch(
+					this.LogService,
+					new SearchBackendError(
+						"textSearch",
+						"the backend returned a malformed per-file match list",
+					),
+				);
+			}
 
-			const Hits = Matches.map((M) => {
-				const Line = Math.max(0, ((M && M.lineNumber) || 1) - 1);
+			const Matches = File.matches;
 
-				const Cols = Array.isArray(M && M.columns) ? M.columns : [];
+			const Hits = [];
+
+			for (const Match of Matches) {
+				if (Token && Token.isCancellationRequested) break;
+
+				const Line = Math.max(0, ((Match && Match.lineNumber) || 1) - 1);
+
+				const Cols = Array.isArray(Match && Match.columns)
+					? Match.columns
+					: [];
 
 				const Ranges =
 					Cols.length > 0
 						? Cols
-						: [{ start: 0, end: ((M && M.preview) || "").length }];
+						: [{ start: 0, end: ((Match && Match.preview) || "").length }];
 
-				return {
-					rangeLocations: Ranges.map((R) => ({
+				const RangeLocations = [];
+
+				for (const Range of Ranges) {
+					if (Token && Token.isCancellationRequested) break;
+
+					RangeLocations.push({
 						source: {
 							startLineNumber: Line,
-							startColumn: R.start || 0,
+							startColumn: Range.start || 0,
 							endLineNumber: Line,
-							endColumn: R.end || 0,
+							endColumn: Range.end || 0,
 						},
 						preview: {
 							startLineNumber: 0,
-							startColumn: R.start || 0,
+							startColumn: Range.start || 0,
 							endLineNumber: 0,
-							endColumn: R.end || 0,
+							endColumn: Range.end || 0,
 						},
-					})),
-					previewText: (M && M.preview) || "",
-				};
-			});
+					});
+				}
+
+				Hits.push({
+					rangeLocations: RangeLocations,
+					previewText: (Match && Match.preview) || "",
+				});
+
+				if (Token && Token.isCancellationRequested) break;
+			}
 
 			TotalMatches += Hits.length;
 
 			const FileMatch = { resource: Resource, results: Hits };
 
 			Results.push(FileMatch);
+
+			if (Token && Token.isCancellationRequested) {
+				return {
+					results: Results,
+					messages: [],
+					limitHit: TotalMatches >= Cap,
+				};
+			}
 
 			if (typeof OnProgress === "function") {
 				try {
@@ -363,7 +527,7 @@ class RemoteSearchService extends SearchService {
 
 		this.instantiationService = InstantiationServiceArg;
 
-		const Provider = new MountainTauriSearchProvider();
+		const Provider = new MountainTauriSearchProvider(LogService);
 
 		this.registerSearchResultProvider(
 			Schemas.file,
